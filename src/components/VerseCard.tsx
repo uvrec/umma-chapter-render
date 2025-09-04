@@ -4,71 +4,101 @@ import { Card } from "@/components/ui/card";
 
 interface VerseCardProps {
   verseNumber: string;
-  arabicText: string;
-  transliteration: string;
+  bookName?: string;
+  sanskritText: string;
+  transliteration?: string;
+  synonyms?: string;
   translation: string;
   commentary?: string;
-  onPlay?: () => void;
-  isPlaying?: boolean;
+  onPlay: () => void;
+  isPlaying: boolean;
 }
 
-export const VerseCard = ({ 
-  verseNumber, 
-  arabicText, 
-  transliteration, 
-  translation, 
+export const VerseCard = ({
+  verseNumber,
+  bookName,
+  sanskritText,
+  transliteration,
+  synonyms,
+  translation,
   commentary,
   onPlay,
-  isPlaying = false 
+  isPlaying
 }: VerseCardProps) => {
   return (
-    <Card className="verse-container p-6 mb-6 animate-slide-up">
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-lg font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              {verseNumber}
-            </span>
-            <Button 
-              variant="play" 
-              size="play"
+    <Card className="w-full bg-card border-border animate-fade-in">
+      <div className="p-6">
+        {/* Verse Number and Book */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+              <span className="text-sm font-semibold text-primary">{verseNumber}</span>
+            </div>
+            {bookName && (
+              <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+                {bookName}
+              </span>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onPlay}
-              className={`play-button ${isPlaying ? 'animate-pulse' : ''}`}
+              className={`${isPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
             >
-              <Play className="w-5 h-5" fill="currentColor" />
+              <Play className={`w-4 h-4 mr-2 ${isPlaying ? 'fill-current' : ''}`} />
+              {isPlaying ? 'Відтворюється' : 'Слухати'}
             </Button>
           </div>
+          <Button variant="ghost" size="sm">
+            <MoreHorizontal className="w-4 h-4" />
+          </Button>
         </div>
-        
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="w-4 h-4" />
-        </Button>
-      </div>
 
-      {/* Arabic Text */}
-      <div className="arabic-text mb-4 text-foreground leading-relaxed">
-        {arabicText}
-      </div>
+        {/* Sanskrit Text */}
+        <div className="mb-6 p-4 bg-muted/50 rounded-lg">
+          <p className="text-center text-xl leading-relaxed font-mono text-foreground whitespace-pre-line">
+            {sanskritText}
+          </p>
+        </div>
 
-      {/* Transliteration */}
-      <div className="text-muted-foreground mb-3 italic text-sm leading-relaxed">
-        {transliteration}
-      </div>
-
-      {/* Translation */}
-      <div className="text-foreground mb-4 leading-relaxed">
-        {translation}
-      </div>
-
-      {/* Commentary */}
-      {commentary && (
-        <div className="mt-4 pt-4 border-t border-border">
-          <h4 className="font-semibold text-sm text-muted-foreground mb-2">Пояснение к аяту:</h4>
-          <div className="text-sm text-muted-foreground leading-relaxed">
-            {commentary}
+        {/* Transliteration */}
+        {transliteration && (
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Транслітерація:</h4>
+            <p className="text-base text-foreground italic leading-relaxed whitespace-pre-line">
+              {transliteration}
+            </p>
           </div>
+        )}
+
+        {/* Word-for-word synonyms */}
+        {synonyms && (
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Послівний переклад:</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {synonyms}
+            </p>
+          </div>
+        )}
+
+        {/* Literary Translation */}
+        <div className="mb-4">
+          <h4 className="text-sm font-semibold text-muted-foreground mb-2">Літературний переклад:</h4>
+          <p className="text-base text-foreground leading-relaxed font-medium">
+            {translation}
+          </p>
         </div>
-      )}
+
+        {/* Prabhupada's Commentary */}
+        {commentary && (
+          <div className="pt-4 border-t border-border">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Пояснення Шріли Прабгупади:</h4>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {commentary}
+            </p>
+          </div>
+        )}
+      </div>
     </Card>
   );
 };
