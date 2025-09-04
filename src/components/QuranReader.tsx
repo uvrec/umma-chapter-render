@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,6 @@ import { Header } from "./Header";
 import { Breadcrumb } from "./Breadcrumb";
 import { VerseCard } from "./VerseCard";
 import { AudioPlayer } from "./AudioPlayer";
-import { SettingsPanel } from "./SettingsPanel";
 const verses = [{
   number: "ШБ 1.1.1",
   book: "Шрімад-Бгаґаватам",
@@ -55,10 +54,6 @@ export const QuranReader = () => {
   const [currentVerse, setCurrentVerse] = useState<number>(1);
   const [playingVerse, setPlayingVerse] = useState<string | null>(null);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [fontSize, setFontSize] = useState(16);
-  const [craftPaperMode, setCraftPaperMode] = useState(false);
-  const [selectedVerse, setSelectedVerse] = useState<string>("");
 
   // Filter verses based on bookId
   const getBookTitle = (bookId?: string) => {
@@ -88,12 +83,6 @@ export const QuranReader = () => {
   };
   const currentBookTitle = getBookTitle(bookId);
   const filteredVerses = getFilteredVerses(bookId);
-
-  useEffect(() => {
-    if (filteredVerses.length > 0 && !selectedVerse) {
-      setSelectedVerse(filteredVerses[0].number);
-    }
-  }, [filteredVerses, selectedVerse]);
   const breadcrumbItems = [{
     label: "Ведична бібліотека",
     href: "/"
@@ -114,15 +103,7 @@ export const QuranReader = () => {
     setShowAudioPlayer(false);
     setPlayingVerse(null);
   };
-
-  const handleVerseSelect = (verseNumber: string) => {
-    setSelectedVerse(verseNumber);
-    const verseIndex = filteredVerses.findIndex(v => v.number === verseNumber);
-    if (verseIndex !== -1) {
-      setCurrentVerse(verseIndex + 1);
-    }
-  };
-  return <div className={`min-h-screen ${craftPaperMode ? 'craft-paper-bg' : 'bg-background'}`}>
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <main className={`container mx-auto px-4 py-8 ${showAudioPlayer ? 'pb-32' : ''}`}>
@@ -152,7 +133,7 @@ export const QuranReader = () => {
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <span>Вірш {currentVerse}</span>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => setShowSettings(true)}>
+              <Button variant="ghost" size="sm">
                 <Settings className="w-4 h-4" />
                 Налаштування
               </Button>
@@ -177,24 +158,12 @@ export const QuranReader = () => {
           </div>
 
           {/* Verses */}
-          <div className="space-y-6" style={{ fontSize: `${fontSize}px` }}>
+          <div className="space-y-6">
             {filteredVerses.map((verse, index) => <VerseCard key={verse.number} verseNumber={verse.number} bookName={verse.book} sanskritText={verse.sanskrit} transliteration={verse.transliteration} synonyms={verse.synonyms} translation={verse.translation} commentary={verse.commentary} onPlay={() => handlePlayVerse(verse.number)} isPlaying={playingVerse === verse.number} />)}
           </div>
         </div>
       </main>
 
       <AudioPlayer verseNumber={playingVerse || "3:1"} onClose={handleClosePlayer} isVisible={showAudioPlayer} />
-      
-      <SettingsPanel
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        craftPaperMode={craftPaperMode}
-        onCraftPaperToggle={setCraftPaperMode}
-        verses={filteredVerses}
-        currentVerse={selectedVerse}
-        onVerseSelect={handleVerseSelect}
-      />
     </div>;
 };
