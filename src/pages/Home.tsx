@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1.jpg";
 
 interface Book {
   id: string;
@@ -22,7 +23,7 @@ const books: Book[] = [
     price: "595 грн",
     hasVerse: true,
     verseLink: "/verses/srimad-bhagavatam",
-    coverImage: "/api/placeholder/300/400",
+    coverImage: srimadBhagavatam1Cover,
     category: "classics"
   },
   {
@@ -157,16 +158,24 @@ export const Home = () => {
             {classicBooks.map((book) => (
               <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                 <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
-                  <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
-                    <div className="text-center p-4">
-                      <div className="text-6xl mb-4 text-primary">
-                        ॐ
-                      </div>
-                      <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
-                        {book.title}
+                  {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
+                    <img 
+                      src={book.coverImage} 
+                      alt={book.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
+                      <div className="text-center p-4">
+                        <div className="text-6xl mb-4 text-primary">
+                          ॐ
+                        </div>
+                        <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
+                          {book.title}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
