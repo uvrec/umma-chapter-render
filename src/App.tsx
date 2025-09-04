@@ -8,6 +8,9 @@ import { VedaReader } from "./components/VedaReader";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { Audiobooks } from "./pages/Audiobooks";
+import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
+import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
+import { SriIsopanishad } from "./pages/audiobooks/SriIsopanishad";
 import { FudoKazuki } from "./pages/FudoKazuki";
 import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
@@ -27,6 +30,9 @@ const App = () => (
           <Route path="/verses/:bookId" element={<VedaReader />} />
           <Route path="/library" element={<Library />} />
           <Route path="/audiobooks" element={<Audiobooks />} />
+          <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
+          <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
+          <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
           <Route path="/fudokazuki" element={<FudoKazuki />} />
           <Route path="/glossary" element={<Glossary />} />
           <Route path="/contact" element={<Contact />} />

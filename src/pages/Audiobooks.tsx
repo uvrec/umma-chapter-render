@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Headphones, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 export const Audiobooks = () => {
   return (
@@ -15,57 +16,75 @@ export const Audiobooks = () => {
           </div>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="p-6">
-              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
-                <img 
-                  src="/src/assets/bhagavad-gita.jpg" 
-                  alt="Бгагавад-гіта обкладинка" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="font-semibold text-foreground mb-2">Бгагавад-гіта як вона є</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Повна аудіоверсія з коментарями Шріли Прабгупади
-              </p>
-              <Button variant="outline" className="w-full">
-                <Play className="w-4 h-4 mr-2" />
-                Слухати
+            <Card className="p-6 group">
+              <Link to="/audiobooks/bhagavad-gita" className="block">
+                <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all cursor-pointer">
+                  <img 
+                    src="/src/assets/bhagavad-gita.jpg" 
+                    alt="Бгагавад-гіта обкладинка" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  Бгагавад-гіта як вона є
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Повна аудіоверсія з коментарями Шріли Прабгупади
+                </p>
+              </Link>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/audiobooks/bhagavad-gita">
+                  <Play className="w-4 h-4 mr-2" />
+                  Слухати
+                </Link>
               </Button>
             </Card>
             
-            <Card className="p-6">
-              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
-                <img 
-                  src="/src/assets/srimad-bhagavatam-1.webp" 
-                  alt="Шрімад-Бгагаватам обкладинка" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="font-semibold text-foreground mb-2">Шрімад-Бгагаватам</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Аудіозаписи перших пісень з детальними поясненнями
-              </p>
-              <Button variant="outline" className="w-full">
-                <Play className="w-4 h-4 mr-2" />
-                Слухати
+            <Card className="p-6 group">
+              <Link to="/audiobooks/srimad-bhagavatam" className="block">
+                <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all cursor-pointer">
+                  <img 
+                    src="/src/assets/srimad-bhagavatam-1.webp" 
+                    alt="Шрімад-Бгагаватам обкладинка" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  Шрімад-Бгагаватам
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Аудіозаписи перших пісень з детальними поясненнями
+                </p>
+              </Link>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/audiobooks/srimad-bhagavatam">
+                  <Play className="w-4 h-4 mr-2" />
+                  Слухати
+                </Link>
               </Button>
             </Card>
 
-            <Card className="p-6">
-              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
-                <img 
-                  src="/src/assets/small-book-icon.webp" 
-                  alt="Шрі Ішопанішада обкладинка" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="font-semibold text-foreground mb-2">Шрі Ішопанішада</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Аудіоверсія священного тексту з коментарями
-              </p>
-              <Button variant="outline" className="w-full">
-                <Play className="w-4 h-4 mr-2" />
-                Слухати
+            <Card className="p-6 group">
+              <Link to="/audiobooks/sri-isopanishad" className="block">
+                <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden group-hover:ring-2 group-hover:ring-primary transition-all cursor-pointer">
+                  <img 
+                    src="/src/assets/small-book-icon.webp" 
+                    alt="Шрі Ішопанішада обкладинка" 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
+                <h3 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  Шрі Ішопанішада
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Аудіоверсія священного тексту з коментарями
+                </p>
+              </Link>
+              <Button variant="outline" className="w-full" asChild>
+                <Link to="/audiobooks/sri-isopanishad">
+                  <Play className="w-4 h-4 mr-2" />
+                  Слухати
+                </Link>
               </Button>
             </Card>
 
