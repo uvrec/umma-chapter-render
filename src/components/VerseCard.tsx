@@ -1,7 +1,6 @@
 import { Play, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
 interface VerseCardProps {
   verseNumber: string;
   bookName?: string;
@@ -13,7 +12,6 @@ interface VerseCardProps {
   onPlay: () => void;
   isPlaying: boolean;
 }
-
 export const VerseCard = ({
   verseNumber,
   bookName,
@@ -25,8 +23,7 @@ export const VerseCard = ({
   onPlay,
   isPlaying
 }: VerseCardProps) => {
-  return (
-    <Card className="w-full bg-card border-border animate-fade-in">
+  return <Card className="w-full bg-card border-border animate-fade-in">
       <div className="p-6">
         {/* Verse Number and Book */}
         <div className="flex items-center justify-between mb-4">
@@ -34,17 +31,10 @@ export const VerseCard = ({
             <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
               <span className="text-sm font-semibold text-primary">{verseNumber}</span>
             </div>
-            {bookName && (
-              <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+            {bookName && <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
                 {bookName}
-              </span>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onPlay}
-              className={`${isPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
-            >
+              </span>}
+            <Button variant="ghost" size="sm" onClick={onPlay} className={`${isPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}>
               <Play className={`w-4 h-4 mr-2 ${isPlaying ? 'fill-current' : ''}`} />
               {isPlaying ? 'Відтворюється' : 'Слухати'}
             </Button>
@@ -62,24 +52,20 @@ export const VerseCard = ({
         </div>
 
         {/* Transliteration */}
-        {transliteration && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Транслітерація:</h4>
-            <p className="text-base text-foreground italic leading-relaxed whitespace-pre-line">
+        {transliteration && <div className="mb-4">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Транслітерація:</h4>
+            <p className="italic leading-relaxed whitespace-pre-line text-center text-slate-800 font-medium text-base">
               {transliteration}
             </p>
-          </div>
-        )}
+          </div>}
 
         {/* Word-for-word synonyms */}
-        {synonyms && (
-          <div className="mb-4">
+        {synonyms && <div className="mb-4">
             <h4 className="text-sm font-semibold text-muted-foreground mb-2">Послівний переклад:</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {synonyms}
             </p>
-          </div>
-        )}
+          </div>}
 
         {/* Literary Translation */}
         <div className="mb-4">
@@ -90,15 +76,12 @@ export const VerseCard = ({
         </div>
 
         {/* Prabhupada's Commentary */}
-        {commentary && (
-          <div className="pt-4 border-t border-border">
+        {commentary && <div className="pt-4 border-t border-border">
             <h4 className="text-sm font-semibold text-muted-foreground mb-2">Пояснення Шріли Прабгупади:</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {commentary}
             </p>
-          </div>
-        )}
+          </div>}
       </div>
-    </Card>
-  );
+    </Card>;
 };
