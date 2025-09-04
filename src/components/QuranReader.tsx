@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "./Header";
@@ -56,13 +56,46 @@ const verses = [
 ];
 
 export const QuranReader = () => {
-  const [currentVerse, setCurrentVerse] = useState<number>(19);
+  const { bookId } = useParams();
+  const [currentVerse, setCurrentVerse] = useState<number>(1);
   const [playingVerse, setPlayingVerse] = useState<string | null>(null);
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
 
+  // Filter verses based on bookId
+  const getBookTitle = (bookId?: string) => {
+    switch (bookId) {
+      case 'srimad-bhagavatam':
+        return 'Шрімад-Бгаґаватам';
+      case 'bhagavad-gita':
+        return 'Бгаґавад-Ґіта';
+      case 'isopanisad':
+        return 'Шрі Ішопанішада';
+      default:
+        return 'Ведичні писання';
+    }
+  };
+
+  const getFilteredVerses = (bookId?: string) => {
+    if (!bookId) return verses;
+    
+    switch (bookId) {
+      case 'srimad-bhagavatam':
+        return verses.filter(verse => verse.book === 'Шрімад-Бгаґаватам');
+      case 'bhagavad-gita':
+        return verses.filter(verse => verse.book === 'Бгаґавад-ґіта');
+      case 'isopanisad':
+        return verses.filter(verse => verse.book === 'Ш́рі̄ Īш́опанішад');
+      default:
+        return verses;
+    }
+  };
+
+  const currentBookTitle = getBookTitle(bookId);
+  const filteredVerses = getFilteredVerses(bookId);
+
   const breadcrumbItems = [
-    { label: "Ведична бібліотека", href: "/vedic-library" },
-    { label: "Вибрані вірші" }
+    { label: "Ведична бібліотека", href: "/" },
+    { label: currentBookTitle }
   ];
 
   const handlePlayVerse = (verseNumber: string) => {
@@ -122,7 +155,7 @@ export const QuranReader = () => {
             </div>
 
             <h1 className="text-3xl font-bold text-foreground mb-4">
-              Прабгупада солов'їною - Ведичні писання
+              {currentBookTitle}
             </h1>
             
             <div className="text-4xl mb-6 text-primary">
@@ -141,7 +174,7 @@ export const QuranReader = () => {
 
           {/* Verses */}
           <div className="space-y-6">
-            {verses.map((verse, index) => (
+            {filteredVerses.map((verse, index) => (
               <VerseCard
                 key={verse.number}
                 verseNumber={verse.number}

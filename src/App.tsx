@@ -18,6 +18,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/verses" element={<QuranReader />} />
+          <Route path="/verses/:bookId" element={<QuranReader />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

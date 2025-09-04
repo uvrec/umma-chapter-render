@@ -21,7 +21,7 @@ const books: Book[] = [
     description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
     price: "595 грн",
     hasVerse: true,
-    verseLink: "/verses",
+    verseLink: "/verses/srimad-bhagavatam",
     coverImage: "/api/placeholder/300/400",
     category: "classics"
   },
@@ -39,7 +39,7 @@ const books: Book[] = [
     description: "Суть усієї ведичної мудрості. У цьому творі у стислому вигляді викладено основні ідеї давньоіндійської філософії.",
     price: "425 грн",
     hasVerse: true,
-    verseLink: "/verses", 
+    verseLink: "/verses/bhagavad-gita", 
     coverImage: "/api/placeholder/300/400",
     category: "classics"
   },
@@ -49,7 +49,7 @@ const books: Book[] = [
     description: "Переклад одного з найважливіших філософських трактатів Стародавньої Індії.",
     price: "50 грн",
     hasVerse: true,
-    verseLink: "/verses",
+    verseLink: "/verses/isopanisad",
     coverImage: "/api/placeholder/300/400",
     category: "small"
   },
