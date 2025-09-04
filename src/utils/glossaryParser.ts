@@ -9,6 +9,58 @@ export interface GlossaryTerm {
   verseNumber: string;
 }
 
+// Function to normalize text by removing diacritical marks
+export const normalizeSanskritText = (text: string): string => {
+  if (!text) return '';
+  
+  return text
+    .toLowerCase()
+    .trim()
+    // Remove common Sanskrit diacritical marks
+    .replace(/[āĀ]/g, 'a')
+    .replace(/[īĪ]/g, 'i')
+    .replace(/[ūŪ]/g, 'u')
+    .replace(/[ēĒ]/g, 'e')
+    .replace(/[ōŌ]/g, 'o')
+    .replace(/[ṛṜ]/g, 'r')
+    .replace(/[ṝṜ̄]/g, 'r')
+    .replace(/[ḷḶ]/g, 'l')
+    .replace(/[ḹḸ̄]/g, 'l')
+    .replace(/[ṁṀṃṂ]/g, 'm')
+    .replace(/[ṅṄ]/g, 'n')
+    .replace(/[ñÑ]/g, 'n')
+    .replace(/[ṇṆ]/g, 'n')
+    .replace(/[śŚ]/g, 's')
+    .replace(/[ṣṢ]/g, 's')
+    .replace(/[ṭṬ]/g, 't')
+    .replace(/[ḍḌ]/g, 'd')
+    .replace(/[ṇṆ]/g, 'n')
+    .replace(/[ḥḤ]/g, 'h')
+    .replace(/[ṛṜ]/g, 'r')
+    .replace(/[ḻḺ]/g, 'l')
+    // Remove combining marks and special characters
+    .replace(/[\u0300-\u036f]/g, '') // combining diacritical marks
+    .replace(/[̇̄̃̂̌]/g, '') // additional combining marks
+    .replace(/ʼ/g, '') // apostrophes
+    .replace(/[ˆˇ˘˙˚˛˜˝]/g, '') // additional diacritics
+    // Ukrainian/Cyrillic specific
+    .replace(/[її]/g, 'i')
+    .replace(/[єэ]/g, 'e')
+    .replace(/ʼ/g, '')
+    .replace(/[ґг]/g, 'g')
+    // Special Sanskrit characters
+    .replace(/ом̇/g, 'ом')
+    .replace(/м̇/g, 'м')
+    .replace(/н̃/g, 'н')
+    .replace(/р̣/g, 'р')
+    .replace(/т̣/g, 'т')
+    .replace(/д̣/g, 'д')
+    .replace(/л̣/g, 'л')
+    .replace(/ш́/g, 'ш')
+    .replace(/с̣/g, 'с')
+    .replace(/х̣/g, 'х');
+};
+
 export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
   if (!synonyms) return [];
   
@@ -92,7 +144,7 @@ export const groupTermsByText = (terms: GlossaryTerm[]): { [key: string]: Glossa
   return grouped;
 };
 
-// Search terms with different strategies
+// Search terms with different strategies and diacritic normalization
 export const searchTerms = (
   terms: GlossaryTerm[],
   query: string,
@@ -100,27 +152,27 @@ export const searchTerms = (
 ): GlossaryTerm[] => {
   if (!query) return terms;
   
-  const queryLower = query.toLowerCase().trim();
+  const normalizedQuery = normalizeSanskritText(query);
   
   return terms.filter((term) => {
-    const termLower = term.term.toLowerCase();
-    const meaningLower = term.meaning.toLowerCase();
+    const normalizedTerm = normalizeSanskritText(term.term);
+    const normalizedMeaning = normalizeSanskritText(term.meaning);
     
     let termMatch = false;
     let meaningMatch = false;
     
     switch (searchType) {
       case 'exact':
-        termMatch = termLower === queryLower;
-        meaningMatch = meaningLower === queryLower;
+        termMatch = normalizedTerm === normalizedQuery;
+        meaningMatch = normalizedMeaning === normalizedQuery;
         break;
       case 'starts':
-        termMatch = termLower.startsWith(queryLower);
-        meaningMatch = meaningLower.startsWith(queryLower);
+        termMatch = normalizedTerm.startsWith(normalizedQuery);
+        meaningMatch = normalizedMeaning.startsWith(normalizedQuery);
         break;
       default: // contains
-        termMatch = termLower.includes(queryLower);
-        meaningMatch = meaningLower.includes(queryLower);
+        termMatch = normalizedTerm.includes(normalizedQuery);
+        meaningMatch = normalizedMeaning.includes(normalizedQuery);
     }
     
     return termMatch || meaningMatch;
