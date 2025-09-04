@@ -171,7 +171,7 @@ export const Home = () => {
                     </Link>}
                 </div>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
+                  <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
                     {book.title}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-3 text-center font-light">
@@ -219,7 +219,7 @@ export const Home = () => {
                   </Link>
                 </div>
                 <CardContent className="p-3">
-                  <h3 className="font-medium text-foreground mb-2 text-sm line-clamp-2">
+                  <h3 className="font-medium text-foreground mb-2 text-sm line-clamp-2 text-center">
                     {book.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
