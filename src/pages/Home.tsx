@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1.webp";
+import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 
 interface Book {
   id: string;
