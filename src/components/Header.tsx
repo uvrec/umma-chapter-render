@@ -3,15 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "react-router-dom";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useState } from "react";
 
 export const Header = () => {
+  const [open, setOpen] = useState(false);
+
   return (
     <header className="bg-background border-b border-border shadow-header">
       <div className="container mx-auto px-4 py-4">
@@ -45,72 +48,86 @@ export const Header = () => {
 
         {/* Navigation Bar */}
         <div className="mt-4 flex items-center justify-between">
-          <NavigationMenu>
-            <NavigationMenuList className="flex-wrap gap-2">
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <Home className="w-4 h-4" />
-                    <span>Головна</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/library" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <BookOpen className="w-4 h-4" />
-                    <span>Пояснення</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/audiobooks" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <Headphones className="w-4 h-4" />
-                    <span>Аудіокниги</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/fudokazuki" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <User className="w-4 h-4" />
-                    <span>Fudo Kazuki</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/glossary" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <Book className="w-4 h-4" />
-                    <span>Глосарій</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/contact" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Контакти</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link to="/donation" className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors">
-                    <Heart className="w-4 h-4" />
-                    <span>Підтримати проєкт</span>
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Menu className="w-4 h-4" />
+                <span className="ml-2">Меню</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-80">
+              <SheetHeader>
+                <SheetTitle>Навігація</SheetTitle>
+                <SheetDescription>
+                  Оберіть розділ для перегляду
+                </SheetDescription>
+              </SheetHeader>
+              <div className="mt-6 space-y-4">
+                <Link 
+                  to="/" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <Home className="w-5 h-5" />
+                  <span>Головна</span>
+                </Link>
+                
+                <Link 
+                  to="/library" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>Пояснення</span>
+                </Link>
+                
+                <Link 
+                  to="/audiobooks" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <Headphones className="w-5 h-5" />
+                  <span>Аудіокниги</span>
+                </Link>
+                
+                <Link 
+                  to="/fudokazuki" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <User className="w-5 h-5" />
+                  <span>Fudo Kazuki</span>
+                </Link>
+                
+                <Link 
+                  to="/glossary" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <Book className="w-5 h-5" />
+                  <span>Глосарій</span>
+                </Link>
+                
+                <Link 
+                  to="/contact" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  <span>Контакти</span>
+                </Link>
+                
+                <Link 
+                  to="/donation" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <Heart className="w-5 h-5" />
+                  <span>Підтримати проєкт</span>
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
           
           <div className="flex-1 max-w-md ml-4">
             <div className="relative">
