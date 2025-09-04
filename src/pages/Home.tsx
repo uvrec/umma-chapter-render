@@ -157,11 +157,10 @@ export const Home = () => {
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-3 text-center font-light">
                     {book.description}
                   </p>
-                  <div className="flex items-center justify-between">
-                    
+                  <div className="flex items-center justify-center">
                     {book.hasVerse && <Link to={book.verseLink!}>
                         <Badge variant="secondary" className="hover:bg-primary hover:text-primary-foreground transition-colors">
-                          Читати вірші
+                          Читати
                         </Badge>
                       </Link>}
                   </div>
@@ -199,8 +198,7 @@ export const Home = () => {
                   <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                     {book.description}
                   </p>
-                  <div className="flex items-center justify-between">
-                    
+                  <div className="flex items-center justify-center">
                     {book.hasVerse && <Link to={book.verseLink!}>
                         <Badge variant="secondary" className="text-xs hover:bg-primary hover:text-primary-foreground transition-colors">
                           Читати
