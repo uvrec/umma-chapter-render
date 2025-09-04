@@ -29,7 +29,7 @@ export const Header = () => {
               <span>Прабгупада солов'їною</span>
             </div>
             <div className="hidden md:flex text-sm text-muted-foreground">
-              ведичні писання з коментарями
+              ведичні писання з коментарями ачар'їв
             </div>
           </div>
 
