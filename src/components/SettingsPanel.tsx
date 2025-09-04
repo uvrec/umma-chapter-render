@@ -7,6 +7,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 
+interface TextDisplaySettings {
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showSynonyms: boolean;
+  showTranslation: boolean;
+  showCommentary: boolean;
+}
+
 interface SettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,6 +25,12 @@ interface SettingsPanelProps {
   verses: any[];
   currentVerse: string;
   onVerseSelect: (verse: string) => void;
+  dualLanguageMode: boolean;
+  onDualLanguageModeToggle: (enabled: boolean) => void;
+  textDisplaySettings: TextDisplaySettings;
+  onTextDisplaySettingsChange: (settings: TextDisplaySettings) => void;
+  originalLanguage: string;
+  onOriginalLanguageChange: (language: string) => void;
 }
 
 export const SettingsPanel = ({
@@ -28,7 +42,13 @@ export const SettingsPanel = ({
   onCraftPaperToggle,
   verses,
   currentVerse,
-  onVerseSelect
+  onVerseSelect,
+  dualLanguageMode,
+  onDualLanguageModeToggle,
+  textDisplaySettings,
+  onTextDisplaySettingsChange,
+  originalLanguage,
+  onOriginalLanguageChange
 }: SettingsPanelProps) => {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -64,7 +84,7 @@ export const SettingsPanel = ({
         <div className="space-y-6">
           {/* Font Size Controls */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Переклад</h3>
+            <h3 className="text-lg font-semibold mb-4">Відображення тексту</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label>Розмір шрифта</Label>
@@ -95,6 +115,93 @@ export const SettingsPanel = ({
                   id="craft-paper"
                   checked={craftPaperMode}
                   onCheckedChange={onCraftPaperToggle}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="dual-language">Двомовний режим</Label>
+                <Switch
+                  id="dual-language"
+                  checked={dualLanguageMode}
+                  onCheckedChange={onDualLanguageModeToggle}
+                />
+              </div>
+
+              {dualLanguageMode && (
+                <div>
+                  <Label>Оригінальна мова</Label>
+                  <select 
+                    className="w-full mt-2 p-2 rounded-md border border-input bg-background"
+                    value={originalLanguage}
+                    onChange={(e) => onOriginalLanguageChange(e.target.value)}
+                  >
+                    <option value="sanskrit">Санскрит</option>
+                    <option value="english">Англійська</option>
+                    <option value="bengali">Бенгалі</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Text Display Settings */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Елементи тексту</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-sanskrit">Санскрит/Деванагарі</Label>
+                <Switch
+                  id="show-sanskrit"
+                  checked={textDisplaySettings.showSanskrit}
+                  onCheckedChange={(checked) => 
+                    onTextDisplaySettingsChange({...textDisplaySettings, showSanskrit: checked})
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-transliteration">Транслітерація</Label>
+                <Switch
+                  id="show-transliteration"
+                  checked={textDisplaySettings.showTransliteration}
+                  onCheckedChange={(checked) => 
+                    onTextDisplaySettingsChange({...textDisplaySettings, showTransliteration: checked})
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-synonyms">Послівний переклад</Label>
+                <Switch
+                  id="show-synonyms"
+                  checked={textDisplaySettings.showSynonyms}
+                  onCheckedChange={(checked) => 
+                    onTextDisplaySettingsChange({...textDisplaySettings, showSynonyms: checked})
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-translation">Переклад</Label>
+                <Switch
+                  id="show-translation"
+                  checked={textDisplaySettings.showTranslation}
+                  onCheckedChange={(checked) => 
+                    onTextDisplaySettingsChange({...textDisplaySettings, showTranslation: checked})
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-commentary">Коментар</Label>
+                <Switch
+                  id="show-commentary"
+                  checked={textDisplaySettings.showCommentary}
+                  onCheckedChange={(checked) => 
+                    onTextDisplaySettingsChange({...textDisplaySettings, showCommentary: checked})
+                  }
                 />
               </div>
             </div>

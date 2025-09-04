@@ -70,6 +70,15 @@ export const VedaReader = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [fontSize, setFontSize] = useState(16);
   const [craftPaperMode, setCraftPaperMode] = useState(false);
+  const [dualLanguageMode, setDualLanguageMode] = useState(false);
+  const [originalLanguage, setOriginalLanguage] = useState("sanskrit");
+  const [textDisplaySettings, setTextDisplaySettings] = useState({
+    showSanskrit: true,
+    showTransliteration: true,
+    showSynonyms: true,
+    showTranslation: true,
+    showCommentary: true
+  });
 
   const getBookTitle = (bookId?: string): string => {
     switch (bookId) {
@@ -167,17 +176,71 @@ export const VedaReader = () => {
           <div className="space-y-8" style={{ fontSize: `${fontSize}px` }}>
             {filteredVerses.map((verse, index) => (
               <div key={verse.number} id={`verse-${verse.number}`}>
-                <VerseCard
-                  verseNumber={verse.number}
-                  sanskritText={verse.sanskrit}
-                  transliteration={verse.transliteration}
-                  synonyms={verse.synonyms}
-                  translation={verse.translation}
-                  commentary={verse.commentary}
-                  bookName={verse.book}
-                  isPlaying={playingVerse === verse.number}
-                  onPlay={() => handlePlayVerse(verse.number)}
-                />
+                {dualLanguageMode ? (
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Original Language Column */}
+                    <div className="bg-muted/30 p-6 rounded-lg">
+                      <h4 className="font-semibold mb-4 text-center">
+                        {originalLanguage === 'sanskrit' ? 'संस्कृत' : 
+                         originalLanguage === 'english' ? 'English' : 'বাংলা'}
+                      </h4>
+                      <VerseCard
+                        verseNumber={verse.number}
+                        sanskritText={verse.sanskrit}
+                        transliteration={originalLanguage === 'sanskrit' ? verse.transliteration : ''}
+                        synonyms={originalLanguage === 'sanskrit' ? verse.synonyms : ''}
+                        translation={originalLanguage === 'english' ? "English translation coming soon..." : originalLanguage === 'bengali' ? "বাংলা অনুবাদ শীঘ্রই আসছে..." : verse.translation}
+                        commentary={originalLanguage === 'sanskrit' ? verse.commentary : ''}
+                        bookName={verse.book}
+                        isPlaying={playingVerse === verse.number}
+                        onPlay={() => handlePlayVerse(verse.number)}
+                        textDisplaySettings={originalLanguage === 'sanskrit' ? textDisplaySettings : {
+                          showSanskrit: originalLanguage === 'sanskrit',
+                          showTransliteration: false,
+                          showSynonyms: false,
+                          showTranslation: true,
+                          showCommentary: originalLanguage === 'sanskrit'
+                        }}
+                      />
+                    </div>
+
+                    {/* Ukrainian Translation Column */}
+                    <div className="bg-muted/10 p-6 rounded-lg">
+                      <h4 className="font-semibold mb-4 text-center">Українська</h4>
+                      <VerseCard
+                        verseNumber={verse.number}
+                        sanskritText=""
+                        transliteration=""
+                        synonyms=""
+                        translation={verse.translation}
+                        commentary={verse.commentary}
+                        bookName={verse.book}
+                        isPlaying={playingVerse === verse.number}
+                        onPlay={() => handlePlayVerse(verse.number)}
+                        textDisplaySettings={{
+                          showSanskrit: false,
+                          showTransliteration: false,
+                          showSynonyms: false,
+                          showTranslation: true,
+                          showCommentary: true
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <VerseCard
+                    verseNumber={verse.number}
+                    sanskritText={verse.sanskrit}
+                    transliteration={verse.transliteration}
+                    synonyms={verse.synonyms}
+                    translation={verse.translation}
+                    commentary={verse.commentary}
+                    bookName={verse.book}
+                    isPlaying={playingVerse === verse.number}
+                    onPlay={() => handlePlayVerse(verse.number)}
+                    textDisplaySettings={textDisplaySettings}
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -194,6 +257,12 @@ export const VedaReader = () => {
         verses={filteredVerses}
         currentVerse={playingVerse || filteredVerses[0]?.number || ""}
         onVerseSelect={handleVerseSelect}
+        dualLanguageMode={dualLanguageMode}
+        onDualLanguageModeToggle={setDualLanguageMode}
+        textDisplaySettings={textDisplaySettings}
+        onTextDisplaySettingsChange={setTextDisplaySettings}
+        originalLanguage={originalLanguage}
+        onOriginalLanguageChange={setOriginalLanguage}
       />
 
       <AudioPlayer
