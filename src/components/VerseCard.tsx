@@ -61,7 +61,7 @@ export const VerseCard = ({
 
         {/* Word-for-word synonyms */}
         {synonyms && <div className="mb-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Послівний переклад:</h4>
+            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Послівний переклад:</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {synonyms}
             </p>
@@ -69,7 +69,7 @@ export const VerseCard = ({
 
         {/* Literary Translation */}
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-muted-foreground mb-2">Літературний переклад:</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Літературний переклад:</h4>
           <p className="text-base text-foreground leading-relaxed font-medium">
             {translation}
           </p>
@@ -77,7 +77,7 @@ export const VerseCard = ({
 
         {/* Prabhupada's Commentary */}
         {commentary && <div className="pt-4 border-t border-border">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2">Пояснення Шріли Прабгупади:</h4>
+            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">Пояснення Шріли Прабгупади:</h4>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {commentary}
             </p>
