@@ -79,7 +79,7 @@ export const Header = () => {
                   onClick={() => setOpen(false)}
                 >
                   <BookOpen className="w-5 h-5" />
-                  <span>Пояснення</span>
+                  <span>Бібліотека</span>
                 </Link>
                 
                 <Link 
