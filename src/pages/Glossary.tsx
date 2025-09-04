@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { extractAllTerms, groupTermsByText, searchTerms, GlossaryTerm } from "@/utils/glossaryParser";
 
 export const Glossary = () => {
@@ -14,6 +14,15 @@ export const Glossary = () => {
   const [searchType, setSearchType] = useState("contains");
   const [translation, setTranslation] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+
+  // Handle URL search parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, []);
 
   // Verse data - imported from QuranReader
   const verses = [
