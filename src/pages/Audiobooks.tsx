@@ -50,6 +50,150 @@ export const Audiobooks = () => {
                 Слухати
               </Button>
             </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Шрі Ішопанішада обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Шрі Ішопанішада</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Аудіоверсія священного тексту з коментарями
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Раджа-відя обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Раджа-відя - найшляхетніше знання</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Лекції про найвище знання та духовну реалізацію
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Нектар настанов обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Нектар настанов</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Практичні настанови для духовного розвитку
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Наука самоусвідомлення обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Наука самоусвідомлення</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Наукові принципи духовного пізнання
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Досконалі питання, досконалі відповіді обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Досконалі питання, досконалі відповіді</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Діалоги про найважливіші духовні теми
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Пісні ачар'їв-вайшнавів обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Пісні ачар'їв-вайшнавів</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Духовні пісні великих вчителів минулого
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Подорож самопізнання обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Подорож самопізнання</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Етапи духовного розвитку та самопізнання
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
+
+            <Card className="p-6">
+              <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
+                <img 
+                  src="/src/assets/small-book-icon.webp" 
+                  alt="Чайтанья-чарітамріта обкладинка" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="font-semibold text-foreground mb-2">Чайтанья-чарітамріта</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Життєпис Господа Чайтаньї та Його вчення
+              </p>
+              <Button variant="outline" className="w-full">
+                <Play className="w-4 h-4 mr-2" />
+                Слухати
+              </Button>
+            </Card>
           </div>
         </div>
       </main>
