@@ -92,21 +92,21 @@ export const Header = () => {
                 </Link>
                 
                 <Link 
-                  to="/fudokazuki" 
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
-                  onClick={() => setOpen(false)}
-                >
-                  <User className="w-5 h-5" />
-                  <span>Fudo Kazuki</span>
-                </Link>
-                
-                <Link 
                   to="/glossary" 
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={() => setOpen(false)}
                 >
                   <Book className="w-5 h-5" />
                   <span>Глосарій</span>
+                </Link>
+                
+                <Link 
+                  to="/fudokazuki" 
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <User className="w-5 h-5" />
+                  <span>Fudo Kazuki</span>
                 </Link>
                 
                 <Link 
