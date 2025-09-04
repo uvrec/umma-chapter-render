@@ -2,41 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Islamic Quran Reader Design System - Rich blues, golds, and elegant typography */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 0 0% 98%;
+    --foreground: 215 32% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 215 32% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 215 32% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 213 47% 47%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 47% 42%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 32% 20%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 215 32% 20%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 213 47% 47%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Islamic-inspired colors */
+    --islamic-gold: 43 74% 66%;
+    --islamic-gold-dark: 43 74% 56%;
+    --islamic-blue: 213 47% 47%;
+    --islamic-blue-light: 213 47% 92%;
+    --islamic-green: 142 76% 36%;
+    
+    /* Typography */
+    --arabic-font: 'Traditional Arabic', 'Noto Sans Arabic', serif;
+    --body-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--islamic-gold)));
+    --gradient-header: linear-gradient(135deg, hsl(var(--islamic-blue)), hsl(var(--primary)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--islamic-blue-light)));
+    
+    /* Shadows */
+    --shadow-card: 0 4px 12px hsl(var(--primary) / 0.1);
+    --shadow-verse: 0 2px 8px hsl(var(--primary) / 0.08);
+    --shadow-header: 0 2px 16px hsl(var(--primary) / 0.15);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,33 +82,49 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 215 32% 8%;
+    --foreground: 0 0% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 215 32% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 215 32% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 213 47% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 47% 50%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 215 32% 12%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 215 32% 12%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 215 32% 12%;
+    --accent-foreground: 0 0% 95%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 215 32% 15%;
+    --input: 215 32% 15%;
+    --ring: 213 47% 55%;
+    
+    /* Dark mode Islamic colors */
+    --islamic-gold: 43 74% 76%;
+    --islamic-gold-dark: 43 74% 66%;
+    --islamic-blue: 213 47% 55%;
+    --islamic-blue-light: 215 32% 12%;
+    
+    /* Dark gradients */
+    --gradient-header: linear-gradient(135deg, hsl(var(--islamic-blue)), hsl(var(--primary)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--islamic-blue-light)));
+    
+    /* Dark shadows */
+    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.3);
+    --shadow-verse: 0 2px 8px hsl(0 0% 0% / 0.2);
+    --shadow-header: 0 2px 16px hsl(0 0% 0% / 0.4);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -101,5 +143,44 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--body-font);
+    line-height: 1.6;
+  }
+  
+  .arabic-text {
+    font-family: var(--arabic-font);
+    font-size: 1.5rem;
+    line-height: 2;
+    text-align: right;
+    direction: rtl;
+  }
+  
+  .bismillah {
+    font-family: var(--arabic-font);
+    font-size: 2rem;
+    text-align: center;
+    color: hsl(var(--islamic-gold));
+    text-shadow: 0 2px 4px hsl(var(--primary) / 0.2);
+  }
+  
+  .verse-container {
+    background: var(--gradient-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-verse);
+    transition: var(--transition-smooth);
+  }
+  
+  .verse-container:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-card);
+  }
+  
+  .play-button {
+    background: var(--gradient-primary);
+    transition: var(--transition-bounce);
+  }
+  
+  .play-button:hover {
+    transform: scale(1.05);
   }
 }
