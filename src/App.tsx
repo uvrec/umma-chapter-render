@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home";
-import { QuranReader } from "./components/QuranReader";
+import { VedaReader } from "./components/VedaReader";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { Audiobooks } from "./pages/Audiobooks";
@@ -23,8 +23,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/verses" element={<QuranReader />} />
-          <Route path="/verses/:bookId" element={<QuranReader />} />
+          <Route path="/verses" element={<VedaReader />} />
+          <Route path="/verses/:bookId" element={<VedaReader />} />
           <Route path="/library" element={<Library />} />
           <Route path="/audiobooks" element={<Audiobooks />} />
           <Route path="/fudokazuki" element={<FudoKazuki />} />

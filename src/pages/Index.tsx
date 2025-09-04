@@ -1,7 +1,7 @@
-import { QuranReader } from "@/components/QuranReader";
+import { VedaReader } from "@/components/VedaReader";
 
 const Index = () => {
-  return <QuranReader />;
+  return <VedaReader />;
 };
 
 export default Index;

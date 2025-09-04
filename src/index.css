@@ -44,7 +44,7 @@
     --academic-accent: 47 96% 89%;
     
     /* Typography */
-    --arabic-font: 'Traditional Arabic', 'Noto Sans Arabic', serif;
+    --sanskrit-font: 'Noto Sans Devanagari', 'Sanskrit 2003', serif;
     --body-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     
     /* Minimal gradients */
@@ -146,16 +146,16 @@
     line-height: 1.6;
   }
   
-  .arabic-text {
-    font-family: var(--arabic-font);
+  .sanskrit-text {
+    font-family: var(--sanskrit-font);
     font-size: 1.5rem;
     line-height: 2;
-    text-align: right;
-    direction: rtl;
+    text-align: center;
+    direction: ltr;
   }
   
-  .bismillah {
-    font-family: var(--arabic-font);
+  .invocation {
+    font-family: var(--sanskrit-font);
     font-size: 2rem;
     text-align: center;
     color: hsl(var(--academic-gray));

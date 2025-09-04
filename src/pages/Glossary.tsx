@@ -24,7 +24,7 @@ export const Glossary = () => {
     }
   }, []);
 
-  // Verse data - imported from QuranReader
+  // Verse data - imported from VedaReader
   const verses = [
     {
       number: "ШБ 1.1.1",
