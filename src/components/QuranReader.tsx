@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Header } from "./Header";
 import { Breadcrumb } from "./Breadcrumb";
 import { VerseCard } from "./VerseCard";
+import { AudioPlayer } from "./AudioPlayer";
 
 const verses = [
   {
@@ -43,6 +44,7 @@ const verses = [
 export const QuranReader = () => {
   const [currentVerse, setCurrentVerse] = useState<number>(19);
   const [playingVerse, setPlayingVerse] = useState<string | null>(null);
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
 
   const breadcrumbItems = [
     { label: "Перевод корана", href: "/perevod-korana" },
@@ -50,20 +52,26 @@ export const QuranReader = () => {
   ];
 
   const handlePlayVerse = (verseNumber: string) => {
-    if (playingVerse === verseNumber) {
+    if (playingVerse === verseNumber && showAudioPlayer) {
       setPlayingVerse(null);
+      setShowAudioPlayer(false);
     } else {
       setPlayingVerse(verseNumber);
-      // Simulate audio stop after 3 seconds
-      setTimeout(() => setPlayingVerse(null), 3000);
+      setShowAudioPlayer(true);
+      setCurrentVerse(parseInt(verseNumber.split(':')[1]));
     }
+  };
+
+  const handleClosePlayer = () => {
+    setShowAudioPlayer(false);
+    setPlayingVerse(null);
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className={`container mx-auto px-4 py-8 ${showAudioPlayer ? 'pb-32' : ''}`}>
         <Breadcrumb items={breadcrumbItems} />
         
         <div className="max-w-4xl mx-auto">
@@ -124,6 +132,12 @@ export const QuranReader = () => {
           </div>
         </div>
       </main>
+
+      <AudioPlayer
+        verseNumber={playingVerse || "3:1"}
+        onClose={handleClosePlayer}
+        isVisible={showAudioPlayer}
+      />
     </div>
   );
 };
