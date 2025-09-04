@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Header } from "./Header";
@@ -88,6 +89,16 @@ export const QuranReader = () => {
         <Breadcrumb items={breadcrumbItems} />
         
         <div className="max-w-4xl mx-auto">
+          {/* Back to Home */}
+          <div className="mb-6">
+            <Link 
+              to="/" 
+              className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Повернутися до бібліотеки
+            </Link>
+          </div>
+
           {/* Chapter Header */}
           <div className="text-center mb-8 animate-fade-in">
             <div className="flex items-center justify-center space-x-4 mb-6">
