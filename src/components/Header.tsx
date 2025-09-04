@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
+// Fixed NavigationMenu error
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
