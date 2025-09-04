@@ -11,12 +11,52 @@ interface AudioPlayerProps {
 
 export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(3); // 00:03
-  const [duration, setDuration] = useState(96); // 01:36
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const [speed, setSpeed] = useState("1x");
   const [volume, setVolume] = useState([75]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Audio source mapping for verses
+  const audioSources: { [key: string]: string } = {
+    "ШБ 1.1.1": "https://telegram.org/dl?tme=e8253e9854b878a4b8_5692623092382467309",
+    // Add more audio sources here as needed
+  };
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(Math.floor(audio.currentTime));
+    const updateDuration = () => setDuration(Math.floor(audio.duration));
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, [verseNumber]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = volume[0] / 100;
+  }, [volume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const speeds = { "1x": 1, "1.25x": 1.25, "1.5x": 1.5, "2x": 2 };
+    audio.playbackRate = speeds[speed as keyof typeof speeds] || 1;
+  }, [speed]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -24,16 +64,33 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
+  const togglePlay = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+    } else {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error('Failed to play audio:', error);
+      }
+    }
   };
 
   const skipForward = () => {
-    setCurrentTime(Math.min(currentTime + 15, duration));
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Math.min(audio.currentTime + 15, audio.duration);
   };
 
   const skipBackward = () => {
-    setCurrentTime(Math.max(currentTime - 15, 0));
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = Math.max(audio.currentTime - 15, 0);
   };
 
   const toggleSpeed = () => {
@@ -44,6 +101,9 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
   };
 
   const handleProgressChange = (value: number[]) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.currentTime = value[0];
     setCurrentTime(value[0]);
   };
 
@@ -51,6 +111,11 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
+      <audio
+        ref={audioRef}
+        src={audioSources[verseNumber]}
+        preload="metadata"
+      />
       <div className="container mx-auto px-4 py-4">
         {/* Progress bar */}
         <div className="mb-4">
@@ -135,7 +200,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
               size="sm"
               className="text-xs px-2 border"
             >
-              AR-RU
+              СА-УК
             </Button>
 
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -146,7 +211,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
 
         {/* Verse info */}
         <div className="text-center mt-2">
-          <span className="text-sm font-medium">Аят {verseNumber}</span>
+          <span className="text-sm font-medium">Вірш {verseNumber}</span>
         </div>
       </div>
     </div>
