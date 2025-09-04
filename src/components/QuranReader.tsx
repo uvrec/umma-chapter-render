@@ -93,7 +93,7 @@ export const QuranReader = () => {
               Сура 3 «Алю 'имран» (Род 'Имрана)
             </h1>
             
-            <div className="bismillah mb-6 text-islamic-gold">
+            <div className="bismillah mb-6">
               ﷽
             </div>
             

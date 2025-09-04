@@ -2,65 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Islamic Quran Reader Design System - Rich blues, golds, and elegant typography */
+/* Scholarly Spiritual Text Repository Design System - Clean, academic, readable */
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 215 32% 20%;
+    --background: 0 0% 100%;
+    --foreground: 220 13% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 32% 20%;
+    --card-foreground: 220 13% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 32% 20%;
+    --popover-foreground: 220 13% 18%;
 
-    --primary: 213 47% 47%;
+    --primary: 220 39% 11%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 47% 42%;
+    --primary-hover: 220 39% 15%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 215 32% 20%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 13% 18%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 215 32% 20%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 220 13% 18%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 213 47% 47%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 39% 11%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    /* Islamic-inspired colors */
-    --islamic-gold: 43 74% 66%;
-    --islamic-gold-dark: 43 74% 56%;
-    --islamic-blue: 213 47% 47%;
-    --islamic-blue-light: 213 47% 92%;
-    --islamic-green: 142 76% 36%;
+    /* Academic colors */
+    --academic-blue: 220 39% 11%;
+    --academic-blue-light: 220 14% 96%;
+    --academic-gray: 220 8.9% 46.1%;
+    --academic-accent: 47 96% 89%;
     
     /* Typography */
     --arabic-font: 'Traditional Arabic', 'Noto Sans Arabic', serif;
     --body-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--islamic-gold)));
-    --gradient-header: linear-gradient(135deg, hsl(var(--islamic-blue)), hsl(var(--primary)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--islamic-blue-light)));
+    /* Minimal gradients */
+    --gradient-primary: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
+    --gradient-header: hsl(var(--background));
+    --gradient-card: hsl(var(--card));
     
-    /* Shadows */
-    --shadow-card: 0 4px 12px hsl(var(--primary) / 0.1);
-    --shadow-verse: 0 2px 8px hsl(var(--primary) / 0.08);
-    --shadow-header: 0 2px 16px hsl(var(--primary) / 0.15);
+    /* Subtle shadows */
+    --shadow-card: 0 1px 3px hsl(220 13% 18% / 0.08);
+    --shadow-verse: 0 1px 2px hsl(220 13% 18% / 0.05);
+    --shadow-header: 0 1px 3px hsl(220 13% 18% / 0.1);
     
-    /* Animations */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    /* Smooth animations */
+    --transition-smooth: all 0.2s ease-in-out;
+    --transition-bounce: all 0.3s ease-out;
 
     --radius: 0.75rem;
 
@@ -82,49 +81,49 @@
   }
 
   .dark {
-    --background: 215 32% 8%;
-    --foreground: 0 0% 95%;
+    --background: 220 13% 9%;
+    --foreground: 220 14% 96%;
 
-    --card: 215 32% 10%;
-    --card-foreground: 0 0% 95%;
+    --card: 220 13% 11%;
+    --card-foreground: 220 14% 96%;
 
-    --popover: 215 32% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 220 13% 11%;
+    --popover-foreground: 220 14% 96%;
 
-    --primary: 213 47% 55%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 47% 50%;
+    --primary: 220 14% 96%;
+    --primary-foreground: 220 13% 9%;
+    --primary-hover: 220 14% 90%;
 
-    --secondary: 215 32% 12%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 220 13% 15%;
+    --secondary-foreground: 220 14% 96%;
 
-    --muted: 215 32% 12%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 215 32% 12%;
-    --accent-foreground: 0 0% 95%;
+    --accent: 220 13% 15%;
+    --accent-foreground: 220 14% 96%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 215 32% 15%;
-    --input: 215 32% 15%;
-    --ring: 213 47% 55%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 220 14% 96%;
     
-    /* Dark mode Islamic colors */
-    --islamic-gold: 43 74% 76%;
-    --islamic-gold-dark: 43 74% 66%;
-    --islamic-blue: 213 47% 55%;
-    --islamic-blue-light: 215 32% 12%;
+    /* Dark mode academic colors */
+    --academic-blue: 220 14% 96%;
+    --academic-blue-light: 220 13% 15%;
+    --academic-gray: 220 8.9% 46.1%;
+    --academic-accent: 47 96% 20%;
     
     /* Dark gradients */
-    --gradient-header: linear-gradient(135deg, hsl(var(--islamic-blue)), hsl(var(--primary)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--islamic-blue-light)));
+    --gradient-header: hsl(var(--background));
+    --gradient-card: hsl(var(--card));
     
     /* Dark shadows */
-    --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.3);
-    --shadow-verse: 0 2px 8px hsl(0 0% 0% / 0.2);
-    --shadow-header: 0 2px 16px hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 2px 4px hsl(0 0% 0% / 0.2);
+    --shadow-verse: 0 1px 2px hsl(0 0% 0% / 0.1);
+    --shadow-header: 0 1px 3px hsl(0 0% 0% / 0.2);
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -159,28 +158,29 @@
     font-family: var(--arabic-font);
     font-size: 2rem;
     text-align: center;
-    color: hsl(var(--islamic-gold));
-    text-shadow: 0 2px 4px hsl(var(--primary) / 0.2);
+    color: hsl(var(--academic-gray));
   }
   
   .verse-container {
     background: var(--gradient-card);
+    border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
     box-shadow: var(--shadow-verse);
     transition: var(--transition-smooth);
   }
   
   .verse-container:hover {
-    transform: translateY(-2px);
     box-shadow: var(--shadow-card);
   }
   
   .play-button {
-    background: var(--gradient-primary);
-    transition: var(--transition-bounce);
+    background: hsl(var(--secondary));
+    border: 1px solid hsl(var(--border));
+    color: hsl(var(--foreground));
+    transition: var(--transition-smooth);
   }
   
   .play-button:hover {
-    transform: scale(1.05);
+    background: hsl(var(--accent));
   }
 }
