@@ -6,6 +6,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { QuranReader } from "./components/QuranReader";
 import NotFound from "./pages/NotFound";
+import { Library } from "./pages/Library";
+import { Audiobooks } from "./pages/Audiobooks";
+import { FudoKazuki } from "./pages/FudoKazuki";
+import { Glossary } from "./pages/Glossary";
+import { Contact } from "./pages/Contact";
+import { Donation } from "./pages/Donation";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +25,12 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/verses" element={<QuranReader />} />
           <Route path="/verses/:bookId" element={<QuranReader />} />
+          <Route path="/library" element={<Library />} />
+          <Route path="/audiobooks" element={<Audiobooks />} />
+          <Route path="/fudokazuki" element={<FudoKazuki />} />
+          <Route path="/glossary" element={<Glossary />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/donation" element={<Donation />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
