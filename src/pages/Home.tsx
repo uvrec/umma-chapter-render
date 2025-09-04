@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
+import smallBookIcon from "@/assets/small-book-icon.webp";
 interface Book {
   id: string;
   title: string;
@@ -182,8 +183,8 @@ export const Home = () => {
                 <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 rounded-t-lg overflow-hidden">
                   <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:dark:to-indigo-900/20 flex items-center justify-center">
                     <div className="text-center p-3">
-                      <div className="text-4xl mb-2 text-primary">
-                        📖
+                      <div className="mb-2">
+                        <img src={smallBookIcon} alt="Book icon" className="w-12 h-12 mx-auto" />
                       </div>
                       <div className="text-sm font-medium text-foreground/80 line-clamp-4">
                         {book.title}
