@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
 
 interface Book {
   id: string;
@@ -42,7 +43,7 @@ const books: Book[] = [{
   price: "425 грн",
   hasVerse: true,
   verseLink: "/verses/bhagavad-gita",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: bhagavadGitaCover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/bhagavad-gita-jak-vona-je/"
 }, {
