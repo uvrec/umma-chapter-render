@@ -45,8 +45,8 @@
     
     /* Typography */
     --sanskrit-font: 'Noto Sans Devanagari', 'Sanskrit 2003', serif;
-    --body-font: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --heading-font: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --body-font: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --heading-font: 'Playfair Display', Georgia, 'Times New Roman', serif;
     
     /* Minimal gradients */
     --gradient-primary: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
