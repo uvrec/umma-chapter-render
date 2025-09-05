@@ -6,6 +6,7 @@ import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
 import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
+import nectarInstructionsNewCover from "@/assets/nectar-instructions-new-cover.webp";
 import srimadBhagavatam2Cover from "@/assets/srimad-bhagavatam-2-cover.webp";
 import krishnaSupremePersonCover from "@/assets/krishna-supreme-person-cover.webp";
 // import libraryBanner from "@/assets/library-banner.jpg";
@@ -66,7 +67,7 @@ const books: Book[] = [{
   title: "Нектар настанов",
   description: "Одинадцять віршів «Шрі Упадешамріти» містять найважливіші настанови для тих, хто хоче йти шляхом бгакті.",
   price: "65 грн",
-  coverImage: nectarInstructionsCover,
+  coverImage: nectarInstructionsNewCover,
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/nektar-nastanov/"
 }, {
