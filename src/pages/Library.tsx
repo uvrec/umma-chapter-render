@@ -7,6 +7,7 @@ import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
 import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
 import srimadBhagavatam2Cover from "@/assets/srimad-bhagavatam-2-cover.webp";
+import krishnaSupremePersonCover from "@/assets/krishna-supreme-person-cover.webp";
 // import libraryBanner from "@/assets/library-banner.jpg";
 
 
@@ -83,7 +84,7 @@ const books: Book[] = [{
   price: "94 грн",
   hasVerse: true,
   verseLink: "/verses",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: krishnaSupremePersonCover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/krishna-verhovnyj-bog-osoba/"
 }, {
