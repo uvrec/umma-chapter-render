@@ -19,7 +19,7 @@ interface Verse {
   commentary?: string;
 }
 
-// Mock data for different scriptures
+import { verses } from "@/data/verses";
 const verses: Verse[] = [{
   number: "ШБ 1.1.1",
   book: "Шрімад-Бгаґаватам",
