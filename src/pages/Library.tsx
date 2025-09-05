@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
+import sriIsopanishadCover from "@/assets/sri-isopanishad-cover.webp";
 
 interface Book {
   id: string;
@@ -53,7 +54,7 @@ const books: Book[] = [{
   price: "50 грн",
   hasVerse: true,
   verseLink: "/verses/isopanisad",
-  coverImage: "https://optim.tildacdn.one/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
+  coverImage: sriIsopanishadCover,
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
 }, {
@@ -219,18 +220,24 @@ export const Library = () => {
             {smallBooks.map(book => (
               <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                 <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 rounded-t-lg overflow-hidden">
-                  <Link to={book.verseLink || '#'} className="block w-full h-full">
-                    <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
-                      <div className="text-center p-3">
-                        <div className="mb-2">
-                          <img src={smallBookIcon} alt="Book icon" className="w-12 h-12 mx-auto" />
-                        </div>
-                        <div className="text-sm font-medium text-foreground/80 line-clamp-4">
-                          {book.title}
+                  {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
+                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                      <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                    </Link>
+                  ) : (
+                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                      <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+                        <div className="text-center p-3">
+                          <div className="mb-2">
+                            <img src={smallBookIcon} alt="Book icon" className="w-12 h-12 mx-auto" />
+                          </div>
+                          <div className="text-sm font-medium text-foreground/80 line-clamp-4">
+                            {book.title}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
+                    </Link>
+                  )}
                 </div>
                 <CardContent className="p-3">
                   <h3 className="font-medium text-foreground mb-2 text-sm line-clamp-2 text-center">
