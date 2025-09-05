@@ -92,7 +92,7 @@ const books: Book[] = [{
   price: "350 грн",
   hasVerse: true,
   verseLink: "/verses",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: "/lovable-uploads/3b875002-99ad-4bb7-9e0c-aa933b5780fa.png",
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/nektar-viddanosti/"
 }, {
