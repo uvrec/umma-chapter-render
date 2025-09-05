@@ -3,10 +3,8 @@ import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Headphones, Search, Users, ArrowRight } from "lucide-react";
-
 export const Home = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       {/* Hero Section */}
@@ -58,12 +56,10 @@ export const Home = () => {
             <div className="relative w-80 h-80 lg:w-96 lg:h-96">
               {/* Main circle with Om symbol */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-secondary/30 backdrop-blur-sm border border-primary/20">
-                <div className="flex items-center justify-center h-full">
-                  <span className="text-8xl text-primary opacity-80">ॐ</span>
-                </div>
+                
               </div>
               {/* Floating elements */}
-              <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-primary/10 backdrop-blur-sm" />
+              
               <div className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-secondary/15 backdrop-blur-sm" />
             </div>
           </div>
@@ -74,12 +70,8 @@ export const Home = () => {
       <section className="py-20 bg-muted/30">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              Відкрийте духовні скарби
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Дослідіть найглибші істини через древні писання та їхні коментарі
-            </p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Сарсті</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">скарб ачар'їв - це їхнє вані</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -150,13 +142,8 @@ export const Home = () => {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <div className="bg-gradient-to-r from-primary/10 via-secondary/5 to-primary/10 rounded-2xl p-12 border border-primary/20">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
-              Почніть свій духовний шлях сьогодні
-            </h2>
-            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-              Відкрийте для себе скарби давньої мудрості через переклади та коментарі 
-              авторитетного духовного учителя
-            </p>
+            <h2 className="text-3xl font-bold text-foreground mb-4">духовний шлях</h2>
+            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">переклади та коментарі авторитетних духовних учителів</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild>
                 <Link to="/library">
@@ -174,16 +161,6 @@ export const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border bg-muted/20">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <p className="text-muted-foreground mb-2 text-lg">
-            Київська громада Свідомості Крішни
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Доставка Новою поштою по Україні та за кордон
-          </p>
-        </div>
-      </footer>
-    </div>
-  );
+      
+    </div>;
 };
