@@ -1,4 +1,4 @@
-import { Menu, Search, LogIn, Home, BookOpen, Headphones, User, Book, MessageCircle, Heart } from "lucide-react";
+import { Menu, Search, LogIn, Home, BookOpen, Headphones, User, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "react-router-dom";
@@ -10,11 +10,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { useState } from "react";
 // Fixed NavigationMenu error
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
+  const [translationsOpen, setTranslationsOpen] = useState(false);
 
   return (
     <header className="bg-background border-b border-border shadow-header">
@@ -90,6 +96,39 @@ export const Header = () => {
                   <Headphones className="w-5 h-5" />
                   <span>Аудіокниги</span>
                 </Link>
+                
+                <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
+                    <div className="flex items-center space-x-3">
+                      <Languages className="w-5 h-5" />
+                      <span>Переклади</span>
+                    </div>
+                    {translationsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="ml-6 space-y-2 mt-2">
+                    <Link 
+                      to="/translations/prabhupada-lectures" 
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                      onClick={() => setOpen(false)}
+                    >
+                      <span>Лекції Прабгупади</span>
+                    </Link>
+                    <Link 
+                      to="/translations/aindra-prabhu" 
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                      onClick={() => setOpen(false)}
+                    >
+                      <span>Аіндри прабгу</span>
+                    </Link>
+                    <Link 
+                      to="/translations/acharya-books" 
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                      onClick={() => setOpen(false)}
+                    >
+                      <span>Книги ачар'їв</span>
+                    </Link>
+                  </CollapsibleContent>
+                </Collapsible>
                 
                 <Link 
                   to="/glossary" 
