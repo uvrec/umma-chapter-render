@@ -53,7 +53,7 @@ const books: Book[] = [{
   price: "50 грн",
   hasVerse: true,
   verseLink: "/verses/isopanisad",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: "https://optim.tildacdn.one/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
 }, {
