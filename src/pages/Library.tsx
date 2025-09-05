@@ -9,6 +9,7 @@ import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
 import nectarInstructionsNewCover from "@/assets/nectar-instructions-new-cover.webp";
 import srimadBhagavatam2Cover from "@/assets/srimad-bhagavatam-2-cover.webp";
 import krishnaSupremePersonCover from "@/assets/krishna-supreme-person-cover.webp";
+import songsAcharyasCover from "@/assets/songs-acharyas-cover.webp";
 // import libraryBanner from "@/assets/library-banner.jpg";
 
 
@@ -103,7 +104,7 @@ const books: Book[] = [{
   title: "Пісні ачар'їв-вайшнавів",
   description: "Унікальне зібрання бгаджанів мовою українською-солов'їною!",
   price: "146 грн",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: songsAcharyasCover,
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/pisni-acharjiv-vajshnaviv/"
 }, {
