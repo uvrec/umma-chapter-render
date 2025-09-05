@@ -121,19 +121,7 @@ export const Home = () => {
             </Card>
 
             {/* Community Section */}
-            <Card className="group p-6 hover:shadow-lg transition-all cursor-pointer border-0 bg-card/50 backdrop-blur-sm">
-              <Link to="/contact" className="block">
-                <div className="w-full aspect-square mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Users className="w-12 h-12 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                  Спільнота
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Приєднуйтесь до київської громади Свідомості Крішни
-                </p>
-              </Link>
-            </Card>
+            
           </div>
         </div>
       </section>
