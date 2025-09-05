@@ -6,6 +6,7 @@ import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
 import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
+import libraryBanner from "@/assets/library-banner.jpg";
 
 
 interface Book {
@@ -136,12 +137,13 @@ export const Library = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        {/* Banner Frame */}
-        <div className="w-full h-64 md:h-80 lg:h-96 bg-gradient-to-r from-primary/10 to-primary/5 border-2 border-dashed border-primary/30 rounded-lg mb-12 flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <div className="text-4xl mb-4">🖼️</div>
-            <p className="text-lg font-medium">Баннер (зображення буде завантажено пізніше)</p>
-          </div>
+        {/* Banner */}
+        <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg">
+          <img 
+            src={libraryBanner} 
+            alt="Ведична бібліотека" 
+            className="w-full h-full object-cover"
+          />
         </div>
 
         <div className="text-center mb-8">
