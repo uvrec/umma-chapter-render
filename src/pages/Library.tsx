@@ -6,6 +6,7 @@ import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
 import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
+import srimadBhagavatam2Cover from "@/assets/srimad-bhagavatam-2-cover.webp";
 // import libraryBanner from "@/assets/library-banner.jpg";
 
 
@@ -36,7 +37,7 @@ const books: Book[] = [{
   title: "Друга пісня Шрімад Бгаґаватам",
   description: "Ця пісня \"Шрімад-Бгаґаватам\" являє собою стислий виклад усієї книги.",
   price: "438 грн",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: srimadBhagavatam2Cover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/srimad-bhagavatam-2-pisnja/"
 }, {
