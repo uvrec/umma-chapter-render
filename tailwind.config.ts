@@ -122,7 +122,8 @@ export default {
 			},
 			fontFamily: {
 				arabic: 'var(--arabic-font)',
-				body: 'var(--body-font)'
+				body: 'var(--body-font)',
+				'playfair': ['Playfair Display', 'serif']
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
