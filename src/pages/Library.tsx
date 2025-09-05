@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
+import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
 
 
 interface Book {
@@ -62,7 +63,7 @@ const books: Book[] = [{
   title: "Нектар настанов",
   description: "Одинадцять віршів «Шрі Упадешамріти» містять найважливіші настанови для тих, хто хоче йти шляхом бгакті.",
   price: "65 грн",
-  coverImage: "/api/placeholder/300/400",
+  coverImage: nectarInstructionsCover,
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/nektar-nastanov/"
 }, {

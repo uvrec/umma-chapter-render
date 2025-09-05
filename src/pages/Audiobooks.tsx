@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import nectarInstructionsCover from "@/assets/nectar-instructions-cover.webp";
 import { Headphones, Play, ChevronDown, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -154,7 +155,7 @@ export const Audiobooks = () => {
             <Card className="p-6">
               <div className="aspect-square w-full mb-4 bg-muted rounded-lg overflow-hidden">
                 <img 
-                  src="/src/assets/small-book-icon.webp" 
+                  src={nectarInstructionsCover} 
                   alt="Нектар настанов обкладинка" 
                   className="w-full h-full object-cover"
                 />
