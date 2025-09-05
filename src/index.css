@@ -45,7 +45,8 @@
     
     /* Typography */
     --sanskrit-font: 'Noto Sans Devanagari', 'Sanskrit 2003', serif;
-    --body-font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --body-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --heading-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     
     /* Minimal gradients */
     --gradient-primary: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
@@ -144,6 +145,14 @@
     @apply bg-background text-foreground;
     font-family: var(--body-font);
     line-height: 1.6;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--heading-font);
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
   
   .sanskrit-text {
