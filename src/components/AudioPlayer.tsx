@@ -7,9 +7,17 @@ interface AudioPlayerProps {
   verseNumber: string;
   onClose: () => void;
   isVisible: boolean;
+  audioUrl?: string;
 }
 
-export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProps) => {
+// Audio URLs mapping - replace with your Google Drive direct download links
+const AUDIO_URLS: Record<string, string> = {
+  "ШБ 1.1.1": "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE",
+  "ШБ 1.1.2": "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE",
+  // Add more mappings as needed
+};
+
+export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: AudioPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -17,39 +25,65 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
   const [volume, setVolume] = useState([75]);
   
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  // Mock audio functionality since direct Telegram links don't work in browsers
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
 
-  // Mock duration for demo - would be set from real audio
-  useEffect(() => {
-    if (verseNumber === "ШБ 1.1.1") {
-      setDuration(96); // 1:36 for SB 1.1.1
-    } else {
-      setDuration(60); // Default 1 minute
-    }
-  }, [verseNumber]);
+  // Get audio URL for current verse
+  const currentAudioUrl = audioUrl || AUDIO_URLS[verseNumber];
 
-  // Mock audio playback with timer
+  // Initialize audio element
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setCurrentTime(prev => {
-          if (prev >= duration) {
-            setIsPlaying(false);
-            return duration;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-    }
+    if (currentAudioUrl && audioRef.current) {
+      const audio = audioRef.current;
+      
+      const handleLoadedMetadata = () => {
+        setDuration(Math.floor(audio.duration));
+        setIsLoadingAudio(false);
+      };
+      
+      const handleTimeUpdate = () => {
+        setCurrentTime(Math.floor(audio.currentTime));
+      };
+      
+      const handleEnded = () => {
+        setIsPlaying(false);
+        setCurrentTime(0);
+      };
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isPlaying, duration]);
+      const handleLoadStart = () => {
+        setIsLoadingAudio(true);
+      };
+
+      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.addEventListener('timeupdate', handleTimeUpdate);
+      audio.addEventListener('ended', handleEnded);
+      audio.addEventListener('loadstart', handleLoadStart);
+      
+      audio.src = currentAudioUrl;
+      audio.load();
+
+      return () => {
+        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        audio.removeEventListener('timeupdate', handleTimeUpdate);
+        audio.removeEventListener('ended', handleEnded);
+        audio.removeEventListener('loadstart', handleLoadStart);
+      };
+    }
+  }, [currentAudioUrl]);
+
+  // Update audio playback speed
+  useEffect(() => {
+    if (audioRef.current) {
+      const speedValue = parseFloat(speed.replace('x', ''));
+      audioRef.current.playbackRate = speedValue;
+    }
+  }, [speed]);
+
+  // Update audio volume
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
+    }
+  }, [volume]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -57,25 +91,39 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const togglePlay = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    } else {
-      setIsLoadingAudio(true);
-      // Simulate loading time
-      setTimeout(() => {
-        setIsLoadingAudio(false);
+  const togglePlay = async () => {
+    if (!audioRef.current || !currentAudioUrl) return;
+    
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        setIsLoadingAudio(true);
+        await audioRef.current.play();
         setIsPlaying(true);
-      }, 500);
+        setIsLoadingAudio(false);
+      }
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      setIsLoadingAudio(false);
     }
   };
 
   const skipForward = () => {
-    setCurrentTime(prev => Math.min(prev + 15, duration));
+    if (audioRef.current) {
+      const newTime = Math.min(audioRef.current.currentTime + 15, duration);
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(Math.floor(newTime));
+    }
   };
 
   const skipBackward = () => {
-    setCurrentTime(prev => Math.max(prev - 15, 0));
+    if (audioRef.current) {
+      const newTime = Math.max(audioRef.current.currentTime - 15, 0);
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(Math.floor(newTime));
+    }
   };
 
   const toggleSpeed = () => {
@@ -86,13 +134,17 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible }: AudioPlayerProp
   };
 
   const handleProgressChange = (value: number[]) => {
-    setCurrentTime(value[0]);
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0];
+      setCurrentTime(value[0]);
+    }
   };
 
   if (!isVisible) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
+      <audio ref={audioRef} preload="metadata" />
       <div className="container mx-auto px-4 py-4">
         {/* Progress bar */}
         <div className="mb-4">
