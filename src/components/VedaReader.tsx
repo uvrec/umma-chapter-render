@@ -17,6 +17,7 @@ interface Verse {
   synonyms?: string;
   translation: string;
   commentary?: string;
+  audioUrl?: string;
 }
 
 import { verses } from "@/data/verses";
@@ -93,6 +94,7 @@ export const VedaReader = () => {
   };
 
   const filteredVerses = getFilteredVerses(bookId);
+  const currentAudioUrl = filteredVerses.find(v => v.number === playingVerse)?.audioUrl || undefined;
 
   return (
     <div className={`min-h-screen ${craftPaperMode ? 'craft-paper-bg' : 'bg-background'}`}>
