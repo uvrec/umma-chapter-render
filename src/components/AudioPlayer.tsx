@@ -10,9 +10,9 @@ interface AudioPlayerProps {
   audioUrl?: string;
 }
 
-// Audio URLs mapping - Google Drive direct download links
+// Audio URLs mapping - Cloudflare R2 and other sources
 const AUDIO_URLS: Record<string, string> = {
-  "ШБ 1.1.1": "https://drive.google.com/uc?export=download&id=1fvKLwrkDhX5O_iFZEdX8j2w2Bqm08TVa",
+  "ШБ 1.1.1": "https://dash.cloudflare.com/48bb6e3ef1e482e0a48d2940d52eaf38/r2/default/buckets/audio/objects/%25D0%25A8%25D1%2580%25D1%2596%25D0%25BC%25D0%25B0%25D0%25B4-%25D0%25B1%25D0%25B3%25D0%25B0%25D2%2591%25D0%25B0%25D0%25B2%25D0%25B0%25D1%2582%25D0%25B0%25D0%25BC%25201.1.1%2520(%25D0%25B7%2520%25D0%25BF%25D0%25BE%25D1%258F%25D1%2581%25D0%25BD%25D0%25B5%25D0%25BD%25D0%25BD%25D1%258F%25D0%25BC)%2520new.mp3",
   "ШБ 1.1.2": "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE",
   // Add more mappings as needed
 };
