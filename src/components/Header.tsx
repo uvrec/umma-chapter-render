@@ -29,8 +29,8 @@ export const Header = () => {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold text-foreground flex items-center space-x-2">
-              <div className="w-10 h-10 bg-secondary border border-border rounded-md flex items-center justify-center">
-                <span className="text-primary font-bold text-lg">🕉️</span>
+              <div className="w-10 h-10 bg-secondary border border-border rounded-md flex items-center justify-center p-1">
+                <img src="/lovable-uploads/a27b6c90-2f35-4ae5-a931-bc896bba6784.png" alt="Бхагавад-гіта" className="w-full h-full object-contain" />
               </div>
               <span>Прабгупада солов'їною</span>
             </div>
