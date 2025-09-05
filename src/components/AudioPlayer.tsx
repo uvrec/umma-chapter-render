@@ -10,9 +10,9 @@ interface AudioPlayerProps {
   audioUrl?: string;
 }
 
-// Audio URLs mapping - replace with your Google Drive direct download links
+// Audio URLs mapping - Google Drive direct download links
 const AUDIO_URLS: Record<string, string> = {
-  "ШБ 1.1.1": "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE",
+  "ШБ 1.1.1": "https://drive.google.com/uc?export=download&id=1fvKLwrkDhX5O_iFZEdX8j2w2Bqm08TVa",
   "ШБ 1.1.2": "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE",
   // Add more mappings as needed
 };
