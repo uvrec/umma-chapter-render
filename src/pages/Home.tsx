@@ -4,49 +4,63 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Headphones, Search, Users, ArrowRight } from "lucide-react";
 export const Home = () => {
-  return <div className="min-h-screen bg-gradient-to-br from-emerald-800 to-teal-900">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-        {/* Decorative botanical elements */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-20 pointer-events-none">
-          <svg width="400" height="600" viewBox="0 0 400 600" className="text-emerald-300">
-            {/* Leaf 1 */}
-            <path d="M350 150 Q380 180 380 220 Q380 260 350 290 Q320 260 320 220 Q320 180 350 150Z" fill="currentColor" opacity="0.6"/>
-            <path d="M350 150 L350 290" stroke="currentColor" strokeWidth="2" opacity="0.4"/>
-            
-            {/* Leaf 2 */}
-            <path d="M300 250 Q340 270 360 310 Q340 350 300 370 Q260 350 240 310 Q260 270 300 250Z" fill="currentColor" opacity="0.5"/>
-            <path d="M300 250 L300 370" stroke="currentColor" strokeWidth="2" opacity="0.3"/>
-            
-            {/* Leaf 3 */}
-            <path d="M380 350 Q410 380 410 420 Q410 460 380 490 Q350 460 350 420 Q350 380 380 350Z" fill="currentColor" opacity="0.4"/>
-            <path d="M380 350 L380 490" stroke="currentColor" strokeWidth="2" opacity="0.3"/>
-            
-            {/* Stems */}
-            <path d="M350 150 Q330 200 300 250 Q280 300 350 350 Q370 400 380 450" stroke="currentColor" strokeWidth="3" opacity="0.3" fill="none"/>
-          </svg>
+        {/* Background with geometric shapes */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10">
+          {/* Geometric decorations */}
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute bottom-1/3 right-1/4 w-48 h-48 rounded-full bg-secondary/15 blur-3xl" />
         </div>
         
         {/* Content */}
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left side - Text content */}
           <div className="space-y-8">
-            <h1 className="text-4xl md:text-5xl lg:text-7xl font-light leading-tight text-white/90 tracking-wide">
-              УЯВІТЬ ЖИТТЯ, ВПЛЕТЕНЕ
-              <br />
-              У БАГАТІ УЗОРИ
-              <br />
-              <span className="text-emerald-200">ДУХОВНОЇ МУДРОСТІ.</span>
-            </h1>
+            <div className="space-y-4">
+              <div className="text-6xl text-primary mb-4">ॐ</div>
+              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                <span className="text-foreground">Прабгупада</span>
+                <br />
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  солов'їною
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
+                Ведична бібліотека з коментарями Бгактіведанти Свамі Прабгупади та ачар'ями
+              </p>
+            </div>
             
-            <div className="pt-8">
-              <Button size="lg" asChild className="bg-white/10 hover:bg-white/20 border border-white/20 text-white backdrop-blur-sm">
-                <Link to="/library" className="flex items-center gap-2">
-                  Дізнатися більше
-                  <ArrowRight className="w-4 h-4" />
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button size="lg" asChild className="group">
+                <Link to="/library">
+                  <BookOpen className="w-5 h-5 mr-2" />
+                  Переглянути бібліотеку
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
+              <Button variant="outline" size="lg" asChild>
+                <Link to="/audiobooks">
+                  <Headphones className="w-5 h-5 mr-2" />
+                  Аудіокниги
+                </Link>
+              </Button>
+            </div>
+          </div>
+          
+          {/* Right side - Visual element */}
+          <div className="relative flex justify-center">
+            <div className="relative w-80 h-80 lg:w-96 lg:h-96">
+              {/* Main circle with Om symbol */}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-secondary/30 backdrop-blur-sm border border-primary/20">
+                
+              </div>
+              {/* Floating elements */}
+              
+              <div className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-secondary/15 backdrop-blur-sm" />
             </div>
           </div>
         </div>
@@ -70,9 +84,7 @@ export const Home = () => {
                 <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
                   Бібліотека
                 </h3>
-                <p className="text-muted-foreground text-sm">
-                  Бгагавад-гіта, Шрімад-Бгагаватам та інші класичні тексти з коментарями
-                </p>
+                
               </Link>
             </Card>
 
