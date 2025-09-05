@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, User } from "lucide-react";
@@ -14,6 +15,29 @@ const tracks = [
   { id: "6", title: "Розділ 5: Карма-йога - дія в усвідомленні Крішни", duration: "19:33", src: "/audio/bg-ch5.mp3" },
   { id: "7", title: "Розділ 6: Дгьяна-йога", duration: "35:27", src: "/audio/bg-ch6.mp3" },
   { id: "8", title: "Розділ 7: Знання про Абсолют", duration: "22:14", src: "/audio/bg-ch7.mp3" },
+];
+
+const sampleReviews = [
+  {
+    id: "1",
+    userName: "Олексій",
+    avatar: "",
+    rating: 5,
+    comment: "Неймовірно глибокий та трансформуючий текст. Читання Прабгупади додає багато clarity до стародавньої мудрості. Голос диктора дуже приємний і легко сприймається навіть під час довгих сеансів прослуховування.",
+    tags: ["Надихаючий", "Філософський", "Глибокий", "Трансформуючий", "Ясний голос"],
+    bookRating: 5,
+    speakerRating: 5
+  },
+  {
+    id: "2", 
+    userName: "Марія",
+    avatar: "",
+    rating: 4,
+    comment: "Дуже хороша аудіокнига для тих, хто цікавиться східною філософією. Коментарі допомагають зрозуміти контекст і значення. Якість запису відмінна.",
+    tags: ["Освітній", "Цікавий", "Добре структурований", "Якісний запис"],
+    bookRating: 4,
+    speakerRating: 5
+  }
 ];
 
 export const BhagavadGita = () => {
@@ -93,6 +117,16 @@ export const BhagavadGita = () => {
               />
             </div>
           </div>
+          
+          {/* Reviews Section */}
+          <ReviewsSection
+            bookTitle="Бгагавад-гіта як вона є"
+            overallRating={4.5}
+            totalReviews={47}
+            bookRating={4.4}
+            speakerRating={4.6}
+            reviews={sampleReviews}
+          />
         </div>
       </main>
     </div>

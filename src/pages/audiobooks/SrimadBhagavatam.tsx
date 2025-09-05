@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
+import { ReviewsSection } from "@/components/ReviewsSection";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, User } from "lucide-react";
@@ -13,6 +14,29 @@ const tracks = [
   { id: "5", title: "Пісня 1.5: Нарада наставляє В'ясу", duration: "35:10", src: "/audio/sb-1-1-5.mp3" },
   { id: "6", title: "Пісня 1.6: Бесіда між Нарадою та В'ясою", duration: "29:55", src: "/audio/sb-1-1-6.mp3" },
   { id: "7", title: "Пісня 1.7: Син Дрони карається", duration: "41:20", src: "/audio/sb-1-1-7.mp3" },
+];
+
+const sampleReviews = [
+  {
+    id: "1",
+    userName: "Віктор",
+    avatar: "",
+    rating: 5,
+    comment: "Шрімад-Бгагаватам - це справжня скарбниця духовного знання. Переклад і коментарі Прабгупади роблять цей стародавній текст зрозумілим і актуальним. Диктор читає з великою повагою та розумінням.",
+    tags: ["Духовний", "Освітній", "Глибокий", "Натхненний", "Чудовий голос"],
+    bookRating: 5,
+    speakerRating: 5
+  },
+  {
+    id: "2", 
+    userName: "Анна",
+    avatar: "",
+    rating: 4,
+    comment: "Дуже цікаві історії та філософські роздуми. Допомагає краще зрозуміти ведичну культуру та мудрість. Рекомендую всім, хто шукає глибші відповіді на життєві питання.",
+    tags: ["Цікавий", "Мудрий", "Корисний", "Добре структурований"],
+    bookRating: 4,
+    speakerRating: 4
+  }
 ];
 
 export const SrimadBhagavatam = () => {
@@ -92,6 +116,16 @@ export const SrimadBhagavatam = () => {
               />
             </div>
           </div>
+          
+          {/* Reviews Section */}
+          <ReviewsSection
+            bookTitle="Шрімад-Бгагаватам"
+            overallRating={4.6}
+            totalReviews={34}
+            bookRating={4.7}
+            speakerRating={4.5}
+            reviews={sampleReviews}
+          />
         </div>
       </main>
     </div>
