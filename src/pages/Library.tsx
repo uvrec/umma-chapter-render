@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
-import sriIsopanishadCover from "@/assets/sri-isopanishad-cover.webp";
+
 
 interface Book {
   id: string;
@@ -54,7 +54,7 @@ const books: Book[] = [{
   price: "50 грн",
   hasVerse: true,
   verseLink: "/verses/isopanisad",
-  coverImage: sriIsopanishadCover,
+  coverImage: "https://optim.tildacdn.com/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
 }, {
