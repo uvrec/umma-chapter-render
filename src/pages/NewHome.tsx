@@ -23,7 +23,7 @@ export const NewHome = () => {
           <div className="max-w-4xl mx-auto">
             {/* Site Logo and Title */}
             <div className="flex flex-col items-center mb-6">
-              <div className="w-32 h-32 md:w-40 md:h-40 mb-4">
+              <div className="w-64 h-64 md:w-80 md:h-80 mb-4">
                 <img 
                   src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
                   alt="Прабгупада солов'їною" 

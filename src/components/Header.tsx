@@ -95,6 +95,13 @@ export const Header = () => {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
                     <Link 
+                      to="/library" 
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                      onClick={() => setOpen(false)}
+                    >
+                      <span>Всі розділи</span>
+                    </Link>
+                    <Link 
                       to="/library/prabhupada" 
                       className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
                       onClick={() => setOpen(false)}
@@ -144,12 +151,20 @@ export const Header = () => {
                       <span>Лекції</span>
                     </Link>
                     <Link 
+                      to="/audio/music" 
+                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                      onClick={() => setOpen(false)}
+                    >
+                      <Music className="w-4 h-4 mr-1" />
+                      <span>Музика</span>
+                    </Link>
+                    <Link 
                       to="/audio/podcasts" 
                       className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
                       onClick={() => setOpen(false)}
                     >
                       <Mic className="w-4 h-4 mr-1" />
-                      <span>Подкасти</span>
+                      <span>Подкаст</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
@@ -234,14 +249,6 @@ export const Header = () => {
                   <span>Блог</span>
                 </Link>
                 
-                <Link 
-                  to="/audio/podcasts" 
-                  className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
-                  onClick={() => setOpen(false)}
-                >
-                  <Mic className="w-4 h-4 mr-1" />
-                  <span>Подкасти</span>
-                </Link>
                 
                 <Link 
                   to="/contact" 
