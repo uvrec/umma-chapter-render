@@ -80,7 +80,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentIndex(index);
     if (audioRef.current) {
       audioRef.current.src = playlist[index].src || playlist[index].url;
-      audioRef.current.play().then(() => setIsPlaying(true));
+      audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
+        console.error("Error playing audio:", error);
+        setIsPlaying(false);
+      });
     }
   };
 
@@ -104,8 +107,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setCurrentIndex(newPlaylist.length - 1);
       
       if (audioRef.current) {
-        audioRef.current.src = track.src;
-        audioRef.current.play().then(() => setIsPlaying(true));
+        audioRef.current.src = newTrack.src;
+        audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
+          console.error("Error playing audio:", error);
+          setIsPlaying(false);
+        });
       }
     }
   };
@@ -116,7 +122,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().then(() => setIsPlaying(true));
+      audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
+        console.error("Error playing audio:", error);
+        setIsPlaying(false);
+      });
     }
   };
 

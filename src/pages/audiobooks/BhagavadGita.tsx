@@ -7,14 +7,9 @@ import { ArrowLeft, BookOpen, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const tracks = [
-  { id: "1", title: "Вступ до Бгагавад-гіти", duration: "15:42", src: "/audio/bg-intro.mp3" },
-  { id: "2", title: "Розділ 1: Смуток Арджуни", duration: "23:15", src: "/audio/bg-ch1.mp3" },
-  { id: "3", title: "Розділ 2: Зміст Гіти, підсумований", duration: "45:30", src: "/audio/bg-ch2.mp3" },
-  { id: "4", title: "Розділ 3: Карма-йога", duration: "32:18", src: "/audio/bg-ch3.mp3" },
-  { id: "5", title: "Розділ 4: Трансцендентне знання", duration: "28:45", src: "/audio/bg-ch4.mp3" },
-  { id: "6", title: "Розділ 5: Карма-йога - дія в усвідомленні Крішни", duration: "19:33", src: "/audio/bg-ch5.mp3" },
-  { id: "7", title: "Розділ 6: Дгьяна-йога", duration: "35:27", src: "/audio/bg-ch6.mp3" },
-  { id: "8", title: "Розділ 7: Знання про Абсолют", duration: "22:14", src: "/audio/bg-ch7.mp3" },
+  { id: "bg-demo-1", title: "Вступ до Бгагавад-гіти", duration: "15:42", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3" },
+  { id: "bg-demo-2", title: "Розділ 1: Смуток Арджуни", duration: "23:15", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.2%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3" },
+  { id: "bg-demo-3", title: "Розділ 2: Зміст Гіти, підсумований", duration: "45:30", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.3%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC).mp3" }
 ];
 
 const sampleReviews = [
