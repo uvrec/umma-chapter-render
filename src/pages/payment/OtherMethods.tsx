@@ -11,7 +11,7 @@ export const OtherMethods = () => {
       description: "Міжнародні платежі через PayPal",
       icon: "💳",
       action: "Відкрити PayPal",
-      link: "https://paypal.me/vedicportal"
+      link: "https://paypal.me/andriiuvarov"
     },
     {
       name: "Bitcoin (BTC)",
