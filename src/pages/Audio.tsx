@@ -76,7 +76,16 @@ export const Audio = () => {
               древню мудрість у сучасному житті.
             </p>
             
-            <Button size="lg" className="mb-4">
+            <Button 
+              size="lg" 
+              className="mb-4"
+              onClick={() => {
+                const playlistSection = document.querySelector('#playlists-section');
+                if (playlistSection) {
+                  playlistSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
               <Play className="w-5 h-5 mr-2" />
               Почати слухати
             </Button>
@@ -92,7 +101,7 @@ export const Audio = () => {
       </section>
 
       {/* Playlists Section */}
-      <section className="py-16">
+      <section className="py-16" id="playlists-section">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
             Аудіобібліотека
