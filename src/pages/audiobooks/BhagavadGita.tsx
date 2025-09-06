@@ -114,6 +114,7 @@ export const BhagavadGita = () => {
               <PlaylistPlayer 
                 tracks={tracks} 
                 title="Бгагавад-гіта як вона є"
+                albumCover="/src/assets/bhagavad-gita-cover.webp"
               />
             </div>
           </div>

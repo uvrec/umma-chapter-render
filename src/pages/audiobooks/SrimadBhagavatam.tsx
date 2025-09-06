@@ -113,6 +113,7 @@ export const SrimadBhagavatam = () => {
               <PlaylistPlayer 
                 tracks={tracks} 
                 title="Шрімад-Бгагаватам - Перша пісня"
+                albumCover="/src/assets/srimad-bhagavatam-1-cover.webp"
               />
             </div>
           </div>

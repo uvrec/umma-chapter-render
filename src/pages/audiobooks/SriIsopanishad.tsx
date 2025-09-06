@@ -113,6 +113,7 @@ export const SriIsopanishad = () => {
               <PlaylistPlayer 
                 tracks={tracks} 
                 title="Шрі Ішопанішада"
+                albumCover="/src/assets/sri-isopanishad-cover.webp"
               />
             </div>
           </div>

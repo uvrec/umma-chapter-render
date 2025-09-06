@@ -25,9 +25,10 @@ interface Track {
 interface PlaylistPlayerProps {
   tracks: Track[];
   title: string;
+  albumCover?: string;
 }
 
-export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title }) => {
+export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, albumCover }) => {
   const [currentTrack, setCurrentTrack] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -127,12 +128,23 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title })
       {/* Main Player */}
       <Card className="p-6">
         <div className="space-y-4">
-          {/* Track Info */}
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-foreground mb-1">
-              {tracks[currentTrack]?.title}
-            </h3>
-            <p className="text-sm text-muted-foreground">{title}</p>
+          {/* Album Cover and Track Info */}
+          <div className="flex items-center space-x-4">
+            {albumCover && (
+              <div className="w-16 h-16 flex-shrink-0">
+                <img
+                  src={albumCover}
+                  alt={title}
+                  className="w-full h-full object-cover rounded-md shadow-md"
+                />
+              </div>
+            )}
+            <div className="flex-1 text-center">
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                {tracks[currentTrack]?.title}
+              </h3>
+              <p className="text-sm text-muted-foreground">{title}</p>
+            </div>
           </div>
 
           {/* Progress Bar */}

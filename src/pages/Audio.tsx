@@ -124,6 +124,7 @@ export const Audio = () => {
               <PlaylistPlayer 
                 tracks={srimadBhagavatamTracks}
                 title="Шрімад-Бгаґаватам - Перший том"
+                albumCover="/src/assets/srimad-bhagavatam-1-cover.webp"
               />
             </div>
 
@@ -148,6 +149,7 @@ export const Audio = () => {
               <PlaylistPlayer 
                 tracks={bhagavadGitaTracks}
                 title="Бгаґавад-ґіта - Друга глава"
+                albumCover="/src/assets/bhagavad-gita-cover.webp"
               />
             </div>
           </div>

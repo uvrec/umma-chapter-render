@@ -16,6 +16,10 @@ import { FudoKazuki } from "./pages/FudoKazuki";
 import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
 import { Donation } from "./pages/Donation";
+import { Blog } from "./pages/Blog";
+import { Lectures } from "./pages/audio/Lectures";
+import { Music } from "./pages/audio/Music";
+import { Audiobooks } from "./pages/audio/Audiobooks";
 
 const queryClient = new QueryClient();
 
@@ -32,9 +36,13 @@ const App = () => (
           <Route path="/verses/:bookId" element={<VedaReader />} />
           <Route path="/library" element={<Library />} />
           <Route path="/audiobooks" element={<Audio />} />
+          <Route path="/audio/audiobooks" element={<Audiobooks />} />
+          <Route path="/audio/lectures" element={<Lectures />} />
+          <Route path="/audio/music" element={<Music />} />
           <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
           <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
           <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/fudokazuki" element={<FudoKazuki />} />
           <Route path="/glossary" element={<Glossary />} />
           <Route path="/contact" element={<Contact />} />

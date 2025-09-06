@@ -220,8 +220,10 @@ export const Library = () => {
                       Аудіокнига
                     </Badge>
                     <Badge variant="outline" className="hover:bg-muted transition-colors cursor-pointer">
-                      <User className="w-3 h-3 mr-1" />
-                      Прабгупада
+                      <Link to="/audio/lectures" className="flex items-center">
+                        <User className="w-3 h-3 mr-1" />
+                        Прабгупада
+                      </Link>
                     </Badge>
                   </div>
                 </CardContent>
