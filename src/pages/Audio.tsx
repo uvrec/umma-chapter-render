@@ -58,8 +58,12 @@ export const Audio = () => {
       <section className="py-16 bg-gradient-to-r from-primary/5 via-background to-primary/5">
         <div className="container mx-auto px-4 text-center">
           <div className="max-w-4xl mx-auto">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Headphones className="w-8 h-8 text-primary" />
+            <div className="w-24 h-24 mx-auto mb-6">
+              <img 
+                src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" 
+                alt="Прабгупада солов'їною" 
+                className="w-full h-full object-contain"
+              />
             </div>
             
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground">

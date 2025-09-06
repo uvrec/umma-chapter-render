@@ -20,10 +20,16 @@ export const NewHome = () => {
       >
         <div className="container mx-auto px-4 text-center text-white">
           <div className="max-w-4xl mx-auto">
-            {/* Site Title */}
-            <h1 className="text-5xl md:text-7xl font-bold mb-4 text-white">
-              Прабгупада солов'їною
-            </h1>
+            {/* Site Logo and Title */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-32 h-32 md:w-40 md:h-40 mb-4">
+                <img 
+                  src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" 
+                  alt="Прабгупада солов'їною" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
             
             {/* Subtitle */}
             <p className="text-xl md:text-2xl mb-8 text-white/90 font-medium">

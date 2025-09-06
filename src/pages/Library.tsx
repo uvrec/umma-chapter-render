@@ -153,6 +153,15 @@ export const Library = () => {
         </div>
 
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-6">
+            <div className="w-24 h-24">
+              <img 
+                src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" 
+                alt="Прабгупада солов'їною" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
           <h1 className="text-3xl font-bold text-foreground mb-4">Бібліотека</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Повна колекція ведичних писань з коментарями Його Божественної Милості А.Ч. Бхактіведанти Свамі Прабгупади
