@@ -88,21 +88,37 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
     const audio = audioRef.current;
     if (!audio) return;
 
+    const currentSrc = tracks[currentTrack]?.src;
+    
+    // Skip tracks without audio source
+    if (!currentSrc || currentSrc.trim() === '') {
+      console.log('No audio source for track, skipping to next');
+      handleNext();
+      return;
+    }
+
     try {
       if (isPlaying) {
         audio.pause();
         setIsPlaying(false);
       } else {
-        if (!tracks[currentTrack]?.src) {
-          console.warn('No audio source for current track');
-          return;
+        // Ensure audio source is set
+        if (audio.src !== currentSrc) {
+          audio.src = currentSrc;
+          console.log('Setting audio source:', currentSrc);
         }
+        
         await audio.play();
         setIsPlaying(true);
+        console.log('Audio playing successfully');
       }
     } catch (e) {
-      console.warn('Unable to play audio:', e);
+      console.error('Unable to play audio:', e);
       setIsPlaying(false);
+      // Try next track if current one fails
+      setTimeout(() => {
+        handleNext();
+      }, 1000);
     }
   };
 
@@ -160,8 +176,12 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
       <audio
         ref={audioRef}
         src={tracks[currentTrack]?.src}
-        crossOrigin="anonymous"
-        onLoadedData={() => setIsPlaying(false)}
+        onLoadedData={() => {
+          console.log('Audio loaded for:', tracks[currentTrack]?.title);
+          setIsPlaying(false);
+        }}
+        onCanPlay={() => console.log('Audio can play')}
+        onError={(e) => console.error('Audio error:', e)}
       />
 
       {/* Main Player */}
