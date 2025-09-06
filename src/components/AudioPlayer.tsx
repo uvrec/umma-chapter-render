@@ -13,8 +13,9 @@ interface AudioPlayerProps {
 
 // Audio URLs mapping - Add working audio URLs here
 const AUDIO_URLS: Record<string, string> = {
-  // Add working audio URLs when available
-  // "ШБ 1.1.1": "working_audio_url_here",
+  "ШБ 1.1.1": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
+  "ШБ 1.1.2": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.2%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
+  "ШБ 1.1.3": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.3%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC).mp3"
 };
 
 export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: AudioPlayerProps) => {
@@ -30,6 +31,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
 
   // Get audio URL for current verse
   const currentAudioUrl = audioUrl || AUDIO_URLS[verseNumber];
+  console.log('Current audio URL for', verseNumber, ':', currentAudioUrl);
 
   // Initialize audio element
   useEffect(() => {
@@ -70,7 +72,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
       const handleError = () => {
         setIsPlaying(false);
         setIsLoadingAudio(false);
-        // Silently handle audio errors - don't show to user
+        console.warn('Audio error for verse:', verseNumber, 'URL:', currentAudioUrl);
       };
 
       audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -78,8 +80,17 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
       audio.addEventListener('ended', handleEnded);
       audio.addEventListener('loadstart', handleLoadStart);
       audio.addEventListener('error', handleError);
+      audio.addEventListener('canplay', () => console.log('Audio canplay event'));
+      audio.addEventListener('loadeddata', () => console.log('Audio loadeddata event'));
       
-      audio.src = currentAudioUrl;
+      // Try to decode the URL in case it's encoded
+      try {
+        const decodedUrl = decodeURIComponent(currentAudioUrl);
+        console.log('Decoded URL:', decodedUrl);
+        audio.src = decodedUrl;
+      } catch (e) {
+        audio.src = currentAudioUrl;
+      }
       audio.load();
 
       return () => {
@@ -167,7 +178,14 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
-      <audio ref={audioRef} preload="metadata" crossOrigin="anonymous" />
+      <audio 
+        ref={audioRef} 
+        preload="metadata" 
+        crossOrigin="anonymous"
+        onCanPlay={() => console.log('Audio can play:', currentAudioUrl)}
+        onLoadStart={() => console.log('Audio load start:', currentAudioUrl)}
+        onError={(e) => console.log('Audio element error:', e, currentAudioUrl)}
+      />
       <div className="container mx-auto px-4 py-4">
         {/* Progress bar */}
         <div className="mb-4">
