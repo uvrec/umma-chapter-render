@@ -10,43 +10,19 @@ export const Audio = () => {
   // Sample playlist data
   const srimadBhagavatamTracks = [
     {
-      id: "sb-1-1-1",
-      title: "Шрімад-Бгаґаватам 1.1.1",
+      id: "demo-sb-1",
+      title: "Демо звук - Шрімад-Бгаґаватам (тестовий)",
       duration: "5:32",
-      src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3"
-    },
-    {
-      id: "sb-1-1-2",
-      title: "Шрімад-Бгаґаватам 1.1.2",
-      duration: "6:15",
-      src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.2%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3"
-    },
-    {
-      id: "sb-1-1-3",
-      title: "Шрімад-Бгаґаватам 1.1.3",
-      duration: "7:42",
-      src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.3%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC).mp3"
+      src: "data:audio/mpeg;base64,//uQAAAAA8GgAKCAgICAAAWAAABuEBAGhzAAAOsAMDiAgICAAAQOAAEBAQEBAQEAABgAAAcE4A"
     }
   ];
 
   const bhagavadGitaTracks = [
     {
-      id: "bg-2-1",
-      title: "Бгаґавад-ґіта 2.1",
+      id: "demo-bg-1",
+      title: "Демо звук - Бгаґавад-ґіта (тестовий)",
       duration: "4:25",
-      src: ""
-    },
-    {
-      id: "bg-2-2", 
-      title: "Бгаґавад-ґіта 2.2",
-      duration: "5:18",
-      src: ""
-    },
-    {
-      id: "bg-2-3",
-      title: "Бгаґавад-ґіта 2.3",
-      duration: "6:33",
-      src: ""
+      src: "data:audio/mpeg;base64,//uQAAAAA8GgAKCAgICAAAWAAABuEBAGhzAAAOsAMDiAgICAAAQOAAEBAQEBAQEAABgAAAcE4A"
     }
   ];
 

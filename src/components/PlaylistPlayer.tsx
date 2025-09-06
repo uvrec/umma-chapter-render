@@ -55,6 +55,11 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
       title: track.title,
       src: track.src
     });
+    
+    // Show a toast for demo tracks
+    if (track.title.includes("тестовий") || track.title.includes("Демо")) {
+      console.log("Відтворюється демо трек:", track.title);
+    }
   };
 
   const handleNext = () => {

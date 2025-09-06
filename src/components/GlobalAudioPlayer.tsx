@@ -52,6 +52,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioRef.current = new Audio();
       audioRef.current.preload = "metadata";
       audioRef.current.crossOrigin = "anonymous";
+      audioRef.current.volume = volume / 100;
     }
     const audio = audioRef.current;
 
@@ -73,7 +74,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audio?.removeEventListener("timeupdate", handleTimeUpdate);
       audio?.removeEventListener("ended", handleEnded);
     };
-  }, [playlist, currentIndex]);
+  }, [playlist, currentIndex, volume]);
 
   const playTrackByIndex = (index: number) => {
     if (index < 0 || index >= playlist.length) return;
