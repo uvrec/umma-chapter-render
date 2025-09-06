@@ -56,7 +56,10 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     const audio = audioRef.current;
 
-    const handleLoadedMetadata = () => setDuration(audio?.duration || 0);
+    const handleLoadedMetadata = () => {
+      console.log("Audio loaded:", audio.src);
+      setDuration(audio?.duration || 0);
+    };
     const handleTimeUpdate = () => setCurrentTime(audio?.currentTime || 0);
     const handleEnded = () => {
       setIsPlaying(false);
@@ -64,15 +67,21 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         playTrackByIndex(currentIndex + 1);
       }
     };
+    const handleError = (e: Event) => {
+      console.error("Audio error:", e);
+      setIsPlaying(false);
+    };
 
     audio?.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio?.addEventListener("timeupdate", handleTimeUpdate);
     audio?.addEventListener("ended", handleEnded);
+    audio?.addEventListener("error", handleError);
 
     return () => {
       audio?.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio?.removeEventListener("timeupdate", handleTimeUpdate);
       audio?.removeEventListener("ended", handleEnded);
+      audio?.removeEventListener("error", handleError);
     };
   }, [playlist, currentIndex, volume]);
 

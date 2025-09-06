@@ -7,9 +7,9 @@ import { ArrowLeft, BookOpen, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const tracks = [
-  { id: "demo-beep", title: "Демо звук 1 (тестовий)", duration: "02:00", src: "data:audio/mpeg;base64,//uQAAAAA8GgAKCAgICAAAWAAABuEBAGhzAAAOsAMDiAgICAAAQOAAEBAQEBAQEAABgAAAcE4A" },
-  { id: "demo-tone", title: "Демо звук 2 (тестовий)", duration: "01:30", src: "data:audio/mpeg;base64,//uQAAAAA8GgAKCAgICAAAWAAABuEBAGhzAAAOsAMDiAgICAAAQOAAEBAQEBAQEAABgAAAcE4A" },
-  { id: "demo-sound", title: "Демо звук 3 (тестовий)", duration: "03:00", src: "data:audio/mpeg;base64,//uQAAAAA8GgAKCAgICAAAWAAABuEBAGhzAAAOsAMDiAgICAAAQOAAEBAQEBAQEAABgAAAcE4A" }
+  { id: "sb-1-1-1", title: "Шрімад-Бгаґаватам 1.1.1", duration: "5:32", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3" },
+  { id: "sb-1-1-2", title: "Шрімад-Бгаґаватам 1.1.2", duration: "6:15", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.2%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3" },
+  { id: "sb-1-1-3", title: "Шрімад-Бгаґаватам 1.1.3", duration: "7:42", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.3%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC).mp3" }
 ];
 
 const sampleReviews = [
