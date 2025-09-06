@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { VerseCard } from "./VerseCard";
-import { AudioPlayer } from "./AudioPlayer";
 import { Header } from "./Header";
 import { Breadcrumb } from "./Breadcrumb";
 import { SettingsPanel, type ContinuousReadingSettings } from "./SettingsPanel";
