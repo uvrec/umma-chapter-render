@@ -88,6 +88,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (index < 0 || index >= playlist.length) return;
     setCurrentIndex(index);
     if (audioRef.current) {
+      console.log("[Audio] playTrackByIndex set src:", playlist[index].src || playlist[index].url);
       audioRef.current.src = playlist[index].src || playlist[index].url;
       audioRef.current.load();
       audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
@@ -117,6 +118,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setCurrentIndex(newPlaylist.length - 1);
       
       if (audioRef.current) {
+        console.log("[Audio] playTrack new src:", newTrack.src);
         audioRef.current.src = newTrack.src;
         audioRef.current.load();
         audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
@@ -186,7 +188,12 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     nextTrack,
   };
 
-  return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;
+  return (
+    <AudioContext.Provider value={value}>
+      {children}
+      <audio ref={audioRef} preload="metadata" style={{ display: 'none' }} />
+    </AudioContext.Provider>
+  );
 };
 
 export const GlobalAudioPlayer = () => {
