@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
 import { NewHome } from "./pages/NewHome";
 import { VedaReader } from "./components/VedaReader";
+import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { Audio } from "./pages/Audio";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/" element={<NewHome />} />
             <Route path="/verses" element={<VedaReader />} />
             <Route path="/verses/:bookId" element={<VedaReader />} />
+            <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
             <Route path="/library" element={<Library />} />
             <Route path="/audiobooks" element={<Audio />} />
             <Route path="/audio/audiobooks" element={<Audiobooks />} />

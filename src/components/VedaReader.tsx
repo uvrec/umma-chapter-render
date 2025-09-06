@@ -93,9 +93,12 @@ export const VedaReader = () => {
         {filteredVerses.map((verse, index) => (
           <div key={verse.number} className="mb-4">
             {continuousReadingSettings.showVerseNumbers && (
-              <span className="font-bold text-red-600 mr-2">
+              <Link 
+                to={`/verses/${bookId}/${verse.number}`}
+                className="font-bold text-red-600 mr-2 hover:text-red-700 cursor-pointer underline"
+              >
                 ВІРШ {verse.number.split('.').pop()}:
-              </span>
+              </Link>
             )}
             
             {continuousReadingSettings.showSanskrit && verse.sanskrit && (
