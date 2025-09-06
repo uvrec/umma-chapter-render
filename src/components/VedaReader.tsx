@@ -25,8 +25,6 @@ import { verses } from "@/data/verses";
 export const VedaReader = () => {
   const { bookId } = useParams();
   const [currentVerse, setCurrentVerse] = useState<number>(1);
-  const [playingVerse, setPlayingVerse] = useState<string | null>(null);
-  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [fontSize, setFontSize] = useState(16);
   const [craftPaperMode, setCraftPaperMode] = useState(false);
@@ -76,21 +74,6 @@ export const VedaReader = () => {
     }
   };
 
-  const handlePlayVerse = (verseNumber: string) => {
-    if (playingVerse === verseNumber) {
-      setPlayingVerse(null);
-      setShowAudioPlayer(false);
-    } else {
-      setPlayingVerse(verseNumber);
-      setShowAudioPlayer(true);
-    }
-  };
-
-  const handleClosePlayer = () => {
-    setShowAudioPlayer(false);
-    setPlayingVerse(null);
-  };
-
   const handleVerseSelect = (verseNumber: string) => {
     const verse = filteredVerses.find(v => v.number === verseNumber);
     if (verse) {
@@ -102,7 +85,6 @@ export const VedaReader = () => {
   };
 
   const filteredVerses = getFilteredVerses(bookId);
-  const currentAudioUrl = filteredVerses.find(v => v.number === playingVerse)?.audioUrl || undefined;
 
   const renderContinuousText = () => {
     return (
@@ -206,8 +188,7 @@ export const VedaReader = () => {
                           translation={originalLanguage === 'english' ? "English translation coming soon..." : originalLanguage === 'bengali' ? "বাংলা অনুবাদ শীঘ্রই আসছে..." : verse.translation}
                           commentary={originalLanguage === 'sanskrit' ? verse.commentary : ''}
                           bookName={verse.book}
-                          isPlaying={playingVerse === verse.number}
-                          onPlay={() => handlePlayVerse(verse.number)}
+                          audioUrl={verse.audioUrl}
                           textDisplaySettings={originalLanguage === 'sanskrit' ? textDisplaySettings : {
                             showSanskrit: originalLanguage === 'sanskrit',
                             showTransliteration: false,
@@ -229,8 +210,7 @@ export const VedaReader = () => {
                           translation={verse.translation}
                           commentary={verse.commentary}
                           bookName={verse.book}
-                          isPlaying={playingVerse === verse.number}
-                          onPlay={() => handlePlayVerse(verse.number)}
+                          audioUrl={verse.audioUrl}
                           textDisplaySettings={{
                             showSanskrit: false,
                             showTransliteration: false,
@@ -250,8 +230,7 @@ export const VedaReader = () => {
                       translation={verse.translation}
                       commentary={verse.commentary}
                       bookName={verse.book}
-                      isPlaying={playingVerse === verse.number}
-                      onPlay={() => handlePlayVerse(verse.number)}
+                      audioUrl={verse.audioUrl}
                       textDisplaySettings={textDisplaySettings}
                     />
                   )}
@@ -296,7 +275,7 @@ export const VedaReader = () => {
         craftPaperMode={craftPaperMode}
         onCraftPaperToggle={setCraftPaperMode}
         verses={filteredVerses}
-        currentVerse={playingVerse || filteredVerses[0]?.number || ""}
+        currentVerse={filteredVerses[0]?.number || ""}
         onVerseSelect={handleVerseSelect}
         dualLanguageMode={dualLanguageMode}
         onDualLanguageModeToggle={setDualLanguageMode}
@@ -306,13 +285,6 @@ export const VedaReader = () => {
         onOriginalLanguageChange={setOriginalLanguage}
         continuousReadingSettings={continuousReadingSettings}
         onContinuousReadingSettingsChange={setContinuousReadingSettings}
-      />
-
-      <AudioPlayer
-        verseNumber={playingVerse || ""}
-        onClose={handleClosePlayer}
-        isVisible={showAudioPlayer}
-        audioUrl={filteredVerses.find(v => v.number === playingVerse)?.audioUrl}
       />
     </div>
   );

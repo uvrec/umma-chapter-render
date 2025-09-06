@@ -14,7 +14,7 @@ import {
   Repeat
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { incrementPlayCount } from "@/utils/playbackStats";
+import { useAudio } from "@/contexts/AudioContext";
 
 interface Track {
   id: string;
@@ -30,134 +30,55 @@ interface PlaylistPlayerProps {
 }
 
 export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, albumCover }) => {
-  const [currentTrack, setCurrentTrack] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState([100]);
-  const [isMuted, setIsMuted] = useState(false);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(true);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const countedRef = useRef(false);
+  
+  const { 
+    currentTrack, 
+    isPlaying, 
+    currentTime, 
+    duration, 
+    volume, 
+    playTrack, 
+    togglePlay, 
+    setVolume, 
+    seek 
+  } = useAudio();
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+  const currentPlaylistTrack = tracks[currentTrackIndex];
+  const isCurrentTrackInPlaylist = currentTrack && tracks.some(track => track.src === currentTrack.src);
 
-    let isMounted = true;
-    countedRef.current = false; // reset threshold flag for new track
-
-    const updateTime = () => {
-      if (!isMounted) return;
-      setCurrentTime(audio.currentTime);
-      const d = audio.duration || 0;
-      if (!countedRef.current && d > 0 && audio.currentTime / d >= 0.6) {
-        // Count a play for this track
-        const id = tracks[currentTrack]?.id || tracks[currentTrack]?.src || `track-${currentTrack}`;
-        try {
-          incrementPlayCount(id);
-        } catch {}
-        countedRef.current = true;
-      }
-    };
-    const updateDuration = () => setDuration(audio.duration);
-    const onEnded = () => {
-      setIsPlaying(false);
-      handleNext();
-    };
-    const onError = () => {
-      setIsPlaying(false);
-      console.warn('Audio error for src:', audio.src);
-    };
-
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', onEnded);
-    audio.addEventListener('error', onError);
-
-    return () => {
-      isMounted = false;
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('error', onError);
-    };
-  }, [currentTrack, tracks]);
-
-  const togglePlay = async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const currentSrc = tracks[currentTrack]?.src;
-    
-    // Skip tracks without audio source
-    if (!currentSrc || currentSrc.trim() === '') {
-      console.log('No audio source for track, skipping to next');
-      handleNext();
-      return;
-    }
-
-    try {
-      if (isPlaying) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        // Ensure audio source is set
-        if (audio.src !== currentSrc) {
-          audio.src = currentSrc;
-          console.log('Setting audio source:', currentSrc);
-        }
-        
-        await audio.play();
-        setIsPlaying(true);
-        console.log('Audio playing successfully');
-      }
-    } catch (e) {
-      console.error('Unable to play audio:', e);
-      setIsPlaying(false);
-      // Try next track if current one fails
-      setTimeout(() => {
-        handleNext();
-      }, 1000);
-    }
+  const handlePlayTrack = (track: Track, index: number) => {
+    setCurrentTrackIndex(index);
+    playTrack({
+      id: track.id,
+      title: track.title,
+      src: track.src
+    });
   };
 
   const handleNext = () => {
-    setCurrentTrack((prev) => (prev + 1) % tracks.length);
+    const nextIndex = (currentTrackIndex + 1) % tracks.length;
+    const nextTrack = tracks[nextIndex];
+    if (nextTrack?.src) {
+      handlePlayTrack(nextTrack, nextIndex);
+    }
   };
 
   const handlePrevious = () => {
-    setCurrentTrack((prev) => (prev - 1 + tracks.length) % tracks.length);
+    const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+    const prevTrack = tracks[prevIndex];
+    if (prevTrack?.src) {
+      handlePlayTrack(prevTrack, prevIndex);
+    }
   };
 
   const handleSeek = (value: number[]) => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.currentTime = value[0];
-      setCurrentTime(value[0]);
-    }
+    seek(value[0]);
   };
 
   const handleVolumeChange = (value: number[]) => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = value[0] / 100;
-      setVolume(value);
-      setIsMuted(value[0] === 0);
-    }
-  };
-
-  const toggleMute = () => {
-    const audio = audioRef.current;
-    if (audio) {
-      if (isMuted) {
-        audio.volume = volume[0] / 100;
-        setIsMuted(false);
-      } else {
-        audio.volume = 0;
-        setIsMuted(true);
-      }
-    }
+    setVolume(value[0]);
   };
 
   const formatTime = (time: number) => {
@@ -166,24 +87,8 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const selectTrack = (index: number) => {
-    setCurrentTrack(index);
-    setIsPlaying(false);
-  };
-
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <audio
-        ref={audioRef}
-        src={tracks[currentTrack]?.src}
-        onLoadedData={() => {
-          console.log('Audio loaded for:', tracks[currentTrack]?.title);
-          setIsPlaying(false);
-        }}
-        onCanPlay={() => console.log('Audio can play')}
-        onError={(e) => console.error('Audio error:', e)}
-      />
-
       {/* Main Player */}
       <Card className="p-6">
         <div className="space-y-4">
@@ -200,7 +105,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
             )}
             <div className="flex-1 text-center">
               <h3 className="text-lg font-semibold text-foreground mb-1">
-                {tracks[currentTrack]?.title}
+                {isCurrentTrackInPlaylist ? currentTrack.title : currentPlaylistTrack?.title}
               </h3>
               <p className="text-sm text-muted-foreground">{title}</p>
             </div>
@@ -214,6 +119,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
               step={1}
               onValueChange={handleSeek}
               className="w-full"
+              disabled={!isCurrentTrackInPlaylist}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{formatTime(currentTime)}</span>
@@ -227,8 +133,18 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
               <SkipBack className="w-5 h-5" />
             </Button>
             
-            <Button size="icon" onClick={togglePlay} className="w-12 h-12">
-              {isPlaying ? (
+            <Button 
+              size="icon" 
+              onClick={() => {
+                if (isCurrentTrackInPlaylist) {
+                  togglePlay();
+                } else {
+                  handlePlayTrack(currentPlaylistTrack, currentTrackIndex);
+                }
+              }}
+              className="w-12 h-12"
+            >
+              {isCurrentTrackInPlaylist && isPlaying ? (
                 <Pause className="w-6 h-6" />
               ) : (
                 <Play className="w-6 h-6" />
@@ -243,15 +159,11 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
           {/* Volume and Options */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" onClick={toggleMute}>
-                {isMuted ? (
-                  <VolumeX className="w-4 h-4" />
-                ) : (
-                  <Volume2 className="w-4 h-4" />
-                )}
+              <Button variant="ghost" size="icon">
+                <Volume2 className="w-4 h-4" />
               </Button>
               <Slider
-                value={isMuted ? [0] : volume}
+                value={[volume]}
                 max={100}
                 step={1}
                 onValueChange={handleVolumeChange}
@@ -294,15 +206,15 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
                 <div
                   key={track.id}
                   className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${
-                    index === currentTrack
+                    index === currentTrackIndex
                       ? 'bg-primary/10 text-primary'
                       : 'hover:bg-muted text-foreground'
                   }`}
-                  onClick={() => selectTrack(index)}
+                  onClick={() => handlePlayTrack(track, index)}
                 >
                   <div className="flex items-center space-x-3">
                     <span className="w-6 text-center text-sm">
-                      {index === currentTrack && isPlaying ? (
+                      {isCurrentTrackInPlaylist && currentTrack?.src === track.src && isPlaying ? (
                         <Play className="w-3 h-3" />
                       ) : (
                         index + 1

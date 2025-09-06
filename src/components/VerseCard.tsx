@@ -1,6 +1,7 @@
 import { Play, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAudio } from "@/contexts/AudioContext";
 
 interface VerseCardProps {
   verseNumber: string;
@@ -10,8 +11,7 @@ interface VerseCardProps {
   synonyms?: string;
   translation: string;
   commentary?: string;
-  onPlay: () => void;
-  isPlaying: boolean;
+  audioUrl?: string;
   textDisplaySettings?: {
     showSanskrit: boolean;
     showTransliteration: boolean;
@@ -29,8 +29,7 @@ export const VerseCard = ({
   synonyms,
   translation,
   commentary,
-  onPlay,
-  isPlaying,
+  audioUrl,
   textDisplaySettings = {
     showSanskrit: true,
     showTransliteration: true,
@@ -39,6 +38,20 @@ export const VerseCard = ({
     showCommentary: true
   }
 }: VerseCardProps) => {
+  const { playTrack, currentTrack, isPlaying } = useAudio();
+  
+  const handlePlay = () => {
+    if (audioUrl) {
+      playTrack({
+        id: verseNumber,
+        title: `Вірш ${verseNumber}`,
+        src: audioUrl,
+        verseNumber
+      });
+    }
+  };
+
+  const isCurrentlyPlaying = currentTrack?.id === verseNumber && isPlaying;
   return (
     <Card className="w-full bg-card border-border animate-fade-in">
       <div className="p-6">
@@ -56,11 +69,12 @@ export const VerseCard = ({
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={onPlay} 
-              className={`${isPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+              onClick={handlePlay} 
+              className={`${isCurrentlyPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
+              disabled={!audioUrl}
             >
-              <Play className={`w-4 h-4 mr-2 ${isPlaying ? 'fill-current' : ''}`} />
-              {isPlaying ? 'Відтворюється' : 'Слухати'}
+              <Play className={`w-4 h-4 mr-2 ${isCurrentlyPlaying ? 'fill-current' : ''}`} />
+              {isCurrentlyPlaying ? 'Відтворюється' : audioUrl ? 'Слухати' : 'Аудіо незабаром'}
             </Button>
           </div>
           <Button variant="ghost" size="sm">
