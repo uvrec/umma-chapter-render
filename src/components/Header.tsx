@@ -1,7 +1,23 @@
-import { Menu, Search, LogIn, Home, BookOpen, Headphones, User, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, Music, Mic } from "lucide-react";
+import {
+  Menu,
+  Search,
+  LogIn,
+  Home,
+  BookOpen,
+  Headphones,
+  Book,
+  MessageCircle,
+  Heart,
+  Languages,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Music,
+  Mic,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Sheet,
@@ -16,8 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useState } from "react";
-// Fixed NavigationMenu error
+import { useState, useRef } from "react";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -25,6 +40,17 @@ export const Header = () => {
   const [audioOpen, setAudioOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    const value = inputRef.current?.value || "";
+    if (value.trim()) {
+      navigate(`/glossary?search=${encodeURIComponent(value)}`);
+      setOpen(false);
+    }
+  };
 
   return (
     <header className="bg-background border-b border-border shadow-header">
@@ -34,18 +60,43 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold text-foreground flex items-center space-x-2">
               <div className="w-12 h-12 flex items-center justify-center">
-                <img src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" alt="Прабгупада солов'їною" className="w-full h-full object-contain" />
+                <img
+                  src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
+                  alt="Прабгупада Солов’їною"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
             <div className="hidden md:flex text-sm text-muted-foreground">
-              ведичні писання з коментарями ачар'їв
+              ведичні писання з коментарями ачар’їв
             </div>
           </div>
 
           {/* Banner Ad Placeholder */}
           <div className="hidden lg:flex items-center">
             <div className="bg-secondary border border-border rounded-md px-4 py-2 text-foreground text-sm">
-              <span className="text-primary font-semibold">Освіта:</span> Духовне знання для сучасного світу
+              <span className="text-primary font-semibold">Освіта:</span>{" "}
+              Духовне знання для сучасного світу
+            </div>
+          </div>
+
+          {/* Desktop search */}
+          <div className="hidden md:flex flex-1 max-w-md mx-6">
+            <div className="relative w-full">
+              <Input
+                ref={inputRef}
+                placeholder="Пошук по сайту та глосарію..."
+                className="pr-10"
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full"
+                onClick={handleSearch}
+              >
+                <Search className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -63,7 +114,7 @@ export const Header = () => {
         <div className="mt-4 flex items-center justify-between">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="md:hidden">
                 <Menu className="w-4 h-4" />
                 <span className="ml-2">Меню</span>
               </Button>
@@ -71,168 +122,202 @@ export const Header = () => {
             <SheetContent side="left" className="w-80">
               <SheetHeader>
                 <SheetTitle>Навігація</SheetTitle>
-                <SheetDescription>
-                  Оберіть розділ для перегляду
-                </SheetDescription>
+                <SheetDescription>Оберіть розділ для перегляду</SheetDescription>
               </SheetHeader>
               <div className="mt-6 space-y-4">
-                <Link 
-                  to="/" 
+                {/* Mobile search */}
+                <div className="block md:hidden">
+                  <div className="relative">
+                    <Input
+                      ref={inputRef}
+                      placeholder="Пошук по сайту та глосарію..."
+                      className="pr-10"
+                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full"
+                      onClick={handleSearch}
+                    >
+                      <Search className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <Link
+                  to="/"
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={() => setOpen(false)}
                 >
                   <Home className="w-5 h-5" />
                   <span>Головна</span>
                 </Link>
-                
+
                 <Collapsible open={libraryOpen} onOpenChange={setLibraryOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
                     <div className="flex items-center space-x-3">
                       <BookOpen className="w-5 h-5" />
                       <span>Бібліотека</span>
                     </div>
-                    {libraryOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    {libraryOpen ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
-                    <Link 
-                      to="/library" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/library"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <span>Всі розділи</span>
                     </Link>
-                    <Link 
-                      to="/library/prabhupada" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/library/prabhupada"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <span>Прабгупада</span>
                     </Link>
-                    <Link 
-                      to="/library/acharyas" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/library/acharyas"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
-                      <span>Ачар'ї</span>
+                      <span>Ачар’ї</span>
                     </Link>
-                    <Link 
-                      to="/library/other" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/library/other"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <span>Інше</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
-                
+
                 <Collapsible open={audioOpen} onOpenChange={setAudioOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
                     <div className="flex items-center space-x-3">
                       <Headphones className="w-5 h-5" />
                       <span>Аудіо</span>
                     </div>
-                    {audioOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    {audioOpen ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
-                    <Link 
-                      to="/audio/audiobooks" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/audio/audiobooks"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <BookOpen className="w-4 h-4 mr-1" />
                       <span>Аудіокниги</span>
                     </Link>
-                    <Link 
-                      to="/audio/lectures" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/audio/lectures"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <Mic className="w-4 h-4 mr-1" />
                       <span>Лекції</span>
                     </Link>
-                    <Link 
-                      to="/audio/music" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/audio/music"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <Music className="w-4 h-4 mr-1" />
                       <span>Музика</span>
                     </Link>
-                    <Link 
-                      to="/audio/podcasts" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/audio/podcasts"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <Mic className="w-4 h-4 mr-1" />
-                      <span>Подкаст</span>
+                      <span>Подкасти</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
-                
+
                 <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
                     <div className="flex items-center space-x-3">
                       <Languages className="w-5 h-5" />
                       <span>Переклади</span>
                     </div>
-                    {translationsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    {translationsOpen ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
                     <Collapsible open={prabhupadaOpen} onOpenChange={setPrabhupadaOpen}>
-                      <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm rounded-md hover:bg-muted">
                         <span>Прабгупада</span>
-                        {prabhupadaOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                        {prabhupadaOpen ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
                       </CollapsibleTrigger>
                       <CollapsibleContent className="ml-4 space-y-1 mt-1">
-                        <Link 
-                          to="/translations/prabhupada/letters" 
-                          className="flex items-center space-x-3 px-3 py-1 rounded-md hover:bg-muted transition-colors text-foreground text-xs"
+                        <Link
+                          to="/translations/prabhupada/letters"
+                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
                           onClick={() => setOpen(false)}
                         >
                           <span>Листи</span>
                         </Link>
-                        <Link 
-                          to="/translations/prabhupada/lectures" 
-                          className="flex items-center space-x-3 px-3 py-1 rounded-md hover:bg-muted transition-colors text-foreground text-xs"
+                        <Link
+                          to="/translations/prabhupada/lectures"
+                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
                           onClick={() => setOpen(false)}
                         >
                           <span>Лекції</span>
                         </Link>
-                        <Link 
-                          to="/translations/prabhupada/books" 
-                          className="flex items-center space-x-3 px-3 py-1 rounded-md hover:bg-muted transition-colors text-foreground text-xs"
+                        <Link
+                          to="/translations/prabhupada/books"
+                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
                           onClick={() => setOpen(false)}
                         >
                           <span>Книги</span>
                         </Link>
-                        <Link 
-                          to="/translations/prabhupada/photos" 
-                          className="flex items-center space-x-3 px-3 py-1 rounded-md hover:bg-muted transition-colors text-foreground text-xs"
+                        <Link
+                          to="/translations/prabhupada/photos"
+                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
                           onClick={() => setOpen(false)}
                         >
                           <span>Фото</span>
                         </Link>
                       </CollapsibleContent>
                     </Collapsible>
-                    <Link 
-                      to="/translations/aindra-prabhu" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/translations/aindra-prabhu"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
                       <span>Аіндри прабгу</span>
                     </Link>
-                    <Link 
-                      to="/translations/acharya-books" 
-                      className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
+                    <Link
+                      to="/translations/acharya-books"
+                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
-                      <span>Книги ачар'їв</span>
+                      <span>Книги ачар’їв</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
-                
-                <Link 
-                  to="/glossary" 
+
+                <Link
+                  to="/glossary"
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={() => setOpen(false)}
                 >
@@ -240,27 +325,26 @@ export const Header = () => {
                   <span>Глосарій</span>
                 </Link>
 
-                <Link 
-                  to="/blog" 
+                <Link
+                  to="/blog"
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={() => setOpen(false)}
                 >
                   <FileText className="w-5 h-5" />
                   <span>Блог</span>
                 </Link>
-                
-                
-                <Link 
-                  to="/contact" 
+
+                <Link
+                  to="/contact"
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={() => setOpen(false)}
                 >
                   <MessageCircle className="w-5 h-5" />
                   <span>Контакти</span>
                 </Link>
-                
-                <Link 
-                  to="/donation" 
+
+                <Link
+                  to="/donation"
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
                   onClick={() => setOpen(false)}
                 >
@@ -270,36 +354,6 @@ export const Header = () => {
               </div>
             </SheetContent>
           </Sheet>
-          
-          <div className="flex-1 max-w-md ml-4">
-            <div className="relative">
-              <Input 
-                placeholder="Пошук по сайту та глосарію..." 
-                className="pr-10"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    const searchTerm = e.currentTarget.value;
-                    if (searchTerm.trim()) {
-                      window.location.href = `/glossary?search=${encodeURIComponent(searchTerm)}`;
-                    }
-                  }
-                }}
-              />
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="absolute right-0 top-0 h-full"
-                onClick={() => {
-                  const input = document.querySelector('input[placeholder*="Пошук"]') as HTMLInputElement;
-                  if (input && input.value.trim()) {
-                    window.location.href = `/glossary?search=${encodeURIComponent(input.value)}`;
-                  }
-                }}
-              >
-                <Search className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     </header>
