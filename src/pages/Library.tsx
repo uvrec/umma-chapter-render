@@ -37,7 +37,7 @@ const books: Book[] = [{
   verseLink: "/verses/srimad-bhagavatam",
   coverImage: srimadBhagavatam1Cover,
   category: "classics",
-  purchaseUrl: "https://books.krishna.ua/ua/srimad-bhagavatam-1-pisnja/"
+  purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
 }, {
   id: "sb-2",
   title: "Друга пісня Шрімад Бгаґаватам",
