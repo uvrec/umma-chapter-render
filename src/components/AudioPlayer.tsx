@@ -11,11 +11,10 @@ interface AudioPlayerProps {
   audioUrl?: string;
 }
 
-// Audio URLs mapping - Cloudflare R2 and other sources
+// Audio URLs mapping - Add working audio URLs here
 const AUDIO_URLS: Record<string, string> = {
-  "ШБ 1.1.1": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
-  "ШБ 1.1.2": "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE",
-  // Add more mappings as needed
+  // Add working audio URLs when available
+  // "ШБ 1.1.1": "working_audio_url_here",
 };
 
 export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: AudioPlayerProps) => {
@@ -165,6 +164,21 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
   };
 
   if (!isVisible) return null;
+
+  // Show message if no audio URL is available
+  if (!currentAudioUrl) {
+    return (
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
+        <div className="container mx-auto px-4 py-4 text-center">
+          <p className="text-muted-foreground mb-2">Аудіо для цього вірша поки недоступне</p>
+          <p className="text-sm text-muted-foreground">Вірш {verseNumber}</p>
+          <Button variant="ghost" size="sm" onClick={onClose} className="mt-2">
+            Закрити
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
