@@ -15,7 +15,7 @@ export const NewHome = () => {
       <section 
         className="relative min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url(${templeBackground})`
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url(/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png)`
         }}
       >
         <div className="container mx-auto px-4 text-center text-white">
