@@ -74,6 +74,8 @@ export const VedaReader = () => {
     }
   };
 
+  const filteredVerses = getFilteredVerses(bookId);
+
   const handleVerseSelect = (verseNumber: string) => {
     const verse = filteredVerses.find(v => v.number === verseNumber);
     if (verse) {
@@ -83,8 +85,6 @@ export const VedaReader = () => {
       }
     }
   };
-
-  const filteredVerses = getFilteredVerses(bookId);
 
   const renderContinuousText = () => {
     return (
