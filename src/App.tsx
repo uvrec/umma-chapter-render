@@ -3,11 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Home } from "./pages/Home";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { NewHome } from "./pages/NewHome";
 import { VedaReader } from "./components/VedaReader";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
-import { Audiobooks } from "./pages/Audiobooks";
+import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
 import { SriIsopanishad } from "./pages/audiobooks/SriIsopanishad";
@@ -20,16 +21,17 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
+    <ThemeProvider defaultTheme="light" storageKey="veda-ui-theme">
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<NewHome />} />
           <Route path="/verses" element={<VedaReader />} />
           <Route path="/verses/:bookId" element={<VedaReader />} />
           <Route path="/library" element={<Library />} />
-          <Route path="/audiobooks" element={<Audiobooks />} />
+          <Route path="/audiobooks" element={<Audio />} />
           <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
           <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
           <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
@@ -42,6 +44,7 @@ const App = () => (
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
+  </ThemeProvider>
   </QueryClientProvider>
 );
 

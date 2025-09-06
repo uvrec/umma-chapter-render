@@ -134,6 +134,60 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .craft {
+    --background: 37 44% 92%;
+    --foreground: 35 25% 20%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 35 25% 20%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 35 25% 20%;
+
+    --primary: 35 25% 20%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 35 25% 15%;
+
+    --secondary: 37 25% 85%;
+    --secondary-foreground: 35 25% 20%;
+
+    --muted: 37 25% 85%;
+    --muted-foreground: 35 15% 45%;
+
+    --accent: 37 25% 85%;
+    --accent-foreground: 35 25% 20%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 37 25% 75%;
+    --input: 37 25% 75%;
+    --ring: 35 25% 20%;
+    
+    /* Craft paper colors */
+    --academic-blue: 35 25% 20%;
+    --academic-blue-light: 37 25% 85%;
+    --academic-gray: 35 15% 45%;
+    --academic-accent: 37 44% 92%;
+    
+    /* Craft gradients */
+    --gradient-header: hsl(var(--background));
+    --gradient-card: rgba(255, 255, 255, 0.8);
+    
+    /* Craft shadows */
+    --shadow-card: 0 2px 8px rgba(120, 119, 108, 0.15);
+    --shadow-verse: 0 1px 3px rgba(120, 119, 108, 0.1);
+    --shadow-header: 0 1px 3px rgba(120, 119, 108, 0.1);
+    --sidebar-background: 37 44% 90%;
+    --sidebar-foreground: 35 25% 20%;
+    --sidebar-primary: 35 25% 20%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 37 25% 85%;
+    --sidebar-accent-foreground: 35 25% 20%;
+    --sidebar-border: 37 25% 75%;
+    --sidebar-ring: 35 25% 20%;
+  }
 }
 
 @layer base {

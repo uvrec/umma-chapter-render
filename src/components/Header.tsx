@@ -2,6 +2,7 @@ import { Menu, Search, LogIn, Home, BookOpen, Headphones, User, Book, MessageCir
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Sheet,
   SheetContent,
@@ -46,11 +47,14 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Login Button */}
-          <Button variant="outline" size="sm">
-            <LogIn className="w-4 h-4" />
-            Увійти
-          </Button>
+          {/* Theme Toggle and Login Button */}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button variant="outline" size="sm">
+              <LogIn className="w-4 h-4" />
+              Увійти
+            </Button>
+          </div>
         </div>
 
         {/* Navigation Bar */}
@@ -94,7 +98,7 @@ export const Header = () => {
                   onClick={() => setOpen(false)}
                 >
                   <Headphones className="w-5 h-5" />
-                  <span>Аудіокниги</span>
+                  <span>Аудіо</span>
                 </Link>
                 
                 <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>

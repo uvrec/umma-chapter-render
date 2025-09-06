@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { BookOpen, Search, Filter, Clock, Star, Headphones, User } from "lucide-react";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
 import smallBookIcon from "@/assets/small-book-icon.webp";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
@@ -199,15 +201,19 @@ export const Library = () => {
                     {book.hasVerse && (
                       <Link to={book.verseLink!}>
                         <Badge variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors">
+                          <BookOpen className="w-3 h-3 mr-1" />
                           Читати
                         </Badge>
                       </Link>
                     )}
-                    <a href={book.purchaseUrl} target="_blank" rel="noopener noreferrer">
-                      <Badge variant="default" className="hover:bg-primary/80 transition-colors">
-                        Купити
-                      </Badge>
-                    </a>
+                    <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
+                      <Headphones className="w-3 h-3 mr-1" />
+                      Аудіокнига
+                    </Badge>
+                    <Badge variant="outline" className="hover:bg-muted transition-colors cursor-pointer">
+                      <User className="w-3 h-3 mr-1" />
+                      Прабгупада
+                    </Badge>
                   </div>
                 </CardContent>
               </Card>
