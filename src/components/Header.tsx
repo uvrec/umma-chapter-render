@@ -31,7 +31,7 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <div className="text-2xl font-bold text-foreground flex items-center space-x-2">
               <div className="w-12 h-12 flex items-center justify-center">
-                <img src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" alt="Прабгупада солов'їною" className="w-full h-full object-contain" />
+                <img src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" alt="Прабгупада солов'їною" className="w-full h-full object-contain" />
               </div>
             </div>
             <div className="hidden md:flex text-sm text-muted-foreground">

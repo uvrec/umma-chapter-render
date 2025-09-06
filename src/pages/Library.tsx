@@ -156,7 +156,7 @@ export const Library = () => {
           <div className="flex justify-center mb-6">
             <div className="w-24 h-24">
               <img 
-                src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" 
+                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
                 alt="Прабгупада солов'їною" 
                 className="w-full h-full object-contain"
               />

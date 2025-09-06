@@ -24,7 +24,7 @@ export const NewHome = () => {
             <div className="flex flex-col items-center mb-6">
               <div className="w-32 h-32 md:w-40 md:h-40 mb-4">
                 <img 
-                  src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" 
+                  src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
                   alt="Прабгупада солов'їною" 
                   className="w-full h-full object-contain"
                 />

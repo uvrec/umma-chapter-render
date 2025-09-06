@@ -60,7 +60,7 @@ export const Audio = () => {
           <div className="max-w-4xl mx-auto">
             <div className="w-24 h-24 mx-auto mb-6">
               <img 
-                src="/lovable-uploads/fc405cce-acb5-403c-aa8a-ed7736fc810b.png" 
+                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
                 alt="Прабгупада солов'їною" 
                 className="w-full h-full object-contain"
               />
