@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ArrowLeft, Music as MusicIcon, Users, Calendar } from "lucide-react";
+import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 
 export const Music = () => {
@@ -99,10 +100,45 @@ export const Music = () => {
           src: "/audio/music/japa-ambient.mp3"
         }
       ]
+    },
+    {
+      id: "fudo-kazuki",
+      title: "Fudo Kazuki - Дискографія",
+      description: "Експериментальна духовна музика, ambient, електроніка з елементами традиційних мантр",
+      cover: "/src/assets/albums/the-glories-of-radha-kunda.jpg",
+      artist: "Fudo Kazuki",
+      year: "2020-2024",
+      genre: "Експериментальна",
+      tracks: [
+        {
+          id: "glories-radha-kunda",
+          title: "The Glories of Rādhā-Kuṇḍa",
+          duration: "8:42",
+          src: "https://fudokazuki.bandcamp.com/track/the-glories-of-r-dh-ku-a"
+        },
+        {
+          id: "gauranga-track",
+          title: "Gauranga",
+          duration: "6:33",
+          src: "https://fudokazuki.bandcamp.com/track/gauranga"
+        },
+        {
+          id: "relief-gopi",
+          title: "Relief (Gopi Gita)",
+          duration: "7:21",
+          src: "https://fudokazuki.bandcamp.com/track/relief-gopi-gita"
+        },
+        {
+          id: "childhood-prema",
+          title: "Childhood (Prema Bhakti Candrika)",
+          duration: "5:15",
+          src: "https://fudokazuki.bandcamp.com/track/childhood-prema-bhakti-candrika"
+        }
+      ]
     }
   ];
 
-  const genres = ["Всі", "Мантри", "Духовні пісні", "Fusion", "Медитація"];
+  const genres = ["Всі", "Мантри", "Духовні пісні", "Fusion", "Медитація", "Експериментальна"];
 
   return (
     <div className="min-h-screen bg-background">
@@ -210,6 +246,7 @@ export const Music = () => {
           </Link>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 };

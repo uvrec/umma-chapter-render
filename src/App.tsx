@@ -12,7 +12,11 @@ import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
 import { SriIsopanishad } from "./pages/audiobooks/SriIsopanishad";
-import { FudoKazuki } from "./pages/FudoKazuki";
+import { Footer } from "./components/Footer";
+import { Podcasts } from "./pages/audio/Podcasts";
+import { CardPayment } from "./pages/payment/CardPayment";
+import { BankTransfer } from "./pages/payment/BankTransfer";
+import { OtherMethods } from "./pages/payment/OtherMethods";
 import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
 import { Donation } from "./pages/Donation";
@@ -43,10 +47,13 @@ const App = () => (
           <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
           <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/fudokazuki" element={<FudoKazuki />} />
+          <Route path="/audio/podcasts" element={<Podcasts />} />
           <Route path="/glossary" element={<Glossary />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/donation" element={<Donation />} />
+          <Route path="/payment/card" element={<CardPayment />} />
+          <Route path="/payment/bank" element={<BankTransfer />} />
+          <Route path="/payment/other" element={<OtherMethods />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

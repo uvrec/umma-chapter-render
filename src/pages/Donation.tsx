@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Heart, CreditCard, Banknote } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/Footer";
 
 export const Donation = () => {
   return (
@@ -31,7 +32,7 @@ export const Donation = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Швидкий та безпечний спосіб підтримки
               </p>
-              <Button className="w-full">Підтримати</Button>
+              <Button className="w-full" onClick={() => window.location.href = '/payment/card'}>Підтримати</Button>
             </Card>
             
             <Card className="p-6 text-center">
@@ -40,7 +41,7 @@ export const Donation = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Переказ на банківський рахунок проєкту
               </p>
-              <Button variant="outline" className="w-full">Реквізити</Button>
+              <Button variant="outline" className="w-full" onClick={() => window.location.href = '/payment/bank'}>Реквізити</Button>
             </Card>
             
             <Card className="p-6 text-center">
@@ -49,11 +50,12 @@ export const Donation = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Криптовалюти та інші методи підтримки
               </p>
-              <Button variant="outline" className="w-full">Дізнатися</Button>
+              <Button variant="outline" className="w-full" onClick={() => window.location.href = '/payment/other'}>Дізнатися</Button>
             </Card>
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

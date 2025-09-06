@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ArrowLeft, Mic, Calendar, Clock } from "lucide-react";
+import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 
 export const Lectures = () => {
@@ -183,6 +184,7 @@ export const Lectures = () => {
           </Link>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 };

@@ -144,12 +144,12 @@ export const Header = () => {
                       <span>Лекції</span>
                     </Link>
                     <Link 
-                      to="/audio/music" 
+                      to="/audio/podcasts" 
                       className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
                       onClick={() => setOpen(false)}
                     >
-                      <Music className="w-4 h-4 mr-1" />
-                      <span>Музика</span>
+                      <Mic className="w-4 h-4 mr-1" />
+                      <span>Подкасти</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
@@ -235,12 +235,12 @@ export const Header = () => {
                 </Link>
                 
                 <Link 
-                  to="/fudokazuki" 
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  to="/audio/podcasts" 
+                  className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-muted transition-colors text-foreground text-sm"
                   onClick={() => setOpen(false)}
                 >
-                  <User className="w-5 h-5" />
-                  <span>Fudo Kazuki</span>
+                  <Mic className="w-4 h-4 mr-1" />
+                  <span>Подкасти</span>
                 </Link>
                 
                 <Link 

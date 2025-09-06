@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { BookOpen, Headphones, Book, ChevronDown, Play, Clock, User } from "lucide-react";
 import templeBackground from "@/assets/temple-background.jpg";
@@ -249,6 +250,7 @@ export const NewHome = () => {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 };

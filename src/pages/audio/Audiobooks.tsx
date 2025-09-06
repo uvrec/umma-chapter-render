@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Clock, Play, Star } from "lucide-react";
+import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 
 export const Audiobooks = () => {
@@ -192,6 +193,7 @@ export const Audiobooks = () => {
           </Link>
         </Card>
       </main>
+      <Footer />
     </div>
   );
 };
