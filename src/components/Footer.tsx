@@ -50,10 +50,10 @@ export const Footer = () => {
           
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              © 2024 Прабгупада солов'їною. Всі права захищені.
+              © 2025 Прабгупада солов'їною. Всі права захищені.
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Поширення ведичних знань для духовного розвитку
+              © 2025 Prabhupada Enhanced
             </p>
           </div>
         </div>
