@@ -14,7 +14,7 @@ import {
   Repeat
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAudio } from "@/contexts/AudioContext";
+import { useAudio } from '@/components/GlobalAudioPlayer';
 
 interface Track {
   id: string;

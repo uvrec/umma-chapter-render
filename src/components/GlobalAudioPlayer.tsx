@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
 interface Track {
+  id: string;
   title: string;
   verseNumber?: string;
   url: string;
+  src: string;
 }
 
 interface AudioContextType {
@@ -17,7 +19,7 @@ interface AudioContextType {
   currentTime: number;
   duration: number;
   volume: number;
-  playTrack: (index: number) => void;
+  playTrack: (track: { id: string; title: string; src: string; verseNumber?: string }) => void;
   togglePlay: () => void;
   stop: () => void;
   seek: (time: number) => void;
@@ -35,10 +37,7 @@ export const useAudio = () => {
 };
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [playlist, setPlaylist] = useState<Track[]>([
-    { title: "ШБ 1.1.1", verseNumber: "1.1.1", url: "https://audio.fudokazuki.com/sample1.mp3" },
-    { title: "ШБ 1.1.2", verseNumber: "1.1.2", url: "https://audio.fudokazuki.com/sample2.mp3" },
-  ]);
+  const [playlist, setPlaylist] = useState<Track[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -61,7 +60,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const handleEnded = () => {
       setIsPlaying(false);
       if (currentIndex !== null && currentIndex < playlist.length - 1) {
-        playTrack(currentIndex + 1);
+        playTrackByIndex(currentIndex + 1);
       }
     };
 
@@ -76,12 +75,38 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   }, [playlist, currentIndex]);
 
-  const playTrack = (index: number) => {
+  const playTrackByIndex = (index: number) => {
     if (index < 0 || index >= playlist.length) return;
     setCurrentIndex(index);
     if (audioRef.current) {
-      audioRef.current.src = playlist[index].url;
+      audioRef.current.src = playlist[index].src || playlist[index].url;
       audioRef.current.play().then(() => setIsPlaying(true));
+    }
+  };
+
+  const playTrack = (track: { id: string; title: string; src: string; verseNumber?: string }) => {
+    // Додаємо трек до плейлиста якщо його немає
+    const existingIndex = playlist.findIndex(t => t.id === track.id);
+    
+    if (existingIndex >= 0) {
+      playTrackByIndex(existingIndex);
+    } else {
+      const newTrack: Track = {
+        id: track.id,
+        title: track.title,
+        verseNumber: track.verseNumber,
+        url: track.src,
+        src: track.src
+      };
+      
+      const newPlaylist = [...playlist, newTrack];
+      setPlaylist(newPlaylist);
+      setCurrentIndex(newPlaylist.length - 1);
+      
+      if (audioRef.current) {
+        audioRef.current.src = track.src;
+        audioRef.current.play().then(() => setIsPlaying(true));
+      }
     }
   };
 
@@ -117,11 +142,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const prevTrack = () => {
-    if (currentIndex !== null && currentIndex > 0) playTrack(currentIndex - 1);
+    if (currentIndex !== null && currentIndex > 0) playTrackByIndex(currentIndex - 1);
   };
 
   const nextTrack = () => {
-    if (currentIndex !== null && currentIndex < playlist.length - 1) playTrack(currentIndex + 1);
+    if (currentIndex !== null && currentIndex < playlist.length - 1) playTrackByIndex(currentIndex + 1);
   };
 
   const value: AudioContextType = {

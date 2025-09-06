@@ -1,7 +1,7 @@
 import { Play, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useAudio } from "@/contexts/AudioContext";
+import { useAudio } from '@/components/GlobalAudioPlayer';
 
 interface VerseCardProps {
   verseNumber: string;
