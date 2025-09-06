@@ -70,7 +70,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
       const handleError = () => {
         setIsPlaying(false);
         setIsLoadingAudio(false);
-        console.warn('Audio error for verse:', verseNumber, 'src:', audio.src);
+        // Silently handle audio errors - don't show to user
       };
 
       audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -164,21 +164,6 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
   };
 
   if (!isVisible) return null;
-
-  // Show message if no audio URL is available
-  if (!currentAudioUrl) {
-    return (
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
-        <div className="container mx-auto px-4 py-4 text-center">
-          <p className="text-muted-foreground mb-2">Аудіо для цього вірша поки недоступне</p>
-          <p className="text-sm text-muted-foreground">Вірш {verseNumber}</p>
-          <Button variant="ghost" size="sm" onClick={onClose} className="mt-2">
-            Закрити
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">

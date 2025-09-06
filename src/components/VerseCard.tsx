@@ -58,10 +58,9 @@ export const VerseCard = ({
               size="sm" 
               onClick={onPlay} 
               className={`${isPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
-              disabled={!verseNumber.includes('1.1.1')} // Temporarily disable for verses without audio
             >
               <Play className={`w-4 h-4 mr-2 ${isPlaying ? 'fill-current' : ''}`} />
-              {isPlaying ? 'Відтворюється' : verseNumber.includes('1.1.1') ? 'Слухати' : 'Аудіо незабаром'}
+              {isPlaying ? 'Відтворюється' : 'Слухати'}
             </Button>
           </div>
           <Button variant="ghost" size="sm">
