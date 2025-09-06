@@ -216,10 +216,17 @@ export const Library = () => {
                         </Badge>
                       </Link>
                     )}
-                    <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
-                      <Headphones className="w-3 h-3 mr-1" />
-                      Аудіокнига
-                    </Badge>
+                    <Link to={
+                        book.id === 'sb-1-1' ? '/audiobooks/srimad-bhagavatam' :
+                        book.id === 'bg' ? '/audiobooks/bhagavad-gita' :
+                        book.id === 'iso' ? '/audiobooks/sri-isopanishad' :
+                        '/audio/audiobooks'
+                      }>
+                      <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
+                        <Headphones className="w-3 h-3 mr-1" />
+                        Аудіокнига
+                      </Badge>
+                    </Link>
                     <Badge variant="outline" className="hover:bg-muted transition-colors cursor-pointer">
                       <Link to="/audio/lectures" className="flex items-center">
                         <User className="w-3 h-3 mr-1" />

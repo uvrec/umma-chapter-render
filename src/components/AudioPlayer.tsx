@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, RotateCw, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { incrementPlayCount } from "@/utils/playbackStats";
 
 interface AudioPlayerProps {
   verseNumber: string;
@@ -26,6 +27,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const countedRef = useRef(false);
 
   // Get audio URL for current verse
   const currentAudioUrl = audioUrl || AUDIO_URLS[verseNumber];
@@ -35,13 +37,26 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
     if (currentAudioUrl && audioRef.current) {
       const audio = audioRef.current;
       
+      let isMounted = true;
+      countedRef.current = false; // reset for new verse/audio
+
       const handleLoadedMetadata = () => {
         setDuration(Math.floor(audio.duration));
         setIsLoadingAudio(false);
       };
       
       const handleTimeUpdate = () => {
-        setCurrentTime(Math.floor(audio.currentTime));
+        if (!isMounted) return;
+        const ct = Math.floor(audio.currentTime);
+        setCurrentTime(ct);
+        const d = audio.duration || 0;
+        if (!countedRef.current && d > 0 && audio.currentTime / d >= 0.6) {
+          try {
+            const id = verseNumber || currentAudioUrl;
+            incrementPlayCount(id);
+          } catch {}
+          countedRef.current = true;
+        }
       };
       
       const handleEnded = () => {
@@ -53,22 +68,31 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
         setIsLoadingAudio(true);
       };
 
+      const handleError = () => {
+        setIsPlaying(false);
+        setIsLoadingAudio(false);
+        console.warn('Audio error for verse:', verseNumber, 'src:', audio.src);
+      };
+
       audio.addEventListener('loadedmetadata', handleLoadedMetadata);
       audio.addEventListener('timeupdate', handleTimeUpdate);
       audio.addEventListener('ended', handleEnded);
       audio.addEventListener('loadstart', handleLoadStart);
+      audio.addEventListener('error', handleError);
       
       audio.src = currentAudioUrl;
       audio.load();
 
       return () => {
+        isMounted = false;
         audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
         audio.removeEventListener('timeupdate', handleTimeUpdate);
         audio.removeEventListener('ended', handleEnded);
         audio.removeEventListener('loadstart', handleLoadStart);
+        audio.removeEventListener('error', handleError);
       };
     }
-  }, [currentAudioUrl]);
+  }, [currentAudioUrl, verseNumber]);
 
   // Update audio playback speed
   useEffect(() => {
@@ -144,7 +168,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
-      <audio ref={audioRef} preload="metadata" />
+      <audio ref={audioRef} preload="metadata" crossOrigin="anonymous" />
       <div className="container mx-auto px-4 py-4">
         {/* Progress bar */}
         <div className="mb-4">

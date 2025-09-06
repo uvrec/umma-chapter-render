@@ -14,6 +14,7 @@ import {
   Repeat
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { incrementPlayCount } from "@/utils/playbackStats";
 
 interface Track {
   id: string;
@@ -37,35 +38,72 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
   const [isMuted, setIsMuted] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(true);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const countedRef = useRef(false);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
+    let isMounted = true;
+    countedRef.current = false; // reset threshold flag for new track
+
+    const updateTime = () => {
+      if (!isMounted) return;
+      setCurrentTime(audio.currentTime);
+      const d = audio.duration || 0;
+      if (!countedRef.current && d > 0 && audio.currentTime / d >= 0.6) {
+        // Count a play for this track
+        const id = tracks[currentTrack]?.id || tracks[currentTrack]?.src || `track-${currentTrack}`;
+        try {
+          incrementPlayCount(id);
+        } catch {}
+        countedRef.current = true;
+      }
+    };
     const updateDuration = () => setDuration(audio.duration);
+    const onEnded = () => {
+      setIsPlaying(false);
+      handleNext();
+    };
+    const onError = () => {
+      setIsPlaying(false);
+      console.warn('Audio error for src:', audio.src);
+    };
 
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', handleNext);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('error', onError);
 
     return () => {
+      isMounted = false;
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', handleNext);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('error', onError);
     };
-  }, [currentTrack]);
+  }, [currentTrack, tracks]);
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (isPlaying) {
-      audio.pause();
-    } else {
-      audio.play();
+    try {
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        if (!tracks[currentTrack]?.src) {
+          console.warn('No audio source for current track');
+          return;
+        }
+        await audio.play();
+        setIsPlaying(true);
+      }
+    } catch (e) {
+      console.warn('Unable to play audio:', e);
+      setIsPlaying(false);
     }
-    setIsPlaying(!isPlaying);
   };
 
   const handleNext = () => {
@@ -122,6 +160,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
       <audio
         ref={audioRef}
         src={tracks[currentTrack]?.src}
+        crossOrigin="anonymous"
         onLoadedData={() => setIsPlaying(false)}
       />
 
