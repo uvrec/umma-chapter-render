@@ -57,11 +57,10 @@ export const VerseCard = ({
               variant="ghost" 
               size="sm" 
               onClick={onPlay} 
-              className="text-muted-foreground hover:text-primary"
-              disabled={true}
+              className={`${isPlaying ? 'text-primary' : 'text-muted-foreground'} hover:text-primary`}
             >
-              <Play className="w-4 h-4 mr-2" />
-              Аудіо незабаром
+              <Play className={`w-4 h-4 mr-2 ${isPlaying ? 'fill-current' : ''}`} />
+              {isPlaying ? 'Відтворюється' : 'Слухати'}
             </Button>
           </div>
           <Button variant="ghost" size="sm">
