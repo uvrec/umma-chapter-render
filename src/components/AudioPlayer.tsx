@@ -1,118 +1,133 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, SkipBack, SkipForward, RotateCcw, RotateCw, X, Volume2 } from "lucide-react";
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  RotateCcw,
+  RotateCw,
+  X,
+  Volume2,
+  Repeat,
+  Repeat1,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { incrementPlayCount } from "@/utils/playbackStats";
 
 interface AudioPlayerProps {
-  verseNumber: string;
+  playlist: { verseNumber: string; audioUrl?: string }[];
+  initialIndex?: number;
   onClose: () => void;
   isVisible: boolean;
-  audioUrl?: string;
 }
 
-// Audio URLs mapping - Add working audio URLs here
-const AUDIO_URLS: Record<string, string> = {
-  "ШБ 1.1.1": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
-  "ШБ 1.1.2": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.2%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
-  "ШБ 1.1.3": "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.3%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC).mp3"
-};
+type RepeatMode = "off" | "one" | "all";
 
-export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: AudioPlayerProps) => {
+export const AudioPlayer = ({
+  playlist,
+  initialIndex = 0,
+  onClose,
+  isVisible,
+}: AudioPlayerProps) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [speed, setSpeed] = useState("1x");
   const [volume, setVolume] = useState([75]);
-  
-  const audioRef = useRef<HTMLAudioElement>(null);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<RepeatMode>("all");
+
+  const audioRef = useRef<HTMLAudioElement>(null);
   const countedRef = useRef(false);
 
-  // Get audio URL for current verse
-  const currentAudioUrl = audioUrl || AUDIO_URLS[verseNumber];
-  console.log('Current audio URL for', verseNumber, ':', currentAudioUrl);
+  const currentItem = playlist[currentIndex];
+  const currentAudioUrl = currentItem?.audioUrl;
+  const verseNumber = currentItem?.verseNumber || "";
 
-  // Initialize audio element
+  // завантаження нового аудіо
   useEffect(() => {
-    if (currentAudioUrl && audioRef.current) {
-      const audio = audioRef.current;
-      
-      let isMounted = true;
-      countedRef.current = false; // reset for new verse/audio
+    if (!currentAudioUrl || !audioRef.current) return;
+    const audio = audioRef.current;
+    let isMounted = true;
+    countedRef.current = false;
+    setCurrentTime(0);
+    setDuration(0);
 
-      const handleLoadedMetadata = () => {
-        setDuration(Math.floor(audio.duration));
-        setIsLoadingAudio(false);
-      };
-      
-      const handleTimeUpdate = () => {
-        if (!isMounted) return;
-        const ct = Math.floor(audio.currentTime);
-        setCurrentTime(ct);
-        const d = audio.duration || 0;
-        if (!countedRef.current && d > 0 && audio.currentTime / d >= 0.6) {
-          try {
-            const id = verseNumber || currentAudioUrl;
-            incrementPlayCount(id);
-          } catch {}
-          countedRef.current = true;
-        }
-      };
-      
-      const handleEnded = () => {
-        setIsPlaying(false);
-        setCurrentTime(0);
-      };
+    const handleLoadedMetadata = () => {
+      if (!isMounted) return;
+      setDuration(Math.floor(audio.duration));
+      setIsLoadingAudio(false);
+    };
 
-      const handleLoadStart = () => {
-        setIsLoadingAudio(true);
-      };
+    const handleTimeUpdate = () => {
+      if (!isMounted) return;
+      const ct = Math.floor(audio.currentTime);
+      setCurrentTime(ct);
 
-      const handleError = () => {
-        setIsPlaying(false);
-        setIsLoadingAudio(false);
-        console.warn('Audio error for verse:', verseNumber, 'URL:', currentAudioUrl);
-      };
-
-      audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.addEventListener('timeupdate', handleTimeUpdate);
-      audio.addEventListener('ended', handleEnded);
-      audio.addEventListener('loadstart', handleLoadStart);
-      audio.addEventListener('error', handleError);
-      audio.addEventListener('canplay', () => console.log('Audio canplay event'));
-      audio.addEventListener('loadeddata', () => console.log('Audio loadeddata event'));
-      
-      // Try to decode the URL in case it's encoded
-      try {
-        const decodedUrl = decodeURIComponent(currentAudioUrl);
-        console.log('Decoded URL:', decodedUrl);
-        audio.src = decodedUrl;
-      } catch (e) {
-        audio.src = currentAudioUrl;
+      if (
+        !countedRef.current &&
+        audio.duration > 0 &&
+        audio.currentTime / audio.duration >= 0.6
+      ) {
+        try {
+          incrementPlayCount(verseNumber || currentAudioUrl);
+        } catch {}
+        countedRef.current = true;
       }
-      audio.load();
+    };
 
-      return () => {
-        isMounted = false;
-        audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        audio.removeEventListener('timeupdate', handleTimeUpdate);
-        audio.removeEventListener('ended', handleEnded);
-        audio.removeEventListener('loadstart', handleLoadStart);
-        audio.removeEventListener('error', handleError);
-      };
-    }
-  }, [currentAudioUrl, verseNumber]);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
 
-  // Update audio playback speed
+      if (repeatMode === "one") {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+        setIsPlaying(true);
+      } else if (repeatMode === "all" && currentIndex < playlist.length - 1) {
+        setCurrentIndex((i) => i + 1);
+        setIsPlaying(true);
+      }
+    };
+
+    const handleLoadStart = () => setIsLoadingAudio(true);
+    const handleError = () => {
+      setIsPlaying(false);
+      setIsLoadingAudio(false);
+      console.warn("Audio error for verse:", verseNumber, "URL:", currentAudioUrl);
+    };
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("loadstart", handleLoadStart);
+    audio.addEventListener("error", handleError);
+
+    audio.src = currentAudioUrl;
+    audio.load();
+
+    return () => {
+      isMounted = false;
+      audio.pause();
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("loadstart", handleLoadStart);
+      audio.removeEventListener("error", handleError);
+    };
+  }, [currentAudioUrl, verseNumber, currentIndex, playlist.length, repeatMode]);
+
+  // швидкість
   useEffect(() => {
     if (audioRef.current) {
-      const speedValue = parseFloat(speed.replace('x', ''));
+      const speedValue = parseFloat(speed.replace("x", ""));
       audioRef.current.playbackRate = speedValue;
     }
   }, [speed]);
 
-  // Update audio volume
+  // гучність
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume[0] / 100;
@@ -122,12 +137,11 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const togglePlay = async () => {
     if (!audioRef.current || !currentAudioUrl) return;
-    
     try {
       if (isPlaying) {
         audioRef.current.pause();
@@ -139,7 +153,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
         setIsLoadingAudio(false);
       }
     } catch (error) {
-      console.error('Error playing audio:', error);
+      console.error("Error playing audio:", error);
       setIsLoadingAudio(false);
     }
   };
@@ -174,44 +188,57 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
     }
   };
 
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex((i) => i - 1);
+      setIsPlaying(true);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex < playlist.length - 1) {
+      setCurrentIndex((i) => i + 1);
+      setIsPlaying(true);
+    }
+  };
+
+  const cycleRepeatMode = () => {
+    setRepeatMode((prev) =>
+      prev === "off" ? "one" : prev === "one" ? "all" : "off"
+    );
+  };
+
   if (!isVisible) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
-      <audio 
-        ref={audioRef} 
-        preload="metadata" 
-        crossOrigin="anonymous"
-        onCanPlay={() => console.log('Audio can play:', currentAudioUrl)}
-        onLoadStart={() => console.log('Audio load start:', currentAudioUrl)}
-        onError={(e) => console.log('Audio element error:', e, currentAudioUrl)}
-      />
+      <audio ref={audioRef} preload="metadata" crossOrigin="anonymous" />
       <div className="container mx-auto px-4 py-4">
         {/* Progress bar */}
         <div className="mb-4">
           <Slider
             value={[currentTime]}
             onValueChange={handleProgressChange}
-            max={duration}
+            max={duration || 0}
             step={1}
             className="w-full"
           />
         </div>
 
-        {/* Main controls */}
+        {/* Controls */}
         <div className="flex items-center justify-between">
-          {/* Time display */}
+          {/* Current time */}
           <div className="flex items-center space-x-2 text-sm text-muted-foreground min-w-[80px]">
             <span>{formatTime(currentTime)}</span>
           </div>
 
-          {/* Control buttons */}
+          {/* Main buttons */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={handlePrev} disabled={currentIndex === 0}>
               <SkipBack className="w-5 h-5" />
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={skipBackward}>
+            <Button variant="ghost" size="sm" onClick={skipBackward} disabled={duration === 0}>
               <RotateCcw className="w-4 h-4" />
               <span className="ml-1 text-xs">15</span>
             </Button>
@@ -221,7 +248,7 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
               size="lg"
               className="rounded-full w-12 h-12"
               onClick={togglePlay}
-              disabled={isLoadingAudio}
+              disabled={isLoadingAudio || !currentAudioUrl}
             >
               {isLoadingAudio ? (
                 <div className="w-6 h-6 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -232,48 +259,45 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
               )}
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={skipForward}>
+            <Button variant="ghost" size="sm" onClick={skipForward} disabled={duration === 0}>
               <RotateCw className="w-4 h-4" />
               <span className="ml-1 text-xs">15</span>
             </Button>
 
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNext}
+              disabled={currentIndex === playlist.length - 1}
+            >
               <SkipForward className="w-5 h-5" />
             </Button>
           </div>
 
-          {/* Right controls */}
+          {/* Right side */}
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <span>{formatTime(duration)}</span>
             </div>
 
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={toggleSpeed}
-              className="min-w-[40px]"
-            >
+            <Button variant="ghost" size="sm" onClick={toggleSpeed} className="min-w-[40px]">
               {speed}
             </Button>
 
             <div className="flex items-center space-x-2">
               <Volume2 className="w-4 h-4 text-muted-foreground" />
-              <Slider
-                value={volume}
-                onValueChange={setVolume}
-                max={100}
-                step={1}
-                className="w-20"
-              />
+              <Slider value={volume} onValueChange={setVolume} max={100} step={1} className="w-20" />
             </div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs px-2 border"
-            >
-              СА-УК
+            {/* Repeat button */}
+            <Button variant="ghost" size="sm" onClick={cycleRepeatMode}>
+              {repeatMode === "one" ? (
+                <Repeat1 className="w-5 h-5 text-primary" />
+              ) : repeatMode === "all" ? (
+                <Repeat className="w-5 h-5 text-primary" />
+              ) : (
+                <Repeat className="w-5 h-5 text-muted-foreground" />
+              )}
             </Button>
 
             <Button variant="ghost" size="sm" onClick={onClose}>
@@ -284,7 +308,9 @@ export const AudioPlayer = ({ verseNumber, onClose, isVisible, audioUrl }: Audio
 
         {/* Verse info */}
         <div className="text-center mt-2">
-          <span className="text-sm font-medium">Вірш {verseNumber}</span>
+          <span className="text-sm font-medium">
+            Вірш {verseNumber} ({currentIndex + 1}/{playlist.length})
+          </span>
         </div>
       </div>
     </div>
