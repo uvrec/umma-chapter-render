@@ -51,7 +51,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!audioRef.current) {
       audioRef.current = new Audio();
       audioRef.current.preload = "metadata";
-      audioRef.current.crossOrigin = "anonymous";
       audioRef.current.volume = volume / 100;
     }
     const audio = audioRef.current;
@@ -90,6 +89,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentIndex(index);
     if (audioRef.current) {
       audioRef.current.src = playlist[index].src || playlist[index].url;
+      audioRef.current.load();
       audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
         console.error("Error playing audio:", error);
         setIsPlaying(false);
@@ -118,6 +118,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       
       if (audioRef.current) {
         audioRef.current.src = newTrack.src;
+        audioRef.current.load();
         audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
           console.error("Error playing audio:", error);
           setIsPlaying(false);
@@ -127,7 +128,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !audioRef.current.src) return;
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
