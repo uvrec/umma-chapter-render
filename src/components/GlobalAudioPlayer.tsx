@@ -1,35 +1,176 @@
+import React, { createContext, useContext, useState, useRef, useEffect } from "react";
 import { Play, Pause, X, Volume2, SkipBack, SkipForward } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { useAudio } from "@/contexts/AudioContext";
+
+interface Track {
+  title: string;
+  verseNumber?: string;
+  url: string;
+}
+
+interface AudioContextType {
+  playlist: Track[];
+  currentIndex: number | null;
+  currentTrack: Track | null;
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  playTrack: (index: number) => void;
+  togglePlay: () => void;
+  stop: () => void;
+  seek: (time: number) => void;
+  setVolume: (v: number) => void;
+  prevTrack: () => void;
+  nextTrack: () => void;
+}
+
+const AudioContext = createContext<AudioContextType | undefined>(undefined);
+
+export const useAudio = () => {
+  const ctx = useContext(AudioContext);
+  if (!ctx) throw new Error("useAudio must be used within AudioProvider");
+  return ctx;
+};
+
+export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [playlist, setPlaylist] = useState<Track[]>([
+    { title: "ШБ 1.1.1", verseNumber: "1.1.1", url: "https://audio.fudokazuki.com/sample1.mp3" },
+    { title: "ШБ 1.1.2", verseNumber: "1.1.2", url: "https://audio.fudokazuki.com/sample2.mp3" },
+  ]);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolumeState] = useState(75);
+
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // створюємо <audio>, якщо ще нема
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+      audioRef.current.preload = "metadata";
+      audioRef.current.crossOrigin = "anonymous";
+    }
+    const audio = audioRef.current;
+
+    const handleLoadedMetadata = () => setDuration(audio?.duration || 0);
+    const handleTimeUpdate = () => setCurrentTime(audio?.currentTime || 0);
+    const handleEnded = () => {
+      setIsPlaying(false);
+      if (currentIndex !== null && currentIndex < playlist.length - 1) {
+        playTrack(currentIndex + 1);
+      }
+    };
+
+    audio?.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audio?.addEventListener("timeupdate", handleTimeUpdate);
+    audio?.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio?.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audio?.removeEventListener("timeupdate", handleTimeUpdate);
+      audio?.removeEventListener("ended", handleEnded);
+    };
+  }, [playlist, currentIndex]);
+
+  const playTrack = (index: number) => {
+    if (index < 0 || index >= playlist.length) return;
+    setCurrentIndex(index);
+    if (audioRef.current) {
+      audioRef.current.src = playlist[index].url;
+      audioRef.current.play().then(() => setIsPlaying(true));
+    }
+  };
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current.play().then(() => setIsPlaying(true));
+    }
+  };
+
+  const stop = () => {
+    if (!audioRef.current) return;
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
+    setIsPlaying(false);
+    setCurrentIndex(null);
+  };
+
+  const seek = (time: number) => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+  };
+
+  const setVolume = (v: number) => {
+    setVolumeState(v);
+    if (audioRef.current) {
+      audioRef.current.volume = v / 100;
+    }
+  };
+
+  const prevTrack = () => {
+    if (currentIndex !== null && currentIndex > 0) playTrack(currentIndex - 1);
+  };
+
+  const nextTrack = () => {
+    if (currentIndex !== null && currentIndex < playlist.length - 1) playTrack(currentIndex + 1);
+  };
+
+  const value: AudioContextType = {
+    playlist,
+    currentIndex,
+    currentTrack: currentIndex !== null ? playlist[currentIndex] : null,
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    playTrack,
+    togglePlay,
+    stop,
+    seek,
+    setVolume,
+    prevTrack,
+    nextTrack,
+  };
+
+  return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;
+};
 
 export const GlobalAudioPlayer = () => {
-  const { 
-    currentTrack, 
-    isPlaying, 
-    currentTime, 
-    duration, 
-    volume, 
-    togglePlay, 
-    stop, 
-    setVolume, 
-    seek 
+  const {
+    currentTrack,
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    togglePlay,
+    stop,
+    setVolume,
+    seek,
+    prevTrack,
+    nextTrack,
+    currentIndex,
+    playlist,
   } = useAudio();
 
   if (!currentTrack) return null;
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleProgressChange = (value: number[]) => {
-    seek(value[0]);
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    setVolume(value[0]);
+    if (!Number.isFinite(seconds)) return "00:00";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return h > 0
+      ? `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+      : `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -39,16 +180,16 @@ export const GlobalAudioPlayer = () => {
         <div className="mb-4">
           <Slider
             value={[currentTime]}
-            onValueChange={handleProgressChange}
-            max={duration}
+            onValueChange={(v) => seek(v[0])}
+            max={duration || 0}
             step={1}
             className="w-full"
           />
         </div>
 
-        {/* Main controls */}
+        {/* Controls */}
         <div className="flex items-center justify-between">
-          {/* Track info and time */}
+          {/* Info */}
           <div className="flex items-center space-x-4 min-w-0 flex-1">
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <span>{formatTime(currentTime)}</span>
@@ -61,9 +202,15 @@ export const GlobalAudioPlayer = () => {
             </div>
           </div>
 
-          {/* Control buttons */}
+          {/* Buttons */}
           <div className="flex items-center space-x-4 mx-4">
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={prevTrack}
+              aria-label="Попередній трек"
+              disabled={currentIndex === 0}
+            >
               <SkipBack className="w-4 h-4" />
             </Button>
 
@@ -72,20 +219,23 @@ export const GlobalAudioPlayer = () => {
               size="lg"
               className="rounded-full w-12 h-12"
               onClick={togglePlay}
+              aria-label={isPlaying ? "Пауза" : "Відтворити"}
             >
-              {isPlaying ? (
-                <Pause className="w-6 h-6" />
-              ) : (
-                <Play className="w-6 h-6 ml-0.5" />
-              )}
+              {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
             </Button>
 
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={nextTrack}
+              aria-label="Наступний трек"
+              disabled={currentIndex === playlist.length - 1}
+            >
               <SkipForward className="w-4 h-4" />
             </Button>
           </div>
 
-          {/* Right controls */}
+          {/* Right */}
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <span>{formatTime(duration)}</span>
@@ -95,14 +245,14 @@ export const GlobalAudioPlayer = () => {
               <Volume2 className="w-4 h-4 text-muted-foreground" />
               <Slider
                 value={[volume]}
-                onValueChange={handleVolumeChange}
+                onValueChange={(v) => setVolume(v[0])}
                 max={100}
                 step={1}
                 className="w-20"
               />
             </div>
 
-            <Button variant="ghost" size="sm" onClick={stop}>
+            <Button variant="ghost" size="sm" onClick={stop} aria-label="Зупинити">
               <X className="w-4 h-4" />
             </Button>
           </div>
