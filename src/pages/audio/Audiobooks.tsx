@@ -18,7 +18,7 @@ export const Audiobooks = () => {
       chapters: 18,
       rating: 4.9,
       reviews: 156,
-      narrator: "Професійний читець",
+      narrator: "Аніруддга дас",
       language: "Українська",
       size: "2.1 GB"
     },
@@ -32,7 +32,7 @@ export const Audiobooks = () => {
       chapters: 19,
       rating: 4.8,
       reviews: 89,
-      narrator: "Професійний читець",
+      narrator: "Аніруддга дас",
       language: "Українська", 
       size: "2.8 GB"
     },
@@ -46,7 +46,7 @@ export const Audiobooks = () => {
       chapters: 10,
       rating: 4.7,
       reviews: 72,
-      narrator: "Професійний читець",
+      narrator: "Аніруддга дас",
       language: "Українська",
       size: "2.5 GB"
     },
@@ -60,7 +60,7 @@ export const Audiobooks = () => {
       chapters: 18,
       rating: 4.9,
       reviews: 124,
-      narrator: "Професійний читець",
+      narrator: "Аніруддга дас",
       language: "Українська",
       size: "485 MB"
     }
