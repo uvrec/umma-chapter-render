@@ -312,6 +312,7 @@ export const VedaReader = () => {
         verseNumber={playingVerse || ""}
         onClose={handleClosePlayer}
         isVisible={showAudioPlayer}
+        audioUrl={filteredVerses.find(v => v.number === playingVerse)?.audioUrl}
       />
     </div>
   );
