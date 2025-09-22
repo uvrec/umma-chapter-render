@@ -1,7 +1,7 @@
-import { VedaReader } from "@/components/VedaReader";
+import { NewHome } from "@/pages/NewHome";
 
 const Index = () => {
-  return <VedaReader />;
+  return <NewHome />;
 };
 
 export default Index;
