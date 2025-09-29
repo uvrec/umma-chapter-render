@@ -58,17 +58,17 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="text-2xl font-bold text-foreground flex items-center space-x-2">
+            <Link to="/" className="text-2xl font-bold text-foreground flex items-center space-x-2 hover:opacity-80 transition-opacity">
               <div className="w-12 h-12 flex items-center justify-center">
                 <img
                   src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
-                  alt="Прабгупада Солов’їною"
+                  alt="Прабгупада Солов'їною"
                   className="w-full h-full object-contain"
                 />
               </div>
-            </div>
+            </Link>
             <div className="hidden md:flex text-sm text-muted-foreground">
-              ведичні писання з коментарями ачар’їв
+              ведичні писання з коментарями ачар'їв
             </div>
           </div>
 
@@ -186,7 +186,7 @@ export const Header = () => {
                       className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
-                      <span>Ачар’ї</span>
+                      <span>Ачар'ї</span>
                     </Link>
                     <Link
                       to="/library/other"
@@ -311,7 +311,7 @@ export const Header = () => {
                       className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
-                      <span>Книги ачар’їв</span>
+                      <span>Книги ачар'їв</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
