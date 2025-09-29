@@ -112,8 +112,8 @@ export const VerseCard = ({
             <p className="text-sm text-muted-foreground leading-relaxed">
               {synonyms.split(';').map((part, index) => {
                 const cleanPart = part.trim();
-                if (cleanPart.includes(' — ')) {
-                  const [term, meaning] = cleanPart.split(' — ');
+                if (cleanPart.includes(' – ')) {
+                  const [term, meaning] = cleanPart.split(' – ');
                   // Split term into individual words
                   const words = term.trim().split(/[\s-]+/).filter(w => w.length > 0);
                   return (
