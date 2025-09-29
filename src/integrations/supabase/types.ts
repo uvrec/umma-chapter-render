@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       books: {
         Row: {
+          cover_image_url: string | null
           created_at: string
           description_en: string | null
           description_ua: string | null
@@ -25,6 +26,7 @@ export type Database = {
           title_ua: string
         }
         Insert: {
+          cover_image_url?: string | null
           created_at?: string
           description_en?: string | null
           description_ua?: string | null
@@ -34,6 +36,7 @@ export type Database = {
           title_ua: string
         }
         Update: {
+          cover_image_url?: string | null
           created_at?: string
           description_en?: string | null
           description_ua?: string | null

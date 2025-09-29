@@ -23,6 +23,7 @@ export default function AddEditBook() {
   const [titleEn, setTitleEn] = useState("");
   const [descriptionUa, setDescriptionUa] = useState("");
   const [descriptionEn, setDescriptionEn] = useState("");
+  const [coverImageUrl, setCoverImageUrl] = useState("");
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -52,6 +53,7 @@ export default function AddEditBook() {
       setTitleEn(book.title_en || "");
       setDescriptionUa(book.description_ua || "");
       setDescriptionEn(book.description_en || "");
+      setCoverImageUrl(book.cover_image_url || "");
     }
   }, [book]);
 
@@ -63,6 +65,7 @@ export default function AddEditBook() {
         title_en: titleEn || null,
         description_ua: descriptionUa || null,
         description_en: descriptionEn || null,
+        cover_image_url: coverImageUrl || null,
       };
 
       if (id) {
@@ -133,6 +136,16 @@ export default function AddEditBook() {
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="srimad-bhagavatam"
                 required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="coverImageUrl">URL обкладинки</Label>
+              <Input
+                id="coverImageUrl"
+                value={coverImageUrl}
+                onChange={(e) => setCoverImageUrl(e.target.value)}
+                placeholder="https://example.com/cover.jpg або /assets/book-cover.jpg"
               />
             </div>
 
