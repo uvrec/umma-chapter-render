@@ -14,16 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          description_ua: string | null
+          id: string
+          slug: string
+          title_en: string
+          title_ua: string
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          description_ua?: string | null
+          id?: string
+          slug: string
+          title_en: string
+          title_ua: string
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          description_ua?: string | null
+          id?: string
+          slug?: string
+          title_en?: string
+          title_ua?: string
+        }
+        Relationships: []
+      }
+      chapters: {
+        Row: {
+          book_id: string
+          chapter_number: number
+          created_at: string
+          id: string
+          title_en: string
+          title_ua: string
+        }
+        Insert: {
+          book_id: string
+          chapter_number: number
+          created_at?: string
+          id?: string
+          title_en: string
+          title_ua: string
+        }
+        Update: {
+          book_id?: string
+          chapter_number?: number
+          created_at?: string
+          id?: string
+          title_en?: string
+          title_ua?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verses: {
+        Row: {
+          audio_url: string | null
+          chapter_id: string
+          commentary_en: string | null
+          commentary_ua: string | null
+          created_at: string
+          id: string
+          sanskrit: string | null
+          synonyms_en: string | null
+          synonyms_ua: string | null
+          translation_en: string | null
+          translation_ua: string | null
+          transliteration: string | null
+          verse_number: string
+        }
+        Insert: {
+          audio_url?: string | null
+          chapter_id: string
+          commentary_en?: string | null
+          commentary_ua?: string | null
+          created_at?: string
+          id?: string
+          sanskrit?: string | null
+          synonyms_en?: string | null
+          synonyms_ua?: string | null
+          translation_en?: string | null
+          translation_ua?: string | null
+          transliteration?: string | null
+          verse_number: string
+        }
+        Update: {
+          audio_url?: string | null
+          chapter_id?: string
+          commentary_en?: string | null
+          commentary_ua?: string | null
+          created_at?: string
+          id?: string
+          sanskrit?: string | null
+          synonyms_en?: string | null
+          synonyms_ua?: string | null
+          translation_en?: string | null
+          translation_ua?: string | null
+          transliteration?: string | null
+          verse_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verses_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "editor" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +297,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "editor", "user"],
+    },
   },
 } as const

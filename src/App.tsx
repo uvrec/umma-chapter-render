@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
 import { NewHome } from "./pages/NewHome";
 import { VedaReader } from "./components/VedaReader";
@@ -26,45 +28,57 @@ import { Blog } from "./pages/Blog";
 import { Lectures } from "./pages/audio/Lectures";
 import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/admin/Dashboard";
+import Books from "./pages/admin/Books";
+import Verses from "./pages/admin/Verses";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light" storageKey="veda-ui-theme">
-      <TooltipProvider>
-        <AudioProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<NewHome />} />
-            <Route path="/verses" element={<VedaReader />} />
-            <Route path="/verses/:bookId" element={<VedaReader />} />
-            <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
-            <Route path="/library" element={<Library />} />
-            <Route path="/audiobooks" element={<Audio />} />
-            <Route path="/audio/audiobooks" element={<Audiobooks />} />
-            <Route path="/audio/lectures" element={<Lectures />} />
-            <Route path="/audio/music" element={<Music />} />
-            <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
-            <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
-            <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/audio/podcasts" element={<Podcasts />} />
-            <Route path="/glossary" element={<Glossary />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/donation" element={<Donation />} />
-            <Route path="/payment/card" element={<CardPayment />} />
-            <Route path="/payment/bank" element={<BankTransfer />} />
-            <Route path="/payment/other" element={<OtherMethods />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <GlobalAudioPlayer />
-        </BrowserRouter>
-      </AudioProvider>
-    </TooltipProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <AudioProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<NewHome />} />
+                <Route path="/verses" element={<VedaReader />} />
+                <Route path="/verses/:bookId" element={<VedaReader />} />
+                <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                <Route path="/library" element={<Library />} />
+                <Route path="/audiobooks" element={<Audio />} />
+                <Route path="/audio/audiobooks" element={<Audiobooks />} />
+                <Route path="/audio/lectures" element={<Lectures />} />
+                <Route path="/audio/music" element={<Music />} />
+                <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
+                <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
+                <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/audio/podcasts" element={<Podcasts />} />
+                <Route path="/glossary" element={<Glossary />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/donation" element={<Donation />} />
+                <Route path="/payment/card" element={<CardPayment />} />
+                <Route path="/payment/bank" element={<BankTransfer />} />
+                <Route path="/payment/other" element={<OtherMethods />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin/dashboard" element={<Dashboard />} />
+                <Route path="/admin/books" element={<Books />} />
+                <Route path="/admin/verses" element={<Verses />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <GlobalAudioPlayer />
+            </BrowserRouter>
+          </AudioProvider>
+        </TooltipProvider>
+      </AuthProvider>
+    </LanguageProvider>
   </ThemeProvider>
   </QueryClientProvider>
 );

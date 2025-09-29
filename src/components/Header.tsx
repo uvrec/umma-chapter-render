@@ -14,11 +14,14 @@ import {
   FileText,
   Music,
   Mic,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sheet,
   SheetContent,
@@ -43,6 +46,8 @@ export const Header = () => {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { language, setLanguage, t } = useLanguage();
+  const { user, isAdmin } = useAuth();
 
   const handleSearch = () => {
     const value = inputRef.current?.value || "";
@@ -100,13 +105,36 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Theme Toggle and Login Button */}
+          {/* Language Switcher, Theme Toggle and Auth Buttons */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <Button variant="outline" size="sm">
-              <LogIn className="w-4 h-4" />
-              Увійти
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLanguage(language === 'ua' ? 'en' : 'ua')}
+            >
+              <Languages className="w-4 h-4 mr-2" />
+              {language === 'ua' ? 'УКР' : 'ENG'}
             </Button>
+            <ThemeToggle />
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/admin/dashboard">
+                      <User className="w-4 h-4 mr-2" />
+                      {t('Адмін', 'Admin')}
+                    </Link>
+                  </Button>
+                )}
+              </>
+            ) : (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/auth">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  {t('Вхід', 'Login')}
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 
