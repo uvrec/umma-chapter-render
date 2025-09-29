@@ -35,6 +35,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 import { useState, useRef } from "react";
 
 export const Header = () => {
@@ -140,6 +149,174 @@ export const Header = () => {
 
         {/* Navigation Bar */}
         <div className="mt-4 flex items-center justify-between">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/">
+                <Home className="w-4 h-4 mr-2" />
+                Головна
+              </Link>
+            </Button>
+
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Бібліотека
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 bg-popover">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/library"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Всі розділи</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Перегляд усіх книг та розділів
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/library/prabhupada"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Прабгупада</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Твори Шріли Прабгупади
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/library/acharyas"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none">Ачар'ї</div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Книги та коментарі ачар'їв
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>
+                    <Headphones className="w-4 h-4 mr-2" />
+                    Аудіо
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-3 p-4 bg-popover">
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/audio/audiobooks"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none flex items-center">
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              Аудіокниги
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Ведичні писання у форматі аудіокниг
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/audio/lectures"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none flex items-center">
+                              <Mic className="w-4 h-4 mr-2" />
+                              Лекції
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Духовні лекції та наставлення
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/audio/music"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none flex items-center">
+                              <Music className="w-4 h-4 mr-2" />
+                              Музика
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Бгаджани та кіртани
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                      <li>
+                        <NavigationMenuLink asChild>
+                          <Link
+                            to="/audio/podcasts"
+                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          >
+                            <div className="text-sm font-medium leading-none flex items-center">
+                              <Mic className="w-4 h-4 mr-2" />
+                              Подкасти
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                              Духовні розмови та обговорення
+                            </p>
+                          </Link>
+                        </NavigationMenuLink>
+                      </li>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/glossary">
+                <Book className="w-4 h-4 mr-2" />
+                Глосарій
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/blog">
+                <FileText className="w-4 h-4 mr-2" />
+                Блог
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/contact">
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Контакти
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/donation">
+                <Heart className="w-4 h-4 mr-2" />
+                Підтримати
+              </Link>
+            </Button>
+          </nav>
+
+          {/* Mobile Navigation */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="md:hidden">
