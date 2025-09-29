@@ -114,14 +114,21 @@ export const VerseCard = ({
                 const cleanPart = part.trim();
                 if (cleanPart.includes(' — ')) {
                   const [term, meaning] = cleanPart.split(' — ');
+                  // Split term into individual words
+                  const words = term.trim().split(/[\s-]+/).filter(w => w.length > 0);
                   return (
                     <span key={index}>
-                      <span 
-                        className="cursor-pointer text-primary hover:underline" 
-                        onClick={() => window.open(`/glossary?search=${encodeURIComponent(term.trim())}`, '_blank')}
-                      >
-                        {term.trim()}
-                      </span>
+                      {words.map((word, wordIndex) => (
+                        <span key={wordIndex}>
+                          <span 
+                            className="cursor-pointer text-primary hover:underline" 
+                            onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank')}
+                          >
+                            {word}
+                          </span>
+                          {wordIndex < words.length - 1 && (term.includes('-') ? '-' : ' ')}
+                        </span>
+                      ))}
                       <span> — {meaning.trim()}</span>
                       {index < synonyms.split(';').length - 1 && '; '}
                     </span>

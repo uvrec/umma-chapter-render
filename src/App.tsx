@@ -35,6 +35,9 @@ import Verses from "./pages/admin/Verses";
 import Chapters from "./pages/admin/Chapters";
 import AddEditBook from "./pages/admin/AddEditBook";
 import AddEditVerse from "./pages/admin/AddEditVerse";
+import DataMigration from "./pages/admin/DataMigration";
+import { VedaReaderDB } from "./components/VedaReaderDB";
+import GlossaryDB from "./pages/GlossaryDB";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +56,7 @@ const App = () => (
                 <Route path="/verses" element={<VedaReader />} />
                 <Route path="/verses/:bookId" element={<VedaReader />} />
                 <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
                 <Route path="/library" element={<Library />} />
                 <Route path="/audiobooks" element={<Audio />} />
                 <Route path="/audio/audiobooks" element={<Audiobooks />} />
@@ -63,7 +67,8 @@ const App = () => (
                 <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/audio/podcasts" element={<Podcasts />} />
-                <Route path="/glossary" element={<Glossary />} />
+                <Route path="/glossary" element={<GlossaryDB />} />
+                <Route path="/glossary-old" element={<Glossary />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/donation" element={<Donation />} />
                 <Route path="/payment/card" element={<CardPayment />} />
@@ -78,6 +83,7 @@ const App = () => (
           <Route path="/admin/verses" element={<Verses />} />
           <Route path="/admin/verses/new" element={<AddEditVerse />} />
           <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
+          <Route path="/admin/data-migration" element={<DataMigration />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

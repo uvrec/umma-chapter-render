@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, FileText, Library, LogOut } from 'lucide-react';
+import { BookOpen, FileText, Library, LogOut, Upload } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -120,6 +120,21 @@ const Dashboard = () => {
             <CardContent>
               <Button asChild className="w-full">
                 <Link to="/admin/verses">Переглянути вірші</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Імпорт даних</CardTitle>
+              <CardDescription>Імпорт віршів з файлу</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/data-migration">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Імпортувати вірші
+                </Link>
               </Button>
             </CardContent>
           </Card>
