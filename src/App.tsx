@@ -38,6 +38,7 @@ import AddEditVerse from "./pages/admin/AddEditVerse";
 import DataMigration from "./pages/admin/DataMigration";
 import { VedaReaderDB } from "./components/VedaReaderDB";
 import GlossaryDB from "./pages/GlossaryDB";
+import { BookOverview } from "./pages/BookOverview";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
                 <Route path="/verses" element={<VedaReader />} />
                 <Route path="/verses/:bookId" element={<VedaReader />} />
                 <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                 <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
                 <Route path="/library" element={<Library />} />
                 <Route path="/audiobooks" element={<Audio />} />

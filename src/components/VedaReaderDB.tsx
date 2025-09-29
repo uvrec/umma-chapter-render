@@ -69,6 +69,22 @@ export const VedaReaderDB = () => {
     enabled: !!chapterId && !!book?.id
   });
 
+  // Fetch all chapters for navigation
+  const { data: allChapters = [] } = useQuery({
+    queryKey: ['allChapters', book?.id],
+    queryFn: async () => {
+      if (!book?.id) return [];
+      const { data, error } = await supabase
+        .from('chapters')
+        .select('*')
+        .eq('book_id', book.id)
+        .order('chapter_number');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!book?.id
+  });
+
   // Fetch verses
   const { data: verses = [], isLoading } = useQuery({
     queryKey: ['verses', chapter?.id],
@@ -89,6 +105,10 @@ export const VedaReaderDB = () => {
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const chapterTitle = language === 'ua' ? chapter?.title_ua : chapter?.title_en;
 
+  const currentChapterIndex = allChapters.findIndex(
+    ch => ch.chapter_number === parseInt(chapterId || '1')
+  );
+
   const handlePrevVerse = () => {
     if (currentVerseIndex > 0) {
       setCurrentVerseIndex(currentVerseIndex - 1);
@@ -98,6 +118,22 @@ export const VedaReaderDB = () => {
   const handleNextVerse = () => {
     if (currentVerseIndex < verses.length - 1) {
       setCurrentVerseIndex(currentVerseIndex + 1);
+    }
+  };
+
+  const handlePrevChapter = () => {
+    if (currentChapterIndex > 0) {
+      const prevChapter = allChapters[currentChapterIndex - 1];
+      navigate(`/veda-reader/${bookId}/${prevChapter.chapter_number}`);
+      setCurrentVerseIndex(0);
+    }
+  };
+
+  const handleNextChapter = () => {
+    if (currentChapterIndex < allChapters.length - 1) {
+      const nextChapter = allChapters[currentChapterIndex + 1];
+      navigate(`/veda-reader/${bookId}/${nextChapter.chapter_number}`);
+      setCurrentVerseIndex(0);
     }
   };
 
@@ -198,6 +234,7 @@ export const VedaReaderDB = () => {
                   />
                 )}
 
+                {/* Verse navigation */}
                 <div className="flex justify-between items-center">
                   <Button
                     variant="outline"
@@ -218,6 +255,31 @@ export const VedaReaderDB = () => {
                     disabled={currentVerseIndex === verses.length - 1}
                   >
                     {t('Наступний', 'Next')}
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+
+                {/* Chapter navigation */}
+                <div className="flex justify-between items-center pt-6 border-t">
+                  <Button
+                    variant="secondary"
+                    onClick={handlePrevChapter}
+                    disabled={currentChapterIndex === 0}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    {t('Попередня глава', 'Previous Chapter')}
+                  </Button>
+                  
+                  <span className="text-sm text-muted-foreground">
+                    {t('Глава', 'Chapter')} {currentChapterIndex + 1} {t('з', 'of')} {allChapters.length}
+                  </span>
+
+                  <Button
+                    variant="secondary"
+                    onClick={handleNextChapter}
+                    disabled={currentChapterIndex === allChapters.length - 1}
+                  >
+                    {t('Наступна глава', 'Next Chapter')}
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
