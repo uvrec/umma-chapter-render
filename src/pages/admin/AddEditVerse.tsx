@@ -20,6 +20,8 @@ export default function AddEditVerse() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
+  const [selectedBookId, setSelectedBookId] = useState("");
+  const [selectedCantoId, setSelectedCantoId] = useState("");
   const [chapterId, setChapterId] = useState(searchParams.get("chapterId") || "");
   const [verseNumber, setVerseNumber] = useState("");
   const [sanskrit, setSanskrit] = useState("");
@@ -38,17 +40,53 @@ export default function AddEditVerse() {
     }
   }, [user, isAdmin, navigate]);
 
-  const { data: chapters } = useQuery({
-    queryKey: ["chapters"],
+  const { data: books } = useQuery({
+    queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("chapters")
-        .select("*, books(title_ua)")
-        .order("created_at");
+      const { data, error } = await supabase.from("books").select("*").order("title_ua");
       if (error) throw error;
       return data;
     },
     enabled: !!user && isAdmin,
+  });
+
+  const selectedBook = books?.find(b => b.id === selectedBookId);
+
+  const { data: cantos } = useQuery({
+    queryKey: ["admin-cantos", selectedBookId],
+    queryFn: async () => {
+      if (!selectedBookId) return [];
+      const { data, error } = await supabase
+        .from("cantos")
+        .select("*")
+        .eq("book_id", selectedBookId)
+        .order("canto_number");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedBookId && !!selectedBook?.has_cantos,
+  });
+
+  const { data: chapters } = useQuery({
+    queryKey: ["admin-chapters", selectedBookId, selectedCantoId],
+    queryFn: async () => {
+      if (!selectedBookId) return [];
+      
+      let query = supabase.from("chapters").select("*, books(title_ua), cantos(title_ua, canto_number)");
+      
+      if (selectedBook?.has_cantos && selectedCantoId) {
+        query = query.eq("canto_id", selectedCantoId);
+      } else if (!selectedBook?.has_cantos) {
+        query = query.eq("book_id", selectedBookId);
+      } else {
+        return [];
+      }
+      
+      const { data, error } = await query.order("chapter_number");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedBookId && (!!selectedCantoId || !selectedBook?.has_cantos),
   });
 
   const { data: verse } = useQuery({
@@ -65,6 +103,31 @@ export default function AddEditVerse() {
     },
     enabled: !!id && !!user && isAdmin,
   });
+
+  // Load chapter's book and canto when editing
+  useEffect(() => {
+    const loadChapterContext = async () => {
+      if (chapterId && chapters) {
+        const chapter = chapters.find(c => c.id === chapterId);
+        if (chapter) {
+          if (chapter.book_id) {
+            setSelectedBookId(chapter.book_id);
+          } else if (chapter.canto_id) {
+            const { data: canto } = await supabase
+              .from("cantos")
+              .select("book_id, id")
+              .eq("id", chapter.canto_id)
+              .single();
+            if (canto) {
+              setSelectedBookId(canto.book_id);
+              setSelectedCantoId(canto.id);
+            }
+          }
+        }
+      }
+    };
+    loadChapterContext();
+  }, [chapterId, chapters]);
 
   useEffect(() => {
     if (verse) {
@@ -159,20 +222,63 @@ export default function AddEditVerse() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="chapterId">Глава *</Label>
-              <Select value={chapterId} onValueChange={setChapterId} required>
+              <Label htmlFor="bookId">Книга *</Label>
+              <Select value={selectedBookId} onValueChange={(value) => {
+                setSelectedBookId(value);
+                setSelectedCantoId("");
+                setChapterId("");
+              }} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Оберіть главу" />
+                  <SelectValue placeholder="Оберіть книгу" />
                 </SelectTrigger>
                 <SelectContent>
-                  {chapters?.map((chapter) => (
-                    <SelectItem key={chapter.id} value={chapter.id}>
-                      {chapter.books?.title_ua} - Глава {chapter.chapter_number}: {chapter.title_ua}
+                  {books?.map((book) => (
+                    <SelectItem key={book.id} value={book.id}>
+                      {book.title_ua}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+
+            {selectedBook?.has_cantos && (
+              <div>
+                <Label htmlFor="cantoId">Пісня *</Label>
+                <Select value={selectedCantoId} onValueChange={(value) => {
+                  setSelectedCantoId(value);
+                  setChapterId("");
+                }} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Оберіть пісню" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cantos?.map((canto) => (
+                      <SelectItem key={canto.id} value={canto.id}>
+                        Пісня {canto.canto_number}: {canto.title_ua}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {((selectedBook?.has_cantos && selectedCantoId) || (!selectedBook?.has_cantos && selectedBookId)) && (
+              <div>
+                <Label htmlFor="chapterId">Розділ *</Label>
+                <Select value={chapterId} onValueChange={setChapterId} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Оберіть розділ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {chapters?.map((chapter) => (
+                      <SelectItem key={chapter.id} value={chapter.id}>
+                        Розділ {chapter.chapter_number}: {chapter.title_ua}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div>
               <Label htmlFor="verseNumber">Номер вірша *</Label>

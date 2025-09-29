@@ -11,6 +11,8 @@ import { ArrowLeft, Plus, Edit } from 'lucide-react';
 const Verses = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [selectedBookId, setSelectedBookId] = useState<string>('');
+  const [selectedCantoId, setSelectedCantoId] = useState<string>('');
   const [selectedChapterId, setSelectedChapterId] = useState<string>('');
 
   useEffect(() => {
@@ -22,24 +24,50 @@ const Verses = () => {
   const { data: books } = useQuery({
     queryKey: ['admin-books'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('books').select('*');
+      const { data, error } = await supabase.from('books').select('*').order('title_ua');
       if (error) throw error;
       return data;
     },
     enabled: !!user && isAdmin
   });
 
-  const { data: chapters } = useQuery({
-    queryKey: ['admin-chapters'],
+  const selectedBook = books?.find(b => b.id === selectedBookId);
+
+  const { data: cantos } = useQuery({
+    queryKey: ['admin-cantos', selectedBookId],
     queryFn: async () => {
+      if (!selectedBookId) return [];
       const { data, error } = await supabase
-        .from('chapters')
-        .select('*, books!inner(title_ua)')
-        .order('chapter_number');
+        .from('cantos')
+        .select('*')
+        .eq('book_id', selectedBookId)
+        .order('canto_number');
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin
+    enabled: !!selectedBookId && !!selectedBook?.has_cantos
+  });
+
+  const { data: chapters } = useQuery({
+    queryKey: ['admin-chapters', selectedBookId, selectedCantoId],
+    queryFn: async () => {
+      if (!selectedBookId) return [];
+      
+      let query = supabase.from('chapters').select('*, books(title_ua), cantos(title_ua, canto_number)');
+      
+      if (selectedBook?.has_cantos && selectedCantoId) {
+        query = query.eq('canto_id', selectedCantoId);
+      } else if (!selectedBook?.has_cantos) {
+        query = query.eq('book_id', selectedBookId);
+      } else {
+        return [];
+      }
+      
+      const { data, error } = await query.order('chapter_number');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedBookId && (!!selectedCantoId || !selectedBook?.has_cantos)
   });
 
   const { data: verses, isLoading } = useQuery({
@@ -86,20 +114,65 @@ const Verses = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
-          <label className="text-sm font-medium mb-2 block">Оберіть розділ</label>
-          <Select value={selectedChapterId} onValueChange={setSelectedChapterId}>
-            <SelectTrigger className="w-full max-w-md">
-              <SelectValue placeholder="Виберіть розділ" />
-            </SelectTrigger>
-            <SelectContent>
-              {chapters?.map((chapter) => (
-                <SelectItem key={chapter.id} value={chapter.id}>
-                  {chapter.books?.title_ua} - Розділ {chapter.chapter_number}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="space-y-4 mb-6">
+          <div>
+            <label className="text-sm font-medium mb-2 block">Оберіть книгу</label>
+            <Select value={selectedBookId} onValueChange={(value) => {
+              setSelectedBookId(value);
+              setSelectedCantoId('');
+              setSelectedChapterId('');
+            }}>
+              <SelectTrigger className="w-full max-w-md">
+                <SelectValue placeholder="Виберіть книгу" />
+              </SelectTrigger>
+              <SelectContent>
+                {books?.map((book) => (
+                  <SelectItem key={book.id} value={book.id}>
+                    {book.title_ua}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedBook?.has_cantos && (
+            <div>
+              <label className="text-sm font-medium mb-2 block">Оберіть пісню</label>
+              <Select value={selectedCantoId} onValueChange={(value) => {
+                setSelectedCantoId(value);
+                setSelectedChapterId('');
+              }}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue placeholder="Виберіть пісню" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cantos?.map((canto) => (
+                    <SelectItem key={canto.id} value={canto.id}>
+                      Пісня {canto.canto_number}: {canto.title_ua}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {((selectedBook?.has_cantos && selectedCantoId) || (!selectedBook?.has_cantos && selectedBookId)) && (
+            <div>
+              <label className="text-sm font-medium mb-2 block">Оберіть розділ</label>
+              <Select value={selectedChapterId} onValueChange={setSelectedChapterId}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue placeholder="Виберіть розділ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {chapters?.map((chapter) => (
+                    <SelectItem key={chapter.id} value={chapter.id}>
+                      Розділ {chapter.chapter_number}: {chapter.title_ua}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {selectedChapterId && (
