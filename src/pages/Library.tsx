@@ -34,7 +34,7 @@ const books: Book[] = [{
   description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
   price: "595 грн",
   hasVerse: true,
-  verseLink: "/verses/srimad-bhagavatam",
+  verseLink: "/veda-reader/srimad-bhagavatam/1",
   coverImage: srimadBhagavatam1Cover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
@@ -52,7 +52,7 @@ const books: Book[] = [{
   description: "Суть усієї ведичної мудрості. У цьому творі у стислому вигляді викладено основні ідеї давньоіндійської філософії.",
   price: "425 грн",
   hasVerse: true,
-  verseLink: "/verses/bhagavad-gita",
+  verseLink: "/veda-reader/bhagavad-gita/1",
   coverImage: bhagavadGitaCover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/bhagavad-gita-jak-vona-je/"
@@ -62,7 +62,7 @@ const books: Book[] = [{
   description: "Переклад одного з найважливіших філософських трактатів Стародавньої Індії.",
   price: "50 грн",
   hasVerse: true,
-  verseLink: "/verses/isopanisad",
+  verseLink: "/veda-reader/isopanisad/1",
   coverImage: "https://optim.tildacdn.com/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
   category: "small",
   purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
@@ -87,8 +87,7 @@ const books: Book[] = [{
   title: "Крішна. Верховний Бог - Особа",
   description: "Біографія Крішни. Книга є скороженим переказом 10 Пісні \"Шрімад-Бхагаватам\".",
   price: "94 грн",
-  hasVerse: true,
-  verseLink: "/verses",
+  hasVerse: false,
   coverImage: krishnaSupremePersonCover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/krishna-verhovnyj-bog-osoba/"
@@ -97,8 +96,7 @@ const books: Book[] = [{
   title: "Нектар відданости",
   description: "Океан нектарних смаків відданого служіння від Шрі Рупи Госвамі.",
   price: "350 грн",
-  hasVerse: true,
-  verseLink: "/verses",
+  hasVerse: false,
   coverImage: "/lovable-uploads/3b875002-99ad-4bb7-9e0c-aa933b5780fa.png",
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/nektar-viddanosti/"
