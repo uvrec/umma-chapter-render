@@ -76,10 +76,10 @@ export const Blog = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-foreground mb-4">
+          <h1 className="blog-title text-foreground mb-4">
             {language === 'ua' ? 'Духовний блог' : 'Spiritual Blog'}
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="blog-subtitle max-w-2xl mx-auto">
             {language === 'ua' 
               ? 'Статті, роздуми та практичні поради на шляху духовного розвитку'
               : 'Articles, reflections and practical advice on the path of spiritual development'
@@ -170,7 +170,7 @@ export const Blog = () => {
                         )}
                       </div>
                       
-                      <h3 className="text-xl font-semibold text-foreground mb-3 line-clamp-2">
+                      <h3 className="blog-heading text-xl text-foreground mb-3 line-clamp-2">
                         {title}
                       </h3>
                       

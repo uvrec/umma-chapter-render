@@ -177,7 +177,7 @@ export default function BlogPost() {
               </Badge>
             )}
             
-            <h1 className="text-4xl font-bold mb-4">{title}</h1>
+            <h1 className="blog-title mb-4">{title}</h1>
             
             <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
               <div className="flex items-center gap-1">
@@ -225,7 +225,7 @@ export default function BlogPost() {
           </header>
 
           {/* Content */}
-          <div className="prose prose-lg max-w-none dark:prose-invert mb-8">
+          <div className="blog-body">
             <TiptapRenderer content={content} />
           </div>
 

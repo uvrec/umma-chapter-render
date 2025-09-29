@@ -10,7 +10,7 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
   const renderContent = (html: string) => {
     return (
       <div 
-        className={`prose prose-lg max-w-none dark:prose-invert ${className}`}
+        className={`prose prose-lg max-w-none dark:prose-invert prose-headings:blog-heading ${className}`}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     );
