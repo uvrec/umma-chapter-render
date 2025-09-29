@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Plus } from 'lucide-react';
 
-const Books = () => {
+const Cantos = () => {
+  const { bookId } = useParams();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
 
@@ -17,18 +18,34 @@ const Books = () => {
     }
   }, [user, isAdmin, navigate]);
 
-  const { data: books, isLoading } = useQuery({
-    queryKey: ['admin-books'],
+  const { data: book } = useQuery({
+    queryKey: ['admin-book', bookId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('books')
         .select('*')
-        .order('created_at', { ascending: true });
+        .eq('id', bookId)
+        .single();
       
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin
+    enabled: !!user && isAdmin && !!bookId
+  });
+
+  const { data: cantos, isLoading } = useQuery({
+    queryKey: ['admin-cantos', bookId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('cantos')
+        .select('*')
+        .eq('book_id', bookId)
+        .order('canto_number', { ascending: true });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user && isAdmin && !!bookId
   });
 
   if (!user || !isAdmin) return null;
@@ -40,17 +57,19 @@ const Books = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin/dashboard">
+                <Link to="/admin/books">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  Назад
+                  Назад до книг
                 </Link>
               </Button>
-              <h1 className="text-2xl font-bold">Книги</h1>
+              <h1 className="text-2xl font-bold">
+                Cantos: {book?.title_ua || 'Завантаження...'}
+              </h1>
             </div>
             <Button asChild>
-              <Link to="/admin/books/new">
+              <Link to={`/admin/cantos/${bookId}/new`}>
                 <Plus className="w-4 h-4 mr-2" />
-                Додати книгу
+                Додати canto
               </Link>
             </Button>
           </div>
@@ -60,31 +79,25 @@ const Books = () => {
       <div className="container mx-auto px-4 py-8">
         {isLoading ? (
           <p>Завантаження...</p>
-        ) : books && books.length > 0 ? (
+        ) : cantos && cantos.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {books.map((book) => (
-              <Card key={book.id}>
+            {cantos.map((canto) => (
+              <Card key={canto.id}>
                 <CardHeader>
-                  <CardTitle>{book.title_ua}</CardTitle>
-                  <CardDescription>{book.title_en}</CardDescription>
+                  <CardTitle>Canto {canto.canto_number}</CardTitle>
+                  <CardDescription>{canto.title_ua}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Slug: {book.slug}
+                    {canto.title_en}
                   </p>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2">
                     <Button size="sm" asChild variant="outline">
-                      <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
+                      <Link to={`/admin/cantos/${bookId}/${canto.id}/edit`}>Редагувати</Link>
                     </Button>
-                    {book.has_cantos ? (
-                      <Button size="sm" asChild variant="outline">
-                        <Link to={`/admin/cantos/${book.id}`}>Cantos</Link>
-                      </Button>
-                    ) : (
-                      <Button size="sm" asChild variant="outline">
-                        <Link to={`/admin/chapters/${book.id}`}>Розділи</Link>
-                      </Button>
-                    )}
+                    <Button size="sm" asChild variant="outline">
+                      <Link to={`/admin/chapters/canto/${canto.id}`}>Розділи</Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -93,7 +106,7 @@ const Books = () => {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">Книг не знайдено</p>
+              <p className="text-muted-foreground">Cantos не знайдено</p>
             </CardContent>
           </Card>
         )}
@@ -102,4 +115,4 @@ const Books = () => {
   );
 };
 
-export default Books;
+export default Cantos;

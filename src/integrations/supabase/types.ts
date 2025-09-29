@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           description_en: string | null
           description_ua: string | null
+          has_cantos: boolean | null
           id: string
           slug: string
           title_en: string
@@ -30,6 +31,7 @@ export type Database = {
           created_at?: string
           description_en?: string | null
           description_ua?: string | null
+          has_cantos?: boolean | null
           id?: string
           slug: string
           title_en: string
@@ -40,6 +42,7 @@ export type Database = {
           created_at?: string
           description_en?: string | null
           description_ua?: string | null
+          has_cantos?: boolean | null
           id?: string
           slug?: string
           title_en?: string
@@ -47,9 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
-      chapters: {
+      cantos: {
         Row: {
           book_id: string
+          canto_number: number
+          created_at: string | null
+          description_en: string | null
+          description_ua: string | null
+          id: string
+          title_en: string
+          title_ua: string
+        }
+        Insert: {
+          book_id: string
+          canto_number: number
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          id?: string
+          title_en: string
+          title_ua: string
+        }
+        Update: {
+          book_id?: string
+          canto_number?: number
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          id?: string
+          title_en?: string
+          title_ua?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cantos_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chapters: {
+        Row: {
+          book_id: string | null
+          canto_id: string | null
           chapter_number: number
           created_at: string
           id: string
@@ -57,7 +102,8 @@ export type Database = {
           title_ua: string
         }
         Insert: {
-          book_id: string
+          book_id?: string | null
+          canto_id?: string | null
           chapter_number: number
           created_at?: string
           id?: string
@@ -65,7 +111,8 @@ export type Database = {
           title_ua: string
         }
         Update: {
-          book_id?: string
+          book_id?: string | null
+          canto_id?: string | null
           chapter_number?: number
           created_at?: string
           id?: string
@@ -78,6 +125,13 @@ export type Database = {
             columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapters_canto_id_fkey"
+            columns: ["canto_id"]
+            isOneToOne: false
+            referencedRelation: "cantos"
             referencedColumns: ["id"]
           },
         ]

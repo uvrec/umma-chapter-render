@@ -26,8 +26,24 @@ export const BookOverview = () => {
     enabled: !!bookId
   });
 
-  // Fetch chapters
-  const { data: chapters = [], isLoading } = useQuery({
+  // Fetch cantos if book has them
+  const { data: cantos = [], isLoading: cantosLoading } = useQuery({
+    queryKey: ['cantos', book?.id],
+    queryFn: async () => {
+      if (!book?.id) return [];
+      const { data, error } = await supabase
+        .from('cantos')
+        .select('*')
+        .eq('book_id', book.id)
+        .order('canto_number');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!book?.id && book?.has_cantos === true
+  });
+
+  // Fetch chapters if book doesn't have cantos
+  const { data: chapters = [], isLoading: chaptersLoading } = useQuery({
     queryKey: ['chapters', book?.id],
     queryFn: async () => {
       if (!book?.id) return [];
@@ -39,8 +55,10 @@ export const BookOverview = () => {
       if (error) throw error;
       return data;
     },
-    enabled: !!book?.id
+    enabled: !!book?.id && book?.has_cantos !== true
   });
+
+  const isLoading = cantosLoading || chaptersLoading;
 
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const bookDescription = language === 'ua' ? book?.description_ua : book?.description_en;
@@ -95,37 +113,69 @@ export const BookOverview = () => {
           </div>
         </div>
 
-        {/* Chapters list */}
+        {/* Cantos or Chapters list */}
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">
-            {t('Глави', 'Chapters')}
+            {book?.has_cantos 
+              ? t('Cantos', 'Cantos')
+              : t('Глави', 'Chapters')
+            }
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {chapters.map((chapter) => (
-              <Link 
-                key={chapter.id}
-                to={`/veda-reader/${bookId}/${chapter.chapter_number}`}
-              >
-                <Card className="hover:shadow-lg transition-all duration-300 hover:border-primary/50">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-primary" />
+            {book?.has_cantos ? (
+              // Display cantos
+              cantos.map((canto) => (
+                <Link 
+                  key={canto.id}
+                  to={`/veda-reader/${bookId}/canto/${canto.canto_number}`}
+                >
+                  <Card className="hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-muted-foreground">
+                            Canto {canto.canto_number}
+                          </p>
+                          <h3 className="font-semibold text-foreground truncate">
+                            {language === 'ua' ? canto.title_ua : canto.title_en}
+                          </h3>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-muted-foreground">
-                          {t('Глава', 'Chapter')} {chapter.chapter_number}
-                        </p>
-                        <h3 className="font-semibold text-foreground truncate">
-                          {language === 'ua' ? chapter.title_ua : chapter.title_en}
-                        </h3>
+                    </CardHeader>
+                  </Card>
+                </Link>
+              ))
+            ) : (
+              // Display chapters
+              chapters.map((chapter) => (
+                <Link 
+                  key={chapter.id}
+                  to={`/veda-reader/${bookId}/${chapter.chapter_number}`}
+                >
+                  <Card className="hover:shadow-lg transition-all duration-300 hover:border-primary/50">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <BookOpen className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-muted-foreground">
+                            {t('Глава', 'Chapter')} {chapter.chapter_number}
+                          </p>
+                          <h3 className="font-semibold text-foreground truncate">
+                            {language === 'ua' ? chapter.title_ua : chapter.title_en}
+                          </h3>
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))}
+                    </CardHeader>
+                  </Card>
+                </Link>
+              ))
+            )}
           </div>
         </div>
       </div>

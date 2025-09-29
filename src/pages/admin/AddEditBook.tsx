@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
@@ -24,6 +25,7 @@ export default function AddEditBook() {
   const [descriptionUa, setDescriptionUa] = useState("");
   const [descriptionEn, setDescriptionEn] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
+  const [hasCantos, setHasCantos] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -54,6 +56,7 @@ export default function AddEditBook() {
       setDescriptionUa(book.description_ua || "");
       setDescriptionEn(book.description_en || "");
       setCoverImageUrl(book.cover_image_url || "");
+      setHasCantos(book.has_cantos || false);
     }
   }, [book]);
 
@@ -66,6 +69,7 @@ export default function AddEditBook() {
         description_ua: descriptionUa || null,
         description_en: descriptionEn || null,
         cover_image_url: coverImageUrl || null,
+        has_cantos: hasCantos,
       };
 
       if (id) {
@@ -147,6 +151,15 @@ export default function AddEditBook() {
                 onChange={(e) => setCoverImageUrl(e.target.value)}
                 placeholder="https://example.com/cover.jpg або /assets/book-cover.jpg"
               />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="hasCantos"
+                checked={hasCantos}
+                onCheckedChange={setHasCantos}
+              />
+              <Label htmlFor="hasCantos">Має структуру cantos (томи/пісні)</Label>
             </div>
 
             <Tabs defaultValue="ua" className="w-full">

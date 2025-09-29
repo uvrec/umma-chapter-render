@@ -23,10 +23,13 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function Chapters() {
-  const { bookId } = useParams();
+  const { bookId, cantoId } = useParams();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
+
+  const parentId = cantoId || bookId;
+  const isCantoMode = !!cantoId;
 
   const [isAddingChapter, setIsAddingChapter] = useState(false);
   const [chapterNumber, setChapterNumber] = useState("");
@@ -43,6 +46,7 @@ export default function Chapters() {
   const { data: book } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
+      if (!bookId) return null;
       const { data, error } = await supabase
         .from("books")
         .select("*")
@@ -51,37 +55,63 @@ export default function Chapters() {
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId && !!user && isAdmin,
+    enabled: !!bookId && !!user && isAdmin && !isCantoMode,
   });
 
-  const { data: chapters, isLoading } = useQuery({
-    queryKey: ["chapters", bookId],
+  const { data: canto } = useQuery({
+    queryKey: ["canto", cantoId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("chapters")
-        .select("*")
-        .eq("book_id", bookId)
-        .order("chapter_number");
+        .from("cantos")
+        .select("*, books(*)")
+        .eq("id", cantoId)
+        .single();
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId && !!user && isAdmin,
+    enabled: !!cantoId && !!user && isAdmin,
+  });
+
+  const { data: chapters, isLoading } = useQuery({
+    queryKey: ["chapters", parentId, isCantoMode],
+    queryFn: async () => {
+      const query = supabase
+        .from("chapters")
+        .select("*")
+        .order("chapter_number");
+
+      if (isCantoMode) {
+        query.eq("canto_id", cantoId);
+      } else {
+        query.eq("book_id", bookId);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!parentId && !!user && isAdmin,
   });
 
   const addMutation = useMutation({
     mutationFn: async () => {
-      const chapterData = {
-        book_id: bookId,
+      const chapterData: any = {
         chapter_number: parseInt(chapterNumber),
         title_ua: titleUa,
         title_en: titleEn || null,
       };
 
+      if (isCantoMode) {
+        chapterData.canto_id = cantoId;
+      } else {
+        chapterData.book_id = bookId;
+      }
+
       const { error } = await supabase.from("chapters").insert(chapterData);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
+      queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
       toast({ title: "Главу додано", description: "Зміни успішно збережено" });
       setIsAddingChapter(false);
       setChapterNumber("");
@@ -112,7 +142,7 @@ export default function Chapters() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
+      queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
       toast({ title: "Главу оновлено", description: "Зміни успішно збережено" });
       setEditingChapter(null);
       setChapterNumber("");
@@ -137,7 +167,7 @@ export default function Chapters() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapters", bookId] });
+      queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
       toast({ title: "Главу видалено", description: "Зміни успішно збережено" });
     },
     onError: (error: any) => {
@@ -192,14 +222,19 @@ export default function Chapters() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/admin/books">
+                <Link to={isCantoMode ? `/admin/cantos/${canto?.book_id}` : "/admin/books"}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  До книг
+                  {isCantoMode ? 'До cantos' : 'До книг'}
                 </Link>
               </Button>
               <div>
                 <h1 className="text-2xl font-bold">Розділи</h1>
-                {book && (
+                {isCantoMode && canto && (
+                  <p className="text-sm text-muted-foreground">
+                    {canto.books?.title_ua} - Canto {canto.canto_number}: {canto.title_ua}
+                  </p>
+                )}
+                {!isCantoMode && book && (
                   <p className="text-sm text-muted-foreground">{book.title_ua}</p>
                 )}
               </div>
