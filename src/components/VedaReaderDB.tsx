@@ -54,32 +54,35 @@ export const VedaReaderDB = () => {
 
   // Fetch chapter
   const { data: chapter } = useQuery({
-    queryKey: ['chapter', chapterId],
+    queryKey: ['chapter', bookId, chapterId],
     queryFn: async () => {
+      if (!book?.id) return null;
       const { data, error } = await supabase
         .from('chapters')
         .select('*')
-        .eq('id', chapterId)
+        .eq('book_id', book.id)
+        .eq('chapter_number', parseInt(chapterId || '1'))
         .single();
       if (error) throw error;
       return data;
     },
-    enabled: !!chapterId
+    enabled: !!chapterId && !!book?.id
   });
 
   // Fetch verses
   const { data: verses = [], isLoading } = useQuery({
-    queryKey: ['verses', chapterId],
+    queryKey: ['verses', chapter?.id],
     queryFn: async () => {
+      if (!chapter?.id) return [];
       const { data, error } = await supabase
         .from('verses')
         .select('*')
-        .eq('chapter_id', chapterId)
+        .eq('chapter_id', chapter.id)
         .order('verse_number');
       if (error) throw error;
       return data;
     },
-    enabled: !!chapterId
+    enabled: !!chapter?.id
   });
 
   const currentVerse = verses[currentVerseIndex];
