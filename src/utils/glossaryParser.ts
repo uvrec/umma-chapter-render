@@ -72,8 +72,8 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
   termPairs.forEach((pair) => {
     const trimmedPair = pair.trim();
     
-    // Split by dash to separate term from meaning
-    const dashIndex = trimmedPair.indexOf(' — ');
+    // Split by dash to separate term from meaning (using en dash –, not em dash —)
+    const dashIndex = trimmedPair.indexOf(' – ');
     if (dashIndex !== -1) {
       const term = trimmedPair.substring(0, dashIndex).trim();
       const meaning = trimmedPair.substring(dashIndex + 3).trim();
@@ -119,7 +119,7 @@ export const extractAllTerms = (verses: any[]): GlossaryTerm[] => {
     if (verse.synonyms) {
       const termsFromVerse = parseTermsFromSynonyms(
         verse.synonyms,
-        verse.number,
+        verse.verse_number,
         verse.book
       );
       allTerms.push(...termsFromVerse);

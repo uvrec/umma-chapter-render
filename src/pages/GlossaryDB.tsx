@@ -52,14 +52,15 @@ export default function GlossaryDB() {
       
       if (error) throw error;
       
-      // Transform data to match the expected format
+      // Transform data to match the expected format for glossary parser
       return data.map(verse => ({
         ...verse,
         book: language === 'ua' 
           ? verse.chapters.books.title_ua 
           : verse.chapters.books.title_en,
         bookSlug: verse.chapters.books.slug,
-        synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en
+        synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+        verse_number: verse.verse_number
       }));
     }
   });

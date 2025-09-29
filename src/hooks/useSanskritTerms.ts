@@ -10,16 +10,16 @@ export const useSanskritTerms = () => {
         .from("verses")
         .select(`
           *,
-          chapter:chapters (
+          chapters (
             chapter_number,
             title_en,
             title_ua,
-            book:books (
+            books (
               title_en,
               title_ua,
               slug
             ),
-            canto:cantos (
+            cantos (
               canto_number,
               title_en,
               title_ua
@@ -29,7 +29,13 @@ export const useSanskritTerms = () => {
         .order("verse_number");
 
       if (error) throw error;
-      return data;
+      
+      // Transform data to match expected format for glossary parser
+      return data.map(verse => ({
+        ...verse,
+        book: verse.chapters?.books?.title_ua || verse.chapters?.books?.title_en || '',
+        synonyms: verse.synonyms_ua || verse.synonyms_en || ''
+      }));
     },
   });
 

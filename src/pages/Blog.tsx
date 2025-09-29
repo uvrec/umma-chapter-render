@@ -1,44 +1,73 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, User, ArrowRight } from "lucide-react";
+import { Calendar, Clock, User, ArrowRight, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const Blog = () => {
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Духовний розвиток у сучасному світі",
-      excerpt: "Дослідження того, як древні ведичні вчення можуть допомогти нам знайти мир і щастя в сучасному світі повному стресу та невизначеності.",
-      author: "Редакція",
-      date: "2024-01-15",
-      readTime: "5 хв",
-      category: "Духовність",
-      image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png"
-    },
-    {
-      id: 2,
-      title: "Медитація та внутрішній спокій",
-      excerpt: "Практичні поради з медитації та концентрації розуму згідно з ведичними традиціями. Як почати свій духовний шлях.",
-      author: "Духовний наставник",
-      date: "2024-01-10", 
-      readTime: "8 хв",
-      category: "Практика",
-      image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png"
-    },
-    {
-      id: 3,
-      title: "Значення служіння в духовному житті",
-      excerpt: "Роздуми про важливість безкорисливого служіння та його роль у духовному зростанні особистості.",
-      author: "Практикуючий",
-      date: "2024-01-05",
-      readTime: "6 хв", 
-      category: "Філософія",
-      image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png"
-    }
-  ];
+  const { language } = useLanguage();
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const categories = ["Всі", "Духовність", "Практика", "Філософія", "Історія"];
+  // Fetch blog posts
+  const { data: posts, isLoading: postsLoading } = useQuery({
+    queryKey: ['blog-posts', selectedCategory],
+    queryFn: async () => {
+      let query = supabase
+        .from('blog_posts')
+        .select(`
+          *,
+          blog_categories (
+            id,
+            name_ua,
+            name_en,
+            slug
+          )
+        `)
+        .eq('is_published', true)
+        .lte('published_at', new Date().toISOString())
+        .order('published_at', { ascending: false });
+
+      if (selectedCategory !== 'all') {
+        query = query.eq('category_id', selectedCategory);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch categories
+  const { data: categories } = useQuery({
+    queryKey: ['blog-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_categories')
+        .select('*')
+        .order(language === 'ua' ? 'name_ua' : 'name_en');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Filter posts by search query
+  const filteredPosts = posts?.filter((post) => {
+    if (!searchQuery) return true;
+    const title = language === 'ua' ? post.title_ua : post.title_en;
+    const excerpt = language === 'ua' ? post.excerpt_ua : post.excerpt_en;
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      title?.toLowerCase().includes(searchLower) ||
+      excerpt?.toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -48,79 +77,133 @@ export const Blog = () => {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
-            Духовний блог
+            {language === 'ua' ? 'Духовний блог' : 'Spiritual Blog'}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Статті, роздуми та практичні поради на шляху духовного розвитку
+            {language === 'ua' 
+              ? 'Статті, роздуми та практичні поради на шляху духовного розвитку'
+              : 'Articles, reflections and practical advice on the path of spiritual development'
+            }
           </p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="max-w-xl mx-auto mb-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              type="text"
+              placeholder={language === 'ua' ? 'Шукати статті...' : 'Search articles...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
         {/* Categories Filter */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          {categories.map((category) => (
+          <Button
+            variant={selectedCategory === 'all' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedCategory('all')}
+          >
+            {language === 'ua' ? 'Всі' : 'All'}
+          </Button>
+          {categories?.map((category) => (
             <Button
-              key={category}
-              variant={category === "Всі" ? "default" : "outline"}
+              key={category.id}
+              variant={selectedCategory === category.id ? "default" : "outline"}
               size="sm"
+              onClick={() => setSelectedCategory(category.id)}
             >
-              {category}
+              {language === 'ua' ? category.name_ua : category.name_en}
             </Button>
           ))}
         </div>
 
-        {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogPosts.map((post) => (
-            <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-video bg-muted">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge variant="secondary">{post.category}</Badge>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Clock className="w-3 h-3 mr-1" />
-                    {post.readTime}
-                  </div>
-                </div>
-                
-                <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {post.title}
-                </h3>
-                
-                <p className="text-muted-foreground mb-4 line-clamp-3">
-                  {post.excerpt}
-                </p>
-                
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <User className="w-3 h-3 mr-1" />
-                    <span>{post.author}</span>
-                    <span className="mx-2">•</span>
-                    <Calendar className="w-3 h-3 mr-1" />
-                    <span>{new Date(post.date).toLocaleDateString('uk-UA')}</span>
-                  </div>
-                  
-                  <Button variant="ghost" size="sm">
-                    <ArrowRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+        {/* Loading State */}
+        {postsLoading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {language === 'ua' ? 'Завантаження...' : 'Loading...'}
+            </p>
+          </div>
+        ) : filteredPosts && filteredPosts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              {language === 'ua' ? 'Статей не знайдено' : 'No articles found'}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPosts?.map((post) => {
+              const title = language === 'ua' ? post.title_ua : post.title_en;
+              const excerpt = language === 'ua' ? post.excerpt_ua : post.excerpt_en;
+              const categoryName = language === 'ua' 
+                ? post.blog_categories?.name_ua 
+                : post.blog_categories?.name_en;
 
-        {/* Load More Button */}
-        <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
-            Завантажити більше статей
-          </Button>
-        </div>
+              return (
+                <Link key={post.id} to={`/blog/${post.slug}`}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
+                    {post.cover_image_url && (
+                      <div className="aspect-video bg-muted">
+                        <img
+                          src={post.cover_image_url}
+                          alt={title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        {categoryName && (
+                          <Badge variant="secondary">{categoryName}</Badge>
+                        )}
+                        {post.read_time > 0 && (
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {post.read_time} {language === 'ua' ? 'хв' : 'min'}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <h3 className="text-xl font-semibold text-foreground mb-3 line-clamp-2">
+                        {title}
+                      </h3>
+                      
+                      {excerpt && (
+                        <p className="text-muted-foreground mb-4 line-clamp-3">
+                          {excerpt}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <User className="w-3 h-3 mr-1" />
+                          <span>{post.author}</span>
+                          <span className="mx-2">•</span>
+                          <Calendar className="w-3 h-3 mr-1" />
+                          <span>
+                            {new Date(post.published_at || post.created_at).toLocaleDateString(
+                              language === 'ua' ? 'uk-UA' : 'en-US'
+                            )}
+                          </span>
+                        </div>
+                        
+                        <Button variant="ghost" size="sm">
+                          <ArrowRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </main>
     </div>
   );

@@ -17,7 +17,7 @@ const CantoOverview = () => {
       const { data, error } = await supabase
         .from('books')
         .select('*')
-        .eq('id', bookId)
+        .eq('slug', bookId)
         .single();
       
       if (error) throw error;
@@ -27,19 +27,19 @@ const CantoOverview = () => {
   });
 
   const { data: canto, isLoading: cantoLoading } = useQuery({
-    queryKey: ['canto', bookId, cantoNumber],
+    queryKey: ['canto', book?.id, cantoNumber],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('cantos')
         .select('*')
-        .eq('book_id', bookId)
+        .eq('book_id', book!.id)
         .eq('canto_number', parseInt(cantoNumber!))
         .single();
       
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId && !!cantoNumber
+    enabled: !!book?.id && !!cantoNumber
   });
 
   const { data: chapters, isLoading: chaptersLoading } = useQuery({

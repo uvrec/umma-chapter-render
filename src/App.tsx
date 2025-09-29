@@ -25,6 +25,7 @@ import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
 import { Donation } from "./pages/Donation";
 import { Blog } from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import { Lectures } from "./pages/audio/Lectures";
 import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
@@ -42,6 +43,10 @@ import { BookOverview } from "./pages/BookOverview";
 import CantoOverview from "./pages/CantoOverview";
 import Cantos from "./pages/admin/Cantos";
 import AddEditCanto from "./pages/admin/AddEditCanto";
+import BlogPosts from "./pages/admin/BlogPosts";
+import AddEditBlogPost from "./pages/admin/AddEditBlogPost";
+import BlogCategories from "./pages/admin/BlogCategories";
+import BlogTags from "./pages/admin/BlogTags";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +78,7 @@ const App = () => (
                 <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
                 <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/audio/podcasts" element={<Podcasts />} />
                 <Route path="/glossary" element={<GlossaryDB />} />
                 <Route path="/glossary-old" element={<Glossary />} />
@@ -95,6 +101,11 @@ const App = () => (
           <Route path="/admin/verses/new" element={<AddEditVerse />} />
           <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
           <Route path="/admin/data-migration" element={<DataMigration />} />
+          <Route path="/admin/blog-posts" element={<BlogPosts />} />
+          <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
+          <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
+          <Route path="/admin/blog-categories" element={<BlogCategories />} />
+          <Route path="/admin/blog-tags" element={<BlogTags />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
