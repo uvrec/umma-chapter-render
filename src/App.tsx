@@ -32,6 +32,9 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/admin/Dashboard";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
+import Chapters from "./pages/admin/Chapters";
+import AddEditBook from "./pages/admin/AddEditBook";
+import AddEditVerse from "./pages/admin/AddEditVerse";
 
 const queryClient = new QueryClient();
 
@@ -67,9 +70,14 @@ const App = () => (
                 <Route path="/payment/bank" element={<BankTransfer />} />
                 <Route path="/payment/other" element={<OtherMethods />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/admin/dashboard" element={<Dashboard />} />
-                <Route path="/admin/books" element={<Books />} />
-                <Route path="/admin/verses" element={<Verses />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/books" element={<Books />} />
+          <Route path="/admin/books/new" element={<AddEditBook />} />
+          <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
+          <Route path="/admin/chapters/:bookId" element={<Chapters />} />
+          <Route path="/admin/verses" element={<Verses />} />
+          <Route path="/admin/verses/new" element={<AddEditVerse />} />
+          <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
