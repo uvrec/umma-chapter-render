@@ -81,8 +81,7 @@ export type Database = {
         Row: {
           audio_url: string | null
           author: string
-          category: string
-          category_id: string | null
+          category_id: string
           content_en: string
           content_ua: string
           cover_image_url: string | null
@@ -98,6 +97,7 @@ export type Database = {
           published_at: string | null
           read_time: number | null
           scheduled_publish_at: string | null
+          search_vector: unknown | null
           slug: string
           substack_embed_url: string | null
           tags: string[] | null
@@ -111,8 +111,7 @@ export type Database = {
         Insert: {
           audio_url?: string | null
           author: string
-          category: string
-          category_id?: string | null
+          category_id: string
           content_en: string
           content_ua: string
           cover_image_url?: string | null
@@ -128,6 +127,7 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
+          search_vector?: unknown | null
           slug: string
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -141,8 +141,7 @@ export type Database = {
         Update: {
           audio_url?: string | null
           author?: string
-          category?: string
-          category_id?: string | null
+          category_id?: string
           content_en?: string
           content_ua?: string
           cover_image_url?: string | null
@@ -158,6 +157,7 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
+          search_vector?: unknown | null
           slug?: string
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -357,6 +357,7 @@ export type Database = {
           created_at: string
           id: string
           sanskrit: string | null
+          search_vector: unknown | null
           synonyms_en: string | null
           synonyms_ua: string | null
           translation_en: string | null
@@ -372,6 +373,7 @@ export type Database = {
           created_at?: string
           id?: string
           sanskrit?: string | null
+          search_vector?: unknown | null
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -387,6 +389,7 @@ export type Database = {
           created_at?: string
           id?: string
           sanskrit?: string | null
+          search_vector?: unknown | null
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -409,6 +412,53 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_blog_post: {
+        Args: {
+          _audio_url?: string
+          _category_id?: string
+          _content_en: string
+          _content_ua: string
+          _cover_image_url?: string
+          _excerpt_en?: string
+          _excerpt_ua?: string
+          _is_published?: boolean
+          _scheduled_publish_at?: string
+          _tags?: string[]
+          _title_en: string
+          _title_ua: string
+          _video_url?: string
+        }
+        Returns: {
+          audio_url: string | null
+          author: string
+          category_id: string
+          content_en: string
+          content_ua: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt_en: string | null
+          excerpt_ua: string | null
+          featured_image: string | null
+          id: string
+          instagram_embed_url: string | null
+          is_published: boolean | null
+          meta_description_en: string | null
+          meta_description_ua: string | null
+          published_at: string | null
+          read_time: number | null
+          scheduled_publish_at: string | null
+          search_vector: unknown | null
+          slug: string
+          substack_embed_url: string | null
+          tags: string[] | null
+          telegram_embed_url: string | null
+          title_en: string
+          title_ua: string
+          updated_at: string
+          video_url: string | null
+          view_count: number | null
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -419,6 +469,10 @@ export type Database = {
       increment_blog_post_views: {
         Args: { post_id: string }
         Returns: undefined
+      }
+      slugify: {
+        Args: { "": string }
+        Returns: string
       }
     }
     Enums: {
