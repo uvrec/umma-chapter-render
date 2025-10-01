@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, FileText, Library, LogOut, Upload, PenSquare } from 'lucide-react';
+import { BookOpen, FileText, Library, LogOut, Upload, PenSquare, Headphones, Music } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -20,12 +20,14 @@ const Dashboard = () => {
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const [booksRes, chaptersRes, versesRes, versesWithEnRes, blogPostsRes] = await Promise.all([
+      const [booksRes, chaptersRes, versesRes, versesWithEnRes, blogPostsRes, audioPlaylistsRes, audioTracksRes] = await Promise.all([
         supabase.from('books').select('id', { count: 'exact', head: true }),
         supabase.from('chapters').select('id', { count: 'exact', head: true }),
         supabase.from('verses').select('id', { count: 'exact', head: true }),
         supabase.from('verses').select('id', { count: 'exact', head: true }).not('translation_en', 'is', null),
-        supabase.from('blog_posts').select('id', { count: 'exact', head: true })
+        supabase.from('blog_posts').select('id', { count: 'exact', head: true }),
+        supabase.from('audio_playlists').select('id', { count: 'exact', head: true }),
+        supabase.from('audio_tracks').select('id', { count: 'exact', head: true })
       ]);
 
       return {
@@ -33,7 +35,9 @@ const Dashboard = () => {
         chapters: chaptersRes.count || 0,
         verses: versesRes.count || 0,
         versesWithEn: versesWithEnRes.count || 0,
-        blogPosts: blogPostsRes.count || 0
+        blogPosts: blogPostsRes.count || 0,
+        audioPlaylists: audioPlaylistsRes.count || 0,
+        audioTracks: audioTracksRes.count || 0
       };
     },
     enabled: !!user && isAdmin
@@ -108,6 +112,24 @@ const Dashboard = () => {
               <div className="text-2xl font-bold">{stats?.blogPosts || 0}</div>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Аудіо плейлісти</CardTitle>
+              <Headphones className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.audioPlaylists || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Аудіо треки</CardTitle>
+              <Music className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats?.audioTracks || 0}</div>
+            </CardContent>
+          </Card>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -167,6 +189,27 @@ const Dashboard = () => {
               </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/blog-tags">Теги</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Аудіо контент</CardTitle>
+              <CardDescription>Управління аудіо-бібліотекою</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/audio-playlists">
+                  <Headphones className="w-4 h-4 mr-2" />
+                  Плейлісти
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/audio-categories">
+                  <Music className="w-4 h-4 mr-2" />
+                  Категорії
+                </Link>
               </Button>
             </CardContent>
           </Card>

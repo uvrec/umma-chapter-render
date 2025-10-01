@@ -14,6 +14,142 @@ export type Database = {
   }
   public: {
     Tables: {
+      audio_categories: {
+        Row: {
+          created_at: string | null
+          description_en: string | null
+          description_ua: string | null
+          display_order: number | null
+          icon: string | null
+          id: string
+          name_en: string
+          name_ua: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          name_en: string
+          name_ua: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          display_order?: number | null
+          icon?: string | null
+          id?: string
+          name_en?: string
+          name_ua?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      audio_playlists: {
+        Row: {
+          author: string | null
+          category_id: string
+          cover_image_url: string | null
+          created_at: string | null
+          description_en: string | null
+          description_ua: string | null
+          display_order: number | null
+          id: string
+          is_published: boolean | null
+          title_en: string
+          title_ua: string
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          author?: string | null
+          category_id: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          title_en: string
+          title_ua: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          author?: string | null
+          category_id?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          title_en?: string
+          title_ua?: string
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_playlists_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "audio_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audio_tracks: {
+        Row: {
+          audio_url: string
+          created_at: string | null
+          duration: number | null
+          id: string
+          playlist_id: string
+          title_en: string
+          title_ua: string
+          track_number: number
+          updated_at: string | null
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          playlist_id: string
+          title_en: string
+          title_ua: string
+          track_number: number
+          updated_at?: string | null
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string | null
+          duration?: number | null
+          id?: string
+          playlist_id?: string
+          title_en?: string
+          title_ua?: string
+          track_number?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_tracks_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "audio_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_categories: {
         Row: {
           created_at: string | null

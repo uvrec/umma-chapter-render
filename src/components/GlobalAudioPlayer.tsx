@@ -43,6 +43,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(75);
+  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -52,6 +53,25 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioRef.current = new Audio();
       audioRef.current.preload = "metadata";
       audioRef.current.volume = volume / 100;
+      audioRef.current.setAttribute('playsinline', '');
+      
+      // Mobile audio unlock - перший клік розблоковує аудіо на iOS/Android
+      const unlockAudio = () => {
+        if (!isAudioUnlocked && audioRef.current) {
+          audioRef.current.play().then(() => {
+            audioRef.current?.pause();
+            audioRef.current!.currentTime = 0;
+            setIsAudioUnlocked(true);
+          }).catch(() => {
+            // Ігноруємо помилки при розблокуванні
+          });
+          document.removeEventListener('touchstart', unlockAudio);
+          document.removeEventListener('click', unlockAudio);
+        }
+      };
+      
+      document.addEventListener('touchstart', unlockAudio, { once: true });
+      document.addEventListener('click', unlockAudio, { once: true });
     }
     const audio = audioRef.current;
 
@@ -91,10 +111,20 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.log("[Audio] playTrackByIndex set src:", playlist[index].src || playlist[index].url);
       audioRef.current.src = playlist[index].src || playlist[index].url;
       audioRef.current.load();
-      audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
-        console.error("Error playing audio:", error);
-        setIsPlaying(false);
-      });
+      
+      // Ensure user gesture for mobile
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch((error) => {
+            console.error("Error playing audio:", error);
+            if (error.name === 'NotAllowedError') {
+              console.warn('Playback requires user interaction on mobile');
+            }
+            setIsPlaying(false);
+          });
+      }
     }
   };
 
@@ -121,10 +151,19 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         console.log("[Audio] playTrack new src:", newTrack.src);
         audioRef.current.src = newTrack.src;
         audioRef.current.load();
-        audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
-          console.error("Error playing audio:", error);
-          setIsPlaying(false);
-        });
+        
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => setIsPlaying(true))
+            .catch((error) => {
+              console.error("Error playing audio:", error);
+              if (error.name === 'NotAllowedError') {
+                console.warn('Playback requires user interaction on mobile');
+              }
+              setIsPlaying(false);
+            });
+        }
       }
     }
   };
@@ -135,10 +174,18 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch((error) => {
-        console.error("Error playing audio:", error);
-        setIsPlaying(false);
-      });
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch((error) => {
+            console.error("Error playing audio:", error);
+            if (error.name === 'NotAllowedError') {
+              console.warn('Playback requires user interaction on mobile');
+            }
+            setIsPlaying(false);
+          });
+      }
     }
   };
 
@@ -191,7 +238,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <AudioContext.Provider value={value}>
       {children}
-      <audio ref={audioRef} preload="metadata" style={{ display: 'none' }} />
     </AudioContext.Provider>
   );
 };

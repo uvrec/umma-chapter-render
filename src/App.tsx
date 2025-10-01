@@ -47,6 +47,9 @@ import BlogPosts from "./pages/admin/BlogPosts";
 import AddEditBlogPost from "./pages/admin/AddEditBlogPost";
 import BlogCategories from "./pages/admin/BlogCategories";
 import BlogTags from "./pages/admin/BlogTags";
+import AudioCategories from "./pages/admin/AudioCategories";
+import AudioPlaylists from "./pages/admin/AudioPlaylists";
+import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 
 const queryClient = new QueryClient();
 
@@ -106,6 +109,9 @@ const App = () => (
           <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
           <Route path="/admin/blog-categories" element={<BlogCategories />} />
           <Route path="/admin/blog-tags" element={<BlogTags />} />
+          <Route path="/admin/audio-categories" element={<AudioCategories />} />
+          <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
+          <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
