@@ -70,32 +70,8 @@ export const Header = () => {
     <header className="bg-background border-b border-border shadow-header">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="text-2xl font-bold text-foreground flex items-center space-x-2 hover:opacity-80 transition-opacity">
-              <div className="w-12 h-12 flex items-center justify-center">
-                <img
-                  src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
-                  alt="Прабгупада Солов'їною"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </Link>
-            <div className="hidden md:flex text-sm text-muted-foreground">
-              ведичні писання з коментарями ачар'їв
-            </div>
-          </div>
-
-          {/* Banner Ad Placeholder */}
-          <div className="hidden lg:flex items-center">
-            <div className="bg-secondary border border-border rounded-md px-4 py-2 text-foreground text-sm">
-              <span className="text-primary font-semibold">Освіта:</span>{" "}
-              Духовне знання для сучасного світу
-            </div>
-          </div>
-
           {/* Desktop search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-6">
+          <div className="flex flex-1 max-w-2xl">
             <div className="relative w-full">
               <Input
                 ref={inputRef}
@@ -114,8 +90,8 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Language Switcher, Theme Toggle and Auth Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Language Switcher, Theme Toggle and Admin Button */}
+          <div className="flex items-center gap-2 ml-4">
             <Button
               variant="ghost"
               size="sm"
@@ -125,22 +101,11 @@ export const Header = () => {
               {language === 'ua' ? 'УКР' : 'ENG'}
             </Button>
             <ThemeToggle />
-            {user ? (
-              <>
-                {isAdmin && (
-                  <Button variant="outline" size="sm" asChild>
-                    <Link to="/admin/dashboard">
-                      <User className="w-4 h-4 mr-2" />
-                      {t('Адмін', 'Admin')}
-                    </Link>
-                  </Button>
-                )}
-              </>
-            ) : (
+            {isAdmin && (
               <Button variant="outline" size="sm" asChild>
-                <Link to="/auth">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  {t('Вхід', 'Login')}
+                <Link to="/admin/dashboard">
+                  <User className="w-4 h-4 mr-2" />
+                  {t('Адмін', 'Admin')}
                 </Link>
               </Button>
             )}
