@@ -51,6 +51,7 @@ import BlogTags from "./pages/admin/BlogTags";
 import AudioCategories from "./pages/admin/AudioCategories";
 import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
+import ImportWizard from "./pages/admin/ImportWizard";
 
 const queryClient = new QueryClient();
 
@@ -105,6 +106,7 @@ const App = () => (
           <Route path="/admin/verses/new" element={<AddEditVerse />} />
           <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
           <Route path="/admin/data-migration" element={<DataMigration />} />
+          <Route path="/admin/import-wizard" element={<ImportWizard />} />
           <Route path="/admin/blog-posts" element={<BlogPosts />} />
           <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
           <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />

@@ -20,7 +20,7 @@ export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
 
-  const { data: post, isLoading } = useQuery({
+  const { data: post, isLoading, isError } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -32,7 +32,8 @@ export default function BlogPost() {
         `)
         .eq("slug", slug)
         .eq("is_published", true)
-        .single();
+        .lte("published_at", new Date().toISOString())
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -80,12 +81,15 @@ export default function BlogPost() {
     );
   }
 
-  if (!post) {
+  if (isError || !post) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto py-8 text-center">
           <h1 className="text-2xl font-bold mb-4">Пост не знайдено</h1>
+          <p className="text-muted-foreground mb-6">
+            {isError ? "Виникла помилка при завантаженні поста" : "Такого поста не існує або він ще не опублікований"}
+          </p>
           <Link to="/blog">
             <Button>Повернутися до блогу</Button>
           </Link>

@@ -160,13 +160,18 @@ const Dashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Імпорт даних</CardTitle>
-              <CardDescription>Імпорт віршів з файлу</CardDescription>
+              <CardDescription>Імпорт глав і віршів з файлів</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/import-wizard">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Новий імпорт глави
+                </Link>
+              </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/data-migration">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Імпортувати вірші
+                  Старий імпорт
                 </Link>
               </Button>
             </CardContent>
