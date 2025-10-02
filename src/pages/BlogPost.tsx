@@ -100,6 +100,9 @@ export default function BlogPost() {
   const excerpt = language === "ua" ? post.excerpt_ua : post.excerpt_en;
   const metaDesc = language === "ua" ? post.meta_description_ua : post.meta_description_en;
 
+  // Check if content is empty or minimal
+  const hasContent = content && content.trim().length > 20;
+
   const handleShare = async () => {
     if (navigator.share) {
       await navigator.share({
@@ -226,7 +229,14 @@ export default function BlogPost() {
 
           {/* Content */}
           <div className="blog-body">
-            <TiptapRenderer content={content} />
+            {hasContent ? (
+              <TiptapRenderer content={content} />
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <p className="text-lg">Контент поста ще не додано</p>
+                <p className="text-sm mt-2">Будь ласка, зверніться до адміністратора</p>
+              </div>
+            )}
           </div>
 
           {/* Media Embeds */}

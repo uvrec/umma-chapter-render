@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
+import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { NewHome } from "./pages/NewHome";
 import { VedaReader } from "./components/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
@@ -116,6 +117,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <GlobalAudioPlayer />
+              <GlobalSettingsPanel />
             </BrowserRouter>
           </AudioProvider>
         </TooltipProvider>
