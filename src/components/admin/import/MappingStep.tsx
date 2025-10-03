@@ -26,6 +26,19 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
 
   const handleNext = () => {
     try {
+      // Validate custom regex patterns
+      if (isCustom) {
+        try {
+          new RegExp(customRegex.verse, 'mi');
+          new RegExp(customRegex.synonyms, 'mi');
+          new RegExp(customRegex.translation, 'mi');
+          new RegExp(customRegex.commentary, 'mi');
+        } catch (regexError) {
+          toast.error('Невалідний regex патерн: ' + (regexError as Error).message);
+          return;
+        }
+      }
+
       let chapters: ParsedChapter[];
       let template: ImportTemplate;
 
@@ -45,16 +58,37 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
         chapters = splitIntoChapters(extractedText, template);
       }
 
-      if (chapters.length === 0 || chapters[0].verses.length === 0) {
+      console.log('Parsed chapters:', chapters.length);
+      chapters.forEach((ch, i) => {
+        console.log(`Chapter ${i + 1}: ${ch.verses.length} verses`);
+      });
+
+      if (chapters.length === 0) {
+        toast.error('Не вдалося знайти жодної глави. Спробуйте інший шаблон або текст');
+        return;
+      }
+
+      const totalVerses = chapters.reduce((sum, ch) => sum + ch.verses.length, 0);
+      if (totalVerses === 0) {
         toast.error('Не вдалося знайти вірші. Перевірте налаштування шаблону');
         return;
       }
 
-      toast.success(`Знайдено ${chapters.length} розділів з ${chapters.reduce((sum, ch) => sum + ch.verses.length, 0)} віршами`);
+      // Show preview info
+      const firstVerse = chapters[0]?.verses[0];
+      if (firstVerse) {
+        console.log('First verse preview:', {
+          number: firstVerse.verse_number,
+          sanskrit: firstVerse.sanskrit?.substring(0, 50),
+          hasTranslation: !!firstVerse.translation_ua,
+        });
+      }
+
+      toast.success(`Знайдено ${chapters.length} розділів з ${totalVerses} віршами`);
       onNext(template, chapters);
     } catch (error) {
       console.error('Error parsing text:', error);
-      toast.error('Помилка при обробці тексту. Перевірте регулярні вирази');
+      toast.error('Помилка при обробці тексту: ' + (error as Error).message);
     }
   };
 

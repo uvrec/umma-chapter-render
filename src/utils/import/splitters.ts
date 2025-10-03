@@ -39,16 +39,35 @@ export function splitIntoVerses(
   const verses: ParsedVerse[] = [];
   const verseMatches = [...chapterText.matchAll(new RegExp(template.versePattern, 'gmi'))];
   
+  if (verseMatches.length === 0) {
+    console.warn('No verse matches found, attempting paragraph split');
+    // Fallback: split by double newlines
+    const paragraphs = chapterText.split(/\n\s*\n/).filter(p => p.trim().length > 50);
+    paragraphs.forEach((para, index) => {
+      verses.push(parseVerse((index + 1).toString(), para, template));
+    });
+    return verses;
+  }
+  
   verseMatches.forEach((match, index) => {
-    const verseNum = match[1] || (index + 1).toString();
+    const verseNum = normalizeVerseNumber(match[1] || (index + 1).toString());
     const startPos = match.index || 0;
     const endPos = verseMatches[index + 1]?.index || chapterText.length;
     const verseText = chapterText.substring(startPos, endPos);
     
-    verses.push(parseVerse(verseNum, verseText, template));
+    const verse = parseVerse(verseNum, verseText, template);
+    if (verse.verse_number) {
+      verses.push(verse);
+    } else {
+      console.warn(`Skipping verse at index ${index} - no verse number`);
+    }
   });
   
   return verses;
+}
+
+function normalizeVerseNumber(raw: string): string {
+  return raw.replace(/[^\d.-]/g, '').trim();
 }
 
 function parseVerse(
@@ -61,7 +80,18 @@ function parseVerse(
   // Extract Sanskrit (usually first non-empty line after verse number)
   const lines = text.split('\n').filter(l => l.trim());
   if (lines.length > 1) {
-    verse.sanskrit = lines[1]?.trim();
+    const sanskritLine = lines[1]?.trim();
+    // Check if it looks like Sanskrit (Devanagari or IAST)
+    if (sanskritLine && (
+      /[\u0900-\u097F]/.test(sanskritLine) || 
+      /[āīūṛṝḷḹēōṃḥśṣṇṭḍ]/.test(sanskritLine)
+    )) {
+      verse.sanskrit = sanskritLine;
+    }
+    // Transliteration might be next line
+    if (lines.length > 2 && /[āīūṛṝḷḹēōṃḥśṣṇṭḍ]/.test(lines[2])) {
+      verse.transliteration = lines[2]?.trim();
+    }
   }
   
   // Extract synonyms
@@ -70,7 +100,10 @@ function parseVerse(
     const synonymsStart = synonymsMatch.index + synonymsMatch[0].length;
     const translationMatch = text.match(template.translationPattern);
     const synonymsEnd = translationMatch?.index || text.length;
-    verse.synonyms_ua = text.substring(synonymsStart, synonymsEnd).trim();
+    const synonymsText = text.substring(synonymsStart, synonymsEnd).trim();
+    if (synonymsText.length > 0) {
+      verse.synonyms_ua = synonymsText;
+    }
   }
   
   // Extract translation
@@ -79,14 +112,20 @@ function parseVerse(
     const translationStart = translationMatch.index + translationMatch[0].length;
     const commentaryMatch = text.match(template.commentaryPattern);
     const translationEnd = commentaryMatch?.index || text.length;
-    verse.translation_ua = text.substring(translationStart, translationEnd).trim();
+    const translationText = text.substring(translationStart, translationEnd).trim();
+    if (translationText.length > 0) {
+      verse.translation_ua = translationText;
+    }
   }
   
   // Extract commentary
   const commentaryMatch = text.match(template.commentaryPattern);
   if (commentaryMatch && commentaryMatch.index !== undefined) {
     const commentaryStart = commentaryMatch.index + commentaryMatch[0].length;
-    verse.commentary_ua = text.substring(commentaryStart).trim();
+    const commentaryText = text.substring(commentaryStart).trim();
+    if (commentaryText.length > 0) {
+      verse.commentary_ua = commentaryText;
+    }
   }
   
   return verse;

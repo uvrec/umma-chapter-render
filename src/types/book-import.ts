@@ -71,3 +71,38 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     chapterPattern: /^(?:МАНТРА|MANTRA)\s+(\d+)/mi,
   },
 ];
+
+// Validation helpers
+export function validateParsedChapter(chapter: ParsedChapter): string[] {
+  const errors: string[] = [];
+  
+  if (!chapter.chapter_number || chapter.chapter_number < 1) {
+    errors.push('Невалідний номер глави');
+  }
+  
+  if (!chapter.title_ua?.trim()) {
+    errors.push('Відсутня назва глави (UA)');
+  }
+  
+  if (chapter.verses.length === 0) {
+    errors.push('Глава не містить віршів');
+  }
+  
+  chapter.verses.forEach((verse, idx) => {
+    if (!verse.verse_number?.trim()) {
+      errors.push(`Вірш ${idx + 1}: відсутній номер`);
+    }
+  });
+  
+  return errors;
+}
+
+export function validateParsedVerse(verse: ParsedVerse): string[] {
+  const errors: string[] = [];
+  
+  if (!verse.verse_number?.trim()) {
+    errors.push('Відсутній номер вірша');
+  }
+  
+  return errors;
+}

@@ -64,15 +64,34 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
       return;
     }
 
+    // Validate verses
+    const invalidVerses = editedChapter.verses.filter(v => !v.verse_number?.trim());
+    if (invalidVerses.length > 0) {
+      toast.error(`Знайдено ${invalidVerses.length} віршів без номера`);
+      return;
+    }
+
+    const versesWithoutContent = editedChapter.verses.filter(
+      v => !v.sanskrit?.trim() && !v.translation_ua?.trim()
+    );
+    if (versesWithoutContent.length > 0) {
+      toast.warning(`${versesWithoutContent.length} віршів без тексту будуть імпортовані`);
+    }
+
     setIsImporting(true);
     try {
-      // Create/get chapter
-      const { data: existingChapter } = await supabase
+      // Create/get chapter with proper canto filtering
+      let query = supabase
         .from('chapters')
         .select('id')
         .eq('book_id', selectedBookId)
-        .eq('chapter_number', editedChapter.chapter_number)
-        .maybeSingle();
+        .eq('chapter_number', editedChapter.chapter_number);
+
+      if (needsCanto && selectedCantoId) {
+        query = query.eq('canto_id', selectedCantoId);
+      }
+
+      const { data: existingChapter } = await query.maybeSingle();
 
       let chapterId: string;
 
