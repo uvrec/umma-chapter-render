@@ -90,7 +90,7 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Language Switcher, Theme Toggle and Admin Button */}
+          {/* Language Switcher, Theme Toggle, Login and Admin Button */}
           <div className="flex items-center gap-2 ml-4">
             <Button
               variant="ghost"
@@ -101,6 +101,14 @@ export const Header = () => {
               {language === 'ua' ? 'УКР' : 'ENG'}
             </Button>
             <ThemeToggle />
+            {!user && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/auth">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Вхід
+                </Link>
+              </Button>
+            )}
             {isAdmin && (
               <Button variant="outline" size="sm" asChild>
                 <Link to="/admin/dashboard">
@@ -521,6 +529,28 @@ export const Header = () => {
                   <Heart className="w-5 h-5" />
                   <span>Підтримати проєкт</span>
                 </Link>
+
+                {!user && (
+                  <Link
+                    to="/auth"
+                    className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                    onClick={() => setOpen(false)}
+                  >
+                    <LogIn className="w-5 h-5" />
+                    <span>Вхід</span>
+                  </Link>
+                )}
+
+                {isAdmin && (
+                  <Link
+                    to="/admin/dashboard"
+                    className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                    onClick={() => setOpen(false)}
+                  >
+                    <User className="w-5 h-5" />
+                    <span>{t('Адмін', 'Admin')}</span>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>
