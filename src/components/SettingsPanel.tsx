@@ -67,7 +67,7 @@ export const SettingsPanel = ({
 
   const filteredVerses = verses.filter(verse => 
     verse.number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    verse.translation.toLowerCase().includes(searchQuery.toLowerCase())
+    (verse.translation && verse.translation.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const increaseFontSize = () => {
@@ -331,7 +331,7 @@ export const SettingsPanel = ({
                     <span className="text-sm opacity-75">{verse.book}</span>
                   </div>
                   <p className="text-sm mt-1 opacity-80 line-clamp-2">
-                    {verse.translation.substring(0, 100)}...
+                    {verse.translation ? `${verse.translation.substring(0, 100)}...` : 'Переклад відсутній'}
                   </p>
                 </button>
               ))}
