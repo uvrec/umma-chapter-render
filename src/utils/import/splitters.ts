@@ -77,21 +77,50 @@ function parseVerse(
 ): ParsedVerse {
   const verse: ParsedVerse = { verse_number: verseNumber };
   
-  // Extract Sanskrit (usually first non-empty line after verse number)
   const lines = text.split('\n').filter(l => l.trim());
-  if (lines.length > 1) {
-    const sanskritLine = lines[1]?.trim();
-    // Check if it looks like Sanskrit (Devanagari or IAST)
-    if (sanskritLine && (
-      /[\u0900-\u097F]/.test(sanskritLine) || 
-      /[āīūṛṝḷḹēōṃḥśṣṇṭḍ]/.test(sanskritLine)
-    )) {
-      verse.sanskrit = sanskritLine;
+  
+  // Extract Sanskrit - collect all consecutive Devanagari lines
+  const sanskritLines: string[] = [];
+  let translitStartIndex = -1;
+  
+  for (let i = 1; i < lines.length; i++) { // Start from 1 to skip verse number
+    const line = lines[i].trim();
+    
+    // Check if line contains Devanagari characters
+    if (/[\u0900-\u097F]/.test(line)) {
+      sanskritLines.push(line);
+    } else if (sanskritLines.length > 0) {
+      // Found end of Sanskrit section
+      translitStartIndex = i;
+      break;
     }
-    // Transliteration might be next line
-    if (lines.length > 2 && /[āīūṛṝḷḹēōṃḥśṣṇṭḍ]/.test(lines[2])) {
-      verse.transliteration = lines[2]?.trim();
+  }
+  
+  if (sanskritLines.length > 0) {
+    verse.sanskrit = sanskritLines.join('\n');
+  }
+  
+  // Extract Transliteration - collect consecutive IAST lines after Sanskrit
+  const translitLines: string[] = [];
+  if (translitStartIndex !== -1) {
+    for (let i = translitStartIndex; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Check if line contains IAST characters but isn't a section header
+      if (/[āīūṛṝḷḹēōṃḥśṣṇṭḍ]/.test(line) && 
+          !line.match(template.synonymsPattern) &&
+          !line.match(template.translationPattern) &&
+          !line.match(template.commentaryPattern)) {
+        translitLines.push(line);
+      } else {
+        // Stop collecting transliteration when we hit a section or non-IAST line
+        break;
+      }
     }
+  }
+  
+  if (translitLines.length > 0) {
+    verse.transliteration = translitLines.join('\n');
   }
   
   // Extract synonyms
