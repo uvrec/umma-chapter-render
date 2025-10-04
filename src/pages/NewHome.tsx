@@ -80,8 +80,8 @@ export const NewHome = () => {
             Останні завантаження
           </h2>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Sample audiobook cards */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Sample audiobook cards - showing only 2 latest */}
             <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
               <CardContent className="p-6">
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center">
@@ -128,36 +128,6 @@ export const NewHome = () => {
                 </h3>
                 <p className="text-muted-foreground text-sm mb-3">
                   Арджуна на полі битви - початок найвідомішого духовного діалогу в історії людства
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="w-4 h-4" />
-                    Прабгупада
-                  </div>
-                  <Button size="sm" variant="outline">
-                    <Play className="w-4 h-4 mr-1" />
-                    Слухати
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center">
-                  <Play className="w-12 h-12 text-primary" />
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    45 хв
-                  </Badge>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  Шрі Ішопанішад мантри 1-5
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Досконале розуміння істинної природи Всевишнього через мантри Ішопанішади
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">

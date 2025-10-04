@@ -195,6 +195,9 @@ const Dashboard = () => {
               <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/blog-tags">Теги</Link>
               </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Для англійських перекладів: створіть категорію "Англійські переклади" в розділі "Категорії"
+              </p>
             </CardContent>
           </Card>
 

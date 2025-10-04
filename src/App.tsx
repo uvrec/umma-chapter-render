@@ -13,6 +13,9 @@ import { VedaReader } from "./components/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
+import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
+import { AllBooks } from "./pages/library/AllBooks";
+import { AcharyasBooks } from "./pages/library/AcharyasBooks";
 import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
@@ -75,6 +78,9 @@ const App = () => (
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderDB />} />
                 <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
                 <Route path="/library" element={<Library />} />
+                <Route path="/library/prabhupada" element={<PrabhupadaBooks />} />
+                <Route path="/library/all" element={<AllBooks />} />
+                <Route path="/library/acharyas" element={<AcharyasBooks />} />
                 <Route path="/audiobooks" element={<Audio />} />
                 <Route path="/audio/audiobooks" element={<Audiobooks />} />
                 <Route path="/audio/lectures" element={<Lectures />} />
