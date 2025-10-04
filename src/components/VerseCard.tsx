@@ -84,8 +84,8 @@ export const VerseCard = ({
 
         {/* Sanskrit Text */}
         {textDisplaySettings.showSanskrit && sanskritText && (
-          <div className="mb-6 p-4 bg-muted/50 rounded-lg">
-            <p className="text-center text-xl leading-relaxed font-mono text-foreground whitespace-pre-line">
+          <div className="mb-8">
+            <p className="text-center text-3xl leading-relaxed font-sanskrit text-foreground whitespace-pre-line">
               {sanskritText}
             </p>
           </div>
@@ -93,23 +93,24 @@ export const VerseCard = ({
 
         {/* Transliteration */}
         {textDisplaySettings.showTransliteration && transliteration && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">
-              Транслітерація:
-            </h4>
-            <p className="italic leading-relaxed whitespace-pre-line text-center text-slate-800 font-medium text-base">
-              {transliteration}
-            </p>
+          <div className="mb-6">
+            <div className="text-center space-y-1">
+              {transliteration.split('\n').map((line, index) => (
+                <p key={index} className="italic text-lg text-muted-foreground leading-relaxed">
+                  {line}
+                </p>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Word-for-word synonyms */}
         {textDisplaySettings.showSynonyms && synonyms && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">
+          <div className="mb-6 pt-6 border-t border-border">
+            <h4 className="text-base font-bold text-foreground mb-4">
               Послівний переклад:
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-foreground leading-relaxed">
               {synonyms.split(';').map((part, index) => {
                 const cleanPart = part.trim();
                 if (cleanPart.includes(' – ')) {
@@ -121,7 +122,7 @@ export const VerseCard = ({
                       {words.map((word, wordIndex) => (
                         <span key={wordIndex}>
                           <span 
-                            className="cursor-pointer text-primary hover:underline" 
+                            className="cursor-pointer text-primary hover:underline font-medium italic" 
                             onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank')}
                           >
                             {word}
@@ -142,11 +143,11 @@ export const VerseCard = ({
 
         {/* Literary Translation */}
         {textDisplaySettings.showTranslation && translation && (
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">
+          <div className="mb-6 pt-6 border-t border-border">
+            <h4 className="text-base font-bold text-foreground mb-4">
               Літературний переклад:
             </h4>
-            <p className="text-base text-foreground leading-relaxed font-medium">
+            <p className="text-lg text-foreground leading-relaxed font-medium">
               {translation}
             </p>
           </div>
@@ -154,11 +155,11 @@ export const VerseCard = ({
 
         {/* Commentary */}
         {textDisplaySettings.showCommentary && commentary && (
-          <div className="pt-4 border-t border-border">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-2 text-center">
+          <div className="pt-6 border-t border-border">
+            <h4 className="text-base font-bold text-foreground mb-4">
               Коментар:
             </h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-base text-foreground leading-relaxed">
               {commentary}
             </p>
           </div>

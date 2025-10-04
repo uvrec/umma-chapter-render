@@ -17,7 +17,7 @@ export const VedaReaderDB = () => {
   const { language, t } = useLanguage();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [fontSize, setFontSize] = useState(16);
+  const [fontSize, setFontSize] = useState(18);
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [dualLanguageMode, setDualLanguageMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState('sanskrit');

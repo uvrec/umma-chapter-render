@@ -123,7 +123,8 @@ export default {
 			fontFamily: {
 				arabic: 'var(--arabic-font)',
 				body: 'var(--body-font)',
-				'playfair': ['Playfair Display', 'serif']
+				'playfair': ['Playfair Display', 'serif'],
+				'sanskrit': ['Noto Sans Devanagari', 'serif']
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
