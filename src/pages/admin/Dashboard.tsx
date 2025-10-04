@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, FileText, Library, LogOut, Upload, PenSquare, Headphones, Music } from 'lucide-react';
+import { BookOpen, FileText, Library, LogOut, Upload, PenSquare, Headphones, Music, WrapText } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -167,6 +167,12 @@ const Dashboard = () => {
                 <Link to="/admin/import-wizard">
                   <Upload className="w-4 h-4 mr-2" />
                   Новий імпорт глави
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/fix-verse-linebreaks">
+                  <WrapText className="w-4 h-4 mr-2" />
+                  Виправити розриви рядків
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
