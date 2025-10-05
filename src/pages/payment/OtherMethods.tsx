@@ -82,7 +82,7 @@ export const OtherMethods = () => {
                     <Button
                       onClick={() => {
                         if (method.link) {
-                          window.open(method.link, '_blank', 'noopener');
+                          window.open(method.link, '_blank', 'noopener,noreferrer');
                         } else if (method.address) {
                           copyToClipboard(method.address);
                         }

@@ -123,7 +123,7 @@ export const VerseCard = ({
                         <span key={wordIndex}>
                           <span 
                             className="cursor-pointer text-primary hover:underline font-medium italic" 
-                            onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank')}
+                            onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank', 'noopener,noreferrer')}
                           >
                             {word}
                           </span>

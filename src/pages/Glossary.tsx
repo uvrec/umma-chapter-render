@@ -180,7 +180,7 @@ export const Glossary = () => {
                             <Button 
                               variant="link" 
                               className="p-0 h-auto text-primary hover:underline"
-                              onClick={() => window.open(def.link, '_blank', 'noopener')}
+                              onClick={() => window.open(def.link, '_blank', 'noopener,noreferrer')}
                             >
                               {def.reference}
                             </Button>
