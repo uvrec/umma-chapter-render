@@ -103,7 +103,7 @@ const Verses = () => {
             </div>
             {selectedChapterId && (
               <Button asChild>
-                <Link to={`/admin/verses/new?chapter=${selectedChapterId}`}>
+                <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
                   <Plus className="w-4 h-4 mr-2" />
                   Додати вірш
                 </Link>

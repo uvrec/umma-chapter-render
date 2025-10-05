@@ -3,7 +3,6 @@ import { Heart, CreditCard, Banknote } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/Footer";
-import { Link } from "react-router-dom";
 
 export const Donation = () => {
   return (
@@ -34,8 +33,8 @@ export const Donation = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Швидкий та безпечний спосіб підтримки
               </p>
-              <Button className="w-full" asChild>
-                <Link to="/payment/card">Підтримати</Link>
+              <Button className="w-full">
+                Підтримати
               </Button>
             </Card>
             
@@ -46,19 +45,22 @@ export const Donation = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Переказ на банківський рахунок проєкту
               </p>
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/payment/bank">Реквізити</Link>
+              <Button variant="outline" className="w-full">
+                Реквізити
               </Button>
             </Card>
             
+            {/* PayPal Payment */}
             <Card className="p-6 text-center">
               <Heart className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="font-semibold text-foreground mb-2">Інші способи</h3>
+              <h3 className="font-semibold text-foreground mb-2">PayPal</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Криптовалюти та інші методи підтримки
+                Підтримайте проєкт через PayPal
               </p>
-              <Button variant="outline" className="w-full" asChild>
-                <Link to="/payment/other">Дізнатися</Link>
+              <Button className="w-full" asChild>
+                <a href="https://paypal.me/andriiuvarov" target="_blank" rel="noopener noreferrer">
+                  Підтримати
+                </a>
               </Button>
             </Card>
           </div>

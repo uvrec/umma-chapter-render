@@ -58,6 +58,7 @@ import ImportWizard from "./pages/admin/ImportWizard";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
+import { PageView } from "./pages/PageView";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +129,7 @@ const App = () => (
           <Route path="/admin/pages" element={<Pages />} />
           <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="/:slug" element={<PageView />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <GlobalAudioPlayer />
