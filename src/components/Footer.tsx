@@ -40,6 +40,7 @@ export const Footer = () => {
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  referrerPolicy="no-referrer"
                   className="text-muted-foreground hover:text-primary transition-colors duration-200"
                   aria-label={link.name}
                 >
