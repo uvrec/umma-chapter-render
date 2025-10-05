@@ -104,9 +104,11 @@ export const NewHome = () => {
                     <User className="w-4 h-4" />
                     Прабгупада
                   </div>
-                  <Button size="sm" variant="outline">
-                    <Play className="w-4 h-4 mr-1" />
-                    Слухати
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/audio/audiobooks">
+                      <Play className="w-4 h-4 mr-1" />
+                      Слухати
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
@@ -134,9 +136,11 @@ export const NewHome = () => {
                     <User className="w-4 h-4" />
                     Прабгупада
                   </div>
-                  <Button size="sm" variant="outline">
-                    <Play className="w-4 h-4 mr-1" />
-                    Слухати
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/audio/audiobooks">
+                      <Play className="w-4 h-4 mr-1" />
+                      Слухати
+                    </Link>
                   </Button>
                 </div>
               </CardContent>
