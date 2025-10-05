@@ -1,4 +1,5 @@
-import { TermHighlighter } from "@/components/TermHighlighter";
+import { useMemo } from "react";
+import DOMPurify from "dompurify";
 
 interface TiptapRendererProps {
   content: string;
@@ -6,7 +7,27 @@ interface TiptapRendererProps {
 }
 
 export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps) => {
-  if (!content || content.trim().length === 0) {
+  const sanitizedContent = useMemo(() => {
+    if (!content || content.trim().length === 0) {
+      return null;
+    }
+    
+    // Sanitize HTML to prevent XSS attacks
+    return DOMPurify.sanitize(content, {
+      ALLOWED_TAGS: [
+        'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'img', 
+        'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'span'
+      ],
+      ALLOWED_ATTR: [
+        'href', 'target', 'rel', 'src', 'alt', 'title', 'class', 'style',
+        'width', 'height', 'colspan', 'rowspan'
+      ],
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+    });
+  }, [content]);
+
+  if (!sanitizedContent) {
     return (
       <div className="text-muted-foreground italic">
         Контент відсутній
@@ -26,7 +47,7 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
         prose-blockquote:text-muted-foreground prose-blockquote:border-l-primary
         prose-code:text-foreground prose-code:bg-muted
         ${className}`}
-      dangerouslySetInnerHTML={{ __html: content }}
+      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );
 };

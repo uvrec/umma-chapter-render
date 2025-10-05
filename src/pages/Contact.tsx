@@ -1,9 +1,27 @@
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, "Ім'я обов'язкове")
+    .max(100, "Ім'я не може перевищувати 100 символів"),
+  email: z.string()
+    .trim()
+    .email("Невірний формат email")
+    .max(255, "Email не може перевищувати 255 символів"),
+  message: z.string()
+    .trim()
+    .min(1, "Повідомлення обов'язкове")
+    .max(2000, "Повідомлення не може перевищувати 2000 символів"),
+});
 
 const socialLinks = [
   {
@@ -36,6 +54,42 @@ const socialLinks = [
 ];
 
 export const Contact = () => {
+  const { toast } = useToast();
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const result = contactSchema.safeParse(formData);
+    
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0].toString()] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+    
+    setErrors({});
+    
+    // Encode data for WhatsApp (example implementation)
+    const whatsappMessage = encodeURIComponent(
+      `Ім'я: ${result.data.name}\nEmail: ${result.data.email}\nПовідомлення: ${result.data.message}`
+    );
+    
+    toast({
+      title: "Форма валідна",
+      description: "Функціонал відправки повідомлень буде додано пізніше",
+    });
+    
+    // Reset form
+    setFormData({ name: "", email: "", message: "" });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -89,11 +143,37 @@ export const Contact = () => {
             <Card className="p-6">
               <h3 className="font-semibold text-foreground mb-4">Написати повідомлення</h3>
               
-              <form className="space-y-4">
-                <Input placeholder="Ваше ім'я" />
-                <Input type="email" placeholder="Email" />
-                <Textarea placeholder="Повідомлення" rows={4} />
-                <Button className="w-full">Надіслати</Button>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Input 
+                    placeholder="Ваше ім'я" 
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                  {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
+                </div>
+                
+                <div>
+                  <Input 
+                    type="email" 
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                  {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+                </div>
+                
+                <div>
+                  <Textarea 
+                    placeholder="Повідомлення" 
+                    rows={4}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  />
+                  {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
+                </div>
+                
+                <Button type="submit" className="w-full">Надіслати</Button>
               </form>
             </Card>
           </div>

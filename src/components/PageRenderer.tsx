@@ -23,6 +23,7 @@ export const PageRenderer = ({ page, language }: PageRendererProps) => {
             src={page.hero_image_url}
             alt="Hero"
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
       )}
@@ -33,15 +34,12 @@ export const PageRenderer = ({ page, language }: PageRendererProps) => {
             src={page.banner_image_url}
             alt="Banner"
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         </div>
       )}
 
-      {content && (
-        <div className="prose prose-lg max-w-none dark:prose-invert">
-          <TiptapRenderer content={content} />
-        </div>
-      )}
+      {content && <TiptapRenderer content={content} />}
     </div>
   );
 };

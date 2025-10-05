@@ -13,6 +13,9 @@ import { TiptapEditor } from "@/components/blog/TiptapEditor";
 import { generateSlug, calculateReadTime } from "@/utils/blogHelpers";
 import { toast } from "@/hooks/use-toast";
 import { Save, ArrowLeft } from "lucide-react";
+import { z } from "zod";
+
+const urlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
 
 export default function AddEditBlogPost() {
   const navigate = useNavigate();
@@ -121,6 +124,30 @@ export default function AddEditBlogPost() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate URLs
+    const urlFields = [
+      { value: featuredImage, name: "Обкладинка" },
+      { value: videoUrl, name: "Відео URL" },
+      { value: audioUrl, name: "Аудіо URL" },
+      { value: instagramUrl, name: "Instagram URL" },
+      { value: telegramUrl, name: "Telegram URL" },
+      { value: substackUrl, name: "Substack URL" },
+    ];
+    
+    for (const field of urlFields) {
+      if (field.value) {
+        const result = urlSchema.safeParse(field.value);
+        if (!result.success) {
+          toast({ 
+            title: "Помилка валідації", 
+            description: `${field.name}: ${result.error.errors[0].message}`,
+            variant: "destructive" 
+          });
+          return;
+        }
+      }
+    }
 
     const readTime = calculateReadTime(contentUa + contentEn);
     

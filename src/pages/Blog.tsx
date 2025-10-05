@@ -22,7 +22,19 @@ export const Blog = () => {
       let query = supabase
         .from('blog_posts')
         .select(`
-          *,
+          id,
+          title_ua,
+          title_en,
+          slug,
+          excerpt_ua,
+          excerpt_en,
+          cover_image_url,
+          featured_image,
+          published_at,
+          created_at,
+          view_count,
+          read_time,
+          author_display_name,
           blog_categories (
             id,
             name_ua,

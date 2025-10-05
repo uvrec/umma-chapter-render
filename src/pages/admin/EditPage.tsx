@@ -12,6 +12,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { TiptapEditor } from "@/components/blog/TiptapEditor";
 import { Textarea } from "@/components/ui/textarea";
+import { z } from "zod";
+
+const urlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
 
 export const EditPage = () => {
   const { slug } = useParams();
@@ -117,6 +120,28 @@ export const EditPage = () => {
       });
       return;
     }
+    
+    // Validate URLs
+    const urlFields = [
+      { value: heroImageUrl, name: "Hero зображення" },
+      { value: bannerImageUrl, name: "Банер" },
+      { value: ogImage, name: "OG зображення" },
+    ];
+    
+    for (const field of urlFields) {
+      if (field.value) {
+        const result = urlSchema.safeParse(field.value);
+        if (!result.success) {
+          toast({
+            title: "Помилка валідації",
+            description: `${field.name}: ${result.error.errors[0].message}`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+    }
+    
     updatePageMutation.mutate();
   };
 

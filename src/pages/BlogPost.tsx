@@ -26,7 +26,31 @@ export default function BlogPost() {
       const { data, error } = await supabase
         .from("blog_posts")
         .select(`
-          *,
+          id,
+          title_ua,
+          title_en,
+          slug,
+          content_ua,
+          content_en,
+          excerpt_ua,
+          excerpt_en,
+          cover_image_url,
+          featured_image,
+          video_url,
+          audio_url,
+          instagram_embed_url,
+          telegram_embed_url,
+          substack_embed_url,
+          meta_description_ua,
+          meta_description_en,
+          is_published,
+          published_at,
+          created_at,
+          updated_at,
+          view_count,
+          read_time,
+          category_id,
+          author_display_name,
           category:blog_categories(name_ua, name_en),
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `)
