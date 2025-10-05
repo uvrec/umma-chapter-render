@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen, FileText, Library, LogOut, Upload, PenSquare, Headphones, Music, WrapText } from 'lucide-react';
+import { BookOpen, FileText, Library, LogOut, Upload, PenSquare, Headphones, Music, WrapText, FileEdit } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -223,6 +223,21 @@ const Dashboard = () => {
                 <Link to="/admin/audio-categories">
                   <Music className="w-4 h-4 mr-2" />
                   Категорії
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Сторінки</CardTitle>
+              <CardDescription>Управління контентом сторінок</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link to="/admin/pages">
+                  <FileEdit className="w-4 h-4 mr-2" />
+                  Редагувати сторінки
                 </Link>
               </Button>
             </CardContent>

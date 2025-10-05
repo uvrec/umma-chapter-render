@@ -50,6 +50,44 @@ export type Database = {
         }
         Relationships: []
       }
+      audio_events: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          event_type: string
+          id: string
+          position_ms: number | null
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          event_type: string
+          id?: string
+          position_ms?: number | null
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          event_type?: string
+          id?: string
+          position_ms?: number | null
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_events_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "audio_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_playlists: {
         Row: {
           author: string | null
@@ -462,6 +500,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pages: {
+        Row: {
+          banner_image_url: string | null
+          content_en: string | null
+          content_ua: string | null
+          created_at: string
+          hero_image_url: string | null
+          id: string
+          is_published: boolean | null
+          meta_description_en: string | null
+          meta_description_ua: string | null
+          og_image: string | null
+          sections: Json | null
+          seo_keywords: string | null
+          slug: string
+          title_en: string
+          title_ua: string
+          updated_at: string
+        }
+        Insert: {
+          banner_image_url?: string | null
+          content_en?: string | null
+          content_ua?: string | null
+          created_at?: string
+          hero_image_url?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description_en?: string | null
+          meta_description_ua?: string | null
+          og_image?: string | null
+          sections?: Json | null
+          seo_keywords?: string | null
+          slug: string
+          title_en: string
+          title_ua: string
+          updated_at?: string
+        }
+        Update: {
+          banner_image_url?: string | null
+          content_en?: string | null
+          content_ua?: string | null
+          created_at?: string
+          hero_image_url?: string | null
+          id?: string
+          is_published?: boolean | null
+          meta_description_en?: string | null
+          meta_description_ua?: string | null
+          og_image?: string | null
+          sections?: Json | null
+          seo_keywords?: string | null
+          slug?: string
+          title_en?: string
+          title_ua?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

@@ -56,6 +56,8 @@ import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
+import Pages from "./pages/admin/Pages";
+import EditPage from "./pages/admin/EditPage";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +125,8 @@ const App = () => (
           <Route path="/admin/audio-categories" element={<AudioCategories />} />
           <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
           <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
+          <Route path="/admin/pages" element={<Pages />} />
+          <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
