@@ -147,6 +147,7 @@ export const Contact = () => {
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        referrerPolicy="no-referrer"
                         className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
                         aria-label={link.name}
                       >
