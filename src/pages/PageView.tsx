@@ -1,5 +1,5 @@
 import { useParams, Navigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -8,11 +8,35 @@ import { Footer } from "@/components/Footer";
 import { PageRenderer } from "@/components/PageRenderer";
 import { PageMeta } from "@/components/PageMeta";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { InlineEditableBlock } from "@/components/InlineEditableBlock";
+import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { toast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useState, useEffect } from "react";
+import { Edit, Save, X } from "lucide-react";
+import { z } from "zod";
+
+const urlSchema = z.string().url().or(z.literal(""));
 
 export const PageView = () => {
   const { slug } = useParams<{ slug: string }>();
   const { isAdmin } = useAuth();
   const { language } = useLanguage();
+  const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
+  
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedTitleUa, setEditedTitleUa] = useState("");
+  const [editedTitleEn, setEditedTitleEn] = useState("");
+  const [editedMetaDescriptionUa, setEditedMetaDescriptionUa] = useState("");
+  const [editedMetaDescriptionEn, setEditedMetaDescriptionEn] = useState("");
+  const [editedContentUa, setEditedContentUa] = useState("");
+  const [editedContentEn, setEditedContentEn] = useState("");
+  const [editedHeroImageUrl, setEditedHeroImageUrl] = useState("");
+  const [editedBannerImageUrl, setEditedBannerImageUrl] = useState("");
+  const [editedOgImage, setEditedOgImage] = useState("");
+  const [editedSeoKeywords, setEditedSeoKeywords] = useState("");
 
   const { data: page, isLoading, error } = useQuery({
     queryKey: ['page', slug],
@@ -30,6 +54,97 @@ export const PageView = () => {
     },
     enabled: !!slug,
   });
+
+  useEffect(() => {
+    if (page) {
+      setEditedTitleUa(page.title_ua || "");
+      setEditedTitleEn(page.title_en || "");
+      setEditedMetaDescriptionUa(page.meta_description_ua || "");
+      setEditedMetaDescriptionEn(page.meta_description_en || "");
+      setEditedContentUa(page.content_ua || "");
+      setEditedContentEn(page.content_en || "");
+      setEditedHeroImageUrl(page.hero_image_url || "");
+      setEditedBannerImageUrl(page.banner_image_url || "");
+      setEditedOgImage(page.og_image || "");
+      setEditedSeoKeywords(page.seo_keywords || "");
+    }
+  }, [page]);
+
+  const updatePageMutation = useMutation({
+    mutationFn: async () => {
+      if (!page) throw new Error("No page data");
+
+      // Validate URLs
+      try {
+        urlSchema.parse(editedHeroImageUrl);
+        urlSchema.parse(editedBannerImageUrl);
+        urlSchema.parse(editedOgImage);
+      } catch (e) {
+        throw new Error("Один або декілька URL-адрес недійсні");
+      }
+
+      const { error } = await supabase
+        .from('pages')
+        .update({
+          title_ua: editedTitleUa,
+          title_en: editedTitleEn,
+          meta_description_ua: editedMetaDescriptionUa,
+          meta_description_en: editedMetaDescriptionEn,
+          content_ua: editedContentUa,
+          content_en: editedContentEn,
+          hero_image_url: editedHeroImageUrl || null,
+          banner_image_url: editedBannerImageUrl || null,
+          og_image: editedOgImage || null,
+          seo_keywords: editedSeoKeywords || null,
+        })
+        .eq('id', page.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['page', slug] });
+      setIsEditMode(false);
+      toast({
+        title: "Зміни збережено",
+        description: "Сторінку успішно оновлено",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Помилка збереження",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSave = () => {
+    if (!editedTitleUa || !editedTitleEn) {
+      toast({
+        title: "Помилка валідації",
+        description: "Заголовки обов'язкові для заповнення",
+        variant: "destructive",
+      });
+      return;
+    }
+    updatePageMutation.mutate();
+  };
+
+  const handleCancel = () => {
+    if (page) {
+      setEditedTitleUa(page.title_ua || "");
+      setEditedTitleEn(page.title_en || "");
+      setEditedMetaDescriptionUa(page.meta_description_ua || "");
+      setEditedMetaDescriptionEn(page.meta_description_en || "");
+      setEditedContentUa(page.content_ua || "");
+      setEditedContentEn(page.content_en || "");
+      setEditedHeroImageUrl(page.hero_image_url || "");
+      setEditedBannerImageUrl(page.banner_image_url || "");
+      setEditedOgImage(page.og_image || "");
+      setEditedSeoKeywords(page.seo_keywords || "");
+    }
+    setIsEditMode(false);
+  };
 
   if (isLoading) {
     return (
@@ -56,8 +171,20 @@ export const PageView = () => {
     return <Navigate to="/404" replace />;
   }
 
-  const title = language === "ua" ? page.title_ua : page.title_en;
-  const metaDescription = language === "ua" ? page.meta_description_ua : page.meta_description_en;
+  const title = isEditMode 
+    ? (language === "ua" ? editedTitleUa : editedTitleEn)
+    : (language === "ua" ? page.title_ua : page.title_en);
+  
+  const metaDescription = isEditMode
+    ? (language === "ua" ? editedMetaDescriptionUa : editedMetaDescriptionEn)
+    : (language === "ua" ? page.meta_description_ua : page.meta_description_en);
+
+  const content = isEditMode
+    ? (language === "ua" ? editedContentUa : editedContentEn)
+    : (language === "ua" ? page.content_ua : page.content_en);
+
+  const heroImageUrl = isEditMode ? editedHeroImageUrl : page.hero_image_url;
+  const bannerImageUrl = isEditMode ? editedBannerImageUrl : page.banner_image_url;
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,17 +210,128 @@ export const PageView = () => {
         )}
 
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-foreground mb-4">{title}</h1>
-          
-          {metaDescription && (
-            <p className="text-lg text-muted-foreground mb-8">{metaDescription}</p>
+          {isEditMode ? (
+            <>
+              <InlineEditableBlock
+                value={language === "ua" ? editedTitleUa : editedTitleEn}
+                onChange={language === "ua" ? setEditedTitleUa : setEditedTitleEn}
+                type="text"
+                label={`Заголовок (${language === "ua" ? "UA" : "EN"})`}
+                isEditing={isEditMode}
+                placeholder="Заголовок сторінки"
+              />
+            </>
+          ) : (
+            <h1 className="text-4xl font-bold text-foreground mb-4">{title}</h1>
           )}
+          
+          {isEditMode ? (
+            <InlineEditableBlock
+              value={language === "ua" ? editedMetaDescriptionUa : editedMetaDescriptionEn}
+              onChange={language === "ua" ? setEditedMetaDescriptionUa : setEditedMetaDescriptionEn}
+              type="textarea"
+              label={`Опис (${language === "ua" ? "UA" : "EN"})`}
+              isEditing={isEditMode}
+              placeholder="Короткий опис сторінки"
+              className="mb-8"
+            />
+          ) : metaDescription ? (
+            <p className="text-lg text-muted-foreground mb-8">{metaDescription}</p>
+          ) : null}
 
-          <PageRenderer page={page} language={language} />
+          <div className="space-y-8">
+            {isEditMode && (
+              <InlineEditableBlock
+                value={heroImageUrl || ""}
+                onChange={setEditedHeroImageUrl}
+                type="image"
+                label="Hero зображення"
+                isEditing={isEditMode}
+              />
+            )}
+
+            {!isEditMode && heroImageUrl && (
+              <div className="w-full h-[400px] relative overflow-hidden rounded-lg">
+                <img
+                  src={heroImageUrl}
+                  alt="Hero"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
+
+            {isEditMode && !heroImageUrl && (
+              <InlineEditableBlock
+                value={bannerImageUrl || ""}
+                onChange={setEditedBannerImageUrl}
+                type="image"
+                label="Banner зображення"
+                isEditing={isEditMode}
+              />
+            )}
+
+            {!isEditMode && bannerImageUrl && !heroImageUrl && (
+              <div className="w-full h-[200px] relative overflow-hidden rounded-lg">
+                <img
+                  src={bannerImageUrl}
+                  alt="Banner"
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
+
+            {isEditMode ? (
+              <InlineTiptapEditor
+                content={language === "ua" ? editedContentUa : editedContentEn}
+                onChange={language === "ua" ? setEditedContentUa : setEditedContentEn}
+                label={`Контент (${language === "ua" ? "UA" : "EN"})`}
+              />
+            ) : (
+              content && <PageRenderer page={{ content_ua: editedContentUa, content_en: editedContentEn }} language={language} />
+            )}
+          </div>
         </div>
       </main>
       
       <Footer />
+
+      {isAdmin && !isMobile && (
+        <div className="fixed bottom-8 right-8 flex gap-2 z-50">
+          {!isEditMode ? (
+            <Button
+              onClick={() => setIsEditMode(true)}
+              size="lg"
+              className="shadow-lg"
+            >
+              <Edit className="h-5 w-5 mr-2" />
+              Редагувати
+            </Button>
+          ) : (
+            <>
+              <Button
+                onClick={handleCancel}
+                variant="outline"
+                size="lg"
+                className="shadow-lg"
+              >
+                <X className="h-5 w-5 mr-2" />
+                Скасувати
+              </Button>
+              <Button
+                onClick={handleSave}
+                size="lg"
+                className="shadow-lg"
+                disabled={updatePageMutation.isPending}
+              >
+                <Save className="h-5 w-5 mr-2" />
+                {updatePageMutation.isPending ? "Збереження..." : "Зберегти"}
+              </Button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };
