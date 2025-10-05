@@ -53,7 +53,7 @@ export const VerseCard = ({
 
   const isCurrentlyPlaying = currentTrack?.id === verseNumber && isPlaying;
   return (
-    <Card className="w-full bg-card border-border animate-fade-in">
+    <Card className="w-full bg-white dark:bg-card border-gray-100 dark:border-border shadow-sm animate-fade-in">
       <div className="p-6">
         {/* Verse Number and Book */}
         <div className="flex items-center justify-between mb-4">
@@ -84,8 +84,8 @@ export const VerseCard = ({
 
         {/* Sanskrit Text */}
         {textDisplaySettings.showSanskrit && sanskritText && (
-          <div className="mb-8">
-            <p className="text-center text-3xl leading-relaxed font-sanskrit text-foreground whitespace-pre-line">
+          <div className="mb-10">
+            <p className="text-center text-[26px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground whitespace-pre-line">
               {sanskritText}
             </p>
           </div>
@@ -93,10 +93,10 @@ export const VerseCard = ({
 
         {/* Transliteration */}
         {textDisplaySettings.showTransliteration && transliteration && (
-          <div className="mb-6">
+          <div className="mb-8">
             <div className="text-center space-y-1">
               {transliteration.split('\n').map((line, index) => (
-                <p key={index} className="italic text-lg text-muted-foreground leading-relaxed">
+                <p key={index} className="italic text-[17px] text-gray-500 dark:text-muted-foreground leading-relaxed">
                   {line}
                 </p>
               ))}
