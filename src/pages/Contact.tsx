@@ -10,7 +10,6 @@ import { z } from "zod";
 import { useStaticPageMeta } from "@/hooks/useStaticPageMeta";
 import { PageMeta } from "@/components/PageMeta";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { openExternal } from "@/lib/openExternal";
 
 const contactSchema = z.object({
   name: z.string()
@@ -147,11 +146,10 @@ export const Contact = () => {
                         key={link.name}
                         href={link.url}
                         target="_blank"
-                        rel="noopener noreferrer"
+                        rel="noopener"
                         referrerPolicy="no-referrer"
                         className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
                         aria-label={link.name}
-                        onClick={(e) => { e.preventDefault(); openExternal(link.url); }}
                       >
                         {link.icon}
                       </a>

@@ -1,5 +1,3 @@
-import { openExternal } from "@/lib/openExternal";
-
 export const Footer = () => {
   const socialLinks = [
     {
@@ -41,11 +39,10 @@ export const Footer = () => {
                 <a
                   href={link.url}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                   referrerPolicy="no-referrer"
                   className="text-muted-foreground hover:text-primary transition-colors duration-200"
                   aria-label={link.name}
-                  onClick={(e) => { e.preventDefault(); openExternal(link.url); }}
                 >
                   {link.icon}
                 </a>

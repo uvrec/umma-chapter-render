@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useState, useMemo, useEffect } from "react";
 import { extractAllTerms, groupTermsByText, searchTerms, GlossaryTerm } from "@/utils/glossaryParser";
-import { openExternal } from "@/lib/openExternal";
 
 export const Glossary = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -181,7 +180,7 @@ export const Glossary = () => {
                             <Button 
                               variant="link" 
                               className="p-0 h-auto text-primary hover:underline"
-                              onClick={() => openExternal(def.link)}
+                              onClick={() => window.open(def.link, '_blank', 'noopener')}
                             >
                               {def.reference}
                             </Button>
