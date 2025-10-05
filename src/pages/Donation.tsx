@@ -27,7 +27,8 @@ export const Donation = () => {
           </div>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="p-6 text-center">
+            {/* Temporarily hidden - Card Payment */}
+            <Card className="p-6 text-center hidden">
               <CreditCard className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">Банківська картка</h3>
               <p className="text-sm text-muted-foreground mb-4">
@@ -38,7 +39,8 @@ export const Donation = () => {
               </Button>
             </Card>
             
-            <Card className="p-6 text-center">
+            {/* Temporarily hidden - Bank Transfer */}
+            <Card className="p-6 text-center hidden">
               <Banknote className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">Банківський переказ</h3>
               <p className="text-sm text-muted-foreground mb-4">
