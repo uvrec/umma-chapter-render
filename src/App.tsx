@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -77,6 +77,7 @@ const App = () => (
                 <Route path="/verses" element={<VedaReader />} />
                 <Route path="/verses/:bookId" element={<VedaReader />} />
                 <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                <Route path="/veda-reader/srimad-bhagavatam" element={<Navigate to="/veda-reader/srimad-bhagavatam/canto/1" replace />} />
                 <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderDB />} />
