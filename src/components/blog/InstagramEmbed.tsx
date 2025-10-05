@@ -12,7 +12,7 @@ export const InstagramEmbed = ({ url, className = "" }: InstagramEmbedProps) => 
       window.instgrm.Embeds.process();
     } else {
       const script = document.createElement('script');
-      script.src = '//www.instagram.com/embed.js';
+      script.src = 'https://www.instagram.com/embed.js';
       script.async = true;
       document.body.appendChild(script);
     }

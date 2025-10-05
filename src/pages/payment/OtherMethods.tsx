@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Heart, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { openExternal } from "@/lib/openExternal";
 
 export const OtherMethods = () => {
   const paymentMethods = [
@@ -82,7 +83,7 @@ export const OtherMethods = () => {
                     <Button
                       onClick={() => {
                         if (method.link) {
-                          window.open(method.link, '_blank', 'noopener,noreferrer');
+                          openExternal(method.link);
                         } else if (method.address) {
                           copyToClipboard(method.address);
                         }
