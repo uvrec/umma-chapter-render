@@ -27,7 +27,6 @@ import { BankTransfer } from "./pages/payment/BankTransfer";
 import { OtherMethods } from "./pages/payment/OtherMethods";
 import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
-import { Donation } from "./pages/Donation";
 import { Blog } from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { Lectures } from "./pages/audio/Lectures";
@@ -58,6 +57,7 @@ import ImportWizard from "./pages/admin/ImportWizard";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
+import StaticPages from "./pages/admin/StaticPages";
 import { PageView } from "./pages/PageView";
 
 const queryClient = new QueryClient();
@@ -98,7 +98,6 @@ const App = () => (
                 <Route path="/glossary" element={<GlossaryDB />} />
                 <Route path="/glossary-old" element={<Glossary />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/donation" element={<Donation />} />
                 <Route path="/payment/card" element={<CardPayment />} />
                 <Route path="/payment/bank" element={<BankTransfer />} />
                 <Route path="/payment/other" element={<OtherMethods />} />
@@ -128,6 +127,7 @@ const App = () => (
           <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
           <Route path="/admin/pages" element={<Pages />} />
           <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
+          <Route path="/admin/static-pages" element={<StaticPages />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="/:slug" element={<PageView />} />
                 <Route path="*" element={<NotFound />} />

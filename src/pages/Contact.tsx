@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { useStaticPageMeta } from "@/hooks/useStaticPageMeta";
+import { PageMeta } from "@/components/PageMeta";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const contactSchema = z.object({
   name: z.string()
@@ -55,6 +58,8 @@ const socialLinks = [
 
 export const Contact = () => {
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const { data: pageMeta } = useStaticPageMeta("contact");
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -90,14 +95,27 @@ export const Contact = () => {
     setFormData({ name: "", email: "", message: "" });
   };
 
+  const title = pageMeta ? (language === "ua" ? pageMeta.title_ua : pageMeta.title_en) : "Контакти";
+  
   return (
     <div className="min-h-screen bg-background">
+      {pageMeta && (
+        <PageMeta
+          titleUa={pageMeta.title_ua}
+          titleEn={pageMeta.title_en}
+          metaDescriptionUa={pageMeta.meta_description_ua}
+          metaDescriptionEn={pageMeta.meta_description_en}
+          ogImage={pageMeta.og_image}
+          seoKeywords={pageMeta.seo_keywords}
+          language={language}
+        />
+      )}
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center space-x-3 mb-6">
             <MessageCircle className="w-8 h-8 text-primary" />
-            <h1 className="text-3xl font-bold text-foreground">Контакти</h1>
+            <h1 className="text-3xl font-bold text-foreground">{title}</h1>
           </div>
           
           <div className="grid gap-6 md:grid-cols-2">

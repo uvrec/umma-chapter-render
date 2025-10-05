@@ -233,11 +233,17 @@ const Dashboard = () => {
               <CardTitle>Сторінки</CardTitle>
               <CardDescription>Управління контентом сторінок</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-2">
               <Button asChild className="w-full">
                 <Link to="/admin/pages">
                   <FileEdit className="w-4 h-4 mr-2" />
-                  Редагувати сторінки
+                  Динамічні сторінки
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/static-pages">
+                  <FileEdit className="w-4 h-4 mr-2" />
+                  Статичні сторінки
                 </Link>
               </Button>
             </CardContent>
