@@ -183,7 +183,7 @@ export const Blog = () => {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center text-sm text-muted-foreground">
                           <User className="w-3 h-3 mr-1" />
-                          <span>{post.author}</span>
+                          <span>{post.author_display_name}</span>
                           <span className="mx-2">•</span>
                           <Calendar className="w-3 h-3 mr-1" />
                           <span>

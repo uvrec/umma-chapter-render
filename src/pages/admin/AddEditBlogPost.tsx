@@ -27,7 +27,6 @@ export default function AddEditBlogPost() {
   const [excerptUa, setExcerptUa] = useState("");
   const [excerptEn, setExcerptEn] = useState("");
   const [categoryId, setCategoryId] = useState("");
-  const [author, setAuthor] = useState("");
   const [isPublished, setIsPublished] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [featuredImage, setFeaturedImage] = useState("");
@@ -76,7 +75,6 @@ export default function AddEditBlogPost() {
       setExcerptUa(post.excerpt_ua || "");
       setExcerptEn(post.excerpt_en || "");
       setCategoryId(post.category_id || "");
-      setAuthor(post.author || "");
       setIsPublished(post.is_published || false);
       setScheduledAt(post.scheduled_publish_at || "");
       setFeaturedImage(post.featured_image || "");
@@ -135,7 +133,6 @@ export default function AddEditBlogPost() {
       excerpt_ua: excerptUa,
       excerpt_en: excerptEn,
       category_id: categoryId || null,
-      author,
       is_published: isPublished,
       published_at: isPublished ? new Date().toISOString() : null,
       scheduled_publish_at: scheduledAt || null,
@@ -318,16 +315,6 @@ export default function AddEditBlogPost() {
                 id="slug"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="author">Автор</Label>
-              <Input
-                id="author"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
                 required
               />
             </div>

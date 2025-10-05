@@ -254,7 +254,8 @@ export type Database = {
       blog_posts: {
         Row: {
           audio_url: string | null
-          author: string
+          author_display_name: string | null
+          author_id: string
           category_id: string
           content_en: string
           content_ua: string
@@ -284,7 +285,8 @@ export type Database = {
         }
         Insert: {
           audio_url?: string | null
-          author: string
+          author_display_name?: string | null
+          author_id: string
           category_id: string
           content_en: string
           content_ua: string
@@ -314,7 +316,8 @@ export type Database = {
         }
         Update: {
           audio_url?: string | null
-          author?: string
+          author_display_name?: string | null
+          author_id?: string
           category_id?: string
           content_en?: string
           content_ua?: string
@@ -558,6 +561,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -661,7 +688,8 @@ export type Database = {
         }
         Returns: {
           audio_url: string | null
-          author: string
+          author_display_name: string | null
+          author_id: string
           category_id: string
           content_en: string
           content_ua: string

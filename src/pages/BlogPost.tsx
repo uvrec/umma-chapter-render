@@ -129,7 +129,7 @@ export default function BlogPost() {
         <meta property="og:image" content={post.featured_image} />
         <meta property="og:type" content="article" />
         <meta property="article:published_time" content={post.published_at} />
-        <meta property="article:author" content={post.author} />
+        <meta property="article:author" content={post.author_display_name} />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
@@ -139,7 +139,7 @@ export default function BlogPost() {
             "datePublished": post.published_at,
             "author": {
               "@type": "Person",
-              "name": post.author
+              "name": post.author_display_name
             },
             "description": metaDesc || excerpt
           })}
@@ -205,7 +205,7 @@ export default function BlogPost() {
               </div>
               
               <div className="flex items-center gap-1">
-                <span>Автор: {post.author}</span>
+                <span>Автор: {post.author_display_name}</span>
               </div>
             </div>
 
