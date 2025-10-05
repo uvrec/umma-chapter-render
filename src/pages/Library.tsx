@@ -34,7 +34,7 @@ const books: Book[] = [{
   description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
   price: "595 грн",
   hasVerse: true,
-  verseLink: "/veda-reader/srimad-bhagavatam",
+  verseLink: "/veda-reader/srimad-bhagavatam/canto/1",
   coverImage: srimadBhagavatam1Cover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
@@ -43,6 +43,8 @@ const books: Book[] = [{
   title: "Друга пісня Шрімад Бгаґаватам",
   description: "Ця пісня \"Шрімад-Бгаґаватам\" являє собою стислий виклад усієї книги.",
   price: "438 грн",
+  hasVerse: true,
+  verseLink: "/veda-reader/srimad-bhagavatam/canto/2",
   coverImage: srimadBhagavatam2Cover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/ua/srimad-bhagavatam-2-pisnja/"
