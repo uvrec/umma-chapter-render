@@ -346,7 +346,7 @@ export const Header = () => {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
                     <Link
-                      to="/library"
+                      to="/library/all"
                       className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
                       onClick={() => setOpen(false)}
                     >
@@ -365,13 +365,6 @@ export const Header = () => {
                       onClick={() => setOpen(false)}
                     >
                       <span>Ачар'ї</span>
-                    </Link>
-                    <Link
-                      to="/library/all"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span>Всі розділи</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>

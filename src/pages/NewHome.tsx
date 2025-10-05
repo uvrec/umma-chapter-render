@@ -58,7 +58,7 @@ export const NewHome = () => {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black">
-                <Link to="/audiobooks">
+                <Link to="/audio/audiobooks">
                   <Headphones className="w-5 h-5 mr-2" />
                   Аудіокниги
                 </Link>
@@ -174,7 +174,7 @@ export const NewHome = () => {
                   Слухайте ведичну мудрість у виконанні досвідчених читців та вчителів
                 </p>
                 <Button asChild className="mt-6" variant="outline">
-                  <Link to="/audiobooks">Слухати аудіокниги</Link>
+                  <Link to="/audio/audiobooks">Слухати аудіокниги</Link>
                 </Button>
               </CardContent>
             </Card>

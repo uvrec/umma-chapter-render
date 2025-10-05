@@ -43,7 +43,7 @@ export const Home = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link to="/audiobooks">
+                <Link to="/audio/audiobooks">
                   <Headphones className="w-5 h-5 mr-2" />
                   Аудіокниги
                 </Link>
@@ -90,7 +90,7 @@ export const Home = () => {
 
             {/* Audiobooks Section */}
             <Card className="group p-6 hover:shadow-lg transition-all cursor-pointer border-0 bg-card/50 backdrop-blur-sm">
-              <Link to="/audiobooks" className="block">
+              <Link to="/audio/audiobooks" className="block">
                 <div className="w-full aspect-square mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
                   <Headphones className="w-12 h-12 text-primary" />
                 </div>

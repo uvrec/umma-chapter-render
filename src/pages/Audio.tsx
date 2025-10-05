@@ -127,7 +127,7 @@ export const Audio = () => {
               <PlaylistPlayer 
                 tracks={srimadBhagavatamTracks}
                 title="Шрімад-Бгаґаватам - Перший том"
-                albumCover="/src/assets/srimad-bhagavatam-1-cover.webp"
+                albumCover="/assets/srimad-bhagavatam-1-cover.webp"
               />
             </div>
 
@@ -152,7 +152,7 @@ export const Audio = () => {
               <PlaylistPlayer 
                 tracks={bhagavadGitaTracks}
                 title="Бгаґавад-ґіта - Друга глава"
-                albumCover="/src/assets/bhagavad-gita-cover.webp"
+                albumCover="/assets/bhagavad-gita-cover.webp"
               />
             </div>
           </div>
@@ -172,7 +172,7 @@ export const Audio = () => {
               <CardContent className="p-6">
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
                   <img 
-                    src="/src/assets/bhagavad-gita-cover.webp" 
+                    src="/assets/bhagavad-gita-cover.webp" 
                     alt="Бгаґавад-ґіта"
                     className="w-full h-full object-cover"
                   />
@@ -200,8 +200,8 @@ export const Audio = () => {
                       Аудіокнига
                     </Link>
                   </Button>
-                  <Button size="sm" variant="outline">
-                    Прабгупада
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/audio/lectures">Прабгупада</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -212,7 +212,7 @@ export const Audio = () => {
               <CardContent className="p-6">
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
                   <img 
-                    src="/src/assets/srimad-bhagavatam-1-cover.webp" 
+                    src="/assets/srimad-bhagavatam-1-cover.webp" 
                     alt="Шрімад-Бгаґаватам"
                     className="w-full h-full object-cover"
                   />
@@ -240,8 +240,8 @@ export const Audio = () => {
                       Аудіокнига
                     </Link>
                   </Button>
-                  <Button size="sm" variant="outline">
-                    Прабгупада
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/audio/lectures">Прабгупада</Link>
                   </Button>
                 </div>
               </CardContent>
@@ -252,7 +252,7 @@ export const Audio = () => {
               <CardContent className="p-6">
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
                   <img 
-                    src="/src/assets/sri-isopanishad-cover.webp" 
+                    src="/assets/sri-isopanishad-cover.webp" 
                     alt="Шрі Ішопанішад"
                     className="w-full h-full object-cover"
                   />
@@ -279,8 +279,8 @@ export const Audio = () => {
                       Аудіокнига
                     </Link>
                   </Button>
-                  <Button size="sm" variant="outline">
-                    Прабгупада
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/audio/lectures">Прабгупада</Link>
                   </Button>
                 </div>
               </CardContent>

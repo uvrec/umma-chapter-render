@@ -180,11 +180,11 @@ export const Library = () => {
               <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                 <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
                   {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
-                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                    <Link to={book.verseLink || '/library'} className="block w-full h-full">
                       <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                     </Link>
                   ) : (
-                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                    <Link to={book.verseLink || '/library'} className="block w-full h-full">
                       <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
                         <div className="text-center p-4">
                           <div className="text-6xl mb-4 text-primary">
@@ -251,11 +251,11 @@ export const Library = () => {
               <Card key={book.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                 <div className="aspect-[3/4] bg-gradient-to-br from-primary/5 to-primary/10 rounded-t-lg overflow-hidden">
                   {book.coverImage && typeof book.coverImage === 'string' && !book.coverImage.includes('placeholder') ? (
-                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                    <Link to={book.verseLink || '/library'} className="block w-full h-full">
                       <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                     </Link>
                   ) : (
-                    <Link to={book.verseLink || '#'} className="block w-full h-full">
+                    <Link to={book.verseLink || '/library'} className="block w-full h-full">
                       <div className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
                         <div className="text-center p-3">
                           <div className="mb-2">
