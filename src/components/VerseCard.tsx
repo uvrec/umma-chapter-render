@@ -209,7 +209,8 @@ export const VerseCard = ({
                         {words.map((word, wordIndex) => (
                           <span key={wordIndex}>
                             <span 
-                              className="cursor-pointer text-primary hover:underline font-medium italic" 
+                              className="cursor-pointer hover:underline font-sanskrit-italic italic" 
+                              style={{ color: 'hsl(var(--sanskrit-term-color))' }}
                               onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank', 'noopener,noreferrer')}
                             >
                               {word}

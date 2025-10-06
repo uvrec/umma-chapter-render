@@ -43,6 +43,9 @@
     --academic-gray: 220 8.9% 46.1%;
     --academic-accent: 47 96% 89%;
     
+    /* Sanskrit term styling */
+    --sanskrit-term-color: 0 68% 42%;
+    
     /* Typography */
   --sanskrit-font: 'Noto Sans Devanagari', 'Sanskrit 2003', serif;
   --body-font: 'Playfair Display', Georgia, 'Times New Roman', serif;

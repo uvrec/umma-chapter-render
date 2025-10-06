@@ -124,7 +124,8 @@ export default {
 				arabic: 'var(--arabic-font)',
 				body: 'var(--body-font)',
 				'playfair': ['Playfair Display', 'serif'],
-				'sanskrit': ['Noto Sans Devanagari', 'serif']
+				'sanskrit': ['Noto Sans Devanagari', 'serif'],
+				'sanskrit-italic': ['Crimson Text', 'Georgia', 'serif']
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',

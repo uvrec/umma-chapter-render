@@ -5,7 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, FileText } from 'lucide-react';
 import { extractTextFromPDF } from '@/utils/import/pdf';
 import { extractTextFromEPUB } from '@/utils/import/epub';
+import { extractTextFromDOCX } from '@/utils/import/docx';
 import { normalizeText } from '@/utils/import/normalizers';
+import { marked } from 'marked';
 import { toast } from 'sonner';
 
 interface UploadStepProps {
@@ -28,9 +30,12 @@ export function UploadStep({ onNext }: UploadStepProps) {
         extractedText = await extractTextFromPDF(file);
       } else if (file.type === 'application/epub+zip') {
         extractedText = await extractTextFromEPUB(file);
-      } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-        extractedText = await file.text();
+      } else if (file.name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        extractedText = await extractTextFromDOCX(file);
       } else if (file.name.endsWith('.md')) {
+        const markdownText = await file.text();
+        extractedText = await marked(markdownText);
+      } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
         extractedText = await file.text();
       } else {
         toast.error('Непідтримуваний формат файлу');
@@ -60,7 +65,7 @@ export function UploadStep({ onNext }: UploadStepProps) {
       <div>
         <h2 className="text-xl font-bold mb-2">Крок 1: Завантаження тексту</h2>
         <p className="text-muted-foreground">
-          Завантажте файл книги (PDF, EPUB, TXT, MD) або вставте текст вручну
+          Завантажте файл книги (PDF, EPUB, DOCX, TXT, MD) або вставте текст вручну
         </p>
       </div>
 
@@ -86,13 +91,13 @@ export function UploadStep({ onNext }: UploadStepProps) {
               <input
                 type="file"
                 className="hidden"
-                accept=".pdf,.epub,.txt,.md"
+                accept=".pdf,.epub,.txt,.md,.docx"
                 onChange={handleFileUpload}
                 disabled={isLoading}
               />
             </label>
             <p className="text-sm text-muted-foreground mt-2">
-              PDF, EPUB, TXT або MD
+              PDF, EPUB, DOCX, TXT або MD
             </p>
           </div>
           

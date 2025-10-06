@@ -10,9 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { Progress } from "@/components/ui/progress";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -34,6 +35,8 @@ export default function AddEditVerse() {
   const [commentaryUa, setCommentaryUa] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -189,6 +192,83 @@ export default function AddEditVerse() {
       });
     },
   });
+
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/wav', 'audio/ogg', 'audio/webm'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Помилка",
+        description: "Підтримуються тільки аудіо файли (MP3, M4A, WAV, OGG)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('verse-audio')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('verse-audio')
+        .getPublicUrl(filePath);
+
+      setAudioUrl(publicUrl);
+      setUploadProgress(100);
+      
+      toast({
+        title: "Успіх",
+        description: "Аудіо файл успішно завантажено",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Помилка завантаження",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveAudio = async () => {
+    if (!audioUrl) return;
+
+    try {
+      const urlParts = audioUrl.split('/verse-audio/');
+      if (urlParts.length > 1) {
+        const filePath = urlParts[1];
+        await supabase.storage.from('verse-audio').remove([filePath]);
+      }
+      
+      setAudioUrl("");
+      toast({
+        title: "Успіх",
+        description: "Аудіо файл видалено",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Помилка",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -384,13 +464,64 @@ export default function AddEditVerse() {
             </Tabs>
 
             <div>
-              <Label htmlFor="audioUrl">Audio URL</Label>
-              <Input
-                id="audioUrl"
-                value={audioUrl}
-                onChange={(e) => setAudioUrl(e.target.value)}
-                placeholder="https://audio.example.com/verse.mp3"
-              />
+              <Label htmlFor="audioUrl">Аудіо файл</Label>
+              <div className="space-y-3">
+                {audioUrl ? (
+                  <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
+                    <audio src={audioUrl} controls className="flex-1" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRemoveAudio}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed rounded-lg p-6 text-center">
+                    <Input
+                      id="audioFile"
+                      type="file"
+                      accept="audio/*"
+                      className="hidden"
+                      onChange={handleAudioUpload}
+                      disabled={isUploading}
+                    />
+                    <Label
+                      htmlFor="audioFile"
+                      className="cursor-pointer flex flex-col items-center gap-2"
+                    >
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Натисніть, щоб завантажити аудіо
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        MP3, M4A, WAV, OGG (макс. 50MB)
+                      </span>
+                    </Label>
+                  </div>
+                )}
+                
+                {isUploading && (
+                  <div className="space-y-2">
+                    <Progress value={uploadProgress} />
+                    <p className="text-sm text-muted-foreground text-center">
+                      Завантаження... {uploadProgress}%
+                    </p>
+                  </div>
+                )}
+
+                <div className="text-xs text-muted-foreground">
+                  Або вставте URL:
+                </div>
+                <Input
+                  id="audioUrlInput"
+                  value={audioUrl}
+                  onChange={(e) => setAudioUrl(e.target.value)}
+                  placeholder="https://example.com/audio.mp3"
+                />
+              </div>
             </div>
 
             <div className="flex gap-4">
