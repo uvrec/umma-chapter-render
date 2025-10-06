@@ -1,5 +1,28 @@
 import { ParsedChapter, ParsedVerse, ImportTemplate } from '@/types/book-import';
 
+// Ukrainian number words to numeric mapping
+const ukrainianNumberWords: Record<string, number> = {
+  'ПЕРША': 1, 'ПЕРШИЙ': 1, 'ОДНА': 1, 'ОДИН': 1,
+  'ДРУГА': 2, 'ДРУГИЙ': 2, 'ДВА': 2, 'ДВІ': 2,
+  'ТРЕТЯ': 3, 'ТРЕТІЙ': 3, 'ТРИ': 3,
+  'ЧЕТВЕРТА': 4, 'ЧЕТВЕРТИЙ': 4, 'ЧОТИРИ': 4,
+  'П\'ЯТА': 5, 'П\'ЯТИЙ': 5, 'П\'ЯТЬ': 5,
+  'ШОСТА': 6, 'ШОСТИЙ': 6, 'ШІСТЬ': 6,
+  'СЬОМА': 7, 'СЬОМИЙ': 7, 'СІМ': 7,
+  'ВОСЬМА': 8, 'ВОСЬМИЙ': 8, 'ВІСІМ': 8,
+  'ДЕВ\'ЯТА': 9, 'ДЕВ\'ЯТИЙ': 9, 'ДЕВ\'ЯТЬ': 9,
+  'ДЕСЯТА': 10, 'ДЕСЯТИЙ': 10, 'ДЕСЯТЬ': 10,
+  'ОДИНАДЦЯТА': 11, 'ОДИНАДЦЯТИЙ': 11,
+  'ДВАНАДЦЯТА': 12, 'ДВАНАДЦЯТИЙ': 12,
+  'ТРИНАДЦЯТА': 13, 'ТРИНАДЦЯТИЙ': 13,
+  'ЧОТИРНАДЦЯТА': 14, 'ЧОТИРНАДЦЯТИЙ': 14,
+  'П\'ЯТНАДЦЯТА': 15, 'П\'ЯТНАДЦЯТИЙ': 15,
+  'ШІСТНАДЦЯТА': 16, 'ШІСТНАДЦЯТИЙ': 16,
+  'СІМНАДЦЯТА': 17, 'СІМНАДЦЯТИЙ': 17,
+  'ВІСІМНАДЦЯТА': 18, 'ВІСІМНАДЦЯТИЙ': 18,
+  'ДЕВ\'ЯТНАДЦЯТА': 19, 'ДЕВ\'ЯТНАДЦЯТИЙ': 19,
+};
+
 export function splitIntoChapters(
   text: string,
   template: ImportTemplate
@@ -25,16 +48,39 @@ export function splitIntoChapters(
   }
   
   chapterMatches.forEach((match, index) => {
-    const chapterNum = parseInt(match[1] || (index + 1).toString());
+    const rawNumber = match[1] || '';
+    
+    // Try to parse as number first
+    let chapterNum = parseInt(rawNumber);
+    
+    // If not a number, try Ukrainian words
+    if (isNaN(chapterNum)) {
+      const upperRaw = rawNumber.toUpperCase().trim();
+      chapterNum = ukrainianNumberWords[upperRaw] || (index + 1);
+    }
+    
     const startPos = match.index || 0;
     const endPos = chapterMatches[index + 1]?.index || text.length;
     const chapterText = text.substring(startPos, endPos);
     
-    chapters.push({
-      chapter_number: chapterNum,
-      title_ua: `Розділ ${chapterNum}`,
-      verses: splitIntoVerses(chapterText, template)
-    });
+    // Extract chapter title (next 1-2 lines after "ГЛАВА X")
+    const titleMatch = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER).+?\n(.+?)(?:\n|$)/mi);
+    const chapterTitle = titleMatch ? titleMatch[1].trim() : `Глава ${chapterNum}`;
+    
+    const verses = splitIntoVerses(chapterText, template);
+    
+    // Filter out chapters with too few verses (intro sections)
+    if (verses.length >= 3) {
+      chapters.push({
+        chapter_number: chapterNum,
+        title_ua: chapterTitle,
+        verses: verses
+      });
+      
+      console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses)`);
+    } else {
+      console.log(`⏭️ Skipping section with ${verses.length} verses (likely intro)`);
+    }
   });
   
   return chapters;
@@ -50,7 +96,8 @@ export function splitIntoVerses(
   console.log(`🔍 Verse pattern:`, template.versePattern);
   console.log(`📊 Found ${verseMatches.length} verse markers`);
   if (verseMatches.length > 0) {
-    console.log(`✅ First verse match:`, verseMatches[0][0]);
+    console.log(`✅ First verse:`, verseMatches[0][0]);
+    console.log(`✅ Last verse:`, verseMatches[verseMatches.length - 1][0]);
   }
   console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
   
@@ -116,20 +163,26 @@ function parseVerse(
     verse.sanskrit = sanskritLines.join('\n');
   }
   
-  // Extract Transliteration - collect consecutive IAST lines after Sanskrit
+  // Extract Transliteration - collect Ukrainian lines with diacritics after Sanskrit
   const translitLines: string[] = [];
   if (translitStartIndex !== -1) {
     for (let i = translitStartIndex; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Check if line contains IAST characters but isn't a section header
-      if (/[āīūṛṝḷḹēōṃḥśṣṇṭḍ]/.test(line) && 
-          !line.match(template.synonymsPattern) &&
-          !line.match(template.translationPattern) &&
-          !line.match(template.commentaryPattern)) {
+      // Stop if we hit section headers
+      if (line.match(template.synonymsPattern) ||
+          line.match(template.translationPattern) ||
+          line.match(template.commentaryPattern)) {
+        break;
+      }
+      
+      // Check if line contains Ukrainian letters (with or without diacritics)
+      // Skip lines that are section headers
+      if (/[а-яА-ЯіІїЇєЄґҐ]/.test(line) && 
+          !line.match(/^(?:ВІРШ|ТЕКСТ|ПОСЛІВНИЙ|ПЕРЕКЛАД|ПОЯСНЕННЯ)/i)) {
         translitLines.push(line);
-      } else {
-        // Stop collecting transliteration when we hit a section or non-IAST line
+      } else if (translitLines.length > 0) {
+        // Stop if we've collected some and hit non-Ukrainian line
         break;
       }
     }

@@ -19,7 +19,11 @@ interface PreviewStepProps {
 }
 
 export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
-  const [editedChapter, setEditedChapter] = useState<ParsedChapter>(chapter);
+  const [editedChapter, setEditedChapter] = useState<ParsedChapter>({
+    ...chapter,
+    title_ua: chapter.title_ua || `Глава ${chapter.chapter_number}`,
+    title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`
+  });
   const [isImporting, setIsImporting] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const [selectedCantoId, setSelectedCantoId] = useState<string>('');
