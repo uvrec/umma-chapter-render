@@ -1,5 +1,5 @@
 import ePub from 'epubjs';
-import { sanitizeHtml } from './normalizers';
+import { cleanHtml } from './normalizers';
 
 export async function extractTextFromEPUB(file: File): Promise<string> {
   try {
@@ -25,7 +25,7 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
           const doc = parser.parseFromString(content, 'text/html');
           
           const bodyHTML = doc.body?.innerHTML || '';
-          const safeHTML = sanitizeHtml(bodyHTML);
+          const safeHTML = cleanHtml(bodyHTML);
           if (safeHTML.trim().length > 0) {
             fullText += safeHTML + '\n\n';
             sectionsProcessed++;
@@ -45,7 +45,7 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
             const section = (book as any).section(id);
             if (section) {
               const content = await section.load();
-              const safeHTML = sanitizeHtml(content as string);
+              const safeHTML = cleanHtml(content as string);
               fullText += safeHTML + '\n\n';
               sectionsProcessed++;
             }

@@ -39,10 +39,18 @@ export function splitIntoVerses(
   const verses: ParsedVerse[] = [];
   const verseMatches = [...chapterText.matchAll(new RegExp(template.versePattern, 'gmi'))];
   
+  console.log(`🔍 Verse pattern:`, template.versePattern);
+  console.log(`📊 Found ${verseMatches.length} verse markers`);
+  if (verseMatches.length > 0) {
+    console.log(`✅ First verse match:`, verseMatches[0][0]);
+  }
+  console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
+  
   if (verseMatches.length === 0) {
     console.warn('No verse matches found, attempting paragraph split');
     // Fallback: split by double newlines
-    const paragraphs = chapterText.split(/\n\s*\n/).filter(p => p.trim().length > 50);
+    const paragraphs = chapterText.split(/\n\s*\n/).filter(p => p.trim().length > 20);
+    console.log(`Fallback: знайдено ${paragraphs.length} параграфів`);
     paragraphs.forEach((para, index) => {
       verses.push(parseVerse((index + 1).toString(), para, template));
     });

@@ -55,11 +55,11 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
   {
     id: 'srimad-bhagavatam',
     name: 'Шрімад-Бгагаватам',
-    versePattern: /^(?:ТЕКСТ|TEXT)\s+(\d+)/mi,
-    synonymsPattern: /^(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD)/mi,
-    translationPattern: /^(?:ПЕРЕКЛАД|TRANSLATION)/mi,
-    commentaryPattern: /^(?:ПОЯСНЕННЯ|PURPORT)/mi,
-    chapterPattern: /^(?:РОЗДІЛ|CHAPTER)\s+(\d+)/mi,
+    versePattern: /^(?:ВІРШ|ТЕКСТ|TEXT|VERSE|Вірш|Текст|Text|Verse)\s+(\d+)/mi,
+    synonymsPattern: /^(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|Послівний переклад)/mi,
+    translationPattern: /^(?:ПЕРЕКЛАД|TRANSLATION|Переклад)/mi,
+    commentaryPattern: /^(?:ПОЯСНЕННЯ|PURPORT|Пояснення)/mi,
+    chapterPattern: /^(?:ГЛАВА|РОЗДІЛ|CHAPTER|Глава|Розділ|Chapter)\s+([\dIVXа-яА-ЯіІїЇєЄ]+)/mi,
   },
   {
     id: 'sri-isopanishad',
