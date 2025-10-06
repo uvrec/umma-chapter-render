@@ -18,7 +18,7 @@ const CantoOverview = () => {
         .from('books')
         .select('*')
         .eq('slug', bookId)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -34,7 +34,7 @@ const CantoOverview = () => {
         .select('*')
         .eq('book_id', book!.id)
         .eq('canto_number', parseInt(cantoNumber!))
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -72,6 +72,19 @@ const CantoOverview = () => {
     );
   }
 
+  if (!canto) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <p className="text-center text-muted-foreground">
+            {language === 'ua' ? 'Пісню не знайдено' : 'Canto not found'}
+          </p>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -95,23 +108,29 @@ const CantoOverview = () => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {chapters?.map((chapter) => (
-            <Link
-              key={chapter.id}
-              to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}`}
-            >
-              <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <CardTitle>
-                    {language === 'ua' ? 'Розділ' : 'Chapter'} {chapter.chapter_number}
-                  </CardTitle>
-                  <CardDescription>
-                    {language === 'ua' ? chapter.title_ua : chapter.title_en}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
+          {chapters && chapters.length > 0 ? (
+            chapters.map((chapter) => (
+              <Link
+                key={chapter.id}
+                to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}`}
+              >
+                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                  <CardHeader>
+                    <CardTitle>
+                      {language === 'ua' ? 'Розділ' : 'Chapter'} {chapter.chapter_number}
+                    </CardTitle>
+                    <CardDescription>
+                      {language === 'ua' ? chapter.title_ua : chapter.title_en}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              </Link>
+            ))
+          ) : (
+            <p className="col-span-full text-center text-muted-foreground">
+              {language === 'ua' ? 'Ще немає глав' : 'No chapters yet'}
+            </p>
+          )}
         </div>
       </main>
     </div>

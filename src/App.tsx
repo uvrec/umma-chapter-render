@@ -77,7 +77,6 @@ const App = () => (
                 <Route path="/verses" element={<VedaReader />} />
                 <Route path="/verses/:bookId" element={<VedaReader />} />
                 <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
-                <Route path="/veda-reader/srimad-bhagavatam" element={<Navigate to="/veda-reader/srimad-bhagavatam/canto/1" replace />} />
                 <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderDB />} />

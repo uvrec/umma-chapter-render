@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export const VedaReaderDB = () => {
-  const { bookId, chapterId } = useParams();
+  const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
@@ -37,6 +37,10 @@ export const VedaReaderDB = () => {
     showCommentary: true
   });
 
+  // Determine if we're in canto mode
+  const isCantoMode = !!cantoNumber;
+  const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
+
   // Fetch book
   const { data: book } = useQuery({
     queryKey: ['book', bookId],
@@ -45,44 +49,78 @@ export const VedaReaderDB = () => {
         .from('books')
         .select('*')
         .eq('slug', bookId)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
     enabled: !!bookId
   });
 
-  // Fetch chapter
-  const { data: chapter } = useQuery({
-    queryKey: ['chapter', bookId, chapterId],
+  // Fetch canto (only in canto mode)
+  const { data: canto } = useQuery({
+    queryKey: ['canto', book?.id, cantoNumber],
     queryFn: async () => {
-      if (!book?.id) return null;
+      if (!book?.id || !cantoNumber) return null;
       const { data, error } = await supabase
-        .from('chapters')
+        .from('cantos')
         .select('*')
         .eq('book_id', book.id)
-        .eq('chapter_number', parseInt(chapterId || '1'))
-        .single();
+        .eq('canto_number', parseInt(cantoNumber))
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!chapterId && !!book?.id
+    enabled: isCantoMode && !!book?.id && !!cantoNumber
+  });
+
+  // Fetch chapter
+  const { data: chapter } = useQuery({
+    queryKey: ['chapter', bookId, canto?.id, effectiveChapterParam, isCantoMode],
+    queryFn: async () => {
+      if (!book?.id || !effectiveChapterParam) return null;
+      
+      const query = supabase
+        .from('chapters')
+        .select('*')
+        .eq('chapter_number', parseInt(effectiveChapterParam));
+      
+      // In canto mode, filter by canto_id; otherwise by book_id
+      if (isCantoMode && canto?.id) {
+        query.eq('canto_id', canto.id);
+      } else {
+        query.eq('book_id', book.id);
+      }
+      
+      const { data, error } = await query.maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id)
   });
 
   // Fetch all chapters for navigation
   const { data: allChapters = [] } = useQuery({
-    queryKey: ['allChapters', book?.id],
+    queryKey: ['allChapters', book?.id, canto?.id, isCantoMode],
     queryFn: async () => {
       if (!book?.id) return [];
-      const { data, error } = await supabase
+      
+      const query = supabase
         .from('chapters')
         .select('*')
-        .eq('book_id', book.id)
         .order('chapter_number');
+      
+      // In canto mode, get chapters for this canto only
+      if (isCantoMode && canto?.id) {
+        query.eq('canto_id', canto.id);
+      } else {
+        query.eq('book_id', book.id);
+      }
+      
+      const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data || [];
     },
-    enabled: !!book?.id
+    enabled: (isCantoMode ? !!canto?.id : !!book?.id)
   });
 
   // Fetch verses
@@ -106,7 +144,7 @@ export const VedaReaderDB = () => {
   const chapterTitle = language === 'ua' ? chapter?.title_ua : chapter?.title_en;
 
   const currentChapterIndex = allChapters.findIndex(
-    ch => ch.chapter_number === parseInt(chapterId || '1')
+    ch => ch.chapter_number === parseInt(effectiveChapterParam || '1')
   );
 
   const handlePrevVerse = () => {
@@ -124,7 +162,10 @@ export const VedaReaderDB = () => {
   const handlePrevChapter = () => {
     if (currentChapterIndex > 0) {
       const prevChapter = allChapters[currentChapterIndex - 1];
-      navigate(`/veda-reader/${bookId}/${prevChapter.chapter_number}`);
+      const path = isCantoMode 
+        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}`
+        : `/veda-reader/${bookId}/${prevChapter.chapter_number}`;
+      navigate(path);
       setCurrentVerseIndex(0);
     }
   };
@@ -132,7 +173,10 @@ export const VedaReaderDB = () => {
   const handleNextChapter = () => {
     if (currentChapterIndex < allChapters.length - 1) {
       const nextChapter = allChapters[currentChapterIndex + 1];
-      navigate(`/veda-reader/${bookId}/${nextChapter.chapter_number}`);
+      const path = isCantoMode 
+        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}`
+        : `/veda-reader/${bookId}/${nextChapter.chapter_number}`;
+      navigate(path);
       setCurrentVerseIndex(0);
     }
   };
@@ -150,13 +194,38 @@ export const VedaReaderDB = () => {
     );
   }
 
+  if (!chapter || verses.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-muted-foreground mb-4">
+            {t('Немає даних для цієї глави', 'No data for this chapter')}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => navigate(isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}` : `/veda-reader/${bookId}`)}
+          >
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            {t('Назад', 'Back')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`min-h-screen ${craftPaperMode ? 'bg-craft-paper' : 'bg-background'}`}>
       <Header />
       
       <div className="container mx-auto px-4 py-8">
         <Breadcrumb
-          items={[
+          items={isCantoMode ? [
+            { label: t('Бібліотека', 'Library'), href: '/library' },
+            { label: bookTitle || '', href: `/veda-reader/${bookId}` },
+            { label: `Canto ${cantoNumber}`, href: `/veda-reader/${bookId}/canto/${cantoNumber}` },
+            { label: chapterTitle || '' }
+          ] : [
             { label: t('Бібліотека', 'Library'), href: '/library' },
             { label: bookTitle || '', href: `/veda-reader/${bookId}` },
             { label: chapterTitle || '' }

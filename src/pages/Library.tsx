@@ -29,25 +29,15 @@ interface Book {
 }
 
 const books: Book[] = [{
-  id: "sb-1-1",
-  title: "Перша пісня Шрімад Бгаґаватам",
-  description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
-  price: "595 грн",
+  id: "sb",
+  title: "Шрімад-Бгаґаватам",
+  description: "Найбільший шедевр індійської духовної думки, літератури, богослов'я та метафізики.",
+  price: "від 438 грн",
   hasVerse: true,
-  verseLink: "/veda-reader/srimad-bhagavatam/canto/1",
+  verseLink: "/veda-reader/srimad-bhagavatam",
   coverImage: srimadBhagavatam1Cover,
   category: "classics",
   purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
-}, {
-  id: "sb-2",
-  title: "Друга пісня Шрімад Бгаґаватам",
-  description: "Ця пісня \"Шрімад-Бгаґаватам\" являє собою стислий виклад усієї книги.",
-  price: "438 грн",
-  hasVerse: true,
-  verseLink: "/veda-reader/srimad-bhagavatam/canto/2",
-  coverImage: srimadBhagavatam2Cover,
-  category: "classics",
-  purchaseUrl: "https://books.krishna.ua/ua/srimad-bhagavatam-2-pisnja/"
 }, {
   id: "bg",
   title: "Бгаґавад-Ґіта як вона є",
