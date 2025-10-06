@@ -243,6 +243,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "blog_post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "blog_post_tags_tag_id_fkey"
             columns: ["tag_id"]
             isOneToOne: false
@@ -709,7 +716,107 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      blog_posts_public: {
+        Row: {
+          audio_url: string | null
+          author_display_name: string | null
+          category_id: string | null
+          content_en: string | null
+          content_ua: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          excerpt_en: string | null
+          excerpt_ua: string | null
+          featured_image: string | null
+          id: string | null
+          instagram_embed_url: string | null
+          is_published: boolean | null
+          meta_description_en: string | null
+          meta_description_ua: string | null
+          published_at: string | null
+          read_time: number | null
+          scheduled_publish_at: string | null
+          search_vector: unknown | null
+          slug: string | null
+          substack_embed_url: string | null
+          tags: string[] | null
+          telegram_embed_url: string | null
+          title_en: string | null
+          title_ua: string | null
+          updated_at: string | null
+          video_url: string | null
+          view_count: number | null
+        }
+        Insert: {
+          audio_url?: string | null
+          author_display_name?: string | null
+          category_id?: string | null
+          content_en?: string | null
+          content_ua?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          excerpt_en?: string | null
+          excerpt_ua?: string | null
+          featured_image?: string | null
+          id?: string | null
+          instagram_embed_url?: string | null
+          is_published?: boolean | null
+          meta_description_en?: string | null
+          meta_description_ua?: string | null
+          published_at?: string | null
+          read_time?: number | null
+          scheduled_publish_at?: string | null
+          search_vector?: unknown | null
+          slug?: string | null
+          substack_embed_url?: string | null
+          tags?: string[] | null
+          telegram_embed_url?: string | null
+          title_en?: string | null
+          title_ua?: string | null
+          updated_at?: string | null
+          video_url?: string | null
+          view_count?: number | null
+        }
+        Update: {
+          audio_url?: string | null
+          author_display_name?: string | null
+          category_id?: string | null
+          content_en?: string | null
+          content_ua?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          excerpt_en?: string | null
+          excerpt_ua?: string | null
+          featured_image?: string | null
+          id?: string | null
+          instagram_embed_url?: string | null
+          is_published?: boolean | null
+          meta_description_en?: string | null
+          meta_description_ua?: string | null
+          published_at?: string | null
+          read_time?: number | null
+          scheduled_publish_at?: string | null
+          search_vector?: unknown | null
+          slug?: string | null
+          substack_embed_url?: string | null
+          tags?: string[] | null
+          telegram_embed_url?: string | null
+          title_en?: string | null
+          title_ua?: string | null
+          updated_at?: string | null
+          video_url?: string | null
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       create_blog_post: {
