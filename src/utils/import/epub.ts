@@ -8,64 +8,52 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
     
     await book.ready;
     
-    let fullText = '';
-    let sectionsProcessed = 0;
+    const sectionPromises: Promise<string>[] = [];
+    let sectionsCount = 0;
     
-    // Use any to bypass type issues with epubjs
-    const spine: any = book.spine;
-    
-    // Try different methods to access content
-    if (spine && spine.spineItems && Array.isArray(spine.spineItems)) {
-      console.log(`Processing ${spine.spineItems.length} EPUB sections`);
-      
-      for (const item of spine.spineItems) {
+    // Use book.spine.each to iterate through all sections
+    book.spine.each((section: any) => {
+      sectionsCount++;
+      const sectionPromise = (async () => {
         try {
-          const content = await item.load(book.load.bind(book));
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(content, 'text/html');
+          // Load the section using book.load(section.href)
+          const doc = await book.load(section.href);
           
-          // Use textContent for clean text extraction
-          const bodyText = doc.body?.textContent || '';
-          const cleanText = normalizeText(bodyText);
-          if (cleanText.trim().length > 0) {
-            fullText += cleanText + '\n\n';
-            sectionsProcessed++;
-            console.log(`📄 Section ${sectionsProcessed}: ${cleanText.substring(0, 100)}...`);
+          // Check if doc is a Document object
+          if (doc instanceof Document && doc.body?.textContent) {
+            const cleanText = normalizeText(doc.body.textContent);
+            console.log(`📄 Section ${sectionsCount}: ${cleanText.substring(0, 100)}...`);
+            return cleanText;
           }
+          
+          // Fallback: if it's a string, parse it
+          if (typeof doc === 'string') {
+            const parser = new DOMParser();
+            const parsedDoc = parser.parseFromString(doc, 'text/html');
+            const cleanText = normalizeText(parsedDoc.body?.textContent || '');
+            console.log(`📄 Section ${sectionsCount} (parsed): ${cleanText.substring(0, 100)}...`);
+            return cleanText;
+          }
+          
+          return '';
         } catch (err) {
-          console.warn('Error loading EPUB section:', err);
+          console.warn(`Error loading section ${section.href}:`, err);
+          return '';
         }
-      }
-    } else {
-      console.warn('EPUB spine structure not recognized, trying alternative method');
+      })();
       
-      // Fallback: try to get manifest items
-      const manifest = (book as any).packaging?.manifest;
-      if (manifest) {
-      for (const [id, item] of Object.entries(manifest)) {
-          try {
-            const section = (book as any).section(id);
-            if (section) {
-              const content = await section.load();
-              // Handle both string and DOM content
-              const textContent = typeof content === 'string' 
-                ? content 
-                : (content?.textContent || String(content));
-              const cleanText = normalizeText(textContent);
-              if (cleanText.trim().length > 0) {
-                fullText += cleanText + '\n\n';
-                sectionsProcessed++;
-                console.log(`📄 Fallback section ${sectionsProcessed}: ${cleanText.substring(0, 100)}...`);
-              }
-            }
-          } catch (err) {
-            console.warn(`Error loading section ${id}:`, err);
-          }
-        }
-      }
-    }
+      sectionPromises.push(sectionPromise);
+    });
     
-    console.log(`EPUB extraction complete: ${sectionsProcessed} sections, ${fullText.length} characters`);
+    console.log(`Processing ${sectionsCount} EPUB sections`);
+    
+    // Wait for all sections to be processed
+    const sections = await Promise.all(sectionPromises);
+    const fullText = sections
+      .filter(text => text.trim().length > 0)
+      .join('\n\n');
+    
+    console.log(`EPUB extraction complete: ${sections.length} sections, ${fullText.length} characters`);
     
     if (fullText.trim().length === 0) {
       throw new Error('EPUB файл порожній або має непідтримуваний формат');
