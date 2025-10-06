@@ -284,11 +284,16 @@ export const VedaReaderDB = () => {
 
         {continuousReadingSettings.enabled ? (
           <div className="space-y-8">
-            {verses.map((verse) => (
+            {verses.map((verse) => {
+              const fullVerseNumber = isCantoMode 
+                ? `${cantoNumber}.${chapterNumber}.${verse.verse_number}`
+                : `${chapterId}.${verse.verse_number}`;
+              
+              return (
               <VerseCard
                 key={verse.id}
                 verseId={verse.id}
-                verseNumber={verse.verse_number}
+                verseNumber={fullVerseNumber}
                 bookName={bookTitle}
                 sanskritText={verse.sanskrit || ''}
                 transliteration={verse.transliteration || ''}
@@ -300,17 +305,22 @@ export const VedaReaderDB = () => {
                 isAdmin={isAdmin}
                 onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
               />
-            ))}
+            )})}
           </div>
         ) : (
           <>
-            {currentVerse && (
+            {currentVerse && (() => {
+              const fullVerseNumber = isCantoMode 
+                ? `${cantoNumber}.${chapterNumber}.${currentVerse.verse_number}`
+                : `${chapterId}.${currentVerse.verse_number}`;
+              
+              return (
               <div className="space-y-6">
                 {dualLanguageMode ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <VerseCard
                       verseId={currentVerse.id}
-                      verseNumber={currentVerse.verse_number}
+                      verseNumber={fullVerseNumber}
                       bookName={book?.title_ua}
                       sanskritText={currentVerse.sanskrit || ''}
                       transliteration={currentVerse.transliteration || ''}
@@ -324,7 +334,7 @@ export const VedaReaderDB = () => {
                     />
                     <VerseCard
                       verseId={currentVerse.id}
-                      verseNumber={currentVerse.verse_number}
+                      verseNumber={fullVerseNumber}
                       bookName={book?.title_en}
                       sanskritText={currentVerse.sanskrit || ''}
                       transliteration={currentVerse.transliteration || ''}
@@ -340,7 +350,7 @@ export const VedaReaderDB = () => {
                 ) : (
                   <VerseCard
                     verseId={currentVerse.id}
-                    verseNumber={currentVerse.verse_number}
+                    verseNumber={fullVerseNumber}
                     bookName={bookTitle}
                     sanskritText={currentVerse.sanskrit || ''}
                     transliteration={currentVerse.transliteration || ''}
@@ -404,7 +414,7 @@ export const VedaReaderDB = () => {
                   </Button>
                 </div>
               </div>
-            )}
+            )})()}
           </>
         )}
       </div>
