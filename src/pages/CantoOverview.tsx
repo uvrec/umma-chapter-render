@@ -94,13 +94,13 @@ const CantoOverview = () => {
           items={[
             { label: language === 'ua' ? 'Бібліотека' : 'Library', href: '/library' },
             { label: bookTitle || '', href: `/veda-reader/${bookId}` },
-            { label: `Canto ${cantoNumber}: ${cantoTitle}` },
+            { label: `${language === 'ua' ? 'Пісня' : 'Canto'} ${cantoNumber}: ${cantoTitle}` },
           ]}
         />
 
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
-            Canto {cantoNumber}: {cantoTitle}
+            {language === 'ua' ? 'Пісня' : 'Canto'} {cantoNumber}: {cantoTitle}
           </h1>
           {cantoDescription && (
             <p className="text-lg text-muted-foreground">{cantoDescription}</p>

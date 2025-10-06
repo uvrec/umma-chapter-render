@@ -268,7 +268,7 @@ export const VedaReaderDB = () => {
           items={isCantoMode ? [
             { label: t('Бібліотека', 'Library'), href: '/library' },
             { label: bookTitle || '', href: `/veda-reader/${bookId}` },
-            { label: `Canto ${cantoNumber}`, href: `/veda-reader/${bookId}/canto/${cantoNumber}` },
+            { label: `${t('Пісня', 'Canto')} ${cantoNumber}`, href: `/veda-reader/${bookId}/canto/${cantoNumber}` },
             { label: chapterTitle || '' }
           ] : [
             { label: t('Бібліотека', 'Library'), href: '/library' },
@@ -301,7 +301,7 @@ export const VedaReaderDB = () => {
                 key={verse.id}
                 verseId={verse.id}
                 verseNumber={fullVerseNumber}
-                bookName={bookTitle}
+                bookName={chapterTitle}
                 sanskritText={verse.sanskrit || ''}
                 transliteration={verse.transliteration || ''}
                 synonyms={language === 'ua' ? verse.synonyms_ua || '' : verse.synonyms_en || ''}
@@ -329,7 +329,7 @@ export const VedaReaderDB = () => {
                     <VerseCard
                       verseId={currentVerse.id}
                       verseNumber={fullVerseNumber}
-                      bookName={book?.title_ua}
+                      bookName={chapter?.title_ua}
                       sanskritText={currentVerse.sanskrit || ''}
                       transliteration={currentVerse.transliteration || ''}
                       synonyms={currentVerse.synonyms_ua || ''}
@@ -359,7 +359,7 @@ export const VedaReaderDB = () => {
                   <VerseCard
                     verseId={currentVerse.id}
                     verseNumber={fullVerseNumber}
-                    bookName={bookTitle}
+                    bookName={chapterTitle}
                     sanskritText={currentVerse.sanskrit || ''}
                     transliteration={currentVerse.transliteration || ''}
                     synonyms={language === 'ua' ? currentVerse.synonyms_ua || '' : currentVerse.synonyms_en || ''}
