@@ -1,5 +1,5 @@
 import ePub from 'epubjs';
-import { cleanHtml } from './normalizers';
+import { normalizeText } from './normalizers';
 
 export async function extractTextFromEPUB(file: File): Promise<string> {
   try {
@@ -24,11 +24,13 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
           const parser = new DOMParser();
           const doc = parser.parseFromString(content, 'text/html');
           
-          const bodyHTML = doc.body?.innerHTML || '';
-          const safeHTML = cleanHtml(bodyHTML);
-          if (safeHTML.trim().length > 0) {
-            fullText += safeHTML + '\n\n';
+          // Use textContent for clean text extraction
+          const bodyText = doc.body?.textContent || '';
+          const cleanText = normalizeText(bodyText);
+          if (cleanText.trim().length > 0) {
+            fullText += cleanText + '\n\n';
             sectionsProcessed++;
+            console.log(`📄 Section ${sectionsProcessed}: ${cleanText.substring(0, 100)}...`);
           }
         } catch (err) {
           console.warn('Error loading EPUB section:', err);
@@ -40,14 +42,21 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
       // Fallback: try to get manifest items
       const manifest = (book as any).packaging?.manifest;
       if (manifest) {
-        for (const [id, item] of Object.entries(manifest)) {
+      for (const [id, item] of Object.entries(manifest)) {
           try {
             const section = (book as any).section(id);
             if (section) {
               const content = await section.load();
-              const safeHTML = cleanHtml(content as string);
-              fullText += safeHTML + '\n\n';
-              sectionsProcessed++;
+              // Handle both string and DOM content
+              const textContent = typeof content === 'string' 
+                ? content 
+                : (content?.textContent || String(content));
+              const cleanText = normalizeText(textContent);
+              if (cleanText.trim().length > 0) {
+                fullText += cleanText + '\n\n';
+                sectionsProcessed++;
+                console.log(`📄 Fallback section ${sectionsProcessed}: ${cleanText.substring(0, 100)}...`);
+              }
             }
           } catch (err) {
             console.warn(`Error loading section ${id}:`, err);

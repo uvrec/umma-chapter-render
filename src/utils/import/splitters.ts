@@ -7,6 +7,14 @@ export function splitIntoChapters(
   const chapters: ParsedChapter[] = [];
   const chapterMatches = [...text.matchAll(new RegExp(template.chapterPattern, 'gmi'))];
   
+  console.log('🔍 Looking for chapters with pattern:', template.chapterPattern);
+  console.log(`📚 Found ${chapterMatches.length} chapter markers`);
+  if (chapterMatches.length > 0) {
+    console.log('✅ First 5 chapters:', chapterMatches.slice(0, 5).map(m => m[0]));
+  }
+  console.log(`📝 Total text length: ${text.length} characters`);
+  console.log(`📄 Sample text (first 500 chars):`, text.substring(0, 500));
+  
   if (chapterMatches.length === 0) {
     // If no chapter markers found, treat entire text as one chapter
     return [{
