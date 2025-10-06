@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -342,12 +343,10 @@ export default function AddEditVerse() {
                 </div>
                 <div>
                   <Label htmlFor="commentaryUa">Коментар</Label>
-                  <Textarea
-                    id="commentaryUa"
-                    value={commentaryUa}
-                    onChange={(e) => setCommentaryUa(e.target.value)}
-                    placeholder="Коментар українською..."
-                    rows={6}
+                  <InlineTiptapEditor
+                    content={commentaryUa}
+                    onChange={setCommentaryUa}
+                    label="Коментар українською..."
                   />
                 </div>
               </TabsContent>
@@ -375,12 +374,10 @@ export default function AddEditVerse() {
                 </div>
                 <div>
                   <Label htmlFor="commentaryEn">Commentary</Label>
-                  <Textarea
-                    id="commentaryEn"
-                    value={commentaryEn}
-                    onChange={(e) => setCommentaryEn(e.target.value)}
-                    placeholder="Commentary in English..."
-                    rows={6}
+                  <InlineTiptapEditor
+                    content={commentaryEn}
+                    onChange={setCommentaryEn}
+                    label="Commentary in English..."
                   />
                 </div>
               </TabsContent>

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from '@/components/GlobalAudioPlayer';
 import { InlineTiptapEditor } from '@/components/InlineTiptapEditor';
+import { TiptapRenderer } from '@/components/blog/TiptapRenderer';
 
 interface VerseCardProps {
   verseId?: string;
@@ -104,7 +105,7 @@ export const VerseCard = ({
         {/* Verse Number and Book */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+            <div className="px-3 h-8 bg-primary/10 rounded-full flex items-center justify-center">
               <span className="text-sm font-semibold text-primary">{verseNumber}</span>
             </div>
             {bookName && (
@@ -261,9 +262,9 @@ export const VerseCard = ({
                 label="Редагувати коментар"
               />
             ) : (
-              <div 
-                className="text-[18px] text-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: commentary || '' }}
+              <TiptapRenderer 
+                content={commentary || ''} 
+                className="text-[18px] leading-relaxed"
               />
             )}
           </div>

@@ -41,6 +41,12 @@ export const VedaReaderDB = () => {
     showCommentary: true
   });
 
+  // Utility to extract numeric verse number from formats like "ШБ 1.1.10" or "1.1.10"
+  const getDisplayVerseNumber = (verseNumber: string): string => {
+    const parts = verseNumber.split(/[\s.]+/);
+    return parts[parts.length - 1] || verseNumber;
+  };
+
   // Determine if we're in canto mode
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
@@ -285,9 +291,10 @@ export const VedaReaderDB = () => {
         {continuousReadingSettings.enabled ? (
           <div className="space-y-8">
             {verses.map((verse) => {
+              const verseIdx = getDisplayVerseNumber(verse.verse_number);
               const fullVerseNumber = isCantoMode 
-                ? `${cantoNumber}.${chapterNumber}.${verse.verse_number}`
-                : `${chapterId}.${verse.verse_number}`;
+                ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
+                : `${chapterNumber}.${verseIdx}`;
               
               return (
               <VerseCard
@@ -310,9 +317,10 @@ export const VedaReaderDB = () => {
         ) : (
           <>
             {currentVerse && (() => {
+              const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
               const fullVerseNumber = isCantoMode 
-                ? `${cantoNumber}.${chapterNumber}.${currentVerse.verse_number}`
-                : `${chapterId}.${currentVerse.verse_number}`;
+                ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
+                : `${chapterNumber}.${verseIdx}`;
               
               return (
               <div className="space-y-6">
