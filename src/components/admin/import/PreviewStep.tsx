@@ -89,11 +89,13 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
       let query = supabase
         .from('chapters')
         .select('id')
-        .eq('book_id', selectedBookId)
         .eq('chapter_number', editedChapter.chapter_number);
 
+      // Filter by canto_id OR book_id (not both)
       if (needsCanto && selectedCantoId) {
         query = query.eq('canto_id', selectedCantoId);
+      } else {
+        query = query.eq('book_id', selectedBookId);
       }
 
       const { data: existingChapter } = await query.maybeSingle();
@@ -104,14 +106,16 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
         chapterId = existingChapter.id;
       } else {
         const chapterInsert: any = {
-          book_id: selectedBookId,
           chapter_number: editedChapter.chapter_number,
           title_ua: editedChapter.title_ua,
           title_en: editedChapter.title_en,
         };
 
+        // Set ONLY canto_id OR book_id (not both - constraint violation)
         if (needsCanto && selectedCantoId) {
           chapterInsert.canto_id = selectedCantoId;
+        } else {
+          chapterInsert.book_id = selectedBookId;
         }
 
         const { data: newChapter, error: chapterError } = await supabase
