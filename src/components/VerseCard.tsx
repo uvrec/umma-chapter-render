@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from '@/components/GlobalAudioPlayer';
+import { InlineTiptapEditor } from '@/components/InlineTiptapEditor';
 
 interface VerseCardProps {
   verseId?: string;
@@ -152,10 +153,10 @@ export const VerseCard = ({
               <Textarea
                 value={editedFields.sanskrit}
                 onChange={(e) => setEditedFields({ ...editedFields, sanskrit: e.target.value })}
-                className="text-center text-[26px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground min-h-[100px]"
+                className="text-center text-[27px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground min-h-[100px]"
               />
             ) : (
-              <p className="text-center text-[26px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground whitespace-pre-line">
+              <p className="text-center text-[27px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground whitespace-pre-line">
                 {sanskritText}
               </p>
             )}
@@ -169,12 +170,12 @@ export const VerseCard = ({
               <Textarea
                 value={editedFields.transliteration}
                 onChange={(e) => setEditedFields({ ...editedFields, transliteration: e.target.value })}
-                className="text-center italic text-[17px] text-gray-500 dark:text-muted-foreground min-h-[80px]"
+                className="text-center italic text-[18px] text-gray-500 dark:text-muted-foreground min-h-[80px]"
               />
             ) : (
               <div className="text-center space-y-1">
                 {transliteration.split('\n').map((line, index) => (
-                  <p key={index} className="italic text-[17px] text-gray-500 dark:text-muted-foreground leading-relaxed">
+                  <p key={index} className="italic text-[18px] text-gray-500 dark:text-muted-foreground leading-relaxed">
                     {line}
                   </p>
                 ))}
@@ -186,17 +187,17 @@ export const VerseCard = ({
         {/* Word-for-word synonyms */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className="mb-6 pt-6 border-t border-border">
-            <h4 className="text-base font-bold text-foreground mb-4">
+            <h4 className="text-[17px] font-bold text-foreground mb-4">
               Послівний переклад:
             </h4>
             {isEditing ? (
               <Textarea
                 value={editedFields.synonyms}
                 onChange={(e) => setEditedFields({ ...editedFields, synonyms: e.target.value })}
-                className="text-base text-foreground min-h-[100px]"
+                className="text-[17px] text-foreground min-h-[100px]"
               />
             ) : (
-              <p className="text-base text-foreground leading-relaxed">
+              <p className="text-[17px] text-foreground leading-relaxed">
                 {synonyms.split(';').map((part, index) => {
                   const cleanPart = part.trim();
                   if (cleanPart.includes(' – ')) {
@@ -230,17 +231,17 @@ export const VerseCard = ({
         {/* Literary Translation */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className="mb-6 pt-6 border-t border-border">
-            <h4 className="text-base font-bold text-foreground mb-4">
+            <h4 className="text-[17px] font-bold text-foreground mb-4">
               Літературний переклад:
             </h4>
             {isEditing ? (
               <Textarea
                 value={editedFields.translation}
                 onChange={(e) => setEditedFields({ ...editedFields, translation: e.target.value })}
-                className="text-lg text-foreground font-medium min-h-[100px]"
+                className="text-[19px] text-foreground font-medium min-h-[100px]"
               />
             ) : (
-              <p className="text-lg text-foreground leading-relaxed font-medium">
+              <p className="text-[19px] text-foreground leading-relaxed font-medium">
                 {translation}
               </p>
             )}
@@ -250,19 +251,20 @@ export const VerseCard = ({
         {/* Commentary */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className="pt-6 border-t border-border">
-            <h4 className="text-base font-bold text-foreground mb-4">
+            <h4 className="text-[17px] font-bold text-foreground mb-4">
               Коментар:
             </h4>
             {isEditing ? (
-              <Textarea
-                value={editedFields.commentary}
-                onChange={(e) => setEditedFields({ ...editedFields, commentary: e.target.value })}
-                className="text-base text-foreground min-h-[150px]"
+              <InlineTiptapEditor
+                content={editedFields.commentary}
+                onChange={(html) => setEditedFields({ ...editedFields, commentary: html })}
+                label="Редагувати коментар"
               />
             ) : (
-              <p className="text-base text-foreground leading-relaxed">
-                {commentary}
-              </p>
+              <div 
+                className="text-[18px] text-foreground leading-relaxed prose prose-sm max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: commentary || '' }}
+              />
             )}
           </div>
         )}
