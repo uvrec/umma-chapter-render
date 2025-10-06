@@ -48,12 +48,12 @@
     
     /* Typography */
   --sanskrit-font: 'Noto Sans Devanagari', 'Sanskrit 2003', serif;
-  --body-font: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --heading-font: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --body-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
+  --heading-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
   
-  /* Blog-specific fonts (Substack style) */
-  --blog-heading-font: "Georgia", "Charter", "Times New Roman", serif;
-  --blog-body-font: "Georgia", "Charter", "Times New Roman", serif;
+  /* Blog-specific fonts */
+  --blog-heading-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
+  --blog-body-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
     
     /* Minimal gradients */
     --gradient-primary: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
@@ -328,5 +328,11 @@
   .craft-paper-bg .bg-card {
     background-color: rgba(255, 255, 255, 0.7) !important;
     backdrop-filter: blur(8px);
+  }
+
+  /* Sanskrit terms in blog prose */
+  .prose a[data-sanskrit-term] {
+    font-family: 'Crimson Text', Georgia, serif;
+    font-style: italic;
   }
 }

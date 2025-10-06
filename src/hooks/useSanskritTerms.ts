@@ -65,11 +65,20 @@ export const useSanskritTerms = () => {
     return `/glossary?search=${encodeURIComponent(word)}`;
   };
 
+  const getTermsMap = (): { [normalizedTerm: string]: boolean } => {
+    const map: { [normalizedTerm: string]: boolean } = {};
+    termMap.forEach((_, key) => {
+      map[key] = true;
+    });
+    return map;
+  };
+
   return {
     allTerms,
     isTermPresent,
     getTermData,
     getGlossaryLink,
+    getTermsMap,
     isLoading: !verses,
   };
 };

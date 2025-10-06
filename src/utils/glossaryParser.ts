@@ -16,7 +16,7 @@ export const normalizeSanskritText = (text: string): string => {
   return text
     .toLowerCase()
     .trim()
-    // Remove common Sanskrit diacritical marks
+    // Remove Latin Sanskrit diacritical marks
     .replace(/[āĀ]/g, 'a')
     .replace(/[īĪ]/g, 'i')
     .replace(/[ūŪ]/g, 'u')
@@ -34,31 +34,32 @@ export const normalizeSanskritText = (text: string): string => {
     .replace(/[ṣṢ]/g, 's')
     .replace(/[ṭṬ]/g, 't')
     .replace(/[ḍḌ]/g, 'd')
-    .replace(/[ṇṆ]/g, 'n')
     .replace(/[ḥḤ]/g, 'h')
-    .replace(/[ṛṜ]/g, 'r')
     .replace(/[ḻḺ]/g, 'l')
     // Remove combining marks and special characters
     .replace(/[\u0300-\u036f]/g, '') // combining diacritical marks
     .replace(/[̇̄̃̂̌]/g, '') // additional combining marks
     .replace(/ʼ/g, '') // apostrophes
     .replace(/[ˆˇ˘˙˚˛˜˝]/g, '') // additional diacritics
-    // Ukrainian/Cyrillic specific
-    .replace(/[її]/g, 'i')
-    .replace(/[єэ]/g, 'e')
-    .replace(/ʼ/g, '')
-    .replace(/[ґг]/g, 'g')
-    // Special Sanskrit characters
-    .replace(/ом̇/g, 'ом')
-    .replace(/м̇/g, 'м')
-    .replace(/н̃/g, 'н')
-    .replace(/р̣/g, 'р')
+    // Ukrainian/Cyrillic transliteration marks
+    .replace(/[ії]/g, 'и')
+    .replace(/[єэ]/g, 'е')
+    .replace(/[ґг]/g, 'г')
+    // Ukrainian Sanskrit diacritical marks
+    .replace(/а̄/g, 'а')
+    .replace(/ӯ/g, 'у')
+    .replace(/ш́/g, 'ш')
     .replace(/т̣/g, 'т')
     .replace(/д̣/g, 'д')
+    .replace(/р̣̄/g, 'р')
+    .replace(/р̣/g, 'р')
+    .replace(/н̣/g, 'н')
+    .replace(/н̃/g, 'н')
+    .replace(/н̇/g, 'н')
+    .replace(/м̇/g, 'м')
+    .replace(/х̣/g, 'х')
     .replace(/л̣/g, 'л')
-    .replace(/ш́/g, 'ш')
-    .replace(/с̣/g, 'с')
-    .replace(/х̣/g, 'х');
+    .replace(/ом̇/g, 'ом');
 };
 
 export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {

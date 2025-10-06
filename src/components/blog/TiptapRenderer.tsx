@@ -1,5 +1,8 @@
 import { useMemo } from "react";
 import DOMPurify from "dompurify";
+import { useSanskritTerms } from "@/hooks/useSanskritTerms";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { highlightSanskritTerms } from "@/utils/highlightSanskritTerms";
 
 interface TiptapRendererProps {
   content: string;
@@ -7,13 +10,16 @@ interface TiptapRendererProps {
 }
 
 export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps) => {
+  const { getTermsMap } = useSanskritTerms();
+  const { language } = useLanguage();
+  
   const sanitizedContent = useMemo(() => {
     if (!content || content.trim().length === 0) {
       return null;
     }
     
     // Sanitize HTML to prevent XSS attacks
-    return DOMPurify.sanitize(content, {
+    const sanitized = DOMPurify.sanitize(content, {
       ALLOWED_TAGS: [
         'p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'img', 
@@ -21,11 +27,15 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
       ],
       ALLOWED_ATTR: [
         'href', 'target', 'rel', 'src', 'alt', 'title', 'class', 'style',
-        'width', 'height', 'colspan', 'rowspan'
+        'width', 'height', 'colspan', 'rowspan', 'data-sanskrit-term'
       ],
       ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
     });
-  }, [content]);
+
+    // Highlight Sanskrit terms
+    const termsMap = getTermsMap();
+    return highlightSanskritTerms(sanitized, termsMap, language);
+  }, [content, getTermsMap, language]);
 
   if (!sanitizedContent) {
     return (
@@ -48,9 +58,6 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
         prose-blockquote:text-muted-foreground prose-blockquote:border-l-primary
         prose-code:text-foreground prose-code:bg-muted
         ${className}`}
-      style={{
-        ['--tw-prose-italic' as string]: 'hsl(var(--sanskrit-term-color))'
-      }}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );
