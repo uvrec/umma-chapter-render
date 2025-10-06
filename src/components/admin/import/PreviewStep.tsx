@@ -10,7 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
+import { InlineTiptapEditor } from '@/components/InlineTiptapEditor';
+import { sanitizeHtml } from '@/utils/import/normalizers';
 interface PreviewStepProps {
   chapter: ParsedChapter;
   onBack: () => void;
@@ -129,8 +130,8 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
         synonyms_en: verse.synonyms_en,
         translation_ua: verse.translation_ua,
         translation_en: verse.translation_en,
-        commentary_ua: verse.commentary_ua,
-        commentary_en: verse.commentary_en,
+        commentary_ua: sanitizeHtml(verse.commentary_ua || ''),
+        commentary_en: sanitizeHtml(verse.commentary_en || ''),
       }));
 
       const { error: versesError } = await supabase
@@ -274,10 +275,10 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
                   </div>
                   <div>
                     <Label className="text-xs">Пояснення (UA)</Label>
-                    <Textarea
-                      value={verse.commentary_ua || ''}
-                      onChange={(e) => updateVerse(index, 'commentary_ua', e.target.value)}
-                      rows={5}
+                    <InlineTiptapEditor
+                      content={verse.commentary_ua || ''}
+                      onChange={(html) => updateVerse(index, 'commentary_ua', html)}
+                      label="Пояснення (UA)"
                     />
                   </div>
                 </div>

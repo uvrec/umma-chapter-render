@@ -1,4 +1,5 @@
 import ePub from 'epubjs';
+import { sanitizeHtml } from './normalizers';
 
 export async function extractTextFromEPUB(file: File): Promise<string> {
   try {
@@ -23,9 +24,10 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
           const parser = new DOMParser();
           const doc = parser.parseFromString(content, 'text/html');
           
-          const bodyText = doc.body?.textContent || '';
-          if (bodyText.trim().length > 0) {
-            fullText += bodyText + '\n\n';
+          const bodyHTML = doc.body?.innerHTML || '';
+          const safeHTML = sanitizeHtml(bodyHTML);
+          if (safeHTML.trim().length > 0) {
+            fullText += safeHTML + '\n\n';
             sectionsProcessed++;
           }
         } catch (err) {
@@ -43,7 +45,8 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
             const section = (book as any).section(id);
             if (section) {
               const content = await section.load();
-              fullText += content + '\n\n';
+              const safeHTML = sanitizeHtml(content as string);
+              fullText += safeHTML + '\n\n';
               sectionsProcessed++;
             }
           } catch (err) {
