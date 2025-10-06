@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,11 +10,15 @@ import { Header } from '@/components/Header';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from '@/hooks/use-toast';
 
 export const VedaReaderDB = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
+  const { isAdmin } = useAuth();
+  const queryClient = useQueryClient();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [fontSize, setFontSize] = useState(18);
@@ -139,6 +143,41 @@ export const VedaReaderDB = () => {
     enabled: !!chapter?.id
   });
 
+  // Mutation to update verse
+  const updateVerseMutation = useMutation({
+    mutationFn: async ({ verseId, updates }: { verseId: string; updates: any }) => {
+      const { data, error } = await supabase
+        .from('verses')
+        .update({
+          sanskrit: updates.sanskrit,
+          transliteration: updates.transliteration,
+          synonyms_ua: updates.synonyms,
+          translation_ua: updates.translation,
+          commentary_ua: updates.commentary,
+        })
+        .eq('id', verseId)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['verses'] });
+      toast({
+        title: "Успішно збережено",
+        description: "Вірш оновлено",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Помилка",
+        description: "Не вдалося зберегти зміни",
+        variant: "destructive",
+      });
+    },
+  });
+
   const currentVerse = verses[currentVerseIndex];
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const chapterTitle = language === 'ua' ? chapter?.title_ua : chapter?.title_en;
@@ -248,6 +287,7 @@ export const VedaReaderDB = () => {
             {verses.map((verse) => (
               <VerseCard
                 key={verse.id}
+                verseId={verse.id}
                 verseNumber={verse.verse_number}
                 bookName={bookTitle}
                 sanskritText={verse.sanskrit || ''}
@@ -257,6 +297,8 @@ export const VedaReaderDB = () => {
                 commentary={language === 'ua' ? verse.commentary_ua || '' : verse.commentary_en || ''}
                 audioUrl={verse.audio_url || ''}
                 textDisplaySettings={textDisplaySettings}
+                isAdmin={isAdmin}
+                onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
               />
             ))}
           </div>
@@ -267,6 +309,7 @@ export const VedaReaderDB = () => {
                 {dualLanguageMode ? (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <VerseCard
+                      verseId={currentVerse.id}
                       verseNumber={currentVerse.verse_number}
                       bookName={book?.title_ua}
                       sanskritText={currentVerse.sanskrit || ''}
@@ -276,8 +319,11 @@ export const VedaReaderDB = () => {
                       commentary={currentVerse.commentary_ua || ''}
                       audioUrl={currentVerse.audio_url || ''}
                       textDisplaySettings={textDisplaySettings}
+                      isAdmin={isAdmin}
+                      onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                     />
                     <VerseCard
+                      verseId={currentVerse.id}
                       verseNumber={currentVerse.verse_number}
                       bookName={book?.title_en}
                       sanskritText={currentVerse.sanskrit || ''}
@@ -287,10 +333,13 @@ export const VedaReaderDB = () => {
                       commentary={currentVerse.commentary_en || ''}
                       audioUrl={currentVerse.audio_url || ''}
                       textDisplaySettings={textDisplaySettings}
+                      isAdmin={false}
+                      onVerseUpdate={() => {}}
                     />
                   </div>
                 ) : (
                   <VerseCard
+                    verseId={currentVerse.id}
                     verseNumber={currentVerse.verse_number}
                     bookName={bookTitle}
                     sanskritText={currentVerse.sanskrit || ''}
@@ -300,6 +349,8 @@ export const VedaReaderDB = () => {
                     commentary={language === 'ua' ? currentVerse.commentary_ua || '' : currentVerse.commentary_en || ''}
                     audioUrl={currentVerse.audio_url || ''}
                     textDisplaySettings={textDisplaySettings}
+                    isAdmin={isAdmin}
+                    onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                   />
                 )}
 

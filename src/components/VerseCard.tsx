@@ -1,9 +1,12 @@
-import { Play, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Play, Edit, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from '@/components/GlobalAudioPlayer';
 
 interface VerseCardProps {
+  verseId?: string;
   verseNumber: string;
   bookName?: string;
   sanskritText: string;
@@ -19,9 +22,12 @@ interface VerseCardProps {
     showTranslation: boolean;
     showCommentary: boolean;
   };
+  isAdmin?: boolean;
+  onVerseUpdate?: (verseId: string, updates: any) => void;
 }
 
 export const VerseCard = ({
+  verseId,
   verseNumber,
   bookName,
   sanskritText,
@@ -36,9 +42,19 @@ export const VerseCard = ({
     showSynonyms: true,
     showTranslation: true,
     showCommentary: true
-  }
+  },
+  isAdmin = false,
+  onVerseUpdate
 }: VerseCardProps) => {
   const { playTrack, currentTrack, isPlaying } = useAudio();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedFields, setEditedFields] = useState({
+    sanskrit: sanskritText,
+    transliteration: transliteration || '',
+    synonyms: synonyms || '',
+    translation: translation,
+    commentary: commentary || ''
+  });
   
   const handlePlay = () => {
     if (audioUrl) {
@@ -49,6 +65,35 @@ export const VerseCard = ({
         verseNumber
       });
     }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditedFields({
+      sanskrit: sanskritText,
+      transliteration: transliteration || '',
+      synonyms: synonyms || '',
+      translation: translation,
+      commentary: commentary || ''
+    });
+  };
+
+  const handleSave = () => {
+    if (onVerseUpdate && verseId) {
+      onVerseUpdate(verseId, editedFields);
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedFields({
+      sanskrit: sanskritText,
+      transliteration: transliteration || '',
+      synonyms: synonyms || '',
+      translation: translation,
+      commentary: commentary || ''
+    });
   };
 
   const isCurrentlyPlaying = currentTrack?.id === verseNumber && isPlaying;
@@ -77,91 +122,148 @@ export const VerseCard = ({
               {isCurrentlyPlaying ? 'Відтворюється' : audioUrl ? 'Слухати' : 'Аудіо незабаром'}
             </Button>
           </div>
-          <Button variant="ghost" size="sm">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
+          {isAdmin && (
+            <div className="flex gap-2">
+              {isEditing ? (
+                <>
+                  <Button variant="default" size="sm" onClick={handleSave}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Зберегти
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleCancel}>
+                    <X className="w-4 h-4 mr-2" />
+                    Скасувати
+                  </Button>
+                </>
+              ) : (
+                <Button variant="ghost" size="sm" onClick={handleEdit}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Редагувати
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Sanskrit Text */}
-        {textDisplaySettings.showSanskrit && sanskritText && (
+        {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
           <div className="mb-10">
-            <p className="text-center text-[26px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground whitespace-pre-line">
-              {sanskritText}
-            </p>
+            {isEditing ? (
+              <Textarea
+                value={editedFields.sanskrit}
+                onChange={(e) => setEditedFields({ ...editedFields, sanskrit: e.target.value })}
+                className="text-center text-[26px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground min-h-[100px]"
+              />
+            ) : (
+              <p className="text-center text-[26px] leading-[1.8] font-sanskrit text-gray-600 dark:text-foreground whitespace-pre-line">
+                {sanskritText}
+              </p>
+            )}
           </div>
         )}
 
         {/* Transliteration */}
-        {textDisplaySettings.showTransliteration && transliteration && (
+        {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
           <div className="mb-8">
-            <div className="text-center space-y-1">
-              {transliteration.split('\n').map((line, index) => (
-                <p key={index} className="italic text-[17px] text-gray-500 dark:text-muted-foreground leading-relaxed">
-                  {line}
-                </p>
-              ))}
-            </div>
+            {isEditing ? (
+              <Textarea
+                value={editedFields.transliteration}
+                onChange={(e) => setEditedFields({ ...editedFields, transliteration: e.target.value })}
+                className="text-center italic text-[17px] text-gray-500 dark:text-muted-foreground min-h-[80px]"
+              />
+            ) : (
+              <div className="text-center space-y-1">
+                {transliteration.split('\n').map((line, index) => (
+                  <p key={index} className="italic text-[17px] text-gray-500 dark:text-muted-foreground leading-relaxed">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {/* Word-for-word synonyms */}
-        {textDisplaySettings.showSynonyms && synonyms && (
+        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className="mb-6 pt-6 border-t border-border">
             <h4 className="text-base font-bold text-foreground mb-4">
               Послівний переклад:
             </h4>
-            <p className="text-base text-foreground leading-relaxed">
-              {synonyms.split(';').map((part, index) => {
-                const cleanPart = part.trim();
-                if (cleanPart.includes(' – ')) {
-                  const [term, meaning] = cleanPart.split(' – ');
-                  // Split term into individual words
-                  const words = term.trim().split(/[\s-]+/).filter(w => w.length > 0);
-                  return (
-                    <span key={index}>
-                      {words.map((word, wordIndex) => (
-                        <span key={wordIndex}>
-                          <span 
-                            className="cursor-pointer text-primary hover:underline font-medium italic" 
-                            onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank', 'noopener,noreferrer')}
-                          >
-                            {word}
+            {isEditing ? (
+              <Textarea
+                value={editedFields.synonyms}
+                onChange={(e) => setEditedFields({ ...editedFields, synonyms: e.target.value })}
+                className="text-base text-foreground min-h-[100px]"
+              />
+            ) : (
+              <p className="text-base text-foreground leading-relaxed">
+                {synonyms.split(';').map((part, index) => {
+                  const cleanPart = part.trim();
+                  if (cleanPart.includes(' – ')) {
+                    const [term, meaning] = cleanPart.split(' – ');
+                    const words = term.trim().split(/[\s-]+/).filter(w => w.length > 0);
+                    return (
+                      <span key={index}>
+                        {words.map((word, wordIndex) => (
+                          <span key={wordIndex}>
+                            <span 
+                              className="cursor-pointer text-primary hover:underline font-medium italic" 
+                              onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank', 'noopener,noreferrer')}
+                            >
+                              {word}
+                            </span>
+                            {wordIndex < words.length - 1 && (term.includes('-') ? '-' : ' ')}
                           </span>
-                          {wordIndex < words.length - 1 && (term.includes('-') ? '-' : ' ')}
-                        </span>
-                      ))}
-                      <span> — {meaning.trim()}</span>
-                      {index < synonyms.split(';').length - 1 && '; '}
-                    </span>
-                  );
-                }
-                return <span key={index}>{cleanPart}</span>;
-              })}
-            </p>
+                        ))}
+                        <span> — {meaning.trim()}</span>
+                        {index < synonyms.split(';').length - 1 && '; '}
+                      </span>
+                    );
+                  }
+                  return <span key={index}>{cleanPart}</span>;
+                })}
+              </p>
+            )}
           </div>
         )}
 
         {/* Literary Translation */}
-        {textDisplaySettings.showTranslation && translation && (
+        {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className="mb-6 pt-6 border-t border-border">
             <h4 className="text-base font-bold text-foreground mb-4">
               Літературний переклад:
             </h4>
-            <p className="text-lg text-foreground leading-relaxed font-medium">
-              {translation}
-            </p>
+            {isEditing ? (
+              <Textarea
+                value={editedFields.translation}
+                onChange={(e) => setEditedFields({ ...editedFields, translation: e.target.value })}
+                className="text-lg text-foreground font-medium min-h-[100px]"
+              />
+            ) : (
+              <p className="text-lg text-foreground leading-relaxed font-medium">
+                {translation}
+              </p>
+            )}
           </div>
         )}
 
         {/* Commentary */}
-        {textDisplaySettings.showCommentary && commentary && (
+        {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className="pt-6 border-t border-border">
             <h4 className="text-base font-bold text-foreground mb-4">
               Коментар:
             </h4>
-            <p className="text-base text-foreground leading-relaxed">
-              {commentary}
-            </p>
+            {isEditing ? (
+              <Textarea
+                value={editedFields.commentary}
+                onChange={(e) => setEditedFields({ ...editedFields, commentary: e.target.value })}
+                className="text-base text-foreground min-h-[150px]"
+              />
+            ) : (
+              <p className="text-base text-foreground leading-relaxed">
+                {commentary}
+              </p>
+            )}
           </div>
         )}
       </div>
