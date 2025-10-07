@@ -313,7 +313,7 @@ function parseVerse(
     console.log(`⚠️ No Sanskrit found`);
   }
   
-  // Extract Transliteration - collect Ukrainian lines with diacritics after Sanskrit
+  // Extract Transliteration - collect lines after Sanskrit until section headers
   const translitLines: string[] = [];
   if (translitStartIndex !== -1) {
     for (let i = translitStartIndex; i < lines.length; i++) {
@@ -326,14 +326,9 @@ function parseVerse(
         break;
       }
       
-      // Check if line contains Ukrainian letters (with or without diacritics)
-      // Skip lines that are section headers
-      if (/[а-яА-ЯіІїЇєЄґҐ]/.test(line) && 
-          !line.match(/^(?:ВІРШ|ТЕКСТ|ПОСЛІВНИЙ|ПЕРЕКЛАД|ПОЯСНЕННЯ)/i)) {
+      // Collect any non-empty line (IAST is Latin with diacritics), skip obvious headers
+      if (!/^(?:ВІРШ|ТЕКСТ|ПОСЛІВНИЙ|ПЕРЕКЛАД|ПОЯСНЕННЯ)/i.test(line)) {
         translitLines.push(line);
-      } else if (translitLines.length > 0) {
-        // Stop if we've collected some and hit non-Ukrainian line
-        break;
       }
     }
   }
@@ -343,10 +338,25 @@ function parseVerse(
   }
   
   // Extract synonyms
-  const synonymsMatch = text.match(template.synonymsPattern);
+  // Extract synonyms (fallback to unanchored if needed)
+  let synonymsMatch = text.match(template.synonymsPattern);
+  if (!synonymsMatch) {
+    const anywhereSynonyms = new RegExp(
+      template.synonymsPattern.source.replace(/^\^\s*/, ''),
+      template.synonymsPattern.flags
+    );
+    synonymsMatch = text.match(anywhereSynonyms);
+  }
   if (synonymsMatch && synonymsMatch.index !== undefined) {
     const synonymsStart = synonymsMatch.index + synonymsMatch[0].length;
-    const translationMatch = text.match(template.translationPattern);
+    let translationMatch = text.match(template.translationPattern);
+    if (!translationMatch) {
+      const anywhereTranslation = new RegExp(
+        template.translationPattern.source.replace(/^\^\s*/, ''),
+        template.translationPattern.flags
+      );
+      translationMatch = text.match(anywhereTranslation);
+    }
     const synonymsEnd = translationMatch?.index || text.length;
     const synonymsText = text.substring(synonymsStart, synonymsEnd).trim();
     if (synonymsText.length > 0) {
@@ -354,11 +364,25 @@ function parseVerse(
     }
   }
   
-  // Extract translation
-  const translationMatch = text.match(template.translationPattern);
+  // Extract translation (fallback to unanchored if needed)
+  let translationMatch = text.match(template.translationPattern);
+  if (!translationMatch) {
+    const anywhereTranslation = new RegExp(
+      template.translationPattern.source.replace(/^\^\s*/, ''),
+      template.translationPattern.flags
+    );
+    translationMatch = text.match(anywhereTranslation);
+  }
   if (translationMatch && translationMatch.index !== undefined) {
     const translationStart = translationMatch.index + translationMatch[0].length;
-    const commentaryMatch = text.match(template.commentaryPattern);
+    let commentaryMatch = text.match(template.commentaryPattern);
+    if (!commentaryMatch) {
+      const anywhereCommentary = new RegExp(
+        template.commentaryPattern.source.replace(/^\^\s*/, ''),
+        template.commentaryPattern.flags
+      );
+      commentaryMatch = text.match(anywhereCommentary);
+    }
     const translationEnd = commentaryMatch?.index || text.length;
     const translationText = text.substring(translationStart, translationEnd).trim();
     if (translationText.length > 0) {
@@ -366,8 +390,15 @@ function parseVerse(
     }
   }
   
-  // Extract commentary
-  const commentaryMatch = text.match(template.commentaryPattern);
+  // Extract commentary (fallback to unanchored if needed)
+  let commentaryMatch = text.match(template.commentaryPattern);
+  if (!commentaryMatch) {
+    const anywhereCommentary = new RegExp(
+      template.commentaryPattern.source.replace(/^\^\s*/, ''),
+      template.commentaryPattern.flags
+    );
+    commentaryMatch = text.match(anywhereCommentary);
+  }
   if (commentaryMatch && commentaryMatch.index !== undefined) {
     const commentaryStart = commentaryMatch.index + commentaryMatch[0].length;
     const commentaryText = text.substring(commentaryStart).trim();
