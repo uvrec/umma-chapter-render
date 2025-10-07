@@ -146,13 +146,7 @@ export function splitIntoVerses(
   console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
   
   if (verseMatches.length === 0) {
-    console.warn('No verse matches found, attempting paragraph split');
-    // Fallback: split by double newlines
-    const paragraphs = chapterText.split(/\n\s*\n/).filter(p => p.trim().length > 20);
-    console.log(`Fallback: знайдено ${paragraphs.length} параграфів`);
-    paragraphs.forEach((para, index) => {
-      verses.push(parseVerse((index + 1).toString(), para, template));
-    });
+    console.warn('No verse matches found. Returning 0 verses to avoid false positives.');
     return verses;
   }
   
