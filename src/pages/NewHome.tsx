@@ -79,10 +79,7 @@ export const NewHome = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
               Підтримати проєкт
             </h2>
-            <p className="text-lg text-muted-foreground mb-6 text-center">
-              Якщо у Вас є баження підтримати цей проєкт, це можна зробити фінансово, або допомогти із редакцією аудіо чи перевіркою вже записаного матеріалу.
-            </p>
-            <p className="text-base text-muted-foreground mb-8 text-center">
+            <p className="text-lg text-muted-foreground mb-8 text-center">
               Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
             </p>
             <div className="flex justify-center">
