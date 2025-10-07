@@ -273,53 +273,6 @@ export const Header = () => {
                   </CollapsibleContent>
                 </Collapsible>
 
-                <Collapsible open={audioOpen} onOpenChange={setAudioOpen}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
-                    <div className="flex items-center space-x-3">
-                      <Headphones className="w-5 h-5" />
-                      <span>Аудіо</span>
-                    </div>
-                    {audioOpen ? (
-                      <ChevronDown className="w-4 h-4" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="ml-6 space-y-2 mt-2">
-                    <Link
-                      to="/audio/audiobooks"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <BookOpen className="w-4 h-4 mr-1" />
-                      <span>Аудіокниги</span>
-                    </Link>
-                    <Link
-                      to="/audio/lectures"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <Mic className="w-4 h-4 mr-1" />
-                      <span>Лекції</span>
-                    </Link>
-                    <Link
-                      to="/audio/music"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <Music className="w-4 h-4 mr-1" />
-                      <span>Музика</span>
-                    </Link>
-                    <Link
-                      to="/audio/podcasts"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <Mic className="w-4 h-4 mr-1" />
-                      <span>Подкасти</span>
-                    </Link>
-                  </CollapsibleContent>
-                </Collapsible>
 
                 <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
