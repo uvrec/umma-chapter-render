@@ -46,11 +46,13 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
   {
     id: 'bhagavad-gita',
     name: 'Бгагавад-Гіта',
-    versePattern: /^\s*(?:ТЕКСТ|TEXT)\s+(\d+)/mi,
+    versePattern: /^\s*(?:ТЕКСТ|TEXT|Текст)\s+(\d+)/mi,
     synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|Послівний переклад)/mi,
     translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION|Переклад)/mi,
     commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|PURPORT|Пояснення)/mi,
-    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER)\s+(\d+)/mi,
+    // More flexible chapter pattern for various formats:
+    // "ГЛАВА 1", "Глава перша", "РОЗДІЛ 1", "Chapter 1", or standalone ordinals
+    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER|Глава|Розділ|Chapter)?\s*(\d{1,2}|ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|Перша|Друга|Третя|Четверта|П'ята|Шоста|Сьома|Восьма|Дев'ята|Десята|Одинадцята|Дванадцята|Тринадцята|Чотирнадцята|П'ятнадцята|Шістнадцята|Сімнадцята|Вісімнадцята)(?:\s+ГЛАВА|\s+глава|\s+РОЗДІЛ|\s+розділ|\s+CHAPTER|\s+chapter)?\s*$/mi,
   },
   {
     id: 'srimad-bhagavatam',
