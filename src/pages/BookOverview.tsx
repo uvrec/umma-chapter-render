@@ -58,7 +58,23 @@ export const BookOverview = () => {
     enabled: !!book?.id && book?.has_cantos !== true
   });
 
-  const isLoading = cantosLoading || chaptersLoading;
+  // Fetch intro chapters
+  const { data: introChapters = [], isLoading: introLoading } = useQuery({
+    queryKey: ['intro-chapters', book?.id],
+    queryFn: async () => {
+      if (!book?.id) return [];
+      const { data, error } = await supabase
+        .from('intro_chapters')
+        .select('*')
+        .eq('book_id', book.id)
+        .order('display_order');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!book?.id
+  });
+
+  const isLoading = cantosLoading || chaptersLoading || introLoading;
 
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const bookDescription = language === 'ua' ? book?.description_ua : book?.description_en;
@@ -112,6 +128,25 @@ export const BookOverview = () => {
                 <p className="text-lg text-muted-foreground mb-6">
                   {bookDescription}
                 </p>
+              )}
+              
+              {/* Intro chapters links */}
+              {introChapters.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Вступні матеріали:</h3>
+                  <ul className="space-y-2">
+                    {introChapters.map((intro) => (
+                      <li key={intro.id}>
+                        <Link 
+                          to={`/veda-reader/${bookId}/intro/${intro.slug}`}
+                          className="text-primary hover:underline"
+                        >
+                          {language === 'ua' ? intro.title_ua : intro.title_en}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>

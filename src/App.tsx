@@ -43,8 +43,11 @@ import { VedaReaderDB } from "./components/VedaReaderDB";
 import GlossaryDB from "./pages/GlossaryDB";
 import { BookOverview } from "./pages/BookOverview";
 import CantoOverview from "./pages/CantoOverview";
+import { IntroChapter } from "./pages/IntroChapter";
 import Cantos from "./pages/admin/Cantos";
 import AddEditCanto from "./pages/admin/AddEditCanto";
+import IntroChapters from "./pages/admin/IntroChapters";
+import AddEditIntroChapter from "./pages/admin/AddEditIntroChapter";
 import BlogPosts from "./pages/admin/BlogPosts";
 import AddEditBlogPost from "./pages/admin/AddEditBlogPost";
 import BlogCategories from "./pages/admin/BlogCategories";
@@ -77,6 +80,7 @@ const App = () => (
                 <Route path="/verses/:bookId" element={<VedaReader />} />
                 <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
                 <Route path="/veda-reader/:bookId" element={<BookOverview />} />
+                <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderDB />} />
                 <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
@@ -111,6 +115,9 @@ const App = () => (
           <Route path="/admin/cantos/:bookId" element={<Cantos />} />
           <Route path="/admin/cantos/:bookId/new" element={<AddEditCanto />} />
           <Route path="/admin/cantos/:bookId/:id/edit" element={<AddEditCanto />} />
+          <Route path="/admin/intro-chapters/:bookId" element={<IntroChapters />} />
+          <Route path="/admin/intro-chapters/:bookId/new" element={<AddEditIntroChapter />} />
+          <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
           <Route path="/admin/chapters/:bookId" element={<Chapters />} />
           <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
           <Route path="/admin/verses" element={<Verses />} />

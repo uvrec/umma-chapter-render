@@ -535,6 +535,53 @@ export type Database = {
           },
         ]
       }
+      intro_chapters: {
+        Row: {
+          book_id: string
+          content_en: string | null
+          content_ua: string | null
+          created_at: string
+          display_order: number
+          id: string
+          slug: string
+          title_en: string
+          title_ua: string
+          updated_at: string
+        }
+        Insert: {
+          book_id: string
+          content_en?: string | null
+          content_ua?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          slug: string
+          title_en: string
+          title_ua: string
+          updated_at?: string
+        }
+        Update: {
+          book_id?: string
+          content_en?: string | null
+          content_ua?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          slug?: string
+          title_en?: string
+          title_ua?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intro_chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pages: {
         Row: {
           banner_image_url: string | null
