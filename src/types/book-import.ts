@@ -71,11 +71,11 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
   {
     id: 'sri-isopanishad',
     name: 'Шрі Ішопанішад',
-    versePattern: /^\s*(?:МАНТРА|MANTRA)\s+(\d+)/mi,
+    versePattern: /^\s*(?:МАНТРА|MANTRA)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|\d+)/mi,
     synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD)/mi,
     translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION)/mi,
     commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|PURPORT)/mi,
-    chapterPattern: /^\s*(?:МАНТРА|MANTRA)\s+(\d+)/mi,
+    chapterPattern: /^\s*(?:МАНТРА|MANTRA)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|\d+)|^\s*(?:Вступ|Звернення|ВСТУП|ЗВЕРНЕННЯ)/mi,
   },
 ];
 
@@ -83,7 +83,7 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
 export function validateParsedChapter(chapter: ParsedChapter): string[] {
   const errors: string[] = [];
   
-  if (!chapter.chapter_number || chapter.chapter_number < 1) {
+  if (chapter.chapter_number === undefined || chapter.chapter_number === null) {
     errors.push('Невалідний номер глави');
   }
   
@@ -91,8 +91,12 @@ export function validateParsedChapter(chapter: ParsedChapter): string[] {
     errors.push('Відсутня назва глави (UA)');
   }
   
-  if (chapter.verses.length === 0) {
-    errors.push('Глава не містить віршів');
+  if (chapter.chapter_type === 'verses' && chapter.verses.length === 0) {
+    errors.push('Глава типу "verses" не містить віршів');
+  }
+  
+  if (chapter.chapter_type === 'text' && !chapter.content_ua?.trim()) {
+    errors.push('Глава типу "text" не містить контенту');
   }
   
   chapter.verses.forEach((verse, idx) => {

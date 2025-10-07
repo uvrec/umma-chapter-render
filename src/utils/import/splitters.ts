@@ -81,29 +81,45 @@ export function splitIntoChapters(
   
   chapterMatches.forEach((match, index) => {
     const rawNumber = match[1] || '';
+    const fullMatch = match[0] || '';
     
-    // Try to parse as number first
-    let chapterNum = parseInt(rawNumber);
+    // Special handling for introductory text chapters
+    let chapterNum: number;
+    let chapterTitle: string;
     
-    // If not a number, try Ukrainian words
-    if (isNaN(chapterNum)) {
-      const normalized = rawNumber.trim().replace(/['ʼ`]/g, "'").toUpperCase();
-      chapterNum = ukrainianNumberWords[normalized] || (index + 1);
+    if (/^\s*(?:Вступ|ВСТУП)/i.test(fullMatch)) {
+      chapterNum = -1;
+      chapterTitle = 'Вступ';
+    } else if (/^\s*(?:Звернення|ЗВЕРНЕННЯ)/i.test(fullMatch)) {
+      chapterNum = 0;
+      chapterTitle = 'Звернення';
+    } else {
+      // Try to parse as number first
+      chapterNum = parseInt(rawNumber);
+      
+      // If not a number, try Ukrainian words
+      if (isNaN(chapterNum)) {
+        const normalized = rawNumber.trim().replace(/['ʼ`]/g, "'").toUpperCase();
+        chapterNum = ukrainianNumberWords[normalized] || (index + 1);
+      }
+      
+      chapterTitle = `Глава ${chapterNum}`;
     }
     
     const startPos = match.index || 0;
     const endPos = chapterMatches[index + 1]?.index || text.length;
     const chapterText = text.substring(startPos, endPos);
     
-    // Extract chapter title - try "ГЛАВА N: Назва" and "ГЛАВА N\nНазва" formats
-    let chapterTitle = `Глава ${chapterNum}`;
-    const titleMatch1 = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER)[^\n]*?:\s*(.+?)(?:\n|$)/mi);
-    if (titleMatch1) {
-      chapterTitle = titleMatch1[1].trim();
-    } else {
-      const titleMatch2 = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER)[^\n]*?\n\s*([А-ЯІЇЄҐа-яіїєґ][^\n]+?)(?:\n|$)/mi);
-      if (titleMatch2) {
-        chapterTitle = titleMatch2[1].trim();
+    // Extract chapter title only if not already set by special chapters
+    if (chapterNum >= 1) {
+      const titleMatch1 = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER)[^\n]*?:\s*(.+?)(?:\n|$)/mi);
+      if (titleMatch1) {
+        chapterTitle = titleMatch1[1].trim();
+      } else {
+        const titleMatch2 = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER)[^\n]*?\n\s*([А-ЯІЇЄҐа-яіїєґ][^\n]+?)(?:\n|$)/mi);
+        if (titleMatch2) {
+          chapterTitle = titleMatch2[1].trim();
+        }
       }
     }
     
