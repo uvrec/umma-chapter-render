@@ -80,6 +80,9 @@ const App = () => (
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
                 <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderDB />} />
                 <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
+                {/* Legacy aliases/redirects for common slugs */}
+                <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
+                <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
                 <Route path="/library" element={<Library />} />
                 <Route path="/library/prabhupada" element={<PrabhupadaBooks />} />
                 <Route path="/library/acharyas" element={<AcharyasBooks />} />

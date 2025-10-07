@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Settings } from 'lucide-react';
@@ -133,6 +133,13 @@ export const VedaReaderDB = () => {
     },
     enabled: (isCantoMode ? !!canto?.id : !!book?.id)
   });
+
+  // Redirect helper: if user opened non-canto URL for a book with cantos
+  useEffect(() => {
+    if (!isCantoMode && book?.has_cantos && effectiveChapterParam && chapter === null) {
+      navigate(`/veda-reader/${bookId}/canto/1/chapter/${effectiveChapterParam}`, { replace: true });
+    }
+  }, [isCantoMode, book?.has_cantos, effectiveChapterParam, chapter, bookId, navigate]);
 
   // Helper function to parse verse number for numeric sorting
   const parseVerseNumber = (verseNumber: string): number[] => {
