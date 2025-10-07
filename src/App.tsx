@@ -23,7 +23,6 @@ import { Footer } from "./components/Footer";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
-import { OtherMethods } from "./pages/payment/OtherMethods";
 import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
@@ -106,7 +105,6 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/payment/card" element={<CardPayment />} />
                 <Route path="/payment/bank" element={<BankTransfer />} />
-                <Route path="/payment/other" element={<OtherMethods />} />
                 <Route path="/auth" element={<Auth />} />
           <Route path="/admin/dashboard" element={<Dashboard />} />
           <Route path="/admin/books" element={<Books />} />

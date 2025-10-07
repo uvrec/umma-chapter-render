@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
-import { BookOpen, Headphones, Book, ChevronDown, Play, Clock, User } from "lucide-react";
+import { BookOpen, Headphones, Book, ChevronDown, Play, Clock, User, ExternalLink } from "lucide-react";
 import templeBackground from "@/assets/temple-background.jpg";
+import { openExternal } from "@/lib/openExternal";
 
 export const NewHome = () => {
   return (
@@ -71,26 +72,29 @@ export const NewHome = () => {
       </section>
       
       
-      {/* Call to Action */}
+      {/* Support Section */}
       <section className="py-16 bg-gradient-to-r from-primary/5 to-primary/10">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Почніть свою духовну подорож сьогодні
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Долучайтеся до тисяч людей, які вже відкрили для себе вічну мудрість ведичних писань
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg">
-              <Link to="/library">
-                Почати читання
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/payment/other">
-                Підтримати проєкт
-              </Link>
-            </Button>
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+              Підтримати проєкт
+            </h2>
+            <p className="text-lg text-muted-foreground mb-6 text-center">
+              Якщо у Вас є баження підтримати цей проєкт, це можна зробити фінансово, або допомогти із редакцією аудіо чи перевіркою вже записаного матеріалу.
+            </p>
+            <p className="text-base text-muted-foreground mb-8 text-center">
+              Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
+            </p>
+            <div className="flex justify-center">
+              <Button 
+                size="lg"
+                onClick={() => openExternal('https://paypal.me/andriiuvarov')}
+                className="gap-2"
+              >
+                PayPal
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
