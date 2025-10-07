@@ -224,14 +224,14 @@ export default function Chapters() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to={isCantoMode ? `/admin/cantos/${canto?.book_id}` : "/admin/books"}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  {isCantoMode ? 'До cantos' : 'До книг'}
+                  {isCantoMode ? 'До пісень' : 'До книг'}
                 </Link>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">Розділи</h1>
+                <h1 className="text-2xl font-bold">Глави</h1>
                 {isCantoMode && canto && (
                   <p className="text-sm text-muted-foreground">
-                    {canto.books?.title_ua} - Canto {canto.canto_number}: {canto.title_ua}
+                    {canto.books?.title_ua} - Пісня {canto.canto_number}: {canto.title_ua}
                   </p>
                 )}
                 {!isCantoMode && book && (
@@ -241,7 +241,7 @@ export default function Chapters() {
             </div>
             <Button onClick={() => setIsAddingChapter(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Додати розділ
+              Додати главу
             </Button>
           </div>
         </div>
@@ -252,13 +252,13 @@ export default function Chapters() {
           <Card className="mb-6">
             <CardHeader>
               <CardTitle>
-                {editingChapter ? "Редагувати розділ" : "Додати розділ"}
+                {editingChapter ? "Редагувати главу" : "Додати главу"}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="chapterNumber">Номер розділу *</Label>
+                  <Label htmlFor="chapterNumber">Номер глави *</Label>
                   <Input
                     id="chapterNumber"
                     type="number"
@@ -329,7 +329,7 @@ export default function Chapters() {
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold text-lg">
-                        Розділ {chapter.chapter_number}: {chapter.title_ua}
+                        Глава {chapter.chapter_number}: {chapter.title_ua}
                       </h3>
                       {chapter.title_en && (
                         <p className="text-sm text-muted-foreground mt-1">
@@ -352,13 +352,13 @@ export default function Chapters() {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Це видалить розділ та всі вірші в ньому. Цю дію неможливо скасувати.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
+                         <AlertDialogContent>
+                           <AlertDialogHeader>
+                             <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
+                             <AlertDialogDescription>
+                               Це видалить главу та всі вірші в ній. Цю дію неможливо скасувати.
+                             </AlertDialogDescription>
+                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Скасувати</AlertDialogCancel>
                             <AlertDialogAction
@@ -379,7 +379,7 @@ export default function Chapters() {
           <Card>
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground">
-                Розділів не знайдено для цієї книги
+                Глав не знайдено для цієї книги
               </p>
             </CardContent>
           </Card>

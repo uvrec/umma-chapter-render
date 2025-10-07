@@ -39,9 +39,6 @@ export const NewHome = () => {
             
             {/* Verse Quote */}
             <div className="mb-8 p-6 bg-black/20 backdrop-blur-sm rounded-lg border border-white/20">
-              <p className="text-lg md:text-xl italic mb-2 text-white/95">
-                Шрімад-Бгаґаватам 1.1.1
-              </p>
               <p className="text-base md:text-lg leading-relaxed text-white/90">
                 Бесіди про діяння та величність Творця Благих Справ — найдорожче надбання людства.
                 У своїх творах великі мудреці з такою досконалістю описали Його діяння, що,

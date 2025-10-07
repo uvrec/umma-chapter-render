@@ -67,17 +67,24 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
   
   const terms: GlossaryTerm[] = [];
   
-  // Split by semicolon and process each term
-  const termPairs = synonyms.split(';');
+  // Split by semicolon or comma
+  const termPairs = synonyms.split(/[;,]/);
   
   termPairs.forEach((pair) => {
     const trimmedPair = pair.trim();
     
-    // Split by dash to separate term from meaning (using en dash –, not em dash —)
-    const dashIndex = trimmedPair.indexOf(' – ');
+    // Try both en dash (–) and em dash (—) as separators
+    let dashIndex = trimmedPair.indexOf(' – ');
+    let separator = ' – ';
+    
+    if (dashIndex === -1) {
+      dashIndex = trimmedPair.indexOf(' — ');
+      separator = ' — ';
+    }
+    
     if (dashIndex !== -1) {
       const term = trimmedPair.substring(0, dashIndex).trim();
-      const meaning = trimmedPair.substring(dashIndex + 3).trim();
+      const meaning = trimmedPair.substring(dashIndex + separator.length).trim();
       
       if (term && meaning) {
         // Generate link based on verse number

@@ -70,6 +70,12 @@ const Verses = () => {
     enabled: !!selectedBookId && (!!selectedCantoId || !selectedBook?.has_cantos)
   });
 
+  // Helper to parse verse numbers for correct sorting
+  const parseVerseNumber = (verseNum: string): number => {
+    const parts = verseNum.split('.').map(p => parseInt(p, 10) || 0);
+    return parts[0] * 1000000 + (parts[1] || 0) * 1000 + (parts[2] || 0);
+  };
+
   const { data: verses, isLoading } = useQuery({
     queryKey: ['admin-verses', selectedChapterId],
     queryFn: async () => {
@@ -77,10 +83,10 @@ const Verses = () => {
       const { data, error } = await supabase
         .from('verses')
         .select('*')
-        .eq('chapter_id', selectedChapterId)
-        .order('verse_number');
+        .eq('chapter_id', selectedChapterId);
       if (error) throw error;
-      return data;
+      // Sort client-side for correct ordering
+      return (data || []).sort((a, b) => parseVerseNumber(a.verse_number) - parseVerseNumber(b.verse_number));
     },
     enabled: !!selectedChapterId
   });
@@ -158,15 +164,15 @@ const Verses = () => {
 
           {((selectedBook?.has_cantos && selectedCantoId) || (!selectedBook?.has_cantos && selectedBookId)) && (
             <div>
-              <label className="text-sm font-medium mb-2 block">Оберіть розділ</label>
+              <label className="text-sm font-medium mb-2 block">Оберіть главу</label>
               <Select value={selectedChapterId} onValueChange={setSelectedChapterId}>
                 <SelectTrigger className="w-full max-w-md">
-                  <SelectValue placeholder="Виберіть розділ" />
+                  <SelectValue placeholder="Виберіть главу" />
                 </SelectTrigger>
                 <SelectContent>
                   {chapters?.map((chapter) => (
                     <SelectItem key={chapter.id} value={chapter.id}>
-                      Розділ {chapter.chapter_number}: {chapter.title_ua}
+                      Глава {chapter.chapter_number}: {chapter.title_ua}
                     </SelectItem>
                   ))}
                 </SelectContent>

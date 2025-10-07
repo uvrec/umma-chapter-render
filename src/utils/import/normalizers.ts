@@ -14,11 +14,11 @@ export function normalizeText(text: string): string {
 }
 
 export function normalizeSynonyms(text: string): string {
-  // Format: "term – meaning; term2 – meaning2"
+  // Format: "term – meaning; term2 – meaning2" or "term – meaning, term2 – meaning2"
   return text
     .replace(/—/g, '–') // standardize to en dash
-    .replace(/\s*[-—]\s*/g, ' – ') // ensure spacing
-    .replace(/\s*;\s*/g, '; ')
+    .replace(/\s*[-—]\s*/g, ' – ') // ensure spacing around dashes
+    .replace(/\s*[;,]\s*/g, '; ') // normalize both ; and , to "; "
     .trim();
 }
 

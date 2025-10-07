@@ -41,7 +41,10 @@ interface TiptapEditorProps {
 export const TiptapEditor = ({ content, onChange, placeholder = "Почніть писати..." }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Preserve formatting on paste
+        gapcursor: false,
+      }),
       Image,
       Link.configure({
         openOnClick: false,
@@ -68,6 +71,11 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none p-4 min-h-[400px]',
+      },
     },
   });
 

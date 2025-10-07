@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { InlineTiptapEditor } from '@/components/InlineTiptapEditor';
 import { sanitizeHtml } from '@/utils/import/normalizers';
+import { normalizeSynonyms } from '@/utils/import/normalizers';
 interface PreviewStepProps {
   chapter: ParsedChapter;
   onBack: () => void;
@@ -134,7 +135,7 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
         verse_number: verse.verse_number,
         sanskrit: verse.sanskrit,
         transliteration: verse.transliteration,
-        synonyms_ua: verse.synonyms_ua,
+        synonyms_ua: normalizeSynonyms(verse.synonyms_ua || ''),
         synonyms_en: verse.synonyms_en,
         translation_ua: verse.translation_ua,
         translation_en: verse.translation_en,

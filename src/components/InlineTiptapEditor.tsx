@@ -32,7 +32,10 @@ interface InlineTiptapEditorProps {
 export const InlineTiptapEditor = ({ content, onChange, label }: InlineTiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        // Enable paste rules to preserve formatting
+        gapcursor: false,
+      }),
       Image,
       Link.configure({
         openOnClick: false,
@@ -59,6 +62,11 @@ export const InlineTiptapEditor = ({ content, onChange, label }: InlineTiptapEdi
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
+    },
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm max-w-none min-h-[200px] focus:outline-none',
+      },
     },
   });
 
