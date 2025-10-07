@@ -337,24 +337,51 @@ function parseVerse(
   
   // Extract Transliteration - collect lines after Sanskrit until section headers
   const translitLines: string[] = [];
-  if (translitStartIndex !== -1) {
-    for (let i = translitStartIndex; i < lines.length; i++) {
-      const line = lines[i].trim();
-      
-      // Stop if we hit section headers
-      if (line.match(template.synonymsPattern) ||
-          line.match(template.translationPattern) ||
-          line.match(template.commentaryPattern)) {
-        break;
-      }
-      
-      // Collect any non-empty line (IAST is Latin with diacritics), skip obvious headers
-      if (!/^(?:ВІРШ|ТЕКСТ|ПОСЛІВНИЙ|ПЕРЕКЛАД|ПОЯСНЕННЯ)/i.test(line)) {
-        translitLines.push(line);
+  {
+    // Build unanchored header patterns for robust detection (allow optional leading spaces/tags)
+    const anySynonyms = new RegExp(
+      template.synonymsPattern.source.replace(/^\^\s*/, ''),
+      template.synonymsPattern.flags
+    );
+    const anyTranslation = new RegExp(
+      template.translationPattern.source.replace(/^\^\s*/, ''),
+      template.translationPattern.flags
+    );
+    const anyCommentary = new RegExp(
+      template.commentaryPattern.source.replace(/^\^\s*/, ''),
+      template.commentaryPattern.flags
+    );
+
+    // If no Sanskrit detected, start right after the verse header line
+    const startIndex = translitStartIndex !== -1 ? translitStartIndex : 1;
+    if (startIndex < lines.length) {
+      for (let i = startIndex; i < lines.length; i++) {
+        // Remove simple HTML tags if present, then trim
+        const rawLine = lines[i];
+        const line = rawLine.replace(/<[^>]+>/g, '').trim();
+
+        // Stop if we hit any section header (synonyms/translation/commentary)
+        if (
+          anySynonyms.test(line) ||
+          anyTranslation.test(line) ||
+          anyCommentary.test(line)
+        ) {
+          break;
+        }
+
+        // Collect non-empty lines (skip obvious headers/labels)
+        if (
+          line &&
+          !/^(?:ВІРШ|ТЕКСТ|МАНТРА|MANTRA|ПОСЛІВНИЙ|WORD FOR WORD|ПЕРЕКЛАД|TRANSLATION|ПОЯСНЕННЯ|PURPORT)[:\-]?/i.test(
+            line
+          )
+        ) {
+          translitLines.push(line);
+        }
       }
     }
   }
-  
+
   if (translitLines.length > 0) {
     verse.transliteration = translitLines.join('\n');
   }
