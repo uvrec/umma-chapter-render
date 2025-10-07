@@ -213,6 +213,15 @@ export function splitIntoVerses(
 }
 
 function normalizeVerseNumber(raw: string): string {
+  // First check if it's a Ukrainian word
+  const normalized = raw.trim().replace(/['ʼ`]/g, "'").toUpperCase();
+  const numericValue = ukrainianNumberWords[normalized];
+  
+  if (numericValue !== undefined) {
+    return numericValue.toString();
+  }
+  
+  // Otherwise extract numeric value
   return raw.replace(/[^\d.-]/g, '').trim();
 }
 
