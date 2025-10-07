@@ -125,9 +125,23 @@ export function splitIntoChapters(
     
     const verses = splitIntoVerses(chapterText, template);
     
-    // Determine chapter type: if no verses, treat as text-only chapter
-    const chapterType: ChapterType = verses.length > 0 ? 'verses' : 'text';
-    const contentUa = verses.length === 0 ? chapterText.trim() : undefined;
+    // Determine chapter type: "Вступ" is text-only, all others with verses are verse chapters
+    let chapterType: ChapterType;
+    let contentUa: string | undefined;
+    
+    if (chapterNum === -1) {
+      // "Вступ" is always text-only
+      chapterType = 'text';
+      contentUa = chapterText.trim();
+    } else if (verses.length > 0) {
+      // Has verses, treat as verse chapter
+      chapterType = 'verses';
+      contentUa = undefined;
+    } else {
+      // No verses found, treat as text
+      chapterType = 'text';
+      contentUa = chapterText.trim();
+    }
     
     console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses, type: ${chapterType})`);
     
@@ -166,6 +180,7 @@ export function splitIntoVerses(
     console.log(`✅ Last verse:`, verseMatches[verseMatches.length - 1][0]);
   }
   console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
+  console.log(`📝 Full matches:`, verseMatches.map(m => ({ text: m[0], groups: m.slice(1) })));
   
   if (verseMatches.length === 0) {
     console.warn('⚠️ No verses found with main pattern. Trying fallback...');
@@ -196,7 +211,18 @@ export function splitIntoVerses(
   }
   
   verseMatches.forEach((match, index) => {
-    const verseNum = normalizeVerseNumber(match[1] || (index + 1).toString());
+    const fullMatch = match[0] || '';
+    let verseNum: string;
+    
+    // Special handling for "Звернення"
+    if (/^\s*(?:Звернення|ЗВЕРНЕННЯ)/i.test(fullMatch)) {
+      verseNum = '0';
+    } else {
+      // Extract the number part - could be in match[1] or need to be parsed from match[0]
+      const rawNumber = match[1] || match[0].replace(/^\s*(?:МАНТРА|MANTRA)\s+/i, '').trim();
+      verseNum = normalizeVerseNumber(rawNumber);
+    }
+    
     const startPos = match.index || 0;
     const endPos = verseMatches[index + 1]?.index || chapterText.length;
     const verseText = chapterText.substring(startPos, endPos);
