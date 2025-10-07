@@ -8,7 +8,8 @@ import { Card } from '@/components/ui/card';
 import { Header } from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { extractAllTerms, groupTermsByText, searchTerms, GlossaryTerm } from '@/utils/glossaryParser';
+import { extractAllTerms, groupTermsByText, searchTerms, calculateTermUsage, GlossaryTerm } from '@/utils/glossaryParser';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -83,9 +84,17 @@ export default function GlossaryDB() {
   // Extract and process terms
   const allTerms = extractAllTerms(versesData);
   const groupedTerms = groupTermsByText(allTerms);
+  const termsWithUsage = calculateTermUsage(allTerms);
 
-  // Get unique categories (books)
+  // Get unique categories (books) with term counts
   const categories = Array.from(new Set(allTerms.map(term => term.book))).sort();
+  const categoryTermCounts = categories.reduce((acc, category) => {
+    const uniqueTerms = new Set(
+      allTerms.filter(t => t.book === category).map(t => t.term.toLowerCase().trim())
+    );
+    acc[category] = uniqueTerms.size;
+    return acc;
+  }, {} as { [key: string]: number });
 
   // Filter and search terms
   let filteredAndSearchedTerms = allTerms;
@@ -112,10 +121,32 @@ export default function GlossaryDB() {
       <Header />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 text-center">
             {t('Глосарій', 'Glossary')}
           </h1>
+
+          {/* Statistics */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Card className="p-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary">{termsWithUsage.length}</div>
+                <div className="text-sm text-muted-foreground">{t('Унікальних термінів', 'Unique terms')}</div>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary">{allTerms.length}</div>
+                <div className="text-sm text-muted-foreground">{t('Всього використань', 'Total usages')}</div>
+              </div>
+            </Card>
+            <Card className="p-4">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-primary">{categories.length}</div>
+                <div className="text-sm text-muted-foreground">{t('Книг', 'Books')}</div>
+              </div>
+            </Card>
+          </div>
 
           <Card className="p-6 mb-8">
             <div className="space-y-4">
@@ -175,23 +206,40 @@ export default function GlossaryDB() {
               ) : (
                 Object.entries(displayTerms).map(([term, termsList]) => (
                   <Card key={term} className="p-6">
-                    <h3 className="text-xl font-semibold mb-4 text-primary">
-                      {term}
-                    </h3>
-                    <div className="space-y-4">
-                      {termsList.map((t, idx) => (
-                        <div key={idx} className="border-l-2 border-primary/30 pl-4">
-                          <p className="text-foreground mb-2">{t.meaning}</p>
-                          <div className="flex gap-4 text-sm text-muted-foreground">
-                            <span className="font-medium">{t.reference}</span>
-                            <span>•</span>
-                            <a 
-                              href={t.link} 
-                              className="text-primary hover:underline"
-                            >
-                              {t.book}
-                            </a>
+                    <div className="flex items-start justify-between mb-4">
+                      <h3 className="text-xl font-semibold text-primary">
+                        {term}
+                      </h3>
+                      <Badge variant="secondary" className="ml-2">
+                        {termsList.length} {t('використань', 'usages')}
+                      </Badge>
+                    </div>
+                    
+                    {/* Group meanings by book */}
+                    <div className="space-y-6">
+                      {Object.entries(
+                        termsList.reduce((acc, t) => {
+                          if (!acc[t.book]) acc[t.book] = [];
+                          acc[t.book].push(t);
+                          return acc;
+                        }, {} as { [book: string]: GlossaryTerm[] })
+                      ).map(([book, bookTerms]) => (
+                        <div key={book} className="space-y-2">
+                          <div className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
+                            {book}
+                            <Badge variant="outline" className="text-xs">{bookTerms.length}</Badge>
                           </div>
+                          {bookTerms.map((t, idx) => (
+                            <div key={idx} className="border-l-2 border-primary/30 pl-4 py-1">
+                              <p className="text-foreground mb-1">{t.meaning}</p>
+                              <a 
+                                href={t.link} 
+                                className="text-sm text-primary hover:underline"
+                              >
+                                {t.reference}
+                              </a>
+                            </div>
+                          ))}
                         </div>
                       ))}
                     </div>
@@ -214,7 +262,12 @@ export default function GlossaryDB() {
                         : 'hover:bg-muted'
                     }`}
                   >
-                    {t('Всі книги', 'All books')} ({allTerms.length})
+                    <div className="flex justify-between items-center">
+                      <span>{t('Всі книги', 'All books')}</span>
+                      <Badge variant={selectedCategory === 'all' ? 'outline' : 'secondary'}>
+                        {termsWithUsage.length}
+                      </Badge>
+                    </div>
                   </button>
                   {categories.map((category) => (
                     <button
@@ -226,9 +279,12 @@ export default function GlossaryDB() {
                           : 'hover:bg-muted'
                       }`}
                     >
-                      {category} (
-                        {allTerms.filter(t => t.book === category).length}
-                      )
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="truncate">{category}</span>
+                        <Badge variant={selectedCategory === category ? 'outline' : 'secondary'}>
+                          {categoryTermCounts[category]}
+                        </Badge>
+                      </div>
                     </button>
                   ))}
                 </div>

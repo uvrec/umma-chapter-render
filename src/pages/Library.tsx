@@ -135,6 +135,17 @@ export const Library = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        {/* Logo above banner */}
+        <div className="flex justify-center mb-8">
+          <div className="w-96 h-96">
+            <img 
+              src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
+              alt="Прабгупада солов'їною" 
+              className="w-full h-full object-contain drop-shadow-2xl"
+            />
+          </div>
+        </div>
+
         {/* Banner */}
         <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg">
           <img 
@@ -144,18 +155,7 @@ export const Library = () => {
           />
         </div>
 
-        <div className="text-center mb-8 relative">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-48 z-20">
-            <div className="w-96 h-96">
-              <img 
-                src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
-                alt="Прабгупада солов'їною" 
-                className="w-full h-full object-contain drop-shadow-2xl"
-              />
-            </div>
-          </div>
-          <div className="pt-64">
-          </div>
+        <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-4">Бібліотека</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Повна колекція ведичних писань з коментарями Його Божественної Милості А.Ч. Бхактіведанти Свамі Прабгупади

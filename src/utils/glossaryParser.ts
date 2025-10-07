@@ -9,6 +9,12 @@ export interface GlossaryTerm {
   verseNumber: string;
 }
 
+export interface GlossaryTermWithUsage {
+  term: string;
+  usageCount: number;
+  allOccurrences: GlossaryTerm[];
+}
+
 // Function to normalize text by removing diacritical marks
 export const normalizeSanskritText = (text: string): string => {
   if (!text) return '';
@@ -150,6 +156,30 @@ export const groupTermsByText = (terms: GlossaryTerm[]): { [key: string]: Glossa
   });
   
   return grouped;
+};
+
+// Calculate usage count for each unique term
+export const calculateTermUsage = (terms: GlossaryTerm[]): GlossaryTermWithUsage[] => {
+  const termMap = new Map<string, GlossaryTerm[]>();
+  
+  terms.forEach((term) => {
+    const key = term.term.toLowerCase().trim();
+    if (!termMap.has(key)) {
+      termMap.set(key, []);
+    }
+    termMap.get(key)!.push(term);
+  });
+  
+  const withUsage: GlossaryTermWithUsage[] = [];
+  termMap.forEach((occurrences, term) => {
+    withUsage.push({
+      term,
+      usageCount: occurrences.length,
+      allOccurrences: occurrences
+    });
+  });
+  
+  return withUsage.sort((a, b) => b.usageCount - a.usageCount);
 };
 
 // Search terms with different strategies and diacritic normalization

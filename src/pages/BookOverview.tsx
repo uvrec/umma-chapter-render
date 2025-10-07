@@ -156,7 +156,7 @@ export const BookOverview = () => {
                             <div className="text-center p-4">
                               <div className="text-6xl mb-4 text-primary">ॐ</div>
                               <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
-                                Пісня {canto.canto_number}
+                                {cantoTitle}
                               </div>
                             </div>
                           </div>
