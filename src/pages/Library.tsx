@@ -12,22 +12,42 @@ export const Library = () => {
   const { language } = useLanguage();
   
   // Fetch books from database
-  const { data: dbBooks = [] } = useQuery({
+  const { data: dbBooks = [], isLoading, error } = useQuery({
     queryKey: ['library-books'],
     queryFn: async () => {
+      console.log('📚 Fetching library books from database...');
       const { data, error } = await supabase
         .from('books')
         .select('*')
         .order('display_order', { ascending: true })
         .order('is_featured', { ascending: false })
         .order('title_ua');
-      if (error) throw error;
-      return data;
+      
+      if (error) {
+        console.error('❌ Error fetching library books:', error);
+        throw error;
+      }
+      
+      console.log('✅ Library books fetched:', data?.length || 0, 'books');
+      console.log('📖 Books data:', data);
+      return data || [];
     }
+  });
+
+  console.log('🔍 Library state:', { 
+    totalBooks: dbBooks?.length, 
+    isLoading, 
+    hasError: !!error,
+    dbBooks 
   });
 
   const classicBooks = dbBooks.filter(book => book.display_category === 'classics');
   const smallBooks = dbBooks.filter(book => book.display_category === 'small');
+  
+  console.log('📚 Filtered library books:', { 
+    classicBooks: classicBooks.length, 
+    smallBooks: smallBooks.length 
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -67,7 +87,20 @@ export const Library = () => {
             <div className="h-px bg-border flex-1"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Завантаження книг...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-destructive">Помилка завантаження книг. Спробуйте оновити сторінку.</p>
+            </div>
+          ) : classicBooks.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Основні писання поки що недоступні.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {classicBooks.map(book => {
               const title = language === 'ua' ? book.title_ua : book.title_en;
               const description = language === 'ua' ? book.description_ua : book.description_en;
@@ -118,6 +151,7 @@ export const Library = () => {
               );
             })}
           </div>
+          )}
         </section>
 
         {/* Small Books Section */}
@@ -128,7 +162,16 @@ export const Library = () => {
             <div className="h-px bg-border flex-1"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Завантаження книг...</p>
+            </div>
+          ) : smallBooks.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Малі книги поки що недоступні.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {smallBooks.map(book => {
               const title = language === 'ua' ? book.title_ua : book.title_en;
               const description = language === 'ua' ? book.description_ua : book.description_en;
@@ -172,6 +215,7 @@ export const Library = () => {
               );
             })}
           </div>
+          )}
         </section>
       </main>
     </div>
