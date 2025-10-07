@@ -71,11 +71,16 @@ export function splitIntoChapters(
   console.log(`📄 Sample text (first 500 chars):`, text.substring(0, 500));
   
   if (chapterMatches.length === 0) {
-    // If no chapter markers found, treat entire text as one chapter
+    console.warn('❌ No chapter markers found. Treating entire text as one chapter.');
+    const verses = splitIntoVerses(text, template);
+    if (verses.length === 0) {
+      console.error('❌ No verses found in entire text. Check template patterns!');
+      return [];
+    }
     return [{
       chapter_number: 1,
       title_ua: 'Розділ 1',
-      verses: splitIntoVerses(text, template)
+      verses: verses
     }];
   }
   
@@ -115,15 +120,25 @@ export function splitIntoChapters(
     
     const verses = splitIntoVerses(chapterText, template);
     
-    // Always include all chapters (don't filter by verse count)
-    chapters.push({
-      chapter_number: chapterNum,
-      title_ua: chapterTitle,
-      verses: verses
-    });
-    
     console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses)`);
+    
+    // Only include chapters with at least 1 verse to avoid false positives
+    if (verses.length > 0) {
+      chapters.push({
+        chapter_number: chapterNum,
+        title_ua: chapterTitle,
+        verses: verses
+      });
+    } else {
+      console.warn(`  ⚠️ Skipping Chapter ${chapterNum} - no verses found (likely not a real chapter)`);
+    }
   });
+  
+  console.log(`✅ Final result: ${chapters.length} valid chapters (out of ${chapterMatches.length} markers)`);
+  
+  if (chapters.length === 0) {
+    console.error('❌ No valid chapters with verses found. Check your file format and template patterns.');
+  }
   
   return chapters;
 }

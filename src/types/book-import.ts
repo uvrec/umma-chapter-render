@@ -59,7 +59,8 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|Послівний переклад)/mi,
     translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION|Переклад)/mi,
     commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|PURPORT|Пояснення)/mi,
-    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER|Глава|Розділ|Chapter)\s+([\dIVXа-яА-ЯіІїЇєЄ]+)/mi,
+    // Strict pattern: only numbers (1-999), Roman numerals (I-XX), or Ukrainian ordinals
+    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER|Глава|Розділ|Chapter)\s+(\d{1,3}|[IVXLCDM]+|ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|ДЕВ'ЯТНАДЦЯТА|ДВАДЦЯТА)\b/mi,
   },
   {
     id: 'sri-isopanishad',
