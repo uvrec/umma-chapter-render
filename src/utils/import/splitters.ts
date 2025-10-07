@@ -34,25 +34,6 @@ const ukrainianNumberWords: Record<string, number> = {
   'ТРИДЦЯТА': 30, 'ТРИДЦЯТИЙ': 30, 'ТРИДЦЯТЬ': 30,
 };
 
-// Roman numeral converter
-function romanToInt(roman: string): number | null {
-  const romanMap: { [key: string]: number } = {
-    'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000
-  };
-  let result = 0;
-  for (let i = 0; i < roman.length; i++) {
-    const current = romanMap[roman[i]];
-    const next = romanMap[roman[i + 1]];
-    if (current === undefined) return null;
-    if (next && current < next) {
-      result -= current;
-    } else {
-      result += current;
-    }
-  }
-  return result;
-}
-
 // Ensure regex has desired flags without losing Unicode support
 function withFlags(re: RegExp, extraFlags: string): RegExp {
   const set = new Set((re.flags + extraFlags).split(''));
@@ -104,16 +85,10 @@ export function splitIntoChapters(
     // Try to parse as number first
     let chapterNum = parseInt(rawNumber);
     
-    // If not a number, try Roman numerals
+    // If not a number, try Ukrainian words
     if (isNaN(chapterNum)) {
-      const normalized = rawNumber.trim().replace(/[’ʼ`]/g, "'").toUpperCase();
-      const romanNum = romanToInt(normalized);
-      if (romanNum) {
-        chapterNum = romanNum;
-      } else {
-        // Try Ukrainian words
-        chapterNum = ukrainianNumberWords[normalized] || (index + 1);
-      }
+      const normalized = rawNumber.trim().replace(/['ʼ`]/g, "'").toUpperCase();
+      chapterNum = ukrainianNumberWords[normalized] || (index + 1);
     }
     
     const startPos = match.index || 0;
@@ -177,7 +152,30 @@ export function splitIntoVerses(
   console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
   
   if (verseMatches.length === 0) {
-    console.warn('No verse matches found. Returning 0 verses to avoid false positives.');
+    console.warn('⚠️ No verses found with main pattern. Trying fallback...');
+    // Fallback: try broader pattern for Srimad-Bhagavatam verses
+    const fallbackPattern = /^\s*(?:В[\u0406I]РШ|ТЕКСТ)\s+(\d+)/gmi;
+    const fallbackMatches = [...chapterText.matchAll(fallbackPattern)];
+    console.log(`🔄 Fallback found ${fallbackMatches.length} verses`);
+    
+    if (fallbackMatches.length === 0) {
+      console.warn('❌ Still no verses found. Returning empty array.');
+      return verses;
+    }
+    
+    // Process fallback matches
+    fallbackMatches.forEach((match, index) => {
+      const verseNum = normalizeVerseNumber(match[1] || (index + 1).toString());
+      const startPos = match.index || 0;
+      const endPos = fallbackMatches[index + 1]?.index || chapterText.length;
+      const verseText = chapterText.substring(startPos, endPos);
+      
+      const verse = parseVerse(verseNum, verseText, template);
+      if (verse.verse_number) {
+        verses.push(verse);
+      }
+    });
+    
     return verses;
   }
   

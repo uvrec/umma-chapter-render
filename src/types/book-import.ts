@@ -62,12 +62,11 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
   {
     id: 'srimad-bhagavatam',
     name: 'Шрімад-Бгагаватам',
-    versePattern: /^\s*(?:ВІРШ|ТЕКСТ|TEXT|VERSE|Вірш|Текст|Text|Verse)\s+(\d+)/mi,
+    versePattern: /^\s*(?:В[ІI]РШ|ТЕКСТ)\s+(\d+)/mi,
     synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|Послівний переклад)/mi,
     translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION|Переклад)/mi,
     commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|PURPORT|Пояснення)/mi,
-    // Robust pattern: numbers, Roman numerals, or Ukrainian words (supports typographic apostrophes). Word boundary via lookahead.
-    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER)\s+(\d{1,3}|[IVXLCDM]+|[A-Za-zА-Яа-яІіЇїЄєҐґ’'ʼ-]+)(?=\s|:|$)/mi,
+    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|\d{1,3})(?=\s|$)/mi,
   },
   {
     id: 'sri-isopanishad',
