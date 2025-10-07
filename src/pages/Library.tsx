@@ -145,7 +145,7 @@ export const Library = () => {
         </div>
 
         <div className="text-center mb-8 relative">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-32 z-10">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-48 z-20">
             <div className="w-96 h-96">
               <img 
                 src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
@@ -154,7 +154,7 @@ export const Library = () => {
               />
             </div>
           </div>
-          <div className="pt-48">
+          <div className="pt-64">
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-4">Бібліотека</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

@@ -202,23 +202,28 @@ export const VerseCard = ({
                 {synonyms.split(/[;,]/).map((part, index) => {
                   const cleanPart = part.trim();
                   if (cleanPart.includes(' – ') || cleanPart.includes(' — ')) {
-                    const [term, meaning] = cleanPart.split(/\s[–—]\s/);
-                    const words = term.trim().split(/[\s-]+/).filter(w => w.length > 0);
+                    const separator = cleanPart.includes(' – ') ? ' – ' : ' — ';
+                    const [term, meaning] = cleanPart.split(separator);
+                    const trimmedTerm = term.trim();
+                    const trimmedMeaning = meaning.trim();
+                    
+                    // Split terms by spaces or hyphens but preserve hyphenated words
+                    const words = trimmedTerm.split(/\s+/).filter(w => w.length > 0);
+                    
                     return (
                       <span key={index}>
                         {words.map((word, wordIndex) => (
                           <span key={wordIndex}>
                             <span 
-                              className="cursor-pointer hover:underline font-sanskrit-italic italic" 
-                              style={{ color: 'hsl(var(--sanskrit-term-color))' }}
+                              className="cursor-pointer hover:underline font-sanskrit-italic italic text-primary hover:text-primary/80" 
                               onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank', 'noopener,noreferrer')}
                             >
                               {word}
                             </span>
-                            {wordIndex < words.length - 1 && (term.includes('-') ? '-' : ' ')}
+                            {wordIndex < words.length - 1 && ' '}
                           </span>
                         ))}
-                        <span> — {meaning.trim()}</span>
+                        <span> — {trimmedMeaning}</span>
                         {index < synonyms.split(/[;,]/).length - 1 && '; '}
                       </span>
                     );

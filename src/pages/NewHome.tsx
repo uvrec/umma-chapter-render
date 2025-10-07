@@ -73,133 +73,6 @@ export const NewHome = () => {
         </div>
       </section>
       
-      {/* Latest Uploads Section */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
-            Останні завантаження
-          </h2>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Sample audiobook cards - showing only 2 latest */}
-            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center">
-                  <Play className="w-12 h-12 text-primary" />
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    2 год 15 хв
-                  </Badge>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  Шрімад-Бгаґаватам 1.1.1-10
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Початок великого епосу ведичної мудрості з коментарями А.Ч. Бгакті­веданти Свамі Прабгупади
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="w-4 h-4" />
-                    Прабгупада
-                  </div>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/audio/audiobooks">
-                      <Play className="w-4 h-4 mr-1" />
-                      Слухати
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center">
-                  <Play className="w-12 h-12 text-primary" />
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    1 год 45 хв
-                  </Badge>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  Бгаґавад-ґіта 2.1-10
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Арджуна на полі битви - початок найвідомішого духовного діалогу в історії людства
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="w-4 h-4" />
-                    Прабгупада
-                  </div>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/audio/audiobooks">
-                      <Play className="w-4 h-4 mr-1" />
-                      Слухати
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-      
-      {/* Features Section */}
-      <section className="py-16 bg-muted/20">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <BookOpen className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Бібліотека</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Повна колекція ведичних текстів з коментарями та перекладами українською мовою
-                </p>
-                <Button asChild className="mt-6" variant="outline">
-                  <Link to="/library">Перейти до бібліотеки</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Headphones className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Аудіокниги</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Слухайте ведичну мудрість у виконанні досвідчених читців та вчителів
-                </p>
-                <Button asChild className="mt-6" variant="outline">
-                  <Link to="/audio/audiobooks">Слухати аудіокниги</Link>
-                </Button>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="p-8">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Book className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Глосарій</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  Пояснення санскритських термінів та філософських понять
-                </p>
-                <Button asChild className="mt-6" variant="outline">
-                  <Link to="/glossary">Переглянути глосарій</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
       
       {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-primary/5 to-primary/10">
@@ -217,7 +90,7 @@ export const NewHome = () => {
               </Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/donation">
+              <Link to="/payment/other">
                 Підтримати проєкт
               </Link>
             </Button>
