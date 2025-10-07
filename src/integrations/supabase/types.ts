@@ -438,6 +438,7 @@ export type Database = {
         Row: {
           book_id: string
           canto_number: number
+          cover_image_url: string | null
           created_at: string | null
           description_en: string | null
           description_ua: string | null
@@ -448,6 +449,7 @@ export type Database = {
         Insert: {
           book_id: string
           canto_number: number
+          cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
           description_ua?: string | null
@@ -458,6 +460,7 @@ export type Database = {
         Update: {
           book_id?: string
           canto_number?: number
+          cover_image_url?: string | null
           created_at?: string | null
           description_en?: string | null
           description_ua?: string | null

@@ -63,17 +63,9 @@ export const BookOverview = () => {
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const bookDescription = language === 'ua' ? book?.description_ua : book?.description_en;
 
-  // Get canto cover image (only for Srimad-Bhagavatam)
-  const getCantoCoverImage = (cantoNumber: number) => {
-    if (bookId !== 'srimad-bhagavatam') return null;
-    
-    // Map canto numbers to cover images
-    const coverMap: Record<number, string> = {
-      1: '/lovable-uploads/a27b6c90-2f35-4ae5-a931-bc896bba6784.png',
-      2: '/lovable-uploads/3b875002-99ad-4bb7-9e0c-aa933b5780fa.png',
-    };
-    
-    return coverMap[cantoNumber] || null;
+  // Canto cover image comes from DB field if present
+  const getCantoCoverImage = (_cantoNumber: number) => {
+    return null;
   };
   if (isLoading) {
     return (
@@ -138,7 +130,7 @@ export const BookOverview = () => {
             {book?.has_cantos ? (
               // Display cantos as cards like in library
               cantos.map((canto) => {
-                const coverImage = getCantoCoverImage(canto.canto_number);
+                const coverImage = canto.cover_image_url || null;
                 const rawTitleUa = canto.title_ua || '';
                 const rawTitleEn = canto.title_en || '';
                 const cantoTitle = language === 'ua' ? rawTitleUa : rawTitleEn;

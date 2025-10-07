@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const AddEditCanto = () => {
@@ -24,6 +24,8 @@ const AddEditCanto = () => {
   const [titleEn, setTitleEn] = useState('');
   const [descriptionUa, setDescriptionUa] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
+  const [coverImageUrl, setCoverImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -53,6 +55,7 @@ const AddEditCanto = () => {
       setTitleEn(canto.title_en || '');
       setDescriptionUa(canto.description_ua || '');
       setDescriptionEn(canto.description_en || '');
+      setCoverImageUrl(canto.cover_image_url || '');
     }
   }, [canto]);
 
@@ -87,6 +90,45 @@ const AddEditCanto = () => {
     },
   });
 
+
+  // Image upload to Supabase Storage (reuses 'page-media' bucket)
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Помилка', description: 'Оберіть файл зображення', variant: 'destructive' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Помилка', description: 'Розмір файлу до 5MB', variant: 'destructive' });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const safeName = `${id || bookId || 'canto'}-${cantoNumber || Date.now()}`.replace(/[^a-zA-Z0-9-_]/g, '');
+      const path = `canto-covers/${safeName}.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('page-media')
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('page-media')
+        .getPublicUrl(path);
+
+      setCoverImageUrl(publicUrl);
+      toast({ title: 'Успіх', description: 'Обкладинку завантажено' });
+    } catch (err: any) {
+      toast({ title: 'Помилка', description: err.message, variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -105,6 +147,7 @@ const AddEditCanto = () => {
       title_en: titleEn,
       description_ua: descriptionUa || null,
       description_en: descriptionEn || null,
+      cover_image_url: coverImageUrl || null,
     });
   };
 
@@ -145,6 +188,57 @@ const AddEditCanto = () => {
                   placeholder="1"
                   required
                 />
+              </div>
+
+              {/* Cover image controls */}
+              <div className="space-y-4">
+                <Label>Обкладинка пісні</Label>
+
+                {coverImageUrl && (
+                  <div className="relative w-48 h-64 bg-muted rounded-lg overflow-hidden">
+                    <img src={coverImageUrl} alt="Canto cover preview" className="w-full h-full object-cover" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2"
+                      onClick={() => setCoverImageUrl('')}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploading}
+                    onClick={() => document.getElementById('canto-cover-upload')?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? 'Завантаження...' : 'Завантажити файл'}
+                  </Button>
+                  <input
+                    id="canto-cover-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="coverImageUrl" className="text-sm text-muted-foreground">
+                    Або введіть URL вручну
+                  </Label>
+                  <Input
+                    id="coverImageUrl"
+                    value={coverImageUrl}
+                    onChange={(e) => setCoverImageUrl(e.target.value)}
+                    placeholder="https://.../cover.jpg"
+                  />
+                </div>
               </div>
 
               <Tabs defaultValue="ua" className="w-full">
