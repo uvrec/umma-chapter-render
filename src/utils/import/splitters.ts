@@ -106,13 +106,13 @@ export function splitIntoChapters(
     
     // If not a number, try Roman numerals
     if (isNaN(chapterNum)) {
-      const upperRaw = rawNumber.toUpperCase().trim();
-      const romanNum = romanToInt(upperRaw);
+      const normalized = rawNumber.trim().replace(/[’ʼ`]/g, "'").toUpperCase();
+      const romanNum = romanToInt(normalized);
       if (romanNum) {
         chapterNum = romanNum;
       } else {
         // Try Ukrainian words
-        chapterNum = ukrainianNumberWords[upperRaw] || (index + 1);
+        chapterNum = ukrainianNumberWords[normalized] || (index + 1);
       }
     }
     
