@@ -90,16 +90,8 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Language Switcher, Theme Toggle, Login and Admin Button */}
+          {/* Theme Toggle, Login and Admin Button */}
           <div className="flex items-center gap-2 ml-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setLanguage(language === 'ua' ? 'en' : 'ua')}
-            >
-              <Languages className="w-4 h-4 mr-2" />
-              {language === 'ua' ? 'УКР' : 'ENG'}
-            </Button>
             <ThemeToggle />
             {!user && (
               <Button variant="outline" size="sm" asChild>
@@ -271,20 +263,6 @@ export const Header = () => {
               <Link to="/blog">
                 <FileText className="w-4 h-4 mr-2" />
                 Блог
-              </Link>
-            </Button>
-
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/contact">
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Контакти
-              </Link>
-            </Button>
-
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/donation">
-                <Heart className="w-4 h-4 mr-2" />
-                Підтримати
               </Link>
             </Button>
           </nav>

@@ -133,20 +133,43 @@ export const VedaReaderDB = () => {
     enabled: (isCantoMode ? !!canto?.id : !!book?.id)
   });
 
+  // Helper function to parse verse number for numeric sorting
+  const parseVerseNumber = (verseNumber: string): number[] => {
+    // Extract numbers from formats like "ШБ 1.1.10" or "1.1.10"
+    const match = verseNumber.match(/(\d+)\.(\d+)\.(\d+)/);
+    if (match) {
+      return [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])];
+    }
+    // Try simpler format like "1.10" or just "10"
+    const parts = verseNumber.split('.').map(p => parseInt(p.match(/\d+/)?.[0] || '0'));
+    return parts.length > 0 ? parts : [0];
+  };
+
   // Fetch verses
-  const { data: verses = [], isLoading } = useQuery({
+  const { data: rawVerses = [], isLoading } = useQuery({
     queryKey: ['verses', chapter?.id],
     queryFn: async () => {
       if (!chapter?.id) return [];
       const { data, error } = await supabase
         .from('verses')
         .select('*')
-        .eq('chapter_id', chapter.id)
-        .order('verse_number');
+        .eq('chapter_id', chapter.id);
       if (error) throw error;
       return data;
     },
     enabled: !!chapter?.id
+  });
+
+  // Sort verses numerically
+  const verses = [...rawVerses].sort((a, b) => {
+    const aParts = parseVerseNumber(a.verse_number);
+    const bParts = parseVerseNumber(b.verse_number);
+    for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+      const aVal = aParts[i] || 0;
+      const bVal = bParts[i] || 0;
+      if (aVal !== bVal) return aVal - bVal;
+    }
+    return 0;
   });
 
   // Mutation to update verse
@@ -268,7 +291,7 @@ export const VedaReaderDB = () => {
           items={isCantoMode ? [
             { label: t('Бібліотека', 'Library'), href: '/library' },
             { label: bookTitle || '', href: `/veda-reader/${bookId}` },
-            { label: `${t('Пісня', 'Canto')} ${cantoNumber}`, href: `/veda-reader/${bookId}/canto/${cantoNumber}` },
+            { label: `Пісня ${cantoNumber}`, href: `/veda-reader/${bookId}/canto/${cantoNumber}` },
             { label: chapterTitle || '' }
           ] : [
             { label: t('Бібліотека', 'Library'), href: '/library' },

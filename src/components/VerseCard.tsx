@@ -199,10 +199,10 @@ export const VerseCard = ({
               />
             ) : (
               <p className="text-[21px] text-foreground leading-relaxed">
-                {synonyms.split(';').map((part, index) => {
+                {synonyms.split(/[;,]/).map((part, index) => {
                   const cleanPart = part.trim();
-                  if (cleanPart.includes(' – ')) {
-                    const [term, meaning] = cleanPart.split(' – ');
+                  if (cleanPart.includes(' – ') || cleanPart.includes(' — ')) {
+                    const [term, meaning] = cleanPart.split(/\s[–—]\s/);
                     const words = term.trim().split(/[\s-]+/).filter(w => w.length > 0);
                     return (
                       <span key={index}>
@@ -219,11 +219,11 @@ export const VerseCard = ({
                           </span>
                         ))}
                         <span> — {meaning.trim()}</span>
-                        {index < synonyms.split(';').length - 1 && '; '}
+                        {index < synonyms.split(/[;,]/).length - 1 && '; '}
                       </span>
                     );
                   }
-                  return <span key={index}>{cleanPart}</span>;
+                  return <span key={index}>{cleanPart}{index < synonyms.split(/[;,]/).length - 1 && '; '}</span>;
                 })}
               </p>
             )}

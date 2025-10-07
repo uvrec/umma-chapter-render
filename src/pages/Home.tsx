@@ -66,64 +66,6 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Featured Sections */}
-      <section className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">Сарсті</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">скарб ачар'їв - це їхнє вані</p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Library Section */}
-            <Card className="group p-6 hover:shadow-lg transition-all cursor-pointer border-0 bg-card/50 backdrop-blur-sm">
-              <Link to="/library" className="block">
-                <div className="w-full aspect-square mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <BookOpen className="w-12 h-12 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                  Бібліотека
-                </h3>
-                
-              </Link>
-            </Card>
-
-            {/* Audiobooks Section */}
-            <Card className="group p-6 hover:shadow-lg transition-all cursor-pointer border-0 bg-card/50 backdrop-blur-sm">
-              <Link to="/audio/audiobooks" className="block">
-                <div className="w-full aspect-square mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Headphones className="w-12 h-12 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                  Аудіокниги
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Слухайте священні тексти у виконанні досвідчених наставників
-                </p>
-              </Link>
-            </Card>
-
-            {/* Glossary Section */}
-            <Card className="group p-6 hover:shadow-lg transition-all cursor-pointer border-0 bg-card/50 backdrop-blur-sm">
-              <Link to="/glossary" className="block">
-                <div className="w-full aspect-square mb-4 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-                  <Search className="w-12 h-12 text-primary" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                  Глосарій
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Словник санскритських термінів з детальними поясненнями
-                </p>
-              </Link>
-            </Card>
-
-            {/* Community Section */}
-            
-          </div>
-        </div>
-      </section>
-
       {/* Call to Action Section */}
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -137,9 +79,9 @@ export const Home = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link to="/donation">
+                <a href="https://send.monobank.ua/jar/3PZv1t9hAa" target="_blank" rel="noopener noreferrer">
                   Підтримати проект
-                </Link>
+                </a>
               </Button>
             </div>
           </div>

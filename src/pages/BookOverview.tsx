@@ -130,7 +130,7 @@ export const BookOverview = () => {
         <div className="mb-8">
           <h2 className="text-2xl font-semibold mb-4">
             {book?.has_cantos 
-              ? t('Cantos', 'Cantos')
+              ? t('Пісні', 'Cantos')
               : t('Глави', 'Chapters')
             }
           </h2>
@@ -156,7 +156,7 @@ export const BookOverview = () => {
                             <div className="text-center p-4">
                               <div className="text-6xl mb-4 text-primary">ॐ</div>
                               <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
-                                Canto {canto.canto_number}
+                                Пісня {canto.canto_number}
                               </div>
                             </div>
                           </div>
@@ -165,7 +165,7 @@ export const BookOverview = () => {
                     </div>
                     <CardContent className="p-4">
                       <p className="text-xs text-muted-foreground mb-1 text-center">
-                        Canto {canto.canto_number}
+                        Пісня {canto.canto_number}
                       </p>
                       <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
                         {cantoTitle}

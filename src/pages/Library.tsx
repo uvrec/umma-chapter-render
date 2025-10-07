@@ -127,8 +127,9 @@ const books: Book[] = [{
 }];
 
 export const Library = () => {
-  const classicBooks = books.filter(book => book.category === "classics");
-  const smallBooks = books.filter(book => book.category === "small");
+  const allowedIds = ['sb', 'bg', 'iso', 'nectar'];
+  const classicBooks = books.filter(book => book.category === "classics" && allowedIds.includes(book.id));
+  const smallBooks = books.filter(book => book.category === "small" && allowedIds.includes(book.id));
 
   return (
     <div className="min-h-screen bg-background">
@@ -143,15 +144,17 @@ export const Library = () => {
           />
         </div>
 
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-6">
-            <div className="w-24 h-24">
+        <div className="text-center mb-8 relative">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-32 z-10">
+            <div className="w-96 h-96">
               <img 
                 src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" 
                 alt="Прабгупада солов'їною" 
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain drop-shadow-2xl"
               />
             </div>
+          </div>
+          <div className="pt-48">
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-4">Бібліотека</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

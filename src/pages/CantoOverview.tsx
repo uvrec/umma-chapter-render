@@ -78,7 +78,7 @@ const CantoOverview = () => {
         <Header />
         <main className="container mx-auto px-4 py-8">
           <p className="text-center text-muted-foreground">
-            {language === 'ua' ? 'Пісню не знайдено' : 'Canto not found'}
+            Пісню не знайдено
           </p>
         </main>
       </div>
@@ -92,43 +92,46 @@ const CantoOverview = () => {
       <main className="container mx-auto px-4 py-8">
         <Breadcrumb
           items={[
-            { label: language === 'ua' ? 'Бібліотека' : 'Library', href: '/library' },
+            { label: 'Бібліотека', href: '/library' },
             { label: bookTitle || '', href: `/veda-reader/${bookId}` },
-            { label: `${language === 'ua' ? 'Пісня' : 'Canto'} ${cantoNumber}: ${cantoTitle}` },
+            { label: `Пісня ${cantoNumber}: ${cantoTitle}` },
           ]}
         />
 
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
-            {language === 'ua' ? 'Пісня' : 'Canto'} {cantoNumber}: {cantoTitle}
+            Пісня {cantoNumber}: {cantoTitle}
           </h1>
           {cantoDescription && (
             <p className="text-lg text-muted-foreground">{cantoDescription}</p>
           )}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-3">
           {chapters && chapters.length > 0 ? (
             chapters.map((chapter) => (
               <Link
                 key={chapter.id}
                 to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}`}
+                className="block"
               >
-                <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardHeader>
-                    <CardTitle>
-                      {language === 'ua' ? 'Розділ' : 'Chapter'} {chapter.chapter_number}
-                    </CardTitle>
-                    <CardDescription>
-                      {language === 'ua' ? chapter.title_ua : chapter.title_en}
-                    </CardDescription>
+                <Card className="hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer">
+                  <CardHeader className="py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="text-primary font-semibold min-w-[80px]">
+                        Глава {chapter.chapter_number}
+                      </div>
+                      <CardDescription className="text-base">
+                        {language === 'ua' ? chapter.title_ua : chapter.title_en}
+                      </CardDescription>
+                    </div>
                   </CardHeader>
                 </Card>
               </Link>
             ))
           ) : (
             <p className="col-span-full text-center text-muted-foreground">
-              {language === 'ua' ? 'Ще немає глав' : 'No chapters yet'}
+              Ще немає глав
             </p>
           )}
         </div>
