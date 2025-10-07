@@ -53,13 +53,20 @@ function romanToInt(roman: string): number | null {
   return result;
 }
 
+// Ensure regex has desired flags without losing Unicode support
+function withFlags(re: RegExp, extraFlags: string): RegExp {
+  const set = new Set((re.flags + extraFlags).split(''));
+  const flags = Array.from(set).join('');
+  return new RegExp(re.source, flags);
+}
+
 export function splitIntoChapters(
   text: string,
   template: ImportTemplate
 ): ParsedChapter[] {
   const chapters: ParsedChapter[] = [];
-  // Use the pattern directly - it's already a RegExp
-  const pattern = new RegExp(template.chapterPattern.source, 'gmi');
+  // Use template pattern and ensure global + unicode flags are present
+  const pattern = withFlags(template.chapterPattern, 'gu');
   const chapterMatches = [...text.matchAll(pattern)];
   
   console.log('🔍 Looking for chapters with pattern:', template.chapterPattern);
@@ -157,8 +164,8 @@ export function splitIntoVerses(
   template: ImportTemplate
 ): ParsedVerse[] {
   const verses: ParsedVerse[] = [];
-  // Use the pattern directly - it's already a RegExp
-  const pattern = new RegExp(template.versePattern.source, 'gmi');
+  // Ensure global + unicode flags for verse regex
+  const pattern = withFlags(template.versePattern, 'gu');
   const verseMatches = [...chapterText.matchAll(pattern)];
   
   console.log(`🔍 Verse pattern:`, template.versePattern);
