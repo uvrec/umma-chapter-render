@@ -395,8 +395,11 @@ export type Database = {
           created_at: string
           description_en: string | null
           description_ua: string | null
+          display_category: string | null
           has_cantos: boolean | null
           id: string
+          is_featured: boolean | null
+          purchase_url: string | null
           slug: string
           title_en: string
           title_ua: string
@@ -406,8 +409,11 @@ export type Database = {
           created_at?: string
           description_en?: string | null
           description_ua?: string | null
+          display_category?: string | null
           has_cantos?: boolean | null
           id?: string
+          is_featured?: boolean | null
+          purchase_url?: string | null
           slug: string
           title_en: string
           title_ua: string
@@ -417,8 +423,11 @@ export type Database = {
           created_at?: string
           description_en?: string | null
           description_ua?: string | null
+          display_category?: string | null
           has_cantos?: boolean | null
           id?: string
+          is_featured?: boolean | null
+          purchase_url?: string | null
           slug?: string
           title_en?: string
           title_ua?: string

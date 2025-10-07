@@ -1,6 +1,6 @@
 import { ParsedChapter, ParsedVerse, ImportTemplate } from '@/types/book-import';
 
-// Ukrainian number words to numeric mapping
+// Ukrainian number words to numeric mapping (extended)
 const ukrainianNumberWords: Record<string, number> = {
   'ПЕРША': 1, 'ПЕРШИЙ': 1, 'ОДНА': 1, 'ОДИН': 1,
   'ДРУГА': 2, 'ДРУГИЙ': 2, 'ДВА': 2, 'ДВІ': 2,
@@ -21,7 +21,37 @@ const ukrainianNumberWords: Record<string, number> = {
   'СІМНАДЦЯТА': 17, 'СІМНАДЦЯТИЙ': 17,
   'ВІСІМНАДЦЯТА': 18, 'ВІСІМНАДЦЯТИЙ': 18,
   'ДЕВ\'ЯТНАДЦЯТА': 19, 'ДЕВ\'ЯТНАДЦЯТИЙ': 19,
+  'ДВАДЦЯТА': 20, 'ДВАДЦЯТИЙ': 20, 'ДВАДЦЯТЬ': 20,
+  'ДВАДЦЯТЬ ПЕРША': 21, 'ДВАДЦЯТЬ ПЕРШИЙ': 21,
+  'ДВАДЦЯТЬ ДРУГА': 22, 'ДВАДЦЯТЬ ДРУГИЙ': 22,
+  'ДВАДЦЯТЬ ТРЕТЯ': 23, 'ДВАДЦЯТЬ ТРЕТІЙ': 23,
+  'ДВАДЦЯТЬ ЧЕТВЕРТА': 24, 'ДВАДЦЯТЬ ЧЕТВЕРТИЙ': 24,
+  'ДВАДЦЯТЬ П\'ЯТА': 25, 'ДВАДЦЯТЬ П\'ЯТИЙ': 25,
+  'ДВАДЦЯТЬ ШОСТА': 26, 'ДВАДЦЯТЬ ШОСТИЙ': 26,
+  'ДВАДЦЯТЬ СЬОМА': 27, 'ДВАДЦЯТЬ СЬОМИЙ': 27,
+  'ДВАДЦЯТЬ ВОСЬМА': 28, 'ДВАДЦЯТЬ ВОСЬМИЙ': 28,
+  'ДВАДЦЯТЬ ДЕВ\'ЯТА': 29, 'ДВАДЦЯТЬ ДЕВ\'ЯТИЙ': 29,
+  'ТРИДЦЯТА': 30, 'ТРИДЦЯТИЙ': 30, 'ТРИДЦЯТЬ': 30,
 };
+
+// Roman numeral converter
+function romanToInt(roman: string): number | null {
+  const romanMap: { [key: string]: number } = {
+    'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000
+  };
+  let result = 0;
+  for (let i = 0; i < roman.length; i++) {
+    const current = romanMap[roman[i]];
+    const next = romanMap[roman[i + 1]];
+    if (current === undefined) return null;
+    if (next && current < next) {
+      result -= current;
+    } else {
+      result += current;
+    }
+  }
+  return result;
+}
 
 export function splitIntoChapters(
   text: string,
@@ -53,34 +83,44 @@ export function splitIntoChapters(
     // Try to parse as number first
     let chapterNum = parseInt(rawNumber);
     
-    // If not a number, try Ukrainian words
+    // If not a number, try Roman numerals
     if (isNaN(chapterNum)) {
       const upperRaw = rawNumber.toUpperCase().trim();
-      chapterNum = ukrainianNumberWords[upperRaw] || (index + 1);
+      const romanNum = romanToInt(upperRaw);
+      if (romanNum) {
+        chapterNum = romanNum;
+      } else {
+        // Try Ukrainian words
+        chapterNum = ukrainianNumberWords[upperRaw] || (index + 1);
+      }
     }
     
     const startPos = match.index || 0;
     const endPos = chapterMatches[index + 1]?.index || text.length;
     const chapterText = text.substring(startPos, endPos);
     
-    // Extract chapter title (next 1-2 lines after "ГЛАВА X")
-    const titleMatch = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER).+?\n(.+?)(?:\n|$)/mi);
-    const chapterTitle = titleMatch ? titleMatch[1].trim() : `Глава ${chapterNum}`;
+    // Extract chapter title - try "ГЛАВА N: Назва" and "ГЛАВА N\nНазва" formats
+    let chapterTitle = `Глава ${chapterNum}`;
+    const titleMatch1 = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER)[^\n]*?:\s*(.+?)(?:\n|$)/mi);
+    if (titleMatch1) {
+      chapterTitle = titleMatch1[1].trim();
+    } else {
+      const titleMatch2 = chapterText.match(/^(?:ГЛАВА|РОЗДІЛ|CHAPTER)[^\n]*?\n\s*([А-ЯІЇЄҐа-яіїєґ][^\n]+?)(?:\n|$)/mi);
+      if (titleMatch2) {
+        chapterTitle = titleMatch2[1].trim();
+      }
+    }
     
     const verses = splitIntoVerses(chapterText, template);
     
-    // Filter out chapters with too few verses (intro sections)
-    if (verses.length >= 3) {
-      chapters.push({
-        chapter_number: chapterNum,
-        title_ua: chapterTitle,
-        verses: verses
-      });
-      
-      console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses)`);
-    } else {
-      console.log(`⏭️ Skipping section with ${verses.length} verses (likely intro)`);
-    }
+    // Always include all chapters (don't filter by verse count)
+    chapters.push({
+      chapter_number: chapterNum,
+      title_ua: chapterTitle,
+      verses: verses
+    });
+    
+    console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses)`);
   });
   
   return chapters;

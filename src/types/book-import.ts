@@ -50,7 +50,7 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     synonymsPattern: /^(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|Послівний переклад)/mi,
     translationPattern: /^(?:ПЕРЕКЛАД|TRANSLATION|Переклад)/mi,
     commentaryPattern: /^(?:ПОЯСНЕННЯ|PURPORT|Пояснення)/mi,
-    chapterPattern: /^(?:РОЗДІЛ|CHAPTER)\s+(\d+)/mi,
+    chapterPattern: /^(?:ГЛАВА|РОЗДІЛ|CHAPTER)\s+(\d+)/mi,
   },
   {
     id: 'srimad-bhagavatam',

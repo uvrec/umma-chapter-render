@@ -79,18 +79,22 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
   termPairs.forEach((pair) => {
     const trimmedPair = pair.trim();
     
-    // Try both en dash (–) and em dash (—) as separators
-    let dashIndex = trimmedPair.indexOf(' – ');
-    let separator = ' – ';
+    // Try all separator variations: regular dash, en dash, em dash with optional spaces and newlines
+    const separators = [' – ', ' — ', ' - ', '–', '—', '-', ' –\n', ' —\n', ' -\n', '–\n', '—\n', '-\n'];
+    let dashIndex = -1;
+    let separator = '';
     
-    if (dashIndex === -1) {
-      dashIndex = trimmedPair.indexOf(' — ');
-      separator = ' — ';
+    for (const sep of separators) {
+      dashIndex = trimmedPair.indexOf(sep);
+      if (dashIndex !== -1) {
+        separator = sep;
+        break;
+      }
     }
     
     if (dashIndex !== -1) {
       const term = trimmedPair.substring(0, dashIndex).trim();
-      const meaning = trimmedPair.substring(dashIndex + separator.length).trim();
+      const meaning = trimmedPair.substring(dashIndex + separator.length).trim().replace(/^\n+/, '');
       
       if (term && meaning) {
         // Generate link based on verse number

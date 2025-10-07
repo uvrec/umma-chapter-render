@@ -168,7 +168,7 @@ export const BookOverview = () => {
                         Пісня {canto.canto_number}
                       </p>
                       <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
-                        {cantoTitle}
+                        {cantoTitle || `Пісня ${canto.canto_number}`}
                       </h3>
                       {cantoDescription && (
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-3 text-center font-light">
