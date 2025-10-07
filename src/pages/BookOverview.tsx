@@ -7,9 +7,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import srimadBhagavatam1Cover from '@/assets/srimad-bhagavatam-1-cover.webp';
-import srimadBhagavatam2Cover from '@/assets/srimad-bhagavatam-2-cover.webp';
-
 export const BookOverview = () => {
   const { bookId } = useParams();
   const { language, t } = useLanguage();
@@ -66,16 +63,10 @@ export const BookOverview = () => {
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const bookDescription = language === 'ua' ? book?.description_ua : book?.description_en;
 
-  // Map canto numbers to cover images for Srimad-Bhagavatam
-  const getCantoCoverImage = (cantoNumber: number) => {
-    if (bookId !== 'srimad-bhagavatam') return null;
-    const coverMap: { [key: number]: string } = {
-      1: srimadBhagavatam1Cover,
-      2: srimadBhagavatam2Cover,
-    };
-    return coverMap[cantoNumber] || null;
+  // For this book overview we do not display canto cover images
+  const getCantoCoverImage = (_cantoNumber: number) => {
+    return null;
   };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -104,7 +95,7 @@ export const BookOverview = () => {
         <div className="mt-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Book cover */}
-            {book?.cover_image_url && (
+            {book?.cover_image_url && bookId !== 'srimad-bhagavatam' && (
               <div className="lg:w-1/3">
                 <img 
                   src={book.cover_image_url} 
@@ -140,36 +131,44 @@ export const BookOverview = () => {
               // Display cantos as cards like in library
               cantos.map((canto) => {
                 const coverImage = getCantoCoverImage(canto.canto_number);
-                const cantoTitle = language === 'ua' ? canto.title_ua : canto.title_en;
+                const rawTitleUa = canto.title_ua || '';
+                const rawTitleEn = canto.title_en || '';
+                const cantoTitle = language === 'ua' ? rawTitleUa : rawTitleEn;
                 const cantoDescription = language === 'ua' ? canto.description_ua : canto.description_en;
+
+                // Hide generic ordinal-only titles like "Перша пісня", "Друга пісня" to avoid duplication
+                const ordinalUa = /(Перша|Друга|Третя|Четверта|П'ята|П’ята|Шоста|Сьома|Восьма|Дев'ята|Дев’ята|Десята|Одинадцята|Одинадцята|Дванадцята)\s+пісня$/i;
+                const ordinalEn = /^canto\s+\d+$/i;
+                const normalizedTitle = cantoTitle && !(ordinalUa.test(cantoTitle) || ordinalEn.test(cantoTitle))
+                  ? cantoTitle
+                  : '';
                 
                 return (
                   <Card key={canto.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                     <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
-                      {coverImage ? (
-                        <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`} className="block w-full h-full">
-                          <img src={coverImage} alt={cantoTitle} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                        </Link>
-                      ) : (
-                        <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`} className="block w-full h-full">
-                          <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
-                            <div className="text-center p-4">
-                              <div className="text-6xl mb-4 text-primary">ॐ</div>
+                      {/* Always use gradient (no cover images) */}
+                      <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`} className="block w-full h-full">
+                        <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+                          <div className="text-center p-4">
+                            <div className="text-6xl mb-4 text-primary">ॐ</div>
+                            {normalizedTitle && (
                               <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
-                                {cantoTitle}
+                                {normalizedTitle}
                               </div>
-                            </div>
+                            )}
                           </div>
-                        </Link>
-                      )}
+                        </div>
+                      </Link>
                     </div>
                     <CardContent className="p-4">
                       <p className="text-xs text-muted-foreground mb-1 text-center">
                         Пісня {canto.canto_number}
                       </p>
-                      <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
-                        {cantoTitle || `Пісня ${canto.canto_number}`}
-                      </h3>
+                      {normalizedTitle && (
+                        <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
+                          {normalizedTitle}
+                        </h3>
+                      )}
                       {cantoDescription && (
                         <p className="text-sm text-muted-foreground mb-3 line-clamp-3 text-center font-light">
                           {cantoDescription}

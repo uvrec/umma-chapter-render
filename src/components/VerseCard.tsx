@@ -201,21 +201,31 @@ export const VerseCard = ({
               <p className="text-[21px] text-foreground leading-relaxed">
                 {synonyms.split(/[;,]/).map((part, index) => {
                   const cleanPart = part.trim();
-                  if (cleanPart.includes(' – ') || cleanPart.includes(' — ')) {
-                    const separator = cleanPart.includes(' – ') ? ' – ' : ' — ';
-                    const [term, meaning] = cleanPart.split(separator);
+
+                  // Support multiple separator variations (dash/en-dash/em-dash), optional spaces and line breaks
+                  const separators = [' – ', ' — ', ' - ', '–', '—', '-', ' –\n', ' —\n', ' -\n', '–\n', '—\n', '-\n'];
+                  let dashIndex = -1;
+                  let separator = '';
+                  for (const sep of separators) {
+                    dashIndex = cleanPart.indexOf(sep);
+                    if (dashIndex !== -1) { separator = sep; break; }
+                  }
+
+                  if (dashIndex !== -1) {
+                    const term = cleanPart.substring(0, dashIndex).trim();
+                    const meaning = cleanPart.substring(dashIndex + separator.length).trim().replace(/^\n+/, '');
                     const trimmedTerm = term.trim();
                     const trimmedMeaning = meaning.trim();
-                    
-                    // Split terms by spaces or hyphens but preserve hyphenated words
+
+                    // Split terms by spaces (preserve hyphenated words as one piece)
                     const words = trimmedTerm.split(/\s+/).filter(w => w.length > 0);
-                    
+
                     return (
                       <span key={index}>
                         {words.map((word, wordIndex) => (
                           <span key={wordIndex}>
-                            <span 
-                              className="cursor-pointer hover:underline font-sanskrit-italic italic text-primary hover:text-primary/80" 
+                            <span
+                              className="cursor-pointer hover:underline font-sanskrit-italic italic text-destructive hover:text-destructive/80"
                               onClick={() => window.open(`/glossary?search=${encodeURIComponent(word)}`, '_blank', 'noopener,noreferrer')}
                             >
                               {word}
@@ -228,7 +238,13 @@ export const VerseCard = ({
                       </span>
                     );
                   }
-                  return <span key={index}>{cleanPart}{index < synonyms.split(/[;,]/).length - 1 && '; '}</span>;
+
+                  return (
+                    <span key={index}>
+                      {cleanPart}
+                      {index < synonyms.split(/[;,]/).length - 1 && '; '}
+                    </span>
+                  );
                 })}
               </p>
             )}
