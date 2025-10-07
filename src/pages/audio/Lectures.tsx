@@ -5,6 +5,7 @@ import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ArrowLeft, Mic, Calendar, Clock } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 
 export const Lectures = () => {
   const lecturePlaylists = [
@@ -12,7 +13,7 @@ export const Lectures = () => {
       id: "prabhupada-bg",
       title: "Лекції з Бгаґавад-ґіти",
       description: "Глибокі роз'яснення Шріли Прабгупади на вірші Бгаґавад-ґіти",
-      cover: "/src/assets/bhagavad-gita-cover.webp",
+      cover: bhagavadGitaCover,
       author: "Шріла Прабгупада",
       date: "1966-1977",
       duration: "45+ годин",

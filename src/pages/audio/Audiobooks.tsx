@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Clock, Play, Star } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 
 export const Audiobooks = () => {
   const audiobooks = [
@@ -13,7 +14,7 @@ export const Audiobooks = () => {
       title: "Бгаґавад-ґіта як вона є",
       author: "Шріла Прабгупада",
       description: "Повний переклад та коментарі до найважливішого твору ведичної літератури",
-      cover: "/src/assets/bhagavad-gita-cover.webp",
+      cover: bhagavadGitaCover,
       duration: "18 годин 45 хв",
       chapters: 18,
       rating: 4.9,

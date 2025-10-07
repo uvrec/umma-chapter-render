@@ -5,6 +5,7 @@ import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ArrowLeft, Podcast as PodcastIcon, Calendar, Users } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 
 export const Podcasts = () => {
   const podcasts = [
@@ -47,7 +48,7 @@ export const Podcasts = () => {
       id: "bhagavad-gita-discussions",
       title: "Обговорення Бгаґавад-ґіти",
       description: "Детальний розбір віршів з найважливішого ведичного твору",
-      cover: "/src/assets/bhagavad-gita-cover.webp",
+      cover: bhagavadGitaCover,
       host: "Експерти з ведичної літератури",
       year: "2024",
       category: "Писання",

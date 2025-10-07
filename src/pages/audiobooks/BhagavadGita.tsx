@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 
 const tracks = [
   { id: "sb-1-1-1", title: "Шрімад-Бгаґаватам 1.1.1", duration: "5:32", src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%D2%91%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3" },
@@ -53,7 +54,7 @@ export const BhagavadGita = () => {
               <Card className="p-6">
                 <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
                   <img 
-                    src="/src/assets/bhagavad-gita.jpg" 
+                    src={bhagavadGitaCover} 
                     alt="Бгагавад-гіта обкладинка" 
                     className="w-full h-full object-cover"
                   />
@@ -109,7 +110,7 @@ export const BhagavadGita = () => {
               <PlaylistPlayer 
                 tracks={tracks} 
                 title="Бгагавад-гіта як вона є"
-                albumCover="/src/assets/bhagavad-gita-cover.webp"
+                albumCover={bhagavadGitaCover}
               />
             </div>
           </div>

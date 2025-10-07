@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Headphones, User } from "lucide-react";
 import srimadBhagavatam1Cover from "@/assets/srimad-bhagavatam-1-cover.webp";
-import bhagavadGitaCover from "@/assets/bhagavad-gita-cover.webp";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 import srimadBhagavatam2Cover from "@/assets/srimad-bhagavatam-2-cover.webp";
 import krishnaSupremePersonCover from "@/assets/krishna-supreme-person-cover.webp";
 
