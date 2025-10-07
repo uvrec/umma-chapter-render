@@ -63,9 +63,17 @@ export const BookOverview = () => {
   const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
   const bookDescription = language === 'ua' ? book?.description_ua : book?.description_en;
 
-  // For this book overview we do not display canto cover images
-  const getCantoCoverImage = (_cantoNumber: number) => {
-    return null;
+  // Get canto cover image (only for Srimad-Bhagavatam)
+  const getCantoCoverImage = (cantoNumber: number) => {
+    if (bookId !== 'srimad-bhagavatam') return null;
+    
+    // Map canto numbers to cover images
+    const coverMap: Record<number, string> = {
+      1: '/lovable-uploads/a27b6c90-2f35-4ae5-a931-bc896bba6784.png',
+      2: '/lovable-uploads/3b875002-99ad-4bb7-9e0c-aa933b5780fa.png',
+    };
+    
+    return coverMap[cantoNumber] || null;
   };
   if (isLoading) {
     return (
@@ -146,18 +154,25 @@ export const BookOverview = () => {
                 return (
                   <Card key={canto.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                     <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
-                      {/* Always use gradient (no cover images) */}
                       <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`} className="block w-full h-full">
-                        <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
-                          <div className="text-center p-4">
-                            <div className="text-6xl mb-4 text-primary">ॐ</div>
-                            {normalizedTitle && (
-                              <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
-                                {normalizedTitle}
-                              </div>
-                            )}
+                        {coverImage ? (
+                          <img 
+                            src={coverImage} 
+                            alt={cantoTitle}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+                            <div className="text-center p-4">
+                              <div className="text-6xl mb-4 text-primary">ॐ</div>
+                              {normalizedTitle && (
+                                <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
+                                  {normalizedTitle}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </Link>
                     </div>
                     <CardContent className="p-4">

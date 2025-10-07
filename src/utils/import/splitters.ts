@@ -58,7 +58,9 @@ export function splitIntoChapters(
   template: ImportTemplate
 ): ParsedChapter[] {
   const chapters: ParsedChapter[] = [];
-  const chapterMatches = [...text.matchAll(new RegExp(template.chapterPattern, 'gmi'))];
+  // Use the pattern directly - it's already a RegExp
+  const pattern = new RegExp(template.chapterPattern.source, 'gmi');
+  const chapterMatches = [...text.matchAll(pattern)];
   
   console.log('🔍 Looking for chapters with pattern:', template.chapterPattern);
   console.log(`📚 Found ${chapterMatches.length} chapter markers`);
@@ -131,7 +133,9 @@ export function splitIntoVerses(
   template: ImportTemplate
 ): ParsedVerse[] {
   const verses: ParsedVerse[] = [];
-  const verseMatches = [...chapterText.matchAll(new RegExp(template.versePattern, 'gmi'))];
+  // Use the pattern directly - it's already a RegExp
+  const pattern = new RegExp(template.versePattern.source, 'gmi');
+  const verseMatches = [...chapterText.matchAll(pattern)];
   
   console.log(`🔍 Verse pattern:`, template.versePattern);
   console.log(`📊 Found ${verseMatches.length} verse markers`);
