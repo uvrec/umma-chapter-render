@@ -131,17 +131,8 @@ export const BookOverview = () => {
               // Display cantos as cards like in library
               cantos.map((canto) => {
                 const coverImage = canto.cover_image_url || null;
-                const rawTitleUa = canto.title_ua || '';
-                const rawTitleEn = canto.title_en || '';
-                const cantoTitle = language === 'ua' ? rawTitleUa : rawTitleEn;
+                const cantoTitle = language === 'ua' ? canto.title_ua : canto.title_en;
                 const cantoDescription = language === 'ua' ? canto.description_ua : canto.description_en;
-
-                // Hide generic ordinal-only titles like "Перша пісня", "Друга пісня" to avoid duplication
-                const ordinalUa = /(Перша|Друга|Третя|Четверта|П'ята|П’ята|Шоста|Сьома|Восьма|Дев'ята|Дев’ята|Десята|Одинадцята|Одинадцята|Дванадцята)\s+пісня$/i;
-                const ordinalEn = /^canto\s+\d+$/i;
-                const normalizedTitle = cantoTitle && !(ordinalUa.test(cantoTitle) || ordinalEn.test(cantoTitle))
-                  ? cantoTitle
-                  : '';
                 
                 return (
                   <Card key={canto.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
@@ -157,9 +148,9 @@ export const BookOverview = () => {
                           <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
                             <div className="text-center p-4">
                               <div className="text-6xl mb-4 text-primary">ॐ</div>
-                              {normalizedTitle && (
+                              {cantoTitle && (
                                 <div className="text-lg font-semibold text-foreground/80 line-clamp-3">
-                                  {normalizedTitle}
+                                  {cantoTitle}
                                 </div>
                               )}
                             </div>
@@ -169,11 +160,11 @@ export const BookOverview = () => {
                     </div>
                     <CardContent className="p-4">
                       <p className="text-xs text-muted-foreground mb-1 text-center">
-                        Пісня {canto.canto_number}
+                        {language === 'ua' ? 'Пісня' : 'Canto'} {canto.canto_number}
                       </p>
-                      {normalizedTitle && (
+                      {cantoTitle && (
                         <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
-                          {normalizedTitle}
+                          {cantoTitle}
                         </h3>
                       )}
                       {cantoDescription && (
