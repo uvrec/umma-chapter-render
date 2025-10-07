@@ -182,19 +182,41 @@ export function splitIntoVerses(
   console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
   console.log(`📝 Full matches:`, verseMatches.map(m => ({ text: m[0], groups: m.slice(1) })));
   
+  // Try generic 'anywhere' fallback (remove leading ^) if nothing found
   if (verseMatches.length === 0) {
-    console.warn('⚠️ No verses found with main pattern. Trying fallback...');
-    // Fallback: try broader pattern for Srimad-Bhagavatam verses
+    console.warn('⚠️ No verses found with main pattern. Trying generic anywhere fallback...');
+    const anywhereSource = template.versePattern.source.replace(/^[\^]\s*/, '');
+    const anywhereBase = new RegExp(anywhereSource, template.versePattern.flags);
+    const anywherePattern = withFlags(anywhereBase, 'gu');
+    const anywhereMatches = [...chapterText.matchAll(anywherePattern)];
+    console.log(`🔄 Anywhere fallback found ${anywhereMatches.length} verses`);
+
+    if (anywhereMatches.length > 0) {
+      anywhereMatches.forEach((match, index) => {
+        const verseNum = normalizeVerseNumber(match[1] || (index + 1).toString());
+        const startPos = match.index || 0;
+        const endPos = anywhereMatches[index + 1]?.index || chapterText.length;
+        const verseText = chapterText.substring(startPos, endPos);
+        const verse = parseVerse(verseNum, verseText, template);
+        if (verse.verse_number) {
+          verses.push(verse);
+        }
+      });
+
+      return verses;
+    }
+
+    // Template-specific second fallback (legacy): Srimad-Bhagavatam "ВІРШ"/"ТЕКСТ"
     const fallbackPattern = /^\s*(?:В[\u0406I]РШ|ТЕКСТ)\s+(\d+)/gmi;
     const fallbackMatches = [...chapterText.matchAll(fallbackPattern)];
-    console.log(`🔄 Fallback found ${fallbackMatches.length} verses`);
+    console.log(`🔄 Legacy fallback found ${fallbackMatches.length} verses`);
     
     if (fallbackMatches.length === 0) {
       console.warn('❌ Still no verses found. Returning empty array.');
       return verses;
     }
     
-    // Process fallback matches
+    // Process legacy fallback matches
     fallbackMatches.forEach((match, index) => {
       const verseNum = normalizeVerseNumber(match[1] || (index + 1).toString());
       const startPos = match.index || 0;
