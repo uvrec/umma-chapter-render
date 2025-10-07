@@ -13,12 +13,25 @@ interface ChapterPickerStepProps {
 export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerStepProps) {
   const [selectedChapter, setSelectedChapter] = useState<ParsedChapter | null>(null);
 
-  // Sort all chapters by chapter number (include both verse and text chapters)
-  const validChapters = chapters.sort((a, b) => a.chapter_number - b.chapter_number);
+  // Build visible list without mutating props. Hide text-chapters that also have verse-chapters of the same number.
+  const verseChapters = [...chapters.filter(c => c.chapter_type === 'verses')].sort(
+    (a, b) => a.chapter_number - b.chapter_number
+  );
+  const textChapters = chapters.filter(c => c.chapter_type === 'text');
+  const verseNumbers = new Set(verseChapters.map(c => c.chapter_number));
+  const introTextChapters = [...textChapters]
+    .filter(c => !verseNumbers.has(c.chapter_number))
+    .sort((a, b) => a.chapter_number - b.chapter_number);
 
-  console.log(`📋 ChapterPicker: Displaying ${validChapters.length} chapters (${chapters.filter(c => c.chapter_type === 'verses').length} with verses, ${chapters.filter(c => c.chapter_type === 'text').length} text-only)`);
+  const visibleChapters = [...introTextChapters, ...verseChapters];
+  const versesCount = verseChapters.length;
+  const introCount = introTextChapters.length;
 
-  if (validChapters.length === 0) {
+  console.log(
+    `📋 ChapterPicker: visible ${visibleChapters.length} chapters (${versesCount} verses, ${introCount} intro text)`
+  );
+
+  if (visibleChapters.length === 0) {
     return (
       <div className="space-y-6">
         <div>
@@ -39,16 +52,17 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
       <div>
         <h2 className="text-xl font-bold mb-2">Крок 3: Вибір глави для імпорту</h2>
         <p className="text-muted-foreground">
-          Знайдено {validChapters.length} глав ({validChapters.filter(c => c.chapter_type === 'verses').length} з віршами, {validChapters.filter(c => c.chapter_type === 'text').length} текстових). Оберіть одну главу для імпорту.
+          Знайдено {visibleChapters.length} глав ({versesCount} з віршами, {introCount} текстових вступних). Оберіть одну главу для імпорту.
         </p>
       </div>
 
       <div className="grid gap-3 max-h-[500px] overflow-y-auto">
-        {validChapters.map((chapter) => (
+        {visibleChapters.map((chapter) => (
           <Card
-            key={chapter.chapter_number}
+            key={`${chapter.chapter_type}-${chapter.chapter_number}`}
             className={`p-4 cursor-pointer transition-colors ${
-              selectedChapter?.chapter_number === chapter.chapter_number
+              selectedChapter?.chapter_number === chapter.chapter_number &&
+                selectedChapter?.chapter_type === chapter.chapter_type
                 ? 'border-primary bg-primary/5'
                 : ''
             }`}
@@ -75,7 +89,8 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
                   </p>
                 </div>
               </div>
-              {selectedChapter?.chapter_number === chapter.chapter_number && (
+              {selectedChapter?.chapter_number === chapter.chapter_number &&
+                selectedChapter?.chapter_type === chapter.chapter_type && (
                 <div className="text-primary font-semibold">Обрано</div>
               )}
             </div>
