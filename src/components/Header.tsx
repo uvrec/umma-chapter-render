@@ -135,19 +135,6 @@ export const Header = () => {
                       <li>
                         <NavigationMenuLink asChild>
                           <Link
-                            to="/library/all"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium leading-none">Всі розділи</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Перегляд усіх книг та розділів
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
                             to="/library/prabhupada"
                             className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                           >
@@ -249,13 +236,6 @@ export const Header = () => {
                     )}
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
-                    <Link
-                      to="/library/all"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span>Всі розділи</span>
-                    </Link>
                     <Link
                       to="/library/prabhupada"
                       className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
