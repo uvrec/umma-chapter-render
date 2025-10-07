@@ -361,7 +361,7 @@ export const VedaReaderDB = () => {
               const verseIdx = getDisplayVerseNumber(verse.verse_number);
               const fullVerseNumber = isCantoMode 
                 ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
-                : `${chapterNumber}.${verseIdx}`;
+                : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
               
               return (
               <VerseCard
@@ -387,7 +387,7 @@ export const VedaReaderDB = () => {
               const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
               const fullVerseNumber = isCantoMode 
                 ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
-                : `${chapterNumber}.${verseIdx}`;
+                : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
               
               return (
               <div className="space-y-6">
