@@ -26,6 +26,7 @@ export default function AddEditBook() {
   const [descriptionEn, setDescriptionEn] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [hasCantos, setHasCantos] = useState(false);
+  const [displayOrder, setDisplayOrder] = useState(999);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function AddEditBook() {
       setDescriptionEn(book.description_en || "");
       setCoverImageUrl(book.cover_image_url || "");
       setHasCantos(book.has_cantos || false);
+      setDisplayOrder(book.display_order ?? 999);
     }
   }, [book]);
 
@@ -71,6 +73,7 @@ export default function AddEditBook() {
         description_en: descriptionEn || null,
         cover_image_url: coverImageUrl || null,
         has_cantos: hasCantos,
+        display_order: displayOrder,
       };
 
       if (id) {
@@ -191,15 +194,32 @@ export default function AddEditBook() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="slug">Slug (URL) *</Label>
-              <Input
-                id="slug"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                placeholder="srimad-bhagavatam"
-                required
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="slug">Slug (URL) *</Label>
+                <Input
+                  id="slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="srimad-bhagavatam"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="displayOrder">Порядок відображення</Label>
+                <Input
+                  id="displayOrder"
+                  type="number"
+                  value={displayOrder}
+                  onChange={(e) => setDisplayOrder(parseInt(e.target.value) || 999)}
+                  placeholder="999"
+                  min="0"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Менше число = вище в списку (0-10 для топу)
+                </p>
+              </div>
             </div>
 
             <div className="space-y-4">

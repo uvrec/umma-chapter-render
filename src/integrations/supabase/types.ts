@@ -396,6 +396,7 @@ export type Database = {
           description_en: string | null
           description_ua: string | null
           display_category: string | null
+          display_order: number | null
           has_cantos: boolean | null
           id: string
           is_featured: boolean | null
@@ -410,6 +411,7 @@ export type Database = {
           description_en?: string | null
           description_ua?: string | null
           display_category?: string | null
+          display_order?: number | null
           has_cantos?: boolean | null
           id?: string
           is_featured?: boolean | null
@@ -424,6 +426,7 @@ export type Database = {
           description_en?: string | null
           description_ua?: string | null
           display_category?: string | null
+          display_order?: number | null
           has_cantos?: boolean | null
           id?: string
           is_featured?: boolean | null

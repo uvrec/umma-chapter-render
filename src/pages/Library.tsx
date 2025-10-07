@@ -18,6 +18,7 @@ export const Library = () => {
       const { data, error } = await supabase
         .from('books')
         .select('*')
+        .order('display_order', { ascending: true })
         .order('is_featured', { ascending: false })
         .order('title_ua');
       if (error) throw error;
