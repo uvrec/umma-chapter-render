@@ -72,9 +72,9 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     id: 'sri-isopanishad',
     name: 'Шрі Ішопанішада',
     versePattern: /^\s*(?:(?:МАНТРА|MANTRA)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|\d+)|(Звернення|ЗВЕРНЕННЯ))/mi,
-    synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD)/mi,
-    translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION)/mi,
-    commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|PURPORT)/mi,
+    synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|СИНОНІМИ|WORD FOR WORD|SYNONYMS)\b[:\-]?/mi,
+    translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION)\b[:\-]?/mi,
+    commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|КОМЕНТАР(?:І|ІЙ)?|PURPORT|COMMENTARY|COMMENTARIES)\b[:\-]?/mi,
     chapterPattern: /^\s*(?:(?:МАНТРА|MANTRA)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|\d+)|(Вступ|Звернення|ВСТУП|ЗВЕРНЕННЯ))/mi,
   },
 ];
