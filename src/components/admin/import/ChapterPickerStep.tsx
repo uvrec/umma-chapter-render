@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ParsedChapter } from '@/types/book-import';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, FileText } from 'lucide-react';
 
 interface ChapterPickerStepProps {
   chapters: ParsedChapter[];
@@ -13,12 +13,10 @@ interface ChapterPickerStepProps {
 export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerStepProps) {
   const [selectedChapter, setSelectedChapter] = useState<ParsedChapter | null>(null);
 
-  // Filter out empty chapters and sort by chapter number
-  const validChapters = chapters
-    .filter(ch => ch.verses && ch.verses.length > 0)
-    .sort((a, b) => a.chapter_number - b.chapter_number);
+  // Sort all chapters by chapter number (include both verse and text chapters)
+  const validChapters = chapters.sort((a, b) => a.chapter_number - b.chapter_number);
 
-  console.log(`📋 ChapterPicker: Displaying ${validChapters.length} valid chapters (filtered from ${chapters.length} total)`);
+  console.log(`📋 ChapterPicker: Displaying ${validChapters.length} chapters (${chapters.filter(c => c.chapter_type === 'verses').length} with verses, ${chapters.filter(c => c.chapter_type === 'text').length} text-only)`);
 
   if (validChapters.length === 0) {
     return (
@@ -41,7 +39,7 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
       <div>
         <h2 className="text-xl font-bold mb-2">Крок 3: Вибір глави для імпорту</h2>
         <p className="text-muted-foreground">
-          Знайдено {validChapters.length} валідних глав з віршами. Оберіть одну главу для імпорту.
+          Знайдено {validChapters.length} глав ({validChapters.filter(c => c.chapter_type === 'verses').length} з віршами, {validChapters.filter(c => c.chapter_type === 'text').length} текстових). Оберіть одну главу для імпорту.
         </p>
       </div>
 
@@ -58,14 +56,22 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <BookOpen className="w-5 h-5 text-primary" />
+                {chapter.chapter_type === 'text' ? (
+                  <FileText className="w-5 h-5 text-blue-500" />
+                ) : (
+                  <BookOpen className="w-5 h-5 text-primary" />
+                )}
                 <div>
                   <p className="text-sm text-muted-foreground mb-1">
                     Глава {chapter.chapter_number}
+                    {chapter.chapter_type === 'text' && ' (текстова)'}
                   </p>
                   <h3 className="font-semibold">{chapter.title_ua}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {chapter.verses.length} віршів
+                    {chapter.chapter_type === 'verses' 
+                      ? `${chapter.verses.length} віршів`
+                      : `Текстова глава (${chapter.content_ua?.length || 0} символів)`
+                    }
                   </p>
                 </div>
               </div>

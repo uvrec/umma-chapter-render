@@ -106,10 +106,13 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
       if (existingChapter) {
         chapterId = existingChapter.id;
       } else {
-        const chapterInsert: any = {
+      const chapterInsert: any = {
           chapter_number: editedChapter.chapter_number,
+          chapter_type: editedChapter.chapter_type || 'verses',
           title_ua: editedChapter.title_ua,
           title_en: editedChapter.title_en,
+          content_ua: editedChapter.content_ua,
+          content_en: editedChapter.content_en,
         };
 
         // Set ONLY canto_id OR book_id (not both - constraint violation)
@@ -129,8 +132,9 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
         chapterId = newChapter.id;
       }
 
-      // Insert verses
-      const versesToInsert = editedChapter.verses.map((verse) => ({
+      // Insert verses (only for verse-type chapters)
+      if (editedChapter.chapter_type === 'verses' && editedChapter.verses.length > 0) {
+        const versesToInsert = editedChapter.verses.map((verse) => ({
         chapter_id: chapterId,
         verse_number: verse.verse_number,
         sanskrit: verse.sanskrit,
@@ -140,19 +144,22 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
         translation_ua: verse.translation_ua,
         translation_en: verse.translation_en,
         commentary_ua: sanitizeHtml(verse.commentary_ua || ''),
-        commentary_en: sanitizeHtml(verse.commentary_en || ''),
-      }));
+          commentary_en: sanitizeHtml(verse.commentary_en || ''),
+        }));
 
-      const { error: versesError } = await supabase
-        .from('verses')
-        .upsert(versesToInsert, {
-          onConflict: 'chapter_id,verse_number',
-          ignoreDuplicates: false,
-        });
+        const { error: versesError } = await supabase
+          .from('verses')
+          .upsert(versesToInsert, {
+            onConflict: 'chapter_id,verse_number',
+            ignoreDuplicates: false,
+          });
 
-      if (versesError) throw versesError;
+        if (versesError) throw versesError;
 
-      toast.success(`Імпортовано главу ${editedChapter.chapter_number} з ${editedChapter.verses.length} віршами`);
+        toast.success(`Імпортовано главу ${editedChapter.chapter_number} з ${editedChapter.verses.length} віршами`);
+      } else {
+        toast.success(`Імпортовано текстову главу ${editedChapter.chapter_number}`);
+      }
       onComplete();
     } catch (error) {
       console.error('Import error:', error);
@@ -231,12 +238,24 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
         </div>
       </Card>
 
-      <div>
-        <h3 className="font-semibold mb-3">
-          Вірші ({editedChapter.verses.length})
-        </h3>
-        <Accordion type="single" collapsible className="space-y-2">
-          {editedChapter.verses.map((verse, index) => (
+      {editedChapter.chapter_type === 'text' ? (
+        <div>
+          <h3 className="font-semibold mb-3">Текст глави</h3>
+          <Card className="p-4">
+            <InlineTiptapEditor
+              content={editedChapter.content_ua || ''}
+              onChange={(html) => setEditedChapter({ ...editedChapter, content_ua: html })}
+              label="Текст українською"
+            />
+          </Card>
+        </div>
+      ) : (
+        <div>
+          <h3 className="font-semibold mb-3">
+            Вірші ({editedChapter.verses.length})
+          </h3>
+          <Accordion type="single" collapsible className="space-y-2">
+            {editedChapter.verses.map((verse, index) => (
             <AccordionItem key={index} value={`verse-${index}`}>
               <AccordionTrigger className="hover:no-underline">
                 <div className="text-left">
@@ -292,10 +311,11 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
                   </div>
                 </div>
               </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </div>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      )}
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={onBack} disabled={isImporting}>

@@ -1,4 +1,4 @@
-import { ParsedChapter, ParsedVerse, ImportTemplate } from '@/types/book-import';
+import { ParsedChapter, ParsedVerse, ImportTemplate, ChapterType } from '@/types/book-import';
 
 // Ukrainian number words to numeric mapping (extended)
 const ukrainianNumberWords: Record<string, number> = {
@@ -74,11 +74,18 @@ export function splitIntoChapters(
     console.warn('❌ No chapter markers found. Treating entire text as one chapter.');
     const verses = splitIntoVerses(text, template);
     if (verses.length === 0) {
-      console.error('❌ No verses found in entire text. Check template patterns!');
-      return [];
+      console.warn('⚠️ No verses found. This may be a text-only chapter (preface/introduction).');
+      return [{
+        chapter_number: 1,
+        chapter_type: 'text',
+        title_ua: 'Розділ 1',
+        verses: [],
+        content_ua: text.trim()
+      }];
     }
     return [{
       chapter_number: 1,
+      chapter_type: 'verses',
       title_ua: 'Розділ 1',
       verses: verses
     }];
@@ -120,18 +127,20 @@ export function splitIntoChapters(
     
     const verses = splitIntoVerses(chapterText, template);
     
-    console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses)`);
+    // Determine chapter type: if no verses, treat as text-only chapter
+    const chapterType: ChapterType = verses.length > 0 ? 'verses' : 'text';
+    const contentUa = verses.length === 0 ? chapterText.trim() : undefined;
     
-    // Only include chapters with at least 1 verse to avoid false positives
-    if (verses.length > 0) {
-      chapters.push({
-        chapter_number: chapterNum,
-        title_ua: chapterTitle,
-        verses: verses
-      });
-    } else {
-      console.warn(`  ⚠️ Skipping Chapter ${chapterNum} - no verses found (likely not a real chapter)`);
-    }
+    console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses, type: ${chapterType})`);
+    
+    // Include all chapters, even if no verses (text-only chapters like prefaces)
+    chapters.push({
+      chapter_number: chapterNum,
+      chapter_type: chapterType,
+      title_ua: chapterTitle,
+      verses: verses,
+      content_ua: contentUa
+    });
   });
   
   console.log(`✅ Final result: ${chapters.length} valid chapters (out of ${chapterMatches.length} markers)`);

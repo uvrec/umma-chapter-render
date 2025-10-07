@@ -1,3 +1,5 @@
+export type ChapterType = 'verses' | 'text';
+
 export interface ParsedVerse {
   verse_number: string;
   sanskrit?: string;
@@ -12,9 +14,12 @@ export interface ParsedVerse {
 
 export interface ParsedChapter {
   chapter_number: number;
+  chapter_type: ChapterType;
   title_ua: string;
   title_en?: string;
   verses: ParsedVerse[];
+  content_ua?: string;
+  content_en?: string;
 }
 
 export interface ParsedBook {
@@ -61,8 +66,8 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|Послівний переклад)/mi,
     translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION|Переклад)/mi,
     commentaryPattern: /^\s*(?:ПОЯСНЕННЯ|PURPORT|Пояснення)/mi,
-    // Strict pattern: only numbers (1-999), Roman numerals (I-XX), or Ukrainian ordinals
-    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER|Глава|Розділ|Chapter)\s+(\d{1,3}|[IVXLCDM]+|ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|ДЕВ'ЯТНАДЦЯТА|ДВАДЦЯТА)\b/mi,
+    // Flexible pattern: numbers, Roman numerals, or Ukrainian ordinals (uppercase and lowercase)
+    chapterPattern: /^\s*(?:ГЛАВА|РОЗДІЛ|CHAPTER|Глава|Розділ|Chapter|глава|розділ|chapter)\s+(\d{1,3}|[IVXLCDM]+|ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|ДЕВ'ЯТНАДЦЯТА|ДВАДЦЯТА|перша|друга|третя|четверта|п'ята|шоста|сьома|восьма|дев'ята|десята|одинадцята|дванадцята|тринадцята|чотирнадцята|п'ятнадцята|шістнадцята|сімнадцята|вісімнадцята|дев'ятнадцята|двадцята)\b/mi,
   },
   {
     id: 'sri-isopanishad',

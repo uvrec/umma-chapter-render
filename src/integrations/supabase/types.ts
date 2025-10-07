@@ -486,6 +486,9 @@ export type Database = {
           book_id: string | null
           canto_id: string | null
           chapter_number: number
+          chapter_type: Database["public"]["Enums"]["chapter_type"] | null
+          content_en: string | null
+          content_ua: string | null
           created_at: string
           id: string
           title_en: string
@@ -495,6 +498,9 @@ export type Database = {
           book_id?: string | null
           canto_id?: string | null
           chapter_number: number
+          chapter_type?: Database["public"]["Enums"]["chapter_type"] | null
+          content_en?: string | null
+          content_ua?: string | null
           created_at?: string
           id?: string
           title_en: string
@@ -504,6 +510,9 @@ export type Database = {
           book_id?: string | null
           canto_id?: string | null
           chapter_number?: number
+          chapter_type?: Database["public"]["Enums"]["chapter_type"] | null
+          content_en?: string | null
+          content_ua?: string | null
           created_at?: string
           id?: string
           title_en?: string
@@ -900,6 +909,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "user"
+      chapter_type: "verses" | "text"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1028,6 +1038,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "user"],
+      chapter_type: ["verses", "text"],
     },
   },
 } as const

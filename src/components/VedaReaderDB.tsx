@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { TiptapRenderer } from '@/components/blog/TiptapRenderer';
 
 export const VedaReaderDB = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
@@ -262,7 +263,7 @@ export const VedaReaderDB = () => {
     );
   }
 
-  if (!chapter || verses.length === 0) {
+  if (!chapter) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -281,6 +282,9 @@ export const VedaReaderDB = () => {
       </div>
     );
   }
+
+  // Check if this is a text-only chapter (no verses)
+  const isTextChapter = chapter.chapter_type === 'text' || verses.length === 0;
 
   return (
     <div className={`min-h-screen ${craftPaperMode ? 'bg-craft-paper' : 'bg-background'}`}>
@@ -311,7 +315,40 @@ export const VedaReaderDB = () => {
           </Button>
         </div>
 
-        {continuousReadingSettings.enabled ? (
+        {isTextChapter ? (
+          <Card className="p-8">
+            <div className="prose prose-lg max-w-none dark:prose-invert">
+              <TiptapRenderer 
+                content={language === 'ua' ? chapter.content_ua || '' : chapter.content_en || chapter.content_ua || ''} 
+              />
+            </div>
+            
+            {/* Chapter navigation for text chapters */}
+            <div className="flex justify-between items-center pt-8 mt-8 border-t">
+              <Button
+                variant="secondary"
+                onClick={handlePrevChapter}
+                disabled={currentChapterIndex === 0}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                {t('Попередня глава', 'Previous Chapter')}
+              </Button>
+              
+              <span className="text-sm text-muted-foreground">
+                {t('Глава', 'Chapter')} {currentChapterIndex + 1} {t('з', 'of')} {allChapters.length}
+              </span>
+
+              <Button
+                variant="secondary"
+                onClick={handleNextChapter}
+                disabled={currentChapterIndex === allChapters.length - 1}
+              >
+                {t('Наступна глава', 'Next Chapter')}
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </Card>
+        ) : continuousReadingSettings.enabled ? (
           <div className="space-y-8">
             {verses.map((verse) => {
               const verseIdx = getDisplayVerseNumber(verse.verse_number);
@@ -444,11 +481,11 @@ export const VedaReaderDB = () => {
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
-              </div>
-            )})()}
-          </>
-        )}
-      </div>
+                </div>
+              )})()}
+            </>
+          )}
+        </div>
 
       <SettingsPanel
         isOpen={settingsOpen}
