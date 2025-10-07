@@ -10,19 +10,24 @@ export const useSanskritTerms = () => {
         .from("verses")
         .select(`
           *,
-          chapters (
+          chapters!inner(
             chapter_number,
             title_en,
             title_ua,
-            books (
+            books(
               title_en,
               title_ua,
               slug
             ),
-            cantos (
+            cantos(
               canto_number,
               title_en,
-              title_ua
+              title_ua,
+              books(
+                title_en,
+                title_ua,
+                slug
+              )
             )
           )
         `)
@@ -30,12 +35,16 @@ export const useSanskritTerms = () => {
 
       if (error) throw error;
       
-      // Transform data to match expected format for glossary parser
-      return data.map(verse => ({
-        ...verse,
-        book: verse.chapters?.books?.title_ua || verse.chapters?.books?.title_en || '',
-        synonyms: verse.synonyms_ua || verse.synonyms_en || ''
-      }));
+      // Transform data to get book title from correct source
+      return data.map(verse => {
+        const bookData = verse.chapters.cantos?.books || verse.chapters.books;
+        
+        return {
+          ...verse,
+          book: bookData?.title_ua || bookData?.title_en || '',
+          synonyms: verse.synonyms_ua || verse.synonyms_en || ''
+        };
+      });
     },
   });
 

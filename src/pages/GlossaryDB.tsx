@@ -42,10 +42,20 @@ export default function GlossaryDB() {
           *,
           chapters!inner(
             chapter_number,
-            books!inner(
+            book_id,
+            canto_id,
+            books(
               title_ua,
               title_en,
               slug
+            ),
+            cantos(
+              canto_number,
+              books(
+                title_ua,
+                title_en,
+                slug
+              )
             )
           )
         `);
@@ -53,15 +63,20 @@ export default function GlossaryDB() {
       if (error) throw error;
       
       // Transform data to match the expected format for glossary parser
-      return data.map(verse => ({
-        ...verse,
-        book: language === 'ua' 
-          ? verse.chapters.books.title_ua 
-          : verse.chapters.books.title_en,
-        bookSlug: verse.chapters.books.slug,
-        synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
-        verse_number: verse.verse_number
-      }));
+      return data.map(verse => {
+        // Check if chapter belongs to a canto (Srimad-Bhagavatam structure)
+        const bookData = verse.chapters.cantos?.books || verse.chapters.books;
+        
+        return {
+          ...verse,
+          book: language === 'ua' 
+            ? bookData?.title_ua 
+            : bookData?.title_en,
+          bookSlug: bookData?.slug,
+          synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+          verse_number: verse.verse_number
+        };
+      });
     }
   });
 
