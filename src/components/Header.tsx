@@ -123,47 +123,12 @@ export const Header = () => {
               </Link>
             </Button>
 
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    Бібліотека
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[400px] gap-3 p-4 bg-popover">
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/library/prabhupada"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium leading-none">Прабгупада</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Твори Шріли Прабгупади
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                      <li>
-                        <NavigationMenuLink asChild>
-                          <Link
-                            to="/library/acharyas"
-                            className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
-                          >
-                            <div className="text-sm font-medium leading-none">Ачар'ї</div>
-                            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                              Книги та коментарі ачар'їв
-                            </p>
-                          </Link>
-                        </NavigationMenuLink>
-                      </li>
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-
-              </NavigationMenuList>
-            </NavigationMenu>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/library">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Бібліотека
+              </Link>
+            </Button>
 
             <Button variant="ghost" size="sm" asChild>
               <Link to="/glossary">
@@ -223,35 +188,14 @@ export const Header = () => {
                   <span>Головна</span>
                 </Link>
 
-                <Collapsible open={libraryOpen} onOpenChange={setLibraryOpen}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
-                    <div className="flex items-center space-x-3">
-                      <BookOpen className="w-5 h-5" />
-                      <span>Бібліотека</span>
-                    </div>
-                    {libraryOpen ? (
-                      <ChevronDown className="w-4 h-4" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="ml-6 space-y-2 mt-2">
-                    <Link
-                      to="/library/prabhupada"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span>Прабгупада</span>
-                    </Link>
-                    <Link
-                      to="/library/acharyas"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
-                      onClick={() => setOpen(false)}
-                    >
-                      <span>Ачар'ї</span>
-                    </Link>
-                  </CollapsibleContent>
-                </Collapsible>
+                <Link
+                  to="/library"
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  onClick={() => setOpen(false)}
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>Бібліотека</span>
+                </Link>
 
 
                 <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
