@@ -70,7 +70,7 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
   },
   {
     id: 'sri-isopanishad',
-    name: 'Шрі Ішопанішад',
+    name: 'Шрі Ішопанішада',
     versePattern: /^\s*(?:МАНТРА|MANTRA)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА|\d+)/mi,
     synonymsPattern: /^\s*(?:ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD)/mi,
     translationPattern: /^\s*(?:ПЕРЕКЛАД|TRANSLATION)/mi,
