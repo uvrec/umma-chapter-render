@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function AddEditBook() {
@@ -26,6 +26,7 @@ export default function AddEditBook() {
   const [descriptionEn, setDescriptionEn] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [hasCantos, setHasCantos] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -100,6 +101,64 @@ export default function AddEditBook() {
     },
   });
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Помилка",
+        description: "Будь ласка, виберіть файл зображення",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Помилка",
+        description: "Розмір файлу не повинен перевищувати 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${slug || Date.now()}-cover.${fileExt}`;
+      const filePath = `book-covers/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('page-media')
+        .upload(filePath, file, {
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('page-media')
+        .getPublicUrl(filePath);
+
+      setCoverImageUrl(publicUrl);
+      toast({
+        title: "Успіх",
+        description: "Обкладинку завантажено",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Помилка",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!slug || !titleUa) {
@@ -143,14 +202,72 @@ export default function AddEditBook() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="coverImageUrl">URL обкладинки</Label>
-              <Input
-                id="coverImageUrl"
-                value={coverImageUrl}
-                onChange={(e) => setCoverImageUrl(e.target.value)}
-                placeholder="https://example.com/cover.jpg або /assets/book-cover.jpg"
-              />
+            <div className="space-y-4">
+              <Label>Обкладинка книги</Label>
+              
+              {/* Image Preview */}
+              {coverImageUrl && (
+                <div className="relative w-48 h-64 bg-muted rounded-lg overflow-hidden">
+                  <img 
+                    src={coverImageUrl} 
+                    alt="Book cover preview" 
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={() => setCoverImageUrl("")}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* Upload Button */}
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploading}
+                  onClick={() => document.getElementById('cover-upload')?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  {uploading ? "Завантаження..." : "Завантажити файл"}
+                </Button>
+                <input
+                  id="cover-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </div>
+
+              {/* Manual URL Input */}
+              <div>
+                <Label htmlFor="coverImageUrl" className="text-sm text-muted-foreground">
+                  Або введіть URL вручну
+                </Label>
+                <Input
+                  id="coverImageUrl"
+                  value={coverImageUrl}
+                  onChange={(e) => setCoverImageUrl(e.target.value)}
+                  placeholder="https://example.com/cover.jpg"
+                />
+              </div>
+
+              {/* Technical Requirements */}
+              <div className="text-xs text-muted-foreground space-y-1 p-3 bg-muted/50 rounded">
+                <p className="font-semibold">Технічні вимоги до обкладинок:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Формат: JPG, PNG, WEBP</li>
+                  <li>Розмір: 800x1200px (співвідношення 2:3)</li>
+                  <li>Розмір файлу: до 5MB</li>
+                  <li>Мінімальна якість: 72 DPI</li>
+                </ul>
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">
