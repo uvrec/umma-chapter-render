@@ -214,20 +214,43 @@ export function splitIntoVerses(
     const fullMatch = match[0] || '';
     let verseNum: string;
     
+    console.log(`📖 Processing verse match ${index + 1}:`, { fullMatch, groups: match.slice(1) });
+    
     // Special handling for "Звернення"
     if (/^\s*(?:Звернення|ЗВЕРНЕННЯ)/i.test(fullMatch)) {
       verseNum = '0';
+      console.log(`✅ Recognized as "Звернення", verse number: 0`);
+    } else if (match[1]) {
+      // First capture group - mantra number
+      verseNum = normalizeVerseNumber(match[1]);
+      console.log(`✅ Extracted from group 1: "${match[1]}" -> normalized to: "${verseNum}"`);
+    } else if (match[2]) {
+      // Second capture group - special chapters
+      verseNum = '0';
+      console.log(`✅ Extracted from group 2 (special): "${match[2]}" -> verse number: 0`);
     } else {
-      // Extract the number part - could be in match[1] or need to be parsed from match[0]
-      const rawNumber = match[1] || match[0].replace(/^\s*(?:МАНТРА|MANTRA)\s+/i, '').trim();
+      // Fallback
+      const rawNumber = match[0].replace(/^\s*(?:МАНТРА|MANTRA)\s+/i, '').trim();
       verseNum = normalizeVerseNumber(rawNumber);
+      console.log(`⚠️ Fallback extraction from full match: "${rawNumber}" -> normalized to: "${verseNum}"`);
     }
     
     const startPos = match.index || 0;
     const endPos = verseMatches[index + 1]?.index || chapterText.length;
     const verseText = chapterText.substring(startPos, endPos);
     
+    console.log(`📝 Verse ${verseNum} text length: ${verseText.length} chars`);
+    console.log(`📝 First 200 chars:`, verseText.substring(0, 200));
+    
     const verse = parseVerse(verseNum, verseText, template);
+    console.log(`✅ Parsed verse ${verseNum}:`, {
+      has_sanskrit: !!verse.sanskrit,
+      has_transliteration: !!verse.transliteration,
+      has_synonyms: !!verse.synonyms_ua,
+      has_translation: !!verse.translation_ua,
+      has_commentary: !!verse.commentary_ua
+    });
+    
     if (verse.verse_number) {
       verses.push(verse);
     } else {
@@ -258,7 +281,11 @@ function parseVerse(
 ): ParsedVerse {
   const verse: ParsedVerse = { verse_number: verseNumber };
   
+  console.log(`\n🔍 Parsing verse ${verseNumber}`);
+  console.log(`📄 Text length: ${text.length} chars`);
+  
   const lines = text.split('\n').filter(l => l.trim());
+  console.log(`📋 Total lines: ${lines.length}`);
   
   // Extract Sanskrit - collect all consecutive Devanagari lines
   const sanskritLines: string[] = [];
@@ -270,15 +297,20 @@ function parseVerse(
     // Check if line contains Devanagari characters
     if (/[\u0900-\u097F]/.test(line)) {
       sanskritLines.push(line);
+      console.log(`✅ Sanskrit line ${i}: ${line.substring(0, 50)}...`);
     } else if (sanskritLines.length > 0) {
       // Found end of Sanskrit section
       translitStartIndex = i;
+      console.log(`🔚 End of Sanskrit at line ${i}`);
       break;
     }
   }
   
   if (sanskritLines.length > 0) {
     verse.sanskrit = sanskritLines.join('\n');
+    console.log(`✅ Extracted ${sanskritLines.length} Sanskrit lines`);
+  } else {
+    console.log(`⚠️ No Sanskrit found`);
   }
   
   // Extract Transliteration - collect Ukrainian lines with diacritics after Sanskrit
