@@ -30,6 +30,7 @@ import BlogPost from "./pages/BlogPost";
 import { Lectures } from "./pages/audio/Lectures";
 import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
+import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/admin/Dashboard";
 import Books from "./pages/admin/Books";
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
                 <Route path="/audiobooks" element={<Audio />} />
                 <Route path="/audio/audiobooks" element={<Audiobooks />} />
+                <Route path="/audiobooks/:id" element={<AudiobookView />} />
                 <Route path="/audio/lectures" element={<Lectures />} />
                 <Route path="/audio/music" element={<Music />} />
                 <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />

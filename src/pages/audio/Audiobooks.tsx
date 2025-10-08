@@ -2,15 +2,64 @@ import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BookOpen, Clock, Play, Star } from "lucide-react";
+import { ArrowLeft, BookOpen, Clock, Play, Star, Music } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-audiobook.png";
 import srimadBhagavatamCover from "@/assets/srimad-bhagavatam-audiobook.png";
 import sriIsopanishadCover from "@/assets/sri-isopanishad-audiobook.png";
 
 export const Audiobooks = () => {
-  const audiobooks = [
+  // Fetch audiobooks category
+  const { data: categories } = useQuery({
+    queryKey: ['audiobooks-category'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('audio_categories')
+        .select('id')
+        .eq('slug', 'audiobooks')
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Fetch audiobooks playlists
+  const { data: audiobooks, isLoading } = useQuery({
+    queryKey: ['audiobooks-playlists', categories?.id],
+    enabled: !!categories?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('audio_playlists')
+        .select(`
+          *,
+          tracks:audio_tracks(count)
+        `)
+        .eq('category_id', categories!.id)
+        .eq('is_published', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">Завантаження...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const staticAudiobooks = [
     {
       id: "bhagavad-gita",
       title: "Бгаґавад-ґіта як вона є",
@@ -69,7 +118,7 @@ export const Audiobooks = () => {
     }
   ];
 
-  const categories = ["Всі", "Ґіта", "Бгаґаватам", "Упанішади", "Інше"];
+  const allBooks = audiobooks && audiobooks.length > 0 ? audiobooks : staticAudiobooks;
 
   return (
     <div className="min-h-screen bg-background">
@@ -77,7 +126,7 @@ export const Audiobooks = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link to="/audiobooks">
+          <Link to="/audio">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Назад до аудіо
@@ -98,27 +147,14 @@ export const Audiobooks = () => {
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap gap-2 mb-8 justify-center">
-          {categories.map((category) => (
-            <Button
-              key={category}
-              variant={category === "Всі" ? "default" : "outline"}
-              size="sm"
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
-
         {/* Audiobooks Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {audiobooks.map((book) => (
+          {allBooks.map((book: any) => (
             <Card key={book.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <div className="aspect-[3/4] bg-muted">
                 <img
-                  src={book.cover}
-                  alt={book.title}
+                  src={book.cover_image_url || book.cover}
+                  alt={book.title_ua || book.title}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -126,41 +162,31 @@ export const Audiobooks = () => {
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant="secondary">Аудіокнига</Badge>
-                  <div className="flex items-center text-sm text-muted-foreground">
-                    <Star className="w-3 h-3 mr-1 fill-yellow-400 text-yellow-400" />
-                    {book.rating}
-                    <span className="ml-1">({book.reviews})</span>
-                  </div>
+                  {book.tracks?.[0]?.count && (
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Music className="w-3 h-3 mr-1" />
+                      {book.tracks[0].count}
+                    </div>
+                  )}
                 </div>
                 
                 <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {book.title}
+                  {book.title_ua || book.title}
                 </h3>
                 
-                <p className="text-sm text-primary mb-3">{book.author}</p>
+                {book.author && (
+                  <p className="text-sm text-primary mb-3">{book.author}</p>
+                )}
                 
                 <p className="text-muted-foreground mb-4 line-clamp-3 text-sm">
-                  {book.description}
+                  {book.description_ua || book.description}
                 </p>
                 
-                <div className="space-y-2 mb-4 text-xs text-muted-foreground">
-                  <div className="flex justify-between">
-                    <span>Тривалість:</span>
-                    <span>{book.duration}</span>
+                {book.year && (
+                  <div className="text-xs text-muted-foreground mb-4">
+                    Рік: {book.year}
                   </div>
-                  <div className="flex justify-between">
-                    <span>Розділів:</span>
-                    <span>{book.chapters}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Мова:</span>
-                    <span>{book.language}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Розмір:</span>
-                    <span>{book.size}</span>
-                  </div>
-                </div>
+                )}
                 
                 <div className="flex gap-2">
                   <Link 
@@ -172,9 +198,6 @@ export const Audiobooks = () => {
                       Слухати
                     </Button>
                   </Link>
-                  <Button variant="outline" size="icon">
-                    <Clock className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
             </Card>
