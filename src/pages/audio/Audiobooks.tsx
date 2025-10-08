@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 import srimadBhagavatamCover from "@/assets/srimad-bhagavatam-audiobook.png";
+import sriIsopanishadCover from "@/assets/sri-isopanishad-audiobook.png";
 
 export const Audiobooks = () => {
   const audiobooks = [
@@ -57,7 +58,7 @@ export const Audiobooks = () => {
       title: "Шрі Ішопанішад",
       author: "Шріла Прабгупада",
       description: "Досконале керівництво з самореалізації через 18 мантр древньої мудрості",
-      cover: "/src/assets/sri-isopanishad-cover.webp",
+      cover: sriIsopanishadCover,
       duration: "4 години 20 хв",
       chapters: 18,
       rating: 4.9,
