@@ -1,16 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 const Cantos = () => {
   const { bookId } = useParams();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [cantoToDelete, setCantoToDelete] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -47,6 +60,35 @@ const Cantos = () => {
     },
     enabled: !!user && isAdmin && !!bookId
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (cantoId: string) => {
+      const { error } = await supabase
+        .from('cantos')
+        .delete()
+        .eq('id', cantoId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-cantos', bookId] });
+      toast.success('Canto успішно видалено');
+      setCantoToDelete(null);
+    },
+    onError: (error: Error) => {
+      toast.error(`Помилка при видаленні: ${error.message}`);
+    }
+  });
+
+  const handleDeleteClick = (canto: any) => {
+    setCantoToDelete({ id: canto.id, title: `Canto ${canto.canto_number}: ${canto.title_ua}` });
+  };
+
+  const handleConfirmDelete = () => {
+    if (cantoToDelete) {
+      deleteMutation.mutate(cantoToDelete.id);
+    }
+  };
 
   if (!user || !isAdmin) return null;
 
@@ -98,6 +140,14 @@ const Cantos = () => {
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/chapters/canto/${canto.id}`}>Розділи</Link>
                     </Button>
+                    <Button 
+                      size="sm" 
+                      variant="destructive"
+                      onClick={() => handleDeleteClick(canto)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Видалити
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -111,6 +161,27 @@ const Cantos = () => {
           </Card>
         )}
       </div>
+
+      <AlertDialog open={!!cantoToDelete} onOpenChange={() => setCantoToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Це призведе до видалення <strong>{cantoToDelete?.title}</strong> та всіх пов'язаних з ним розділів і віршів.
+              Цю дію неможливо скасувати.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Скасувати</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Видалити
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
