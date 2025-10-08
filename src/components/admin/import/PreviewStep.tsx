@@ -77,6 +77,16 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
       return;
     }
 
+    // Check for duplicate verse numbers
+    const verseNumbers = editedChapter.verses.map(v => v.verse_number?.trim());
+    const duplicates = verseNumbers.filter((num, index) => verseNumbers.indexOf(num) !== index);
+    const uniqueDuplicates = [...new Set(duplicates)];
+    
+    if (uniqueDuplicates.length > 0) {
+      toast.error(`Знайдено дублікати номерів віршів: ${uniqueDuplicates.join(', ')}. Будь ласка, виправте їх перед імпортом.`);
+      return;
+    }
+
     const versesWithoutContent = editedChapter.verses.filter(
       v => !v.sanskrit?.trim() && !v.translation_ua?.trim()
     );
