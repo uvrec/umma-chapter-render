@@ -43,7 +43,7 @@ export const Home = () => {
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <Link to="/audio/audiobooks">
+                <Link to="/audiobooks">
                   <Headphones className="w-5 h-5 mr-2" />
                   Аудіокниги
                 </Link>

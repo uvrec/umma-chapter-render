@@ -105,7 +105,7 @@ export const Library = () => {
                   case 'iso':
                     return '/audiobooks/sri-isopanishad';
                   default:
-                    return '/audio/audiobooks';
+                    return '/audiobooks';
                 }
               })();
               

@@ -43,7 +43,7 @@ export const BhagavadGita = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* Back Button */}
-          <Link to="/audio/audiobooks" className="inline-flex items-center mb-6 text-primary hover:text-primary/80">
+          <Link to="/audiobooks" className="inline-flex items-center mb-6 text-primary hover:text-primary/80">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад до аудіокниг
           </Link>

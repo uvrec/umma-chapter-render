@@ -56,7 +56,7 @@ export const NewHome = () => {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-black">
-                <Link to="/audio/audiobooks">
+                <Link to="/audiobooks">
                   <Headphones className="w-5 h-5 mr-2" />
                   Аудіокниги
                 </Link>
