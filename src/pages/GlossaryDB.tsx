@@ -67,13 +67,29 @@ export default function GlossaryDB() {
       return data.map(verse => {
         // Check if chapter belongs to a canto (Srimad-Bhagavatam structure)
         const bookData = verse.chapters.cantos?.books || verse.chapters.books;
+        const cantoNumber = verse.chapters.cantos?.canto_number;
+        const chapterNumber = verse.chapters.chapter_number;
+        const bookSlug = bookData?.slug;
+        
+        // Build verse link based on book structure
+        let verseLink = '';
+        if (cantoNumber) {
+          // Srimad-Bhagavatam structure with cantos
+          verseLink = `/books/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/verse/${verse.verse_number}`;
+        } else {
+          // Direct book-chapter structure
+          verseLink = `/books/${bookSlug}/chapter/${chapterNumber}/verse/${verse.verse_number}`;
+        }
         
         return {
           ...verse,
           book: language === 'ua' 
             ? bookData?.title_ua 
             : bookData?.title_en,
-          bookSlug: bookData?.slug,
+          bookSlug,
+          cantoNumber,
+          chapterNumber,
+          verseLink,
           synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
           verse_number: verse.verse_number
         };
@@ -83,7 +99,6 @@ export default function GlossaryDB() {
 
   // Extract and process terms
   const allTerms = extractAllTerms(versesData);
-  const groupedTerms = groupTermsByText(allTerms);
   const termsWithUsage = calculateTermUsage(allTerms);
 
   // Get unique categories (books) with term counts
@@ -95,6 +110,9 @@ export default function GlossaryDB() {
     acc[category] = uniqueTerms.size;
     return acc;
   }, {} as { [key: string]: number });
+
+  // Check if there's an active search
+  const hasSearch = searchTerm || translation || selectedCategory !== 'all';
 
   // Filter and search terms
   let filteredAndSearchedTerms = allTerms;
@@ -113,8 +131,8 @@ export default function GlossaryDB() {
     );
   }
 
-  // Group filtered terms for display
-  const displayTerms = groupTermsByText(filteredAndSearchedTerms);
+  // Group filtered terms for display - only if there's a search
+  const displayTerms = hasSearch ? groupTermsByText(filteredAndSearchedTerms) : {};
 
   return (
     <div className="min-h-screen bg-background">
@@ -126,27 +144,41 @@ export default function GlossaryDB() {
             {t('Глосарій', 'Glossary')}
           </h1>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <Card className="p-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{termsWithUsage.length}</div>
-                <div className="text-sm text-muted-foreground">{t('Унікальних термінів', 'Unique terms')}</div>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{allTerms.length}</div>
-                <div className="text-sm text-muted-foreground">{t('Всього використань', 'Total usages')}</div>
-              </div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">{categories.length}</div>
-                <div className="text-sm text-muted-foreground">{t('Книг', 'Books')}</div>
-              </div>
-            </Card>
-          </div>
+          {/* Statistics - only show when search is active */}
+          {hasSearch && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">
+                    {Object.keys(displayTerms).length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {t('Знайдено термінів', 'Terms found')}
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">
+                    {filteredAndSearchedTerms.length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {t('Всього використань', 'Total usages')}
+                  </div>
+                </div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">
+                    {new Set(filteredAndSearchedTerms.map(t => t.book)).size}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {t('Книг', 'Books')}
+                  </div>
+                </div>
+              </Card>
+            </div>
+          )}
 
           <Card className="p-6 mb-8">
             <div className="space-y-4">
@@ -197,7 +229,19 @@ export default function GlossaryDB() {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-3 space-y-4">
-              {Object.keys(displayTerms).length === 0 ? (
+              {!hasSearch ? (
+                <Card className="p-8 text-center">
+                  <div className="text-muted-foreground space-y-2">
+                    <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg font-semibold">
+                      {t('Використовуйте пошук для перегляду термінів', 'Use search to view terms')}
+                    </p>
+                    <p className="text-sm">
+                      {t('Введіть термін або переклад, або оберіть категорію', 'Enter a term or translation, or select a category')}
+                    </p>
+                  </div>
+                </Card>
+              ) : Object.keys(displayTerms).length === 0 ? (
                 <Card className="p-8 text-center">
                   <p className="text-muted-foreground">
                     {t('Термінів не знайдено', 'No terms found')}
@@ -229,17 +273,26 @@ export default function GlossaryDB() {
                             {book}
                             <Badge variant="outline" className="text-xs">{bookTerms.length}</Badge>
                           </div>
-                          {bookTerms.map((t, idx) => (
-                            <div key={idx} className="border-l-2 border-primary/30 pl-4 py-1">
-                              <p className="text-foreground mb-1">{t.meaning}</p>
-                              <a 
-                                href={t.link} 
-                                className="text-sm text-primary hover:underline"
-                              >
-                                {t.reference}
-                              </a>
-                            </div>
-                          ))}
+                          {bookTerms.map((termItem, idx) => {
+                            // Find the original verse data to get detailed reference
+                            const verseData = versesData.find(v => v.verse_number === termItem.verseNumber);
+                            const cantoInfo = verseData?.cantoNumber 
+                              ? `${language === 'ua' ? 'Пісня' : 'Canto'} ${verseData.cantoNumber}, ` 
+                              : '';
+                            const detailedReference = `${cantoInfo}${language === 'ua' ? 'Розділ' : 'Chapter'} ${verseData?.chapterNumber}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${termItem.verseNumber}`;
+                            
+                            return (
+                              <div key={idx} className="border-l-2 border-primary/30 pl-4 py-1">
+                                <p className="text-foreground mb-1">{termItem.meaning}</p>
+                                <a 
+                                  href={verseData?.verseLink || termItem.link}
+                                  className="text-sm text-primary hover:underline inline-flex items-center gap-1"
+                                >
+                                  {detailedReference}
+                                </a>
+                              </div>
+                            );
+                          })}
                         </div>
                       ))}
                     </div>
