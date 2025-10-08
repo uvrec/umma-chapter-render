@@ -118,7 +118,8 @@ export const Audiobooks = () => {
     }
   ];
 
-  const allBooks = audiobooks && audiobooks.length > 0 ? audiobooks : staticAudiobooks;
+  // Combine static and dynamic audiobooks
+  const allBooks = [...staticAudiobooks, ...(audiobooks || [])];
 
   return (
     <div className="min-h-screen bg-background">
