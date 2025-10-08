@@ -75,9 +75,11 @@ export const Library = () => {
             {dbBooks.map(book => {
               const title = language === 'ua' ? book.title_ua : book.title_en;
               const description = language === 'ua' ? book.description_ua : book.description_en;
-              // Special case for Nectar of Instruction
+              // Special cases for specific books
               const verseLink = book.slug === 'noi' 
                 ? `/veda-reader/noi` 
+                : book.slug === 'gita'
+                ? `/veda-reader/gita`
                 : book.has_cantos ? `/veda-reader/${book.slug}` : `/veda-reader/${book.slug}/1`;
               
               return (
