@@ -6,6 +6,7 @@ import { ArrowLeft, BookOpen, Clock, Play, Star } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
+import srimadBhagavatamCover from "@/assets/srimad-bhagavatam-audiobook.png";
 
 export const Audiobooks = () => {
   const audiobooks = [
@@ -28,7 +29,7 @@ export const Audiobooks = () => {
       title: "Шрімад-Бгаґаватам, Том 1",
       author: "Шріла Прабгупада", 
       description: "Перший том найсвятішого Пурани, що розкриває природу Абсолютної Істини",
-      cover: "/src/assets/srimad-bhagavatam-1-cover.webp",
+      cover: srimadBhagavatamCover,
       duration: "25 годин 30 хв",
       chapters: 19,
       rating: 4.8,
