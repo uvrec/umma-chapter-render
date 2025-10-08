@@ -77,17 +77,26 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
       return;
     }
 
-    // Check for duplicate verse numbers
-    const verseNumbers = editedChapter.verses.map(v => v.verse_number?.trim());
-    const duplicates = verseNumbers.filter((num, index) => verseNumbers.indexOf(num) !== index);
-    const uniqueDuplicates = [...new Set(duplicates)];
-    
-    if (uniqueDuplicates.length > 0) {
-      toast.error(`Знайдено дублікати номерів віршів: ${uniqueDuplicates.join(', ')}. Будь ласка, виправте їх перед імпортом.`);
-      return;
+    // Remove duplicate verse numbers - keep only first occurrence
+    const seenNumbers = new Set<string>();
+    const uniqueVerses = editedChapter.verses.filter(verse => {
+      const num = verse.verse_number?.trim();
+      if (!num) return true;
+      if (seenNumbers.has(num)) {
+        return false; // Skip duplicate
+      }
+      seenNumbers.add(num);
+      return true;
+    });
+
+    const removedCount = editedChapter.verses.length - uniqueVerses.length;
+    if (removedCount > 0) {
+      toast.warning(`Видалено ${removedCount} дублікатів віршів`);
+      // Update the chapter with unique verses
+      editedChapter.verses = uniqueVerses;
     }
 
-    const versesWithoutContent = editedChapter.verses.filter(
+    const versesWithoutContent = uniqueVerses.filter(
       v => !v.sanskrit?.trim() && !v.translation_ua?.trim()
     );
     if (versesWithoutContent.length > 0) {
