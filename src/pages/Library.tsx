@@ -75,12 +75,39 @@ export const Library = () => {
             {dbBooks.map(book => {
               const title = language === 'ua' ? book.title_ua : book.title_en;
               const description = language === 'ua' ? book.description_ua : book.description_en;
-              // Special cases for specific books
-              const verseLink = book.slug === 'noi' 
-                ? `/veda-reader/noi` 
-                : book.slug === 'gita'
-                ? `/veda-reader/gita`
-                : book.has_cantos ? `/veda-reader/${book.slug}` : `/veda-reader/${book.slug}/1`;
+              
+              // Mapping book slugs to reader routes
+              let verseLink = '';
+              switch (book.slug) {
+                case 'noi':
+                  verseLink = '/veda-reader/noi';
+                  break;
+                case 'gita':
+                  verseLink = '/veda-reader/gita';
+                  break;
+                case 'iso':
+                  verseLink = '/veda-reader/iso';
+                  break;
+                case 'bhagavatam':
+                  verseLink = '/veda-reader/bhagavatam';
+                  break;
+                default:
+                  verseLink = book.has_cantos ? `/veda-reader/${book.slug}` : `/veda-reader/${book.slug}/1`;
+              }
+              
+              // Mapping book slugs to audio routes
+              const audioLink = (() => {
+                switch (book.slug) {
+                  case 'gita':
+                    return '/audiobooks/bhagavad-gita';
+                  case 'bhagavatam':
+                    return '/audiobooks/srimad-bhagavatam';
+                  case 'iso':
+                    return '/audiobooks/sri-isopanishad';
+                  default:
+                    return '/audio/audiobooks';
+                }
+              })();
               
               return (
                 <Card key={book.id} className="group hover:shadow-xl transition-all duration-300 border-border/50 flex flex-col">
@@ -120,7 +147,7 @@ export const Library = () => {
                           Читати
                         </Badge>
                       </Link>
-                      <Link to="/audio/audiobooks">
+                      <Link to={audioLink}>
                         <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
                           <Headphones className="w-3 h-3 mr-1" />
                           Аудіо
