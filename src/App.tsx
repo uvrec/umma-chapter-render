@@ -91,8 +91,8 @@ const App = () => (
                 {/* Legacy redirects for old library routes */}
                 <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
                 <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
-                <Route path="/audiobooks" element={<Audio />} />
-                <Route path="/audio/audiobooks" element={<Audiobooks />} />
+                <Route path="/audio" element={<Audio />} />
+                <Route path="/audiobooks" element={<Audiobooks />} />
                 <Route path="/audiobooks/:id" element={<AudiobookView />} />
                 <Route path="/audio/lectures" element={<Lectures />} />
                 <Route path="/audio/music" element={<Music />} />
