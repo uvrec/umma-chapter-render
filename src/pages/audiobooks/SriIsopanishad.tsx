@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, User } from "lucide-react";
 import { Link } from "react-router-dom";
+import sriIsopanishadCover from "@/assets/sri-isopanishad-audiobook.png";
 
 const tracks = [
   { id: "1", title: "Вступ до Шрі Ішопанішада", duration: "12:30", src: "/audio/iso-intro.mp3" },
@@ -58,7 +59,7 @@ export const SriIsopanishad = () => {
               <Card className="p-6">
                 <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
                   <img 
-                    src="/src/assets/small-book-icon.webp" 
+                    src={sriIsopanishadCover} 
                     alt="Шрі Ішопанішада обкладинка" 
                     className="w-full h-full object-cover"
                   />
@@ -113,7 +114,7 @@ export const SriIsopanishad = () => {
               <PlaylistPlayer 
                 tracks={tracks} 
                 title="Шрі Ішопанішада"
-                albumCover="/src/assets/sri-isopanishad-cover.webp"
+                albumCover={sriIsopanishadCover}
               />
             </div>
           </div>
