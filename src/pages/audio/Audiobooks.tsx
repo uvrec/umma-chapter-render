@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Clock, Play, Star } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
-import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
+import bhagavadGitaCover from "@/assets/bhagavad-gita-audiobook.png";
 import srimadBhagavatamCover from "@/assets/srimad-bhagavatam-audiobook.png";
 import sriIsopanishadCover from "@/assets/sri-isopanishad-audiobook.png";
 
