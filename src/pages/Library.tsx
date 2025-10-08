@@ -75,7 +75,10 @@ export const Library = () => {
             {dbBooks.map(book => {
               const title = language === 'ua' ? book.title_ua : book.title_en;
               const description = language === 'ua' ? book.description_ua : book.description_en;
-              const verseLink = book.has_cantos ? `/veda-reader/${book.slug}` : `/veda-reader/${book.slug}/1`;
+              // Special case for Nectar of Instruction
+              const verseLink = book.slug === 'noi' 
+                ? `/veda-reader/noi` 
+                : book.has_cantos ? `/veda-reader/${book.slug}` : `/veda-reader/${book.slug}/1`;
               
               return (
                 <Card key={book.id} className="group hover:shadow-xl transition-all duration-300 border-border/50 flex flex-col">
