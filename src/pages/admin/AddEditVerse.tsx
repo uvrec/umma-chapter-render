@@ -286,7 +286,7 @@ export default function AddEditVerse() {
   if (!user || !isAdmin) return null;
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-4xl pb-32">
       <Button
         variant="ghost"
         onClick={() => navigate("/admin/verses")}
