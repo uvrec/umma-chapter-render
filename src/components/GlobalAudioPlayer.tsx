@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from "react";
-import { Play, Pause, X, Volume2, SkipBack, SkipForward } from "lucide-react";
+import { Play, Pause, X, Volume2, SkipBack, SkipForward, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 
@@ -259,6 +259,8 @@ export const GlobalAudioPlayer = () => {
     playlist,
   } = useAudio();
 
+  const [isVisible, setIsVisible] = useState(true);
+
   if (!currentTrack) return null;
 
   const formatTime = (seconds: number) => {
@@ -272,7 +274,19 @@ export const GlobalAudioPlayer = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50">
+    <div 
+      className="fixed bottom-0 left-0 right-0 bg-background border-t border-border shadow-lg z-50 transition-transform duration-300"
+      style={{ transform: isVisible ? 'translateY(0)' : 'translateY(calc(100% - 40px))' }}
+    >
+      {/* Toggle button */}
+      <button
+        onClick={() => setIsVisible(!isVisible)}
+        className="absolute -top-10 left-1/2 -translate-x-1/2 bg-background border border-border rounded-t-lg px-4 py-2 hover:bg-accent transition-colors"
+        aria-label={isVisible ? "Сховати плеєр" : "Показати плеєр"}
+      >
+        {isVisible ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+      </button>
+      
       <div className="container mx-auto px-4 py-4">
         {/* Progress bar */}
         <div className="mb-4">
