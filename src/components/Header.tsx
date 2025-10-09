@@ -33,31 +33,19 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          {/* Theme Toggle, Login and Admin Button */}
-          <div className="flex items-center gap-2 ml-4">
-            <ThemeToggle />
-            {!user && (
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/auth">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Вхід
-                </Link>
-              </Button>
-            )}
-            {isAdmin && (
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/admin/dashboard">
-                  <User className="w-4 h-4 mr-2" />
-                  {t("Адмін", "Admin")}
-                </Link>
-              </Button>
-            )}
-          </div>
+        {/* Logo */}
+        <div className="flex items-center justify-center mb-4">
+          <Link to="/" className="flex items-center">
+            <img
+              src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
+              alt="Vedavoice"
+              className="h-16 w-auto object-contain"
+            />
+          </Link>
         </div>
 
         {/* Navigation Bar */}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center justify-between">
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             <Button variant="ghost" size="sm" asChild>
@@ -88,6 +76,27 @@ export const Header = () => {
               </Link>
             </Button>
           </nav>
+
+          {/* Desktop Controls */}
+          <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
+            {!user && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/auth">
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Вхід
+                </Link>
+              </Button>
+            )}
+            {isAdmin && (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/admin/dashboard">
+                  <User className="w-4 h-4 mr-2" />
+                  {t("Адмін", "Admin")}
+                </Link>
+              </Button>
+            )}
+          </div>
 
           {/* Mobile Navigation */}
           <Sheet open={open} onOpenChange={setOpen}>
