@@ -1,167 +1,149 @@
-import { useState, useCallback, useEffect } from "react";
-import { saveProgress, trackAudioEvent, AudioProgress } from "@/lib/audioTracking";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
-export interface QueueTrack {
+export type AudioTrack = {
   id: string;
   title: string;
   src: string;
-  playlistId: string;
-  playlistTitle?: string;
-  duration?: number;
-}
+  playlist_title?: string;
+  playlist_id?: string;
+  track_number?: number;
+};
 
-export function useAudioQueue(initialTracks: QueueTrack[] = []) {
-  const [queue, setQueue] = useState<QueueTrack[]>(initialTracks);
+/**
+ * Hook для завантаження та управління чергою аудіо
+ * Можна використовувати для:
+ * - Завантаження всіх треків плейлиста
+ * - Завантаження рекомендованих треків
+ * - Завантаження треків на основі категорії
+ */
+export const useAudioQueue = (options?: { playlistId?: string; categorySlug?: string; limit?: number }) => {
+  const [queue, setQueue] = useState<AudioTrack[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
 
-  const currentTrack = queue[currentIndex];
+  // Завантажити треки на основі опцій
+  const { data: tracks, isLoading } = useQuery({
+    queryKey: ["audio-queue", options?.playlistId, options?.categorySlug, options?.limit],
+    staleTime: 5 * 60 * 1000, // 5 хвилин
+    queryFn: async () => {
+      let query = supabase
+        .from("audio_tracks")
+        .select(
+          `
+          id,
+          title_ua,
+          audio_url,
+          track_number,
+          audio_playlists!inner (
+            id,
+            title_ua,
+            slug,
+            is_published,
+            audio_categories (
+              slug
+            )
+          )
+        `,
+        )
+        .eq("audio_playlists.is_published", true);
 
-  // Зберегти прогрес
-  const saveCurrentProgress = useCallback(() => {
-    if (!currentTrack) return;
+      // Фільтр по плейлисту
+      if (options?.playlistId) {
+        query = query.eq("playlist_id", options.playlistId);
+      }
 
-    const progress: AudioProgress = {
-      trackId: currentTrack.id,
-      playlistId: currentTrack.playlistId,
-      position: currentTime,
-      duration: duration,
-      timestamp: Date.now(),
-      completed: false,
-    };
+      // Фільтр по категорії
+      if (options?.categorySlug) {
+        query = query.eq("audio_playlists.audio_categories.slug", options.categorySlug);
+      }
 
-    saveProgress(progress);
-  }, [currentTrack, currentTime, duration]);
+      // Сортування
+      query = query.order("track_number", { ascending: true });
 
-  // Автозбереження прогресу кожні 5 секунд
+      // Ліміт
+      if (options?.limit) {
+        query = query.limit(options.limit);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      return (data || []).map((track: any) => ({
+        id: track.id,
+        title: track.title_ua,
+        src: track.audio_url,
+        playlist_title: track.audio_playlists?.title_ua,
+        playlist_id: track.audio_playlists?.id,
+        track_number: track.track_number,
+      }));
+    },
+    enabled: !!(options?.playlistId || options?.categorySlug),
+  });
+
+  // Оновити чергу коли прийдуть дані
   useEffect(() => {
-    if (!isPlaying) return;
+    if (tracks && tracks.length > 0) {
+      setQueue(tracks);
+    }
+  }, [tracks]);
 
-    const interval = setInterval(() => {
-      saveCurrentProgress();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [isPlaying, saveCurrentProgress]);
-
-  // Зберегти прогрес при паузі
+  // Завантажити останній прослуханий трек з localStorage
   useEffect(() => {
-    if (!isPlaying && currentTime > 0) {
-      saveCurrentProgress();
-    }
-  }, [isPlaying, saveCurrentProgress, currentTime]);
+    const lastTrackId = localStorage.getItem("vv_last_track_id");
+    const lastPlaylistId = localStorage.getItem("vv_last_playlist_id");
 
-  const play = useCallback(() => {
-    setIsPlaying(true);
-    if (currentTrack) {
-      trackAudioEvent(currentTrack.id, "play", currentTime, duration);
-    }
-  }, [currentTrack, currentTime, duration]);
-
-  const pause = useCallback(() => {
-    setIsPlaying(false);
-    if (currentTrack) {
-      trackAudioEvent(currentTrack.id, "pause", currentTime, duration);
-      saveCurrentProgress();
-    }
-  }, [currentTrack, currentTime, duration, saveCurrentProgress]);
-
-  const next = useCallback(() => {
-    if (currentIndex < queue.length - 1) {
-      if (currentTrack) {
-        trackAudioEvent(currentTrack.id, "skip", currentTime, duration);
+    if (lastTrackId && queue.length > 0) {
+      const index = queue.findIndex((t) => t.id === lastTrackId);
+      if (index !== -1) {
+        setCurrentIndex(index);
       }
-      setCurrentIndex((prev) => prev + 1);
-      setCurrentTime(0);
     }
-  }, [currentIndex, queue.length, currentTrack, currentTime, duration]);
+  }, [queue]);
 
-  const previous = useCallback(() => {
-    if (currentIndex > 0) {
-      if (currentTrack) {
-        trackAudioEvent(currentTrack.id, "skip", currentTime, duration);
+  // Методи управління чергою
+  const addToQueue = (track: AudioTrack) => {
+    setQueue((prev) => [...prev, track]);
+  };
+
+  const removeFromQueue = (trackId: string) => {
+    setQueue((prev) => prev.filter((t) => t.id !== trackId));
+  };
+
+  const clearQueue = () => {
+    setQueue([]);
+    setCurrentIndex(0);
+  };
+
+  const setTrack = (index: number) => {
+    if (index >= 0 && index < queue.length) {
+      setCurrentIndex(index);
+      const track = queue[index];
+      localStorage.setItem("vv_last_track_id", track.id);
+      if (track.playlist_id) {
+        localStorage.setItem("vv_last_playlist_id", track.playlist_id);
       }
-      setCurrentIndex((prev) => prev - 1);
-      setCurrentTime(0);
     }
-  }, [currentIndex, currentTrack, currentTime, duration]);
+  };
 
-  const seek = useCallback((time: number) => {
-    setCurrentTime(time);
-  }, []);
+  const nextTrack = () => {
+    setTrack((currentIndex + 1) % queue.length);
+  };
 
-  const addToQueue = useCallback((tracks: QueueTrack | QueueTrack[]) => {
-    const tracksArray = Array.isArray(tracks) ? tracks : [tracks];
-    setQueue((prev) => [...prev, ...tracksArray]);
-  }, []);
-
-  const removeFromQueue = useCallback((index: number) => {
-    setQueue((prev) => {
-      const newQueue = [...prev];
-      newQueue.splice(index, 1);
-      if (index < currentIndex) {
-        setCurrentIndex((i) => i - 1);
-      } else if (index === currentIndex) {
-        setCurrentTime(0);
-      }
-      return newQueue;
-    });
-  }, [currentIndex]);
-
-  const playTrack = useCallback((index: number) => {
-    setCurrentIndex(index);
-    setCurrentTime(0);
-    setIsPlaying(true);
-  }, []);
-
-  const replaceQueue = useCallback((newQueue: QueueTrack[], startIndex: number = 0) => {
-    setQueue(newQueue);
-    setCurrentIndex(startIndex);
-    setCurrentTime(0);
-    setIsPlaying(true);
-  }, []);
-
-  const onEnded = useCallback(() => {
-    if (currentTrack) {
-      trackAudioEvent(currentTrack.id, "complete", currentTime, duration);
-      saveProgress({
-        trackId: currentTrack.id,
-        playlistId: currentTrack.playlistId,
-        position: duration,
-        duration: duration,
-        timestamp: Date.now(),
-        completed: true,
-      });
-    }
-
-    // Автоматично перейти до наступного треку
-    if (currentIndex < queue.length - 1) {
-      next();
-    } else {
-      setIsPlaying(false);
-    }
-  }, [currentTrack, currentTime, duration, currentIndex, queue.length, next]);
+  const previousTrack = () => {
+    setTrack((currentIndex - 1 + queue.length) % queue.length);
+  };
 
   return {
     queue,
-    currentTrack,
     currentIndex,
-    isPlaying,
-    currentTime,
-    duration,
-    play,
-    pause,
-    next,
-    previous,
-    seek,
+    currentTrack: queue[currentIndex],
+    isLoading,
     addToQueue,
     removeFromQueue,
-    playTrack,
-    replaceQueue,
-    setCurrentTime,
-    setDuration,
-    onEnded,
+    clearQueue,
+    setTrack,
+    nextTrack,
+    previousTrack,
   };
-}
+};
