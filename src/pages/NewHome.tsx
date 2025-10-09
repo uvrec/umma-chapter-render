@@ -212,10 +212,12 @@ function LatestContent() {
           title_ua,
           duration,
           created_at,
+          playlist_id,
           audio_playlists!inner (
+            id,
             title_ua,
-            slug,
             is_published,
+            category_id,
             audio_categories (
               slug
             )
@@ -254,7 +256,7 @@ function LatestContent() {
       type: "audio" as const,
       title: track.title_ua,
       subtitle: track.audio_playlists?.title_ua,
-      href: `/audiobooks/${track.audio_playlists?.audio_categories?.slug}/${track.audio_playlists?.slug}`,
+      href: `/audiobooks/${track.audio_playlists?.audio_categories?.slug}/${track.playlist_id}`,
       duration: track.duration
         ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
         : undefined,
