@@ -41,7 +41,7 @@ export const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   referrerPolicy="no-referrer"
-                  className="text-muted-foreground hover:text-primary transition-colors duration-200"
+                  className="text-muted-foreground hover:text-primary transition-colors duration-200 inline-flex items-center justify-center p-2 -m-2"
                   aria-label={link.name}
                 >
                   {link.icon}

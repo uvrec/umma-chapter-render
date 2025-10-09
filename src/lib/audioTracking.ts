@@ -232,7 +232,7 @@ export async function getUserListeningStats(userId: string) {
   try {
     const { data, error } = await supabase
       .from("audio_events")
-      .select("event_type, created_at, duration_ms")
+      .select("event_type, created_at, duration_ms, track_id")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 

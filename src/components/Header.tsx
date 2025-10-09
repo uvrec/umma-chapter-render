@@ -1,6 +1,5 @@
 import {
   Menu,
-  Search,
   LogIn,
   Home,
   BookOpen,
@@ -14,52 +13,27 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { useState, useRef } from "react";
+import { useState } from "react";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [translationsOpen, setTranslationsOpen] = useState(false);
   const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
-
-  const handleSearch = () => {
-    const value = inputRef.current?.value || "";
-    if (value.trim()) {
-      navigate(`/glossary?search=${encodeURIComponent(value)}`);
-      setOpen(false);
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Desktop search */}
-          <div className="flex flex-1 max-w-2xl">
-            <div className="relative w-full">
-              <Input
-                ref={inputRef}
-                placeholder="Пошук по сайту та глосарію..."
-                className="pr-10"
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              />
-              <Button variant="ghost" size="icon" className="absolute right-0 top-0 h-full" onClick={handleSearch}>
-                <Search className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
           {/* Theme Toggle, Login and Admin Button */}
           <div className="flex items-center gap-2 ml-4">
             <ThemeToggle />
@@ -129,25 +103,6 @@ export const Header = () => {
                 <SheetDescription>Оберіть розділ для перегляду</SheetDescription>
               </SheetHeader>
               <div className="mt-6 space-y-4">
-                {/* Mobile search */}
-                <div className="block md:hidden">
-                  <div className="relative">
-                    <Input
-                      placeholder="Пошук по сайту та глосарію..."
-                      className="pr-10"
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-0 top-0 h-full"
-                      onClick={handleSearch}
-                    >
-                      <Search className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
                 <Link
                   to="/"
                   className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
