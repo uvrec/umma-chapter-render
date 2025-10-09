@@ -4,7 +4,6 @@ import {
   LogIn,
   Home,
   BookOpen,
-  Headphones,
   Book,
   MessageCircle,
   Heart,
@@ -12,8 +11,6 @@ import {
   ChevronDown,
   ChevronRight,
   FileText,
-  Music,
-  Mic,
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,40 +19,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState, useRef } from "react";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [translationsOpen, setTranslationsOpen] = useState(false);
-  const [audioOpen, setAudioOpen] = useState(false);
-  const [libraryOpen, setLibraryOpen] = useState(false);
   const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
-  const { language, setLanguage, t } = useLanguage();
+  const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
 
   const handleSearch = () => {
@@ -67,7 +42,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-background border-b border-border shadow-header">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Desktop search */}
@@ -79,12 +54,7 @@ export const Header = () => {
                 className="pr-10"
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               />
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full"
-                onClick={handleSearch}
-              >
+              <Button variant="ghost" size="icon" className="absolute right-0 top-0 h-full" onClick={handleSearch}>
                 <Search className="w-4 h-4" />
               </Button>
             </div>
@@ -105,7 +75,7 @@ export const Header = () => {
               <Button variant="outline" size="sm" asChild>
                 <Link to="/admin/dashboard">
                   <User className="w-4 h-4 mr-2" />
-                  {t('Адмін', 'Admin')}
+                  {t("Адмін", "Admin")}
                 </Link>
               </Button>
             )}
@@ -163,7 +133,6 @@ export const Header = () => {
                 <div className="block md:hidden">
                   <div className="relative">
                     <Input
-                      ref={inputRef}
                       placeholder="Пошук по сайту та глосарію..."
                       className="pr-10"
                       onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -197,28 +166,19 @@ export const Header = () => {
                   <span>Бібліотека</span>
                 </Link>
 
-
                 <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
                     <div className="flex items-center space-x-3">
                       <Languages className="w-5 h-5" />
                       <span>Переклади</span>
                     </div>
-                    {translationsOpen ? (
-                      <ChevronDown className="w-4 h-4" />
-                    ) : (
-                      <ChevronRight className="w-4 h-4" />
-                    )}
+                    {translationsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </CollapsibleTrigger>
                   <CollapsibleContent className="ml-6 space-y-2 mt-2">
                     <Collapsible open={prabhupadaOpen} onOpenChange={setPrabhupadaOpen}>
                       <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm rounded-md hover:bg-muted">
                         <span>Прабгупада</span>
-                        {prabhupadaOpen ? (
-                          <ChevronDown className="w-3 h-3" />
-                        ) : (
-                          <ChevronRight className="w-3 h-3" />
-                        )}
+                        {prabhupadaOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                       </CollapsibleTrigger>
                       <CollapsibleContent className="ml-4 space-y-1 mt-1">
                         <Link
@@ -322,7 +282,7 @@ export const Header = () => {
                     onClick={() => setOpen(false)}
                   >
                     <User className="w-5 h-5" />
-                    <span>{t('Адмін', 'Admin')}</span>
+                    <span>{t("Адмін", "Admin")}</span>
                   </Link>
                 )}
               </div>
