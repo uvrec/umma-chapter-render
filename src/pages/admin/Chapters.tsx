@@ -37,6 +37,38 @@ export default function Chapters() {
   const [titleEn, setTitleEn] = useState("");
   const [editingChapter, setEditingChapter] = useState<any>(null);
 
+  // 1) ДОДАЙ це поруч з іншими хелперами/над useEffect
+  async function isChapterNumberTaken(params: {
+    chapterNumber: number;
+    bookId?: string | null;
+    cantoId?: string | null;
+    excludeId?: string | null; // для режиму редагування
+  }) {
+    const { chapterNumber, bookId, cantoId, excludeId } = params;
+
+    // формуємо фільтри під часткові унікальні індекси:
+    // (book_id, chapter_number) WHERE book_id IS NOT NULL
+    // (canto_id, chapter_number) WHERE canto_id IS NOT NULL
+    let query = supabase
+      .from("chapters")
+      .select("id", { count: "exact", head: true })
+      .eq("chapter_number", chapterNumber);
+
+    if (cantoId) {
+      query = query.eq("canto_id", cantoId);
+    } else if (bookId) {
+      query = query.eq("book_id", bookId);
+    }
+
+    if (excludeId) {
+      query = query.neq("id", excludeId);
+    }
+
+    const { count, error } = await query;
+    if (error) throw error;
+    return (count ?? 0) > 0;
+  }
+
   useEffect(() => {
     if (!user || !isAdmin) {
       navigate("/auth");
@@ -68,11 +100,13 @@ export default function Chapters() {
     queryKey: ["chapters", parentId, isCantoMode],
     queryFn: async () => {
       const query = supabase.from("chapters").select("*").order("chapter_number");
+
       if (isCantoMode) {
         query.eq("canto_id", cantoId);
       } else {
         query.eq("book_id", bookId);
       }
+
       const { data, error } = await query;
       if (error) throw error;
       return data;
@@ -80,46 +114,10 @@ export default function Chapters() {
     enabled: !!parentId && !!user && isAdmin,
   });
 
-  // ---- helper: перевірка унікальності на фронті (кращий UX) ----
-  const checkUniqueChapterNumber = async (number: number, opts: { excludeId?: string | null } = {}) => {
-    let query = supabase
-      .from("chapters")
-      .select("id", { count: "exact", head: false })
-      .eq("chapter_number", number)
-      .limit(1);
-
-    if (isCantoMode) {
-      query = query.eq("canto_id", cantoId);
-    } else {
-      query = query.eq("book_id", bookId);
-    }
-
-    if (opts.excludeId) {
-      query = query.neq("id", opts.excludeId);
-    }
-
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data?.length ?? 0) === 0;
-  };
-
   const addMutation = useMutation({
     mutationFn: async () => {
-      const num = parseInt(chapterNumber, 10);
-      if (!Number.isFinite(num) || num < 1) {
-        throw new Error("Номер глави має бути додатним числом");
-      }
-
-      // фронт-перевірка унікальності
-      const isUnique = await checkUniqueChapterNumber(num);
-      if (!isUnique) {
-        throw new Error(
-          `Глава з номером ${num} вже існує у ${isCantoMode ? "цій пісні" : "цій книзі"}. Оберіть інший номер.`,
-        );
-      }
-
       const chapterData: any = {
-        chapter_number: num,
+        chapter_number: parseInt(chapterNumber),
         title_ua: titleUa,
         title_en: titleEn || null,
       };
@@ -141,40 +139,19 @@ export default function Chapters() {
       setTitleUa("");
       setTitleEn("");
     },
-    onError: (err: any) => {
-      // підстраховка: якщо БД повернула 23505 (unique_violation)
-      if (err?.code === "23505" || /unique|duplicate key/i.test(err?.message || "")) {
-        toast({
-          title: "Дублікат номера глави",
-          description: "Глава з таким номером уже існує в межах цієї книги/пісні. Оберіть інший номер.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Помилка",
-          description: err?.message || "Не вдалося зберегти главу",
-          variant: "destructive",
-        });
-      }
+    onError: (error: any) => {
+      toast({
+        title: "Помилка",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      const num = parseInt(chapterNumber, 10);
-      if (!Number.isFinite(num) || num < 1) {
-        throw new Error("Номер глави має бути додатним числом");
-      }
-
-      const isUnique = await checkUniqueChapterNumber(num, { excludeId: editingChapter?.id });
-      if (!isUnique) {
-        throw new Error(
-          `Глава з номером ${num} вже існує у ${isCantoMode ? "цій пісні" : "цій книзі"}. Оберіть інший номер.`,
-        );
-      }
-
       const chapterData = {
-        chapter_number: num,
+        chapter_number: parseInt(chapterNumber),
         title_ua: titleUa,
         title_en: titleEn || null,
       };
@@ -189,22 +166,13 @@ export default function Chapters() {
       setChapterNumber("");
       setTitleUa("");
       setTitleEn("");
-      setIsAddingChapter(false);
     },
-    onError: (err: any) => {
-      if (err?.code === "23505" || /unique|duplicate key/i.test(err?.message || "")) {
-        toast({
-          title: "Дублікат номера глави",
-          description: "Глава з таким номером уже існує в межах цієї книги/пісні. Оберіть інший номер.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Помилка",
-          description: err?.message || "Не вдалося оновити главу",
-          variant: "destructive",
-        });
-      }
+    onError: (error: any) => {
+      toast({
+        title: "Помилка",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -220,7 +188,7 @@ export default function Chapters() {
     onError: (error: any) => {
       toast({
         title: "Помилка",
-        description: error?.message || "Не вдалося видалити главу",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -236,6 +204,7 @@ export default function Chapters() {
       });
       return;
     }
+
     if (editingChapter) {
       updateMutation.mutate();
     } else {
