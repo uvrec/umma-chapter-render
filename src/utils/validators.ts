@@ -22,13 +22,7 @@ export function normalizeHttpUrl(input: string): string {
  *  (та дзеркало telegram.me)
  */
 export const TELEGRAM_REGEX =
-  /^(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?:
-      [A-Za-z0-9_]{5,32}(?:\/\d+)? |     # username або пост
-      s\/[A-Za-z0-9_]{5,32}(?:\/\d+)? |  # дзеркало 's'
-      c\/\d+\/\d+ |                      # приватні канали: c/<id>/<post>
-      \+[A-Za-z0-9_-]+ |                 # інвайт +код
-      joinchat\/[A-Za-z0-9_-]+           # joinchat/код
-  )\/?$/ix;
+  /^(?:https?:\/\/)?(?:t\.me|telegram\.me)\/(?:(?:[A-Za-z0-9_]{5,32}(?:\/\d+)?)|(?:s\/[A-Za-z0-9_]{5,32}(?:\/\d+)?)|(?:c\/\d+\/\d+)|(?:\+[A-Za-z0-9_-]+)|(?:joinchat\/[A-Za-z0-9_-]+))\/?$/i;
 
 /** Перевіряє https? URL або порожнє значення (порожнє — валідне) */
 export function isValidHttpsUrlOrEmpty(url: string): boolean {
