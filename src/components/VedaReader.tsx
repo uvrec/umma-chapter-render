@@ -236,11 +236,11 @@ export const VedaReader = () => {
                               originalLanguage === "sanskrit"
                                 ? textDisplaySettings
                                 : {
-                                    showSanskrit: originalLanguage === "sanskrit",
+                                    showSanskrit: false,
                                     showTransliteration: false,
                                     showSynonyms: false,
                                     showTranslation: true,
-                                    showCommentary: originalLanguage === "sanskrit",
+                                    showCommentary: false,
                                   }
                             }
                           />

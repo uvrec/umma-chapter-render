@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -28,7 +28,7 @@ export function UploadStep({ onNext }: UploadStepProps) {
   const isLikelyMarkdown = (s: string) =>
     /(^|\n)\s{0,3}(#{1,6}\s)|(\*\s)|(\-\s)|(\d+\.\s)|(\*\*.+\*\*)|(_.+_)|(`.+`)/.test(s);
 
-  const htmlFromMarkdown = (md: string) => marked(md);
+  const htmlFromMarkdown = async (md: string) => await marked(md);
 
   const htmlFromPlainText = (txt: string) => {
     // перетворюємо пусті рядки на <p>, один перенос на <br />
@@ -103,42 +103,59 @@ export function UploadStep({ onNext }: UploadStepProps) {
   };
 
   // те, що віддамо у onNext
-  const buildOutput = (): string => {
+  const buildOutput = async (): Promise<string> => {
     if (!preserveFormatting) {
       // Повертаємо plain text (з HTML/MD знімаємо розмітку)
       if (detected === "html") return plainFromHTML(raw);
-      if (detected === "markdown") return plainFromHTML(htmlFromMarkdown(raw));
+      if (detected === "markdown") return plainFromHTML(await htmlFromMarkdown(raw));
       return raw; // і так plain text
     }
 
     // Preserve formatting (віддаємо HTML):
     if (detected === "html") return raw;
-    if (detected === "markdown") return htmlFromMarkdown(raw);
+    if (detected === "markdown") return await htmlFromMarkdown(raw);
     // text → простий HTML з <p> і <br />
     return htmlFromPlainText(raw);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!raw.trim()) {
       toast.error("Будь ласка, завантажте файл або вставте текст");
       return;
     }
-    const out = buildOutput();
+    const out = await buildOutput();
     onNext(out);
   };
 
-  const previewHTML = preserveFormatting
-    ? buildOutput() // HTML
-    : `<pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,'Liberation Mono','Courier New',monospace;">${(detected ===
-      "html"
-        ? plainFromHTML(raw)
-        : detected === "markdown"
-          ? plainFromHTML(htmlFromMarkdown(raw))
-          : raw
-      )
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")}</pre>`;
+  const [previewHTML, setPreviewHTML] = useState("");
+
+  useEffect(() => {
+    const updatePreview = async () => {
+      if (!raw) {
+        setPreviewHTML("");
+        return;
+      }
+      
+      if (preserveFormatting) {
+        const html = await buildOutput();
+        setPreviewHTML(html);
+      } else {
+        const plainText = detected === "html"
+          ? plainFromHTML(raw)
+          : detected === "markdown"
+            ? plainFromHTML(await htmlFromMarkdown(raw))
+            : raw;
+        setPreviewHTML(
+          `<pre style="white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,'Liberation Mono','Courier New',monospace;">${plainText
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")}</pre>`
+        );
+      }
+    };
+    
+    updatePreview();
+  }, [raw, detected, preserveFormatting]);
 
   return (
     <div className="space-y-6">

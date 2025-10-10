@@ -117,7 +117,6 @@ export const IndividualVerse = () => {
             <p className="text-muted-foreground">Вірш {verseNumber}</p>
           </div>
 
-          {/* прозора поверхня для тем/крафту */}
           <div className="verse-surface rounded-lg p-0">
             <VerseCard
               verseNumber={currentVerse.number}
@@ -135,11 +134,8 @@ export const IndividualVerse = () => {
                 showTranslation: true,
                 showCommentary: true,
               }}
-              isAdmin={isAdmin} // ← інлайн-адмін-редагування в картці
-              onVerseUpdate={() => {}} // ← під’єднай вашу мутацію за потреби
-              makeTranslationBold // ← повертає «bold» для перекладу
-              centerBookTitle // ← назва твору по центру
-              transparentCovers // ← обкладинки без білого фону
+              isAdmin={isAdmin}
+              onVerseUpdate={() => {}}
             />
           </div>
 
