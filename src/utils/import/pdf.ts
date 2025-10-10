@@ -1,8 +1,10 @@
 // src/utils/import/pdf.ts
 import * as pdfjsLib from "pdfjs-dist";
-// У різних збірках назва воркера відрізняється — беремо немінімізований варіант
-import workerUrl from "pdfjs-dist/build/pdf.worker.js?url";
+import workerUrl from "pdfjs-dist/build/pdf.worker.mjs?url"; // ✅ для сучасних версій
 import { sanitizeHtml } from "./normalizers";
+
+// Прив’язуємо worker
+(pdfjsLib as any).GlobalWorkerOptions.workerSrc = workerUrl;
 
 // Прив’язуємо worker
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = workerUrl;
