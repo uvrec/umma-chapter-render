@@ -174,7 +174,7 @@ export const VerseCard: React.FC<VerseCardProps> = ({
   const synonymsParts = useMemo(() => parseSynonyms(synonyms), [synonyms]);
 
   return (
-    <Card className="w-full animate-fade-in border-gray-100 bg-card shadow-sm dark:border-border">
+    <Card className="verse-surface w-full animate-fade-in border-gray-100 bg-card shadow-sm dark:border-border">
       <div className="p-6">
         {/* Верхній рядок: номер/книга/плеєр/редагування */}
         <div className="mb-4 flex items-center justify-between">
