@@ -171,13 +171,13 @@ export const BookOverview = () => {
                 
                 return (
                   <Card key={canto.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
-                    <div className="aspect-[3/4] rounded-t-lg overflow-hidden bg-transparent">
+                    <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
                       <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`} className="block w-full h-full">
                         {coverImage ? (
                           <img 
                             src={coverImage} 
                             alt={cantoTitle}
-                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
