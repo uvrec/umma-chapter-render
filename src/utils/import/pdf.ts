@@ -42,8 +42,8 @@ export async function extractTextFromPDF(file: File, opts: Options = {}): Promis
     }
 
     const page = await pdf.getPage(i);
-    // Дуже важливо: disableCombineTextItems = false (за замовч.), краще зберігає порядок
-    const textContent = await page.getTextContent({ normalizeWhitespace: false });
+    // Отримуємо текстовий контент сторінки
+    const textContent = await page.getTextContent();
 
     const items = (textContent.items as any[]) || [];
     const sb: string[] = [];

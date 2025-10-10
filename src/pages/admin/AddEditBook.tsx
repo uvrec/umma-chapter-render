@@ -64,7 +64,7 @@ function extractStoragePathFromPublicUrl(publicUrl: string, bucket: string) {
 export default function AddEditBook() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, isAdmin, isLoading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
 
   const isEdit = !!id;

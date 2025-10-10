@@ -94,7 +94,7 @@ export default function AddEditBlogPost() {
       setSubstackUrl(post.substack_embed_url || "");
       setMetaDescUa(post.meta_description_ua || "");
       setMetaDescEn(post.meta_description_en || "");
-      setAuthorName(post.author_name || "Аніруддга дас");
+      setAuthorName(post.author_display_name || "Аніруддга дас");
     }
   }, [post]);
 

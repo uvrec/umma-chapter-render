@@ -91,6 +91,7 @@ export default function BlogPosts() {
     {
       queryKey,
       queryFn: fetchPage,
+      initialPageParam: 0,
       getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextPage : undefined),
       staleTime: 30_000,
       refetchOnWindowFocus: false,

@@ -35,21 +35,78 @@ export async function trackAudioEvent({ trackId, eventType, positionMs, duration
   }
 }
 
-/** — нижче все без змін — */
-function saveToLocalStorage(/* ... */) {
-  /* як у тебе */
+/** Зберігаємо прогрес у localStorage для відновлення */
+function saveToLocalStorage(trackId: string, positionMs: number, durationMs: number, eventType: AudioEventType) {
+  try {
+    const key = `audio_progress_${trackId}`;
+    localStorage.setItem(
+      key,
+      JSON.stringify({
+        trackId,
+        positionMs,
+        durationMs,
+        eventType,
+        timestamp: Date.now(),
+      })
+    );
+  } catch (e) {
+    console.error("Failed to save to localStorage:", e);
+  }
 }
-export function getLastProgress(/* ... */) {
-  /* як у тебе */
+
+export function getLastProgress(trackId: string): { positionMs: number; durationMs: number } | null {
+  try {
+    const key = `audio_progress_${trackId}`;
+    const data = localStorage.getItem(key);
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    return { positionMs: parsed.positionMs || 0, durationMs: parsed.durationMs || 0 };
+  } catch {
+    return null;
+  }
 }
-export function getLastAudioMetadata(/* ... */) {
-  /* як у тебе */
+
+export function getLastAudioMetadata(): { trackId: string; positionMs: number } | null {
+  try {
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith("audio_progress_"));
+    if (keys.length === 0) return null;
+    
+    // Знаходимо останній за timestamp
+    let latest = null;
+    let latestTime = 0;
+    
+    for (const key of keys) {
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || "{}");
+        if (data.timestamp && data.timestamp > latestTime) {
+          latestTime = data.timestamp;
+          latest = { trackId: data.trackId, positionMs: data.positionMs || 0 };
+        }
+      } catch {}
+    }
+    
+    return latest;
+  } catch {
+    return null;
+  }
 }
-export function clearTrackProgress(/* ... */) {
-  /* як у тебе */
+
+export function clearTrackProgress(trackId: string) {
+  try {
+    const key = `audio_progress_${trackId}`;
+    localStorage.removeItem(key);
+  } catch (e) {
+    console.error("Failed to clear track progress:", e);
+  }
 }
-export function clearAllAudioData(/* ... */) {
-  /* як у тебе */
+
+export function clearAllAudioData() {
+  try {
+    const keys = Object.keys(localStorage).filter((k) => k.startsWith("audio_progress_"));
+    keys.forEach((k) => localStorage.removeItem(k));
+  } catch (e) {
+    console.error("Failed to clear all audio data:", e);
+  }
 }
 
 export function createAudioTracker(audioElement: HTMLAudioElement, trackId: string, durationMs: number) {

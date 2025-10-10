@@ -24,34 +24,7 @@ export async function extractTextFromDOCX(file: File): Promise<string> {
     }
 
     // Очищення HTML (залишає базові теги)
-    const safeHTML = sanitizeHtml(result.value, {
-      allowedTags: [
-        "p",
-        "strong",
-        "em",
-        "b",
-        "i",
-        "u",
-        "br",
-        "sup",
-        "sub",
-        "ul",
-        "ol",
-        "li",
-        "table",
-        "thead",
-        "tbody",
-        "tr",
-        "td",
-        "th",
-        "blockquote",
-        "span",
-        "div",
-      ],
-      allowedAttributes: {
-        "*": ["style"],
-      },
-    });
+    const safeHTML = sanitizeHtml(result.value);
 
     return safeHTML.trim();
   } catch (error) {
