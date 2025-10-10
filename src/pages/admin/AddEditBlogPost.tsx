@@ -14,21 +14,22 @@ import { generateSlug, calculateReadTime } from "@/utils/blogHelpers";
 import { toast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Trash2 } from "lucide-react";
 import { z } from "zod";
+import { isValidHttpsUrlOrEmpty, isValidTelegramUrlOrEmpty, TELEGRAM_REGEX } from "@/utils/validators";
 
-const httpsUrlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
-const telegramSchema = z
-  .string()
-  .regex(
-    /^https?:\/\/t\.me\/[A-Za-z0-9_]+(\/\d+)?\/?$/,
-    "Невалідне посилання Telegram. Формати: https://t.me/канал або https://t.me/канал/123",
-  )
-  .or(z.literal(""));
+// zod-схеми для повідомлень про помилки
+const httpsUrlSchema = z.string().refine(isValidHttpsUrlOrEmpty, {
+  message: "Невірний формат URL",
+});
+const telegramSchema = z.string().refine(isValidTelegramUrlOrEmpty, {
+  message: "Невалідне посилання Telegram. Формати: https://t.me/канал або https://t.me/канал/123",
+});
 
 export default function AddEditBlogPost() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
 
+  // ——— основні стани
   const [titleUa, setTitleUa] = useState("");
   const [titleEn, setTitleEn] = useState("");
   const [slug, setSlug] = useState("");
@@ -48,6 +49,10 @@ export default function AddEditBlogPost() {
   const [metaDescUa, setMetaDescUa] = useState("");
   const [metaDescEn, setMetaDescEn] = useState("");
 
+  // ——— автор
+  const [authorName, setAuthorName] = useState("Аніруддга дас");
+
+  // категорії
   const { data: categories } = useQuery({
     queryKey: ["blog-categories"],
     queryFn: async () => {
@@ -57,6 +62,7 @@ export default function AddEditBlogPost() {
     },
   });
 
+  // пост (редагування)
   const { data: post } = useQuery({
     queryKey: ["blog-post", id],
     queryFn: async () => {
@@ -88,25 +94,32 @@ export default function AddEditBlogPost() {
       setSubstackUrl(post.substack_embed_url || "");
       setMetaDescUa(post.meta_description_ua || "");
       setMetaDescEn(post.meta_description_en || "");
+      setAuthorName(post.author_name || "Аніруддга дас");
     }
   }, [post]);
 
   useEffect(() => {
-    if (titleUa && !slug && !isEdit) setSlug(generateSlug(titleUa));
+    if (titleUa && !slug && !isEdit) {
+      setSlug(generateSlug(titleUa));
+    }
   }, [titleUa, isEdit, slug]);
 
+  // ——— завантаження обкладинки
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
     try {
       const fileExt = file.name.split(".").pop();
       const fileName = `${crypto.randomUUID?.() ?? Math.random()}.${fileExt}`;
       const { error: uploadError } = await supabase.storage.from("blog-media").upload(fileName, file);
+
       if (uploadError) throw uploadError;
 
       const {
         data: { publicUrl },
       } = supabase.storage.from("blog-media").getPublicUrl(fileName);
+
       setFeaturedImage(publicUrl);
       toast({ title: "Зображення завантажено" });
     } catch (error) {
@@ -115,30 +128,32 @@ export default function AddEditBlogPost() {
     }
   };
 
+  // ——— просто очищаємо поле (файл у бакеті залишаємо)
   const handleRemoveImage = () => {
     setFeaturedImage("");
     toast({ title: "Зображення прибрано з поста" });
   };
 
+  // ——— submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Перевірка URL з урахуванням окремої логіки для Telegram
-    const validations: Array<{ name: string; value: string; schema: z.ZodTypeAny }> = [
-      { name: "Обкладинка", value: featuredImage.trim(), schema: httpsUrlSchema },
-      { name: "Відео URL", value: videoUrl.trim(), schema: httpsUrlSchema },
-      { name: "Аудіо URL", value: audioUrl.trim(), schema: httpsUrlSchema },
-      { name: "Instagram URL", value: instagramUrl.trim(), schema: httpsUrlSchema },
-      { name: "Telegram URL", value: telegramUrl.trim(), schema: telegramSchema },
-      { name: "Substack URL", value: substackUrl.trim(), schema: httpsUrlSchema },
+    // Валідація URL
+    const checks: Array<{ label: string; value: string; schema: z.ZodTypeAny }> = [
+      { label: "Обкладинка", value: featuredImage.trim(), schema: httpsUrlSchema },
+      { label: "YouTube/Vimeo URL", value: videoUrl.trim(), schema: httpsUrlSchema },
+      { label: "Spotify/SoundCloud URL", value: audioUrl.trim(), schema: httpsUrlSchema },
+      { label: "Instagram URL", value: instagramUrl.trim(), schema: httpsUrlSchema },
+      { label: "Telegram URL", value: telegramUrl.trim(), schema: telegramSchema },
+      { label: "Substack URL", value: substackUrl.trim(), schema: httpsUrlSchema },
     ];
 
-    for (const { name, value, schema } of validations) {
+    for (const { label, value, schema } of checks) {
       const res = schema.safeParse(value);
       if (!res.success) {
         toast({
           title: "Помилка валідації",
-          description: `${name}: ${res.error.errors[0].message}`,
+          description: `${label}: ${res.error.errors[0].message}`,
           variant: "destructive",
         });
         return;
@@ -168,6 +183,7 @@ export default function AddEditBlogPost() {
       meta_description_ua: metaDescUa,
       meta_description_en: metaDescEn,
       read_time: readTime,
+      author_name: authorName || "Аніруддга дас",
     };
 
     try {
@@ -196,6 +212,7 @@ export default function AddEditBlogPost() {
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Ліва колонка — контент */}
         <div className="lg:col-span-2">
           <Tabs defaultValue="ua" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -263,9 +280,21 @@ export default function AddEditBlogPost() {
           </Tabs>
         </div>
 
+        {/* Права колонка — налаштування */}
         <div className="space-y-6">
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold">Налаштування публікації</h3>
+
+            <div>
+              <Label htmlFor="author">Автор</Label>
+              <Input
+                id="author"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                placeholder="Ім’я автора"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Якщо порожньо — буде «Аніруддга дас».</p>
+            </div>
 
             <div className="flex items-center justify-between">
               <Label htmlFor="published">Опублікувати</Label>
@@ -374,6 +403,11 @@ export default function AddEditBlogPost() {
                 onChange={(e) => setTelegramUrl(e.target.value)}
                 placeholder="https://t.me/prabhupada_ua або https://t.me/prabhupada_ua/123"
               />
+              {!!telegramUrl && !TELEGRAM_REGEX.test(telegramUrl.trim()) && (
+                <p className="mt-1 text-xs text-destructive">
+                  Невалідне посилання Telegram. Формати: https://t.me/канал або https://t.me/канал/123
+                </p>
+              )}
             </div>
 
             <div>
