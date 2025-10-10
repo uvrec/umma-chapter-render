@@ -1,11 +1,8 @@
-// IndividualVerse.tsx — повернено інлайн-адмін (передаємо isAdmin), текст перекладу знову «bold» через VerseCard prop,
-// обкладинки/поверхні — без білого фону (verse-surface контейнер)
-
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Header } from "./Header";
-import { Breadcrumb } from "./Breadcrumb";
-import { VerseCard } from "./VerseCard";
+import { Header } from "@/components/Header";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { VerseCard } from "@/components/VerseCard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { verses } from "@/data/verses";
@@ -108,7 +105,7 @@ export const IndividualVerse = () => {
           <div className="mb-8 flex items-center justify-between">
             <Link
               to={`/verses/${bookId}`}
-              className="flex items-center text-muted-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20 rounded-md px-2 py-1"
+              className="flex items-center rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Повернутися до читання
@@ -120,7 +117,7 @@ export const IndividualVerse = () => {
             <p className="text-muted-foreground">Вірш {verseNumber}</p>
           </div>
 
-          {/* verse-surface — жодних білих підкладок, підтримує craft/light/dark */}
+          {/* прозора поверхня для тем/крафту */}
           <div className="verse-surface rounded-lg p-0">
             <VerseCard
               verseNumber={currentVerse.number}
@@ -138,14 +135,15 @@ export const IndividualVerse = () => {
                 showTranslation: true,
                 showCommentary: true,
               }}
-              isAdmin={isAdmin} // ← повертає інлайн-редагування для адміна
-              onVerseUpdate={() => {}} // ← можна замінити реальною мутацією, тут — щоб показати UI
-              makeTranslationBold // ← дод. прапорець (див. оновлення VerseCard нижче)
-              centerBookTitle // ← центрування назви твору
-              transparentCovers // ← прозорий фон під обкладинками
+              isAdmin={isAdmin} // ← інлайн-адмін-редагування в картці
+              onVerseUpdate={() => {}} // ← під’єднай вашу мутацію за потреби
+              makeTranslationBold // ← повертає «bold» для перекладу
+              centerBookTitle // ← назва твору по центру
+              transparentCovers // ← обкладинки без білого фону
             />
           </div>
 
+          {/* Навігація між віршами */}
           <div className="border-t pt-8">
             <div className="flex items-center justify-between">
               {prevVerse ? (
