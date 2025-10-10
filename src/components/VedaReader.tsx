@@ -1,7 +1,6 @@
 // VedaReader.tsx — підчищена версія під оновлений VerseCard/InlineTiptapEditor
-// + дрібні UX-фікси: стабільні типи, глобальний fontSize+lineHeight,
-//   нормалізація originalLanguage, клавіші ←/→ між віршами (anchor-скрол),
-//   дрібний рефактор continuous reading.
+// + verse-surface у всіх релевантних блоках (колонки, continuous wrapper),
+//   стабільні типи, глобальний fontSize+lineHeight, хоткеї ←/→ між віршами.
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -127,10 +126,7 @@ export const VedaReader = () => {
   }, [filteredVerses, continuousReadingSettings.enabled]);
 
   const renderContinuousText = () => (
-    <div
-      className={`${craftPaperMode ? "p-8 rounded-lg" : ""}`}
-      style={{ backgroundColor: craftPaperMode ? "#F3D4A5" : "transparent" }}
-    >
+    <div className={`verse-surface ${craftPaperMode ? "p-8 rounded-lg" : ""}`}>
       {filteredVerses.map((verse, index) => {
         const verseShort = verse.number.split(".").pop();
         return (
@@ -219,7 +215,7 @@ export const VedaReader = () => {
                     {dualLanguageMode ? (
                       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                         {/* Оригінал */}
-                        <div className="rounded-lg bg-muted/30 p-6">
+                        <div className="verse-surface rounded-lg p-6">
                           <h4 className="mb-4 text-center font-semibold">{originalHeader(originalLanguage)}</h4>
                           <VerseCard
                             verseNumber={verse.number}
@@ -251,7 +247,7 @@ export const VedaReader = () => {
                         </div>
 
                         {/* Український переклад */}
-                        <div className="rounded-lg bg-muted/10 p-6">
+                        <div className="verse-surface rounded-lg p-6">
                           <h4 className="mb-4 text-center font-semibold">Українська</h4>
                           <VerseCard
                             verseNumber={verse.number}
