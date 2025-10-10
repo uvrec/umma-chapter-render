@@ -1,4 +1,3 @@
-// src/pages/admin/ImportWizard.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -27,11 +26,11 @@ export default function ImportWizard() {
     { id: 'preview', label: 'Попередній перегляд', icon: Eye },
   ];
 
-  const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
+  const currentStepIndex = steps.findIndex(s => s.id === currentStep);
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b sticky top-0 z-40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/admin/dashboard')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -39,9 +38,11 @@ export default function ImportWizard() {
           </Button>
           <h1 className="text-2xl font-bold">Імпорт глави з книги</h1>
         </div>
+      </header>
 
-        {/* Sticky steps indicator */}
-        <div className="container mx-auto px-4 pb-3">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Steps indicator */}
+        <div className="mb-8">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => {
               const Icon = step.icon;
@@ -65,16 +66,18 @@ export default function ImportWizard() {
                     <span className="text-xs mt-2">{step.label}</span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`h-1 flex-1 mx-2 ${isCompleted ? 'bg-primary' : 'bg-muted'}`} />
+                    <div
+                      className={`h-1 flex-1 mx-2 ${
+                        isCompleted ? 'bg-primary' : 'bg-muted'
+                      }`}
+                    />
                   )}
                 </div>
               );
             })}
           </div>
         </div>
-      </header>
 
-      <div className="container mx-auto px-4 py-6 max-w-5xl">
         <Card className="p-6">
           {currentStep === 'upload' && (
             <UploadStep
@@ -109,11 +112,13 @@ export default function ImportWizard() {
           )}
 
           {currentStep === 'preview' && selectedChapter && (
-            <PreviewStep
-              chapter={selectedChapter}
-              allChapters={chapters}            {/* ← важливо: даємо всю книгу */}
-              onBack={() => setCurrentStep('chapters')}
-              onComplete={() => navigate('/admin/dashboard')}
+  <PreviewStep
+    chapter={selectedChapter}
+    allChapters={chapters}
+    onBack={() => setCurrentStep('chapters')}
+    onComplete={() => navigate('/admin/dashboard')}
+  />
+)}
             />
           )}
         </Card>
