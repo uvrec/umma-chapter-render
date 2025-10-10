@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { isValidTelegramUrl } from "@/utils/validators";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,7 +15,6 @@ import { toast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Trash2 } from "lucide-react";
 import { z } from "zod";
 
-const [authorName, setAuthorName] = useState("Аніруддга дас");
 const httpsUrlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
 const telegramSchema = z
   .string()
