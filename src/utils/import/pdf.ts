@@ -1,6 +1,6 @@
 // src/utils/import/pdf.ts
 import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
+// ⚙️ Підключення воркера коректно для Vite import pdfWorker from "pdfjs-dist/build/pdf.worker.js?url";
 import { sanitizeHtml } from "./normalizers"; // 👈 бо файл у тій самій теці
 import { addSanskritLineBreaks } from "../text/lineBreaks"; // 👈 піднялися на рівень вище
 
