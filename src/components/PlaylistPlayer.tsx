@@ -1,20 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX,
-  List,
-  Shuffle,
-  Repeat
-} from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Volume2, List, Shuffle, Repeat } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAudio } from '@/components/GlobalAudioPlayer';
+import { useAudio } from "@/components/GlobalAudioPlayer";
 
 interface Track {
   id: string;
@@ -32,64 +22,72 @@ interface PlaylistPlayerProps {
 export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, albumCover }) => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(true);
-  
-  const { 
-    currentTrack, 
-    isPlaying, 
-    currentTime, 
-    duration, 
-    volume, 
-    playTrack, 
-    togglePlay, 
-    setVolume, 
-    seek 
-  } = useAudio();
+
+  // NEW: repeat toggle
+  const [repeatOn, setRepeatOn] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("vv_repeat_on") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const justLoopedRef = useRef(false);
+
+  const { currentTrack, isPlaying, currentTime, duration, volume, playTrack, togglePlay, setVolume, seek } = useAudio();
 
   const currentPlaylistTrack = tracks[currentTrackIndex];
-  const isCurrentTrackInPlaylist = currentTrack && tracks.some(track => track.src === currentTrack.src);
+  const isCurrentTrackInPlaylist = !!currentTrack && tracks.some((track) => track.src === currentTrack.src);
 
   const handlePlayTrack = (track: Track, index: number) => {
     setCurrentTrackIndex(index);
-    playTrack({
-      id: track.id,
-      title: track.title,
-      src: track.src
-    });
-    
-    // Show a toast for demo tracks
-    if (track.title.includes("тестовий") || track.title.includes("Демо")) {
-      console.log("Відтворюється демо трек:", track.title);
-    }
+    playTrack({ id: track.id, title: track.title, src: track.src });
   };
 
   const handleNext = () => {
     const nextIndex = (currentTrackIndex + 1) % tracks.length;
     const nextTrack = tracks[nextIndex];
-    if (nextTrack?.src) {
-      handlePlayTrack(nextTrack, nextIndex);
-    }
+    if (nextTrack?.src) handlePlayTrack(nextTrack, nextIndex);
   };
 
   const handlePrevious = () => {
     const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
     const prevTrack = tracks[prevIndex];
-    if (prevTrack?.src) {
-      handlePlayTrack(prevTrack, prevIndex);
+    if (prevTrack?.src) handlePlayTrack(prevTrack, prevIndex);
+  };
+
+  const handleSeek = (value: number[]) => seek(value[0]);
+  const handleVolumeChange = (value: number[]) => setVolume(value[0]);
+
+  // NEW: manual repeat (миттєвий рестарт з кешу)
+  const handleRepeatClick = () => {
+    setRepeatOn((v) => {
+      const next = !v;
+      try {
+        localStorage.setItem("vv_repeat_on", next ? "1" : "0");
+      } catch {}
+      return next;
+    });
+  };
+
+  // NEW: auto repeat наприкінці треку (без перевантаження джерела)
+  useEffect(() => {
+    if (!repeatOn || !duration) return;
+    const nearEnd = duration - currentTime <= 0.3;
+    if (!isPlaying && nearEnd && !justLoopedRef.current) {
+      justLoopedRef.current = true;
+      seek(0);
+      // якщо зупинився — знову граємо
+      togglePlay();
+      setTimeout(() => {
+        justLoopedRef.current = false;
+      }, 500);
     }
-  };
-
-  const handleSeek = (value: number[]) => {
-    seek(value[0]);
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    setVolume(value[0]);
-  };
+  }, [repeatOn, currentTime, duration, isPlaying, seek, togglePlay]);
 
   const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    const minutes = Math.floor((time || 0) / 60);
+    const seconds = Math.floor((time || 0) % 60);
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -101,16 +99,12 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
           <div className="flex items-center space-x-4">
             {albumCover && (
               <div className="w-16 h-16 flex-shrink-0">
-                <img
-                  src={albumCover}
-                  alt={title}
-                  className="w-full h-full object-cover rounded-md shadow-md"
-                />
+                <img src={albumCover} alt={title} className="w-full h-full object-cover rounded-md shadow-md" />
               </div>
             )}
             <div className="flex-1 text-center">
               <h3 className="text-lg font-semibold text-foreground mb-1">
-                {isCurrentTrackInPlaylist ? currentTrack.title : currentPlaylistTrack?.title}
+                {isCurrentTrackInPlaylist ? currentTrack?.title : currentPlaylistTrack?.title}
               </h3>
               <p className="text-sm text-muted-foreground">{title}</p>
             </div>
@@ -137,25 +131,21 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
             <Button variant="ghost" size="icon" onClick={handlePrevious}>
               <SkipBack className="w-5 h-5" />
             </Button>
-            
-            <Button 
-              size="icon" 
+
+            <Button
+              size="icon"
               onClick={() => {
                 if (isCurrentTrackInPlaylist) {
                   togglePlay();
-                } else {
+                } else if (currentPlaylistTrack) {
                   handlePlayTrack(currentPlaylistTrack, currentTrackIndex);
                 }
               }}
               className="w-12 h-12"
             >
-              {isCurrentTrackInPlaylist && isPlaying ? (
-                <Pause className="w-6 h-6" />
-              ) : (
-                <Play className="w-6 h-6" />
-              )}
+              {isCurrentTrackInPlaylist && isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
             </Button>
-            
+
             <Button variant="ghost" size="icon" onClick={handleNext}>
               <SkipForward className="w-5 h-5" />
             </Button>
@@ -164,29 +154,39 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
           {/* Volume and Options */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon">
-                <Volume2 className="w-4 h-4" />
-              </Button>
-              <Slider
-                value={[volume]}
-                max={100}
-                step={1}
-                onValueChange={handleVolumeChange}
-                className="w-24"
-              />
+              <Volume2 className="w-4 h-4 opacity-70" />
+              <Slider value={[volume]} max={100} step={1} onValueChange={handleVolumeChange} className="w-24" />
             </div>
 
             <div className="flex items-center space-x-1">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" aria-label="Shuffle (заглушка)">
                 <Shuffle className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon">
+
+              {/* NEW: Repeat toggle + миттєве повторення */}
+              <Button
+                variant={repeatOn ? "default" : "ghost"}
+                size="icon"
+                aria-pressed={repeatOn}
+                aria-label={repeatOn ? "Вимкнути повтор" : "Увімкнути повтор"}
+                className={repeatOn ? "bg-primary/15" : ""}
+                onClick={() => {
+                  if (!repeatOn) {
+                    // якщо просто натиснули — одразу перезапустимо з кешу
+                    seek(0);
+                    if (!isPlaying) togglePlay();
+                  }
+                  handleRepeatClick();
+                }}
+              >
                 <Repeat className="w-4 h-4" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowPlaylist(!showPlaylist)}
+                aria-label="Показати/сховати плейлист"
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -200,20 +200,16 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
         <Card className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold text-foreground">Плейлист</h4>
-            <span className="text-sm text-muted-foreground">
-              {tracks.length} треків
-            </span>
+            <span className="text-sm text-muted-foreground">{tracks.length} треків</span>
           </div>
-          
+
           <ScrollArea className="h-64">
             <div className="space-y-1">
               {tracks.map((track, index) => (
                 <div
                   key={track.id}
                   className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${
-                    index === currentTrackIndex
-                      ? 'bg-primary/10 text-primary'
-                      : 'hover:bg-muted text-foreground'
+                    index === currentTrackIndex ? "bg-primary/10 text-primary" : "hover:bg-muted text-foreground"
                   }`}
                   onClick={() => handlePlayTrack(track, index)}
                 >
@@ -227,9 +223,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
                     </span>
                     <span className="font-medium">{track.title}</span>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {track.duration}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{track.duration}</span>
                 </div>
               ))}
             </div>
