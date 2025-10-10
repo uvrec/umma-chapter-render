@@ -27,6 +27,11 @@ export default function ImportWizard() {
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
+  // десь у ImportWizardStep1
+  setStatus("Обробка PDF… 0%");
+  const html = await extractTextFromPDF(file, {
+    onProgress: ({ page, total }) => setStatus(`Обробка PDF… ${page}/${total}`),
+  });
 
   return (
     <div className="min-h-screen bg-background">
