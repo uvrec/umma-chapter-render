@@ -1,3 +1,4 @@
+// ThemeToggle.tsx
 import { useEffect } from "react";
 import { Moon, Sun, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,13 +15,12 @@ import { useTheme } from "./ThemeProvider";
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
-  // гарячі клавіші: Cmd/Ctrl+J → light/dark; Cmd/Ctrl+Shift+J → craft
+  // Cmd/Ctrl+J → light/dark, Cmd/Ctrl+Shift+J → craft
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().includes("MAC");
       const mod = isMac ? e.metaKey : e.ctrlKey;
       if (!mod) return;
-
       const k = e.key.toLowerCase();
       if (k === "j" && !e.shiftKey) {
         e.preventDefault();
