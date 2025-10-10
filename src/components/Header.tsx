@@ -1,3 +1,5 @@
+// Header.tsx — збільшене лого (×4), охайні навігаційні кнопки з прозорим бекґраундом і бордером лише при hover
+
 import {
   Menu,
   LogIn,
@@ -30,16 +32,19 @@ export const Header = () => {
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
 
+  // спільний клас для спокійних «прозорих» кнопок із бордером лише при hover
+  const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
         {/* Logo */}
-        <div className="flex items-center justify-center mb-4">
+        <div className="mb-4 flex items-center justify-center">
           <Link to="/" className="flex items-center">
             <img
               src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
               alt="Vedavoice"
-              className="h-16 w-auto object-contain"
+              className="h-64 w-auto object-contain" // було h-16 — тепер ×4
             />
           </Link>
         </div>
@@ -47,51 +52,51 @@ export const Header = () => {
         {/* Navigation Bar */}
         <div className="flex items-center justify-between">
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
-            <Button variant="ghost" size="sm" asChild>
+          <nav className="hidden items-center space-x-1 md:flex">
+            <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/">
-                <Home className="w-4 h-4 mr-2" />
+                <Home className="mr-2 h-4 w-4" />
                 Головна
               </Link>
             </Button>
 
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/library">
-                <BookOpen className="w-4 h-4 mr-2" />
+                <BookOpen className="mr-2 h-4 w-4" />
                 Бібліотека
               </Link>
             </Button>
 
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/glossary">
-                <Book className="w-4 h-4 mr-2" />
+                <Book className="mr-2 h-4 w-4" />
                 Глосарій
               </Link>
             </Button>
 
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/blog">
-                <FileText className="w-4 h-4 mr-2" />
+                <FileText className="mr-2 h-4 w-4" />
                 Блог
               </Link>
             </Button>
           </nav>
 
           {/* Desktop Controls */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
             {!user && (
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className={navBtn}>
                 <Link to="/auth">
-                  <LogIn className="w-4 h-4 mr-2" />
+                  <LogIn className="mr-2 h-4 w-4" />
                   Вхід
                 </Link>
               </Button>
             )}
             {isAdmin && (
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className={navBtn}>
                 <Link to="/admin/dashboard">
-                  <User className="w-4 h-4 mr-2" />
+                  <User className="mr-2 h-4 w-4" />
                   {t("Адмін", "Admin")}
                 </Link>
               </Button>
@@ -102,7 +107,7 @@ export const Header = () => {
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm" className="md:hidden">
-                <Menu className="w-4 h-4" />
+                <Menu className="h-4 w-4" />
                 <span className="ml-2">Меню</span>
               </Button>
             </SheetTrigger>
@@ -111,80 +116,85 @@ export const Header = () => {
                 <SheetTitle>Навігація</SheetTitle>
                 <SheetDescription>Оберіть розділ для перегляду</SheetDescription>
               </SheetHeader>
+
               <div className="mt-6 space-y-4">
                 <Link
                   to="/"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                   onClick={() => setOpen(false)}
                 >
-                  <Home className="w-5 h-5" />
+                  <Home className="h-5 w-5" />
                   <span>Головна</span>
                 </Link>
 
                 <Link
                   to="/library"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                   onClick={() => setOpen(false)}
                 >
-                  <BookOpen className="w-5 h-5" />
+                  <BookOpen className="h-5 w-5" />
                   <span>Бібліотека</span>
                 </Link>
 
                 <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground">
+                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
                     <div className="flex items-center space-x-3">
-                      <Languages className="w-5 h-5" />
+                      <Languages className="h-5 w-5" />
                       <span>Переклади</span>
                     </div>
-                    {translationsOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    {translationsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="ml-6 space-y-2 mt-2">
+
+                  <CollapsibleContent className="ml-6 mt-2 space-y-2">
                     <Collapsible open={prabhupadaOpen} onOpenChange={setPrabhupadaOpen}>
-                      <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm rounded-md hover:bg-muted">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
                         <span>Прабгупада</span>
-                        {prabhupadaOpen ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+                        {prabhupadaOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="ml-4 space-y-1 mt-1">
+
+                      <CollapsibleContent className="ml-4 mt-1 space-y-1">
                         <Link
                           to="/translations/prabhupada/letters"
-                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
+                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                           onClick={() => setOpen(false)}
                         >
                           <span>Листи</span>
                         </Link>
                         <Link
                           to="/translations/prabhupada/lectures"
-                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
+                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                           onClick={() => setOpen(false)}
                         >
                           <span>Лекції</span>
                         </Link>
                         <Link
                           to="/translations/prabhupada/books"
-                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
+                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                           onClick={() => setOpen(false)}
                         >
                           <span>Книги</span>
                         </Link>
                         <Link
                           to="/translations/prabhupada/photos"
-                          className="flex items-center space-x-3 px-3 py-1 text-xs rounded-md hover:bg-muted"
+                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                           onClick={() => setOpen(false)}
                         >
                           <span>Фото</span>
                         </Link>
                       </CollapsibleContent>
                     </Collapsible>
+
                     <Link
                       to="/translations/aindra-prabhu"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
+                      className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                       onClick={() => setOpen(false)}
                     >
                       <span>Аіндри прабгу</span>
                     </Link>
+
                     <Link
                       to="/translations/acharya-books"
-                      className="flex items-center space-x-3 px-3 py-2 text-sm rounded-md hover:bg-muted"
+                      className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                       onClick={() => setOpen(false)}
                     >
                       <span>Книги ачар'їв</span>
@@ -194,47 +204,47 @@ export const Header = () => {
 
                 <Link
                   to="/glossary"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                   onClick={() => setOpen(false)}
                 >
-                  <Book className="w-5 h-5" />
+                  <Book className="h-5 w-5" />
                   <span>Глосарій</span>
                 </Link>
 
                 <Link
                   to="/blog"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                   onClick={() => setOpen(false)}
                 >
-                  <FileText className="w-5 h-5" />
+                  <FileText className="h-5 w-5" />
                   <span>Блог</span>
                 </Link>
 
                 <Link
                   to="/contact"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                   onClick={() => setOpen(false)}
                 >
-                  <MessageCircle className="w-5 h-5" />
+                  <MessageCircle className="h-5 w-5" />
                   <span>Контакти</span>
                 </Link>
 
                 <Link
                   to="/donation"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                   onClick={() => setOpen(false)}
                 >
-                  <Heart className="w-5 h-5" />
+                  <Heart className="h-5 w-5" />
                   <span>Підтримати проєкт</span>
                 </Link>
 
                 {!user && (
                   <Link
                     to="/auth"
-                    className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                    className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                     onClick={() => setOpen(false)}
                   >
-                    <LogIn className="w-5 h-5" />
+                    <LogIn className="h-5 w-5" />
                     <span>Вхід</span>
                   </Link>
                 )}
@@ -242,10 +252,10 @@ export const Header = () => {
                 {isAdmin && (
                   <Link
                     to="/admin/dashboard"
-                    className="flex items-center space-x-3 px-3 py-3 rounded-md hover:bg-muted transition-colors text-foreground"
+                    className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
                     onClick={() => setOpen(false)}
                   >
-                    <User className="w-5 h-5" />
+                    <User className="h-5 w-5" />
                     <span>{t("Адмін", "Admin")}</span>
                   </Link>
                 )}
