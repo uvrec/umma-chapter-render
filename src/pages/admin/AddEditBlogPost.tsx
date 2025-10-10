@@ -12,10 +12,21 @@ import { Switch } from "@/components/ui/switch";
 import { TiptapEditor } from "@/components/blog/TiptapEditor";
 import { generateSlug, calculateReadTime } from "@/utils/blogHelpers";
 import { toast } from "@/hooks/use-toast";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Trash2 } from "lucide-react";
 import { z } from "zod";
 
 const urlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
+const BUCKET = "blog-media";
+
+/** Спроба дістати шлях у бакеті зі збереженого public URL */
+function extractPathFromPublicUrl(url: string): string | null {
+  // формати типу:
+  // https://<project>.supabase.co/storage/v1/object/public/blog-media/some/folder/file.png
+  const marker = `/storage/v1/object/public/${BUCKET}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.substring(idx + marker.length);
+}
 
 export default function AddEditBlogPost() {
   const navigate = useNavigate();
@@ -33,6 +44,7 @@ export default function AddEditBlogPost() {
   const [isPublished, setIsPublished] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [featuredImage, setFeaturedImage] = useState("");
+  const [featuredImagePath, setFeaturedImagePath] = useState<string | null>(null); // ← нове
   const [videoUrl, setVideoUrl] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
@@ -44,10 +56,7 @@ export default function AddEditBlogPost() {
   const { data: categories } = useQuery({
     queryKey: ["blog-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("blog_categories")
-        .select("*")
-        .order("name_ua");
+      const { data, error } = await supabase.from("blog_categories").select("*").order("name_ua");
       if (error) throw error;
       return data;
     },
@@ -57,11 +66,7 @@ export default function AddEditBlogPost() {
     queryKey: ["blog-post", id],
     queryFn: async () => {
       if (!id) return null;
-      const { data, error } = await supabase
-        .from("blog_posts")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await supabase.from("blog_posts").select("*").eq("id", id).single();
       if (error) throw error;
       return data;
     },
@@ -88,6 +93,14 @@ export default function AddEditBlogPost() {
       setSubstackUrl(post.substack_embed_url || "");
       setMetaDescUa(post.meta_description_ua || "");
       setMetaDescEn(post.meta_description_en || "");
+
+      // спробуємо відновити шлях з URL
+      if (post.featured_image) {
+        const p = extractPathFromPublicUrl(post.featured_image);
+        setFeaturedImagePath(p);
+      } else {
+        setFeaturedImagePath(null);
+      }
     }
   }, [post]);
 
@@ -95,30 +108,58 @@ export default function AddEditBlogPost() {
     if (titleUa && !slug && !isEdit) {
       setSlug(generateSlug(titleUa));
     }
-  }, [titleUa, isEdit]);
+  }, [titleUa, isEdit, slug]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage
-        .from('blog-media')
-        .upload(fileName, file);
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(fileName, file, { upsert: false });
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-media')
-        .getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from(BUCKET).getPublicUrl(fileName);
 
       setFeaturedImage(publicUrl);
+      setFeaturedImagePath(fileName); // ← зберігаємо шлях у бакеті
       toast({ title: "Зображення завантажено" });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error("Error uploading image:", error);
       toast({ title: "Помилка завантаження", variant: "destructive" });
+    } finally {
+      // дозволяє перевантажити той самий файл ще раз
+      e.currentTarget.value = "";
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    try {
+      // спробувати видалити із бакету, якщо маємо шлях
+      const path = featuredImagePath ?? (featuredImage ? extractPathFromPublicUrl(featuredImage) : null);
+      if (path) {
+        const { error: removeError } = await supabase.storage.from(BUCKET).remove([path]);
+        if (removeError) {
+          // не критично — просто попередимо
+          console.warn("Storage remove error (не критично):", removeError);
+        }
+      }
+      setFeaturedImage("");
+      setFeaturedImagePath(null);
+      toast({ title: "Зображення видалено" });
+    } catch (err) {
+      console.error("Remove image error:", err);
+      // навіть якщо видалити з бакету не вдалося, приберемо з поля
+      setFeaturedImage("");
+      setFeaturedImagePath(null);
+      toast({
+        title: "Не вдалося видалити файл зі сховища",
+        description: "Зображення прибрано з поста. Перевірте політики доступу до Storage.",
+      });
     }
   };
 
@@ -134,15 +175,15 @@ export default function AddEditBlogPost() {
       { value: telegramUrl, name: "Telegram URL" },
       { value: substackUrl, name: "Substack URL" },
     ];
-    
+
     for (const field of urlFields) {
       if (field.value) {
         const result = urlSchema.safeParse(field.value);
         if (!result.success) {
-          toast({ 
-            title: "Помилка валідації", 
+          toast({
+            title: "Помилка валідації",
             description: `${field.name}: ${result.error.errors[0].message}`,
-            variant: "destructive" 
+            variant: "destructive",
           });
           return;
         }
@@ -150,7 +191,7 @@ export default function AddEditBlogPost() {
     }
 
     const readTime = calculateReadTime(contentUa + contentEn);
-    
+
     const postData: any = {
       title_ua: titleUa,
       title_en: titleEn,
@@ -176,10 +217,7 @@ export default function AddEditBlogPost() {
 
     try {
       if (isEdit) {
-        const { error } = await supabase
-          .from("blog_posts")
-          .update(postData)
-          .eq("id", id);
+        const { error } = await supabase.from("blog_posts").update(postData).eq("id", id);
         if (error) throw error;
         toast({ title: "Пост оновлено" });
       } else {
@@ -189,7 +227,7 @@ export default function AddEditBlogPost() {
       }
       navigate("/admin/blog-posts");
     } catch (error) {
-      console.error('Error saving post:', error);
+      console.error("Error saving post:", error);
       toast({ title: "Помилка збереження", variant: "destructive" });
     }
   };
@@ -213,31 +251,17 @@ export default function AddEditBlogPost() {
             <TabsContent value="ua" className="space-y-4">
               <div>
                 <Label htmlFor="title-ua">Заголовок *</Label>
-                <Input
-                  id="title-ua"
-                  value={titleUa}
-                  onChange={(e) => setTitleUa(e.target.value)}
-                  required
-                />
+                <Input id="title-ua" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
               </div>
 
               <div>
                 <Label htmlFor="excerpt-ua">Короткий опис</Label>
-                <Textarea
-                  id="excerpt-ua"
-                  value={excerptUa}
-                  onChange={(e) => setExcerptUa(e.target.value)}
-                  rows={3}
-                />
+                <Textarea id="excerpt-ua" value={excerptUa} onChange={(e) => setExcerptUa(e.target.value)} rows={3} />
               </div>
 
               <div>
                 <Label>Контент *</Label>
-                <TiptapEditor
-                  content={contentUa}
-                  onChange={setContentUa}
-                  placeholder="Почніть писати українською..."
-                />
+                <TiptapEditor content={contentUa} onChange={setContentUa} placeholder="Почніть писати українською..." />
               </div>
 
               <div>
@@ -249,40 +273,24 @@ export default function AddEditBlogPost() {
                   maxLength={160}
                   rows={2}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {metaDescUa.length}/160 символів
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{metaDescUa.length}/160 символів</p>
               </div>
             </TabsContent>
 
             <TabsContent value="en" className="space-y-4">
               <div>
                 <Label htmlFor="title-en">Title *</Label>
-                <Input
-                  id="title-en"
-                  value={titleEn}
-                  onChange={(e) => setTitleEn(e.target.value)}
-                  required
-                />
+                <Input id="title-en" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required />
               </div>
 
               <div>
                 <Label htmlFor="excerpt-en">Excerpt</Label>
-                <Textarea
-                  id="excerpt-en"
-                  value={excerptEn}
-                  onChange={(e) => setExcerptEn(e.target.value)}
-                  rows={3}
-                />
+                <Textarea id="excerpt-en" value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={3} />
               </div>
 
               <div>
                 <Label>Content *</Label>
-                <TiptapEditor
-                  content={contentEn}
-                  onChange={setContentEn}
-                  placeholder="Start writing in English..."
-                />
+                <TiptapEditor content={contentEn} onChange={setContentEn} placeholder="Start writing in English..." />
               </div>
 
               <div>
@@ -294,9 +302,7 @@ export default function AddEditBlogPost() {
                   maxLength={160}
                   rows={2}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {metaDescEn.length}/160 characters
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{metaDescEn.length}/160 characters</p>
               </div>
             </TabsContent>
           </Tabs>
@@ -305,14 +311,10 @@ export default function AddEditBlogPost() {
         <div className="space-y-6">
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold">Налаштування публікації</h3>
-            
+
             <div className="flex items-center justify-between">
               <Label htmlFor="published">Опублікувати</Label>
-              <Switch
-                id="published"
-                checked={isPublished}
-                onCheckedChange={setIsPublished}
-              />
+              <Switch id="published" checked={isPublished} onCheckedChange={setIsPublished} />
             </div>
 
             {!isPublished && (
@@ -338,12 +340,7 @@ export default function AddEditBlogPost() {
 
             <div>
               <Label htmlFor="slug">Slug (URL)</Label>
-              <Input
-                id="slug"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                required
-              />
+              <Input id="slug" value={slug} onChange={(e) => setSlug(e.target.value)} required />
             </div>
 
             <div>
@@ -353,7 +350,7 @@ export default function AddEditBlogPost() {
                   <SelectValue placeholder="Оберіть категорію" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.map((cat) => (
+                  {categories?.map((cat: any) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name_ua}
                     </SelectItem>
@@ -365,19 +362,26 @@ export default function AddEditBlogPost() {
 
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold">Головне зображення</h3>
-            {featuredImage && (
-              <img src={featuredImage} alt="Featured" className="w-full rounded" />
+
+            {featuredImage ? (
+              <div className="space-y-3">
+                <img src={featuredImage} alt="Featured" className="w-full rounded" />
+                <div className="flex gap-2">
+                  <Input type="file" accept="image/*" onChange={handleImageUpload} className="flex-1" />
+                  <Button type="button" variant="destructive" onClick={handleRemoveImage} title="Видалити зображення">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Видалити
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Input type="file" accept="image/*" onChange={handleImageUpload} />
             )}
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-            />
           </div>
 
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold">Медіа</h3>
-            
+
             <div>
               <Label htmlFor="video">YouTube/Vimeo URL</Label>
               <Input
@@ -401,7 +405,7 @@ export default function AddEditBlogPost() {
 
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold">Соціальні мережі</h3>
-            
+
             <div>
               <Label htmlFor="instagram">Instagram URL</Label>
               <Input
