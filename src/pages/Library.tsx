@@ -111,13 +111,13 @@ export const Library = () => {
               
               return (
                 <Card key={book.id} className="group hover:shadow-xl transition-all duration-300 border-border/50 flex flex-col">
-                  <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
+                  <div className="aspect-[3/4] rounded-t-lg overflow-hidden bg-transparent">
                     {book.cover_image_url ? (
                       <Link to={verseLink} className="block w-full h-full">
                         <img 
                           src={book.cover_image_url} 
                           alt={title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" 
                         />
                       </Link>
                     ) : (
