@@ -1,0 +1,16 @@
+/* src/styles/fonts.css */
+@font-face {
+  font-family: "Gaura Times";
+  src: url("/fonts/GauraTimes.woff2") format("woff2"),
+       url("/fonts/GauraTimes.woff") format("woff");
+  font-display: swap;
+  /* Якщо у вашому файлі є потрібні OpenType правила — увімкнемо всі лігатури */
+  font-feature-settings: "liga" 1, "dlig" 1, "calt" 1, "ccmp" 1;
+}
+
+/* Блок для трансліту */
+.translit {
+  font-family: "Gaura Times", "Noto Serif", "Times New Roman", serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
