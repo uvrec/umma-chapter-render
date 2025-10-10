@@ -1,37 +1,57 @@
-import * as pdfjsLib from 'pdfjs-dist';
-import { sanitizeHtml } from './normalizers';
+import * as pdfjsLib from "pdfjs-dist";
+import { sanitizeHtml } from "./normalizers";
+import { addSanskritLineBreaks } from "./text/lineBreaks";
 
-// Configure worker
+// Налаштовуємо worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
+/**
+ * Розпізнає текст у PDF і формує чистий HTML з відновленими рядками.
+ */
 export async function extractTextFromPDF(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  
-  let fullText = '';
-  
-  for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const textContent = await page.getTextContent();
-    let htmlChunks: string[] = [];
-    (textContent.items as any[]).forEach((it: any) => {
-      let t = it.str || '';
-      if (!t) return;
-      const font = (it.fontName || '') as string;
-      let wrapped = t;
-      if (/Bold/i.test(font)) wrapped = `<strong>${wrapped}</strong>`;
-      if (/(Italic|Oblique)/i.test(font)) wrapped = `<em>${wrapped}</em>`;
-      htmlChunks.push(wrapped);
-      if (it.hasEOL) htmlChunks.push('<br/>');
-    });
-    let pageHtml = htmlChunks.join(' ');
-    if (pageHtml.trim().length > 0) {
-      // Convert multiple line breaks to paragraph separators
-      pageHtml = `<p>${pageHtml.replace(/(?:\s*<br\s*\/>\s*){2,}/g, '</p><p>')}</p>`;
-      const safeHTML = sanitizeHtml(pageHtml);
-      fullText += safeHTML + '\n\n';
+
+  let output = "";
+
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const content = await page.getTextContent();
+
+    // Сортуємо елементи за координатами
+    const items = content.items as any[];
+    const lines: Record<number, string[]> = {};
+
+    for (const it of items) {
+      const str = (it.str || "").trim();
+      if (!str) continue;
+      const y = Math.round(it.transform[5]); // Y координата
+      if (!lines[y]) lines[y] = [];
+      lines[y].push(str);
+    }
+
+    // Відсортуємо рядки зверху вниз (менше y -> вище на сторінці)
+    const sortedY = Object.keys(lines)
+      .map((n) => parseFloat(n))
+      .sort((a, b) => b - a);
+
+    // Зберемо сторінку як суцільний текст
+    const pageLines = sortedY.map((y) => lines[y].join(" "));
+    let pageText = pageLines.join("\n").trim();
+
+    if (pageText) {
+      // Санскритські PDF часто містять данди — обробимо їх
+      pageText = addSanskritLineBreaks(pageText);
+
+      // Обертаємо в параграфи
+      const html = pageText
+        .split("\n")
+        .map((ln) => `<p>${ln}</p>`)
+        .join("");
+
+      output += sanitizeHtml(html) + "\n\n";
     }
   }
-  
-  return fullText;
+
+  return output.trim();
 }
