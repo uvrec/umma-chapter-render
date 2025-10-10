@@ -1,5 +1,4 @@
-// src/pages/admin/BlogPostsInfinite.tsx (можете залишити стару назву файлу)
-// додай імпорт угорі файлу
+// src/pages/admin/BlogPostsInfinite.tsx
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -11,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 
