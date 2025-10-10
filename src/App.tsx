@@ -74,81 +74,84 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<NewHome />} />
-                <Route path="/verses" element={<VedaReader />} />
-                <Route path="/verses/:bookId" element={<VedaReader />} />
-                <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
-                <Route path="/veda-reader/:bookId" element={<BookOverview />} />
-                <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
-                <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
-                <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderDB />} />
-                <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
-                {/* Legacy aliases/redirects for common slugs */}
-                <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
-                <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
-                <Route path="/library" element={<Library />} />
-                {/* Legacy redirects for old library routes */}
-                <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
-                <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
-                <Route path="/audio" element={<Audio />} />
-                <Route path="/audiobooks" element={<Audiobooks />} />
-                <Route path="/audiobooks/:id" element={<AudiobookView />} />
-                <Route path="/audio/lectures" element={<Lectures />} />
-                <Route path="/audio/music" element={<Music />} />
-                <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
-                <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
-                <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
-                <Route path="/audio/podcasts" element={<Podcasts />} />
-                <Route path="/glossary" element={<GlossaryDB />} />
-                <Route path="/glossary-old" element={<Glossary />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/payment/card" element={<CardPayment />} />
-                <Route path="/payment/bank" element={<BankTransfer />} />
-                <Route path="/auth" element={<Auth />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/books" element={<Books />} />
-          <Route path="/admin/books/new" element={<AddEditBook />} />
-          <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
-          <Route path="/admin/cantos/:bookId" element={<Cantos />} />
-          <Route path="/admin/cantos/:bookId/new" element={<AddEditCanto />} />
-          <Route path="/admin/cantos/:bookId/:id/edit" element={<AddEditCanto />} />
-          <Route path="/admin/intro-chapters/:bookId" element={<IntroChapters />} />
-          <Route path="/admin/intro-chapters/:bookId/new" element={<AddEditIntroChapter />} />
-          <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
-          <Route path="/admin/chapters/:bookId" element={<Chapters />} />
-          <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
-          <Route path="/admin/verses" element={<Verses />} />
-          <Route path="/admin/verses/new" element={<AddEditVerse />} />
-          <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
-          <Route path="/admin/data-migration" element={<DataMigration />} />
-          <Route path="/admin/import-wizard" element={<ImportWizard />} />
-          <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
-          <Route path="/admin/blog-posts" element={<BlogPosts />} />
-          <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
-          <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
-          <Route path="/admin/blog-categories" element={<BlogCategories />} />
-          <Route path="/admin/blog-tags" element={<BlogTags />} />
-          <Route path="/admin/audio-categories" element={<AudioCategories />} />
-          <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
-          <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
-          <Route path="/admin/pages" element={<Pages />} />
-          <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
-          <Route path="/admin/static-pages" element={<StaticPages />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="/:slug" element={<PageView />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <GlobalAudioPlayer />
-              <GlobalSettingsPanel />
-            </BrowserRouter>
-          </AudioProvider>
-        </TooltipProvider>
-      </AuthProvider>
-    </LanguageProvider>
-  </ThemeProvider>
+                <Routes>
+                  <Route path="/" element={<NewHome />} />
+                  <Route path="/verses" element={<VedaReader />} />
+                  <Route path="/verses/:bookId" element={<VedaReader />} />
+                  <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                  <Route path="/veda-reader/:bookId" element={<BookOverview />} />
+                  <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
+                  <Route
+                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
+                    element={<VedaReaderDB />}
+                  />
+                  <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
+                  {/* Legacy aliases/redirects for common slugs */}
+                  <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
+                  <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
+                  <Route path="/library" element={<Library />} />
+                  {/* Legacy redirects for old library routes */}
+                  <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
+                  <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
+                  <Route path="/audio" element={<Audio />} />
+                  <Route path="/audiobooks" element={<Audiobooks />} />
+                  <Route path="/audiobooks/:id" element={<AudiobookView />} />
+                  <Route path="/audio/lectures" element={<Lectures />} />
+                  <Route path="/audio/music" element={<Music />} />
+                  <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
+                  <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
+                  <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogPost />} />
+                  <Route path="/audio/podcasts" element={<Podcasts />} />
+                  <Route path="/glossary" element={<GlossaryDB />} />
+                  <Route path="/glossary-old" element={<Glossary />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/payment/card" element={<CardPayment />} />
+                  <Route path="/payment/bank" element={<BankTransfer />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin/dashboard" element={<Dashboard />} />
+                  <Route path="/admin/books" element={<Books />} />
+                  <Route path="/admin/books/new" element={<AddEditBook />} />
+                  <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
+                  <Route path="/admin/cantos/:bookId" element={<Cantos />} />
+                  <Route path="/admin/cantos/:bookId/new" element={<AddEditCanto />} />
+                  <Route path="/admin/cantos/:bookId/:id/edit" element={<AddEditCanto />} />
+                  <Route path="/admin/intro-chapters/:bookId" element={<IntroChapters />} />
+                  <Route path="/admin/intro-chapters/:bookId/new" element={<AddEditIntroChapter />} />
+                  <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
+                  <Route path="/admin/chapters/:bookId" element={<Chapters />} />
+                  <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
+                  <Route path="/admin/verses" element={<Verses />} />
+                  <Route path="/admin/verses/new" element={<AddEditVerse />} />
+                  <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
+                  <Route path="/admin/data-migration" element={<DataMigration />} />
+                  <Route path="/admin/import-wizard" element={<ImportWizard />} />
+                  <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
+                  <Route path="/admin/blog-posts" element={<BlogPosts />} />
+                  <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
+                  <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
+                  <Route path="/admin/blog-categories" element={<BlogCategories />} />
+                  <Route path="/admin/blog-tags" element={<BlogTags />} />
+                  <Route path="/admin/audio-categories" element={<AudioCategories />} />
+                  <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
+                  <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
+                  <Route path="/admin/pages" element={<Pages />} />
+                  <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
+                  <Route path="/admin/static-pages" element={<StaticPages />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="/:slug" element={<PageView />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <GlobalAudioPlayer />
+                <GlobalSettingsPanel />
+              </BrowserRouter>
+            </AudioProvider>
+          </TooltipProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
