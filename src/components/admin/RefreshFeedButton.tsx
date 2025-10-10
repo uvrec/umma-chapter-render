@@ -1,4 +1,5 @@
 // src/components/admin/RefreshFeedButton.tsx
+import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,7 +14,7 @@ export function RefreshFeedButton() {
   const handleRefresh = async () => {
     try {
       setLoading(true);
-      
+
       // оновлюємо повʼязані списки/фіди
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts-infinite"] });
