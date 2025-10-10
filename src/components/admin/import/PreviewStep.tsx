@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,25 +10,30 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
-import { sanitizeHtml, normalizeSynonyms } from "@/utils/import/normalizers";
+import { normalizeSynonyms } from "@/utils/import/normalizers"; // якщо ще десь використовуєте
+import { importSingleChapter, importBook } from "@/utils/import/importer";
 
 interface PreviewStepProps {
+  /** Вибрана глава для імпорту (редагована у формі) */
   chapter: ParsedChapter;
+  /** Увесь масив розпарсених глав — щоб за потреби імпортувати всю книгу */
+  allChapters?: ParsedChapter[];
   onBack: () => void;
   onComplete: () => void;
 }
 
-export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
+export function PreviewStep({ chapter, allChapters, onBack, onComplete }: PreviewStepProps) {
   const [editedChapter, setEditedChapter] = useState<ParsedChapter>({
     ...chapter,
     title_ua: chapter.title_ua || `Глава ${chapter.chapter_number}`,
     title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
   });
   const [isImporting, setIsImporting] = useState(false);
+  const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
 
-  const { data: books, isLoading: isBooksLoading } = useQuery({
+  const { data: books } = useQuery({
     queryKey: ["books"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,11 +45,10 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
     },
   });
 
-  const { data: cantos, isLoading: isCantosLoading } = useQuery({
+  const { data: cantos } = useQuery({
     queryKey: ["cantos", selectedBookId],
     enabled: !!selectedBookId,
     queryFn: async () => {
-      if (!selectedBookId) return [];
       const { data, error } = await supabase
         .from("cantos")
         .select("id, canto_number, title_ua")
@@ -59,248 +62,171 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
   const selectedBook = books?.find((b) => b.id === selectedBookId);
   const needsCanto = selectedBook?.has_cantos ?? false;
 
-  const handleImport = async () => {
+  const validateTarget = () => {
     if (!selectedBookId) {
       toast.error("Оберіть книгу");
-      return;
+      return false;
     }
     if (needsCanto && !selectedCantoId) {
       toast.error("Оберіть пісню (canto)");
-      return;
+      return false;
     }
+    return true;
+  };
 
-    // валідність номерів
-    const invalidVerses = (editedChapter.verses || []).filter((v) => !v.verse_number?.trim());
-    if (invalidVerses.length > 0) {
-      toast.error(`Знайдено ${invalidVerses.length} віршів без номера`);
-      return;
-    }
+  const handleImportChapter = async () => {
+    if (!validateTarget()) return;
 
-    // прибрати дублікати номерів (залишаємо першу появу)
-    const seen = new Set<string>();
-    const uniqueVerses = (editedChapter.verses || []).filter((v) => {
-      const num = v.verse_number?.trim();
-      if (!num) return true;
-      if (seen.has(num)) return false;
-      seen.add(num);
-      return true;
-    });
-
-    const removedCount = (editedChapter.verses || []).length - uniqueVerses.length;
-    if (removedCount > 0) {
-      toast.warning(`Видалено ${removedCount} дублікат(ів) віршів`);
-      // ⚠️ через setEditedChapter — не мутуємо state напряму
-      setEditedChapter((prev) => ({ ...prev, verses: uniqueVerses }));
-    }
-
-    const versesToUse = uniqueVerses;
-
-    const versesWithoutContent = versesToUse.filter((v) => !v.sanskrit?.trim() && !v.translation_ua?.trim());
-    if (versesWithoutContent.length > 0) {
-      toast.message(`${versesWithoutContent.length} вірш(ів) без тексту — теж буде імпортовано`);
+    // валідації
+    if (!editedChapter.verseStart && editedChapter.chapter_type !== "text") {
+      // не обов'язково, лише приклад
     }
 
     setIsImporting(true);
     try {
-      // знайти/створити главу (фільтруємо або по canto_id, або по book_id)
-      let query = supabase.from("chapters").select("id").eq("chapter_number", editedChapter.chapter_number);
-
-      if (needsCanto && selectedCantoId) {
-        query = query.eq("canto_id", selectedCantoId);
-      } else {
-        query = query.eq("book_id", selectedBookId);
+      // якщо віршова глава — приберемо дублікати перед збереженням (м’яко)
+      if ((editedChapter.chapter_type ?? "verses") === "verses") {
+        const seen = new Set<string>();
+        editedChapter.verses = (editedChapter.verses || []).filter((v) => {
+          const num = (v.verse_number || "").trim();
+          if (!num) return true;
+          if (seen.has(num)) return false;
+          seen.add(num);
+          return true;
+        });
       }
 
-      const { data: existingChapter, error: findErr } = await query.maybeSingle();
-      if (findErr) throw findErr;
-
-      let chapterId: string;
-
-      if (existingChapter) {
-        chapterId = existingChapter.id;
-      } else {
-        const chapterInsert: any = {
-          chapter_number: editedChapter.chapter_number,
-          chapter_type: editedChapter.chapter_type || "verses",
-          title_ua: editedChapter.title_ua,
-          title_en: editedChapter.title_en,
-          // санітизуємо текстові глави
-          content_ua:
-            editedChapter.chapter_type === "text"
-              ? sanitizeHtml(editedChapter.content_ua || "")
-              : editedChapter.content_ua,
-          content_en:
-            editedChapter.chapter_type === "text"
-              ? sanitizeHtml(editedChapter.content_en || "")
-              : editedChapter.content_en,
-        };
-
-        if (needsCanto && selectedCantoId) {
-          chapterInsert.canto_id = selectedCantoId;
-        } else {
-          chapterInsert.book_id = selectedBookId;
-        }
-
-        const { data: newChapter, error: chapterError } = await supabase
-          .from("chapters")
-          .insert(chapterInsert)
-          .select("id")
-          .single();
-
-        if (chapterError) throw chapterError;
-        chapterId = newChapter.id;
-      }
-
-      // якщо текстова глава — все, готово
-      if (editedChapter.chapter_type === "text" || versesToUse.length === 0) {
-        toast.success(
-          editedChapter.chapter_type === "text"
-            ? `Імпортовано текстову главу ${editedChapter.chapter_number}`
-            : `Імпортовано главу ${editedChapter.chapter_number} (без віршів)`,
-        );
-        onComplete();
-        return;
-      }
-
-      // вірші
-      const versesPayload = versesToUse.map((verse) => ({
-        chapter_id: chapterId,
-        verse_number: verse.verse_number,
-        sanskrit: verse.sanskrit,
-        transliteration: verse.transliteration,
-        synonyms_ua: normalizeSynonyms(verse.synonyms_ua || ""),
-        synonyms_en: verse.synonyms_en,
-        translation_ua: verse.translation_ua,
-        translation_en: verse.translation_en,
-        commentary_ua: sanitizeHtml(verse.commentary_ua || ""),
-        commentary_en: sanitizeHtml(verse.commentary_en || ""),
-      }));
-
-      const { error: versesError } = await supabase.from("verses").upsert(versesPayload, {
-        onConflict: "chapter_id,verse_number",
-        ignoreDuplicates: false,
+      await importSingleChapter(supabase, {
+        bookId: selectedBookId,
+        cantoId: needsCanto ? selectedCantoId : null,
+        chapter: editedChapter,
       });
 
-      if (versesError) throw versesError;
-
-      toast.success(`Імпортовано главу ${editedChapter.chapter_number} з ${versesToUse.length} віршами`);
+      toast.success(`Глава ${editedChapter.chapter_number} імпортована (оновлено/створено)`);
       onComplete();
-    } catch (error) {
-      console.error("Import error:", error);
-      toast.error("Помилка при імпорті");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Помилка при імпорті глави");
     } finally {
       setIsImporting(false);
     }
   };
 
+  const handleImportWholeBook = async () => {
+    if (!allChapters?.length) {
+      toast.error("Немає повної розмітки книги (передайте allChapters)");
+      return;
+    }
+    if (!validateTarget()) return;
+
+    setIsImportingBook(true);
+    try {
+      await importBook(supabase, {
+        bookId: selectedBookId,
+        cantoId: needsCanto ? selectedCantoId : null,
+        chapters: allChapters,
+        onProgress: ({ index, total, chapter }) => {
+          toast.message(`Імпорт розділу ${chapter.chapter_number}… (${index}/${total})`);
+        },
+      });
+
+      toast.success(`Книгу імпортовано: ${allChapters.length} розділів`);
+      onComplete();
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Помилка при масовому імпорті");
+    } finally {
+      setIsImportingBook(false);
+    }
+  };
+
   const updateVerse = (index: number, field: keyof ParsedVerse, value: string) => {
-    setEditedChapter((prev) => {
-      const nextVerses = [...(prev.verses || [])];
-      nextVerses[index] = { ...nextVerses[index], [field]: value };
-      return { ...prev, verses: nextVerses };
-    });
+    const verses = [...(editedChapter.verses || [])];
+    verses[index] = { ...verses[index], [field]: value };
+    setEditedChapter({ ...editedChapter, verses });
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="mb-2 text-xl font-bold">Крок 4: Попередній перегляд та імпорт</h2>
+        <h2 className="text-xl font-bold mb-2">Крок 4: Попередній перегляд та імпорт</h2>
         <p className="text-muted-foreground">Перевірте та відредагуйте дані перед імпортом</p>
       </div>
 
-      <Card className="p-4">
-        <div className="space-y-4">
+      <div className="p-4 border rounded-lg space-y-4">
+        <div>
+          <Label>Книга</Label>
+          <Select value={selectedBookId} onValueChange={setSelectedBookId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Оберіть книгу" />
+            </SelectTrigger>
+            <SelectContent>
+              {books?.map((book) => (
+                <SelectItem key={book.id} value={book.id}>
+                  {book.title_ua}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {needsCanto && (
           <div>
-            <Label>Книга</Label>
-            <Select value={selectedBookId} onValueChange={setSelectedBookId} disabled={isBooksLoading || isImporting}>
+            <Label>Пісня (Canto)</Label>
+            <Select value={selectedCantoId} onValueChange={setSelectedCantoId}>
               <SelectTrigger>
-                <SelectValue placeholder="Оберіть книгу" />
+                <SelectValue placeholder="Оберіть пісню" />
               </SelectTrigger>
               <SelectContent>
-                {books?.map((book) => (
-                  <SelectItem key={book.id} value={book.id}>
-                    {book.title_ua}
+                {cantos?.map((canto) => (
+                  <SelectItem key={canto.id} value={canto.id}>
+                    Пісня {canto.canto_number}: {canto.title_ua}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+        )}
 
-          {needsCanto && (
-            <div>
-              <Label>Пісня (Canto)</Label>
-              <Select
-                value={selectedCantoId}
-                onValueChange={setSelectedCantoId}
-                disabled={isCantosLoading || isImporting}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Оберіть пісню" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cantos?.map((canto) => (
-                    <SelectItem key={canto.id} value={canto.id}>
-                      Пісня {canto.canto_number}: {canto.title_ua}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          <div>
-            <Label>Назва глави (UA)</Label>
-            <Input
-              value={editedChapter.title_ua || ""}
-              onChange={(e) => setEditedChapter((prev) => ({ ...prev, title_ua: e.target.value }))}
-              disabled={isImporting}
-            />
-          </div>
-
-          <div>
-            <Label>Назва глави (EN)</Label>
-            <Input
-              value={editedChapter.title_en || ""}
-              onChange={(e) => setEditedChapter((prev) => ({ ...prev, title_en: e.target.value }))}
-              disabled={isImporting}
-            />
-          </div>
+        <div>
+          <Label>Назва глави (UA)</Label>
+          <Input
+            value={editedChapter.title_ua || ""}
+            onChange={(e) => setEditedChapter({ ...editedChapter, title_ua: e.target.value })}
+          />
         </div>
-      </Card>
+
+        <div>
+          <Label>Назва глави (EN)</Label>
+          <Input
+            value={editedChapter.title_en || ""}
+            onChange={(e) => setEditedChapter({ ...editedChapter, title_en: e.target.value })}
+          />
+        </div>
+      </div>
 
       {editedChapter.chapter_type === "text" ? (
-        <div>
-          <h3 className="mb-3 font-semibold">Текст глави</h3>
-          <Card className="p-4">
+        <>
+          <h3 className="font-semibold">Текст глави</h3>
+          <div className="p-4 border rounded-lg">
             <InlineTiptapEditor
               content={editedChapter.content_ua || ""}
-              onChange={(html) => setEditedChapter((prev) => ({ ...prev, content_ua: html }))}
-              label="Текст українською"
+              onChange={(html) => setEditedChapter({ ...editedChapter, content_ua: html })}
+              label="Текст українською (форматування зберігається)"
             />
-          </Card>
-          {/* Якщо потрібно редагувати англ. версію також — розкоментуй:
-          <Card className="p-4 mt-4">
-            <InlineTiptapEditor
-              content={editedChapter.content_en || ''}
-              onChange={(html) => setEditedChapter((prev) => ({ ...prev, content_en: html }))}
-              label="Text (EN)"
-            />
-          </Card>
-          */}
-        </div>
+          </div>
+        </>
       ) : (
-        <div>
-          <h3 className="mb-3 font-semibold">Вірші ({editedChapter.verses?.length || 0})</h3>
+        <>
+          <h3 className="font-semibold">Вірші ({editedChapter.verses?.length ?? 0})</h3>
           <Accordion type="single" collapsible className="space-y-2">
             {(editedChapter.verses || []).map((verse, index) => (
-              <AccordionItem key={`${verse.verse_number || "v"}-${index}`} value={`verse-${index}`}>
-                <AccordionTrigger className="hover:no-underline">
-                  <div className="text-left">
-                    Вірш {verse.verse_number}
-                    {verse.sanskrit && (
-                      <span className="ml-2 text-sm text-muted-foreground">({verse.sanskrit.substring(0, 30)}…)</span>
-                    )}
-                  </div>
+              <AccordionItem key={index} value={`verse-${index}`}>
+                <AccordionTrigger className="hover:no-underline text-left">
+                  Вірш {verse.verse_number}
+                  {verse.sanskrit && (
+                    <span className="text-sm text-muted-foreground ml-2">({verse.sanskrit.substring(0, 30)}…)</span>
+                  )}
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-3 pt-2">
@@ -341,25 +267,33 @@ export function PreviewStep({ chapter, onBack, onComplete }: PreviewStepProps) {
                       <InlineTiptapEditor
                         content={verse.commentary_ua || ""}
                         onChange={(html) => updateVerse(index, "commentary_ua", html)}
-                        label="Пояснення (UA)"
+                        label="Пояснення (UA) — форматування зберігається"
                       />
                     </div>
-                    {/* За потреби додай EN поля тут */}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
-        </div>
+        </>
       )}
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack} disabled={isImporting}>
+      <div className="flex items-center justify-between gap-3">
+        <Button variant="outline" onClick={onBack} disabled={isImporting || isImportingBook}>
           Назад
         </Button>
-        <Button onClick={handleImport} disabled={isImporting}>
-          {isImporting ? "Імпортування…" : "Імпортувати главу"}
-        </Button>
+
+        <div className="flex gap-2">
+          {allChapters?.length ? (
+            <Button onClick={handleImportWholeBook} disabled={isImporting || isImportingBook}>
+              {isImportingBook ? "Імпортування книги…" : `Імпортувати всю книгу (${allChapters.length})`}
+            </Button>
+          ) : null}
+
+          <Button onClick={handleImportChapter} disabled={isImporting || isImportingBook}>
+            {isImporting ? "Імпортування…" : "Імпортувати главу"}
+          </Button>
+        </div>
       </div>
     </div>
   );
