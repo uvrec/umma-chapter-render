@@ -1,4 +1,5 @@
-import { useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "./Header";
 import { Breadcrumb } from "./Breadcrumb";
 import { VerseCard } from "./VerseCard";
@@ -8,48 +9,53 @@ import { verses } from "@/data/verses";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
+  const navigate = useNavigate();
 
-  const getBookTitle = (bookId?: string): string => {
-    switch (bookId) {
-      case 'srimad-bhagavatam':
-        return 'Шрімад-Бгаґаватам';
-      case 'bhagavad-gita':
-        return 'Бгаґавад-ґіта';
-      case 'sri-isopanishad':
-        return 'Шрі Ішопанішад';
+  const getBookTitle = (bid?: string): string => {
+    switch (bid) {
+      case "srimad-bhagavatam":
+        return "Шрімад-Бгаґаватам";
+      case "bhagavad-gita":
+        return "Бгаґавад-ґіта";
+      case "sri-isopanishad":
+        return "Шрі Ішопанішад";
       default:
-        return 'Ведичні тексти';
+        return "Ведичні тексти";
     }
   };
 
-  const getFilteredVerses = (bookId?: string) => {
-    if (!bookId) return verses;
-    
-    switch (bookId) {
-      case 'srimad-bhagavatam':
-        return verses.filter(v => v.number.startsWith('ШБ'));
-      case 'bhagavad-gita':
-        return verses.filter(v => v.number.startsWith('БГ'));
-      case 'sri-isopanishad':
-        return verses.filter(v => v.number.startsWith('ШІІ'));
+  const getFilteredVerses = (bid?: string) => {
+    if (!bid) return verses;
+    switch (bid) {
+      case "srimad-bhagavatam":
+        return verses.filter((v) => v.number.startsWith("ШБ"));
+      case "bhagavad-gita":
+        return verses.filter((v) => v.number.startsWith("БГ"));
+      case "sri-isopanishad":
+        return verses.filter((v) => v.number.startsWith("ШІІ"));
       default:
         return verses;
     }
   };
 
   const filteredVerses = getFilteredVerses(bookId);
-  const currentVerse = filteredVerses.find(v => v.number === verseNumber);
+  const currentVerse = filteredVerses.find((v) => v.number === verseNumber);
+
+  // Автоскрол до верхньої частини при зміні вірша
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [verseNumber]);
 
   if (!currentVerse) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-2xl font-bold mb-4">Вірш не знайдено</h1>
+          <div className="mx-auto max-w-4xl text-center">
+            <h1 className="mb-4 text-2xl font-bold">Вірш не знайдено</h1>
             <Link to={`/verses/${bookId}`}>
               <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
+                <ArrowLeft className="mr-2 h-4 w-4" />
                 Повернутися до читання
               </Button>
             </Link>
@@ -59,41 +65,63 @@ export const IndividualVerse = () => {
     );
   }
 
-  const currentIndex = filteredVerses.findIndex(v => v.number === verseNumber);
+  const currentIndex = filteredVerses.findIndex((v) => v.number === verseNumber);
   const prevVerse = currentIndex > 0 ? filteredVerses[currentIndex - 1] : null;
   const nextVerse = currentIndex < filteredVerses.length - 1 ? filteredVerses[currentIndex + 1] : null;
+
+  // Хендлери навігації клавішами ← / →
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (document.activeElement?.tagName || "").toLowerCase();
+      const isEditable =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        (document.activeElement as HTMLElement | null)?.isContentEditable;
+      if (isEditable) return;
+
+      if (e.key === "ArrowLeft" && prevVerse) {
+        navigate(`/verses/${bookId}/${prevVerse.number}`);
+      } else if (e.key === "ArrowRight" && nextVerse) {
+        navigate(`/verses/${bookId}/${nextVerse.number}`);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [bookId, navigate, prevVerse, nextVerse]);
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <Breadcrumb items={[
-            { label: "Головна", href: "/" },
-            { label: "Бібліотека", href: "/library" },
-            { label: getBookTitle(bookId), href: `/verses/${bookId}` },
-            { label: `Вірш ${verseNumber}` }
-          ]} />
-          
-          <div className="flex items-center justify-between mb-8">
-            <Link 
+        <div className="mx-auto max-w-4xl">
+          <Breadcrumb
+            items={[
+              { label: "Головна", href: "/" },
+              { label: "Бібліотека", href: "/library" },
+              { label: getBookTitle(bookId), href: `/verses/${bookId}` },
+              { label: `Вірш ${verseNumber}` },
+            ]}
+          />
+
+          <div className="mb-8 flex items-center justify-between">
+            <Link
               to={`/verses/${bookId}`}
-              className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Повернутися до читання
             </Link>
           </div>
 
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold mb-2">{getBookTitle(bookId)}</h1>
-            <p className="text-muted-foreground">
-              Вірш {verseNumber}
-            </p>
+            <h1 className="mb-2 text-3xl font-bold">{getBookTitle(bookId)}</h1>
+            <p className="text-muted-foreground">Вірш {verseNumber}</p>
           </div>
 
-          <div className="mb-8">
+          {/* verse-surface — щоб «крафт-папір» застосовувався до контентної поверхні вірша */}
+          <div className="verse-surface rounded-lg p-0">
             <VerseCard
               verseNumber={currentVerse.number}
               sanskritText={currentVerse.sanskrit}
@@ -108,40 +136,42 @@ export const IndividualVerse = () => {
                 showTransliteration: true,
                 showSynonyms: true,
                 showTranslation: true,
-                showCommentary: true
+                showCommentary: true,
               }}
             />
           </div>
 
-          {/* Navigation */}
-          <div className="flex justify-between items-center pt-8 border-t">
-            {prevVerse ? (
-              <Link to={`/verses/${bookId}/${prevVerse.number}`}>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <ArrowLeft className="w-4 h-4" />
-                  Попередній вірш
-                </Button>
-              </Link>
-            ) : (
-              <div></div>
-            )}
-            
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                {currentIndex + 1} з {filteredVerses.length}
-              </p>
+          {/* Навігація між віршами */}
+          <div className="border-t pt-8">
+            <div className="flex items-center justify-between">
+              {prevVerse ? (
+                <Link to={`/verses/${bookId}/${prevVerse.number}`}>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <ArrowLeft className="h-4 w-4" />
+                    Попередній вірш
+                  </Button>
+                </Link>
+              ) : (
+                <div />
+              )}
+
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  {currentIndex + 1} з {filteredVerses.length}
+                </p>
+              </div>
+
+              {nextVerse ? (
+                <Link to={`/verses/${bookId}/${nextVerse.number}`}>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    Наступний вірш
+                    <ArrowLeft className="h-4 w-4 rotate-180" />
+                  </Button>
+                </Link>
+              ) : (
+                <div />
+              )}
             </div>
-            
-            {nextVerse ? (
-              <Link to={`/verses/${bookId}/${nextVerse.number}`}>
-                <Button variant="outline" className="flex items-center gap-2">
-                  Наступний вірш
-                  <ArrowLeft className="w-4 h-4 rotate-180" />
-                </Button>
-              </Link>
-            ) : (
-              <div></div>
-            )}
           </div>
         </div>
       </main>
