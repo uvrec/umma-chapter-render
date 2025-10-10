@@ -1,77 +1,91 @@
 // src/utils/import/pdf.ts
 import * as pdfjsLib from "pdfjs-dist";
+// У різних збірках назва воркера відрізняється — беремо немінімізований варіант
+import workerUrl from "pdfjs-dist/build/pdf.worker.js?url";
 import { sanitizeHtml } from "./normalizers";
-import { addSanskritLineBreaks } from "../text/lineBreaks";
 
-// якщо залишив worker через CDN – просто прибери цей рядок
-// а якщо з asset-URL не спрацювало, лишай CDN:
-(pdfjsLib as any).GlobalWorkerOptions.workerSrc =
-  `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Прив’язуємо worker
+(pdfjsLib as any).GlobalWorkerOptions.workerSrc = workerUrl;
 
-type Progress = (info: { page: number; total: number }) => void;
+type Progress = { page: number; total: number };
 
-export async function extractTextFromPDF(file: File, opts?: { onProgress?: Progress }): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
+type Options = {
+  onProgress?: (p: Progress) => void;
+  signal?: AbortSignal; // для скасування
+  pageLimit?: number; // для дуже великих PDF
+};
 
-  let pdf;
-  try {
-    pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  } catch (e) {
-    throw new Error("PDF не відкрився. Спробуй інший файл або збережи як «PDF/A».");
+export async function extractTextFromPDF(file: File, opts: Options = {}): Promise<string> {
+  const { onProgress, signal, pageLimit } = opts;
+
+  const buf = await file.arrayBuffer();
+
+  // Якщо дуже великі файли — попередження (не помилка)
+  if (file.size > 40 * 1024 * 1024) {
+    console.warn("[PDF] Large file:", Math.round(file.size / (1024 * 1024)), "MB");
   }
 
-  const total = pdf.numPages;
-  let htmlAll = "";
+  const task = pdfjsLib.getDocument({ data: buf });
+  const pdf = await task.promise;
 
-  for (let i = 1; i <= total; i++) {
-    opts?.onProgress?.({ page: i, total });
+  const totalPages = Math.min(pdf.numPages, pageLimit ?? pdf.numPages);
+  let resultHTML = "";
 
-    try {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
+  // лічильники для визначення «скан/без тексту»
+  let pagesWithText = 0;
 
-      const chunks: string[] = [];
-      for (const item of textContent.items as any[]) {
-        // тільки власне текст
-        if (!item?.str) continue;
-        chunks.push(item.str);
-        if (item.hasEOL) chunks.push("\n");
-      }
-
-      // склеюємо та прибираємо зайві прогалини
-      let pageText = chunks
-        .join(" ")
-        .replace(/[ \t]+\n/g, "\n")
-        .trim();
-
-      // мінімальна евристика для санскриту
-      if (/[\u0900-\u097F]/.test(pageText)) {
-        pageText = addSanskritLineBreaks(pageText);
-      }
-
-      // обгортаємо в <p> по абзацах
-      const safe = sanitizeHtml(
-        pageText
-          .split(/\n{2,}/)
-          .map((p) => `<p>${p.replace(/\n/g, "<br/>")}</p>`)
-          .join("\n"),
-      );
-
-      if (safe.trim()) {
-        htmlAll += safe + "\n\n";
-      }
-    } catch (pageErr) {
-      // не валимо весь імпорт через одну сторінку
-      console.warn(`[PDF] Пропущено сторінку ${i}:`, pageErr);
+  for (let i = 1; i <= totalPages; i++) {
+    if (signal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
     }
 
-    // дати шанс UI “дихати”
-    await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    const page = await pdf.getPage(i);
+    // Дуже важливо: disableCombineTextItems = false (за замовч.), краще зберігає порядок
+    const textContent = await page.getTextContent({ normalizeWhitespace: false });
+
+    const items = (textContent.items as any[]) || [];
+    const sb: string[] = [];
+
+    for (const it of items) {
+      const s = (it?.str as string) || "";
+      if (!s) continue;
+      sb.push(s);
+      // приблизні переносити рядки за евристикою ширини/it.hasEOL
+      if ((it as any).hasEOL) sb.push("\n");
+    }
+
+    const text = sb
+      .join(" ")
+      .replace(/\s+\n\s+/g, "\n")
+      .trim();
+
+    if (text.length > 0) pagesWithText++;
+
+    // Перетворюємо у прості <p> з урахуванням порожніх рядків
+    const asHtml =
+      "<p>" +
+      text
+        .split(/\n{2,}/)
+        .map((block) =>
+          block
+            .split("\n")
+            .map((line) => line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"))
+            .join("<br/>"),
+        )
+        .join("</p><p>") +
+      "</p>";
+
+    // Санітизуємо сторінку окремо — менше шансів зависнути на величезних рядках
+    resultHTML += sanitizeHtml(asHtml) + "\n";
+
+    onProgress?.({ page: i, total: totalPages });
   }
 
-  if (!htmlAll.trim()) {
-    throw new Error("Не вдалось витягнути текст зі сторінок (ймовірно, це скани/зображення).");
+  // Якщо PDF, скоріш за все, скан (немає тексту) — скажемо про це вище по стеку
+  if (pagesWithText === 0) {
+    throw new Error("Схоже, PDF — це скани без текстового шару. Спробуйте інший файл або OCR.");
   }
 
-  return htmlAll.trim();
+  // Після повного проходу — ще раз «легкий» санітизатор (на випадок склеювання)
+  return sanitizeHtml(resultHTML);
 }
