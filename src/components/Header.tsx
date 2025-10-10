@@ -11,15 +11,17 @@ import {
   ChevronRight,
   FileText,
   User,
+  Plus, // ⟵ додано
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom"; // ⟵ useLocation додано
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
+import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton"; // ⟵ додано
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -28,13 +30,17 @@ export const Header = () => {
 
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
+  const { pathname } = useLocation(); // ⟵ для умовного рендера
 
   const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
+
+  // показуємо блок дій лише на сторінці керування постами
+  const showBlogAdminActions = pathname.startsWith("/admin/blog-posts");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
-        {/* Navigation Bar */}
+        {/* Top Bar */}
         <div className="flex items-center justify-between">
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-1 md:flex">
@@ -248,6 +254,22 @@ export const Header = () => {
             </SheetContent>
           </Sheet>
         </div>
+
+        {/* === БЛОК ДІЙ ДЛЯ /admin/blog-posts === */}
+        {showBlogAdminActions && (
+          <div className="flex justify-between items-center mt-6 mb-2">
+            <h1 className="text-3xl font-bold">Керування постами блогу</h1>
+            <div className="flex gap-2">
+              <RefreshFeedButton />
+              <Link to="/admin/blog-posts/new">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" /> Новий пост
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+        {/* === /БЛОК ДІЙ === */}
       </div>
     </header>
   );
