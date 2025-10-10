@@ -47,11 +47,7 @@ export default function Chapters() {
     queryKey: ["book", bookId],
     queryFn: async () => {
       if (!bookId) return null;
-      const { data, error } = await supabase
-        .from("books")
-        .select("*")
-        .eq("id", bookId)
-        .single();
+      const { data, error } = await supabase.from("books").select("*").eq("id", bookId).single();
       if (error) throw error;
       return data;
     },
@@ -61,11 +57,7 @@ export default function Chapters() {
   const { data: canto } = useQuery({
     queryKey: ["canto", cantoId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cantos")
-        .select("*, books(*)")
-        .eq("id", cantoId)
-        .single();
+      const { data, error } = await supabase.from("cantos").select("*, books(*)").eq("id", cantoId).single();
       if (error) throw error;
       return data;
     },
@@ -75,17 +67,12 @@ export default function Chapters() {
   const { data: chapters, isLoading } = useQuery({
     queryKey: ["chapters", parentId, isCantoMode],
     queryFn: async () => {
-      const query = supabase
-        .from("chapters")
-        .select("*")
-        .order("chapter_number");
-
+      const query = supabase.from("chapters").select("*").order("chapter_number");
       if (isCantoMode) {
         query.eq("canto_id", cantoId);
       } else {
         query.eq("book_id", bookId);
       }
-
       const { data, error } = await query;
       if (error) throw error;
       return data;
@@ -93,10 +80,46 @@ export default function Chapters() {
     enabled: !!parentId && !!user && isAdmin,
   });
 
+  // ---- helper: перевірка унікальності на фронті (кращий UX) ----
+  const checkUniqueChapterNumber = async (number: number, opts: { excludeId?: string | null } = {}) => {
+    let query = supabase
+      .from("chapters")
+      .select("id", { count: "exact", head: false })
+      .eq("chapter_number", number)
+      .limit(1);
+
+    if (isCantoMode) {
+      query = query.eq("canto_id", cantoId);
+    } else {
+      query = query.eq("book_id", bookId);
+    }
+
+    if (opts.excludeId) {
+      query = query.neq("id", opts.excludeId);
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data?.length ?? 0) === 0;
+  };
+
   const addMutation = useMutation({
     mutationFn: async () => {
+      const num = parseInt(chapterNumber, 10);
+      if (!Number.isFinite(num) || num < 1) {
+        throw new Error("Номер глави має бути додатним числом");
+      }
+
+      // фронт-перевірка унікальності
+      const isUnique = await checkUniqueChapterNumber(num);
+      if (!isUnique) {
+        throw new Error(
+          `Глава з номером ${num} вже існує у ${isCantoMode ? "цій пісні" : "цій книзі"}. Оберіть інший номер.`,
+        );
+      }
+
       const chapterData: any = {
-        chapter_number: parseInt(chapterNumber),
+        chapter_number: num,
         title_ua: titleUa,
         title_en: titleEn || null,
       };
@@ -118,27 +141,45 @@ export default function Chapters() {
       setTitleUa("");
       setTitleEn("");
     },
-    onError: (error: any) => {
-      toast({
-        title: "Помилка",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (err: any) => {
+      // підстраховка: якщо БД повернула 23505 (unique_violation)
+      if (err?.code === "23505" || /unique|duplicate key/i.test(err?.message || "")) {
+        toast({
+          title: "Дублікат номера глави",
+          description: "Глава з таким номером уже існує в межах цієї книги/пісні. Оберіть інший номер.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Помилка",
+          description: err?.message || "Не вдалося зберегти главу",
+          variant: "destructive",
+        });
+      }
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async () => {
+      const num = parseInt(chapterNumber, 10);
+      if (!Number.isFinite(num) || num < 1) {
+        throw new Error("Номер глави має бути додатним числом");
+      }
+
+      const isUnique = await checkUniqueChapterNumber(num, { excludeId: editingChapter?.id });
+      if (!isUnique) {
+        throw new Error(
+          `Глава з номером ${num} вже існує у ${isCantoMode ? "цій пісні" : "цій книзі"}. Оберіть інший номер.`,
+        );
+      }
+
       const chapterData = {
-        chapter_number: parseInt(chapterNumber),
+        chapter_number: num,
         title_ua: titleUa,
         title_en: titleEn || null,
       };
 
-      const { error } = await supabase
-        .from("chapters")
-        .update(chapterData)
-        .eq("id", editingChapter.id);
+      const { error } = await supabase.from("chapters").update(chapterData).eq("id", editingChapter.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -148,22 +189,28 @@ export default function Chapters() {
       setChapterNumber("");
       setTitleUa("");
       setTitleEn("");
+      setIsAddingChapter(false);
     },
-    onError: (error: any) => {
-      toast({
-        title: "Помилка",
-        description: error.message,
-        variant: "destructive",
-      });
+    onError: (err: any) => {
+      if (err?.code === "23505" || /unique|duplicate key/i.test(err?.message || "")) {
+        toast({
+          title: "Дублікат номера глави",
+          description: "Глава з таким номером уже існує в межах цієї книги/пісні. Оберіть інший номер.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Помилка",
+          description: err?.message || "Не вдалося оновити главу",
+          variant: "destructive",
+        });
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (chapterId: string) => {
-      const { error } = await supabase
-        .from("chapters")
-        .delete()
-        .eq("id", chapterId);
+      const { error } = await supabase.from("chapters").delete().eq("id", chapterId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -173,7 +220,7 @@ export default function Chapters() {
     onError: (error: any) => {
       toast({
         title: "Помилка",
-        description: error.message,
+        description: error?.message || "Не вдалося видалити главу",
         variant: "destructive",
       });
     },
@@ -189,7 +236,6 @@ export default function Chapters() {
       });
       return;
     }
-
     if (editingChapter) {
       updateMutation.mutate();
     } else {
@@ -224,7 +270,7 @@ export default function Chapters() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to={isCantoMode ? `/admin/cantos/${canto?.book_id}` : "/admin/books"}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  {isCantoMode ? 'До пісень' : 'До книг'}
+                  {isCantoMode ? "До пісень" : "До книг"}
                 </Link>
               </Button>
               <div>
@@ -234,9 +280,7 @@ export default function Chapters() {
                     {canto.books?.title_ua} - Пісня {canto.canto_number}: {canto.title_ua}
                   </p>
                 )}
-                {!isCantoMode && book && (
-                  <p className="text-sm text-muted-foreground">{book.title_ua}</p>
-                )}
+                {!isCantoMode && book && <p className="text-sm text-muted-foreground">{book.title_ua}</p>}
               </div>
             </div>
             <Button onClick={() => setIsAddingChapter(true)}>
@@ -251,9 +295,7 @@ export default function Chapters() {
         {isAddingChapter && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>
-                {editingChapter ? "Редагувати главу" : "Додати главу"}
-              </CardTitle>
+              <CardTitle>{editingChapter ? "Редагувати главу" : "Додати главу"}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -302,13 +344,8 @@ export default function Chapters() {
                 </Tabs>
 
                 <div className="flex gap-4">
-                  <Button
-                    type="submit"
-                    disabled={addMutation.isPending || updateMutation.isPending}
-                  >
-                    {addMutation.isPending || updateMutation.isPending
-                      ? "Збереження..."
-                      : "Зберегти"}
+                  <Button type="submit" disabled={addMutation.isPending || updateMutation.isPending}>
+                    {addMutation.isPending || updateMutation.isPending ? "Збереження..." : "Зберегти"}
                   </Button>
                   <Button type="button" variant="outline" onClick={cancelForm}>
                     Скасувати
@@ -331,18 +368,10 @@ export default function Chapters() {
                       <h3 className="font-semibold text-lg">
                         Глава {chapter.chapter_number}: {chapter.title_ua}
                       </h3>
-                      {chapter.title_en && (
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {chapter.title_en}
-                        </p>
-                      )}
+                      {chapter.title_en && <p className="text-sm text-muted-foreground mt-1">{chapter.title_en}</p>}
                     </div>
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => startEditing(chapter)}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => startEditing(chapter)}>
                         <Edit className="w-4 h-4 mr-2" />
                         Редагувати
                       </Button>
@@ -352,18 +381,16 @@ export default function Chapters() {
                             <Trash2 className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
-                         <AlertDialogContent>
-                           <AlertDialogHeader>
-                             <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
-                             <AlertDialogDescription>
-                               Це видалить главу та всі вірші в ній. Цю дію неможливо скасувати.
-                             </AlertDialogDescription>
-                           </AlertDialogHeader>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Це видалить главу та всі вірші в ній. Цю дію неможливо скасувати.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Скасувати</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteMutation.mutate(chapter.id)}
-                            >
+                            <AlertDialogAction onClick={() => deleteMutation.mutate(chapter.id)}>
                               Видалити
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -378,9 +405,7 @@ export default function Chapters() {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                Глав не знайдено для цієї книги
-              </p>
+              <p className="text-muted-foreground">Глав не знайдено для цієї книги</p>
             </CardContent>
           </Card>
         )}
