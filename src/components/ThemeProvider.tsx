@@ -1,4 +1,3 @@
-// ThemeProvider.tsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type Theme = "light" | "dark" | "craft";
@@ -16,23 +15,33 @@ type ThemeProviderState = {
 
 const ThemeCtx = createContext<ThemeProviderState | undefined>(undefined);
 
-// інжектуємо мінімальні стилі для craft + verse-surface
+// --- стилі craft paper із бурштиновою палітрою ---
 const CRAFT_CSS = `
 html.craft {
-  --bg: 243 212 165;       /* #F3D4A5 */
-  --fg: 51 41 32;
-  --card: 250 244 232;
-  --muted: 92 76 61;
-  --primary: 190 120 50;
+  --bg: 243 212 165;        /* пісочний фон */
+  --fg: 48 37 25;           /* темно-коричневий текст */
+  --card: 250 243 225;
+  --muted: 100 85 65;
+
+  /* бурштинові акценти */
+  --primary: 210 140 40;            /* головний акцент — бурштин */
+  --primary-foreground: 255 252 245;
+  --accent: 200 130 35;
+  --accent-foreground: 255 255 250;
+
+  color-scheme: light;
   background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
   background-size: 16px 16px;
 }
-html.light, html.dark, html.craft {
+
+html.craft, html.light, html.dark {
   color: rgb(var(--fg, 17 24 39));
 }
+
 body {
   background-color: rgb(var(--bg, 255 255 255));
 }
+
 html.craft .verse-surface {
   background-color: rgb(var(--card));
   color: rgb(var(--fg));
@@ -43,7 +52,8 @@ html.craft .verse-surface {
   background-size: 16px 16px, 100% 100%;
   border: 1px solid rgba(0,0,0,0.06);
 }
-/* опційно: клас для загального тла сторінки, якщо хочеш форснути крафтовий фон у контейнері */
+
+/* загальний craft фон, якщо потрібен */
 .craft-paper-bg {
   background-color: rgb(var(--bg, 243 212 165));
   background-image: radial-gradient(rgba(0,0,0,0.03) 1px, transparent 1px);
@@ -60,7 +70,7 @@ export function ThemeProvider({ children, defaultTheme = "light", storageKey = "
     }
   });
 
-  // інжектуємо craft CSS один раз
+  // інжекція стилів для craft-теми
   useEffect(() => {
     let el = document.getElementById("vv-craft-css") as HTMLStyleElement | null;
     if (!el) {
@@ -71,7 +81,7 @@ export function ThemeProvider({ children, defaultTheme = "light", storageKey = "
     }
   }, []);
 
-  // застосовуємо клас теми на <html>
+  // перемикання класу теми
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove("light", "dark", "craft");
