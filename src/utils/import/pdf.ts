@@ -1,8 +1,8 @@
 // src/utils/import/pdf.ts
 import * as pdfjsLib from "pdfjs-dist";
-import pdfWorker from "pdfjs-dist/build/pdf.worker.min.js?url"; // ✅ воркер як asset-URL
-import { sanitizeHtml } from "../normalizers";
-import { addSanskritLineBreaks } from "../text/lineBreaks";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.js?url";
+import { sanitizeHtml } from "./normalizers"; // 👈 бо файл у тій самій теці
+import { addSanskritLineBreaks } from "../text/lineBreaks"; // 👈 піднялися на рівень вище
 
 // Привʼязуємо воркер до pdf.js (бандлиться в один білд)
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfWorker;
