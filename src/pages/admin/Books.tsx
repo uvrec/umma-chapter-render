@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Plus } from "lucide-react";
 
 const Books = () => {
   const { user, isAdmin } = useAuth();
@@ -13,22 +13,19 @@ const Books = () => {
 
   useEffect(() => {
     if (!user || !isAdmin) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, isAdmin, navigate]);
 
   const { data: books, isLoading } = useQuery({
-    queryKey: ['admin-books'],
+    queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .order('created_at', { ascending: true });
-      
+      const { data, error } = await supabase.from("books").select("*").order("created_at", { ascending: true });
+
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin
+    enabled: !!user && isAdmin,
   });
 
   if (!user || !isAdmin) return null;
@@ -69,20 +66,18 @@ const Books = () => {
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Slug: {book.slug}
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">Slug: {book.slug}</p>
                   <div className="flex gap-2 flex-wrap">
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
                     </Button>
                     {book.has_cantos ? (
                       <Button size="sm" asChild variant="outline">
-                        <Link to={`/admin/cantos/${book.id}`}>Cantos</Link>
+                        <Link to={`/admin/cantos/${book.id}`}>Пісні</Link>
                       </Button>
                     ) : (
                       <Button size="sm" asChild variant="outline">
-                        <Link to={`/admin/chapters/${book.id}`}>Розділи</Link>
+                        <Link to={`/admin/chapters/${book.id}`}>Глави</Link>
                       </Button>
                     )}
                   </div>
