@@ -13,7 +13,7 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,27 +26,14 @@ export const Header = () => {
   const [translationsOpen, setTranslationsOpen] = useState(false);
   const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
 
-  const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
 
-  // «спокійні» кнопки: прозорий фон, бордер з’являється лише при hover
   const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
-        {/* Logo */}
-        <div className="mb-4 flex items-center justify-center">
-          <Link to="/" className="flex items-center">
-            <img
-              src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
-              alt="Vedavoice"
-              className="h-64 w-auto object-contain" // ×4 проти попереднього h-16
-            />
-          </Link>
-        </div>
-
         {/* Navigation Bar */}
         <div className="flex items-center justify-between">
           {/* Desktop Navigation */}
