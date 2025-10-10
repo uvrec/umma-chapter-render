@@ -1,5 +1,6 @@
 // VedaReaderDB.tsx — оновлена версія: інтеграція з новим VerseCard, мовно-залежне збереження,
-// клавіатурна навігація (←/→), стабільні ключі запитів, дрібні UX-фікси, застосування fontSize.
+// хоткеї (←/→), стабільні ключі запитів, глобальний fontSize/lineHeight,
+// craft-папір: виправлено клас контейнера і додано verse-surface на текстову главу.
 
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -27,7 +28,7 @@ export const VedaReaderDB = () => {
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Розмір шрифту застосуємо до кореня page-content
+  // Глобальний розмір шрифту для сторінки рідера
   const [fontSize, setFontSize] = useState(18);
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [dualLanguageMode, setDualLanguageMode] = useState(false);
@@ -56,7 +57,7 @@ export const VedaReaderDB = () => {
     return parts[parts.length - 1] || verseNumber;
   };
 
-  // Книжка має "canto mode", якщо є cantoNumber у URL
+  // Режим пісень (canto), якщо у URL є cantoNumber
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
 
@@ -114,10 +115,10 @@ export const VedaReaderDB = () => {
     },
   });
 
-  // У випадку, якщо книга має канто, але URL без canto — редірект
+  // Якщо книга має канто, але URL без canto — редірект на canto/1
   useEffect(() => {
     if (!isCantoMode && book?.has_cantos && effectiveChapterParam && chapter === null) {
-      navigate(`/veda-reader/${bookId}/canto/1/chapter/${effectiveChapterParam}`, { replace: true });
+      navigate(`/veda-reader/${bookId}/canto/${1}/chapter/${effectiveChapterParam}`, { replace: true });
     }
   }, [isCantoMode, book?.has_cantos, effectiveChapterParam, chapter, bookId, navigate]);
 
@@ -129,7 +130,6 @@ export const VedaReaderDB = () => {
     queryFn: async () => {
       if (!book?.id) return [];
       const base = supabase.from("chapters").select("id, book_id, canto_id, chapter_number").order("chapter_number");
-
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
       const { data, error } = await query;
       if (error) throw error;
@@ -193,11 +193,10 @@ export const VedaReaderDB = () => {
   const updateVerseMutation = useMutation({
     mutationKey: ["updateVerse"],
     mutationFn: async ({ verseId, updates }: { verseId: string; updates: any }) => {
-      // Будуємо payload залежно від активної мови інтерфейсу
       const payload: Record<string, any> = {
         sanskrit: updates.sanskrit,
         transliteration: updates.transliteration,
-        audio_url: updates.audio_url, // про всяк, якщо колись додаси
+        audio_url: updates.audio_url,
       };
 
       if (language === "ua") {
@@ -211,11 +210,9 @@ export const VedaReaderDB = () => {
       }
 
       const { data, error } = await supabase.from("verses").update(payload).eq("id", verseId).select().single();
-
       if (error) throw error;
       return data;
     },
-    // Оптимістика: легкий локальний апдейт списку віршів
     onMutate: async ({ verseId, updates }) => {
       await queryClient.cancelQueries({ queryKey: ["verses", chapter?.id] });
       const prev = queryClient.getQueryData<any[]>(["verses", chapter?.id]);
@@ -346,7 +343,7 @@ export const VedaReaderDB = () => {
   };
 
   return (
-    <div className={`min-h-screen ${craftPaperMode ? "bg-craft-paper" : "bg-background"}`}>
+    <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
       <Header />
 
       <div className="container mx-auto px-4 py-8" style={readerStyle}>
@@ -378,7 +375,7 @@ export const VedaReaderDB = () => {
         </div>
 
         {isTextChapter ? (
-          <Card className="p-8">
+          <Card className="verse-surface p-8">
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <TiptapRenderer
                 content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || chapter.content_ua || ""}
