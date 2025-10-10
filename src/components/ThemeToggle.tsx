@@ -1,4 +1,3 @@
-// ThemeToggle.tsx
 import { useEffect } from "react";
 import { Moon, Sun, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,16 +5,16 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "./ThemeProvider";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
 
-  // хоткеї: Ctrl/Cmd+J — light/dark; Ctrl/Cmd+Shift+J — craft
+  // гарячі клавіші: Cmd/Ctrl+J → light/dark; Cmd/Ctrl+Shift+J → craft
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().includes("MAC");
@@ -44,6 +43,7 @@ export function ThemeToggle() {
           <span className="sr-only">Змінити тему</span>
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align="end" sideOffset={6}>
         <DropdownMenuLabel>Тема</DropdownMenuLabel>
         <DropdownMenuSeparator />
