@@ -2,337 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Scholarly Spiritual Text Repository Design System - Clean, academic, readable */
+/* === ТВОЄ: тема/кольори/блог — ЗАЛИШАЄМО ЯК Є === */
+/* ...весь твій поточний великий блок з :root, .dark, .craft та @layer base... */
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 220 13% 18%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 18%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 18%;
-
-    --primary: 220 39% 11%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 39% 15%;
-
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 13% 18%;
-
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8.9% 46.1%;
-
-    --accent: 220 14% 96%;
-    --accent-foreground: 220 13% 18%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 39% 11%;
-
-    --radius: 0.5rem;
-
-    /* Academic colors */
-    --academic-blue: 220 39% 11%;
-    --academic-blue-light: 220 14% 96%;
-    --academic-gray: 220 8.9% 46.1%;
-    --academic-accent: 47 96% 89%;
-    
-    /* Sanskrit term styling */
-    --sanskrit-term-color: 0 68% 42%;
-    
-    /* Typography */
-  --sanskrit-font: 'Noto Sans Devanagari', 'Sanskrit 2003', serif;
-  --body-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
-  --heading-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
-  
-  /* Blog-specific fonts */
-  --blog-heading-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
-  --blog-body-font: 'Crimson Text', Georgia, 'Times New Roman', serif;
-    
-    /* Minimal gradients */
-    --gradient-primary: linear-gradient(180deg, hsl(var(--background)), hsl(var(--secondary)));
-    --gradient-header: hsl(var(--background));
-    --gradient-card: hsl(var(--card));
-    
-    /* Subtle shadows */
-    --shadow-card: 0 1px 3px hsl(220 13% 18% / 0.08);
-    --shadow-verse: 0 1px 2px hsl(220 13% 18% / 0.05);
-    --shadow-header: 0 1px 3px hsl(220 13% 18% / 0.1);
-    
-    /* Smooth animations */
-    --transition-smooth: all 0.2s ease-in-out;
-    --transition-bounce: all 0.3s ease-out;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 220 13% 9%;
-    --foreground: 220 14% 96%;
-
-    --card: 220 13% 11%;
-    --card-foreground: 220 14% 96%;
-
-    --popover: 220 13% 11%;
-    --popover-foreground: 220 14% 96%;
-
-    --primary: 220 14% 96%;
-    --primary-foreground: 220 13% 9%;
-    --primary-hover: 220 14% 90%;
-
-    --secondary: 220 13% 15%;
-    --secondary-foreground: 220 14% 96%;
-
-    --muted: 220 13% 15%;
-    --muted-foreground: 220 8.9% 46.1%;
-
-    --accent: 220 13% 15%;
-    --accent-foreground: 220 14% 96%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 13% 18%;
-    --input: 220 13% 18%;
-    --ring: 220 14% 96%;
-    
-    /* Dark mode academic colors */
-    --academic-blue: 220 14% 96%;
-    --academic-blue-light: 220 13% 15%;
-    --academic-gray: 220 8.9% 46.1%;
-    --academic-accent: 47 96% 20%;
-    
-    /* Dark gradients */
-    --gradient-header: hsl(var(--background));
-    --gradient-card: hsl(var(--card));
-    
-    /* Dark shadows */
-    --shadow-card: 0 2px 4px hsl(0 0% 0% / 0.2);
-    --shadow-verse: 0 1px 2px hsl(0 0% 0% / 0.1);
-    --shadow-header: 0 1px 3px hsl(0 0% 0% / 0.2);
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .craft {
-    --background: 37 44% 92%;
-    --foreground: 35 25% 20%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 35 25% 20%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 35 25% 20%;
-
-    --primary: 35 25% 20%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 35 25% 15%;
-
-    --secondary: 37 25% 85%;
-    --secondary-foreground: 35 25% 20%;
-
-    --muted: 37 25% 85%;
-    --muted-foreground: 35 15% 45%;
-
-    --accent: 37 25% 85%;
-    --accent-foreground: 35 25% 20%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 37 25% 75%;
-    --input: 37 25% 75%;
-    --ring: 35 25% 20%;
-    
-    /* Craft paper colors */
-    --academic-blue: 35 25% 20%;
-    --academic-blue-light: 37 25% 85%;
-    --academic-gray: 35 15% 45%;
-    --academic-accent: 37 44% 92%;
-    
-    /* Craft gradients */
-    --gradient-header: hsl(var(--background));
-    --gradient-card: rgba(255, 255, 255, 0.8);
-    
-    /* Craft shadows */
-    --shadow-card: 0 2px 8px rgba(120, 119, 108, 0.15);
-    --shadow-verse: 0 1px 3px rgba(120, 119, 108, 0.1);
-    --shadow-header: 0 1px 3px rgba(120, 119, 108, 0.1);
-    --sidebar-background: 37 44% 90%;
-    --sidebar-foreground: 35 25% 20%;
-    --sidebar-primary: 35 25% 20%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 37 25% 85%;
-    --sidebar-accent-foreground: 35 25% 20%;
-    --sidebar-border: 37 25% 75%;
-    --sidebar-ring: 35 25% 20%;
-  }
+/* ▼▼▼ ДОДАНО: змінні та класи читалки ▼▼▼ */
+:root {
+  /* Типографіка читалки (дефолти) */
+  --vv-reader-font-size: 20px;
+  --vv-reader-line-height: 1.6;
+  --vv-reader-max-width: 68ch;
 }
 
-@layer base {
-  * {
-    @apply border-border;
-  }
+/* Базовий контейнер читалки */
+.prose-reader {
+  font-size: var(--vv-reader-font-size);
+  line-height: var(--vv-reader-line-height);
+  text-align: left;
+  margin: 0 auto;
+  max-width: var(--vv-reader-max-width);
+}
 
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--body-font);
-    line-height: 1.6;
-    font-weight: 400;
-    letter-spacing: -0.01em;
-  }
-  
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--heading-font);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  
-  /* Blog typography classes */
-  .blog-heading {
-    font-family: var(--blog-heading-font);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-  }
+/* Санскрит — більший і центрований */
+.prose-reader .sanskrit,
+.sanskrit-text {
+  font-family: var(--sanskrit-font);
+  font-size: calc(var(--vv-reader-font-size) * 1.6);
+  line-height: 1.4;
+  text-align: center;
+}
 
-  .blog-body {
-    font-family: var(--blog-body-font);
-    font-weight: 400;
-    line-height: 1.6;
-    letter-spacing: -0.003em;
-    font-size: 1.125rem;
-  }
+/* Транслітерація */
+.prose-reader .translit {
+  font-style: italic;
+}
 
-  .blog-title {
-    font-family: var(--blog-heading-font);
-    font-weight: 700;
-    font-size: 2.5rem;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
+/* Абзаци/списки — акуратні відступи */
+.prose-reader p,
+.prose-reader li {
+  margin: 0.5em 0;
+}
 
-  .blog-subtitle {
-    font-family: var(--blog-body-font);
-    font-weight: 400;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    color: hsl(var(--muted-foreground));
-  }
+/* Craft-paper підтримка для карток усередині читалки */
+.prose-reader .verse-container {
+  background: var(--gradient-card);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-verse);
+  transition: var(--transition-smooth);
+}
+.prose-reader .verse-container:hover {
+  box-shadow: var(--shadow-card);
+}
 
-  @media (max-width: 768px) {
-    .blog-title {
-      font-size: 1.875rem;
-    }
-    
-    .blog-body {
-      font-size: 1rem;
-    }
-  }
-  
-  .sanskrit-text {
-    font-family: var(--sanskrit-font);
-    font-size: 1.5rem;
-    line-height: 2;
-    text-align: center;
-    direction: ltr;
-  }
-  
-  .invocation {
-    font-family: var(--sanskrit-font);
-    font-size: 2rem;
-    text-align: center;
-    color: hsl(var(--academic-gray));
-  }
-  
-  .verse-container {
-    background: var(--gradient-card);
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-verse);
-    transition: var(--transition-smooth);
-  }
-  
-  .verse-container:hover {
-    box-shadow: var(--shadow-card);
-  }
-  
-  .play-button {
-    background: hsl(var(--secondary));
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
-    transition: var(--transition-smooth);
-  }
-  
-  .play-button:hover {
-    background: hsl(var(--accent));
-  }
-
-  /* Craft paper background */
-  .craft-paper-bg {
-    background-color: #f4f1e8;
-    background-image: 
-      radial-gradient(circle at 20% 50%, rgba(120, 119, 108, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(120, 119, 108, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 80%, rgba(120, 119, 108, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 60% 30%, rgba(120, 119, 108, 0.05) 0%, transparent 50%);
-    position: relative;
-  }
-
-  .craft-paper-bg::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: 
-      linear-gradient(90deg, rgba(120, 119, 108, 0.03) 50%, transparent 50%),
-      linear-gradient(rgba(120, 119, 108, 0.03) 50%, transparent 50%);
-    background-size: 2px 2px;
-    pointer-events: none;
-  }
-
-  .craft-paper-bg .bg-background {
-    background-color: transparent !important;
-  }
-
-  .craft-paper-bg .bg-card {
-    background-color: rgba(255, 255, 255, 0.7) !important;
-    backdrop-filter: blur(8px);
-  }
-
-  /* Sanskrit terms in blog prose */
-  .prose a[data-sanskrit-term] {
-    font-family: 'Crimson Text', Georgia, serif;
-    font-style: italic;
-  }
+/* ▼▼▼ ПРИБРАНО шаблонні стилі Vite, що ламали верстку ▼▼▼ */
+/* Раніше це центрувало все тіло, підміняло ширину та давало анімації логотипу */
+#root,
+.logo,
+@keyframes logo-spin,
+.read-the-docs {
+  all: unset;
 }
