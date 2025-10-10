@@ -13,11 +13,17 @@ type Step = "upload" | "mapping" | "chapters" | "preview";
 
 export default function ImportWizard() {
   const navigate = useNavigate();
+
   const [currentStep, setCurrentStep] = useState<Step>("upload");
   const [extractedText, setExtractedText] = useState<string>("");
+
   const [selectedTemplate, setSelectedTemplate] = useState<ImportTemplate | null>(null);
   const [chapters, setChapters] = useState<ParsedChapter[]>([]);
   const [selectedChapter, setSelectedChapter] = useState<ParsedChapter | null>(null);
+
+  // статус/помилка завантаження
+  const [importStatus, setImportStatus] = useState<string>("");
+  const [importError, setImportError] = useState<string>("");
 
   const steps: { id: Step; label: string; icon: any }[] = [
     { id: "upload", label: "Завантаження", icon: Upload },
@@ -27,11 +33,6 @@ export default function ImportWizard() {
   ];
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
-  // десь у ImportWizardStep1
-  setStatus("Обробка PDF… 0%");
-  const html = await extractTextFromPDF(file, {
-    onProgress: ({ page, total }) => setStatus(`Обробка PDF… ${page}/${total}`),
-  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -82,8 +83,17 @@ export default function ImportWizard() {
         <Card className="p-6">
           {currentStep === "upload" && (
             <UploadStep
+              statusText={importStatus}
+              errorText={importError}
+              onProgress={(txt) => {
+                setImportStatus(txt);
+                setImportError("");
+              }}
+              onError={(msg) => setImportError(msg)}
               onNext={(text) => {
                 setExtractedText(text);
+                setImportStatus("");
+                setImportError("");
                 setCurrentStep("mapping");
               }}
             />
@@ -115,7 +125,7 @@ export default function ImportWizard() {
           {currentStep === "preview" && selectedChapter && (
             <PreviewStep
               chapter={selectedChapter}
-              allChapters={chapters} // обов’язково додай цей проп
+              allChapters={chapters}
               onBack={() => setCurrentStep("chapters")}
               onComplete={() => navigate("/admin/dashboard")}
             />
