@@ -1,6 +1,6 @@
 import * as pdfjsLib from "pdfjs-dist";
 import { sanitizeHtml } from "./normalizers";
-import { addSanskritLineBreaks } from "./text/lineBreaks";
+import { addSanskritLineBreaks } from "../text/lineBreaks";
 
 // Налаштовуємо worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
