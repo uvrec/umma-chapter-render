@@ -1,3 +1,6 @@
+// IndividualVerse.tsx — повернено інлайн-адмін (передаємо isAdmin), текст перекладу знову «bold» через VerseCard prop,
+// обкладинки/поверхні — без білого фону (verse-surface контейнер)
+
 import { useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "./Header";
@@ -6,10 +9,12 @@ import { VerseCard } from "./VerseCard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { verses } from "@/data/verses";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const getBookTitle = (bid?: string): string => {
     switch (bid) {
@@ -41,7 +46,6 @@ export const IndividualVerse = () => {
   const filteredVerses = getFilteredVerses(bookId);
   const currentVerse = filteredVerses.find((v) => v.number === verseNumber);
 
-  // Автоскрол до верхньої частини при зміні вірша
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [verseNumber]);
@@ -54,7 +58,7 @@ export const IndividualVerse = () => {
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="mb-4 text-2xl font-bold">Вірш не знайдено</h1>
             <Link to={`/verses/${bookId}`}>
-              <Button variant="outline">
+              <Button variant="outline" className="hover:bg-foreground/5 hover:border hover:border-foreground/20">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Повернутися до читання
               </Button>
@@ -69,7 +73,6 @@ export const IndividualVerse = () => {
   const prevVerse = currentIndex > 0 ? filteredVerses[currentIndex - 1] : null;
   const nextVerse = currentIndex < filteredVerses.length - 1 ? filteredVerses[currentIndex + 1] : null;
 
-  // Хендлери навігації клавішами ← / →
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (document.activeElement?.tagName || "").toLowerCase();
@@ -80,11 +83,8 @@ export const IndividualVerse = () => {
         (document.activeElement as HTMLElement | null)?.isContentEditable;
       if (isEditable) return;
 
-      if (e.key === "ArrowLeft" && prevVerse) {
-        navigate(`/verses/${bookId}/${prevVerse.number}`);
-      } else if (e.key === "ArrowRight" && nextVerse) {
-        navigate(`/verses/${bookId}/${nextVerse.number}`);
-      }
+      if (e.key === "ArrowLeft" && prevVerse) navigate(`/verses/${bookId}/${prevVerse.number}`);
+      else if (e.key === "ArrowRight" && nextVerse) navigate(`/verses/${bookId}/${nextVerse.number}`);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -108,7 +108,7 @@ export const IndividualVerse = () => {
           <div className="mb-8 flex items-center justify-between">
             <Link
               to={`/verses/${bookId}`}
-              className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
+              className="flex items-center text-muted-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20 rounded-md px-2 py-1"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Повернутися до читання
@@ -120,7 +120,7 @@ export const IndividualVerse = () => {
             <p className="text-muted-foreground">Вірш {verseNumber}</p>
           </div>
 
-          {/* verse-surface — щоб «крафт-папір» застосовувався до контентної поверхні вірша */}
+          {/* verse-surface — жодних білих підкладок, підтримує craft/light/dark */}
           <div className="verse-surface rounded-lg p-0">
             <VerseCard
               verseNumber={currentVerse.number}
@@ -138,15 +138,22 @@ export const IndividualVerse = () => {
                 showTranslation: true,
                 showCommentary: true,
               }}
+              isAdmin={isAdmin} // ← повертає інлайн-редагування для адміна
+              onVerseUpdate={() => {}} // ← можна замінити реальною мутацією, тут — щоб показати UI
+              makeTranslationBold // ← дод. прапорець (див. оновлення VerseCard нижче)
+              centerBookTitle // ← центрування назви твору
+              transparentCovers // ← прозорий фон під обкладинками
             />
           </div>
 
-          {/* Навігація між віршами */}
           <div className="border-t pt-8">
             <div className="flex items-center justify-between">
               {prevVerse ? (
                 <Link to={`/verses/${bookId}/${prevVerse.number}`}>
-                  <Button variant="outline" className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 hover:bg-foreground/5 hover:border hover:border-foreground/20"
+                  >
                     <ArrowLeft className="h-4 w-4" />
                     Попередній вірш
                   </Button>
@@ -163,7 +170,10 @@ export const IndividualVerse = () => {
 
               {nextVerse ? (
                 <Link to={`/verses/${bookId}/${nextVerse.number}`}>
-                  <Button variant="outline" className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex items-center gap-2 hover:bg-foreground/5 hover:border hover:border-foreground/20"
+                  >
                     Наступний вірш
                     <ArrowLeft className="h-4 w-4 rotate-180" />
                   </Button>
