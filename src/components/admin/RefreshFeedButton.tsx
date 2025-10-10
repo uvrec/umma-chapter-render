@@ -1,5 +1,4 @@
 // src/components/admin/RefreshFeedButton.tsx
-import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,14 +14,20 @@ export function RefreshFeedButton() {
     try {
       setLoading(true);
 
-      // оновлюємо повʼязані списки/фіди
+      // можна викликати RPC (якщо треба безпосереднє оновлення MV):
+      const { data, error } = await supabase.rpc("refresh_blog_feed");
+      if (error) throw error;
+
+      // оновлюємо кешовані списки
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["blog-posts-infinite"] });
 
       toast({
         title: "Фід оновлено",
-        description: `Оновлено: ${new Date().toLocaleString("uk-UA")}`,
+        description: `Оновлено: ${new Date(data?.refreshed_at || Date.now()).toLocaleString(
+          "uk-UA",
+        )} (≈${data?.duration_ms ?? 0} мс)`,
       });
     } catch (e: any) {
       toast({
