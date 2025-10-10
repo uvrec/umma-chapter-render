@@ -1,10 +1,10 @@
 // src/components/admin/RefreshFeedButton.tsx
-import { Button } from "@/components/ui/button";
-import { RefreshCcw } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { RefreshCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 export function RefreshFeedButton() {
   const [loading, setLoading] = useState(false);
@@ -14,11 +14,11 @@ export function RefreshFeedButton() {
     try {
       setLoading(true);
 
-      // можна викликати RPC (якщо треба безпосереднє оновлення MV):
+      // (якщо маєш RPC) — викликаємо бекенд-рефреш
       const { data, error } = await supabase.rpc("refresh_blog_feed");
       if (error) throw error;
 
-      // оновлюємо кешовані списки
+      // інвалідуємо пов’язані кеші
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       queryClient.invalidateQueries({ queryKey: ["admin-blog-posts-infinite"] });
       queryClient.invalidateQueries({ queryKey: ["blog-posts-infinite"] });
@@ -30,6 +30,8 @@ export function RefreshFeedButton() {
         )} (≈${data?.duration_ms ?? 0} мс)`,
       });
     } catch (e: any) {
+      // fallback: навіть якщо RPC недоступний — просто оновимо кеш
+      queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
       toast({
         title: "Помилка оновлення",
         description: e.message,
