@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,57 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Plus, Trash2, GripVertical } from "lucide-react";
+import { ArrowLeft, Save, Plus, Trash2, GripVertical, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
-type Playlist = {
-  id: string;
-  title_ua: string;
-  title_en: string | null;
-  description_ua: string | null;
-  description_en: string | null;
-  category_id: string | null;
-  cover_image_url: string | null;
-  author: string | null;
-  year: number | null;
-  is_published: boolean;
-  display_order: number | null;
-};
 
 type Category = {
   id: string;
   name_ua: string;
 };
-
-type Track = {
-  id: string;
-  playlist_id: string;
-  title_ua: string;
-  title_en: string | null;
-  audio_url: string;
-  duration: number | null; // seconds
-  track_number: number;
-};
-
-function safeInt(v: string | number, fallback: number) {
-  const n = typeof v === "string" ? parseInt(v, 10) : v;
-  return Number.isFinite(n) ? (n as number) : fallback;
-}
-
-function formatDuration(seconds?: number | null) {
-  if (!seconds || seconds <= 0) return "N/A";
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${String(s).padStart(2, "0")}`;
-}
-
-function isValidAudioUrl(u: string) {
-  if (!u) return false;
-  // дуже проста перевірка: прямий MP3/OGG/WAV/WebM або посилання на Spotify/SoundCloud
-  return (
-    /\.(mp3|m4a|aac|wav|ogg|webm)(\?.*)?$/i.test(u) || /^(https?:\/\/)?(open\.spotify\.com|soundcloud\.com)\//i.test(u)
-  );
-}
 
 export default function AudioPlaylistEdit() {
   const { id } = useParams();
@@ -81,6 +37,8 @@ export default function AudioPlaylistEdit() {
     display_order: 0,
   });
 
+  const [uploadingCover, setUploadingCover] = useState(false);
+
   const [trackDialog, setTrackDialog] = useState(false);
   const [trackForm, setTrackForm] = useState({
     title_ua: "",
@@ -90,29 +48,27 @@ export default function AudioPlaylistEdit() {
     track_number: 1,
   });
 
-  // Категорії
+  // ---- Queries
   const { data: categories } = useQuery({
     queryKey: ["audio-categories"],
     queryFn: async () => {
       const { data, error } = await supabase.from("audio_categories").select("*").order("display_order");
       if (error) throw error;
-      return (data ?? []) as Category[];
+      return data as Category[];
     },
   });
 
-  // Плейліст (edit)
   const { data: playlist } = useQuery({
     queryKey: ["audio-playlist", id],
     queryFn: async () => {
       if (isNew) return null;
       const { data, error } = await supabase.from("audio_playlists").select("*").eq("id", id).single();
       if (error) throw error;
-      return data as Playlist;
+      return data;
     },
     enabled: !isNew,
   });
 
-  // Треки
   const { data: tracks } = useQuery({
     queryKey: ["audio-tracks", id],
     queryFn: async () => {
@@ -123,11 +79,12 @@ export default function AudioPlaylistEdit() {
         .eq("playlist_id", id)
         .order("track_number");
       if (error) throw error;
-      return (data ?? []) as Track[];
+      return data;
     },
     enabled: !isNew,
   });
 
+  // ---- Effects
   useEffect(() => {
     if (playlist) {
       setFormData({
@@ -138,42 +95,34 @@ export default function AudioPlaylistEdit() {
         category_id: playlist.category_id || "",
         cover_image_url: playlist.cover_image_url || "",
         author: playlist.author || "",
-        year: playlist.year ?? new Date().getFullYear(),
+        year: playlist.year || new Date().getFullYear(),
         is_published: !!playlist.is_published,
-        display_order: playlist.display_order ?? 0,
+        display_order: Number.isFinite(playlist.display_order) ? playlist.display_order : 0,
       });
     }
   }, [playlist]);
 
-  // Коли відкриваємо діалог нового треку — підставляємо наступний номер
   useEffect(() => {
-    if (trackDialog) {
-      setTrackForm((prev) => ({
-        ...prev,
-        track_number: (tracks?.length ?? 0) + 1,
-      }));
+    // підказка для автонумерації нового треку
+    if (tracks && !isNew) {
+      setTrackForm((prev) => ({ ...prev, track_number: (tracks.length || 0) + 1 }));
     }
-  }, [trackDialog, tracks]);
+  }, [tracks, isNew]);
 
-  // Збереження плейліста
+  // ---- Mutations
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const payload = {
-        ...data,
-        year: safeInt(data.year, new Date().getFullYear()),
-        display_order: safeInt(data.display_order, 0),
-        title_en: data.title_en || null,
-        description_ua: data.description_ua || null,
-        description_en: data.description_en || null,
-        category_id: data.category_id || null,
-        cover_image_url: data.cover_image_url || null,
-        author: data.author || null,
-      };
+      // валідація
+      if (!data.title_ua.trim()) throw new Error("Введіть назву (UA).");
+      if (!data.category_id) throw new Error("Оберіть категорію.");
+      const safeYear = Number.isFinite(Number(data.year)) ? Number(data.year) : new Date().getFullYear();
+
+      const payload = { ...data, year: safeYear };
 
       if (isNew) {
         const { data: newPlaylist, error } = await supabase.from("audio_playlists").insert([payload]).select().single();
         if (error) throw error;
-        return newPlaylist as Playlist;
+        return newPlaylist;
       } else {
         const { error } = await supabase.from("audio_playlists").update(payload).eq("id", id);
         if (error) throw error;
@@ -182,9 +131,10 @@ export default function AudioPlaylistEdit() {
     },
     onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ["audio-playlists"] });
-      if (!isNew) queryClient.invalidateQueries({ queryKey: ["audio-playlist", id] });
+      if (!isNew) {
+        queryClient.invalidateQueries({ queryKey: ["audio-playlist", id] });
+      }
       toast.success(isNew ? "Плейліст створено" : "Плейліст оновлено");
-
       if (isNew && created) {
         navigate(`/admin/audio-playlists/${created.id}`);
       }
@@ -194,25 +144,20 @@ export default function AudioPlaylistEdit() {
     },
   });
 
-  // Додавання треку
   const saveTrackMutation = useMutation({
     mutationFn: async (trackData: typeof trackForm) => {
-      if (!id) throw new Error("Немає playlist_id");
-      if (!trackData.title_ua.trim()) throw new Error("Вкажіть назву треку");
-      if (!isValidAudioUrl(trackData.audio_url.trim())) {
-        throw new Error("Невалідний URL аудіо (підтримка: прямий MP3/OGG/WAV/WebM або Spotify/SoundCloud)");
-      }
+      if (!id || id === "new") throw new Error("Спочатку збережіть плейліст.");
+      if (!trackData.title_ua.trim()) throw new Error("Введіть назву треку (UA).");
+      if (!trackData.audio_url.trim()) throw new Error("Додайте посилання на аудіо.");
 
-      const payload = {
-        playlist_id: id,
-        title_ua: trackData.title_ua.trim(),
-        title_en: trackData.title_en?.trim() || null,
-        audio_url: trackData.audio_url.trim(),
-        duration: safeInt(trackData.duration, 0) || null,
-        track_number: safeInt(trackData.track_number, (tracks?.length ?? 0) + 1),
-      };
+      const safeDuration = Number.isFinite(Number(trackData.duration)) ? Number(trackData.duration) : 0;
+      const safeTrackNo = Number.isFinite(Number(trackData.track_number))
+        ? Number(trackData.track_number)
+        : (tracks?.length || 0) + 1;
 
-      const { error } = await supabase.from("audio_tracks").insert([payload]);
+      const { error } = await supabase
+        .from("audio_tracks")
+        .insert([{ ...trackData, duration: safeDuration, track_number: safeTrackNo, playlist_id: id }]);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -224,7 +169,7 @@ export default function AudioPlaylistEdit() {
         title_en: "",
         audio_url: "",
         duration: 0,
-        track_number: (tracks?.length ?? 0) + 1,
+        track_number: (tracks?.length || 0) + 1,
       });
     },
     onError: (error: any) => {
@@ -232,7 +177,6 @@ export default function AudioPlaylistEdit() {
     },
   });
 
-  // Видалення треку
   const deleteTrackMutation = useMutation({
     mutationFn: async (trackId: string) => {
       const { error } = await supabase.from("audio_tracks").delete().eq("id", trackId);
@@ -247,12 +191,9 @@ export default function AudioPlaylistEdit() {
     },
   });
 
+  // ---- Handlers
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title_ua.trim()) {
-      toast.error("Вкажіть назву плейліста (UA)");
-      return;
-    }
     saveMutation.mutate(formData);
   };
 
@@ -261,8 +202,40 @@ export default function AudioPlaylistEdit() {
     saveTrackMutation.mutate(trackForm);
   };
 
-  const tracksCount = tracks?.length ?? 0;
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Оберіть файл зображення.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Розмір файлу до 5MB.");
+      return;
+    }
+    setUploadingCover(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const safeName = `playlist-${id && id !== "new" ? id : "temp"}-${Date.now()}`.replace(/[^a-zA-Z0-9-_]/g, "");
+      const path = `audio-playlists/${safeName}.${ext}`;
 
+      const { error: uploadError } = await supabase.storage.from("page-media").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = await supabase.storage.from("page-media").getPublicUrl(path);
+
+      setFormData((prev) => ({ ...prev, cover_image_url: publicUrl }));
+      toast.success("Обкладинку завантажено");
+    } catch (err: any) {
+      toast.error("Помилка завантаження: " + err.message);
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  // ---- UI
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
@@ -283,7 +256,7 @@ export default function AudioPlaylistEdit() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="category_id">Категорія</Label>
+                <Label htmlFor="category_id">Категорія *</Label>
                 <Select
                   value={formData.category_id}
                   onValueChange={(value) => setFormData({ ...formData, category_id: value })}
@@ -330,14 +303,46 @@ export default function AudioPlaylistEdit() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="cover_image_url">Обкладинка (URL)</Label>
-                <Input
-                  id="cover_image_url"
-                  value={formData.cover_image_url}
-                  onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
-                  placeholder="https://..."
-                />
+              <div className="space-y-2">
+                <Label htmlFor="cover_image_url">Обкладинка</Label>
+                {formData.cover_image_url && (
+                  <div className="relative w-48 h-48 rounded-lg overflow-hidden bg-muted">
+                    <img src={formData.cover_image_url} alt="cover" className="w-full h-full object-cover" />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={() => setFormData((p) => ({ ...p, cover_image_url: "" }))}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploadingCover}
+                    onClick={() => document.getElementById("cover-upload")?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploadingCover ? "Завантаження…" : "Завантажити файл"}
+                  </Button>
+                  <input
+                    id="cover-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCoverUpload}
+                  />
+                  <Input
+                    placeholder="або вставте URL https://…"
+                    value={formData.cover_image_url}
+                    onChange={(e) => setFormData({ ...formData, cover_image_url: e.target.value })}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">JPG/PNG/WEBP, до 5MB, бажано 1:1 або 2:1.</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -354,9 +359,13 @@ export default function AudioPlaylistEdit() {
                   <Input
                     id="year"
                     type="number"
+                    inputMode="numeric"
                     value={formData.year}
                     onChange={(e) =>
-                      setFormData({ ...formData, year: safeInt(e.target.value, new Date().getFullYear()) })
+                      setFormData({
+                        ...formData,
+                        year: Number.isFinite(+e.target.value as any) ? +e.target.value : new Date().getFullYear(),
+                      })
                     }
                   />
                 </div>
@@ -384,10 +393,10 @@ export default function AudioPlaylistEdit() {
           <Card>
             <CardHeader>
               <div className="flex justify-between items-center">
-                <CardTitle>Треки ({tracksCount})</CardTitle>
+                <CardTitle>Треки ({tracks?.length || 0})</CardTitle>
                 <Dialog open={trackDialog} onOpenChange={setTrackDialog}>
                   <DialogTrigger asChild>
-                    <Button size="sm" onClick={() => setTrackDialog(true)}>
+                    <Button size="sm">
                       <Plus className="w-4 h-4 mr-2" />
                       Додати трек
                     </Button>
@@ -416,9 +425,7 @@ export default function AudioPlaylistEdit() {
                           placeholder="https://... або Spotify/SoundCloud URL"
                           required
                         />
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Підтримується: прямий MP3/OGG/WAV/WebM, Spotify, SoundCloud
-                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">Підтримується: MP3, Spotify, SoundCloud</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -427,8 +434,9 @@ export default function AudioPlaylistEdit() {
                           <Input
                             id="duration"
                             type="number"
+                            inputMode="numeric"
                             value={trackForm.duration}
-                            onChange={(e) => setTrackForm({ ...trackForm, duration: safeInt(e.target.value, 0) })}
+                            onChange={(e) => setTrackForm({ ...trackForm, duration: Number(e.target.value) || 0 })}
                           />
                         </div>
                         <div>
@@ -436,20 +444,16 @@ export default function AudioPlaylistEdit() {
                           <Input
                             id="track_number"
                             type="number"
+                            inputMode="numeric"
                             value={trackForm.track_number}
-                            onChange={(e) =>
-                              setTrackForm({
-                                ...trackForm,
-                                track_number: safeInt(e.target.value, (tracks?.length ?? 0) + 1),
-                              })
-                            }
+                            onChange={(e) => setTrackForm({ ...trackForm, track_number: Number(e.target.value) || 1 })}
                             required
                           />
                         </div>
                       </div>
 
                       <Button type="submit" className="w-full" disabled={saveTrackMutation.isPending}>
-                        {saveTrackMutation.isPending ? "Додаємо…" : "Додати"}
+                        Додати
                       </Button>
                     </form>
                   </DialogContent>
@@ -457,36 +461,41 @@ export default function AudioPlaylistEdit() {
               </div>
             </CardHeader>
             <CardContent>
-              {tracks && tracks.length > 0 ? (
-                <div className="space-y-2">
-                  {tracks.map((track) => (
-                    <div key={track.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <GripVertical className="w-4 h-4 text-muted-foreground cursor-default" />
-                        <div>
-                          <p className="font-medium">
-                            {track.track_number}. {track.title_ua}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{formatDuration(track.duration)}</p>
-                        </div>
+              <div className="space-y-2">
+                {tracks?.map((track: any) => (
+                  <div key={track.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <GripVertical className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">
+                          {track.track_number}. {track.title_ua}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {track.duration
+                            ? `${Math.floor(track.duration / 60)}:${String(track.duration % 60).padStart(2, "0")}`
+                            : "—"}
+                        </p>
                       </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (confirm("Видалити цей трек?")) {
-                            deleteTrackMutation.mutate(track.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">Немає треків. Додайте перший трек.</p>
-              )}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        if (confirm("Видалити цей трек?")) {
+                          deleteTrackMutation.mutate(track.id);
+                        }
+                      }}
+                      aria-label={`Видалити трек ${track.title_ua}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+
+                {(!tracks || tracks.length === 0) && (
+                  <p className="text-center text-muted-foreground py-8">Немає треків. Додайте перший трек.</p>
+                )}
+              </div>
             </CardContent>
           </Card>
         )}
