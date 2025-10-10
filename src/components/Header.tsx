@@ -1,5 +1,3 @@
-// Header.tsx — збільшене лого (×4), охайні навігаційні кнопки з прозорим бекґраундом і бордером лише при hover
-
 import {
   Menu,
   LogIn,
@@ -32,7 +30,7 @@ export const Header = () => {
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
 
-  // спільний клас для спокійних «прозорих» кнопок із бордером лише при hover
+  // «спокійні» кнопки: прозорий фон, бордер з’являється лише при hover
   const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
 
   return (
@@ -44,7 +42,7 @@ export const Header = () => {
             <img
               src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
               alt="Vedavoice"
-              className="h-64 w-auto object-contain" // було h-16 — тепер ×4
+              className="h-64 w-auto object-contain" // ×4 проти попереднього h-16
             />
           </Link>
         </div>
