@@ -1,4 +1,6 @@
 // src/pages/admin/BlogPostsInfinite.tsx (можете залишити стару назву файлу)
+// додай імпорт угорі файлу
+import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
