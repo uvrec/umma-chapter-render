@@ -20,14 +20,14 @@ function escapeLike(term: string) {
   return term.replace(/[%_]/g, (m) => `\\${m}`);
 }
 
-export default function BlogPosts() {
+export default function BlogPostsInfinite() {
   const { language } = useLanguage();
   const qc = useQueryClient();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft" | "scheduled">("all");
 
-  // невеликий дебаунс, щоб не спамити бекенд
+  // debounce пошуку
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 300);
@@ -39,13 +39,7 @@ export default function BlogPosts() {
     [statusFilter, debouncedSearch],
   );
 
-  const fetchPage = async ({
-    pageParam = 0,
-  }): Promise<{
-    items: any[];
-    nextPage: number;
-    hasMore: boolean;
-  }> => {
+  const fetchPage = async ({ pageParam = 0 }): Promise<{ items: any[]; nextPage: number; hasMore: boolean }> => {
     const from = pageParam * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
 
@@ -72,7 +66,6 @@ export default function BlogPosts() {
     // пошук
     if (debouncedSearch) {
       const term = escapeLike(debouncedSearch);
-      // важливо: ставимо `,` лише як розділювач умов or()
       query = query.or(`title_ua.ilike.%${term}%,title_en.ilike.%${term}%`);
     }
 
@@ -122,7 +115,6 @@ export default function BlogPosts() {
       toast({ title: "Помилка видалення", variant: "destructive" });
     } else {
       toast({ title: "Пост видалено" });
-      // оновлюємо кеш
       qc.invalidateQueries({ queryKey });
       refetch();
     }
@@ -130,14 +122,17 @@ export default function BlogPosts() {
 
   return (
     <div className="container mx-auto py-8">
-      {/* Header */}
+      {/* Header (оновлений блок дій) */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Керування постами блогу</h1>
-        <Link to="/admin/blog-posts/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Новий пост
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <RefreshFeedButton />
+          <Link to="/admin/blog-posts/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Новий пост
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Controls */}
