@@ -1,12 +1,19 @@
-import { useState } from "react";
-import { useParams } from "react-router-dom";
+// VedaReader.tsx — підчищена версія під оновлений VerseCard/InlineTiptapEditor
+// + дрібні UX-фікси: стабільні типи, глобальний fontSize+lineHeight,
+//   нормалізація originalLanguage, клавіші ←/→ між віршами (anchor-скрол),
+//   дрібний рефактор continuous reading.
+
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useParams, Link } from "react-router-dom";
 import { VerseCard } from "./VerseCard";
 import { Header } from "./Header";
 import { Breadcrumb } from "./Breadcrumb";
 import { SettingsPanel, type ContinuousReadingSettings } from "./SettingsPanel";
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
-import { Link } from "react-router-dom";
+import { verses as ALL_VERSES } from "@/data/verses";
+
+type OriginalLanguage = "sanskrit" | "english" | "bengali";
 
 interface Verse {
   number: string;
@@ -19,251 +26,296 @@ interface Verse {
   audioUrl?: string;
 }
 
-import { verses } from "@/data/verses";
-
 export const VedaReader = () => {
   const { bookId } = useParams();
-  const [currentVerse, setCurrentVerse] = useState<number>(1);
   const [showSettings, setShowSettings] = useState(false);
   const [fontSize, setFontSize] = useState(16);
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [dualLanguageMode, setDualLanguageMode] = useState(false);
-  const [originalLanguage, setOriginalLanguage] = useState("sanskrit");
+  const [originalLanguage, setOriginalLanguage] = useState<OriginalLanguage>("sanskrit");
+
   const [textDisplaySettings, setTextDisplaySettings] = useState({
     showSanskrit: true,
     showTransliteration: true,
     showSynonyms: true,
     showTranslation: true,
-    showCommentary: true
+    showCommentary: true,
   });
+
   const [continuousReadingSettings, setContinuousReadingSettings] = useState<ContinuousReadingSettings>({
     enabled: false,
     showVerseNumbers: true,
     showSanskrit: false,
     showTransliteration: false,
     showTranslation: true,
-    showCommentary: false
+    showCommentary: false,
   });
 
-  const getBookTitle = (bookId?: string): string => {
-    switch (bookId) {
-      case 'srimad-bhagavatam':
-        return 'Шрімад-Бгаґаватам';
-      case 'bhagavad-gita':
-        return 'Бгаґавад-ґіта';
-      case 'sri-isopanishad':
-        return 'Шрі Ішопанішад';
+  // якір для швидкого скролу між віршами
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const getBookTitle = (bid?: string): string => {
+    switch (bid) {
+      case "srimad-bhagavatam":
+        return "Шрімад-Бгаґаватам";
+      case "bhagavad-gita":
+        return "Бгаґавад-ґіта";
+      case "sri-isopanishad":
+        return "Шрі Ішопанішад";
       default:
-        return 'Ведичні тексти';
+        return "Ведичні тексти";
     }
   };
 
-  const getFilteredVerses = (bookId?: string): Verse[] => {
-    if (!bookId) return verses;
-    
+  const filteredVerses: Verse[] = useMemo(() => {
+    if (!bookId) return ALL_VERSES;
     switch (bookId) {
-      case 'srimad-bhagavatam':
-        return verses.filter(v => v.number.startsWith('ШБ'));
-      case 'bhagavad-gita':
-        return verses.filter(v => v.number.startsWith('БГ'));
-      case 'sri-isopanishad':
-        return verses.filter(v => v.number.startsWith('ШІІ'));
+      case "srimad-bhagavatam":
+        return ALL_VERSES.filter((v) => v.number.startsWith("ШБ"));
+      case "bhagavad-gita":
+        return ALL_VERSES.filter((v) => v.number.startsWith("БГ"));
+      case "sri-isopanishad":
+        return ALL_VERSES.filter((v) => v.number.startsWith("ШІІ"));
       default:
-        return verses;
+        return ALL_VERSES;
     }
-  };
-
-  const filteredVerses = getFilteredVerses(bookId);
+  }, [bookId]);
 
   const handleVerseSelect = (verseNumber: string) => {
-    const verse = filteredVerses.find(v => v.number === verseNumber);
-    if (verse) {
-      const verseElement = document.getElementById(`verse-${verseNumber}`);
-      if (verseElement) {
-        verseElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
+    const el = document.getElementById(`verse-${verseNumber}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const renderContinuousText = () => {
-    return (
-      <div className={`${craftPaperMode ? 'p-8 rounded-lg' : ''}`} style={{
-        backgroundColor: craftPaperMode ? '#F3D4A5' : 'transparent'
-      }}>
-        {filteredVerses.map((verse, index) => (
+  // гарячі клавіші ←/→ для переходу між блоками-віршами (в режимі не continuous)
+  useEffect(() => {
+    if (continuousReadingSettings.enabled) return;
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (document.activeElement?.tagName || "").toLowerCase();
+      const editable =
+        tag === "input" ||
+        tag === "textarea" ||
+        tag === "select" ||
+        (document.activeElement as HTMLElement | null)?.isContentEditable;
+      if (editable) return;
+
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+
+      // знайти поточний вірш у в’юпорті
+      const anchors = filteredVerses
+        .map((v) => document.getElementById(`verse-${v.number}`))
+        .filter(Boolean) as HTMLElement[];
+      if (!anchors.length) return;
+
+      const viewportMid = window.scrollY + window.innerHeight / 2;
+      let currentIdx = 0;
+      for (let i = 0; i < anchors.length; i++) {
+        const r = anchors[i].getBoundingClientRect();
+        const yMid = window.scrollY + r.top + r.height / 2;
+        if (yMid > viewportMid) {
+          currentIdx = Math.max(0, i - 1);
+          break;
+        }
+        if (i === anchors.length - 1) currentIdx = i;
+      }
+
+      const nextIdx =
+        e.key === "ArrowLeft" ? Math.max(0, currentIdx - 1) : Math.min(anchors.length - 1, currentIdx + 1);
+      anchors[nextIdx].scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [filteredVerses, continuousReadingSettings.enabled]);
+
+  const renderContinuousText = () => (
+    <div
+      className={`${craftPaperMode ? "p-8 rounded-lg" : ""}`}
+      style={{ backgroundColor: craftPaperMode ? "#F3D4A5" : "transparent" }}
+    >
+      {filteredVerses.map((verse, index) => {
+        const verseShort = verse.number.split(".").pop();
+        return (
           <div key={verse.number} className="mb-4">
             {continuousReadingSettings.showVerseNumbers && (
-              <Link 
+              <Link
                 to={`/verses/${bookId}/${verse.number}`}
-                className="font-bold text-red-600 mr-2 hover:text-red-700 cursor-pointer underline"
+                className="mr-2 cursor-pointer underline font-bold text-red-600 hover:text-red-700"
               >
-                ВІРШ {verse.number.split('.').pop()}:
+                ВІРШ {verseShort}:
               </Link>
             )}
-            
+
             {continuousReadingSettings.showSanskrit && verse.sanskrit && (
               <div className="mb-2">
-                <div className="font-medium text-lg leading-relaxed">{verse.sanskrit}</div>
+                <div className="text-lg leading-relaxed font-medium">{verse.sanskrit}</div>
               </div>
             )}
-            
+
             {continuousReadingSettings.showTransliteration && verse.transliteration && (
-              <div className="mb-2">
-                <div className="italic leading-relaxed">{verse.transliteration}</div>
-              </div>
+              <div className="mb-2 italic leading-relaxed">{verse.transliteration}</div>
             )}
-            
-            {continuousReadingSettings.showTranslation && (
-              <span className="leading-relaxed">{verse.translation}</span>
-            )}
-            
+
+            {continuousReadingSettings.showTranslation && <span className="leading-relaxed">{verse.translation}</span>}
+
             {continuousReadingSettings.showCommentary && verse.commentary && (
-              <div className="mt-2">
-                <div className="text-muted-foreground leading-relaxed">{verse.commentary}</div>
-              </div>
+              <div className="mt-2 leading-relaxed text-muted-foreground">{verse.commentary}</div>
             )}
-            
+
             {index < filteredVerses.length - 1 && <span> </span>}
           </div>
-        ))}
-      </div>
-    );
-  };
+        );
+      })}
+    </div>
+  );
+
+  // глобальні стилі розміру/міжряддя
+  const contentStyle: React.CSSProperties = { fontSize: `${fontSize}px`, lineHeight: 1.6 };
+
+  const originalHeader = (lang: OriginalLanguage) =>
+    lang === "sanskrit" ? "संस्कृत" : lang === "english" ? "English" : "বাংলা";
 
   return (
-    <div className={`min-h-screen ${craftPaperMode && !continuousReadingSettings.enabled ? 'craft-paper-bg' : 'bg-background'}`}>
+    <div
+      className={`min-h-screen ${
+        craftPaperMode && !continuousReadingSettings.enabled ? "craft-paper-bg" : "bg-background"
+      }`}
+    >
       <Header />
-      
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <Breadcrumb items={[
-            { label: "Головна", href: "/" },
-            { label: "Бібліотека", href: "/library" },
-            { label: getBookTitle(bookId) }
-          ]} />
-          
-          <div className="flex items-center justify-between mb-8">
-            <Link 
-              to="/library" 
-              className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+
+      <main className="container mx-auto px-4 py-8" ref={containerRef}>
+        <div className="mx-auto max-w-4xl" style={contentStyle}>
+          <Breadcrumb
+            items={[
+              { label: "Головна", href: "/" },
+              { label: "Бібліотека", href: "/library" },
+              { label: getBookTitle(bookId) },
+            ]}
+          />
+
+          <div className="mb-8 flex items-center justify-between">
+            <Link
+              to="/library"
+              className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Повернутися до бібліотеки
             </Link>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setShowSettings(true)}
-            >
-              <Settings className="w-4 h-4 mr-2" />
+
+            <Button variant="outline" size="sm" onClick={() => setShowSettings(true)}>
+              <Settings className="mr-2 h-4 w-4" />
               Налаштування
             </Button>
           </div>
 
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold mb-2">{getBookTitle(bookId)}</h1>
-            <p className="text-muted-foreground">
-              Глава {currentVerse} • {filteredVerses.length} віршів
-            </p>
+            <h1 className="mb-2 text-3xl font-bold">{getBookTitle(bookId)}</h1>
+            <p className="text-muted-foreground">Віршів: {filteredVerses.length}</p>
           </div>
 
-          <div className="space-y-8" style={{ fontSize: `${fontSize}px` }}>
-            {continuousReadingSettings.enabled ? (
-              renderContinuousText()
-            ) : (
-              filteredVerses.map((verse, index) => (
-                <div key={verse.number} id={`verse-${verse.number}`}>
-                  {dualLanguageMode ? (
-                    <div className="grid grid-cols-2 gap-6">
-                      {/* Original Language Column */}
-                      <div className="bg-muted/30 p-6 rounded-lg">
-                        <h4 className="font-semibold mb-4 text-center">
-                          {originalLanguage === 'sanskrit' ? 'संस्कृत' : 
-                           originalLanguage === 'english' ? 'English' : 'বাংলা'}
-                        </h4>
-                        <VerseCard
-                          verseNumber={verse.number}
-                          sanskritText={verse.sanskrit}
-                          transliteration={originalLanguage === 'sanskrit' ? verse.transliteration : ''}
-                          synonyms={originalLanguage === 'sanskrit' ? verse.synonyms : ''}
-                          translation={originalLanguage === 'english' ? "English translation coming soon..." : originalLanguage === 'bengali' ? "বাংলা অনুবাদ শীঘ্রই আসছে..." : verse.translation}
-                          commentary={originalLanguage === 'sanskrit' ? verse.commentary : ''}
-                          bookName={verse.book}
-                          audioUrl={verse.audioUrl}
-                          textDisplaySettings={originalLanguage === 'sanskrit' ? textDisplaySettings : {
-                            showSanskrit: originalLanguage === 'sanskrit',
-                            showTransliteration: false,
-                            showSynonyms: false,
-                            showTranslation: true,
-                            showCommentary: originalLanguage === 'sanskrit'
-                          }}
-                        />
-                      </div>
+          <div className="space-y-8">
+            {continuousReadingSettings.enabled
+              ? renderContinuousText()
+              : filteredVerses.map((verse) => (
+                  <div key={verse.number} id={`verse-${verse.number}`}>
+                    {dualLanguageMode ? (
+                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        {/* Оригінал */}
+                        <div className="rounded-lg bg-muted/30 p-6">
+                          <h4 className="mb-4 text-center font-semibold">{originalHeader(originalLanguage)}</h4>
+                          <VerseCard
+                            verseNumber={verse.number}
+                            bookName={verse.book}
+                            sanskritText={verse.sanskrit}
+                            transliteration={originalLanguage === "sanskrit" ? verse.transliteration : ""}
+                            synonyms={originalLanguage === "sanskrit" ? verse.synonyms : ""}
+                            translation={
+                              originalLanguage === "english"
+                                ? "English translation coming soon..."
+                                : originalLanguage === "bengali"
+                                  ? "বাংলা অনুবাদ শীঘ্রই আসছে..."
+                                  : verse.translation
+                            }
+                            commentary={originalLanguage === "sanskrit" ? verse.commentary : ""}
+                            audioUrl={verse.audioUrl}
+                            textDisplaySettings={
+                              originalLanguage === "sanskrit"
+                                ? textDisplaySettings
+                                : {
+                                    showSanskrit: originalLanguage === "sanskrit",
+                                    showTransliteration: false,
+                                    showSynonyms: false,
+                                    showTranslation: true,
+                                    showCommentary: originalLanguage === "sanskrit",
+                                  }
+                            }
+                          />
+                        </div>
 
-                      {/* Ukrainian Translation Column */}
-                      <div className="bg-muted/10 p-6 rounded-lg">
-                        <h4 className="font-semibold mb-4 text-center">Українська</h4>
-                        <VerseCard
-                          verseNumber={verse.number}
-                          sanskritText=""
-                          transliteration=""
-                          synonyms=""
-                          translation={verse.translation}
-                          commentary={verse.commentary}
-                          bookName={verse.book}
-                          audioUrl={verse.audioUrl}
-                          textDisplaySettings={{
-                            showSanskrit: false,
-                            showTransliteration: false,
-                            showSynonyms: false,
-                            showTranslation: true,
-                            showCommentary: true
-                          }}
-                        />
+                        {/* Український переклад */}
+                        <div className="rounded-lg bg-muted/10 p-6">
+                          <h4 className="mb-4 text-center font-semibold">Українська</h4>
+                          <VerseCard
+                            verseNumber={verse.number}
+                            bookName={verse.book}
+                            sanskritText=""
+                            transliteration=""
+                            synonyms=""
+                            translation={verse.translation}
+                            commentary={verse.commentary}
+                            audioUrl={verse.audioUrl}
+                            textDisplaySettings={{
+                              showSanskrit: false,
+                              showTransliteration: false,
+                              showSynonyms: false,
+                              showTranslation: true,
+                              showCommentary: true,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <VerseCard
-                      verseNumber={verse.number}
-                      sanskritText={verse.sanskrit}
-                      transliteration={verse.transliteration}
-                      synonyms={verse.synonyms}
-                      translation={verse.translation}
-                      commentary={verse.commentary}
-                      bookName={verse.book}
-                      audioUrl={verse.audioUrl}
-                      textDisplaySettings={textDisplaySettings}
-                    />
-                  )}
-                </div>
-              ))
-            )}
+                    ) : (
+                      <VerseCard
+                        verseNumber={verse.number}
+                        bookName={verse.book}
+                        sanskritText={verse.sanskrit}
+                        transliteration={verse.transliteration}
+                        synonyms={verse.synonyms}
+                        translation={verse.translation}
+                        commentary={verse.commentary}
+                        audioUrl={verse.audioUrl}
+                        textDisplaySettings={textDisplaySettings}
+                      />
+                    )}
+                  </div>
+                ))}
           </div>
 
-          {/* Chapter Navigation */}
-          <div className="flex justify-between items-center mt-12 pt-8 border-t">
-            <Button 
-              variant="outline" 
+          {/* Навігація по "голові" (заглушка під майбутні розділи) */}
+          <div className="mt-12 flex items-center justify-between border-t pt-8">
+            <Button
+              variant="outline"
               className="flex items-center gap-2"
-              onClick={() => {/* TODO: Navigate to previous chapter */}}
+              onClick={() => {
+                /* TODO */
+              }}
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="h-4 w-4" />
               Попередня глава
             </Button>
-            
+
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">Глава 1</p>
+              <p className="text-sm text-muted-foreground">Глава</p>
               <p className="font-medium">{getBookTitle(bookId)}</p>
             </div>
-            
-            <Button 
-              variant="outline" 
+
+            <Button
+              variant="outline"
               className="flex items-center gap-2"
-              onClick={() => {/* TODO: Navigate to next chapter */}}
+              onClick={() => {
+                /* TODO */
+              }}
             >
               Наступна глава
-              <ArrowLeft className="w-4 h-4 rotate-180" />
+              <ArrowLeft className="h-4 w-4 rotate-180" />
             </Button>
           </div>
         </div>
@@ -284,7 +336,7 @@ export const VedaReader = () => {
         textDisplaySettings={textDisplaySettings}
         onTextDisplaySettingsChange={setTextDisplaySettings}
         originalLanguage={originalLanguage}
-        onOriginalLanguageChange={setOriginalLanguage}
+        onOriginalLanguageChange={(v) => setOriginalLanguage(v as OriginalLanguage)}
         continuousReadingSettings={continuousReadingSettings}
         onContinuousReadingSettingsChange={setContinuousReadingSettings}
       />
