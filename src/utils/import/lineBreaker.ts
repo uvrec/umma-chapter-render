@@ -1,100 +1,169 @@
-/**
- * Utility to add proper line breaks to Sanskrit and transliteration text
- * based on Devanagari punctuation and meter patterns
- */
+// src/utils/text/lineBreaks.ts
 
 /**
- * Adds line breaks to Sanskrit text based on Devanagari punctuation
- * Splits at: invocations (ॐ), single danda (।), and preserves double danda (॥) with verse numbers
+ * Утиліти для додавання коректних перенесень рядків у санскриті (Деванаґарі)
+ * та узгодження перенесень у транслітерації.
+ */
+
+/** Деванаґарі цифри -> ASCII */
+function devaDigitsToAscii(input: string): string {
+  const map: Record<string, string> = {
+    "०": "0",
+    "१": "1",
+    "२": "2",
+    "३": "3",
+    "४": "4",
+    "५": "5",
+    "६": "6",
+    "७": "7",
+    "८": "8",
+    "९": "9",
+  };
+  return input.replace(/[०-९]/g, (d) => map[d] ?? d);
+}
+
+/** Нормалізація пробілів/перенесень */
+function normalizeSpaces(s?: string | null): string {
+  if (!s) return "";
+  return s.replace(/\r\n?/g, "\n").replace(/\s+/g, " ").trim();
+}
+
+/** Тонка нормалізація перед розбивкою: прибираємо лише «мʼякі» артефакти */
+function softNormalizeBeforeSplit(s?: string | null): string {
+  if (!s) return "";
+  // Приберемо тільки \r та дубль-пробіли, збережемо існуючі \n для безпечного ресету нижче
+  let out = s.replace(/\r\n?/g, "\n").replace(/[ \t]+/g, " ");
+  // Повністю обнуляємо існуючі перенесення, щоб розбивати «з нуля»
+  out = out.replace(/\n+/g, " ").trim();
+  return out;
+}
+
+/** Маркери/регекспи */
+const INVOCATION_RE = /(^|\s)ॐ(\s|$)/; // інвокація «ॐ»
+const SINGLE_DANDA_RE = /।(?!।)/g; // одинична данда
+// Подвійна данда з опційним номером: "॥", "॥ 12 ॥", "॥ १२ ॥", "॥12॥" тощо
+const DOUBLE_DANDA_NUM_RE = /॥\s*([०-९0-9]+)?\s*॥/g;
+
+/**
+ * Розбиває санскрит (Деванаґарі) за дандами:
+ *  - «ॐ …» стає окремим рядком (якщо на початку)
+ *  - після одиничної данди «।» додається перенесення (крім випадку подвійної данди)
+ *  - послідовність «॥ <номер?> ॥» залишається на одному рядку, після неї — перенесення (якщо є текст далі)
  */
 export function addSanskritLineBreaks(text: string): string {
   if (!text || !text.trim()) return text;
-  
-  // Remove existing line breaks to start fresh
-  let cleaned = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-  
-  // Step 1: Handle invocation (ॐ) - should be on its own line
-  cleaned = cleaned.replace(/^(ॐ[^।॥]+)/i, '$1\n');
-  
-  // Step 2: Split at single danda (।) but not double danda (॥)
-  // Add line break after single danda if not followed by another danda
-  cleaned = cleaned.replace(/।(?!।)/g, '।\n');
-  
-  // Step 3: Keep double danda (॥) with any following verse number on same line
-  cleaned = cleaned.replace(/॥\s*(\d+)?\s*॥/g, '॥ $1 ॥');
-  
-  // Clean up multiple line breaks and trim each line
-  const lines = cleaned.split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
-  
-  return lines.join('\n');
+
+  // 0) Обнулити наявні перенесення та зайві пробіли
+  let s = softNormalizeBeforeSplit(text);
+
+  // 1) Інвокація «ॐ» — якщо справді на початку вірша
+  //    зробимо її окремим рядком: "ॐ ..." -> "ॐ\n..."
+  if (/^ॐ[^\S\n]*\S/.test(s)) {
+    s = s.replace(/^ॐ[^\S\n]*/i, "ॐ\n");
+  }
+
+  // 2) Подвійні данди з номером: гарантуємо компактний формат "॥ <num> ॥"
+  //    і додамо перенос ПІСЛЯ такого блоку, якщо далі ще є текст.
+  s = s.replace(DOUBLE_DANDA_NUM_RE, (_m, num) => {
+    const asciiNum = num ? devaDigitsToAscii(String(num)) : "";
+    // залишимо деванаґарі чи арабські — як було; формат лише нормалізуємо
+    return asciiNum ? `॥ ${num} ॥` : "॥ ॥";
+  });
+
+  // Вставити перенос після завершеного блоку "॥ ... ॥", якщо потім ще йде текст
+  s = s.replace(/(॥\s*[०-९0-9]*\s*॥)(\s*)(?=\S)/g, (_m, block) => `${block}\n`);
+
+  // 3) Одиничні данди: ставимо перенос після «।», але НЕ якщо це частина «॥»
+  s = s.replace(SINGLE_DANDA_RE, "।\n");
+
+  // 4) Фінальна чистка
+  const lines = s
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  // Уникаємо подвійних переносів на кінці
+  return lines.join("\n");
 }
 
 /**
- * Adds line breaks to transliteration based on Sanskrit line breaks
- * Assumes transliteration roughly follows same structure as Sanskrit
+ * Якщо в транслітерації є маркери '||' (double danda) або '|' (single danda),
+ * спробуємо розбити саме ними. Інакше — спробуємо підлаштуватися під
+ * кількість рядків санскриту (евристика за кількістю слів).
  */
 export function addTransliterationLineBreaks(sanskrit: string, transliteration: string): string {
   if (!transliteration || !transliteration.trim()) return transliteration;
-  if (!sanskrit || !sanskrit.trim()) {
-    // Fallback: use basic heuristics
-    return transliteration.replace(/\s+/g, ' ').trim();
+
+  // 0) Підрахунок рядків у санскриті
+  const sanskritLines = (sanskrit || "").split("\n").filter(Boolean);
+  const sanskritLineCount = Math.max(1, sanskritLines.length);
+
+  // 1) Якщо трансліт містить явні маркери — користуємося ними
+  const hasDouble = /(^|\s)\|\|(\s|$)/.test(transliteration);
+  const hasSingle = /(^|\s)\|(\s|$)/.test(transliteration);
+
+  if (hasDouble || hasSingle) {
+    // Нормалізація пробілів
+    let t = softNormalizeBeforeSplit(transliteration);
+
+    // Спочатку розіб'ємо по '||', далі — по '|' усередині кожного сегмента,
+    // щоб зберегти ієрархію (подвійні данди — сильніший роздільник).
+    const doubleChunks = t.split(/\s*\|\|\s*/);
+    const lines: string[] = [];
+    doubleChunks.forEach((chunk, i) => {
+      const singles = chunk.split(/\s*\|\s*/);
+      singles.forEach((c, j) => {
+        const trimmed = c.trim();
+        if (trimmed) lines.push(trimmed);
+      });
+      // Не додаємо порожні рядки — чисто
+    });
+
+    // Якщо ліній стало забагато чи замало — нічого страшного,
+    // головне, що вони відповідають маркерам, які бачив автор.
+    return lines.join("\n");
   }
-  
-  // Count line breaks in Sanskrit
-  const sanskritLines = sanskrit.split('\n').length;
-  
-  // Remove existing line breaks
-  let cleaned = transliteration.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-  
-  // If Sanskrit has invocation (ॐ), split first line
-  if (sanskrit.match(/^ॐ/)) {
-    // Find first word boundary after reasonable invocation length
-    const firstLineMatch = cleaned.match(/^(\S+(?:\s+\S+){0,5})/);
-    if (firstLineMatch) {
-      cleaned = cleaned.replace(firstLineMatch[1], firstLineMatch[1] + '\n');
-    }
+
+  // 2) Немає маркерів — мʼяка евристика: розбиваємо на ~рівні шматки
+  let t = softNormalizeBeforeSplit(transliteration);
+  const words = t.split(/\s+/);
+  const perLine = Math.max(1, Math.round(words.length / sanskritLineCount));
+
+  const out: string[] = [];
+  for (let i = 0; i < words.length; i += perLine) {
+    out.push(words.slice(i, i + perLine).join(" "));
   }
-  
-  // Try to split into similar number of lines as Sanskrit
-  // This is approximate - looks for natural break points
-  const words = cleaned.split(/\s+/);
-  const wordsPerLine = Math.ceil(words.length / sanskritLines);
-  
-  const lines: string[] = [];
-  for (let i = 0; i < words.length; i += wordsPerLine) {
-    const lineWords = words.slice(i, i + wordsPerLine);
-    lines.push(lineWords.join(' '));
+
+  // Підчистимо крайні випадки (одне-два слова «висять» у кінці)
+  if (out.length > sanskritLineCount && out[out.length - 1].split(" ").length < 2) {
+    out[out.length - 2] = `${out[out.length - 2]} ${out[out.length - 1]}`.trim();
+    out.pop();
   }
-  
-  return lines.join('\n');
+
+  return out.join("\n");
 }
 
 /**
- * Process a verse and add line breaks to both Sanskrit and transliteration
+ * Обробка одного вірша: додає перенесення в санскриті і узгоджує трансліт.
  */
-export function processVerseLineBreaks(verse: {
-  sanskrit?: string | null;
-  transliteration?: string | null;
-}): {
+export function processVerseLineBreaks(verse: { sanskrit?: string | null; transliteration?: string | null }): {
   sanskrit?: string;
   transliteration?: string;
 } {
   const result: { sanskrit?: string; transliteration?: string } = {};
-  
-  if (verse.sanskrit) {
+
+  if (verse.sanskrit && verse.sanskrit.trim()) {
     result.sanskrit = addSanskritLineBreaks(verse.sanskrit);
   }
-  
-  if (verse.transliteration && result.sanskrit) {
-    result.transliteration = addTransliterationLineBreaks(
-      result.sanskrit,
-      verse.transliteration
-    );
-  } else if (verse.transliteration) {
-    result.transliteration = verse.transliteration;
+
+  if (verse.transliteration && verse.transliteration.trim()) {
+    if (result.sanskrit) {
+      result.transliteration = addTransliterationLineBreaks(result.sanskrit, verse.transliteration);
+    } else {
+      // Без санскриту — лише легка нормалізація
+      result.transliteration = normalizeSpaces(verse.transliteration);
+    }
   }
-  
+
   return result;
 }
