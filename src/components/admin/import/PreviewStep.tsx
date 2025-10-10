@@ -77,11 +77,6 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const handleImportChapter = async () => {
     if (!validateTarget()) return;
 
-    // валідації
-    if (!editedChapter.verseStart && editedChapter.chapter_type !== "text") {
-      // не обов'язково, лише приклад
-    }
-
     setIsImporting(true);
     try {
       // якщо віршова глава — приберемо дублікати перед збереженням (м’яко)

@@ -52,4 +52,14 @@ export interface ImportTemplate {
   chapterPattern: RegExp;
 }
 
-/* ...решта (BOOK_TEMPLATES, валідатори) без змін ... */
+export const BOOK_TEMPLATES: ImportTemplate[] = [
+  {
+    id: "default",
+    name: "За замовчуванням",
+    versePattern: /^(ТЕКСТ|TEXT)\s+(\d+(?:\.\d+)?)/i,
+    synonymsPattern: /^(ПОСЛОВНИЙ ПЕРЕКЛАД|WORD FOR WORD|СИНОНІМИ|SYNONYMS):/i,
+    translationPattern: /^(ПЕРЕКЛАД|TRANSLATION):/i,
+    commentaryPattern: /^(КОМЕНТАР|ПОЯСНЕННЯ|COMMENTARY|PURPORT):/i,
+    chapterPattern: /^(ГЛАВА|CHAPTER|РОЗДІЛ)\s+(\d+)/i,
+  },
+];

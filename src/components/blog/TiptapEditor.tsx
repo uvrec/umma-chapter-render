@@ -169,7 +169,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => editor.chain().focus().toggleHeading({ level: lvl }).run()}
+            onClick={() => editor.chain().focus().toggleHeading({ level: lvl as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
             className={editor.isActive("heading", { level: lvl }) ? "bg-accent" : ""}
           >
             {lvl === 1 ? (

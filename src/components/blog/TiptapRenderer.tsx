@@ -71,7 +71,7 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
       });
 
       // fix <a> tags for safe external linking
-      const fixedLinks = sanitized.replaceAll(
+      const fixedLinks = sanitized.replace(
         /<a(?![^>]*\brel=)[^>]*href="([^"]+)"[^>]*>/g,
         '<a href="$1" target="_blank" rel="noopener noreferrer">',
       );
