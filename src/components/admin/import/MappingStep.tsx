@@ -34,7 +34,6 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) throw new Error("no state");
       const parsed = JSON.parse(raw) as PersistedState;
-      // базові дефолти на випадок відсутніх полів
       return {
         useCustom: parsed.useCustom ?? false,
         templateId: parsed.templateId || "bhagavad-gita",
@@ -64,6 +63,11 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
   const [customRegex, setCustomRegex] = useState(initial.regex);
   const [parsing, setParsing] = useState(false);
 
+  // live preview state
+  const [previewComputing, setPreviewComputing] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [previewChapters, setPreviewChapters] = useState<ParsedChapter[] | null>(null);
+
   // persist state
   useEffect(() => {
     const state: PersistedState = {
@@ -74,6 +78,57 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [isCustom, templateId, customRegex]);
 
+  // debounce live preview on changes
+  useEffect(() => {
+    let cancelled = false;
+    setPreviewComputing(true);
+    setPreviewError(null);
+
+    const t = setTimeout(() => {
+      try {
+        let tpl: ImportTemplate | undefined;
+
+        if (isCustom) {
+          // validate regex first
+          new RegExp(customRegex.verse, "mi");
+          new RegExp(customRegex.synonyms, "mi");
+          new RegExp(customRegex.translation, "mi");
+          new RegExp(customRegex.commentary, "mi");
+
+          tpl = {
+            id: "custom",
+            name: "Користувацький",
+            versePattern: new RegExp(customRegex.verse, "mi"),
+            synonymsPattern: new RegExp(customRegex.synonyms, "mi"),
+            translationPattern: new RegExp(customRegex.translation, "mi"),
+            commentaryPattern: new RegExp(customRegex.commentary, "mi"),
+            chapterPattern: /^(?:РОЗДІЛ|CHAPTER)\s+(\d+)/im,
+          };
+        } else {
+          tpl = BOOK_TEMPLATES.find((t) => t.id === templateId);
+          if (!tpl) throw new Error("Обраний шаблон не знайдено.");
+        }
+
+        const chapters = splitIntoChapters(extractedText, tpl!);
+        if (!cancelled) {
+          setPreviewChapters(chapters);
+        }
+      } catch (err: any) {
+        if (!cancelled) {
+          setPreviewChapters(null);
+          setPreviewError(err?.message || "Помилка при попередньому аналізі");
+        }
+      } finally {
+        if (!cancelled) setPreviewComputing(false);
+      }
+    }, 350);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [extractedText, isCustom, templateId, customRegex]);
+
   const handleNext = async () => {
     try {
       setParsing(true);
@@ -81,9 +136,6 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
       // Validate custom regex patterns (якщо custom-режим)
       if (isCustom) {
         try {
-          // Пробуємо створити RegExp, аби зловити помилки
-          // Нижче ставлю 'mi' як у тебе – мультилайн/ігнор регістру.
-          // За потреби додаси 'u' для юнікоду.
           new RegExp(customRegex.verse, "mi");
           new RegExp(customRegex.synonyms, "mi");
           new RegExp(customRegex.translation, "mi");
@@ -149,6 +201,18 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
       setParsing(false);
     }
   };
+
+  // derived preview info
+  const previewInfo = useMemo(() => {
+    if (!previewChapters || previewChapters.length === 0) {
+      return { chapters: 0, verses: 0, first: null as any };
+    }
+    const chapters = previewChapters.length;
+    const verses = previewChapters.reduce((s, ch) => s + (ch.verses?.length || 0), 0);
+    const firstChapter = previewChapters[0];
+    const firstVerse = firstChapter?.verses?.[0] ?? null;
+    return { chapters, verses, first: firstVerse, firstChapter };
+  }, [previewChapters]);
 
   return (
     <div className="space-y-6">
@@ -224,11 +288,66 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
         </div>
       </RadioGroup>
 
+      {/* МІНІ-ПРЕВ’Ю */}
+      <Card className="p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="font-semibold">Попередній перегляд</h3>
+          {previewComputing && <span className="text-xs text-muted-foreground">аналіз…</span>}
+        </div>
+
+        {previewError ? (
+          <p className="text-sm text-destructive">{previewError}</p>
+        ) : (
+          <>
+            <p className="text-sm text-muted-foreground">
+              {previewChapters
+                ? `Знайдено розділів: ${previewInfo.chapters}, віршів: ${previewInfo.verses}`
+                : "Ще немає даних для попереднього перегляду"}
+            </p>
+
+            {previewInfo.first && (
+              <div className="mt-3 rounded-md border p-3">
+                <div className="mb-1 text-xs text-muted-foreground">
+                  Перший збіг • Глава {previewInfo.firstChapter?.chapter_number ?? "—"}
+                </div>
+                <div className="text-sm">
+                  <div className="mb-1">
+                    <span className="font-medium">Вірш: </span>
+                    <span>{previewInfo.first.verse_number ?? "—"}</span>
+                  </div>
+                  {previewInfo.first.sanskrit && (
+                    <div className="mb-1">
+                      <span className="font-medium">Санскрит: </span>
+                      <span className="opacity-80">
+                        {previewInfo.first.sanskrit.slice(0, 120)}
+                        {previewInfo.first.sanskrit.length > 120 ? "…" : ""}
+                      </span>
+                    </div>
+                  )}
+                  {previewInfo.first.translation_ua && (
+                    <div className="mb-1">
+                      <span className="font-medium">Переклад: </span>
+                      <span className="opacity-80">
+                        {previewInfo.first.translation_ua.slice(0, 140)}
+                        {previewInfo.first.translation_ua.length > 140 ? "…" : ""}
+                      </span>
+                    </div>
+                  )}
+                  {!previewInfo.first.translation_ua && (
+                    <div className="text-xs text-muted-foreground">Переклад не знайдено</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </Card>
+
       <div className="flex justify-between">
         <Button variant="outline" onClick={onBack} disabled={parsing}>
           Назад
         </Button>
-        <Button onClick={handleNext} disabled={parsing}>
+        <Button onClick={handleNext} disabled={parsing || previewComputing}>
           {parsing ? "Обробка…" : "Далі: Вибір глави"}
         </Button>
       </div>
