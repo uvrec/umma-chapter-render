@@ -5,19 +5,18 @@ import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
 /** Мінімальна санітизація HTML (зберігаємо розмітку/форматування) */
 export const safeHtml = (html?: string) =>
   (html ?? "")
-    // прибираємо скрипти/івенти, але НЕ чіпаємо теги форматування
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/\son\w+="[^"]*"/gi, "")
     .trim();
 
-/** Нормалізація послівного (мінімальна: лиш пробіли/trim) */
+/** Нормалізація послівного (мʼяка) */
 export const normalizeSynonymsSoft = (s?: string) =>
   (s ?? "")
     .replace(/\s+\n/g, "\n")
     .replace(/[ \t]+/g, " ")
     .trim();
 
-/** Пошук або створення (якщо відсутній) глави для bookId/cantoId+chapter_number */
+/** Пошук або створення глави (upsert) */
 export async function upsertChapter(
   supabase: SupabaseClient,
   params: {
@@ -33,16 +32,13 @@ export async function upsertChapter(
 ): Promise<string> {
   const { bookId, cantoId, chapter_number } = params;
 
-  // 1) Чи існує така глава?
   let query = supabase.from("chapters").select("id").eq("chapter_number", chapter_number).limit(1);
-
   if (cantoId) query = query.eq("canto_id", cantoId);
   else query = query.eq("book_id", bookId);
 
   const { data: existing, error: findErr } = await query.maybeSingle();
   if (findErr) throw findErr;
 
-  // payload збереження (з форматуванням)
   const payload: any = {
     chapter_number,
     chapter_type: params.chapter_type,
@@ -52,11 +48,9 @@ export async function upsertChapter(
     content_en: safeHtml(params.content_en),
   };
 
-  // або canto_id, або book_id — ніколи не разом
   if (cantoId) payload.canto_id = cantoId;
   else payload.book_id = bookId;
 
-  // 2) Оновити або створити
   if (existing?.id) {
     const { error: updErr } = await supabase.from("chapters").update(payload).eq("id", existing.id);
     if (updErr) throw updErr;
@@ -69,19 +63,13 @@ export async function upsertChapter(
 }
 
 /** Повністю замінює вірші глави: видаляє всі старі, вставляє нові */
-export async function replaceChapterVerses(
-  supabase: SupabaseClient,
-  chapterId: string,
-  verses: ParsedVerse[],
-  opts?: { language?: "ua" | "en" },
-) {
-  // 1) Видалити всі поточні вірші глави
+export async function replaceChapterVerses(supabase: SupabaseClient, chapterId: string, verses: ParsedVerse[]) {
   const { error: delErr } = await supabase.from("verses").delete().eq("chapter_id", chapterId);
   if (delErr) throw delErr;
 
   if (!verses?.length) return;
 
-  // 2) Підготувати вставку — збереження форматування/HTML у commentary та content
+  // мапінг audioUrl → audio_url (бек очікує snake_case)
   const rows = verses.map((v) => ({
     chapter_id: chapterId,
     verse_number: v.verse_number,
@@ -93,15 +81,14 @@ export async function replaceChapterVerses(
     translation_en: v.translation_en ?? null,
     commentary_ua: safeHtml(v.commentary_ua ?? ""),
     commentary_en: safeHtml(v.commentary_en ?? ""),
-    audio_url: v.audio_url ?? null,
+    audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
   }));
 
-  // 3) Вставити всі
   const { error: insErr } = await supabase.from("verses").insert(rows);
   if (insErr) throw insErr;
 }
 
-/** Імпорт однієї глави (оновити якщо існує, або створити). */
+/** Імпорт однієї глави (upsert глави + повна заміна віршів) */
 export async function importSingleChapter(
   supabase: SupabaseClient,
   payload: {
@@ -128,7 +115,7 @@ export async function importSingleChapter(
   }
 }
 
-/** Масовий імпорт усієї книги (послідовно, щоб не перевищувати ліміти). */
+/** Масовий імпорт усієї книги */
 export async function importBook(
   supabase: SupabaseClient,
   payload: {
