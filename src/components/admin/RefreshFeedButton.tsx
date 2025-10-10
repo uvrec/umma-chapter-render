@@ -1,29 +1,36 @@
 // src/components/admin/RefreshFeedButton.tsx
-import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ReloadIcon } from "@radix-ui/react-icons";
+import { RefreshCcw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function RefreshFeedButton() {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
-    setLoading(true);
     try {
-      const { data, error } = await supabase.rpc("refresh_mv_blog_recent_published_rpc");
+      setLoading(true);
+      const { data, error } = await supabase.rpc("refresh_blog_feed");
       if (error) throw error;
+
+      // оновлюємо повʼязані списки/фіди
+      queryClient.invalidateQueries({ queryKey: ["admin-blog-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["blog-posts-infinite"] });
+      queryClient.invalidateQueries({ queryKey: ["mv_blog_recent_published"] });
 
       toast({
         title: "Фід оновлено",
-        description: data?.concurrent
-          ? "REFRESH виконано CONCURRENTLY."
-          : "REFRESH виконано (звичайний режим).",
+        description: `Оновлено: ${new Date(data?.refreshed_at || Date.now()).toLocaleString(
+          "uk-UA",
+        )} (≈${data?.duration_ms ?? 0} мс)`,
       });
     } catch (e: any) {
       toast({
-        title: "Помилка",
-        description: e?.message ?? "Не вдалося оновити фід",
+        title: "Помилка оновлення",
+        description: e.message,
         variant: "destructive",
       });
     } finally {
@@ -32,8 +39,8 @@ export function RefreshFeedButton() {
   };
 
   return (
-    <Button onClick={handleRefresh} disabled={loading}>
-      {loading ? <ReloadIcon className="mr-2 h-4 w-4 animate-spin" /> : null}
+    <Button onClick={handleRefresh} disabled={loading} variant="outline">
+      <RefreshCcw className="w-4 h-4 mr-2" />
       {loading ? "Оновлюю..." : "Оновити фід"}
     </Button>
   );
