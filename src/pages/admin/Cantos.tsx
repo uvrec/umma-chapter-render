@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useNavigate, Link, useParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, Plus, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,61 +27,51 @@ const Cantos = () => {
 
   useEffect(() => {
     if (!user || !isAdmin) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, isAdmin, navigate]);
 
   const { data: book } = useQuery({
-    queryKey: ['admin-book', bookId],
+    queryKey: ["admin-book", bookId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .eq('id', bookId)
-        .single();
-      
+      const { data, error } = await supabase.from("books").select("*").eq("id", bookId).single();
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin && !!bookId
+    enabled: !!user && isAdmin && !!bookId,
   });
 
   const { data: cantos, isLoading } = useQuery({
-    queryKey: ['admin-cantos', bookId],
+    queryKey: ["admin-cantos", bookId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('cantos')
-        .select('*')
-        .eq('book_id', bookId)
-        .order('canto_number', { ascending: true });
-      
+        .from("cantos")
+        .select("*")
+        .eq("book_id", bookId)
+        .order("canto_number", { ascending: true });
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin && !!bookId
+    enabled: !!user && isAdmin && !!bookId,
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (cantoId: string) => {
-      const { error } = await supabase
-        .from('cantos')
-        .delete()
-        .eq('id', cantoId);
-      
+      const { error } = await supabase.from("cantos").delete().eq("id", cantoId);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-cantos', bookId] });
-      toast.success('Canto успішно видалено');
+      queryClient.invalidateQueries({ queryKey: ["admin-cantos", bookId] });
+      toast.success("Пісню успішно видалено");
       setCantoToDelete(null);
     },
     onError: (error: Error) => {
       toast.error(`Помилка при видаленні: ${error.message}`);
-    }
+    },
   });
 
   const handleDeleteClick = (canto: any) => {
-    setCantoToDelete({ id: canto.id, title: `Canto ${canto.canto_number}: ${canto.title_ua}` });
+    setCantoToDelete({ id: canto.id, title: `Пісня ${canto.canto_number}: ${canto.title_ua}` });
   };
 
   const handleConfirmDelete = () => {
@@ -104,14 +94,12 @@ const Cantos = () => {
                   Назад до книг
                 </Link>
               </Button>
-              <h1 className="text-2xl font-bold">
-                Cantos: {book?.title_ua || 'Завантаження...'}
-              </h1>
+              <h1 className="text-2xl font-bold">Пісні: {book?.title_ua || "Завантаження..."}</h1>
             </div>
             <Button asChild>
               <Link to={`/admin/cantos/${bookId}/new`}>
                 <Plus className="w-4 h-4 mr-2" />
-                Додати canto
+                Додати пісню
               </Link>
             </Button>
           </div>
@@ -126,25 +114,19 @@ const Cantos = () => {
             {cantos.map((canto) => (
               <Card key={canto.id}>
                 <CardHeader>
-                  <CardTitle>Canto {canto.canto_number}</CardTitle>
+                  <CardTitle>Пісня {canto.canto_number}</CardTitle>
                   <CardDescription>{canto.title_ua}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {canto.title_en}
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">{canto.title_en}</p>
                   <div className="flex gap-2">
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/cantos/${bookId}/${canto.id}/edit`}>Редагувати</Link>
                     </Button>
                     <Button size="sm" asChild variant="outline">
-                      <Link to={`/admin/chapters/canto/${canto.id}`}>Розділи</Link>
+                      <Link to={`/admin/chapters/canto/${canto.id}`}>Глави</Link>
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="destructive"
-                      onClick={() => handleDeleteClick(canto)}
-                    >
+                    <Button size="sm" variant="destructive" onClick={() => handleDeleteClick(canto)}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Видалити
                     </Button>
@@ -156,7 +138,7 @@ const Cantos = () => {
         ) : (
           <Card>
             <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">Cantos не знайдено</p>
+              <p className="text-muted-foreground">Пісень не знайдено</p>
             </CardContent>
           </Card>
         )}
@@ -167,13 +149,13 @@ const Cantos = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
             <AlertDialogDescription>
-              Це призведе до видалення <strong>{cantoToDelete?.title}</strong> та всіх пов'язаних з ним розділів і віршів.
+              Це призведе до видалення <strong>{cantoToDelete?.title}</strong> та всіх пов'язаних з ним глав і віршів.
               Цю дію неможливо скасувати.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Скасувати</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
