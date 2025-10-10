@@ -15,18 +15,14 @@ import { toast } from "@/hooks/use-toast";
 import { Save, ArrowLeft, Trash2 } from "lucide-react";
 import { z } from "zod";
 
-const urlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
-const BUCKET = "blog-media";
-
-/** Спроба дістати шлях у бакеті зі збереженого public URL */
-function extractPathFromPublicUrl(url: string): string | null {
-  // формати типу:
-  // https://<project>.supabase.co/storage/v1/object/public/blog-media/some/folder/file.png
-  const marker = `/storage/v1/object/public/${BUCKET}/`;
-  const idx = url.indexOf(marker);
-  if (idx === -1) return null;
-  return url.substring(idx + marker.length);
-}
+const httpsUrlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
+const telegramSchema = z
+  .string()
+  .regex(
+    /^https?:\/\/t\.me\/[A-Za-z0-9_]+(\/\d+)?\/?$/,
+    "Невалідне посилання Telegram. Формати: https://t.me/канал або https://t.me/канал/123",
+  )
+  .or(z.literal(""));
 
 export default function AddEditBlogPost() {
   const navigate = useNavigate();
@@ -44,7 +40,6 @@ export default function AddEditBlogPost() {
   const [isPublished, setIsPublished] = useState(false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [featuredImage, setFeaturedImage] = useState("");
-  const [featuredImagePath, setFeaturedImagePath] = useState<string | null>(null); // ← нове
   const [videoUrl, setVideoUrl] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
@@ -93,100 +88,60 @@ export default function AddEditBlogPost() {
       setSubstackUrl(post.substack_embed_url || "");
       setMetaDescUa(post.meta_description_ua || "");
       setMetaDescEn(post.meta_description_en || "");
-
-      // спробуємо відновити шлях з URL
-      if (post.featured_image) {
-        const p = extractPathFromPublicUrl(post.featured_image);
-        setFeaturedImagePath(p);
-      } else {
-        setFeaturedImagePath(null);
-      }
     }
   }, [post]);
 
   useEffect(() => {
-    if (titleUa && !slug && !isEdit) {
-      setSlug(generateSlug(titleUa));
-    }
+    if (titleUa && !slug && !isEdit) setSlug(generateSlug(titleUa));
   }, [titleUa, isEdit, slug]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `${crypto.randomUUID?.() ?? Math.random().toString(36).slice(2)}.${fileExt}`;
-      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(fileName, file, { upsert: false });
-
+      const fileName = `${crypto.randomUUID?.() ?? Math.random()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from("blog-media").upload(fileName, file);
       if (uploadError) throw uploadError;
 
       const {
         data: { publicUrl },
-      } = supabase.storage.from(BUCKET).getPublicUrl(fileName);
-
+      } = supabase.storage.from("blog-media").getPublicUrl(fileName);
       setFeaturedImage(publicUrl);
-      setFeaturedImagePath(fileName); // ← зберігаємо шлях у бакеті
       toast({ title: "Зображення завантажено" });
     } catch (error) {
       console.error("Error uploading image:", error);
       toast({ title: "Помилка завантаження", variant: "destructive" });
-    } finally {
-      // дозволяє перевантажити той самий файл ще раз
-      e.currentTarget.value = "";
     }
   };
 
-  const handleRemoveImage = async () => {
-    try {
-      // спробувати видалити із бакету, якщо маємо шлях
-      const path = featuredImagePath ?? (featuredImage ? extractPathFromPublicUrl(featuredImage) : null);
-      if (path) {
-        const { error: removeError } = await supabase.storage.from(BUCKET).remove([path]);
-        if (removeError) {
-          // не критично — просто попередимо
-          console.warn("Storage remove error (не критично):", removeError);
-        }
-      }
-      setFeaturedImage("");
-      setFeaturedImagePath(null);
-      toast({ title: "Зображення видалено" });
-    } catch (err) {
-      console.error("Remove image error:", err);
-      // навіть якщо видалити з бакету не вдалося, приберемо з поля
-      setFeaturedImage("");
-      setFeaturedImagePath(null);
-      toast({
-        title: "Не вдалося видалити файл зі сховища",
-        description: "Зображення прибрано з поста. Перевірте політики доступу до Storage.",
-      });
-    }
+  const handleRemoveImage = () => {
+    setFeaturedImage("");
+    toast({ title: "Зображення прибрано з поста" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate URLs
-    const urlFields = [
-      { value: featuredImage, name: "Обкладинка" },
-      { value: videoUrl, name: "Відео URL" },
-      { value: audioUrl, name: "Аудіо URL" },
-      { value: instagramUrl, name: "Instagram URL" },
-      { value: telegramUrl, name: "Telegram URL" },
-      { value: substackUrl, name: "Substack URL" },
+    // Перевірка URL з урахуванням окремої логіки для Telegram
+    const validations: Array<{ name: string; value: string; schema: z.ZodTypeAny }> = [
+      { name: "Обкладинка", value: featuredImage.trim(), schema: httpsUrlSchema },
+      { name: "Відео URL", value: videoUrl.trim(), schema: httpsUrlSchema },
+      { name: "Аудіо URL", value: audioUrl.trim(), schema: httpsUrlSchema },
+      { name: "Instagram URL", value: instagramUrl.trim(), schema: httpsUrlSchema },
+      { name: "Telegram URL", value: telegramUrl.trim(), schema: telegramSchema },
+      { name: "Substack URL", value: substackUrl.trim(), schema: httpsUrlSchema },
     ];
 
-    for (const field of urlFields) {
-      if (field.value) {
-        const result = urlSchema.safeParse(field.value);
-        if (!result.success) {
-          toast({
-            title: "Помилка валідації",
-            description: `${field.name}: ${result.error.errors[0].message}`,
-            variant: "destructive",
-          });
-          return;
-        }
+    for (const { name, value, schema } of validations) {
+      const res = schema.safeParse(value);
+      if (!res.success) {
+        toast({
+          title: "Помилка валідації",
+          description: `${name}: ${res.error.errors[0].message}`,
+          variant: "destructive",
+        });
+        return;
       }
     }
 
@@ -350,7 +305,7 @@ export default function AddEditBlogPost() {
                   <SelectValue placeholder="Оберіть категорію" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.map((cat: any) => (
+                  {categories?.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
                       {cat.name_ua}
                     </SelectItem>
@@ -362,21 +317,16 @@ export default function AddEditBlogPost() {
 
           <div className="p-4 border rounded-lg space-y-4">
             <h3 className="font-semibold">Головне зображення</h3>
-
-            {featuredImage ? (
-              <div className="space-y-3">
-                <img src={featuredImage} alt="Featured" className="w-full rounded" />
-                <div className="flex gap-2">
-                  <Input type="file" accept="image/*" onChange={handleImageUpload} className="flex-1" />
-                  <Button type="button" variant="destructive" onClick={handleRemoveImage} title="Видалити зображення">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Видалити
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <Input type="file" accept="image/*" onChange={handleImageUpload} />
-            )}
+            {featuredImage && <img src={featuredImage} alt="Featured" className="w-full rounded" />}
+            <div className="flex gap-2">
+              <Input type="file" accept="image/*" onChange={handleImageUpload} className="flex-1" />
+              {featuredImage && (
+                <Button type="button" variant="destructive" onClick={handleRemoveImage}>
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Видалити
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="p-4 border rounded-lg space-y-4">
@@ -422,7 +372,7 @@ export default function AddEditBlogPost() {
                 id="telegram"
                 value={telegramUrl}
                 onChange={(e) => setTelegramUrl(e.target.value)}
-                placeholder="https://t.me/channel/123"
+                placeholder="https://t.me/prabhupada_ua або https://t.me/prabhupada_ua/123"
               />
             </div>
 
