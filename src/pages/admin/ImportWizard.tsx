@@ -1,38 +1,38 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Upload, Settings, List, Eye } from 'lucide-react';
-import { UploadStep } from '@/components/admin/import/UploadStep';
-import { MappingStep } from '@/components/admin/import/MappingStep';
-import { ChapterPickerStep } from '@/components/admin/import/ChapterPickerStep';
-import { PreviewStep } from '@/components/admin/import/PreviewStep';
-import { ParsedChapter, ImportTemplate } from '@/types/book-import';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Upload, Settings, List, Eye } from "lucide-react";
+import { UploadStep } from "@/components/admin/import/UploadStep";
+import { MappingStep } from "@/components/admin/import/MappingStep";
+import { ChapterPickerStep } from "@/components/admin/import/ChapterPickerStep";
+import { PreviewStep } from "@/components/admin/import/PreviewStep";
+import { ParsedChapter, ImportTemplate } from "@/types/book-import";
 
-type Step = 'upload' | 'mapping' | 'chapters' | 'preview';
+type Step = "upload" | "mapping" | "chapters" | "preview";
 
 export default function ImportWizard() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<Step>('upload');
-  const [extractedText, setExtractedText] = useState<string>('');
+  const [currentStep, setCurrentStep] = useState<Step>("upload");
+  const [extractedText, setExtractedText] = useState<string>("");
   const [selectedTemplate, setSelectedTemplate] = useState<ImportTemplate | null>(null);
   const [chapters, setChapters] = useState<ParsedChapter[]>([]);
   const [selectedChapter, setSelectedChapter] = useState<ParsedChapter | null>(null);
 
   const steps: { id: Step; label: string; icon: any }[] = [
-    { id: 'upload', label: 'Завантаження', icon: Upload },
-    { id: 'mapping', label: 'Налаштування', icon: Settings },
-    { id: 'chapters', label: 'Вибір глави', icon: List },
-    { id: 'preview', label: 'Попередній перегляд', icon: Eye },
+    { id: "upload", label: "Завантаження", icon: Upload },
+    { id: "mapping", label: "Налаштування", icon: Settings },
+    { id: "chapters", label: "Вибір глави", icon: List },
+    { id: "preview", label: "Попередній перегляд", icon: Eye },
   ];
 
-  const currentStepIndex = steps.findIndex(s => s.id === currentStep);
+  const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate('/admin/dashboard')}>
+          <Button variant="ghost" onClick={() => navigate("/admin/dashboard")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад
           </Button>
@@ -55,10 +55,10 @@ export default function ImportWizard() {
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${
                         isActive
-                          ? 'bg-primary text-primary-foreground'
+                          ? "bg-primary text-primary-foreground"
                           : isCompleted
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-muted text-muted-foreground'
+                            ? "bg-primary/20 text-primary"
+                            : "bg-muted text-muted-foreground"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -66,11 +66,7 @@ export default function ImportWizard() {
                     <span className="text-xs mt-2">{step.label}</span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div
-                      className={`h-1 flex-1 mx-2 ${
-                        isCompleted ? 'bg-primary' : 'bg-muted'
-                      }`}
-                    />
+                    <div className={`h-1 flex-1 mx-2 ${isCompleted ? "bg-primary" : "bg-muted"}`} />
                   )}
                 </div>
               );
@@ -79,46 +75,44 @@ export default function ImportWizard() {
         </div>
 
         <Card className="p-6">
-          {currentStep === 'upload' && (
+          {currentStep === "upload" && (
             <UploadStep
               onNext={(text) => {
                 setExtractedText(text);
-                setCurrentStep('mapping');
+                setCurrentStep("mapping");
               }}
             />
           )}
 
-          {currentStep === 'mapping' && (
+          {currentStep === "mapping" && (
             <MappingStep
               extractedText={extractedText}
               onNext={(template, parsedChapters) => {
                 setSelectedTemplate(template);
                 setChapters(parsedChapters);
-                setCurrentStep('chapters');
+                setCurrentStep("chapters");
               }}
-              onBack={() => setCurrentStep('upload')}
+              onBack={() => setCurrentStep("upload")}
             />
           )}
 
-          {currentStep === 'chapters' && (
+          {currentStep === "chapters" && (
             <ChapterPickerStep
               chapters={chapters}
               onNext={(chapter) => {
                 setSelectedChapter(chapter);
-                setCurrentStep('preview');
+                setCurrentStep("preview");
               }}
-              onBack={() => setCurrentStep('mapping')}
+              onBack={() => setCurrentStep("mapping")}
             />
           )}
 
-          {currentStep === 'preview' && selectedChapter && (
-  <PreviewStep
-    chapter={selectedChapter}
-    allChapters={chapters}
-    onBack={() => setCurrentStep('chapters')}
-    onComplete={() => navigate('/admin/dashboard')}
-  />
-)}
+          {currentStep === "preview" && selectedChapter && (
+            <PreviewStep
+              chapter={selectedChapter}
+              allChapters={chapters} // обов’язково додай цей проп
+              onBack={() => setCurrentStep("chapters")}
+              onComplete={() => navigate("/admin/dashboard")}
             />
           )}
         </Card>
