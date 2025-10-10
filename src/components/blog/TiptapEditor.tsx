@@ -1,22 +1,27 @@
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import Youtube from '@tiptap/extension-youtube';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { TableCell } from '@tiptap/extension-table-cell';
-import { TableHeader } from '@tiptap/extension-table-header';
-import { Color } from '@tiptap/extension-color';
-import { TextStyle } from '@tiptap/extension-text-style';
-import { Placeholder } from '@tiptap/extension-placeholder';
-import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import Youtube from "@tiptap/extension-youtube";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { Color } from "@tiptap/extension-color";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Placeholder } from "@tiptap/extension-placeholder";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import {
   Bold,
   Italic,
-  Underline,
   Strikethrough,
   Heading1,
   Heading2,
@@ -27,10 +32,11 @@ import {
   Image as ImageIcon,
   Youtube as YoutubeIcon,
   Table as TableIcon,
-  Palette,
   Undo,
   Redo,
-} from 'lucide-react';
+  Palette,
+  Type,
+} from "lucide-react";
 
 interface TiptapEditorProps {
   content: string;
@@ -41,104 +47,97 @@ interface TiptapEditorProps {
 export const TiptapEditor = ({ content, onChange, placeholder = "Почніть писати..." }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        // Preserve formatting on paste
-        gapcursor: false,
-      }),
+      StarterKit.configure({ gapcursor: false }),
       Image,
       Link.configure({
         openOnClick: false,
-        HTMLAttributes: {
-          class: 'text-primary underline',
-        },
+        HTMLAttributes: { class: "text-primary underline" },
       }),
-      Youtube.configure({
-        width: 640,
-        height: 480,
-      }),
-      Table.configure({
-        resizable: true,
-      }),
+      Youtube.configure({ width: 640, height: 360 }),
+      Table.configure({ resizable: true }),
       TableRow,
       TableHeader,
       TableCell,
       Color,
       TextStyle,
-      Placeholder.configure({
-        placeholder,
-      }),
+      Placeholder.configure({ placeholder }),
     ],
     content,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none p-4 min-h-[400px]',
+        class: "prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none",
       },
     },
   });
 
   const handleImageUpload = async () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
       try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const { error: uploadError, data } = await supabase.storage
-          .from('blog-media')
-          .upload(fileName, file);
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from("blog-media").upload(fileName, file);
 
         if (uploadError) throw uploadError;
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('blog-media')
-          .getPublicUrl(fileName);
-
-        editor?.chain().focus().setImage({ src: publicUrl }).run();
-        toast({ title: "Зображення завантажено" });
+        const { data } = supabase.storage.from("blog-media").getPublicUrl(fileName);
+        editor?.chain().focus().setImage({ src: data.publicUrl }).run();
+        toast({ title: "✅ Зображення завантажено" });
       } catch (error) {
-        console.error('Error uploading image:', error);
-        toast({ title: "Помилка завантаження", variant: "destructive" });
+        console.error(error);
+        toast({ title: "Помилка завантаження зображення", variant: "destructive" });
       }
     };
     input.click();
   };
 
   const addLink = () => {
-    const url = window.prompt('Введіть URL:');
-    if (url) {
-      editor?.chain().focus().setLink({ href: url }).run();
-    }
+    const url = window.prompt("Введіть URL:");
+    if (url) editor?.chain().focus().setLink({ href: url }).run();
   };
 
   const addYoutubeVideo = () => {
-    const url = window.prompt('Введіть YouTube URL:');
-    if (url) {
-      editor?.commands.setYoutubeVideo({ src: url });
-    }
+    const url = window.prompt("Введіть YouTube URL:");
+    if (url) editor?.commands.setYoutubeVideo({ src: url });
   };
 
   const insertTable = () => {
     editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
   };
 
+  const setColor = (color: string) => {
+    editor?.chain().focus().setColor(color).run();
+  };
+
+  const setFontSize = (size: string) => {
+    editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
+  };
+
   if (!editor) return null;
 
   return (
-    <div className="border rounded-lg">
-      <div className="border-b p-2 flex flex-wrap gap-1 bg-muted/50">
+    <div className="relative border rounded-lg bg-background">
+      {/* Sticky Toolbar */}
+      <div
+        className="
+          sticky top-0 z-10 
+          flex flex-wrap gap-1 p-2 
+          border-b bg-muted/60 backdrop-blur-sm
+        "
+      >
+        {/* Text styling */}
         <Button
           type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleBold().run()}
-          className={editor.isActive('bold') ? 'bg-accent' : ''}
+          className={editor.isActive("bold") ? "bg-accent" : ""}
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -147,7 +146,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={editor.isActive('italic') ? 'bg-accent' : ''}
+          className={editor.isActive("italic") ? "bg-accent" : ""}
         >
           <Italic className="h-4 w-4" />
         </Button>
@@ -156,73 +155,111 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleStrike().run()}
-          className={editor.isActive('strike') ? 'bg-accent' : ''}
+          className={editor.isActive("strike") ? "bg-accent" : ""}
         >
           <Strikethrough className="h-4 w-4" />
         </Button>
-        <div className="w-px h-8 bg-border mx-1" />
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Headings */}
+        {[1, 2, 3].map((lvl) => (
+          <Button
+            key={lvl}
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => editor.chain().focus().toggleHeading({ level: lvl }).run()}
+            className={editor.isActive("heading", { level: lvl }) ? "bg-accent" : ""}
+          >
+            {lvl === 1 ? (
+              <Heading1 className="h-4 w-4" />
+            ) : lvl === 2 ? (
+              <Heading2 className="h-4 w-4" />
+            ) : (
+              <Heading3 className="h-4 w-4" />
+            )}
+          </Button>
+        ))}
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Lists */}
         <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          className={editor.isActive('heading', { level: 1 }) ? 'bg-accent' : ''}
-        >
-          <Heading1 className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={editor.isActive('heading', { level: 2 }) ? 'bg-accent' : ''}
-        >
-          <Heading2 className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={editor.isActive('heading', { level: 3 }) ? 'bg-accent' : ''}
-        >
-          <Heading3 className="h-4 w-4" />
-        </Button>
-        <div className="w-px h-8 bg-border mx-1" />
-        <Button
-          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={editor.isActive('bulletList') ? 'bg-accent' : ''}
+          className={editor.isActive("bulletList") ? "bg-accent" : ""}
         >
           <List className="h-4 w-4" />
         </Button>
         <Button
-          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={editor.isActive('orderedList') ? 'bg-accent' : ''}
+          className={editor.isActive("orderedList") ? "bg-accent" : ""}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
-        <div className="w-px h-8 bg-border mx-1" />
-        <Button type="button" variant="ghost" size="icon" onClick={addLink}>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Media + Links */}
+        <Button variant="ghost" size="icon" onClick={addLink}>
           <LinkIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={handleImageUpload}>
+        <Button variant="ghost" size="icon" onClick={handleImageUpload}>
           <ImageIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={addYoutubeVideo}>
+        <Button variant="ghost" size="icon" onClick={addYoutubeVideo}>
           <YoutubeIcon className="h-4 w-4" />
         </Button>
-        <Button type="button" variant="ghost" size="icon" onClick={insertTable}>
+        <Button variant="ghost" size="icon" onClick={insertTable}>
           <TableIcon className="h-4 w-4" />
         </Button>
-        <div className="w-px h-8 bg-border mx-1" />
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Color & Font Size */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Palette className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2">
+            {["#000000", "#E11D48", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899", "#6B7280", "#FFFFFF"].map(
+              (color) => (
+                <DropdownMenuItem
+                  key={color}
+                  className="p-0 w-5 h-5 rounded-full cursor-pointer border"
+                  style={{ backgroundColor: color }}
+                  onClick={() => setColor(color)}
+                />
+              ),
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Type className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {["12px", "14px", "16px", "18px", "20px", "24px"].map((size) => (
+              <DropdownMenuItem key={size} onClick={() => setFontSize(size)}>
+                {size}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Undo/Redo */}
         <Button
-          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().undo().run()}
@@ -231,7 +268,6 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           <Undo className="h-4 w-4" />
         </Button>
         <Button
-          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().redo().run()}
@@ -240,7 +276,9 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           <Redo className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent editor={editor} className="prose prose-sm max-w-none p-4 min-h-[400px]" />
+
+      {/* Editor content */}
+      <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px]" />
     </div>
   );
 };
