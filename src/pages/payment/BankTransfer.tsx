@@ -11,10 +11,10 @@ export const BankTransfer = () => {
   const bankDetails = {
     recipient: "Громадська організація 'Ведичний портал'",
     iban: "UA21 3223 1300 0002 6007 3233 5555 1",
-    bank: "ПриватБанк",
+    bank: "МоноБанк",
     mfo: "305299",
     edrpou: "12345678",
-    purpose: "Благодійний внесок на розвиток проєкту"
+    purpose: "Благодійний внесок на розвиток проєкту",
   };
 
   const copyToClipboard = (text: string, field: string) => {
@@ -38,9 +38,7 @@ export const BankTransfer = () => {
           <div className="text-center mb-8">
             <Banknote className="w-16 h-16 text-primary mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-foreground mb-2">Банківський переказ</h1>
-            <p className="text-muted-foreground">
-              Переказ коштів безпосередньо на рахунок організації
-            </p>
+            <p className="text-muted-foreground">Переказ коштів безпосередньо на рахунок організації</p>
           </div>
 
           <div className="space-y-6">
@@ -49,23 +47,19 @@ export const BankTransfer = () => {
               <h2 className="text-xl font-semibold text-foreground mb-4">Реквізити для переказу</h2>
               <div className="space-y-4">
                 {Object.entries({
-                  "Отримувач": bankDetails.recipient,
-                  "IBAN": bankDetails.iban,
-                  "Банк": bankDetails.bank,
-                  "МФО": bankDetails.mfo,
-                  "ЄДРПОУ": bankDetails.edrpou,
-                  "Призначення платежу": bankDetails.purpose
+                  Отримувач: bankDetails.recipient,
+                  IBAN: bankDetails.iban,
+                  Банк: bankDetails.bank,
+                  МФО: bankDetails.mfo,
+                  ЄДРПОУ: bankDetails.edrpou,
+                  "Призначення платежу": bankDetails.purpose,
                 }).map(([label, value]) => (
                   <div key={label} className="flex items-center justify-between p-3 border border-border rounded-md">
                     <div className="flex-1">
                       <div className="text-sm text-muted-foreground">{label}</div>
                       <div className="font-mono text-sm">{value}</div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => copyToClipboard(value, label)}
-                    >
+                    <Button size="sm" variant="outline" onClick={() => copyToClipboard(value, label)}>
                       {copiedField === label ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       ) : (
@@ -96,9 +90,7 @@ export const BankTransfer = () => {
                 Для оформлення регулярної підтримки напишіть нам на пошту з вказанням суми та частоти переказів
               </p>
               <Button asChild variant="outline">
-                <a href="mailto:support@vedic-portal.com?subject=Щомісячна підтримка">
-                  Написати листа
-                </a>
+                <a href="mailto:support@vedic-portal.com?subject=Щомісячна підтримка">Написати листа</a>
               </Button>
             </Card>
           </div>

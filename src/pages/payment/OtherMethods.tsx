@@ -14,26 +14,14 @@ export const OtherMethods = () => {
       link: "https://paypal.me/andriiuvarov"
     },
     {
-      name: "Bitcoin (BTC)",
-      description: "Криптовалютний переказ Bitcoin",
-      icon: "₿",
-      address: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
-      action: "Скопіювати адресу"
+      name: "Monobank",
+      description: "Переказ в гривні",
+      icon: "💳",
+    
+      action: "Відкрити Monobank"
+      link: "https://send.monobank.ua/jar/YAmYDYgti"
     },
-    {
-      name: "Ethereum (ETH)",
-      description: "Криптовалютний переказ Ethereum",
-      icon: "Ξ",
-      address: "0x742d35Cc6634C0532925a3b8D91d89B3dc32d85e",
-      action: "Скопіювати адресу"
-    },
-    {
-      name: "Tether (USDT)",
-      description: "Стейблкоїн USDT (ERC-20)",
-      icon: "₮",
-      address: "0x742d35Cc6634C0532925a3b8D91d89B3dc32d85e",
-      action: "Скопіювати адресу"
-    }
+    
   ];
 
   const copyToClipboard = (text: string) => {
@@ -104,7 +92,7 @@ export const OtherMethods = () => {
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• Завжди перевіряйте адресу перед відправкою криптовалюти</li>
               <li>• Починайте з невеликої тестової суми</li>
-              <li>• Транзакції в блокчейні незворотні</li>
+            
               <li>• Зберігайте hash транзакції для підтвердження</li>
             </ul>
           </Card>
