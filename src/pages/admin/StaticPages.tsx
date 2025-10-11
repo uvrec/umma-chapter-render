@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,14 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Plus, Trash2 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 
 interface StaticPageMetadata {
   id: string;
@@ -32,11 +24,72 @@ interface StaticPageMetadata {
   seo_keywords?: string;
 }
 
+/** простий генератор slug з укр. заголовку */
+function generateSlug(src: string): string {
+  const map: Record<string, string> = {
+    а: "a",
+    б: "b",
+    в: "v",
+    г: "h",
+    ґ: "g",
+    д: "d",
+    е: "e",
+    є: "ye",
+    ж: "zh",
+    з: "z",
+    и: "y",
+    і: "i",
+    ї: "yi",
+    й: "y",
+    к: "k",
+    л: "l",
+    м: "m",
+    н: "n",
+    о: "o",
+    п: "p",
+    р: "r",
+    с: "s",
+    т: "t",
+    у: "u",
+    ф: "f",
+    х: "kh",
+    ц: "ts",
+    ч: "ch",
+    ш: "sh",
+    щ: "shch",
+    ь: "",
+    ю: "yu",
+    я: "ya",
+  };
+  return src
+    .toLowerCase()
+    .split("")
+    .map((ch) => map[ch] ?? ch)
+    .join("")
+    .replace(/[^\w\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/** валідація url (порожній дозволено) */
+function isValidUrlOrEmpty(v: string): boolean {
+  if (!v) return true;
+  try {
+    new URL(v);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const StaticPages = () => {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<StaticPageMetadata | null>(null);
   const [formData, setFormData] = useState({
@@ -59,11 +112,7 @@ const StaticPages = () => {
   const { data: pages, isLoading } = useQuery({
     queryKey: ["static-pages-metadata"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("static_page_metadata")
-        .select("*")
-        .order("slug");
-
+      const { data, error } = await supabase.from("static_page_metadata").select("*").order("slug");
       if (error) throw error;
       return data as StaticPageMetadata[];
     },
@@ -72,72 +121,82 @@ const StaticPages = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<StaticPageMetadata> & { id: string }) => {
-      const { error } = await supabase
-        .from("static_page_metadata")
-        .update(data)
-        .eq("id", data.id);
-
-      if (error) throw error;
+      const { error } = await supabase.from("static_page_metadata").update(data).eq("id", data.id);
+      if (error) throw error as any;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["static-pages-metadata"] });
-      toast({
-        title: "Успіх",
-        description: "Метадані оновлено",
-      });
+      toast({ title: "Успіх", description: "Метадані оновлено" });
       setIsDialogOpen(false);
       setEditingPage(null);
     },
-    onError: () => {
-      toast({
-        title: "Помилка",
-        description: "Не вдалося оновити метадані",
-        variant: "destructive",
-      });
+    onError: (err: any) => {
+      const code = err?.code;
+      if (code === "23505") {
+        toast({
+          title: "Помилка",
+          description: "Такий slug уже існує.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Помилка",
+          description: "Не вдалося оновити метадані",
+          variant: "destructive",
+        });
+      }
     },
   });
 
   const createMutation = useMutation({
     mutationFn: async (data: Omit<StaticPageMetadata, "id">) => {
-      const { error } = await supabase
+      // перевірка унікальності slug (head-запит)
+      const { count, error: headErr } = await supabase
         .from("static_page_metadata")
-        .insert(data);
+        .select("id", { count: "exact", head: true })
+        .eq("slug", data.slug);
+      if (headErr) throw headErr;
+      if ((count ?? 0) > 0) {
+        const err: any = new Error("Slug already exists");
+        err.code = "23505";
+        throw err;
+      }
 
-      if (error) throw error;
+      const { error } = await supabase.from("static_page_metadata").insert(data);
+      if (error) throw error as any;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["static-pages-metadata"] });
-      toast({
-        title: "Успіх",
-        description: "Нову сторінку створено",
-      });
+      toast({ title: "Успіх", description: "Нову сторінку створено" });
       setIsDialogOpen(false);
       resetForm();
     },
-    onError: () => {
-      toast({
-        title: "Помилка",
-        description: "Не вдалося створити сторінку",
-        variant: "destructive",
-      });
+    onError: (err: any) => {
+      const code = err?.code;
+      if (code === "23505") {
+        toast({
+          title: "Помилка",
+          description: "Такий slug уже існує.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Помилка",
+          description: "Не вдалося створити сторінку",
+          variant: "destructive",
+        });
+      }
     },
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("static_page_metadata")
-        .delete()
-        .eq("id", id);
-
+      const { error } = await supabase.from("static_page_metadata").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["static-pages-metadata"] });
-      toast({
-        title: "Успіх",
-        description: "Сторінку видалено",
-      });
+      toast({ title: "Успіх", description: "Сторінку видалено" });
     },
     onError: () => {
       toast({
@@ -179,10 +238,40 @@ const StaticPages = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // автогенерація slug при створенні
+    const prepared = { ...formData };
+    if (!editingPage && !prepared.slug.trim() && prepared.title_ua.trim()) {
+      prepared.slug = generateSlug(prepared.title_ua.trim());
+      setFormData((prev) => ({ ...prev, slug: prepared.slug }));
+    }
+
+    if (!prepared.slug.trim() || !prepared.title_ua.trim() || !prepared.title_en.trim()) {
+      toast({
+        title: "Помилка",
+        description: "Slug, Назва (UA) та Назва (EN) — обовʼязкові",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // валідація URL-полів
+    const urlProblems: string[] = [];
+    if (!isValidUrlOrEmpty(prepared.hero_image_url)) urlProblems.push("Hero Image URL");
+    if (!isValidUrlOrEmpty(prepared.og_image)) urlProblems.push("OG Image URL");
+    if (urlProblems.length) {
+      toast({
+        title: "Помилка валідації URL",
+        description: `Невірний формат: ${urlProblems.join(", ")}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (editingPage) {
-      updateMutation.mutate({ ...formData, id: editingPage.id });
+      updateMutation.mutate({ ...prepared, id: editingPage.id });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(prepared as Omit<StaticPageMetadata, "id">);
     }
   };
 
@@ -192,36 +281,37 @@ const StaticPages = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      {/* без публічного <Header /> у адмінці */}
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
-              <Button
-                variant="ghost"
-                onClick={() => navigate("/admin/dashboard")}
-              >
+              <Button variant="ghost" onClick={() => navigate("/admin/dashboard")}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Назад
               </Button>
               <h1 className="text-3xl font-bold">Статичні сторінки</h1>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) resetForm();
-            }}>
+
+            <Dialog
+              open={isDialogOpen}
+              onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}
+            >
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="w-4 h-4 mr-2" />
                   Додати сторінку
                 </Button>
               </DialogTrigger>
+
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>
-                    {editingPage ? "Редагувати метадані" : "Нова статична сторінка"}
-                  </DialogTitle>
+                  <DialogTitle>{editingPage ? "Редагувати метадані" : "Нова статична сторінка"}</DialogTitle>
                 </DialogHeader>
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <Label htmlFor="slug">Slug (URL)</Label>
@@ -234,6 +324,7 @@ const StaticPages = () => {
                       required
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="title_ua">Назва (UA)</Label>
                     <Input
@@ -243,6 +334,7 @@ const StaticPages = () => {
                       required
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="title_en">Назва (EN)</Label>
                     <Input
@@ -252,6 +344,7 @@ const StaticPages = () => {
                       required
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="meta_description_ua">Мета-опис (UA)</Label>
                     <Textarea
@@ -261,6 +354,7 @@ const StaticPages = () => {
                       rows={3}
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="meta_description_en">Мета-опис (EN)</Label>
                     <Textarea
@@ -270,6 +364,7 @@ const StaticPages = () => {
                       rows={3}
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="hero_image_url">Hero Image URL</Label>
                     <Input
@@ -279,6 +374,7 @@ const StaticPages = () => {
                       placeholder="https://..."
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="og_image">OG Image URL</Label>
                     <Input
@@ -288,6 +384,7 @@ const StaticPages = () => {
                       placeholder="https://..."
                     />
                   </div>
+
                   <div>
                     <Label htmlFor="seo_keywords">SEO Keywords</Label>
                     <Input
@@ -297,10 +394,11 @@ const StaticPages = () => {
                       placeholder="keyword1, keyword2, keyword3"
                     />
                   </div>
+
                   <DialogFooter>
-                    <Button type="submit">
+                    <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                       <Save className="w-4 h-4 mr-2" />
-                      Зберегти
+                      {createMutation.isPending || updateMutation.isPending ? "Збереження..." : "Зберегти"}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -315,25 +413,16 @@ const StaticPages = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-xl font-semibold">{page.title_ua}</h3>
-                      <code className="text-sm bg-muted px-2 py-1 rounded">
-                        /{page.slug}
-                      </code>
+                      <code className="text-sm bg-muted px-2 py-1 rounded">/{page.slug}</code>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      {page.title_en}
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-1">{page.title_en}</p>
                     {page.meta_description_ua && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {page.meta_description_ua}
-                      </p>
+                      <p className="text-sm text-muted-foreground mt-2">{page.meta_description_ua}</p>
                     )}
                   </div>
+
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(page)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(page)}>
                       Редагувати
                     </Button>
                     <Button
