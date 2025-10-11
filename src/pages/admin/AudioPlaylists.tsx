@@ -109,10 +109,6 @@ export default function AudioPlaylists() {
     );
   }
 
-<Link to={`/admin/audio-playlists/${playlist.id}`}>
-  <Button variant="outline" size="sm">Редагувати</Button>
-</Link>
-  
   if (isError) {
     return (
       <div className="container mx-auto px-4 py-8">
