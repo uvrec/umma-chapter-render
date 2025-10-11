@@ -2,12 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === ТВОЄ: тема/кольори/блог — ЗАЛИШАЄМО ЯК Є === */
-/* ...весь твій поточний великий блок з :root, .dark, .craft та @layer base... */
+/* =========================================================
+   ТВОЇ ПОТОЧНІ ЗМІННІ ТЕМИ (:root, .dark, .craft) — ЛИШАЙ
+   (якщо вже існують у цьому файлі). Можуть бути вище/тут.
+   ========================================================= */
 
-/* ▼▼▼ ДОДАНО: змінні та класи читалки ▼▼▼ */
+/* =======================
+   ▼ ДОДАНО: читалка/типографіка
+   ======================= */
 :root {
-  /* Типографіка читалки (дефолти) */
+  /* дефолти для читалки (за потреби коригуй у налаштуваннях) */
   --vv-reader-font-size: 20px;
   --vv-reader-line-height: 1.6;
   --vv-reader-max-width: 68ch;
@@ -25,7 +29,7 @@
 /* Санскрит — більший і центрований */
 .prose-reader .sanskrit,
 .sanskrit-text {
-  font-family: var(--sanskrit-font);
+  font-family: var(--sanskrit-font, "Noto Sans Devanagari", serif);
   font-size: calc(var(--vv-reader-font-size) * 1.6);
   line-height: 1.4;
   text-align: center;
@@ -42,23 +46,31 @@
   margin: 0.5em 0;
 }
 
-/* Craft-paper підтримка для карток усередині читалки */
+/* Craft-paper вигляд для віршів/карток всередині читалки */
 .prose-reader .verse-container {
-  background: var(--gradient-card);
+  background: var(--gradient-card, hsl(var(--card)));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-verse);
-  transition: var(--transition-smooth);
+  border-radius: var(--radius, 0.75rem);
+  box-shadow: var(--shadow-verse, 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 1px 1px rgba(0, 0, 0, 0.06));
+  transition: var(--transition-smooth, 150ms ease);
 }
 .prose-reader .verse-container:hover {
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-card, 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 1px rgba(0, 0, 0, 0.04));
 }
 
-/* ▼▼▼ ПРИБРАНО шаблонні стилі Vite, що ламали верстку ▼▼▼ */
-/* Раніше це центрувало все тіло, підміняло ширину та давало анімації логотипу */
-#root,
-.logo,
-@keyframes logo-spin,
-.read-the-docs {
+/* =========================
+   ▼ М’яке скидання Vite-демостилів
+   (лише якщо вони у тебе були)
+   ========================= */
+:where(#root, .logo, .read-the-docs) {
   all: unset;
 }
+@keyframes logo-spin {
+  from {
+    transform: none;
+  }
+  to {
+    transform: none;
+  }
+}
+/* кінець скидання */
