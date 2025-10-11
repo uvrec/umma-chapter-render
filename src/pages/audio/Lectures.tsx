@@ -5,17 +5,14 @@ import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ArrowLeft, Mic, Calendar, Clock } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
-
-// covers: імпортуємо, щоб працювало у проді
 import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
-import sbCover from "@/assets/srimad-bhagavatam-1-cover.webp";
-import morningWalksCover from "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png";
 
+// Якщо є TS-тип для треків — використайте його замість цього
 type Track = {
   id: string;
   title: string;
-  duration: string; // "mm:ss"
-  src: string; // URL або шлях до файлу
+  duration: string; // "mm:ss" або "h:mm:ss"
+  src: string; // локальний / CDN url (Bandcamp не відтворюється напряму через CORS)
 };
 
 export const Lectures = () => {
@@ -52,7 +49,7 @@ export const Lectures = () => {
       id: "prabhupada-sb",
       title: "Лекції з Шрімад-Бгаґаватам",
       description: "Коментарі Шріли Прабгупади на вірші Шрімад-Бгаґаватам",
-      cover: sbCover,
+      cover: "/src/assets/srimad-bhagavatam-1-cover.webp",
       author: "Шріла Прабгупада",
       date: "1962-1977",
       duration: "200+ годин",
@@ -81,7 +78,7 @@ export const Lectures = () => {
       id: "morning-walks",
       title: "Ранкові прогулянки",
       description: "Неформальні бесіди Шріли Прабгупади під час ранкових прогулянок",
-      cover: morningWalksCover,
+      cover: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png",
       author: "Шріла Прабгупада",
       date: "1973-1977",
       duration: "30+ годин",
@@ -105,9 +102,9 @@ export const Lectures = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
+          {/* Фікс: назад саме до /audio */}
           <Link to="/audio">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -133,7 +130,12 @@ export const Lectures = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                   <div className="lg:w-64 flex-shrink-0">
                     <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                      <img src={playlist.cover} alt={playlist.title} className="w-full h-full object-cover" />
+                      <img
+                        src={playlist.cover}
+                        alt={`Обкладинка: ${playlist.title}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                     </div>
                   </div>
 
@@ -174,7 +176,6 @@ export const Lectures = () => {
           </Link>
         </Card>
       </main>
-
       <Footer />
     </div>
   );
