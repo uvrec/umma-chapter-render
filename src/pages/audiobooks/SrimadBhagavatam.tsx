@@ -1,115 +1,45 @@
 import { Header } from "@/components/Header";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ReviewsSection } from "@/components/ReviewsSection";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, User } from "lucide-react";
-import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Link } from "react-router-dom";
+
+const tracks = [
+  { id: "1", title: "Пісня 1.1: Питання мудреців", duration: "18:30", src: "/audio/sb-1-1-1.mp3" },
+  { id: "2", title: "Пісня 1.2: Божество є причиною всіх причин", duration: "25:45", src: "/audio/sb-1-1-2.mp3" },
+  { id: "3", title: "Пісня 1.3: Крішна - джерело всіх втілень", duration: "32:15", src: "/audio/sb-1-1-3.mp3" },
+  { id: "4", title: "Пісня 1.4: Зявлення Шрі Нарада", duration: "28:20", src: "/audio/sb-1-1-4.mp3" },
+  { id: "5", title: "Пісня 1.5: Нарада наставляє В'ясу", duration: "35:10", src: "/audio/sb-1-1-5.mp3" },
+  { id: "6", title: "Пісня 1.6: Бесіда між Нарадою та В'ясою", duration: "29:55", src: "/audio/sb-1-1-6.mp3" },
+  { id: "7", title: "Пісня 1.7: Син Дрони карається", duration: "41:20", src: "/audio/sb-1-1-7.mp3" },
+];
+
+const sampleReviews = [
+  {
+    id: "1",
+    userName: "Віктор",
+    avatar: "",
+    rating: 5,
+    comment: "Шрімад-Бгагаватам - це справжня скарбниця духовного знання. Переклад і коментарі Прабгупади роблять цей стародавній текст зрозумілим і актуальним. Диктор читає з великою повагою та розумінням.",
+    tags: ["Духовний", "Освітній", "Глибокий", "Натхненний", "Чудовий голос"],
+    bookRating: 5,
+    speakerRating: 5
+  },
+  {
+    id: "2", 
+    userName: "Анна",
+    avatar: "",
+    rating: 4,
+    comment: "Дуже цікаві історії та філософські роздуми. Допомагає краще зрозуміти ведичну культуру та мудрість. Рекомендую всім, хто шукає глибші відповіді на життєві питання.",
+    tags: ["Цікавий", "Мудрий", "Корисний", "Добре структурований"],
+    bookRating: 4,
+    speakerRating: 4
+  }
+];
 
 export const SrimadBhagavatam = () => {
-  const { slug: slugParam } = useParams<{ slug?: string }>();
-  const slug = slugParam || "srimad-bhagavatam-1";
-
-  const { data: playlist, isLoading } = useQuery({
-    queryKey: ["audiobook-playlist", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("audio_playlists")
-        .select(
-          `
-          *,
-          tracks:audio_tracks(*)
-        `,
-        )
-        .eq("slug", slug)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const formatDuration = (sec?: number | null) => {
-    if (typeof sec !== "number" || Number.isNaN(sec)) return "0:00";
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return `${m}:${String(s).padStart(2, "0")}`;
-  };
-
-  const tracks =
-    playlist?.tracks
-      ?.sort((a: any, b: any) => {
-        // якщо є track_number — сортуємо по ньому, інакше по створенню/назві
-        const an = a.track_number ?? 0;
-        const bn = b.track_number ?? 0;
-        if (an !== bn) return an - bn;
-        return (a.title_ua || a.title || "").localeCompare(b.title_ua || b.title || "");
-      })
-      .map((t: any) => ({
-        id: t.id,
-        title: t.title_ua || t.title,
-        duration: t.duration ? formatDuration(t.duration) : "0:00",
-        src: t.audio_url,
-      })) || [];
-
-  // Демо-рев’ю (залишив як у вас — за потреби теж переведемо на БД)
-  const sampleReviews = [
-    {
-      id: "1",
-      userName: "Віктор",
-      avatar: "",
-      rating: 5,
-      comment:
-        "Шрімад-Бгагаватам - це справжня скарбниця духовного знання. Переклад і коментарі Прабгупади роблять цей стародавній текст зрозумілим і актуальним. Диктор читає з великою повагою та розумінням.",
-      tags: ["Духовний", "Освітній", "Глибокий", "Натхненний", "Чудовий голос"],
-      bookRating: 5,
-      speakerRating: 5,
-    },
-    {
-      id: "2",
-      userName: "Анна",
-      avatar: "",
-      rating: 4,
-      comment:
-        "Дуже цікаві історії та філософські роздуми. Допомагає краще зрозуміти ведичну культуру та мудрість. Рекомендую всім, хто шукає глибші відповіді на життєві питання.",
-      tags: ["Цікавий", "Мудрий", "Корисний", "Добре структурований"],
-      bookRating: 4,
-      speakerRating: 4,
-    },
-  ];
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center">Завантаження...</div>
-        </main>
-      </div>
-    );
-  }
-
-  if (!playlist) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center">Аудіокнигу не знайдено</div>
-          <div className="text-center mt-6">
-            <Link to="/audiobooks">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Назад до аудіокниг
-              </Button>
-            </Link>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -125,74 +55,72 @@ export const SrimadBhagavatam = () => {
             {/* Book Info */}
             <div className="lg:col-span-1">
               <Card className="p-6">
-                {playlist.cover_image_url && (
-                  <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
-                    <img
-                      src={playlist.cover_image_url}
-                      alt={playlist.title_ua || playlist.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-
+                <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
+                  <img 
+                    src="/src/assets/srimad-bhagavatam-1.webp" 
+                    alt="Шрімад-Бгагаватам обкладинка" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
                 <div className="space-y-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-foreground mb-2">{playlist.title_ua || playlist.title}</h1>
-                    {(playlist.author || playlist.narrator) && (
-                      <div className="flex items-center space-x-2 text-muted-foreground">
-                        <User className="w-4 h-4" />
-                        <span>
-                          {playlist.author}
-                          {playlist.narrator ? ` · Диктор: ${playlist.narrator}` : ""}
-                        </span>
-                      </div>
-                    )}
+                    <h1 className="text-2xl font-bold text-foreground mb-2">
+                      Шрімад-Бгагаватам
+                    </h1>
+                    <div className="flex items-center space-x-2 text-muted-foreground">
+                      <User className="w-4 h-4" />
+                      <span>А. Ч. Бхактіведанта Свамі Прабгупада</span>
+                    </div>
                   </div>
 
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <BookOpen className="w-4 h-4" />
-                      <span>{playlist.subtitle_ua || playlist.subtitle || "Аудіокнига"}</span>
+                      <span>Перша пісня</span>
                     </div>
-                    {playlist.year && (
-                      <>
-                        <span>•</span>
-                        <span>{playlist.year} р.</span>
-                      </>
-                    )}
+                    <span>•</span>
+                    <span>~3.5 години</span>
                   </div>
 
-                  {(playlist.description_ua || playlist.description) && (
-                    <div className="prose prose-sm text-foreground">
-                      <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {playlist.description_ua || playlist.description}
-                      </p>
-                    </div>
-                  )}
+                  <div className="prose prose-sm text-foreground">
+                    <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Шрімад-Бгагаватам, також відомий як Бгагавата-пурана, - це найзначніше з усіх пуранічних писань. 
+                      Цей священний текст розповідає про діяльність аватарів Вишну, особливо про трансцендентні розваги 
+                      Господа Крішни.
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed mt-3">
+                      Перша пісня знайомить нас з мудрецями Наймішаран'ї, які звертаються до Сути Госвамі з проханням 
+                      розповісти їм про найвище знання - про Господа та Його енергії.
+                    </p>
+                  </div>
+
+                  <div className="prose prose-sm text-foreground">
+                    <h3 className="text-lg font-semibold mb-2">Про автора</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      А. Ч. Бхактіведанта Свамі Прабгупада присвятив своє життя перекладу та поясненню ведичних писань. 
+                      Його коментарі до Шрімад-Бгагаватам вважаються авторитетним джерелом для розуміння цієї 
+                      трансцендентної літератури.
+                    </p>
+                  </div>
                 </div>
               </Card>
             </div>
 
             {/* Player */}
             <div className="lg:col-span-2">
-              {tracks.length > 0 ? (
-                <PlaylistPlayer
-                  tracks={tracks}
-                  title={playlist.title_ua || playlist.title}
-                  albumCover={playlist.cover_image_url}
-                />
-              ) : (
-                <Card className="p-8 text-center">
-                  <p className="text-muted-foreground">Немає доступних треків</p>
-                </Card>
-              )}
+              <PlaylistPlayer 
+                tracks={tracks} 
+                title="Шрімад-Бгагаватам - Перша пісня"
+                albumCover="/src/assets/srimad-bhagavatam-1-cover.webp"
+              />
             </div>
           </div>
-
-          {/* Reviews Section (демо) */}
+          
+          {/* Reviews Section */}
           <ReviewsSection
-            bookTitle={playlist.title_ua || playlist.title}
+            bookTitle="Шрімад-Бгагаватам"
             overallRating={4.6}
             totalReviews={34}
             bookRating={4.7}
@@ -204,5 +132,3 @@ export const SrimadBhagavatam = () => {
     </div>
   );
 };
-
-export default SrimadBhagavatam;
