@@ -21,8 +21,8 @@ const CRAFT_CSS = `/* … ваш CRAFT_CSS як є … */`;
 
 export function ThemeProvider({
   children,
-  defaultTheme = "craft", // ← було "light"
-  storageKey = "veda-ui-theme",
+  defaultTheme = "craft", // ← craft за замовченням
+  storageKey = "veda-ui-theme", // ← єдиний ключ з main.tsx
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
