@@ -1,69 +1,139 @@
+// src/pages/audio/BhagavadGita.tsx
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, BookOpen, User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+// за бажанням — фолбек-картинка
 import bhagavadGitaCover from "@/assets/bhagavad-gita-new.png";
 
-type Track = {
+type TrackRow = {
   id: string;
-  title: string;
-  duration: string; // mm:ss
-  src: string;
+  title_ua: string | null;
+  title_en: string | null;
+  duration: number | null; // у секундах, якщо є
+  duration_text?: string | null; // якщо зберігаєте як "mm:ss"
+  audio_url: string | null;
+  display_order?: number | null;
+  track_number?: number | null;
+  is_published?: boolean | null;
 };
 
-const tracks: Track[] = [
-  {
-    id: "sb-1-1-1",
-    title: "Шрімад-Бгаґаватам 1.1.1",
-    duration: "05:32",
-    src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%E1%B9%AD%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.1%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
-  },
-  {
-    id: "sb-1-1-2",
-    title: "Шрімад-Бгаґаватам 1.1.2",
-    duration: "06:15",
-    src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%E1%B9%AD%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.2%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC)%20new.mp3",
-  },
-  {
-    id: "sb-1-1-3",
-    title: "Шрімад-Бгаґаватам 1.1.3",
-    duration: "07:42",
-    src: "https://audio.fudokazuki.com/%D0%A8%D1%80%D1%96%D0%BC%D0%B0%D0%B4-%D0%B1%D0%B3%D0%B0%E1%B9%AD%D0%B0%D0%B2%D0%B0%D1%82%D0%B0%D0%BC%201.1.3%20(%D0%B7%20%D0%BF%D0%BE%D1%8F%D1%81%D0%BD%D0%B5%D0%BD%D0%BD%D1%8F%D0%BC).mp3",
-  },
-];
+type PlaylistRow = {
+  id: string;
+  slug?: string | null;
+  title_ua: string | null;
+  title_en: string | null;
+  author?: string | null;
+  year?: string | number | null;
+  description_ua?: string | null;
+  description_en?: string | null;
+  cover_image_url?: string | null;
+  // якщо хочете тягнути треки в одному запиті:
+  tracks?: TrackRow[];
+};
 
-const sampleReviews = [
-  {
-    id: "1",
-    userName: "Олексій",
-    avatar: "",
-    rating: 5,
-    comment:
-      "Неймовірно глибокий та трансформуючий текст. Коментарі Прабгупади додають ясності. Голос диктора приємний і легко сприймається навіть під час довгих сеансів прослуховування.",
-    tags: ["Надихаючий", "Філософський", "Глибокий", "Трансформуючий", "Ясний голос"],
-    bookRating: 5,
-    speakerRating: 5,
-  },
-  {
-    id: "2",
-    userName: "Марія",
-    avatar: "",
-    rating: 4,
-    comment:
-      "Дуже хороша аудіокнига для тих, хто цікавиться східною філософією. Коментарі допомагають зрозуміти контекст і значення. Якість запису відмінна.",
-    tags: ["Освітній", "Цікавий", "Добре структурований", "Якісний запис"],
-    bookRating: 4,
-    speakerRating: 5,
-  },
-];
+function secToMMSS(sec?: number | null, fallback?: string | null) {
+  if (typeof sec === "number" && !Number.isNaN(sec) && sec >= 0) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${String(s).padStart(2, "0")}`;
+  }
+  return fallback ?? "0:00";
+}
 
 export const BhagavadGita = () => {
-  const coverFallback =
-    "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='800'><rect width='100%25' height='100%25' fill='%23eee'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='24'>Bhagavad-gita</text></svg>";
+  // дозволяємо і UUID, і людський slug у маршруті /audiobooks/:idOrSlug
+  const { idOrSlug } = useParams<{ idOrSlug: string }>();
+
+  // 1) витягуємо плейлист
+  const {
+    data: playlist,
+    isLoading: isLoadingPlaylist,
+    error: playlistError,
+  } = useQuery({
+    queryKey: ["audiobook-playlist", idOrSlug],
+    enabled: !!idOrSlug,
+    queryFn: async (): Promise<PlaylistRow | null> => {
+      // Шукаємо або по id (uuid), або по slug (текстовий)
+      // .or() в Supabase: поле=value з екрануванням крапки в uuid не потрібне
+      const { data, error } = await supabase
+        .from("audio_playlists")
+        .select("*")
+        .or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // 2) витягуємо треки окремо (щоб мати гнучкий .order та фільтри)
+  const { data: tracks = [], isLoading: isLoadingTracks } = useQuery({
+    queryKey: ["audiobook-tracks", playlist?.id],
+    enabled: !!playlist?.id,
+    queryFn: async (): Promise<TrackRow[]> => {
+      // підлаштуйте сортування під вашу схему: display_order або track_number
+      const { data, error } = await supabase
+        .from("audio_tracks")
+        .select("*")
+        .eq("playlist_id", playlist!.id)
+        .eq("is_published", true)
+        .order("display_order", { ascending: true }) // якщо є
+        .order("track_number", { ascending: true }) // або запасний ключ
+        .order("title_ua", { ascending: true }); // стабілізатор
+
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  if (isLoadingPlaylist) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">Завантаження...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (playlistError || !playlist) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center">Аудіокнига не знайдена</div>
+          <div className="text-center mt-4">
+            <Link to="/audiobooks">
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                До списку аудіокниг
+              </Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // Приводимо треки до формату PlaylistPlayer
+  const playerTracks = tracks.map((t) => ({
+    id: t.id,
+    title: t.title_ua ?? t.title_en ?? "Без назви",
+    duration: secToMMSS(t.duration, t.duration_text ?? undefined),
+    src: t.audio_url ?? "",
+  }));
+
+  const cover = playlist.cover_image_url || bhagavadGitaCover;
+  const title = playlist.title_ua ?? playlist.title_en ?? "Аудіокнига";
+  const author = playlist.author ?? undefined;
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,88 +150,78 @@ export const BhagavadGita = () => {
             {/* Book Info */}
             <div className="lg:col-span-1">
               <Card className="p-6">
-                <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
-                  <img
-                    src={bhagavadGitaCover}
-                    alt="Обкладинка: Бгаґавад-ґіта як вона є"
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = coverFallback;
-                    }}
-                  />
-                </div>
+                {cover && (
+                  <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
+                    <img src={cover} alt={title} className="w-full h-full object-cover" />
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <div>
-                    <h1 className="text-2xl font-bold text-foreground mb-2">Бгаґавад-ґіта як вона є</h1>
-                    <div className="flex items-center space-x-2 text-muted-foreground">
-                      <User className="w-4 h-4" />
-                      <span>А. Ч. Бхактіведанта Свамі Прабгупада</span>
-                    </div>
+                    <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
+                    {author && (
+                      <div className="flex items-center space-x-2 text-muted-foreground">
+                        <User className="w-4 h-4" />
+                        <span>{author}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <BookOpen className="w-4 h-4" />
-                      <span>~ 18 розділів</span>
+                      <span>{playerTracks.length} треків</span>
                     </div>
-                    <span>•</span>
-                    <span>~ 4 години</span>
+                    {playlist.year && (
+                      <>
+                        <span>•</span>
+                        <span>{playlist.year}</span>
+                      </>
+                    )}
                   </div>
 
-                  <div className="prose prose-sm text-foreground">
-                    <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      «Бгаґавад-ґіта як вона є» — найвідоміший із класичних творів ведичної мудрості. Це діалог між
-                      принцом Арджуною та його наставником — Господом Крішною, що розкриває природу душі, дгарми та
-                      шляхи йоги.
-                    </p>
-                    <p className="text-muted-foreground leading-relaxed mt-3">
-                      Коментарі Шріли Прабгупади розкривають глибинний духовний зміст і роблять текст доступним
-                      сучасному слухачеві.
-                    </p>
-                  </div>
+                  {playlist.description_ua && (
+                    <div className="prose prose-sm text-foreground">
+                      <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
+                      <p className="text-muted-foreground leading-relaxed">{playlist.description_ua}</p>
+                    </div>
+                  )}
 
-                  <div className="prose prose-sm text-foreground">
-                    <h3 className="text-lg font-semibold mb-2">Про автора</h3>
-                    <p className="text-muted-foreground leading-relaxed">
-                      А. Ч. Бхактіведанта Свамі Прабгупада (1896–1977) — засновник-ачарʼя ІСКОН, перекладач і коментатор
-                      класичних ведичних писань, автор понад 60 томів і засновник 108 храмів по всьому світу.
-                    </p>
-                  </div>
+                  {playlist.description_en && (
+                    <div className="prose prose-sm text-foreground">
+                      <h3 className="text-lg font-semibold mb-2">About</h3>
+                      <p className="text-muted-foreground leading-relaxed">{playlist.description_en}</p>
+                    </div>
+                  )}
                 </div>
               </Card>
             </div>
 
             {/* Player */}
             <div className="lg:col-span-2">
-              <PlaylistPlayer tracks={tracks} title="Бгаґавад-ґіта як вона є" albumCover={bhagavadGitaCover} />
+              {isLoadingTracks ? (
+                <Card className="p-8 text-center">Завантаження треків…</Card>
+              ) : playerTracks.length > 0 ? (
+                <PlaylistPlayer tracks={playerTracks} title={title} albumCover={cover} />
+              ) : (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">Немає доступних треків</p>
+                </Card>
+              )}
             </div>
           </div>
 
-          {/* Reviews Section */}
+          {/* Відгуки — залишив компонент; за потреби можете також підключити до БД */}
           <ReviewsSection
-            bookTitle="Бгаґавад-ґіта як вона є"
+            bookTitle={title}
             overallRating={4.5}
             totalReviews={47}
             bookRating={4.4}
             speakerRating={4.6}
-            reviews={sampleReviews}
+            reviews={[]}
           />
-
-          {/* CTA */}
-          <div className="mt-8 flex justify-center">
-            <Link to="/audiobooks">
-              <Button variant="outline">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Повернутися до аудіокниг
-              </Button>
-            </Link>
-          </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 };
