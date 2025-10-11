@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Plus, Edit, Music } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type AudioCategory = {
@@ -28,18 +28,21 @@ type PlaylistRow = {
   year: number | null;
   is_published: boolean | null;
   display_order: number | null;
-  // денормалізовані зв’язки
   category?: Pick<AudioCategory, "id" | "name_ua" | "name_en" | "slug"> | null;
   tracks?: Array<{ count: number }>;
 };
 
 export default function AudioPlaylists() {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   const { data: categories } = useQuery({
     queryKey: ["audio-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("audio_categories").select("*").order("display_order");
+      const { data, error } = await supabase
+        .from("audio_categories")
+        .select("*")
+        .order("display_order", { ascending: true, nullsFirst: false });
       if (error) throw error;
       return (data ?? []) as AudioCategory[];
     },
@@ -63,7 +66,7 @@ export default function AudioPlaylists() {
           tracks:audio_tracks ( count )
         `,
         )
-        .order("display_order", { ascending: true });
+        .order("display_order", { ascending: true, nullsFirst: false });
 
       if (selectedCategory !== "all") {
         query = query.eq("category_id", selectedCategory);
@@ -74,6 +77,29 @@ export default function AudioPlaylists() {
       return (data ?? []) as PlaylistRow[];
     },
     staleTime: 30_000,
+  });
+
+  // ➜ Створення плейліста + редірект у редактор
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      // Мінімальний набір полів — підлаштуй під свої RLS/NOT NULL
+      const { data, error } = await supabase
+        .from("audio_playlists")
+        .insert({
+          title_ua: "Новий плейліст",
+          is_published: false,
+          display_order: 100000, // або залиш порожнім — якщо маєш тригер/дефолт
+          category_id: selectedCategory !== "all" ? selectedCategory : null,
+        })
+        .select("id")
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (row) => {
+      navigate(`/admin/audio-playlists/${row.id}`);
+    },
   });
 
   if (isLoading) {
@@ -154,12 +180,10 @@ export default function AudioPlaylists() {
               ))}
             </SelectContent>
           </Select>
-          <Link to="/admin/audio-playlists/new">
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Додати плейліст
-            </Button>
-          </Link>
+          <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
+            <Plus className="w-4 h-4 mr-2" />
+            {createMutation.isPending ? "Створюю..." : "Додати плейліст"}
+          </Button>
         </div>
       </div>
 
@@ -201,12 +225,16 @@ export default function AudioPlaylists() {
                   {playlist.author && <p className="text-xs">Автор: {playlist.author}</p>}
                 </div>
                 <div className="mt-4">
-                  <Link to={`/admin/audio-playlists/${playlist.id}`}>
-                    <Button variant="outline" size="sm" className="w-full" aria-label="Редагувати плейліст">
-                      <Edit className="w-4 h-4 mr-2" />
-                      Редагувати / Треки
-                    </Button>
-                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    aria-label="Редагувати плейліст"
+                    onClick={() => navigate(`/admin/audio-playlists/${playlist.id}`)}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Редагувати / Треки
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -214,15 +242,13 @@ export default function AudioPlaylists() {
         })}
       </div>
 
-      {!safePlaylists || safePlaylists.length === 0 ? (
+      {safePlaylists.length === 0 ? (
         <Card className="p-12 text-center mt-6">
           <p className="text-muted-foreground mb-4">Немає плейлістів</p>
-          <Link to="/admin/audio-playlists/new">
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Створити перший плейліст
-            </Button>
-          </Link>
+          <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
+            <Plus className="w-4 h-4 mr-2" />
+            {createMutation.isPending ? "Створюю..." : "Створити перший плейліст"}
+          </Button>
         </Card>
       ) : null}
     </div>
