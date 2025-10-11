@@ -246,10 +246,10 @@ export const VerseCard = ({
               <Textarea
                 value={edited.sanskrit}
                 onChange={(e) => setEdited((p) => ({ ...p, sanskrit: e.target.value }))}
-                className="min-h-[100px] text-center font-sanskrit text-[32px] leading-[1.8] text-gray-700 dark:text-foreground"
+                className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground"
               />
             ) : (
-              <p className="whitespace-pre-line text-center font-sanskrit text-[32px] leading-[1.8] text-gray-700 dark:text-foreground">
+              <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
                 {sanskritText}
               </p>
             )}
@@ -263,14 +263,14 @@ export const VerseCard = ({
               <Textarea
                 value={edited.transliteration}
                 onChange={(e) => setEdited((p) => ({ ...p, transliteration: e.target.value }))}
-                className="min-h-[80px] text-center font-sanskrit-italic italic text-[22px] text-gray-500 dark:text-muted-foreground"
+                className="min-h-[80px] text-center font-sanskrit-italic italic text-[1.22em] text-gray-500 dark:text-muted-foreground"
               />
             ) : (
               <div className="space-y-1 text-center">
                 {transliteration.split("\n").map((line, idx) => (
                   <p
                     key={idx}
-                    className="font-sanskrit-italic italic text-[22px] leading-relaxed text-gray-500 dark:text-muted-foreground"
+                    className="font-sanskrit-italic italic text-[1.22em] leading-relaxed text-gray-500 dark:text-muted-foreground"
                   >
                     {line}
                   </p>
@@ -283,7 +283,7 @@ export const VerseCard = ({
         {/* Послівний переклад */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className="mb-6 border-t border-border pt-6">
-            <h4 className="mb-4 text-[21px] font-bold text-foreground">Послівний переклад:</h4>
+            <h4 className="mb-4 text-[1.17em] font-bold text-foreground">Послівний переклад:</h4>
             {isEditing ? (
               <Textarea
                 value={edited.synonyms}
@@ -291,7 +291,7 @@ export const VerseCard = ({
                 className="min-h-[120px] text-[21px]"
               />
             ) : (
-              <p className="text-[21px] leading-relaxed text-foreground">
+              <p className="text-[1.17em] leading-relaxed text-foreground">
                 {synonymPairs.length === 0 ? (
                   <span className="text-muted-foreground">{synonyms}</span>
                 ) : (
@@ -334,7 +334,7 @@ export const VerseCard = ({
         {/* Літературний переклад */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className="mb-6 border-t border-border pt-6">
-            <h4 className="mb-4 text-[21px] font-bold text-foreground">Літературний переклад:</h4>
+            <h4 className="mb-4 text-[1.17em] font-bold text-foreground">Літературний переклад:</h4>
             {isEditing ? (
               <Textarea
                 value={edited.translation}
@@ -342,7 +342,7 @@ export const VerseCard = ({
                 className="min-h-[100px] text-[23px] font-medium"
               />
             ) : (
-              <p className="text-[23px] font-medium leading-relaxed text-foreground">{translation}</p>
+              <p className="text-[1.28em] font-medium leading-relaxed text-foreground">{translation}</p>
             )}
           </div>
         )}
@@ -350,7 +350,7 @@ export const VerseCard = ({
         {/* Коментар (Tiptap) */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className="border-t border-border pt-6">
-            <h4 className="mb-4 text-[21px] font-bold text-foreground">Коментар:</h4>
+            <h4 className="mb-4 text-[1.17em] font-bold text-foreground">Коментар:</h4>
             {isEditing ? (
               <InlineTiptapEditor
                 content={edited.commentary}
@@ -358,7 +358,7 @@ export const VerseCard = ({
                 label="Редагувати коментар"
               />
             ) : (
-              <TiptapRenderer content={commentary || ""} className="text-[22px] leading-relaxed" />
+              <TiptapRenderer content={commentary || ""} className="text-[1.22em] leading-relaxed" />
             )}
           </div>
         )}
