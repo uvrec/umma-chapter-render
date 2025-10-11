@@ -347,15 +347,15 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* Пояснення (Tiptap) */}
+        {/* Коментар (Tiptap) */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className="border-t border-border pt-6">
-            <h4 className="mb-4 text-[1.17em] font-bold text-foreground">Пояснення:</h4>
+            <h4 className="mb-4 text-[1.17em] font-bold text-foreground">Коментар:</h4>
             {isEditing ? (
               <InlineTiptapEditor
                 content={edited.commentary}
                 onChange={(html) => setEdited((p) => ({ ...p, commentary: html }))}
-                label="Редагувати Пояснення"
+                label="Редагувати коментар"
               />
             ) : (
               <TiptapRenderer content={commentary || ""} className="text-[1.22em] leading-relaxed" />

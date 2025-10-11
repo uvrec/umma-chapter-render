@@ -1,3 +1,4 @@
+// ThemeProvider.tsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type Theme = "light" | "dark" | "craft";
@@ -15,17 +16,17 @@ type ThemeProviderState = {
 
 const ThemeCtx = createContext<ThemeProviderState | undefined>(undefined);
 
-/** ===== Craft theme CSS (інжектується один раз у <head>) ===== */
+/* Палітра craft (HSL під shadcn/tailwind) + фікси посилань і prose */
 const CRAFT_CSS = `
 html.craft {
   /* базові токени */
-  --background: 39 58% 86%;       /* піщаний фон */
-  --foreground: 26 36% 16%;
+  --background: 39 58% 86%;        /* пісочний фон #F1E4CC */
+  --foreground: 26 36% 16%;        /* темно-горіховий текст */
 
-  --card: 41 70% 96%;
+  --card: 41 70% 96%;              /* #FBF6EA */
   --card-foreground: var(--foreground);
 
-  --border: 35 28% 78%;
+  --border: 35 28% 78%;            /* #E1D6C2 */
   --input: var(--border);
 
   --muted: 36 25% 84%;
@@ -34,9 +35,10 @@ html.craft {
   --secondary: 36 30% 90%;
   --secondary-foreground: 26 34% 22%;
 
-  --primary: 33 76% 42%;          /* бурштин */
+  /* бурштинові акценти */
+  --primary: 33 76% 42%;           /* глибокий бурштин #C47A16 */
   --primary-foreground: 48 100% 98%;
-  --accent: 31 70% 40%;
+  --accent: 31 70% 40%;            /* #B06F1A */
   --accent-foreground: 48 100% 98%;
   --ring: var(--primary);
 
@@ -49,10 +51,16 @@ html.craft {
   background-size: 16px 16px;
 }
 
-/* типографіка/посилання/typography plugin */
+/* дефолтний текст */
+html.light, html.dark, html.craft {
+  color: hsl(var(--foreground, 222.2 47.4% 11.2%));
+}
+
+/* посилання (щоб не були сині) */
 html.craft a { color: hsl(var(--primary)); }
 html.craft a:hover { color: hsl(var(--primary) / 0.9); }
 
+/* підтримка @tailwind/typography */
 html.craft .prose {
   --tw-prose-body: hsl(var(--foreground));
   --tw-prose-headings: hsl(var(--foreground));
@@ -64,70 +72,55 @@ html.craft .prose {
   --tw-prose-bullets: hsl(var(--muted-foreground));
 }
 
-/* єдиний колір для блоків віршів/перекладів/пояснень */
-html.craft .verse-surface,
-html.craft .reader-block,
-html.craft .card,
-html.craft .prose-reader .verse-container {
+/* утиліти підстраховки */
+html.craft .text-primary { color: hsl(var(--primary)) !important; }
+html.craft .hover\\:text-primary:hover { color: hsl(var(--primary) / 0.9) !important; }
+html.craft .bg-primary { background-color: hsl(var(--primary)) !important; color: hsl(var(--primary-foreground)) !important; }
+html.craft .hover\\:bg-primary:hover { background-color: hsl(var(--primary) / 0.92) !important; }
+html.craft .border-primary { border-color: hsl(var(--primary)) !important; }
+html.craft .ring-primary { --tw-ring-color: hsl(var(--primary)) !important; }
+
+/* поверхня вірша/карток */
+html.craft .verse-surface {
   background-color: hsl(var(--card));
   color: hsl(var(--foreground));
-  border: 1px solid hsl(var(--border));
   box-shadow: inset 0 1px 0 hsl(0 0% 100% / 0.35), 0 1px 1px hsl(0 0% 0% / 0.06);
+  background-image:
+    radial-gradient(hsl(0 0% 0% / 0.05) 1px, transparent 1px),
+    linear-gradient(transparent 0, hsl(0 0% 100% / 0.12) 100%);
+  background-size: 16px 16px, 100% 100%;
+  border: 1px solid hsl(var(--border));
 }
 
-/* утиліти craft (щоб кнопки/кільця поводились послідовно) */
-html.craft .text-primary { color: hsl(var(--primary)) !important; }
-html.craft .bg-primary { background-color: hsl(var(--primary)) !important; color: hsl(var(--primary-foreground)) !important; }
-html.craft .ring-primary { --tw-ring-color: hsl(var(--primary)) !important; }
+/* опційний контейнерний фон craft */
+.craft-paper-bg {
+  background-color: hsl(var(--background));
+  background-image: radial-gradient(hsl(0 0% 0% / 0.035) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
 `;
 
-/** ===== Глобальні змінні читача (font-size/line-height/max-width) ===== */
-const READER_CSS = `
-:root {
-  --vv-reader-font-size: 20px;
-  --vv-reader-line-height: 1.6;
-  --vv-reader-max-width: 68ch;
-}
-html .prose-reader {
-  font-size: var(--vv-reader-font-size);
-  line-height: var(--vv-reader-line-height);
-  margin: 0 auto; max-width: var(--vv-reader-max-width);
-  text-align: left;
-}
-html .prose-reader .sanskrit, html .sanskrit-text {
-  font-family: var(--sanskrit-font, "Noto Sans Devanagari", serif);
-  font-size: calc(var(--vv-reader-font-size) * 1.6);
-  line-height: 1.4; text-align: center;
-}
-html .prose-reader .translit { font-style: italic; }
-`;
-
-export function ThemeProvider({ children, defaultTheme = "craft", storageKey = "veda-ui-theme" }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = "light", storageKey = "vite-ui-theme" }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
-      const saved = localStorage.getItem(storageKey) as Theme | null;
-      return saved ?? defaultTheme;
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
     } catch {
       return defaultTheme;
     }
   });
 
-  // інжект стилів craft + reader один раз
+  // інжекція craft-стилів
   useEffect(() => {
-    const ensureStyle = (id: string, css: string) => {
-      let el = document.getElementById(id) as HTMLStyleElement | null;
-      if (!el) {
-        el = document.createElement("style");
-        el.id = id;
-        el.textContent = css;
-        document.head.appendChild(el);
-      }
-    };
-    ensureStyle("vv-craft-css", CRAFT_CSS);
-    ensureStyle("vv-reader-css", READER_CSS);
+    let el = document.getElementById("vv-craft-css") as HTMLStyleElement | null;
+    if (!el) {
+      el = document.createElement("style");
+      el.id = "vv-craft-css";
+      el.textContent = CRAFT_CSS;
+      document.head.appendChild(el);
+    }
   }, []);
 
-  // клас теми на <html> + збереження
+  // клас теми на <html>
   useEffect(() => {
     const root = document.documentElement;
     root.classList.remove("light", "dark", "craft");

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -7,11 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Headphones, BookOpen, Play, Clock, ArrowRight, Music4, Search, ChevronDown, ExternalLink } from "lucide-react";
+import {
+  Headphones,
+  BookOpen,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Clock,
+  ArrowRight,
+  Music4,
+  Search,
+  ChevronDown,
+  ExternalLink,
+} from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
-import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 
-// --- Types for “Latest” cards ---
+// --- Types ---
 type ContentItem = {
   id: string;
   type: "audio" | "text" | "blog";
@@ -21,6 +33,68 @@ type ContentItem = {
   duration?: string;
   created_at: string;
 };
+
+type AudioTrack = {
+  id: string;
+  title: string;
+  src: string;
+  playlist_title?: string;
+};
+
+// --- Mini Player ---
+function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const current = useMemo(() => queue[index], [queue, index]);
+
+  const playPause = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+    } else {
+      el.play();
+    }
+  };
+
+  const next = () => setIndex((i) => (i + 1) % queue.length);
+  const prev = () => setIndex((i) => (i - 1 + queue.length) % queue.length);
+
+  if (!current) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
+        <Music4 className="h-5 w-5" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium">{current.title}</div>
+          <div className="truncate text-xs text-muted-foreground">{current.playlist_title || "Vedavoice · Аудіо"}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={prev} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipBack className="h-5 w-5" />
+          </Button>
+          <Button size="icon" onClick={playPause} className="h-9 w-9">
+            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={next} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipForward className="h-5 w-5" />
+          </Button>
+        </div>
+        <audio
+          ref={audioRef}
+          src={current.src}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={next}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
 
 // --- Hero Section ---
 function Hero() {
@@ -126,7 +200,7 @@ function SearchStrip() {
 
 // --- Latest Content ---
 function LatestContent() {
-  // latest audio
+  // Fetch latest audio tracks
   const { data: audioTracks } = useQuery({
     queryKey: ["latest-audio"],
     queryFn: async () => {
@@ -144,19 +218,22 @@ function LatestContent() {
             title_ua,
             is_published,
             category_id,
-            audio_categories ( slug )
+            audio_categories (
+              slug
+            )
           )
         `,
         )
         .eq("audio_playlists.is_published", true)
         .order("created_at", { ascending: false })
         .limit(3);
+
       if (error) throw error;
       return data;
     },
   });
 
-  // latest blog
+  // Fetch latest blog posts
   const { data: blogPosts } = useQuery({
     queryKey: ["latest-blog"],
     queryFn: async () => {
@@ -166,11 +243,13 @@ function LatestContent() {
         .eq("is_published", true)
         .order("published_at", { ascending: false })
         .limit(3);
+
       if (error) throw error;
       return data;
     },
   });
 
+  // Combine and format content
   const latestContent: ContentItem[] = [
     ...(audioTracks?.map((track) => ({
       id: track.id,
@@ -222,7 +301,7 @@ function LatestContent() {
             <CardContent className="p-4">
               <div className="mb-2 flex items-center gap-2 text-base font-semibold">
                 {item.type === "audio" ? (
-                  <Music4 className="h-4 w-4 flex-shrink-0" />
+                  <Headphones className="h-4 w-4 flex-shrink-0" />
                 ) : (
                   <BookOpen className="h-4 w-4 flex-shrink-0" />
                 )}
@@ -262,48 +341,25 @@ function LatestContent() {
   );
 }
 
-// --- Featured playlist player (same look everywhere) ---
-function FeaturedPlaylist() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["home-featured-playlist"],
-    queryFn: async () => {
-      // бери найсвіжіший опублікований плейліст із треками
-      const { data: playlists, error } = await supabase
-        .from("audio_playlists")
-        .select(
-          `
-          id,
-          title_ua,
-          cover_image_url,
-          is_published,
-          tracks:audio_tracks ( id, title_ua, duration, audio_url )
-        `,
-        )
-        .eq("is_published", true)
-        .order("updated_at", { ascending: false })
-        .limit(1);
-      if (error) throw error;
-      return playlists?.[0] || null;
-    },
-    staleTime: 60_000,
-  });
-
-  if (isLoading) return null;
-  if (!data || !data.tracks || data.tracks.length === 0) return null;
-
-  const tracks = data.tracks.map((t: any) => ({
-    id: t.id,
-    title: t.title_ua,
-    duration: t.duration
-      ? `${Math.floor(t.duration / 60)}:${(t.duration % 60).toString().padStart(2, "0")}`
-      : undefined,
-    src: t.audio_url,
-  }));
+// --- Quick Access Playlists ---
+function Playlists() {
+  const featuredPlaylists = [
+    { title: "Популярне", href: "/audiobooks?sort=popular" },
+    { title: "Останні", href: "/audiobooks?sort=latest" },
+    { title: "Бгаґаватам", href: "/audiobooks?tag=sb" },
+    { title: "Бгаґавад-ґіта", href: "/audiobooks?tag=bg" },
+  ];
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 pb-10">
-      <h3 className="mb-4 font-serif text-xl font-semibold">Рекомендований плейліст</h3>
-      <PlaylistPlayer tracks={tracks} title={data.title_ua} albumCover={data.cover_image_url || undefined} />
+    <section className="mx-auto w-full max-w-6xl px-4 pb-8">
+      <h3 className="mb-4 font-serif text-xl font-semibold">Швидкий доступ</h3>
+      <div className="flex flex-wrap gap-2">
+        {featuredPlaylists.map((p) => (
+          <Button key={p.href} variant="outline" asChild>
+            <a href={p.href}>{p.title}</a>
+          </Button>
+        ))}
+      </div>
     </section>
   );
 }
@@ -319,17 +375,13 @@ function SupportSection() {
             Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням
             аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
           </p>
-          <div className="flex gap-3 justify-center flex-wrap">
+          <div className="flex justify-center gap-4">
             <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2">
               PayPal
               <ExternalLink className="w-4 h-4" />
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => openExternal("https://send.monobank.ua/jar/YAmYDYgti")}
-              className="gap-2"
-            >
+
+            <Button size="lg" onClick={() => openExternal("https://send.monobank.ua/jar/YAmYDYgti")} className="gap-2">
               Monobank
               <ExternalLink className="w-4 h-4" />
             </Button>
@@ -342,19 +394,28 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
+  // Mock queue - replace with actual data from continue listening
+  const queue: AudioTrack[] = [
+    {
+      id: "a1",
+      title: "ШБ 3.26.19 — Бомбей, 1974",
+      src: "/media/sb-32619.mp3",
+      playlist_title: "Шрімад-Бгаґаватам",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main>
         <Hero />
         <SearchStrip />
-        {/* Один уніфікований плеєр як на всіх сторінках */}
-        <FeaturedPlaylist />
         <LatestContent />
+        <Playlists />
+        <SupportSection />
       </main>
       <Footer />
+      <MiniPlayer queue={queue} />
     </div>
   );
 };
-
-export default NewHome;
