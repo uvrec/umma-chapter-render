@@ -375,9 +375,14 @@ function SupportSection() {
             Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням
             аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
           </p>
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-4">
             <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2">
               PayPal
+              <ExternalLink className="w-4 h-4" />
+            </Button>
+
+            <Button size="lg" onClick={() => openExternal("https://send.monobank.ua/jar/YAmYDYgti")} className="gap-2">
+              Monobank
               <ExternalLink className="w-4 h-4" />
             </Button>
           </div>
