@@ -29,8 +29,18 @@ export const Music = () => {
       year: "2023",
       genre: "Мантри",
       tracks: [
-        { id: "hare-krishna-1", title: "Маха-мантра (повільна версія)", duration: "12:45", src: "/audio/music/hare-krishna-slow.mp3" },
-        { id: "hare-krishna-2", title: "Маха-мантра (швидка версія)", duration: "8:33", src: "/audio/music/hare-krishna-fast.mp3" },
+        {
+          id: "hare-krishna-1",
+          title: "Маха-мантра (повільна версія)",
+          duration: "12:45",
+          src: "/audio/music/hare-krishna-slow.mp3",
+        },
+        {
+          id: "hare-krishna-2",
+          title: "Маха-мантра (швидка версія)",
+          duration: "8:33",
+          src: "/audio/music/hare-krishna-fast.mp3",
+        },
         { id: "govinda", title: "Говінда Джайа Джайа", duration: "6:21", src: "/audio/music/govinda.mp3" },
         { id: "sri-krishna", title: "Шрі Крішна Шаранам Мама", duration: "9:15", src: "/audio/music/sri-krishna.mp3" },
       ],
@@ -58,8 +68,18 @@ export const Music = () => {
       year: "2024",
       genre: "Fusion",
       tracks: [
-        { id: "modern-1", title: "Радга Крішна (сучасна версія)", duration: "5:42", src: "/audio/music/modern-radha-krishna.mp3" },
-        { id: "modern-2", title: "Ом Намо Бгаґавате (електронна версія)", duration: "7:18", src: "/audio/music/modern-om-namo.mp3" },
+        {
+          id: "modern-1",
+          title: "Радга Крішна (сучасна версія)",
+          duration: "5:42",
+          src: "/audio/music/modern-radha-krishna.mp3",
+        },
+        {
+          id: "modern-2",
+          title: "Ом Намо Бгаґавате (електронна версія)",
+          duration: "7:18",
+          src: "/audio/music/modern-om-namo.mp3",
+        },
         { id: "modern-3", title: "Джапа медитація (ambient)", duration: "20:00", src: "/audio/music/japa-ambient.mp3" },
       ],
     },
@@ -154,7 +174,8 @@ export const Music = () => {
                 <PlaylistPlayer tracks={album.tracks} title={album.title} albumCover={album.cover} />
               ) : (
                 <Card className="p-6 text-center text-sm text-muted-foreground">
-                  Для цього альбому відсутні локальні треки. Додайте MP3 у /public/audio або використайте зовнішні посилання як окремі <a>.
+                  Для цього альбому відсутні локальні треки. Додайте MP3 у /public/audio або використайте зовнішні
+                  посилання як окремі <code>&lt;a&gt;</code>.
                 </Card>
               )}
             </div>
