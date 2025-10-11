@@ -2,22 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* =========================================================
-   ТВОЇ ПОТОЧНІ ЗМІННІ ТЕМИ (:root, .dark, .craft) — ЛИШАЙ
-   (якщо вже існують у цьому файлі). Можуть бути вище/тут.
-   ========================================================= */
-
 /* =======================
-   ▼ ДОДАНО: читалка/типографіка
+   Читалка / типографіка
+   (запасні значення — дубль до інжекту у ThemeProvider)
    ======================= */
 :root {
-  /* дефолти для читалки (за потреби коригуй у налаштуваннях) */
   --vv-reader-font-size: 20px;
   --vv-reader-line-height: 1.6;
   --vv-reader-max-width: 68ch;
 }
 
-/* Базовий контейнер читалки */
 .prose-reader {
   font-size: var(--vv-reader-font-size);
   line-height: var(--vv-reader-line-height);
@@ -25,8 +19,6 @@
   margin: 0 auto;
   max-width: var(--vv-reader-max-width);
 }
-
-/* Санскрит — більший і центрований */
 .prose-reader .sanskrit,
 .sanskrit-text {
   font-family: var(--sanskrit-font, "Noto Sans Devanagari", serif);
@@ -34,35 +26,25 @@
   line-height: 1.4;
   text-align: center;
 }
-
-/* Транслітерація */
 .prose-reader .translit {
   font-style: italic;
 }
 
-/* Абзаци/списки — акуратні відступи */
-.prose-reader p,
-.prose-reader li {
-  margin: 0.5em 0;
-}
-
-/* Craft-paper вигляд для віршів/карток всередині читалки */
-.prose-reader .verse-container {
-  background: var(--gradient-card, hsl(var(--card)));
+/* єдиний фон для блоків читача в craft */
+html.craft .verse-surface,
+html.craft .reader-block,
+html.craft .prose-reader .verse-container {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius, 0.75rem);
-  box-shadow: var(--shadow-verse, 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 1px 1px rgba(0, 0, 0, 0.06));
-  transition: var(--transition-smooth, 150ms ease);
-}
-.prose-reader .verse-container:hover {
-  box-shadow: var(--shadow-card, 0 1px 2px rgba(0, 0, 0, 0.06), 0 1px 1px rgba(0, 0, 0, 0.04));
 }
 
-/* =========================
-   ▼ М’яке скидання Vite-демостилів
-   (лише якщо вони у тебе були)
-   ========================= */
-:where(#root, .logo, .read-the-docs) {
+/* Прибирання demo-CSS Vite, що ламав layout */
+#root {
+  all: unset;
+}
+.logo,
+.read-the-docs {
   all: unset;
 }
 @keyframes logo-spin {
@@ -73,4 +55,3 @@
     transform: none;
   }
 }
-/* кінець скидання */
