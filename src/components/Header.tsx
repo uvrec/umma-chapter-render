@@ -11,17 +11,17 @@ import {
   ChevronRight,
   FileText,
   User,
-  Plus, // ⟵ додано
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom"; // ⟵ useLocation додано
+import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
-import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton"; // ⟵ додано
+import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
@@ -30,12 +30,12 @@ export const Header = () => {
 
   const { t } = useLanguage();
   const { user, isAdmin } = useAuth();
-  const { pathname } = useLocation(); // ⟵ для умовного рендера
+  const { pathname } = useLocation();
 
   const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
 
-  // показуємо блок дій лише на сторінці керування постами
-  const showBlogAdminActions = pathname.startsWith("/admin/blog-posts");
+  // ✅ показувати блок дій лише на сторінці керування постами І якщо користувач — адмін
+  const showBlogAdminActions = isAdmin && pathname.startsWith("/admin/blog-posts");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
@@ -45,28 +45,28 @@ export const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden items-center space-x-1 md:flex">
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/">
+              <Link to="/" aria-label="Головна">
                 <Home className="mr-2 h-4 w-4" />
                 Головна
               </Link>
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/library">
+              <Link to="/library" aria-label="Бібліотека">
                 <BookOpen className="mr-2 h-4 w-4" />
                 Бібліотека
               </Link>
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/glossary">
+              <Link to="/glossary" aria-label="Глосарій">
                 <Book className="mr-2 h-4 w-4" />
                 Глосарій
               </Link>
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/blog">
+              <Link to="/blog" aria-label="Блог">
                 <FileText className="mr-2 h-4 w-4" />
                 Блог
               </Link>
@@ -78,7 +78,7 @@ export const Header = () => {
             <ThemeToggle />
             {!user && (
               <Button variant="outline" size="sm" asChild className={navBtn}>
-                <Link to="/auth">
+                <Link to="/auth" aria-label="Вхід">
                   <LogIn className="mr-2 h-4 w-4" />
                   Вхід
                 </Link>
@@ -86,7 +86,7 @@ export const Header = () => {
             )}
             {isAdmin && (
               <Button variant="outline" size="sm" asChild className={navBtn}>
-                <Link to="/admin/dashboard">
+                <Link to="/admin/dashboard" aria-label="Адмін">
                   <User className="mr-2 h-4 w-4" />
                   {t("Адмін", "Admin")}
                 </Link>
@@ -97,7 +97,7 @@ export const Header = () => {
           {/* Mobile Navigation */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="md:hidden">
+              <Button variant="outline" size="sm" className="md:hidden" aria-label="Меню">
                 <Menu className="h-4 w-4" />
                 <span className="ml-2">Меню</span>
               </Button>
