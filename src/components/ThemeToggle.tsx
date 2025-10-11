@@ -1,4 +1,3 @@
-// ThemeToggle.tsx
 import { useEffect } from "react";
 import { Moon, Sun, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
