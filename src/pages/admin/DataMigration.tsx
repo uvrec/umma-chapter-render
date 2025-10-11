@@ -1,107 +1,139 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ArrowLeft, Upload, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { verses } from '@/data/verses';
-import { useToast } from '@/hooks/use-toast';
+// src/pages/admin/DataMigration.tsx
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowLeft, Upload, CheckCircle, AlertCircle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { verses } from "@/data/verses";
+import { useToast } from "@/hooks/use-toast";
 
 export default function DataMigration() {
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
   const { toast } = useToast();
+
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
   const [imported, setImported] = useState(false);
 
-  if (!isAdmin) {
-    navigate('/');
-    return null;
-  }
+  // Константи для джерела
+  const BOOK_SLUG = "srimad-bhagavatam";
+  const CHAPTER_NUMBER = 1;
+  const BATCH_SIZE = 10;
+
+  // щоб не оновлювати стан після анмаунту під час імпорту
+  const mountedRef = useRef(true);
+  useEffect(
+    () => () => {
+      mountedRef.current = false;
+    },
+    [],
+  );
+
+  // коректний редірект по правам
+  useEffect(() => {
+    if (user && !isAdmin) navigate("/");
+    if (!user) navigate("/auth");
+  }, [user, isAdmin, navigate]);
+
+  const totalVerses = useMemo(() => verses.length, []);
+  const setSafeProgress = (cur: number) => {
+    if (!mountedRef.current) return;
+    setProgress({ current: cur, total: totalVerses });
+  };
 
   const handleImport = async () => {
     setIsImporting(true);
-    setProgress({ current: 0, total: verses.length });
+    setImported(false);
+    setSafeProgress(0);
 
     try {
-      // Get book and chapter IDs
-      const { data: books } = await supabase
-        .from('books')
-        .select('id')
-        .eq('slug', 'srimad-bhagavatam')
-        .single();
+      // 1) Перевіряємо книгу
+      const { data: book, error: bookErr } = await supabase.from("books").select("id").eq("slug", BOOK_SLUG).single();
 
-      if (!books) {
-        throw new Error('Book not found');
+      if (bookErr || !book?.id) {
+        throw new Error('Книгу не знайдено. Перевірте, що існує book зі slug "srimad-bhagavatam".');
       }
 
-      const { data: chapters } = await supabase
-        .from('chapters')
-        .select('id')
-        .eq('book_id', books.id)
-        .eq('chapter_number', 1)
+      // 2) Перевіряємо главу
+      const { data: chapter, error: chErr } = await supabase
+        .from("chapters")
+        .select("id")
+        .eq("book_id", book.id)
+        .eq("chapter_number", CHAPTER_NUMBER)
         .single();
 
-      if (!chapters) {
-        throw new Error('Chapter not found');
+      if (chErr || !chapter?.id) {
+        throw new Error(`Глава №${CHAPTER_NUMBER} для цієї книги не знайдена. Створіть її перед імпортом.`);
       }
 
-      // Import verses in batches of 10
-      const batchSize = 10;
-      for (let i = 0; i < verses.length; i += batchSize) {
-        const batch = verses.slice(i, i + batchSize);
-        
-        const verseData = batch.map(verse => ({
-          chapter_id: chapters.id,
-          verse_number: verse.number,
-          sanskrit: verse.sanskrit || null,
-          transliteration: verse.transliteration || null,
-          synonyms_ua: verse.synonyms || null,
+      // 3) Пакетний upsert (щоб не дублювати): унікальність очікуємо по (chapter_id, verse_number)
+      // Працює, якщо у БД є унікальний індекс на (chapter_id, verse_number).
+      for (let i = 0; i < totalVerses; i += BATCH_SIZE) {
+        const batch = verses.slice(i, i + BATCH_SIZE);
+
+        const payload = batch.map((v) => ({
+          chapter_id: chapter.id,
+          verse_number: v.number,
+          sanskrit: v.sanskrit || null,
+          transliteration: v.transliteration || null,
+          synonyms_ua: v.synonyms || null,
           synonyms_en: null,
-          translation_ua: verse.translation || null,
+          translation_ua: v.translation || null,
           translation_en: null,
-          commentary_ua: verse.commentary || null,
+          commentary_ua: v.commentary || null,
           commentary_en: null,
-          audio_url: verse.audioUrl || null
+          audio_url: v.audioUrl || null,
         }));
 
-        const { error } = await supabase
-          .from('verses')
-          .insert(verseData);
+        // Використовуємо UPSERT, щоб уникати дублікатів
+        const { error: insErr } = await supabase.from("verses").upsert(payload, {
+          onConflict: "chapter_id,verse_number",
+          ignoreDuplicates: true, // якщо рядок вже існує — пропускаємо
+        });
 
-        if (error) throw error;
+        if (insErr) {
+          // дружнє повідомлення для найтиповіших причин
+          if (insErr.message?.toLowerCase().includes("violates unique constraint")) {
+            throw new Error("Деякі вірші вже існують (унікальність за chapter_id + verse_number). Імпорт зупинено.");
+          }
+          throw insErr;
+        }
 
-        setProgress({ current: Math.min(i + batchSize, verses.length), total: verses.length });
+        setSafeProgress(Math.min(i + batch.length, totalVerses));
       }
 
-      setImported(true);
-      toast({
-        title: 'Success!',
-        description: `Successfully imported ${verses.length} verses`,
-      });
+      if (mountedRef.current) {
+        setImported(true);
+        toast({
+          title: "Готово!",
+          description: `Імпортовано ${totalVerses} віршів`,
+        });
+      }
     } catch (error: any) {
       toast({
-        title: 'Import failed',
-        description: error.message,
-        variant: 'destructive',
+        title: "Помилка імпорту",
+        description: error?.message || "Невідома помилка",
+        variant: "destructive",
       });
-      console.error('Import error:', error);
+      // лог у консоль для дебагу
+      // eslint-disable-next-line no-console
+      console.error("Import error:", error);
     } finally {
-      setIsImporting(false);
+      if (mountedRef.current) setIsImporting(false);
     }
   };
+
+  // Поки перевіряються права — нічого не рендеримо
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/admin/dashboard')}
-          >
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/dashboard")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-3xl font-bold">Data Migration</h1>
@@ -112,40 +144,40 @@ export default function DataMigration() {
             <div>
               <h2 className="text-xl font-semibold mb-2">Import Verses from Data File</h2>
               <p className="text-muted-foreground">
-                This will import all {verses.length} verses from the static data file into the database.
-                This is a one-time operation.
+                Це імпортує всі {totalVerses} віршів з локального файлу даних у базу. Операція ідемпотентна (upsert).
               </p>
             </div>
 
             {imported ? (
               <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                 <CheckCircle className="h-5 w-5" />
-                <span>Successfully imported {verses.length} verses!</span>
+                <span>Успішно імпортовано {totalVerses} віршів!</span>
               </div>
             ) : (
               <>
                 {isImporting && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
-                      <span>Importing verses...</span>
-                      <span>{progress.current} / {progress.total}</span>
+                      <span>Імпорт триває…</span>
+                      <span>
+                        {progress.current} / {progress.total}
+                      </span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
                       <div
                         className="bg-primary h-2 rounded-full transition-all"
-                        style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                        style={{
+                          width:
+                            progress.total > 0 ? `${Math.round((progress.current / progress.total) * 100)}%` : "0%",
+                        }}
                       />
                     </div>
                   </div>
                 )}
 
-                <Button
-                  onClick={handleImport}
-                  disabled={isImporting}
-                  className="w-full"
-                >
+                <Button onClick={handleImport} disabled={isImporting} className="w-full">
                   <Upload className="h-4 w-4 mr-2" />
-                  {isImporting ? 'Importing...' : 'Start Import'}
+                  {isImporting ? "Імпорт…" : "Почати імпорт"}
                 </Button>
               </>
             )}
@@ -153,12 +185,14 @@ export default function DataMigration() {
             <div className="flex items-start gap-2 p-4 bg-muted rounded-lg">
               <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-muted-foreground">
-                <p className="font-medium mb-1">Before importing:</p>
+                <p className="font-medium mb-1">Перед імпортом переконайтесь, що:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>Make sure the book "Srimad-Bhagavatam" exists</li>
-                  <li>Make sure Chapter 1 exists for this book</li>
-                  <li>This will import Ukrainian translations only</li>
-                  <li>English fields will be left empty for manual translation</li>
+                  <li>
+                    Існує книга зі <code>slug</code> "<strong>{BOOK_SLUG}</strong>"
+                  </li>
+                  <li>Для неї існує глава №{CHAPTER_NUMBER}</li>
+                  <li>Українські поля будуть заповнені, англійські — залишаться порожніми</li>
+                  <li>Повторний запуск не створить дублі — використовується upsert</li>
                 </ul>
               </div>
             </div>
