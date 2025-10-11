@@ -61,6 +61,16 @@ import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
 import { PageView } from "./pages/PageView";
+// src/App.tsx або src/routes/AdminRoutes.tsx
+import AudioPlaylistEdit from "@/pages/admin/audio/AudioPlaylistEdit";
+
+// усередині вашого <Routes>:
+<Routes>
+  <Route path="/admin" element={<AdminLayout />}>
+    <Route path="audio-playlists" element={<AudioPlaylistsList />} />
+    <Route path="audio-playlists/:id" element={<AudioPlaylistEdit />} /> {/* ← оце додаєш */}
+  </Route>
+</Routes>;
 
 const queryClient = new QueryClient();
 
