@@ -6,13 +6,35 @@ import { ArrowLeft, Music as MusicIcon, Users, Calendar } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 
+// covers через імпорт (жодних /src/... шляхів у JSX)
+import mantraCover from "@/assets/albums/mantra-prayer.jpg";
+import gopiGitaCover from "@/assets/albums/relief-gopi-gita.jpg";
+import colorCover from "@/assets/albums/color.jpg";
+import radhaKundaCover from "@/assets/albums/the-glories-of-radha-kunda.jpg";
+
+type Track = {
+  id: string;
+  title: string;
+  duration: string;
+  src: string;
+};
+
 export const Music = () => {
-  const albums = [
+  const albums: Array<{
+    id: string;
+    title: string;
+    description: string;
+    cover: string;
+    artist: string;
+    year: string;
+    genre: string;
+    tracks: Track[];
+  }> = [
     {
       id: "krishna-bhajans",
       title: "Мантри та бгаджани",
       description: "Традиційні ведичні мантри та бгаджани для медитації та духовного очищення",
-      cover: "/src/assets/albums/mantra-prayer.jpg",
+      cover: mantraCover,
       artist: "Духовні співаки",
       year: "2023",
       genre: "Мантри",
@@ -21,62 +43,37 @@ export const Music = () => {
           id: "hare-krishna-1",
           title: "Маха-мантра (повільна версія)",
           duration: "12:45",
-          src: "/audio/music/hare-krishna-slow.mp3"
+          src: "/audio/music/hare-krishna-slow.mp3",
         },
         {
-          id: "hare-krishna-2", 
+          id: "hare-krishna-2",
           title: "Маха-мантра (швидка версія)",
           duration: "8:33",
-          src: "/audio/music/hare-krishna-fast.mp3"
+          src: "/audio/music/hare-krishna-fast.mp3",
         },
-        {
-          id: "govinda",
-          title: "Говінда Джайа Джайа",
-          duration: "6:21",
-          src: "/audio/music/govinda.mp3"
-        },
-        {
-          id: "sri-krishna",
-          title: "Шрі Крішна Шаранам Мама",
-          duration: "9:15",
-          src: "/audio/music/sri-krishna.mp3"
-        }
-      ]
+        { id: "govinda", title: "Говінда Джайа Джайа", duration: "6:21", src: "/audio/music/govinda.mp3" },
+        { id: "sri-krishna", title: "Шрі Крішна Шаранам Мама", duration: "9:15", src: "/audio/music/sri-krishna.mp3" },
+      ],
     },
     {
       id: "gopi-gita",
       title: "Ґопі-ґіта",
       description: "Піснеспіви з Шрімад-Бгаґаватам про любов ґопі до Шрі Крішни",
-      cover: "/src/assets/albums/relief-gopi-gita.jpg",
+      cover: gopiGitaCover,
       artist: "Традиційні співи",
-      year: "2023", 
+      year: "2023",
       genre: "Духовні пісні",
       tracks: [
-        {
-          id: "gopi-1",
-          title: "Ґопі-ґіта - Перша пісня",
-          duration: "15:32",
-          src: "/audio/music/gopi-gita-1.mp3"
-        },
-        {
-          id: "gopi-2",
-          title: "Ґопі-ґіта - Друга пісня", 
-          duration: "18:45",
-          src: "/audio/music/gopi-gita-2.mp3"
-        },
-        {
-          id: "gopi-3",
-          title: "Ґопі-ґіта - Третя пісня",
-          duration: "14:28",
-          src: "/audio/music/gopi-gita-3.mp3"
-        }
-      ]
+        { id: "gopi-1", title: "Ґопі-ґіта - Перша пісня", duration: "15:32", src: "/audio/music/gopi-gita-1.mp3" },
+        { id: "gopi-2", title: "Ґопі-ґіта - Друга пісня", duration: "18:45", src: "/audio/music/gopi-gita-2.mp3" },
+        { id: "gopi-3", title: "Ґопі-ґіта - Третя пісня", duration: "14:28", src: "/audio/music/gopi-gita-3.mp3" },
+      ],
     },
     {
       id: "contemporary",
       title: "Сучасна духовна музика",
       description: "Сучасні інтерпретації древніх мантр та бгаджанів",
-      cover: "/src/assets/albums/color.jpg",
+      cover: colorCover,
       artist: "Різні виконавці",
       year: "2024",
       genre: "Fusion",
@@ -85,57 +82,53 @@ export const Music = () => {
           id: "modern-1",
           title: "Радга Крішна (сучасна версія)",
           duration: "5:42",
-          src: "/audio/music/modern-radha-krishna.mp3"
+          src: "/audio/music/modern-radha-krishna.mp3",
         },
         {
           id: "modern-2",
           title: "Ом Намо Бгаґавате (електронна версія)",
           duration: "7:18",
-          src: "/audio/music/modern-om-namo.mp3"
+          src: "/audio/music/modern-om-namo.mp3",
         },
-        {
-          id: "modern-3", 
-          title: "Джапа медитація (ambient)",
-          duration: "20:00",
-          src: "/audio/music/japa-ambient.mp3"
-        }
-      ]
+        { id: "modern-3", title: "Джапа медитація (ambient)", duration: "20:00", src: "/audio/music/japa-ambient.mp3" },
+      ],
     },
     {
       id: "fudo-kazuki",
       title: "Fudo Kazuki - Дискографія",
       description: "Експериментальна духовна музика, ambient, електроніка з елементами традиційних мантр",
-      cover: "/src/assets/albums/the-glories-of-radha-kunda.jpg",
+      cover: radhaKundaCover,
       artist: "Fudo Kazuki",
       year: "2020-2024",
       genre: "Експериментальна",
+      // УВАГА: bandcamp-лінки можуть не грати в <audio> через CORS. Краще self-host або робити зовнішнє відкриття.
       tracks: [
         {
           id: "glories-radha-kunda",
           title: "The Glories of Rādhā-Kuṇḍa",
           duration: "8:42",
-          src: "https://fudokazuki.bandcamp.com/track/the-glories-of-r-dh-ku-a"
+          src: "https://fudokazuki.bandcamp.com/track/the-glories-of-r-dh-ku-a",
         },
         {
           id: "gauranga-track",
           title: "Gauranga",
           duration: "6:33",
-          src: "https://fudokazuki.bandcamp.com/track/gauranga"
+          src: "https://fudokazuki.bandcamp.com/track/gauranga",
         },
         {
           id: "relief-gopi",
           title: "Relief (Gopi Gita)",
           duration: "7:21",
-          src: "https://fudokazuki.bandcamp.com/track/relief-gopi-gita"
+          src: "https://fudokazuki.bandcamp.com/track/relief-gopi-gita",
         },
         {
           id: "childhood-prema",
           title: "Childhood (Prema Bhakti Candrika)",
           duration: "5:15",
-          src: "https://fudokazuki.bandcamp.com/track/childhood-prema-bhakti-candrika"
-        }
-      ]
-    }
+          src: "https://fudokazuki.bandcamp.com/track/childhood-prema-bhakti-candrika",
+        },
+      ],
+    },
   ];
 
   const genres = ["Всі", "Мантри", "Духовні пісні", "Fusion", "Медитація", "Експериментальна"];
@@ -143,10 +136,10 @@ export const Music = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link to="/audiobooks">
+          <Link to="/audio">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Назад до аудіо
@@ -154,33 +147,25 @@ export const Music = () => {
           </Link>
         </div>
 
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
             <MusicIcon className="w-12 h-12 text-primary mr-4" />
-            <h1 className="text-4xl font-bold text-foreground">
-              Духовна музика
-            </h1>
+            <h1 className="text-4xl font-bold text-foreground">Духовна музика</h1>
           </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Мантри, бгаджани та духовні пісні для медитації та внутрішнього розвитку
           </p>
         </div>
 
-        {/* Genre Filter */}
+        {/* Фільтр за жанрами — зараз статичний (можна підключити стан при потребі) */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {genres.map((genre) => (
-            <Button
-              key={genre}
-              variant={genre === "Всі" ? "default" : "outline"}
-              size="sm"
-            >
+            <Button key={genre} variant={genre === "Всі" ? "default" : "outline"} size="sm">
               {genre}
             </Button>
           ))}
         </div>
 
-        {/* Albums */}
         <div className="space-y-12">
           {albums.map((album) => (
             <div key={album.id} className="space-y-6">
@@ -188,22 +173,14 @@ export const Music = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                   <div className="lg:w-64 flex-shrink-0">
                     <div className="aspect-square bg-muted rounded-lg overflow-hidden shadow-lg">
-                      <img
-                        src={album.cover}
-                        alt={album.title}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={album.cover} alt={album.title} className="w-full h-full object-cover" />
                     </div>
                   </div>
-                  
+
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-foreground mb-2">
-                      {album.title}
-                    </h2>
-                    <p className="text-muted-foreground mb-4">
-                      {album.description}
-                    </p>
-                    
+                    <h2 className="text-2xl font-bold text-foreground mb-2">{album.title}</h2>
+                    <p className="text-muted-foreground mb-4">{album.description}</p>
+
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center">
                         <Users className="w-4 h-4 mr-2" />
@@ -221,31 +198,23 @@ export const Music = () => {
                   </div>
                 </div>
               </Card>
-              
-              <PlaylistPlayer
-                tracks={album.tracks}
-                title={album.title}
-                albumCover={album.cover}
-              />
+
+              <PlaylistPlayer tracks={album.tracks} title={album.title} albumCover={album.cover} />
             </div>
           ))}
         </div>
 
-        {/* Support Section */}
         <Card className="p-8 text-center mt-12 bg-gradient-to-r from-primary/5 to-secondary/5">
-          <h3 className="text-2xl font-semibold text-foreground mb-4">
-            Підтримайте музикантів
-          </h3>
+          <h3 className="text-2xl font-semibold text-foreground mb-4">Підтримайте музикантів</h3>
           <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
             Допоможіть нам підтримувати духовних музикантів та створювати нову якісну музику
           </p>
           <Link to="/donation">
-            <Button size="lg">
-              Підтримати проєкт
-            </Button>
+            <Button size="lg">Підтримати проєкт</Button>
           </Link>
         </Card>
       </main>
+
       <Footer />
     </div>
   );
