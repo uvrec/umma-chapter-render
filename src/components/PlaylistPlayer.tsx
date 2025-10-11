@@ -98,7 +98,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
           {/* Album Cover and Track Info */}
           <div className="flex items-center space-x-4">
             {albumCover && (
-              <div className="w-16 h-16 flex-shrink-0">
+              <div className="w-20 h-20 flex-shrink-0">
                 <img src={albumCover} alt={title} className="w-full h-full object-cover rounded-md shadow-md" />
               </div>
             )}

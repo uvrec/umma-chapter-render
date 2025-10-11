@@ -73,17 +73,22 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
 
       if (upErr) throw upErr;
 
-      // 2) створення запису у audio_tracks
+      // 2) отримання публічного URL
+      const { data: urlData } = supabase
+        .storage
+        .from("audio")
+        .getPublicUrl(path);
+
+      // 3) створення запису у audio_tracks
       const { error: insErr } = await supabase
         .from("audio_tracks")
         .insert({
           playlist_id: playlistId,
           title_ua: titleUa,
+          title_en: titleUa,
           track_number: trackNo ?? null,
           duration: durationSec ?? null,
-          storage_path: path,   // <— ключове поле
-          audio_url: null,      // signed URL НЕ зберігаємо
-          is_published: true,
+          audio_url: urlData.publicUrl,
         });
 
       if (insErr) throw insErr;

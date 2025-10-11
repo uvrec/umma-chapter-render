@@ -40,9 +40,7 @@ export default function AudioPlaylistEdit() {
       if (!playlist?.tracks) return;
       const out = [];
       for (const t of playlist.tracks) {
-        const src = t.storage_path
-          ? await getSignedAudioUrl(t.storage_path)
-          : (t.audio_url ?? "");
+        const src = t.audio_url ?? "";
         out.push({
           id: t.id,
           title: t.title_ua ?? t.title_en ?? "Без назви",
@@ -90,7 +88,7 @@ export default function AudioPlaylistEdit() {
                     <div>
                       <div className="font-medium">{t.track_number ? `${t.track_number}. ` : ""}{t.title_ua || t.title_en}</div>
                       <div className="text-xs text-muted-foreground">
-                        {t.storage_path ? `storage: ${t.storage_path}` : (t.audio_url ? "link" : "—")}
+                        {t.audio_url ? "audio url" : "—"}
                         {t.duration ? ` • ${t.duration}s` : ""}
                       </div>
                     </div>

@@ -87,8 +87,7 @@ export default function AudioPlaylists() {
         .from("audio_playlists")
         .insert({
           title_ua: "Новий плейліст",
-          is_published: false,
-          display_order: 100000, // або залиш порожнім — якщо маєш тригер/дефолт
+          title_en: "New Playlist",
           category_id: selectedCategory !== "all" ? selectedCategory : null,
         })
         .select("id")

@@ -78,15 +78,14 @@ export const BhagavadGita = () => {
     queryKey: ["audiobook-tracks", playlist?.id],
     enabled: !!playlist?.id,
     queryFn: async (): Promise<TrackRow[]> => {
+      if (!playlist?.id) return [];
       // підлаштуйте сортування під вашу схему: display_order або track_number
       const { data, error } = await supabase
         .from("audio_tracks")
         .select("*")
-        .eq("playlist_id", playlist!.id)
-        .eq("is_published", true)
-        .order("display_order", { ascending: true }) // якщо є
-        .order("track_number", { ascending: true }) // або запасний ключ
-        .order("title_ua", { ascending: true }); // стабілізатор
+        .eq("playlist_id", playlist.id)
+        .order("track_number", { ascending: true, nullsFirst: false })
+        .order("title_ua", { ascending: true });
 
       if (error) throw error;
       return data ?? [];
@@ -151,8 +150,8 @@ export const BhagavadGita = () => {
             <div className="lg:col-span-1">
               <Card className="p-6">
                 {cover && (
-                  <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
-                    <img src={cover} alt={title} className="w-full h-full object-cover" />
+                  <div className="w-full max-w-xs mx-auto mb-6 bg-muted rounded-lg overflow-hidden">
+                    <img src={cover} alt={title} className="w-full h-auto object-cover" />
                   </div>
                 )}
 

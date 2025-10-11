@@ -29,7 +29,14 @@ export const VedaReaderDB = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Глобальний розмір шрифту для сторінки рідера
-  const [fontSize, setFontSize] = useState(18);
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem("vv_reader_fontSize");
+    return saved ? Number(saved) : 18;
+  });
+  const [lineHeight, setLineHeight] = useState(() => {
+    const saved = localStorage.getItem("vv_reader_lineHeight");
+    return saved ? Number(saved) : 1.6;
+  });
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [dualLanguageMode, setDualLanguageMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
@@ -50,6 +57,15 @@ export const VedaReaderDB = () => {
     showTranslation: true,
     showCommentary: true,
   });
+
+  // Persist settings
+  useEffect(() => {
+    localStorage.setItem("vv_reader_fontSize", String(fontSize));
+  }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem("vv_reader_lineHeight", String(lineHeight));
+  }, [lineHeight]);
 
   // Витягає відображуваний номер (останній сегмент)
   const getDisplayVerseNumber = (verseNumber: string): string => {
@@ -339,7 +355,7 @@ export const VedaReaderDB = () => {
   // Глобальне застосування розміру шрифту до контенту рідера
   const readerStyle: React.CSSProperties = {
     fontSize: `${fontSize}px`,
-    lineHeight: 1.6,
+    lineHeight: lineHeight,
   };
 
   return (

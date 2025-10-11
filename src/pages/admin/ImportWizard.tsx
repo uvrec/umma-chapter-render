@@ -145,7 +145,6 @@ export default function ImportWizard() {
             <PreviewStep
               chapter={selectedChapter}
               allChapters={chapters}
-              template={selectedTemplate} // (якщо ваш PreviewStep це підтримує)
               onBack={() => setCurrentStep("chapters")}
               onComplete={() => navigate("/admin/dashboard")}
             />
