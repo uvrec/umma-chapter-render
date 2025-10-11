@@ -1,18 +1,31 @@
-import { useState } from "react";
+// src/pages/admin/ImportWizard.tsx
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Upload, Settings, List, Eye } from "lucide-react";
+
 import { UploadStep } from "@/components/admin/import/UploadStep";
 import { MappingStep } from "@/components/admin/import/MappingStep";
 import { ChapterPickerStep } from "@/components/admin/import/ChapterPickerStep";
 import { PreviewStep } from "@/components/admin/import/PreviewStep";
+
 import { ParsedChapter, ImportTemplate } from "@/types/book-import";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Step = "upload" | "mapping" | "chapters" | "preview";
 
 export default function ImportWizard() {
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
+
+  // редірект, якщо не адмін
+  useEffect(() => {
+    if (!user || !isAdmin) navigate("/auth");
+  }, [user, isAdmin, navigate]);
+
+  if (!user || !isAdmin) return null;
 
   const [currentStep, setCurrentStep] = useState<Step>("upload");
   const [extractedText, setExtractedText] = useState<string>("");
@@ -21,16 +34,20 @@ export default function ImportWizard() {
   const [chapters, setChapters] = useState<ParsedChapter[]>([]);
   const [selectedChapter, setSelectedChapter] = useState<ParsedChapter | null>(null);
 
-  // статус/помилка завантаження
+  // статуси/помилки кроків (контролюються з дочірніх компонентів)
   const [importStatus, setImportStatus] = useState<string>("");
   const [importError, setImportError] = useState<string>("");
 
-  const steps: { id: Step; label: string; icon: any }[] = [
-    { id: "upload", label: "Завантаження", icon: Upload },
-    { id: "mapping", label: "Налаштування", icon: Settings },
-    { id: "chapters", label: "Вибір глави", icon: List },
-    { id: "preview", label: "Попередній перегляд", icon: Eye },
-  ];
+  const steps = useMemo(
+    () =>
+      [
+        { id: "upload", label: "Завантаження", icon: Upload },
+        { id: "mapping", label: "Налаштування", icon: Settings },
+        { id: "chapters", label: "Вибір глави", icon: List },
+        { id: "preview", label: "Попередній перегляд", icon: Eye },
+      ] as { id: Step; label: string; icon: React.ComponentType<any> }[],
+    [],
+  );
 
   const currentStepIndex = steps.findIndex((s) => s.id === currentStep);
 
@@ -47,7 +64,7 @@ export default function ImportWizard() {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {/* Steps indicator */}
+        {/* Індикатор кроків */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             {steps.map((step, index) => {
@@ -59,13 +76,15 @@ export default function ImportWizard() {
                 <div key={step.id} className="flex items-center flex-1">
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      className={[
+                        "w-10 h-10 rounded-full flex items-center justify-center",
                         isActive
                           ? "bg-primary text-primary-foreground"
                           : isCompleted
                             ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                      }`}
+                            : "bg-muted text-muted-foreground",
+                      ].join(" ")}
+                      aria-current={isActive ? "step" : undefined}
                     >
                       <Icon className="w-5 h-5" />
                     </div>
@@ -126,6 +145,7 @@ export default function ImportWizard() {
             <PreviewStep
               chapter={selectedChapter}
               allChapters={chapters}
+              template={selectedTemplate} // (якщо ваш PreviewStep це підтримує)
               onBack={() => setCurrentStep("chapters")}
               onComplete={() => navigate("/admin/dashboard")}
             />
