@@ -1,31 +1,81 @@
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, BookOpen, User, Music } from "lucide-react";
+import { ArrowLeft, User, Music } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Footer } from "@/components/Footer";
+
+type Track = {
+  id: string;
+  title_ua?: string | null;
+  title_en?: string | null;
+  audio_url: string | null;
+  duration?: number | null;
+  track_number?: number | null;
+  is_published?: boolean | null;
+};
+
+type Playlist = {
+  id: string;
+  title_ua?: string | null;
+  title_en?: string | null;
+  author?: string | null;
+  year?: number | null;
+  cover_image_url?: string | null;
+  description_ua?: string | null;
+  description_en?: string | null;
+  is_published?: boolean | null;
+  tracks?: Track[];
+};
+
+function formatDuration(seconds?: number | null) {
+  if (!seconds || seconds <= 0) return "0:00";
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m}:${`${s}`.padStart(2, "0")}`;
+}
 
 export const AudiobookView = () => {
   const { id } = useParams<{ id: string }>();
 
-  // Fetch audiobook details
   const { data: audiobook, isLoading } = useQuery({
-    queryKey: ['audiobook', id],
-    queryFn: async () => {
+    queryKey: ["audiobook", id],
+    enabled: !!id,
+    queryFn: async (): Promise<Playlist | null> => {
+      // тягнемо плейлист з вкладеними треками
       const { data, error } = await supabase
-        .from('audio_playlists')
-        .select(`
+        .from("audio_playlists")
+        .select(
+          `
           *,
           tracks:audio_tracks(*)
-        `)
-        .eq('id', id)
-        .single();
-      
+        `,
+        )
+        .eq("id", id)
+        .eq("is_published", true) // показуємо тільки опублікований плейлист
+        .order("track_number", { foreignTable: "audio_tracks", ascending: true })
+        .maybeSingle();
+
       if (error) throw error;
-      return data;
-    }
+      if (!data) return null;
+
+      // фільтруємо треки (якщо у вас є поле is_published у audio_tracks)
+      const filteredTracks =
+        (data.tracks as Track[] | undefined)?.filter((t) => t.audio_url && (t.is_published ?? true)) ?? [];
+
+      // на випадок, якщо на рівні БД сорт не спрацював/відсутній track_number
+      filteredTracks.sort((a, b) => {
+        const A = a.track_number ?? Number.MAX_SAFE_INTEGER;
+        const B = b.track_number ?? Number.MAX_SAFE_INTEGER;
+        if (A !== B) return A - B;
+        // fallback: по id (стабільність відображення)
+        return String(a.id).localeCompare(String(b.id));
+      });
+
+      return { ...data, tracks: filteredTracks } as Playlist;
+    },
   });
 
   if (isLoading) {
@@ -52,54 +102,54 @@ export const AudiobookView = () => {
     );
   }
 
-  // Convert tracks to format expected by PlaylistPlayer
-  const tracks = audiobook.tracks?.map((track: any, index: number) => ({
-    id: track.id,
-    title: track.title_ua,
-    duration: track.duration ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}` : "0:00",
-    src: track.audio_url
-  })) || [];
+  const tracks =
+    audiobook.tracks?.map((track) => ({
+      id: track.id,
+      title: track.title_ua || track.title_en || "Без назви",
+      duration: formatDuration(track.duration),
+      src: track.audio_url!,
+    })) ?? [];
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
-          {/* Back Button */}
+          {/* Back */}
           <Link to="/audiobooks" className="inline-flex items-center mb-6 text-primary hover:text-primary/80">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад до аудіокниг
           </Link>
 
           <div className="grid gap-8 lg:grid-cols-3">
-            {/* Book Info */}
+            {/* Info */}
             <div className="lg:col-span-1">
               <Card className="p-6">
                 {audiobook.cover_image_url && (
                   <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
-                    <img 
-                      src={audiobook.cover_image_url} 
-                      alt={audiobook.title_ua} 
+                    <img
+                      src={audiobook.cover_image_url}
+                      alt={audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 )}
-                
+
                 <div className="space-y-4">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-2">
-                      {audiobook.title_ua}
+                      {audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
                     </h1>
                     {audiobook.author && (
-                      <div className="flex items-center space-x-2 text-muted-foreground">
+                      <div className="flex items-center gap-2 text-muted-foreground">
                         <User className="w-4 h-4" />
                         <span>{audiobook.author}</span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-1">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
                       <Music className="w-4 h-4" />
                       <span>{tracks.length} треків</span>
                     </div>
@@ -114,18 +164,14 @@ export const AudiobookView = () => {
                   {audiobook.description_ua && (
                     <div className="prose prose-sm text-foreground">
                       <h3 className="text-lg font-semibold mb-2">Про книгу</h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {audiobook.description_ua}
-                      </p>
+                      <p className="text-muted-foreground leading-relaxed">{audiobook.description_ua}</p>
                     </div>
                   )}
 
                   {audiobook.description_en && (
                     <div className="prose prose-sm text-foreground">
                       <h3 className="text-lg font-semibold mb-2">About</h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {audiobook.description_en}
-                      </p>
+                      <p className="text-muted-foreground leading-relaxed">{audiobook.description_en}</p>
                     </div>
                   )}
                 </div>
@@ -135,10 +181,10 @@ export const AudiobookView = () => {
             {/* Player */}
             <div className="lg:col-span-2">
               {tracks.length > 0 ? (
-                <PlaylistPlayer 
-                  tracks={tracks} 
-                  title={audiobook.title_ua}
-                  albumCover={audiobook.cover_image_url}
+                <PlaylistPlayer
+                  tracks={tracks}
+                  title={audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
+                  albumCover={audiobook.cover_image_url || undefined}
                 />
               ) : (
                 <Card className="p-8 text-center">
