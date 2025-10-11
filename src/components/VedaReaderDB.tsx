@@ -355,14 +355,14 @@ export const VedaReaderDB = () => {
   // Глобальне застосування розміру шрифту до контенту рідера
   const readerStyle: React.CSSProperties = {
     fontSize: `${fontSize}px`,
-    lineHeight: lineHeight,
+    // line-height керуємо з SettingsPanel через data-reader-root
   };
 
   return (
     <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
       <Header />
 
-      <div className="container mx-auto px-4 py-8" style={readerStyle}>
+      <div className="container mx-auto px-4 py-8" style={readerStyle} data-reader-root="true">
         <Breadcrumb
           items={
             isCantoMode
