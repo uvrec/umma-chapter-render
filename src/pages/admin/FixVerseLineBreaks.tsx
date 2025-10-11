@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Play, CheckCircle, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { processVerseLineBreaks } from '@/utils/import/lineBreaker';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Play, CheckCircle, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { processVerseLineBreaks } from "@/utils/import/lineBreaker";
+
+const PAGE_SIZE = 200; // скільки віршів тягнемо за один раз
+const UPDATE_BATCH = 25; // скільки оновлень послідовно в межах однієї сторінки
 
 export default function FixVerseLineBreaks() {
   const navigate = useNavigate();
@@ -25,66 +28,98 @@ export default function FixVerseLineBreaks() {
     setCompleted(false);
 
     try {
-      // Fetch all verses
-      const { data: verses, error: fetchError } = await supabase
-        .from('verses')
-        .select('id, sanskrit, transliteration, verse_number')
-        .order('id');
+      // 1) Порахуємо загальну кількість віршів БЕЗ розривів рядків
+      const { count: totalToFix, error: countErr } = await supabase
+        .from("verses")
+        .select("id", { count: "exact", head: true })
+        // sanskrit не порожній і НЕ містить \n
+        .not("sanskrit", "is", null)
+        .not("sanskrit", "like", "%\n%");
 
-      if (fetchError) throw fetchError;
-      if (!verses || verses.length === 0) {
-        toast.error('Не знайдено віршів для обробки');
+      if (countErr) throw countErr;
+
+      const totalCount = totalToFix || 0;
+      setTotal(totalCount);
+
+      if (totalCount === 0) {
+        toast.info("Нічого виправляти — усі вірші вже мають розриви рядків.");
+        setCompleted(true);
         setIsProcessing(false);
         return;
       }
 
-      setTotal(verses.length);
       const errorMessages: string[] = [];
+      let processedSoFar = 0;
 
-      // Process each verse
-      for (let i = 0; i < verses.length; i++) {
-        const verse = verses[i];
-        
-        try {
-          // Only process if verse has Sanskrit text without line breaks
-          if (verse.sanskrit && !verse.sanskrit.includes('\n')) {
-            const processed = processVerseLineBreaks({
-              sanskrit: verse.sanskrit,
-              transliteration: verse.transliteration
-            });
+      // 2) Пагінація: ідемо сторінками по PAGE_SIZE
+      for (let page = 0; ; page++) {
+        const from = page * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
 
-            // Update the verse
-            const { error: updateError } = await supabase
-              .from('verses')
-              .update({
-                sanskrit: processed.sanskrit,
-                transliteration: processed.transliteration
-              })
-              .eq('id', verse.id);
+        const { data: pageVerses, error: fetchErr } = await supabase
+          .from("verses")
+          .select("id, verse_number, sanskrit, transliteration", { count: "exact" })
+          .not("sanskrit", "is", null)
+          .not("sanskrit", "like", "%\n%")
+          .order("id", { ascending: true })
+          .range(from, to);
 
-            if (updateError) {
-              errorMessages.push(`Вірш ${verse.verse_number}: ${updateError.message}`);
+        if (fetchErr) throw fetchErr;
+
+        if (!pageVerses || pageVerses.length === 0) break;
+
+        // 3) У межах сторінки — оброблюємо невеликими "підпакетами"
+        for (let i = 0; i < pageVerses.length; i += UPDATE_BATCH) {
+          const slice = pageVerses.slice(i, i + UPDATE_BATCH);
+
+          // послідовні оновлення (надiйно для RLS/триггерів)
+          for (const verse of slice) {
+            try {
+              // ще одна локальна перевірка (на випадок, якщо текст змінився між запитами)
+              if (verse.sanskrit && !verse.sanskrit.includes("\n")) {
+                const fixed = processVerseLineBreaks({
+                  sanskrit: verse.sanskrit,
+                  transliteration: verse.transliteration,
+                });
+
+                const { error: updateErr } = await supabase
+                  .from("verses")
+                  .update({
+                    sanskrit: fixed.sanskrit,
+                    transliteration: fixed.transliteration,
+                  })
+                  .eq("id", verse.id);
+
+                if (updateErr) {
+                  errorMessages.push(`Вірш ${verse.verse_number}: ${updateErr.message}`);
+                }
+              }
+            } catch (err) {
+              errorMessages.push(
+                `Вірш ${verse.verse_number}: ${err instanceof Error ? err.message : "Помилка обробки"}`,
+              );
             }
-          }
-        } catch (err) {
-          errorMessages.push(`Вірш ${verse.verse_number}: ${err instanceof Error ? err.message : 'Помилка обробки'}`);
-        }
 
-        setProcessed(i + 1);
-        setProgress(((i + 1) / verses.length) * 100);
+            processedSoFar += 1;
+            setProcessed((prev) => prev + 1);
+            setProgress((processedSoFar / totalCount) * 100);
+          }
+        }
       }
 
       setErrors(errorMessages);
       setCompleted(true);
 
       if (errorMessages.length === 0) {
-        toast.success(`Успішно оброблено ${verses.length} віршів`);
+        toast.success(`Успішно оброблено ${processedSoFar} віршів`);
       } else {
-        toast.warning(`Оброблено з помилками. Успішно: ${verses.length - errorMessages.length}, Помилок: ${errorMessages.length}`);
+        toast.warning(
+          `Оброблено з помилками. Успішно: ${processedSoFar - errorMessages.length}, Помилок: ${errorMessages.length}`,
+        );
       }
     } catch (error) {
-      console.error('Error processing verses:', error);
-      toast.error('Помилка під час обробки віршів');
+      console.error("Error processing verses:", error);
+      toast.error("Помилка під час обробки віршів");
     } finally {
       setIsProcessing(false);
     }
@@ -94,31 +129,16 @@ export default function FixVerseLineBreaks() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/admin/dashboard')}
-            className="mb-6"
-          >
+          <Button variant="ghost" onClick={() => navigate("/admin/dashboard")} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Повернутися
           </Button>
 
           <h1 className="text-3xl font-bold mb-2">Виправлення розривів рядків у віршах</h1>
           <p className="text-muted-foreground mb-8">
-            Цей інструмент автоматично додає правильні розриви рядків до санскриту та транслітерації
-            на основі пунктуації деванагарі (।, ॥).
+            Інструмент додає правильні розриви рядків у санскриті/транслітерації за дандами (।, ॥). Обробляємо лише ті
+            вірші, де ще немає перенесень.
           </p>
-
-          <Card className="p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Що робить цей інструмент?</h2>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-              <li>Розділяє інвокації (ॐ) на окремі рядки</li>
-              <li>Додає розриви рядків після одинарної данди (।)</li>
-              <li>Зберігає подвійну данду (॥) з номерами віршів разом</li>
-              <li>Вирівнює транслітерацію з санскритом</li>
-              <li>Обробляє лише вірші, які ще не мають розривів рядків</li>
-            </ul>
-          </Card>
 
           {!isProcessing && !completed && (
             <Card className="p-6">
@@ -126,8 +146,7 @@ export default function FixVerseLineBreaks() {
                 <Play className="w-12 h-12 mx-auto mb-4 text-primary" />
                 <h3 className="text-lg font-semibold mb-2">Готові розпочати?</h3>
                 <p className="text-muted-foreground mb-6">
-                  Натисніть кнопку нижче, щоб обробити всі вірші в базі даних.
-                  Це може зайняти кілька хвилин залежно від кількості віршів.
+                  Натисніть кнопку нижче, щоб обробити всі релевантні вірші. Це може зайняти певний час.
                 </p>
                 <Button onClick={processVerses} size="lg">
                   <Play className="w-4 h-4 mr-2" />
@@ -150,7 +169,7 @@ export default function FixVerseLineBreaks() {
                   <Progress value={progress} className="h-2" />
                 </div>
                 <p className="text-sm text-muted-foreground text-center">
-                  Будь ласка, не закривайте цю сторінку під час обробки
+                  Будь ласка, не закривайте сторінку під час обробки
                 </p>
               </div>
             </Card>
@@ -162,15 +181,13 @@ export default function FixVerseLineBreaks() {
                 {errors.length === 0 ? (
                   <>
                     <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-                    <h3 className="text-lg font-semibold mb-2">Обробка завершена успішно!</h3>
-                    <p className="text-muted-foreground">
-                      Оброблено {processed} віршів без помилок.
-                    </p>
+                    <h3 className="text-lg font-semibold mb-2">Готово!</h3>
+                    <p className="text-muted-foreground">Оброблено {processed} віршів без помилок.</p>
                   </>
                 ) : (
                   <>
                     <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-500" />
-                    <h3 className="text-lg font-semibold mb-2">Обробка завершена з попередженнями</h3>
+                    <h3 className="text-lg font-semibold mb-2">Завершено з попередженнями</h3>
                     <p className="text-muted-foreground mb-4">
                       Успішно: {processed - errors.length}, Помилок: {errors.length}
                     </p>
@@ -183,9 +200,9 @@ export default function FixVerseLineBreaks() {
                   <h4 className="font-semibold mb-2">Помилки:</h4>
                   <div className="bg-muted p-4 rounded-lg max-h-60 overflow-y-auto">
                     <ul className="space-y-1 text-sm">
-                      {errors.map((error, index) => (
-                        <li key={index} className="text-destructive">
-                          {error}
+                      {errors.map((err, i) => (
+                        <li key={i} className="text-destructive">
+                          {err}
                         </li>
                       ))}
                     </ul>
@@ -194,12 +211,10 @@ export default function FixVerseLineBreaks() {
               )}
 
               <div className="flex gap-4 justify-center">
-                <Button variant="outline" onClick={() => navigate('/admin/dashboard')}>
+                <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
                   Повернутися до панелі
                 </Button>
-                <Button onClick={() => window.location.reload()}>
-                  Запустити знову
-                </Button>
+                <Button onClick={() => window.location.reload()}>Запустити знову</Button>
               </div>
             </Card>
           )}
