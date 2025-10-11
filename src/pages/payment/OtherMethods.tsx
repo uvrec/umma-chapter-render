@@ -29,14 +29,6 @@ export const OtherMethods = () => {
       action: "Відкрити Monobank",
       link: "https://send.monobank.ua/jar/YAmYDYgti",
     },
-    // приклад елемента без link (буде копіювати address)
-    // {
-    //   name: "Crypto",
-    //   description: "USDT (TRC20)",
-    //   icon: "🪙",
-    //   action: "Скопіювати адресу",
-    //   address: "TXYZ...123",
-    // },
   ];
 
   const copyToClipboard = async (text: string) => {
