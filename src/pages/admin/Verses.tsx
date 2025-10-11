@@ -1,94 +1,89 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Edit } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, Plus, Edit } from "lucide-react";
 
 const Verses = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const [selectedBookId, setSelectedBookId] = useState<string>('');
-  const [selectedCantoId, setSelectedCantoId] = useState<string>('');
-  const [selectedChapterId, setSelectedChapterId] = useState<string>('');
+  const [selectedBookId, setSelectedBookId] = useState<string>("");
+  const [selectedCantoId, setSelectedCantoId] = useState<string>("");
+  const [selectedChapterId, setSelectedChapterId] = useState<string>("");
 
   useEffect(() => {
     if (!user || !isAdmin) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, isAdmin, navigate]);
 
   const { data: books } = useQuery({
-    queryKey: ['admin-books'],
+    queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase.from('books').select('*').order('title_ua');
+      const { data, error } = await supabase.from("books").select("*").order("title_ua");
       if (error) throw error;
       return data;
     },
-    enabled: !!user && isAdmin
+    enabled: !!user && isAdmin,
   });
 
-  const selectedBook = books?.find(b => b.id === selectedBookId);
+  const selectedBook = books?.find((b) => b.id === selectedBookId);
 
   const { data: cantos } = useQuery({
-    queryKey: ['admin-cantos', selectedBookId],
+    queryKey: ["admin-cantos", selectedBookId],
     queryFn: async () => {
       if (!selectedBookId) return [];
       const { data, error } = await supabase
-        .from('cantos')
-        .select('*')
-        .eq('book_id', selectedBookId)
-        .order('canto_number');
+        .from("cantos")
+        .select("*")
+        .eq("book_id", selectedBookId)
+        .order("canto_number");
       if (error) throw error;
       return data;
     },
-    enabled: !!selectedBookId && !!selectedBook?.has_cantos
+    enabled: !!selectedBookId && !!selectedBook?.has_cantos,
   });
 
   const { data: chapters } = useQuery({
-    queryKey: ['admin-chapters', selectedBookId, selectedCantoId],
+    queryKey: ["admin-chapters", selectedBookId, selectedCantoId],
     queryFn: async () => {
       if (!selectedBookId) return [];
-      
-      let query = supabase.from('chapters').select('*, books(title_ua), cantos(title_ua, canto_number)');
-      
+
+      let query = supabase.from("chapters").select("*, books(title_ua), cantos(title_ua, canto_number)");
+
       if (selectedBook?.has_cantos && selectedCantoId) {
-        query = query.eq('canto_id', selectedCantoId);
+        query = query.eq("canto_id", selectedCantoId);
       } else if (!selectedBook?.has_cantos) {
-        query = query.eq('book_id', selectedBookId);
+        query = query.eq("book_id", selectedBookId);
       } else {
         return [];
       }
-      
-      const { data, error } = await query.order('chapter_number');
+
+      const { data, error } = await query.order("chapter_number");
       if (error) throw error;
       return data;
     },
-    enabled: !!selectedBookId && (!!selectedCantoId || !selectedBook?.has_cantos)
+    enabled: !!selectedBookId && (!!selectedCantoId || !selectedBook?.has_cantos),
   });
 
-  // Helper to parse verse numbers for correct sorting
-  const parseVerseNumber = (verseNum: string): number => {
-    const parts = verseNum.split('.').map(p => parseInt(p, 10) || 0);
-    return parts[0] * 1000000 + (parts[1] || 0) * 1000 + (parts[2] || 0);
-  };
-
+  // Вірші: сортуємо одразу в БД по verse_number_sort (генерована колонка)
   const { data: verses, isLoading } = useQuery({
-    queryKey: ['admin-verses', selectedChapterId],
+    queryKey: ["admin-verses", selectedChapterId],
     queryFn: async () => {
       if (!selectedChapterId) return [];
       const { data, error } = await supabase
-        .from('verses')
-        .select('*')
-        .eq('chapter_id', selectedChapterId);
+        .from("verses")
+        .select("*")
+        .eq("chapter_id", selectedChapterId)
+        .order("verse_number_sort", { ascending: true });
       if (error) throw error;
-      // Sort client-side for correct ordering
-      return (data || []).sort((a, b) => parseVerseNumber(a.verse_number) - parseVerseNumber(b.verse_number));
+      return data || [];
     },
-    enabled: !!selectedChapterId
+    enabled: !!selectedChapterId,
   });
 
   if (!user || !isAdmin) return null;
@@ -123,11 +118,14 @@ const Verses = () => {
         <div className="space-y-4 mb-6">
           <div>
             <label className="text-sm font-medium mb-2 block">Оберіть книгу</label>
-            <Select value={selectedBookId} onValueChange={(value) => {
-              setSelectedBookId(value);
-              setSelectedCantoId('');
-              setSelectedChapterId('');
-            }}>
+            <Select
+              value={selectedBookId}
+              onValueChange={(value) => {
+                setSelectedBookId(value);
+                setSelectedCantoId("");
+                setSelectedChapterId("");
+              }}
+            >
               <SelectTrigger className="w-full max-w-md">
                 <SelectValue placeholder="Виберіть книгу" />
               </SelectTrigger>
@@ -144,10 +142,13 @@ const Verses = () => {
           {selectedBook?.has_cantos && (
             <div>
               <label className="text-sm font-medium mb-2 block">Оберіть пісню</label>
-              <Select value={selectedCantoId} onValueChange={(value) => {
-                setSelectedCantoId(value);
-                setSelectedChapterId('');
-              }}>
+              <Select
+                value={selectedCantoId}
+                onValueChange={(value) => {
+                  setSelectedCantoId(value);
+                  setSelectedChapterId("");
+                }}
+              >
                 <SelectTrigger className="w-full max-w-md">
                   <SelectValue placeholder="Виберіть пісню" />
                 </SelectTrigger>
@@ -193,9 +194,7 @@ const Verses = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-semibold text-lg mb-2">{verse.verse_number}</h3>
-                          {verse.sanskrit && (
-                            <p className="text-sm text-muted-foreground mb-2">{verse.sanskrit}</p>
-                          )}
+                          {verse.sanskrit && <p className="text-sm text-muted-foreground mb-2">{verse.sanskrit}</p>}
                           {verse.translation_ua && (
                             <p className="text-sm mb-2">{verse.translation_ua.substring(0, 100)}...</p>
                           )}
