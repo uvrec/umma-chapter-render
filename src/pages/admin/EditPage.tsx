@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,10 +13,26 @@ import { useToast } from "@/hooks/use-toast";
 import { TiptapEditor } from "@/components/blog/TiptapEditor";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
+import { ExternalLink, RotateCcw } from "lucide-react";
 
 const urlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
 
-export const EditPage = () => {
+type PageRow = {
+  slug: string;
+  title_ua: string | null;
+  title_en: string | null;
+  content_ua: string | null;
+  content_en: string | null;
+  meta_description_ua: string | null;
+  meta_description_en: string | null;
+  hero_image_url: string | null;
+  banner_image_url: string | null;
+  og_image: string | null;
+  seo_keywords: string | null;
+  is_published: boolean | null;
+};
+
+export default function EditPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
@@ -35,27 +51,42 @@ export const EditPage = () => {
   const [seoKeywords, setSeoKeywords] = useState("");
   const [isPublished, setIsPublished] = useState(true);
 
+  // redirect non-admin
   useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-    }
+    if (!user || !isAdmin) navigate("/auth");
   }, [user, isAdmin, navigate]);
 
   const { data: page, isLoading } = useQuery({
     queryKey: ["page", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pages")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-      
+    queryFn: async (): Promise<PageRow> => {
+      const { data, error } = await supabase.from("pages").select("*").eq("slug", slug).single();
       if (error) throw error;
-      return data;
+      return data as PageRow;
     },
     enabled: !!user && isAdmin && !!slug,
   });
 
+  // зберігаємо початковий снапшот, щоб визначати "брудність"
+  const initialSnapshot = useMemo(
+    () =>
+      JSON.stringify({
+        titleUa,
+        titleEn,
+        contentUa,
+        contentEn,
+        metaDescriptionUa,
+        metaDescriptionEn,
+        heroImageUrl,
+        bannerImageUrl,
+        ogImage,
+        seoKeywords,
+        isPublished,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  // як тільки прийшла сторінка — заповнюємо поля
   useEffect(() => {
     if (page) {
       setTitleUa(page.title_ua || "");
@@ -72,25 +103,67 @@ export const EditPage = () => {
     }
   }, [page]);
 
+  // dirty state
+  const isDirty = useMemo(() => {
+    const current = JSON.stringify({
+      titleUa,
+      titleEn,
+      contentUa,
+      contentEn,
+      metaDescriptionUa,
+      metaDescriptionEn,
+      heroImageUrl,
+      bannerImageUrl,
+      ogImage,
+      seoKeywords,
+      isPublished,
+    });
+    // якщо initialSnapshot порожній (ще не встановлено) — не блокуємо
+    return initialSnapshot && current !== initialSnapshot;
+  }, [
+    titleUa,
+    titleEn,
+    contentUa,
+    contentEn,
+    metaDescriptionUa,
+    metaDescriptionEn,
+    heroImageUrl,
+    bannerImageUrl,
+    ogImage,
+    seoKeywords,
+    isPublished,
+    initialSnapshot,
+  ]);
+
+  // попередження при виході з незбереженими змінами
+  useEffect(() => {
+    const beforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = ""; // потрібен для більшості браузерів
+      }
+    };
+    window.addEventListener("beforeunload", beforeUnload);
+    return () => window.removeEventListener("beforeunload", beforeUnload);
+  }, [isDirty]);
+
   const updatePageMutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase
-        .from("pages")
-        .update({
-          title_ua: titleUa,
-          title_en: titleEn,
-          content_ua: contentUa,
-          content_en: contentEn,
-          meta_description_ua: metaDescriptionUa,
-          meta_description_en: metaDescriptionEn,
-          hero_image_url: heroImageUrl,
-          banner_image_url: bannerImageUrl,
-          og_image: ogImage,
-          seo_keywords: seoKeywords,
-          is_published: isPublished,
-        })
-        .eq("slug", slug);
+      const payload = {
+        title_ua: titleUa,
+        title_en: titleEn,
+        content_ua: contentUa,
+        content_en: contentEn,
+        meta_description_ua: metaDescriptionUa,
+        meta_description_en: metaDescriptionEn,
+        hero_image_url: heroImageUrl,
+        banner_image_url: bannerImageUrl,
+        og_image: ogImage,
+        seo_keywords: seoKeywords,
+        is_published: isPublished,
+      };
 
+      const { error } = await supabase.from("pages").update(payload).eq("slug", slug);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -101,7 +174,7 @@ export const EditPage = () => {
         description: "Зміни на сторінці збережено",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       toast({
         title: "Помилка",
         description: "Не вдалося зберегти зміни: " + error.message,
@@ -110,39 +183,54 @@ export const EditPage = () => {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!titleUa || !titleEn) {
-      toast({
-        title: "Помилка",
-        description: "Заповніть обов'язкові поля",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Validate URLs
-    const urlFields = [
+  const validateUrls = (): boolean => {
+    const fields = [
       { value: heroImageUrl, name: "Hero зображення" },
       { value: bannerImageUrl, name: "Банер" },
       { value: ogImage, name: "OG зображення" },
     ];
-    
-    for (const field of urlFields) {
-      if (field.value) {
-        const result = urlSchema.safeParse(field.value);
-        if (!result.success) {
-          toast({
-            title: "Помилка валідації",
-            description: `${field.name}: ${result.error.errors[0].message}`,
-            variant: "destructive",
-          });
-          return;
-        }
+    for (const f of fields) {
+      if (!f.value) continue;
+      const res = urlSchema.safeParse(f.value);
+      if (!res.success) {
+        toast({
+          title: "Помилка валідації",
+          description: `${f.name}: ${res.error.errors[0].message}`,
+          variant: "destructive",
+        });
+        return false;
       }
     }
-    
+    return true;
+  };
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!titleUa || !titleEn) {
+      toast({
+        title: "Помилка",
+        description: "Заповніть обов'язкові поля (UA та EN заголовки)",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!validateUrls()) return;
     updatePageMutation.mutate();
+  };
+
+  const handleReset = () => {
+    if (!page) return;
+    setTitleUa(page.title_ua || "");
+    setTitleEn(page.title_en || "");
+    setContentUa(page.content_ua || "");
+    setContentEn(page.content_en || "");
+    setMetaDescriptionUa(page.meta_description_ua || "");
+    setMetaDescriptionEn(page.meta_description_en || "");
+    setHeroImageUrl(page.hero_image_url || "");
+    setBannerImageUrl(page.banner_image_url || "");
+    setOgImage(page.og_image || "");
+    setSeoKeywords(page.seo_keywords || "");
+    setIsPublished(page.is_published ?? true);
   };
 
   if (isLoading) {
@@ -158,7 +246,22 @@ export const EditPage = () => {
             <p className="text-muted-foreground">/{slug}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate("/admin/pages")}>
+            {isPublished && (
+              <a
+                href={`/${slug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center rounded-md border px-3 py-2 text-sm"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Переглянути
+              </a>
+            )}
+            <Button variant="outline" onClick={handleReset} disabled={updatePageMutation.isPending}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Скинути
+            </Button>
+            <Button variant="outline" onClick={() => navigate("/admin/pages")} disabled={updatePageMutation.isPending}>
               Скасувати
             </Button>
             <Button onClick={handleSubmit} disabled={updatePageMutation.isPending}>
@@ -175,11 +278,7 @@ export const EditPage = () => {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <Label htmlFor="isPublished">Опублікувати сторінку</Label>
-                <Switch
-                  id="isPublished"
-                  checked={isPublished}
-                  onCheckedChange={setIsPublished}
-                />
+                <Switch id="isPublished" checked={isPublished} onCheckedChange={setIsPublished} />
               </div>
 
               <Tabs defaultValue="ua" className="w-full">
@@ -191,12 +290,7 @@ export const EditPage = () => {
                 <TabsContent value="ua" className="space-y-4">
                   <div>
                     <Label htmlFor="titleUa">Заголовок *</Label>
-                    <Input
-                      id="titleUa"
-                      value={titleUa}
-                      onChange={(e) => setTitleUa(e.target.value)}
-                      required
-                    />
+                    <Input id="titleUa" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
                   </div>
                   <div>
                     <Label htmlFor="metaDescriptionUa">Meta опис (SEO)</Label>
@@ -209,22 +303,14 @@ export const EditPage = () => {
                   </div>
                   <div>
                     <Label htmlFor="contentUa">Контент</Label>
-                    <TiptapEditor
-                      content={contentUa}
-                      onChange={setContentUa}
-                    />
+                    <TiptapEditor content={contentUa} onChange={setContentUa} />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="en" className="space-y-4">
                   <div>
                     <Label htmlFor="titleEn">Title *</Label>
-                    <Input
-                      id="titleEn"
-                      value={titleEn}
-                      onChange={(e) => setTitleEn(e.target.value)}
-                      required
-                    />
+                    <Input id="titleEn" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required />
                   </div>
                   <div>
                     <Label htmlFor="metaDescriptionEn">Meta Description (SEO)</Label>
@@ -237,10 +323,7 @@ export const EditPage = () => {
                   </div>
                   <div>
                     <Label htmlFor="contentEn">Content</Label>
-                    <TiptapEditor
-                      content={contentEn}
-                      onChange={setContentEn}
-                    />
+                    <TiptapEditor content={contentEn} onChange={setContentEn} />
                   </div>
                 </TabsContent>
               </Tabs>
@@ -305,6 +388,4 @@ export const EditPage = () => {
       </div>
     </div>
   );
-};
-
-export default EditPage;
+}
