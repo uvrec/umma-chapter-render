@@ -2,18 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === ТВОЄ: тема/кольори/блог — ЗАЛИШАЄМО ЯК Є === */
-/* ...весь твій поточний великий блок з :root, .dark, .craft та @layer base... */
-
-/* ▼▼▼ ДОДАНО: змінні та класи читалки ▼▼▼ */
+/* =======================
+   ЧИТАЛКА / ТИПОГРАФІКА
+   ======================= */
 :root {
-  /* Типографіка читалки (дефолти) */
   --vv-reader-font-size: 20px;
   --vv-reader-line-height: 1.6;
   --vv-reader-max-width: 68ch;
 }
 
-/* Базовий контейнер читалки */
 .prose-reader {
   font-size: var(--vv-reader-font-size);
   line-height: var(--vv-reader-line-height);
@@ -22,43 +19,43 @@
   max-width: var(--vv-reader-max-width);
 }
 
-/* Санскрит — більший і центрований */
 .prose-reader .sanskrit,
 .sanskrit-text {
-  font-family: var(--sanskrit-font);
+  font-family: var(--sanskrit-font, "Noto Sans Devanagari", serif);
   font-size: calc(var(--vv-reader-font-size) * 1.6);
   line-height: 1.4;
   text-align: center;
 }
 
-/* Транслітерація */
 .prose-reader .translit {
   font-style: italic;
 }
 
-/* Абзаци/списки — акуратні відступи */
 .prose-reader p,
 .prose-reader li {
   margin: 0.5em 0;
 }
 
-/* Craft-paper підтримка для карток усередині читалки */
+/* поверхня вірша/карток — в один тон з craft-фоном */
 .prose-reader .verse-container {
-  background: var(--gradient-card);
+  background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-verse);
-  transition: var(--transition-smooth);
-}
-.prose-reader .verse-container:hover {
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius, 0.75rem);
+  box-shadow:
+    inset 0 1px 0 hsl(0 0% 100% / 0.35),
+    0 1px 1px hsl(0 0% 0% / 0.06);
+  transition: 150ms ease;
 }
 
-/* ▼▼▼ ПРИБРАНО шаблонні стилі Vite, що ламали верстку ▼▼▼ */
-/* Раніше це центрувало все тіло, підміняло ширину та давало анімації логотипу */
-#root,
-.logo,
-@keyframes logo-spin,
-.read-the-docs {
+/* Прибрано демо-стилі Vite, які центрували все тіло */
+:where(#root, .logo, .read-the-docs) {
   all: unset;
+}
+@keyframes logo-spin {
+  from {
+    transform: none;
+  }
+  to {
+    transform: none;
+  }
 }
