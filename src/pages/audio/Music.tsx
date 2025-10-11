@@ -6,18 +6,8 @@ import { ArrowLeft, Music as MusicIcon, Users, Calendar } from "lucide-react";
 import { Footer } from "@/components/Footer";
 import { Link } from "react-router-dom";
 
-// covers через імпорт (жодних /src/... шляхів у JSX)
-import mantraCover from "@/assets/albums/mantra-prayer.jpg";
-import gopiGitaCover from "@/assets/albums/relief-gopi-gita.jpg";
-import colorCover from "@/assets/albums/color.jpg";
-import radhaKundaCover from "@/assets/albums/the-glories-of-radha-kunda.jpg";
-
-type Track = {
-  id: string;
-  title: string;
-  duration: string;
-  src: string;
-};
+// узгоджений тип для треків
+type Track = { id: string; title: string; duration: string; src: string };
 
 export const Music = () => {
   const albums: Array<{
@@ -34,23 +24,13 @@ export const Music = () => {
       id: "krishna-bhajans",
       title: "Мантри та бгаджани",
       description: "Традиційні ведичні мантри та бгаджани для медитації та духовного очищення",
-      cover: mantraCover,
+      cover: "/src/assets/albums/mantra-prayer.jpg",
       artist: "Духовні співаки",
       year: "2023",
       genre: "Мантри",
       tracks: [
-        {
-          id: "hare-krishna-1",
-          title: "Маха-мантра (повільна версія)",
-          duration: "12:45",
-          src: "/audio/music/hare-krishna-slow.mp3",
-        },
-        {
-          id: "hare-krishna-2",
-          title: "Маха-мантра (швидка версія)",
-          duration: "8:33",
-          src: "/audio/music/hare-krishna-fast.mp3",
-        },
+        { id: "hare-krishna-1", title: "Маха-мантра (повільна версія)", duration: "12:45", src: "/audio/music/hare-krishna-slow.mp3" },
+        { id: "hare-krishna-2", title: "Маха-мантра (швидка версія)", duration: "8:33", src: "/audio/music/hare-krishna-fast.mp3" },
         { id: "govinda", title: "Говінда Джайа Джайа", duration: "6:21", src: "/audio/music/govinda.mp3" },
         { id: "sri-krishna", title: "Шрі Крішна Шаранам Мама", duration: "9:15", src: "/audio/music/sri-krishna.mp3" },
       ],
@@ -59,7 +39,7 @@ export const Music = () => {
       id: "gopi-gita",
       title: "Ґопі-ґіта",
       description: "Піснеспіви з Шрімад-Бгаґаватам про любов ґопі до Шрі Крішни",
-      cover: gopiGitaCover,
+      cover: "/src/assets/albums/relief-gopi-gita.jpg",
       artist: "Традиційні співи",
       year: "2023",
       genre: "Духовні пісні",
@@ -73,61 +53,28 @@ export const Music = () => {
       id: "contemporary",
       title: "Сучасна духовна музика",
       description: "Сучасні інтерпретації древніх мантр та бгаджанів",
-      cover: colorCover,
+      cover: "/src/assets/albums/color.jpg",
       artist: "Різні виконавці",
       year: "2024",
       genre: "Fusion",
       tracks: [
-        {
-          id: "modern-1",
-          title: "Радга Крішна (сучасна версія)",
-          duration: "5:42",
-          src: "/audio/music/modern-radha-krishna.mp3",
-        },
-        {
-          id: "modern-2",
-          title: "Ом Намо Бгаґавате (електронна версія)",
-          duration: "7:18",
-          src: "/audio/music/modern-om-namo.mp3",
-        },
+        { id: "modern-1", title: "Радга Крішна (сучасна версія)", duration: "5:42", src: "/audio/music/modern-radha-krishna.mp3" },
+        { id: "modern-2", title: "Ом Намо Бгаґавате (електронна версія)", duration: "7:18", src: "/audio/music/modern-om-namo.mp3" },
         { id: "modern-3", title: "Джапа медитація (ambient)", duration: "20:00", src: "/audio/music/japa-ambient.mp3" },
       ],
     },
+    // УВАГА: Bandcamp не відтворюється напряму <audio> через CORS. Лиши як зовнішні посилання або додай власні MP3.
     {
       id: "fudo-kazuki",
       title: "Fudo Kazuki - Дискографія",
       description: "Експериментальна духовна музика, ambient, електроніка з елементами традиційних мантр",
-      cover: radhaKundaCover,
+      cover: "/src/assets/albums/the-glories-of-radha-kunda.jpg",
       artist: "Fudo Kazuki",
       year: "2020-2024",
       genre: "Експериментальна",
-      // УВАГА: bandcamp-лінки можуть не грати в <audio> через CORS. Краще self-host або робити зовнішнє відкриття.
       tracks: [
-        {
-          id: "glories-radha-kunda",
-          title: "The Glories of Rādhā-Kuṇḍa",
-          duration: "8:42",
-          src: "https://fudokazuki.bandcamp.com/track/the-glories-of-r-dh-ku-a",
-        },
-        {
-          id: "gauranga-track",
-          title: "Gauranga",
-          duration: "6:33",
-          src: "https://fudokazuki.bandcamp.com/track/gauranga",
-        },
-        {
-          id: "relief-gopi",
-          title: "Relief (Gopi Gita)",
-          duration: "7:21",
-          src: "https://fudokazuki.bandcamp.com/track/relief-gopi-gita",
-        },
-        {
-          id: "childhood-prema",
-          title: "Childhood (Prema Bhakti Candrika)",
-          duration: "5:15",
-          src: "https://fudokazuki.bandcamp.com/track/childhood-prema-bhakti-candrika",
-        },
-      ],
+        // якщо немає локальних файлів — краще зробити список з зовнішніми <a> замість програвача
+      ] as Track[],
     },
   ];
 
@@ -136,9 +83,9 @@ export const Music = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6">
+          {/* Фікс: назад саме до /audio */}
           <Link to="/audio">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -157,7 +104,6 @@ export const Music = () => {
           </p>
         </div>
 
-        {/* Фільтр за жанрами — зараз статичний (можна підключити стан при потребі) */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {genres.map((genre) => (
             <Button key={genre} variant={genre === "Всі" ? "default" : "outline"} size="sm">
@@ -173,7 +119,12 @@ export const Music = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                   <div className="lg:w-64 flex-shrink-0">
                     <div className="aspect-square bg-muted rounded-lg overflow-hidden shadow-lg">
-                      <img src={album.cover} alt={album.title} className="w-full h-full object-cover" />
+                      <img
+                        src={album.cover}
+                        alt={`Обкладинка: ${album.title}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
                     </div>
                   </div>
 
@@ -199,7 +150,13 @@ export const Music = () => {
                 </div>
               </Card>
 
-              <PlaylistPlayer tracks={album.tracks} title={album.title} albumCover={album.cover} />
+              {album.tracks.length > 0 ? (
+                <PlaylistPlayer tracks={album.tracks} title={album.title} albumCover={album.cover} />
+              ) : (
+                <Card className="p-6 text-center text-sm text-muted-foreground">
+                  Для цього альбому відсутні локальні треки. Додайте MP3 у /public/audio або використайте зовнішні посилання як окремі <a>.
+                </Card>
+              )}
             </div>
           ))}
         </div>
@@ -214,7 +171,6 @@ export const Music = () => {
           </Link>
         </Card>
       </main>
-
       <Footer />
     </div>
   );
