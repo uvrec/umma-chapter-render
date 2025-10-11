@@ -66,7 +66,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="veda-ui-theme">
+    <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
       <LanguageProvider>
         <AuthProvider>
           <TooltipProvider>
