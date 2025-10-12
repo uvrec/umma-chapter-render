@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
-import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
+// ⚠️ Прибрано GlobalSettingsPanel, щоб не було двох панелей налаштувань
 import { NewHome } from "./pages/NewHome";
 import { VedaReader } from "./components/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
@@ -66,7 +66,8 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="veda-ui-theme">
+    {/* craft — дефолтна тема, єдиний ключ зберігання */}
+    <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
       <LanguageProvider>
         <AuthProvider>
           <TooltipProvider>
@@ -87,11 +88,10 @@ const App = () => (
                     element={<VedaReaderDB />}
                   />
                   <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
-                  {/* Legacy aliases/redirects for common slugs */}
+                  {/* Legacy aliases/redirects */}
                   <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
                   <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
                   <Route path="/library" element={<Library />} />
-                  {/* Legacy redirects for old library routes */}
                   <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
                   <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
                   <Route path="/audio" element={<Audio />} />
@@ -140,12 +140,11 @@ const App = () => (
                   <Route path="/admin/pages" element={<Pages />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  {/* catch-all */}
                   <Route path="/:slug" element={<PageView />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <GlobalAudioPlayer />
-                <GlobalSettingsPanel />
               </BrowserRouter>
             </AudioProvider>
           </TooltipProvider>
