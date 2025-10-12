@@ -1,6 +1,9 @@
+// src/contexts/ThemeProvider.tsx
+// Оновлено: додано Sepia тему
+
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type Theme = "light" | "dark" | "craft";
+type Theme = "light" | "dark" | "craft" | "sepia";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -17,8 +20,8 @@ const ThemeCtx = createContext<ThemeProviderState | undefined>(undefined);
 
 export function ThemeProvider({
   children,
-  defaultTheme = "craft", // ← craft за замовченням
-  storageKey = "veda-ui-theme", // ← той самий ключ у всьому проєкті
+  defaultTheme = "light", // За замовчуванням світла тема
+  storageKey = "veda-ui-theme",
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
@@ -28,17 +31,20 @@ export function ThemeProvider({
     }
   });
 
-  // Вішай клас теми на <html> і зберігай у localStorage
+  // Застосовуємо клас теми на <html> і зберігаємо в localStorage
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("light", "dark", "craft");
+    root.classList.remove("light", "dark", "craft", "sepia");
     root.classList.add(theme);
     try {
       localStorage.setItem(storageKey, theme);
     } catch {}
   }, [theme, storageKey]);
 
-  const value = useMemo<ThemeProviderState>(() => ({ theme, setTheme: setThemeState }), [theme]);
+  const value = useMemo<ThemeProviderState>(
+    () => ({ theme, setTheme: setThemeState }),
+    [theme]
+  );
 
   return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
 }
