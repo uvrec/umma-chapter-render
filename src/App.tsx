@@ -15,6 +15,7 @@ import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer
 import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
+import SiteBannersAdmin from "@/pages/admin/SiteBanners";
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
 
