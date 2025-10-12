@@ -321,6 +321,21 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader>
+              <CardTitle>Банери</CardTitle>
+              <CardDescription>Управління головною сторінкою</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link to="/admin/site-banners">
+                  <FileEdit className="w-4 h-4 mr-2" />
+                  Редагувати банери
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Повернутися на сайт</CardTitle>
               <CardDescription>Переглянути публічну версію</CardDescription>
             </CardHeader>

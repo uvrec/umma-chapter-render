@@ -13,7 +13,6 @@ import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
-import SiteBanners from "./pages/admin/SiteBanners";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader"; // ← тепер існує
@@ -166,7 +165,7 @@ const App = () => (
                   <Route path="/admin/pages" element={<Pages />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
-
+                  <Route path="/admin/site-banners" element={<SiteBanners />} />
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />
 
