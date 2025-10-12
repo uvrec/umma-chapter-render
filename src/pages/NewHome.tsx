@@ -1,3 +1,9 @@
+Newhome · TSX
+Download
+
+// NewHome.tsx — оновлена версія з карткою "Продовжити прослуховування" у Hero
+// Відповідає PDF шаблону 2: Hero, Continue Listening, SearchStrip, Latest, Playlists
+
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +28,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
+import { useAudio } from "@/components/GlobalAudioPlayer";
 
 // --- Types ---
 type ContentItem = {
@@ -41,7 +48,7 @@ type AudioTrack = {
   playlist_title?: string;
 };
 
-// --- Mini Player ---
+// --- Mini Player (внизу сторінки) ---
 function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -96,8 +103,18 @@ function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
   );
 }
 
-// --- Hero Section ---
+// --- Hero Section (з карткою "Продовжити") ---
 function Hero() {
+  const { currentTrack, isPlaying, togglePlay, currentTime, duration } = useAudio();
+
+  // Функція для форматування часу
+  const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds)) return "00:00";
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
   return (
     <section
       className="relative min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
@@ -134,7 +151,7 @@ function Hero() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button asChild size="lg" className="bg-white text-black hover:bg-white/90">
               <a href="/library">
                 <BookOpen className="w-5 h-5 mr-2" />
@@ -153,6 +170,53 @@ function Hero() {
               </a>
             </Button>
           </div>
+
+          {/* Картка "Продовжити прослуховування" (як у PDF) */}
+          {currentTrack && (
+            <div className="max-w-xl mx-auto">
+              <Card className="bg-card/90 backdrop-blur border-white/20">
+                <CardContent className="p-5">
+                  <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" /> Продовжити прослуховування
+                  </div>
+
+                  <div className="rounded-xl border border-border bg-background/50 p-4">
+                    <div className="mb-2 text-base font-semibold text-foreground">{currentTrack.title}</div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm text-foreground">
+                          {currentTrack.verseNumber ? `Вірш ${currentTrack.verseNumber}` : "Аудіо"}
+                        </div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          {formatTime(duration)} · {isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}
+                        </div>
+                      </div>
+
+                      <Button size="sm" onClick={togglePlay} className="gap-2">
+                        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {isPlaying ? "Пауза" : "Продовжити"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Опційно: Продовжити читання */}
+                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                    <BookOpen className="h-4 w-4" /> Продовжити читання
+                  </div>
+                  <div className="mt-2 rounded-xl border border-border bg-background/50 p-4">
+                    <div className="truncate text-sm font-medium text-foreground">
+                      Останній прочитаний вірш
+                    </div>
+                    <div className="truncate text-xs text-muted-foreground">Відкрийте бібліотеку для продовження</div>
+                    <a href="/library" className="mt-3 inline-flex items-center gap-2 text-sm hover:underline">
+                      Відкрити <ArrowRight className="h-4 w-4" />
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
 
