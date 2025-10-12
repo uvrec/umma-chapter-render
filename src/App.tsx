@@ -4,8 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import SiteBanners from "@/components/SiteBanners";
-
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -82,6 +80,14 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <BrowserRouter>
+                  <SiteBanners />
+                  <Routes>{/* ...твої маршрути... */}</Routes>
+
+                  {/* Глобальний плеєр і панель налаштувань */}
+                  <GlobalAudioPlayer />
+                  <GlobalSettingsPanel />
+                </BrowserRouter>
                 <Routes>
                   <Route path="/" element={<NewHome />} />
 
