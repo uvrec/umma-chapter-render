@@ -2,89 +2,156 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================
+   VEDAVOICE.ORG — Духовна практика в цифровому форматі
+   Читай | Слухай | REPEAT
+   ========================================== */
+
 /* =========================
-   ТЕМИ: повний набір токенів
+   ШРИФТОВІ СТЕКИ
    ========================= */
-
-/* Light (shadcn базова) */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* Основний текст (кирилиця + латиниця) */
+  --font-primary: 'Crimson Text', 'Gaura Times', 'Noto Serif', Georgia, serif;
+  
+  /* Трансліт (діакритика) */
+  --font-translit: 'Gaura Times', 'Crimson Text', 'Noto Serif', serif;
+  
+  /* Деванагарі */
+  --font-devanagari: 'Noto Sans Devanagari', 'Noto Serif Devanagari', serif;
+  
+  /* Бенгалі */
+  --font-bengali: 'Noto Sans Bengali', 'Noto Serif Bengali', serif;
+  
+  /* UI (інтерфейс) */
+  --font-ui: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
 
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --primary-hover: 222.2 47.4% 8%;
-
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-
-  --destructive: 0 100% 50%;
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
-
+/* =========================
+   РОЗМІРИ ЧИТАЛКИ
+   ========================= */
+:root {
+  /* Базовий текст */
+  --vv-reader-font-size: 19px;
+  --vv-reader-line-height: 1.75;
+  --vv-reader-max-width: 45rem;
+  
+  /* Санскрит/Бенгалі */
+  --sanskrit-font-size: 30px;
+  --sanskrit-line-height: 1.5;
+  
+  /* Трансліт */
+  --translit-font-size: 17px;
+  --translit-line-height: 1.6;
+  
+  /* Послівний */
+  --synonyms-font-size: 16px;
+  --synonyms-line-height: 1.65;
+  
+  /* Пояснення */
+  --commentary-font-size: 18px;
+  --commentary-line-height: 1.8;
+  
+  /* Радіуси */
   --radius: 0.75rem;
+}
 
-  /* читалка (дефолти) */
-  --vv-reader-font-size: 20px;
-  --vv-reader-line-height: 1.6;
-  --vv-reader-max-width: 68ch;
+/* =========================
+   ТЕМИ: LIGHT (Теплий Крем)
+   ========================= */
+:root {
+  /* Фон: теплий крем замість чистого білого */
+  --background: 40 60% 96%;
+  --foreground: 30 30% 20%;
+
+  /* Картки: ще світліший крем */
+  --card: 40 55% 98%;
+  --card-foreground: 30 30% 20%;
+
+  /* Popover */
+  --popover: 40 55% 98%;
+  --popover-foreground: 30 30% 20%;
+
+  /* Primary: бурштин */
+  --primary: 33 76% 42%;
+  --primary-foreground: 48 100% 98%;
+  --primary-hover: 33 76% 38%;
+
+  /* Secondary */
+  --secondary: 38 35% 92%;
+  --secondary-foreground: 30 30% 25%;
+
+  /* Muted */
+  --muted: 38 30% 92%;
+  --muted-foreground: 30 20% 45%;
+
+  /* Accent: теплий золотистий */
+  --accent: 38 70% 50%;
+  --accent-foreground: 40 10% 98%;
+
+  /* Destructive */
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 48 100% 98%;
+
+  /* Бордери: ледь помітні */
+  --border: 38 25% 88%;
+  --input: 38 25% 88%;
+  --ring: 33 76% 42%;
 
   color-scheme: light;
 }
 
-/* Dark (shadcn базова, повні токени, щоб меню не було прозорим) */
+/* =========================
+   ТЕМИ: DARK (Теплий Темний)
+   ========================= */
 html.dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
+  /* Фон: теплий темний, не холодний сірий */
+  --background: 30 15% 12%;
+  --foreground: 40 40% 88%;
 
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
+  /* Картки */
+  --card: 30 18% 15%;
+  --card-foreground: 40 40% 88%;
 
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
+  /* Popover */
+  --popover: 30 18% 15%;
+  --popover-foreground: 40 40% 88%;
 
-  --primary: 210 40% 98%;
-  --primary-foreground: 222.2 47.4% 11.2%;
-  --primary-hover: 210 40% 96%;
+  /* Primary: золотистий */
+  --primary: 38 80% 55%;
+  --primary-foreground: 30 10% 10%;
+  --primary-hover: 38 80% 50%;
 
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
+  /* Secondary */
+  --secondary: 28 20% 22%;
+  --secondary-foreground: 40 35% 85%;
 
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
+  /* Muted */
+  --muted: 28 20% 22%;
+  --muted-foreground: 38 25% 65%;
 
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
+  /* Accent */
+  --accent: 38 75% 50%;
+  --accent-foreground: 30 10% 10%;
 
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
+  /* Destructive */
+  --destructive: 0 62% 45%;
+  --destructive-foreground: 40 35% 95%;
 
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 212.7 26.8% 83.9%;
+  /* Бордери */
+  --border: 28 18% 25%;
+  --input: 28 18% 25%;
+  --ring: 38 80% 55%;
 
   color-scheme: dark;
 }
 
-/* Craft-paper (єдиний відтінок для всіх поверхонь, меню і карток) */
+/* =========================
+   ТЕМИ: CRAFT (Папір з фактурою)
+   ========================= */
 html.craft {
-  --background: 39 58% 86%; /* пісочний */
-  --foreground: 26 36% 16%; /* темно-горіховий */
+  --background: 39 58% 86%;
+  --foreground: 26 36% 16%;
 
   --card: 39 58% 86%;
   --card-foreground: 26 36% 16%;
@@ -101,9 +168,10 @@ html.craft {
   --secondary: 36 30% 90%;
   --secondary-foreground: 26 34% 22%;
 
-  --primary: 33 76% 42%; /* бурштин */
+  --primary: 33 76% 42%;
   --primary-foreground: 48 100% 98%;
   --primary-hover: 33 76% 38%;
+  
   --accent: 31 70% 40%;
   --accent-foreground: 48 100% 98%;
 
@@ -111,45 +179,136 @@ html.craft {
   --destructive-foreground: 48 100% 98%;
 
   --ring: 33 76% 42%;
-  --radius: 0.75rem;
 
   color-scheme: light;
 
-  /* легкий фактурний фон */
+  /* Фактурний фон */
   background-color: hsl(var(--background));
   background-image: radial-gradient(hsl(0 0% 0% / 0.035) 1px, transparent 1px);
   background-size: 16px 16px;
 }
 
-/* Базовий текст для будь-якої теми */
+/* =========================
+   ТЕМИ: SEPIA (Ностальгія)
+   ========================= */
+html.sepia {
+  --background: 40 30% 85%;
+  --foreground: 30 40% 25%;
+
+  --card: 40 28% 88%;
+  --card-foreground: 30 40% 25%;
+
+  --popover: 40 28% 88%;
+  --popover-foreground: 30 40% 25%;
+
+  --muted: 38 25% 80%;
+  --muted-foreground: 32 30% 40%;
+
+  --secondary: 38 28% 82%;
+  --secondary-foreground: 30 38% 28%;
+
+  /* Accent: іржастий */
+  --accent: 20 60% 45%;
+  --accent-foreground: 40 25% 95%;
+
+  --primary: 25 55% 40%;
+  --primary-foreground: 40 25% 95%;
+  --primary-hover: 25 55% 35%;
+
+  --destructive: 0 65% 48%;
+  --destructive-foreground: 40 25% 95%;
+
+  --border: 38 20% 75%;
+  --input: 38 20% 75%;
+  --ring: 25 55% 40%;
+
+  color-scheme: light;
+}
+
+/* =========================
+   БАЗОВІ СТИЛІ
+   ========================= */
 html,
 body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* =======================
-   Читалка / типографіка
-   ======================= */
+/* =========================
+   ТИПОГРАФІКА ЧИТАЛКИ
+   ========================= */
 
 .prose-reader {
+  font-family: var(--font-primary);
   font-size: var(--vv-reader-font-size);
   line-height: var(--vv-reader-line-height);
-  text-align: left;
-  margin: 0 auto;
   max-width: var(--vv-reader-max-width);
+  margin: 0 auto;
+  text-align: left;
 }
 
-.prose-reader .sanskrit,
-.sanskrit-text {
-  font-family: var(--sanskrit-font, "Noto Sans Devanagari", serif);
-  font-size: calc(var(--vv-reader-font-size) * 1.6);
-  line-height: 1.4;
+/* Санскрит */
+.sanskrit-text,
+.prose-reader .sanskrit {
+  font-family: var(--font-devanagari);
+  font-size: var(--sanskrit-font-size);
+  line-height: var(--sanskrit-line-height);
   text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin: 0;
 }
 
+/* Бенгалі */
+.bengali-text {
+  font-family: var(--font-bengali);
+  font-size: var(--sanskrit-font-size);
+  line-height: var(--sanskrit-line-height);
+  text-align: center;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Трансліт */
+.translit,
 .prose-reader .translit {
+  font-family: var(--font-translit);
+  font-size: var(--translit-font-size);
+  line-height: var(--translit-line-height);
   font-style: italic;
+  font-weight: 400;
+  text-align: center;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Послівний переклад */
+.synonyms-text {
+  font-size: var(--synonyms-font-size);
+  line-height: var(--synonyms-line-height);
+}
+
+.synonyms-pair {
+  display: inline;
+  margin-right: 0.85em;
+}
+
+.synonyms-term {
+  font-style: italic;
+  color: hsl(var(--accent));
+}
+
+.synonyms-separator {
+  margin: 0 0.3em;
+}
+
+/* Пояснення */
+.commentary-text {
+  font-size: var(--commentary-font-size);
+  line-height: var(--commentary-line-height);
 }
 
 .prose-reader p,
@@ -157,7 +316,10 @@ body {
   margin: 0.5em 0;
 }
 
-/* Єдиний «лист» для блоків вірша/перекладу/пояснення */
+/* =========================
+   КАРТКИ ВІРШІВ
+   ========================= */
+
 .verse-surface,
 .prose-reader .verse-container,
 .card,
@@ -169,14 +331,52 @@ body {
   box-shadow: none;
 }
 
-/* ==== Анти-бордери в зоні читання ==== */
+.verse-surface {
+  padding: 2.5rem 2rem;
+}
+
+/* Секції всередині вірша */
+.verse-section {
+  margin-bottom: 2.5rem;
+}
+
+.verse-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Санскрит блок — особливий */
+.sanskrit-block {
+  padding: 2.5rem 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Трансліт під санскритом */
+.translit-block {
+  padding: 1.5rem 2rem 2rem;
+  margin-top: -1rem;
+  text-align: center;
+}
+
+/* Заголовки секцій */
+.section-header {
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.1em;
+  font-family: var(--font-ui);
+}
+
+/* =========================
+   АНТИ-БОРДЕРИ В ЧИТАЛЬЦІ
+   ========================= */
+
 .prose-reader,
 .verse-surface,
 [data-reader-root="true"] {
-  /* запасний фон, щоб не було контрастної «межі» через злиття полів */
   background: hsl(var(--card));
 }
-/* ховаємо всі hr і role="separator" локально в читанні */
+
+/* Ховаємо всі hr і role="separator" */
 .prose-reader hr,
 .verse-surface hr,
 [data-reader-root="true"] hr,
@@ -189,7 +389,8 @@ body {
   margin: 0 !important;
   padding: 0 !important;
 }
-/* знеактивовуємо будь-які border-t / border-b усередині карток віршів */
+
+/* Знеактивовуємо border-t / border-b */
 .prose-reader [class*="border-t"],
 .verse-surface [class*="border-t"],
 [data-reader-root="true"] [class*="border-t"],
@@ -200,13 +401,15 @@ body {
   border-bottom-width: 0 !important;
   border-color: transparent !important;
 }
-/* вимикаємо розділювачі Tailwind `divide-y` у контейнерах */
+
+/* Вимикаємо divide-y */
 .prose-reader .divide-y > :not([hidden]) ~ :not([hidden]),
 .verse-surface .divide-y > :not([hidden]) ~ :not([hidden]),
 [data-reader-root="true"] .divide-y > :not([hidden]) ~ :not([hidden]) {
   border-top-width: 0 !important;
 }
-/* на випадок, якщо Separator має власний клас */
+
+/* Separator компонент */
 .prose-reader .shadcn-separator,
 .verse-surface .shadcn-separator,
 [data-reader-root="true"] .shadcn-separator {
@@ -215,7 +418,8 @@ body {
   margin: 0 !important;
   border: 0 !important;
 }
-/* якщо десь лишились outline-бордери у секцій */
+
+/* Секції без бордерів */
 .prose-reader section,
 .verse-surface section,
 [data-reader-root="true"] section {
@@ -223,16 +427,118 @@ body {
 }
 
 /* =========================
-   Скидання демо-стилів Vite
+   АДАПТИВНІСТЬ
    ========================= */
+
+/* Desktop (>1200px) */
+@media (min-width: 1200px) {
+  :root {
+    --vv-reader-font-size: 20px;
+    --vv-reader-max-width: 48rem;
+  }
+  
+  .verse-surface {
+    padding: 3rem 2.5rem;
+  }
+}
+
+/* Tablet (768-1199px) */
+@media (min-width: 768px) and (max-width: 1199px) {
+  :root {
+    --vv-reader-font-size: 18px;
+    --sanskrit-font-size: 28px;
+  }
+  
+  .verse-surface {
+    padding: 2rem 1.5rem;
+  }
+}
+
+/* Mobile (<768px) */
+@media (max-width: 767px) {
+  :root {
+    --vv-reader-font-size: 17px;
+    --sanskrit-font-size: 26px;
+    --translit-font-size: 16px;
+  }
+  
+  .verse-surface {
+    padding: 1.5rem 1rem;
+  }
+  
+  .sanskrit-block {
+    padding: 2rem 1rem;
+  }
+  
+  /* Touch targets */
+  button,
+  a {
+    min-height: 44px;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 900px) and (orientation: landscape) {
+  :root {
+    --vv-reader-font-size: 16px;
+  }
+}
+
+/* =========================
+   АУДІО КНОПКИ
+   ========================= */
+
+.audio-button {
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: 50%;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.audio-button:hover {
+  background: hsl(var(--accent) / 0.1);
+  transform: scale(1.05);
+}
+
+.audio-button:active {
+  transform: scale(0.95);
+}
+
+.audio-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =========================
+   UTILITY CLASSES
+   ========================= */
+
+.brand-gradient {
+  background: linear-gradient(135deg, 
+    hsl(33, 76%, 42%) 0%, 
+    hsl(38, 80%, 55%) 100%);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.smooth-transition {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================
+   СКИДАННЯ VITE СТИЛІВ
+   ========================= */
+
 :where(#root, .logo, .read-the-docs) {
   all: unset;
 }
+
 @keyframes logo-spin {
-  from {
-    transform: none;
-  }
-  to {
-    transform: none;
-  }
+  from { transform: none; }
+  to { transform: none; }
 }
