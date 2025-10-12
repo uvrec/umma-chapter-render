@@ -1,3 +1,5 @@
+// src/App.tsx
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import SiteBanners from "@/components/SiteBanners";
+
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -21,6 +24,8 @@ import VedaReader from "./pages/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
+import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
+import { AcharyasBooks } from "./pages/library/AcharyasBooks";
 import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
@@ -79,7 +84,9 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                {/* глобальні банери сайту */}
                 <SiteBanners />
+
                 <Routes>
                   {/* Головна */}
                   <Route path="/" element={<NewHome />} />
@@ -88,6 +95,16 @@ const App = () => (
                   <Route path="/verses" element={<VedaReader />} />
                   <Route path="/verses/:bookId" element={<VedaReader />} />
                   <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+
+                  {/* Нові маршрути читання БД */}
+                  <Route path="/veda-reader/:bookId" element={<BookOverview />} />
+                  <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
+                  <Route
+                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
+                    element={<VedaReaderDB />}
+                  />
+                  <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
 
                   {/* Бібліотека */}
                   <Route path="/library" element={<Library />} />
@@ -102,11 +119,12 @@ const App = () => (
                   <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
                   <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
 
-                  {/* Блог */}
+                  {/* Блог/інше */}
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/audio/podcasts" element={<Podcasts />} />
                   <Route path="/glossary" element={<GlossaryDB />} />
+                  <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
@@ -119,8 +137,12 @@ const App = () => (
                   {/* Admin */}
                   <Route path="/admin/dashboard" element={<Dashboard />} />
                   <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
+
+                  {/* УПРАВЛІННЯ БАНЕРАМИ — приймаємо будь-який із трьох шляхів */}
                   <Route path="/admin/banners" element={<AdminBanners />} />
-                  <Route path="/admin/sitebanners" element={<SiteBannersAdmin />} />
+                  <Route path="/admin/sitebanners" element={<AdminBanners />} />
+                  <Route path="/admin/site-banners" element={<AdminBanners />} />
+
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
                   <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
