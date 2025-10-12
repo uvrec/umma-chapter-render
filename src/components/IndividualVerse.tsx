@@ -1,14 +1,31 @@
+Individualverse · TSX
+Download
+
 // IndividualVerse.tsx — оновлена версія відповідно до PDF шаблону 1
 // Великий заголовок text-6xl, sticky header з іконками, окремі Volume2 кнопки для кожної секції
 
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Header } from "@/components/Header";
+import { Breadcrumb } from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Bookmark, Share2, Download, Settings, Volume2, Home } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { 
+  ArrowLeft, 
+  ChevronLeft, 
+  ChevronRight,
+  Bookmark, 
+  Share2, 
+  Download, 
+  Settings,
+  Volume2,
+  Home
+} from "lucide-react";
 import { verses } from "@/data/verses";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudio } from "@/components/GlobalAudioPlayer";
 import { toast } from "@/hooks/use-toast";
+import { useReaderSettings } from "@/lib/readerSettings";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
@@ -16,31 +33,10 @@ export const IndividualVerse = () => {
   const { isAdmin } = useAuth();
   const { playTrack } = useAudio();
 
-  // Глобальний fontSize із localStorage (синхронізація з GlobalSettingsPanel)
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_fontSize");
-    return saved ? Number(saved) : 18;
-  });
-
-  const [lineHeight, setLineHeight] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_lineHeight");
-    return saved ? Number(saved) : 1.6;
-  });
+  // Використовуємо централізований хук для автоматичної синхронізації
+  const { fontSize, lineHeight } = useReaderSettings();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
-
-  // Слухаємо зміни налаштувань з GlobalSettingsPanel
-  useEffect(() => {
-    const handlePrefsChanged = () => {
-      const newFont = localStorage.getItem("vv_reader_fontSize");
-      const newLH = localStorage.getItem("vv_reader_lineHeight");
-      if (newFont) setFontSize(Number(newFont));
-      if (newLH) setLineHeight(Number(newLH));
-    };
-
-    window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-  }, []);
 
   const getBookTitle = (bid?: string): string => {
     switch (bid) {
@@ -84,12 +80,16 @@ export const IndividualVerse = () => {
   if (!currentVerse) {
     return (
       <div className="min-h-screen bg-background">
+        <Header />
         <main className="container mx-auto px-4 py-8">
           <div className="mx-auto max-w-5xl text-center">
             <h1 className="mb-4 text-2xl font-bold">Вірш не знайдено</h1>
-            <Button variant="outline" onClick={() => navigate(`/verses/${bookId}`)}>
-              Повернутися до читання
-            </Button>
+            <Link to={`/verses/${bookId}`}>
+              <Button variant="outline">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Повернутися до читання
+              </Button>
+            </Link>
           </div>
         </main>
       </div>
