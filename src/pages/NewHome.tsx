@@ -5,6 +5,8 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { InlineBannerEditor } from "@/components/InlineBannerEditor";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -109,9 +111,10 @@ function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
 function Hero() {
   const { currentTrack, isPlaying, togglePlay, currentTime, duration } = useAudio();
   const { language } = useLanguage();
+  const { isAdmin } = useAuth(); // ✅ ДОДАНО
 
   // Завантаження налаштувань з БД
-  const { data: settingsData } = useQuery({
+  const { data: settingsData, refetch } = useQuery({ // ✅ ДОДАНО refetch
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
       const { data, error } = await supabase.from("site_settings").select("value").eq("key", "home_hero").single();
@@ -128,6 +131,45 @@ function Hero() {
       };
     },
   });
+
+  // Дефолти поки не завантажилось
+  const settings = settingsData || {
+    background_image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png",
+    logo_image: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png",
+    subtitle_ua: "Бібліотека ведичних аудіокниг",
+    subtitle_en: "Library of Vedic audiobooks",
+    quote_ua:
+      "За моєї відсутності читайте книжки. Все, про що я говорю, я написав у книжках. Ви можете підтримувати зв'язок зі мною через мої книги.",
+    quote_en:
+      "In my absence, read the books. Everything I speak is written in the books. You can associate with me through my books.",
+    quote_author_ua: "Шріла Прабгупада",
+    quote_author_en: "Srila Prabhupada",
+  };
+
+  // Формат часу
+  const formatTime = (seconds: number) => {
+    if (!Number.isFinite(seconds)) return "00:00";
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const subtitle = language === "ua" ? settings.subtitle_ua : settings.subtitle_en;
+  const quote = language === "ua" ? settings.quote_ua : settings.quote_en;
+  const author = language === "ua" ? settings.quote_author_ua : settings.quote_author_en;
+
+  return (
+    <section
+      className="relative min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url(${settings.background_image})`,
+      }}
+    >
+      {/* ✅ ДОДАНО: Інлайн-редактор (тільки для адмінів) */}
+      {isAdmin && <InlineBannerEditor settings={settings} onUpdate={() => refetch()} />}
+
+      <div className="container mx-auto px-4 text-center text-white">
+        {/* Решта коду залишається без змін... */}
 
   // Дефолти поки не завантажилось
   const settings = settingsData || {
