@@ -1,5 +1,5 @@
-// SettingsPanel.tsx — +синхронізація з темами (light/dark/craft), локальне збереження,
-// лінійний інтерліньяж, дрібні UX-фікси. Твої пропси збережені, API не ламаю.
+// SettingsPanel.tsx — одна панель для читалки.
+// Працюють розмір шрифту, міжряддя (live), craft-тема, неперервний режим, «Пояснення».
 
 import { useEffect, useMemo, useState } from "react";
 import { X, Minus, Plus, Search, Palette } from "lucide-react";
@@ -31,57 +31,63 @@ export interface ContinuousReadingSettings {
 interface SettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
+
   fontSize: number;
   onFontSizeChange: (size: number) => void;
+
+  lineHeight: number;
+  onLineHeightChange: (lh: number) => void;
+
   craftPaperMode: boolean;
   onCraftPaperToggle: (enabled: boolean) => void;
-  verses: Array<{
-    number: string;
-    book?: string;
-    translation?: string;
-  }>;
+
+  verses: Array<{ number: string; book?: string; translation?: string }>;
   currentVerse: string;
   onVerseSelect: (verse: string) => void;
+
   dualLanguageMode: boolean;
   onDualLanguageModeToggle: (enabled: boolean) => void;
+
   textDisplaySettings: TextDisplaySettings;
   onTextDisplaySettingsChange: (settings: TextDisplaySettings) => void;
+
   originalLanguage: string;
   onOriginalLanguageChange: (language: string) => void;
+
   continuousReadingSettings: ContinuousReadingSettings;
   onContinuousReadingSettingsChange: (settings: ContinuousReadingSettings) => void;
 }
 
 const MIN_FONT = 12;
-const MAX_FONT = 24;
+const MAX_FONT = 26;
 const MIN_LH = 1.3;
 const MAX_LH = 2.0;
 
-export const SettingsPanel = ({
-  isOpen,
-  onClose,
-  fontSize,
-  onFontSizeChange,
-  craftPaperMode,
-  onCraftPaperToggle,
-  verses,
-  currentVerse,
-  onVerseSelect,
-  dualLanguageMode,
-  onDualLanguageModeToggle,
-  textDisplaySettings,
-  onTextDisplaySettingsChange,
-  originalLanguage,
-  onOriginalLanguageChange,
-  continuousReadingSettings,
-  onContinuousReadingSettingsChange,
-}: SettingsPanelProps) => {
+export function SettingsPanel(props: SettingsPanelProps) {
+  const {
+    isOpen,
+    onClose,
+    fontSize,
+    onFontSizeChange,
+    lineHeight,
+    onLineHeightChange,
+    craftPaperMode,
+    onCraftPaperToggle,
+    verses,
+    currentVerse,
+    onVerseSelect,
+    dualLanguageMode,
+    onDualLanguageModeToggle,
+    textDisplaySettings,
+    onTextDisplaySettingsChange,
+    originalLanguage,
+    onOriginalLanguageChange,
+    continuousReadingSettings,
+    onContinuousReadingSettingsChange,
+  } = props;
+
   const { theme, setTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState("");
-  const [lineHeight, setLineHeight] = useState<number>(() => {
-    const saved = localStorage.getItem("vv_reader_lineHeight");
-    return saved ? Number(saved) : 1.6;
-  });
 
   // sync craft toggle <-> global theme
   useEffect(() => {
@@ -90,22 +96,11 @@ export const SettingsPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [craftPaperMode]);
 
-  // persist a few prefs
+  // live apply line-height on open (щоб одразу підтягувалось на контейнер)
   useEffect(() => {
-    localStorage.setItem("vv_reader_fontSize", String(fontSize));
-  }, [fontSize]);
-  useEffect(() => {
-    localStorage.setItem("vite-ui-theme", theme);
-  }, [theme]);
-  useEffect(() => {
-    localStorage.setItem("vv_reader_dualMode", String(dualLanguageMode));
-  }, [dualLanguageMode]);
-  useEffect(() => {
-    localStorage.setItem("vv_reader_lineHeight", String(lineHeight));
-    // синхронізація з контейнером читання: застосуй на корінь через data-attr
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
     if (root) root.style.lineHeight = String(lineHeight);
-  }, [lineHeight]);
+  }, [lineHeight, isOpen]);
 
   const filteredVerses = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
@@ -115,24 +110,22 @@ export const SettingsPanel = ({
     );
   }, [verses, searchQuery]);
 
-  const increaseFontSize = () => onFontSizeChange(Math.min(MAX_FONT, fontSize + 1));
-  const decreaseFontSize = () => onFontSizeChange(Math.max(MIN_FONT, fontSize - 1));
+  const incFont = () => onFontSizeChange(Math.min(MAX_FONT, fontSize + 1));
+  const decFont = () => onFontSizeChange(Math.max(MIN_FONT, fontSize - 1));
 
-  const increaseLH = () => setLineHeight((l) => Math.min(MAX_LH, Math.round((l + 0.05) * 100) / 100));
-  const decreaseLH = () => setLineHeight((l) => Math.max(MIN_LH, Math.round((l - 0.05) * 100) / 100));
+  const incLH = () => onLineHeightChange(Math.min(MAX_LH, Math.round((lineHeight + 0.05) * 100) / 100));
+  const decLH = () => onLineHeightChange(Math.max(MIN_LH, Math.round((lineHeight - 0.05) * 100) / 100));
   const resetTypography = () => {
     onFontSizeChange(18);
-    setLineHeight(1.6);
+    onLineHeightChange(1.6);
   };
-
-  vv: open - reader - settings;
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent side="right" className="w-96 overflow-y-auto">
         <SheetHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <SheetTitle>Настройки</SheetTitle>
+            <SheetTitle>Налаштування</SheetTitle>
             <Button variant="ghost" size="sm" onClick={onClose} aria-label="Закрити">
               <X className="w-4 h-4" />
             </Button>
@@ -188,17 +181,17 @@ export const SettingsPanel = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={decreaseFontSize}
+                    onClick={decFont}
                     disabled={fontSize <= MIN_FONT}
                     aria-label="Зменшити шрифт"
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
-                  <span className="w-10 text-center text-sm tabular-nums">{fontSize}px</span>
+                  <span className="w-12 text-center text-sm tabular-nums">{fontSize}px</span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={increaseFontSize}
+                    onClick={incFont}
                     disabled={fontSize >= MAX_FONT}
                     aria-label="Збільшити шрифт"
                   >
@@ -213,17 +206,17 @@ export const SettingsPanel = ({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={decreaseLH}
+                    onClick={decLH}
                     disabled={lineHeight <= MIN_LH}
                     aria-label="Зменшити міжряддя"
                   >
                     <Minus className="w-4 h-4" />
                   </Button>
-                  <span className="w-10 text-center text-sm tabular-nums">{lineHeight.toFixed(2)}</span>
+                  <span className="w-12 text-center text-sm tabular-nums">{lineHeight.toFixed(2)}</span>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={increaseLH}
+                    onClick={incLH}
                     disabled={lineHeight >= MAX_LH}
                     aria-label="Збільшити міжряддя"
                   >
@@ -259,8 +252,8 @@ export const SettingsPanel = ({
                     onChange={(e) => onOriginalLanguageChange(e.target.value)}
                   >
                     <option value="sanskrit">Санскрит</option>
-
                     <option value="bengali">Бенгалі</option>
+                    <option value="english">English</option>
                   </select>
                 </div>
               )}
@@ -340,7 +333,7 @@ export const SettingsPanel = ({
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="cont-commentary">Коментар</Label>
+                    <Label htmlFor="cont-commentary">Пояснення</Label>
                     <Switch
                       id="cont-commentary"
                       checked={continuousReadingSettings.showCommentary}
@@ -450,7 +443,7 @@ export const SettingsPanel = ({
                     {verse.book && <span className="text-sm opacity-75">{verse.book}</span>}
                   </div>
                   <p className="mt-1 line-clamp-2 text-sm opacity-80">
-                    {verse.translation ? `${verse.translation}` : "Переклад відсутній"}
+                    {verse.translation ? verse.translation : "Переклад відсутній"}
                   </p>
                 </button>
               ))}
@@ -460,4 +453,6 @@ export const SettingsPanel = ({
       </SheetContent>
     </Sheet>
   );
-};
+}
+
+export default SettingsPanel;
