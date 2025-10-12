@@ -1,7 +1,7 @@
-// NewHome.tsx — оновлена версія з GlobalAudioPlayer
+// NewHome.tsx — оновлена версія з карткою "Продовжити прослуховування" у Hero
 // Відповідає PDF шаблону 2: Hero, Continue Listening, SearchStrip, Latest, Playlists
 
-import React from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -15,9 +15,13 @@ import {
   BookOpen,
   Play,
   Pause,
+  SkipBack,
+  SkipForward,
   Clock,
   ArrowRight,
+  Music4,
   Search,
+  ChevronDown,
   ExternalLink,
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
@@ -33,6 +37,68 @@ type ContentItem = {
   duration?: string;
   created_at: string;
 };
+
+type AudioTrack = {
+  id: string;
+  title: string;
+  src: string;
+  playlist_title?: string;
+};
+
+// --- Mini Player (внизу сторінки) ---
+function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const current = useMemo(() => queue[index], [queue, index]);
+
+  const playPause = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+    } else {
+      el.play();
+    }
+  };
+
+  const next = () => setIndex((i) => (i + 1) % queue.length);
+  const prev = () => setIndex((i) => (i - 1 + queue.length) % queue.length);
+
+  if (!current) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
+        <Music4 className="h-5 w-5" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium">{current.title}</div>
+          <div className="truncate text-xs text-muted-foreground">{current.playlist_title || "Vedavoice · Аудіо"}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={prev} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipBack className="h-5 w-5" />
+          </Button>
+          <Button size="icon" onClick={playPause} className="h-9 w-9">
+            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={next} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipForward className="h-5 w-5" />
+          </Button>
+        </div>
+        <audio
+          ref={audioRef}
+          src={current.src}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={next}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
 
 // --- Hero Section (з карткою "Продовжити") ---
 function Hero() {
@@ -60,7 +126,7 @@ function Hero() {
             <div className="w-64 h-64 md:w-80 md:h-80 mb-4">
               <img
                 src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
-                alt="Прабгупада соловйїною"
+                alt="Прабгупада солов'їною"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -75,40 +141,86 @@ function Hero() {
               За моєї відсутності читайте книжки. Все, про що я говорю, я написав у книжках. Ви можете підтримувати
               зв'язок зі мною через мої книги.
             </p>
-            <p className="text-sm text-white/70">— Шріла Прабгупада</p>
+            <p className="text-sm text-white/70 text-right">
+              — Шріла Прабгупада
+              <br />7 серпня 1975 року, Торонто
+            </p>
           </div>
 
-          {/* Continue Listening Card - показується якщо є поточний трек */}
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <Button asChild size="lg" className="bg-white text-black hover:bg-white/90">
+              <a href="/library">
+                <BookOpen className="w-5 h-5 mr-2" />
+                Переглянути бібліотеку
+              </a>
+            </Button>
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-black"
+            >
+              <a href="/audiobooks">
+                <Headphones className="w-5 h-5 mr-2" />
+                Аудіокниги
+              </a>
+            </Button>
+          </div>
+
+          {/* Картка "Продовжити прослуховування" (як у PDF) */}
           {currentTrack && (
-            <Card className="max-w-md mx-auto bg-white/10 backdrop-blur-md border-white/20">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">Продовжити прослуховування</h3>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={togglePlay}
-                    className="rounded-full bg-white/20 hover:bg-white/30 text-white"
-                  >
-                    {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                  </Button>
-                </div>
-                <div className="text-left">
-                  <p className="text-white font-medium mb-1 truncate">{currentTrack.title}</p>
-                  <p className="text-white/70 text-sm mb-2">
-                    {currentTrack.verseNumber || currentTrack.metadata?.artist || "Vedavoice"}
-                  </p>
-                  <div className="flex items-center gap-2 text-white/60 text-xs">
-                    <Clock className="h-3 w-3" />
-                    <span>
-                      {formatTime(currentTime)} / {formatTime(duration)}
-                    </span>
+            <div className="max-w-xl mx-auto">
+              <Card className="bg-card/90 backdrop-blur border-white/20">
+                <CardContent className="p-5">
+                  <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" /> Продовжити прослуховування
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+
+                  <div className="rounded-xl border border-border bg-background/50 p-4">
+                    <div className="mb-2 text-base font-semibold text-foreground">{currentTrack.title}</div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm text-foreground">
+                          {currentTrack.verseNumber ? `Вірш ${currentTrack.verseNumber}` : "Аудіо"}
+                        </div>
+                        <div className="truncate text-xs text-muted-foreground">
+                          {formatTime(duration)} ·{" "}
+                          {isPlaying
+                            ? `Відтворюється ${formatTime(currentTime)}`
+                            : `Пауза на ${formatTime(currentTime)}`}
+                        </div>
+                      </div>
+
+                      <Button size="sm" onClick={togglePlay} className="gap-2">
+                        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {isPlaying ? "Пауза" : "Продовжити"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Опційно: Продовжити читання */}
+                  <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                    <BookOpen className="h-4 w-4" /> Продовжити читання
+                  </div>
+                  <div className="mt-2 rounded-xl border border-border bg-background/50 p-4">
+                    <div className="truncate text-sm font-medium text-foreground">Останній прочитаний вірш</div>
+                    <div className="truncate text-xs text-muted-foreground">Відкрийте бібліотеку для продовження</div>
+                    <a href="/library" className="mt-3 inline-flex items-center gap-2 text-sm hover:underline">
+                      Відкрити <ArrowRight className="h-4 w-4" />
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           )}
         </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <ChevronDown className="w-8 h-8 text-white/70" />
       </div>
     </section>
   );
@@ -117,97 +229,139 @@ function Hero() {
 // --- Search Strip ---
 function SearchStrip() {
   const navigate = useNavigate();
-  const [query, setQuery] = React.useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      navigate(`/library?search=${encodeURIComponent(query)}`);
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/glossary?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   return (
-    <section className="bg-muted/50 py-8">
-      <div className="container mx-auto px-4">
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+    <section className="mx-auto w-full max-w-6xl px-4 py-8">
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
             <Input
-              type="search"
-              placeholder="Пошук книг, лекцій, віршів..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-10 h-12 text-base"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder="Пошук за назвою або ключовими словами…"
+              className="flex-1"
             />
+            <Button onClick={handleSearch}>
+              <Search className="h-4 w-4 mr-2" />
+              Знайти
+            </Button>
           </div>
-        </form>
-      </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }
 
 // --- Latest Content ---
 function LatestContent() {
-  const { data: items, isLoading } = useQuery({
-    queryKey: ["latest-content"],
+  // Fetch latest audio tracks
+  const { data: audioTracks } = useQuery({
+    queryKey: ["latest-audio"],
     queryFn: async () => {
-      // Аудіо
-      const { data: audio } = await supabase
+      const { data, error } = await supabase
         .from("audio_tracks")
-        .select("id, title_ua, file_url, track_number, duration")
+        .select(
+          `
+          id,
+          title_ua,
+          duration,
+          created_at,
+          playlist_id,
+          audio_playlists!inner (
+            id,
+            title_ua,
+            is_published,
+            category_id,
+            audio_categories (
+              slug
+            )
+          )
+        `,
+        )
+        .eq("audio_playlists.is_published", true)
         .order("created_at", { ascending: false })
         .limit(3);
 
-      // Блог пости
-      const { data: blogs } = await supabase
-        .from("blog_posts")
-        .select("id, title_ua, excerpt_ua, slug")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false })
-        .limit(2);
-
-      const result: ContentItem[] = [];
-
-      audio?.forEach((a) => {
-        result.push({
-          id: a.id,
-          type: "audio",
-          title: a.title_ua || "Без назви",
-          subtitle: `Трек ${a.track_number}`,
-          href: `/audiobooks/${a.id}`,
-          duration: a.duration ? `${Math.floor(a.duration / 60)}:${(a.duration % 60).toString().padStart(2, "0")}` : undefined,
-          created_at: "",
-        });
-      });
-
-      blogs?.forEach((b) => {
-        result.push({
-          id: b.id,
-          type: "blog",
-          title: b.title_ua,
-          subtitle: b.excerpt_ua || undefined,
-          href: `/blog/${b.slug}`,
-          created_at: "",
-        });
-      });
-
-      return result;
+      if (error) throw error;
+      return data;
     },
-    staleTime: 60_000,
   });
 
-  if (isLoading) return null;
-  if (!items || items.length === 0) return null;
+  // Fetch latest blog posts
+  const { data: blogPosts } = useQuery({
+    queryKey: ["latest-blog"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("id, title_ua, excerpt_ua, slug, created_at, read_time")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Combine and format content
+  const latestContent: ContentItem[] = [
+    ...(audioTracks?.map((track) => ({
+      id: track.id,
+      type: "audio" as const,
+      title: track.title_ua,
+      subtitle: track.audio_playlists?.title_ua,
+      href: `/audiobooks/${track.playlist_id}`,
+      duration: track.duration
+        ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
+        : undefined,
+      created_at: track.created_at,
+    })) || []),
+    ...(blogPosts?.map((post) => ({
+      id: post.id,
+      type: "blog" as const,
+      title: post.title_ua,
+      subtitle: post.excerpt_ua || undefined,
+      href: `/blog/${post.slug}`,
+      duration: post.read_time ? `${post.read_time} хв` : undefined,
+      created_at: post.created_at,
+    })) || []),
+  ]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 6);
 
   return (
-    <section className="mx-auto w-full max-w-6xl px-4 py-12">
-      <h2 className="mb-6 font-serif text-2xl font-semibold">Останні публікації</h2>
+    <section className="mx-auto w-full max-w-6xl px-4 py-10">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="font-serif text-3xl font-semibold">Останні додані</h2>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <a href="/audiobooks">
+              <Headphones className="h-4 w-4 mr-2" />
+              Усе аудіо
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/library">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Усі тексти
+            </a>
+          </Button>
+        </div>
+      </div>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => (
-          <Card key={item.id} className="overflow-hidden transition-shadow hover:shadow-lg">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {latestContent.map((item) => (
+          <Card key={item.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="mb-2 flex items-center gap-2 text-base font-semibold">
                 {item.type === "audio" ? (
                   <Headphones className="h-4 w-4 flex-shrink-0" />
                 ) : (
@@ -254,7 +408,7 @@ function Playlists() {
   const featuredPlaylists = [
     { title: "Популярне", href: "/audiobooks?sort=popular" },
     { title: "Останні", href: "/audiobooks?sort=latest" },
-    { title: "Бгаґавата", href: "/audiobooks?tag=sb" },
+    { title: "Бгаґаватам", href: "/audiobooks?tag=sb" },
     { title: "Бгаґавад-ґіта", href: "/audiobooks?tag=bg" },
   ];
 
@@ -301,11 +455,19 @@ function SupportSection() {
 }
 
 // --- Main Page ---
-// ВАЖЛИВО: MiniPlayer компонент видалено!
-// Тепер GlobalAudioPlayer (з App.tsx) показується завжди внизу екрану
 export const NewHome = () => {
+  // Mock queue - replace with actual data from continue listening
+  const queue: AudioTrack[] = [
+    {
+      id: "a1",
+      title: "ШБ 3.26.19 — Бомбей, 1974",
+      src: "/media/sb-32619.mp3",
+      playlist_title: "Шрімад-Бгаґаватам",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main>
         <Hero />
@@ -315,7 +477,7 @@ export const NewHome = () => {
         <SupportSection />
       </main>
       <Footer />
-      {/* MiniPlayer ВИДАЛЕНО - тепер використовується GlobalAudioPlayer з App.tsx */}
+      <MiniPlayer queue={queue} />
     </div>
   );
 };
