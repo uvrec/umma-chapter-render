@@ -1,3 +1,5 @@
+// src/App.tsx
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,14 +12,14 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
-import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css"; // ← Додати цей рядок
+import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
 
 import { NewHome } from "./pages/NewHome";
-import VedaReader from "./pages/VedaReader"; // ← тепер існує
+import VedaReader from "./pages/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
@@ -73,7 +75,6 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* craft — дефолт; storageKey узгоджений із ThemeProvider/ThemeToggle */}
     <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
       <LanguageProvider>
         <AuthProvider>
@@ -82,6 +83,9 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                {/* Баннери мають бути відрендерені ДО <Routes /> */}
+                <SiteBanners />
+
                 <Routes>
                   <Route path="/" element={<NewHome />} />
 
@@ -175,7 +179,6 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
 
-                {/* Глобальний плеєр і єдина панель налаштувань */}
                 <GlobalAudioPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>
