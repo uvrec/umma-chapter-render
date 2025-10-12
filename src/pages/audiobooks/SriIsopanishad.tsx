@@ -57,14 +57,6 @@ export const SriIsopanishad = () => {
             {/* Book Info */}
             <div className="lg:col-span-1">
               <Card className="p-6">
-                <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
-                  <img 
-                    src={sriIsopanishadCover} 
-                    alt="Шрі Ішопанішада обкладинка" 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                
                 <div className="space-y-4">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-2">

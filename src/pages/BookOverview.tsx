@@ -110,17 +110,6 @@ export const BookOverview = () => {
 
         <div className="mt-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-8">
-            {/* Book cover */}
-            {book?.cover_image_url && bookId !== 'srimad-bhagavatam' && (
-              <div className="lg:w-1/3">
-                <img 
-                  src={book.cover_image_url} 
-                  alt={bookTitle}
-                  className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
-                />
-              </div>
-            )}
-            
             {/* Book info */}
             <div className="flex-1">
               <h1 className="text-4xl font-bold mb-4">{bookTitle}</h1>

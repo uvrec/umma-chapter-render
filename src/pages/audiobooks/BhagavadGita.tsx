@@ -149,12 +149,6 @@ export const BhagavadGita = () => {
             {/* Book Info */}
             <div className="lg:col-span-1">
               <Card className="p-6">
-                {cover && (
-                  <div className="w-full max-w-xs mx-auto mb-6 bg-muted rounded-lg overflow-hidden">
-                    <img src={cover} alt={title} className="w-full h-auto object-cover" />
-                  </div>
-                )}
-
                 <div className="space-y-4">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
