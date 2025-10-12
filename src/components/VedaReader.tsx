@@ -1,7 +1,11 @@
-// VedaReader.tsx — підчищена версія під оновлений VerseCard/InlineTiptapEditor
-// + verse-surface у всіх релевантних блоках (колонки, continuous wrapper),
-//   стабільні типи, глобальний fontSize+lineHeight, хоткеї ←/→ між віршами.
+// src/components/VedaReader.tsx
+// Підчищена версія під оновлений SettingsPanel:
+// - єдиний набір станів (без дублікатів)
+// - збереження в LocalStorage (fontSize, dualMode, blocks, lineHeight)
+// - data-reader-root="true" на контейнері читанки (для керування міжряддям)
+// - verse-surface для блоків і continuous wrapper
 
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { VerseCard } from "./VerseCard";
 import { Header } from "./Header";
@@ -10,56 +14,6 @@ import { SettingsPanel, type ContinuousReadingSettings } from "./SettingsPanel";
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
 import { verses as ALL_VERSES } from "@/data/verses";
-// ... решта імпортів як у тебе
-import { useEffect, useMemo, useRef, useState } from "react";
-
-// КЛЮЧІ мають збігатися з GlobalSettingsPanel
-const LS = {
-  fontSize: "vv_reader_fontSize",
-  lineHeight: "vv_reader_lineHeight",
-  dual: "vv_reader_dualMode",
-  blocks: "vv_reader_blocks",
-};
-
-function readNum(key: string, fallback: number) {
-  const s = localStorage.getItem(key);
-  return s ? Number(s) : fallback;
-}
-
-function readBool(key: string, fallback: boolean) {
-  const s = localStorage.getItem(key);
-  return s == null ? fallback : s === "true";
-}
-
-function readBlocks() {
-  try {
-    const raw = localStorage.getItem(LS.blocks);
-    const base = {
-      showSanskrit: true,
-      showTransliteration: true,
-      showSynonyms: true,
-      showTranslation: true,
-      showCommentary: true,
-    };
-    if (!raw) return base;
-    const b = JSON.parse(raw);
-    return {
-      showSanskrit: !!b.sanskrit,
-      showTransliteration: !!b.translit,
-      showSynonyms: !!b.synonyms,
-      showTranslation: !!b.translation,
-      showCommentary: !!b.commentary,
-    };
-  } catch {
-    return {
-      showSanskrit: true,
-      showTransliteration: true,
-      showSynonyms: true,
-      showTranslation: true,
-      showCommentary: true,
-    };
-  }
-}
 
 type OriginalLanguage = "sanskrit" | "english" | "bengali";
 
@@ -74,21 +28,73 @@ interface Verse {
   audioUrl?: string;
 }
 
+/** Ключі LocalStorage */
+const LS = {
+  fontSize: "vv_reader_fontSize",
+  dual: "vv_reader_dualMode",
+  blocks: "vv_reader_blocks",
+  lineHeight: "vv_reader_lineHeight",
+} as const;
+
+/** Хелпери читання з LS */
+function readNum(key: string, def: number) {
+  const raw = localStorage.getItem(key);
+  const n = raw ? Number(raw) : NaN;
+  return Number.isFinite(n) ? n : def;
+}
+function readBool(key: string, def: boolean) {
+  const raw = localStorage.getItem(key);
+  if (raw === "true") return true;
+  if (raw === "false") return false;
+  return def;
+}
+function readBlocks() {
+  try {
+    const raw = localStorage.getItem(LS.blocks);
+    if (!raw) {
+      return {
+        showSanskrit: true,
+        showTransliteration: true,
+        showSynonyms: true,
+        showTranslation: true,
+        showCommentary: true,
+      };
+    }
+    const parsed = JSON.parse(raw);
+    return {
+      showSanskrit: parsed.showSanskrit ?? true,
+      showTransliteration: parsed.showTransliteration ?? true,
+      showSynonyms: parsed.showSynonyms ?? true,
+      showTranslation: parsed.showTranslation ?? true,
+      showCommentary: parsed.showCommentary ?? true,
+    };
+  } catch {
+    return {
+      showSanskrit: true,
+      showTransliteration: true,
+      showSynonyms: true,
+      showTranslation: true,
+      showCommentary: true,
+    };
+  }
+}
+
 export const VedaReader = () => {
   const { bookId } = useParams();
-  const [showSettings, setShowSettings] = useState(false);
-  const [fontSize, setFontSize] = useState(16);
-  const [craftPaperMode, setCraftPaperMode] = useState(false);
-  const [dualLanguageMode, setDualLanguageMode] = useState(false);
-  const [originalLanguage, setOriginalLanguage] = useState<OriginalLanguage>("sanskrit");
 
-  const [textDisplaySettings, setTextDisplaySettings] = useState({
-    showSanskrit: true,
-    showTransliteration: true,
-    showSynonyms: true,
-    showTranslation: true,
-    showCommentary: true,
-  });
+  // === СТАНИ ЧИТАНКИ (єдині, без дублів) ===
+  const [showSettings, setShowSettings] = useState(false);
+
+  const [fontSize, setFontSize] = useState<number>(() => readNum(LS.fontSize, 18));
+  const [lineHeight, setLineHeight] = useState<number>(() => readNum(LS.lineHeight, 1.6));
+
+  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => readBool(LS.dual, false));
+  const [textDisplaySettings, setTextDisplaySettings] = useState(readBlocks);
+
+  // Локальний перемикач craft-вигляду для контейнерів віршів (глобальна тема керується ThemeProvider/SettingsPanel)
+  const [craftPaperMode, setCraftPaperMode] = useState(false);
+
+  const [originalLanguage, setOriginalLanguage] = useState<OriginalLanguage>("sanskrit");
 
   const [continuousReadingSettings, setContinuousReadingSettings] = useState<ContinuousReadingSettings>({
     enabled: false,
@@ -102,14 +108,45 @@ export const VedaReader = () => {
   // якір для швидкого скролу між віршами
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // === ПЕРСИСТ У LS ===
+  useEffect(() => {
+    localStorage.setItem(LS.fontSize, String(fontSize));
+  }, [fontSize]);
+
+  useEffect(() => {
+    localStorage.setItem(LS.lineHeight, String(lineHeight));
+  }, [lineHeight]);
+
+  useEffect(() => {
+    localStorage.setItem(LS.dual, String(dualLanguageMode));
+  }, [dualLanguageMode]);
+
+  useEffect(() => {
+    localStorage.setItem(LS.blocks, JSON.stringify(textDisplaySettings));
+  }, [textDisplaySettings]);
+
+  // Застосувати fontSize + lineHeight на контейнер читанки (атрибут data-reader-root="true")
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
+    if (root) {
+      root.style.fontSize = `${fontSize}px`;
+      root.style.lineHeight = String(lineHeight);
+    }
+  }, [fontSize, lineHeight]);
+
   const getBookTitle = (bid?: string): string => {
     switch (bid) {
       case "srimad-bhagavatam":
+      case "bhagavatam":
         return "Шрімад-Бгаґаватам";
       case "bhagavad-gita":
+      case "gita":
         return "Бгаґавад-ґіта";
       case "sri-isopanishad":
+      case "iso":
         return "Шрі Ішопанішад";
+      case "noi":
+        return "Нектар настанов";
       default:
         return "Ведичні тексти";
     }
@@ -119,10 +156,13 @@ export const VedaReader = () => {
     if (!bookId) return ALL_VERSES;
     switch (bookId) {
       case "srimad-bhagavatam":
+      case "bhagavatam":
         return ALL_VERSES.filter((v) => v.number.startsWith("ШБ"));
       case "bhagavad-gita":
+      case "gita":
         return ALL_VERSES.filter((v) => v.number.startsWith("БГ"));
       case "sri-isopanishad":
+      case "iso":
         return ALL_VERSES.filter((v) => v.number.startsWith("ШІІ"));
       default:
         return ALL_VERSES;
@@ -212,9 +252,6 @@ export const VedaReader = () => {
     </div>
   );
 
-  // глобальні стилі розміру/міжряддя
-  const contentStyle: React.CSSProperties = { fontSize: `${fontSize}px`, lineHeight: 1.6 };
-
   const originalHeader = (lang: OriginalLanguage) =>
     lang === "sanskrit" ? "संस्कृत" : lang === "english" ? "English" : "বাংলা";
 
@@ -227,7 +264,8 @@ export const VedaReader = () => {
       <Header />
 
       <main className="container mx-auto px-4 py-8" ref={containerRef}>
-        <div className="mx-auto max-w-4xl" style={contentStyle}>
+        {/* ГОЛОВНИЙ КОНТЕЙНЕР ЧИТАНКИ: data-reader-root */}
+        <div className="mx-auto max-w-4xl" data-reader-root="true">
           <Breadcrumb
             items={[
               { label: "Головна", href: "/" },
@@ -340,7 +378,7 @@ export const VedaReader = () => {
               variant="outline"
               className="flex items-center gap-2"
               onClick={() => {
-                /* TODO */
+                /* TODO: переходи між главами */
               }}
             >
               <ArrowLeft className="h-4 w-4" />
@@ -356,7 +394,7 @@ export const VedaReader = () => {
               variant="outline"
               className="flex items-center gap-2"
               onClick={() => {
-                /* TODO */
+                /* TODO: переходи між главами */
               }}
             >
               Наступна глава
@@ -366,6 +404,7 @@ export const VedaReader = () => {
         </div>
       </main>
 
+      {/* ЄДИНА панель налаштувань, яку ми залишаємо для читанки */}
       <SettingsPanel
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
