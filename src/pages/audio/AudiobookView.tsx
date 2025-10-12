@@ -1,3 +1,6 @@
+// AudiobookView.tsx - ВИПРАВЛЕНО
+// Зменшена картинка, layout зліва картинка+опис, справа плеєр
+
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
@@ -44,7 +47,6 @@ export const AudiobookView = () => {
     queryKey: ["audiobook", id],
     enabled: !!id,
     queryFn: async (): Promise<Playlist | null> => {
-      // тягнемо плейлист з вкладеними треками
       const { data, error } = await supabase
         .from("audio_playlists")
         .select(
@@ -54,23 +56,20 @@ export const AudiobookView = () => {
         `,
         )
         .eq("id", id)
-        .eq("is_published", true) // показуємо тільки опублікований плейлист
+        .eq("is_published", true)
         .order("track_number", { foreignTable: "audio_tracks", ascending: true })
         .maybeSingle();
 
       if (error) throw error;
       if (!data) return null;
 
-      // фільтруємо треки (якщо у вас є поле is_published у audio_tracks)
       const filteredTracks =
         (data.tracks as Track[] | undefined)?.filter((t) => t.audio_url && (t.is_published ?? true)) ?? [];
 
-      // на випадок, якщо на рівні БД сорт не спрацював/відсутній track_number
       filteredTracks.sort((a, b) => {
         const A = a.track_number ?? Number.MAX_SAFE_INTEGER;
         const B = b.track_number ?? Number.MAX_SAFE_INTEGER;
         if (A !== B) return A - B;
-        // fallback: по id (стабільність відображення)
         return String(a.id).localeCompare(String(b.id));
       });
 
@@ -121,16 +120,18 @@ export const AudiobookView = () => {
             Назад до аудіокниг
           </Link>
 
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Info */}
-            <div className="lg:col-span-1">
+          {/* ВИПРАВЛЕНО: Layout зліва картинка, справа плеєр */}
+          <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+            {/* Ліва колонка: Картинка + Опис */}
+            <div>
               <Card className="p-6">
+                {/* ВИПРАВЛЕНО: Зменшена картинка */}
                 {audiobook.cover_image_url && (
-                  <div className="aspect-square w-full mb-6 bg-muted rounded-lg overflow-hidden">
+                  <div className="w-full max-w-xs mx-auto mb-6 bg-muted rounded-lg overflow-hidden">
                     <img
                       src={audiobook.cover_image_url}
                       alt={audiobook.title_ua || audiobook.title_en || "Аудіокнига"}
-                      className="w-full h-full object-cover"
+                      className="w-full h-auto object-cover aspect-[3/4]"
                     />
                   </div>
                 )}
@@ -178,8 +179,8 @@ export const AudiobookView = () => {
               </Card>
             </div>
 
-            {/* Player */}
-            <div className="lg:col-span-2">
+            {/* Права колонка: Плеєр */}
+            <div>
               {tracks.length > 0 ? (
                 <PlaylistPlayer
                   tracks={tracks}
