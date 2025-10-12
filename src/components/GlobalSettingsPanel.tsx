@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Settings, X, Globe, Palette, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,12 +14,11 @@ const MAX_FONT = 24;
 const MIN_LH = 1.3;
 const MAX_LH = 2.0;
 
-// ключі локальних налаштувань читалки
 const LS_KEYS = {
   fontSize: "vv_reader_fontSize",
   lineHeight: "vv_reader_lineHeight",
   dual: "vv_reader_dualMode",
-  blocks: "vv_reader_blocks", // {sanskrit, translit, synonyms, translation, commentary}
+  blocks: "vv_reader_blocks",
 };
 
 type BlocksState = {
@@ -51,7 +50,6 @@ export const GlobalSettingsPanel = () => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
 
-  // читальні prefs
   const [fontSize, setFontSize] = useState<number>(() => {
     const s = localStorage.getItem(LS_KEYS.fontSize);
     return s ? Number(s) : 18;
@@ -63,7 +61,6 @@ export const GlobalSettingsPanel = () => {
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
 
-  // збереження + повідомлення читалці
   const bumpReader = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
@@ -88,7 +85,6 @@ export const GlobalSettingsPanel = () => {
     bumpReader();
   }, [blocks]);
 
-  // утиліти
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
   const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
   const decreaseLH = () => setLineHeight((v) => Math.max(MIN_LH, Math.round((v - 0.05) * 100) / 100));
@@ -99,11 +95,14 @@ export const GlobalSettingsPanel = () => {
   return (
     <>
       {/* Floating Button */}
-     <Button
-  onClick={() => setIsOpen(true)}
-  className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
-  size="icon"
->
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+        size="icon"
+        aria-label="Open settings"
+      >
+        <Settings className="h-6 w-6" />
+      </Button>
 
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -159,7 +158,7 @@ export const GlobalSettingsPanel = () => {
 
             <Separator />
 
-            {/* Налаштування читання (глобальні, працюють у читачі) */}
+            {/* Налаштування читання */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Відображення тексту</h3>
               <div className="space-y-4">
@@ -253,7 +252,7 @@ export const GlobalSettingsPanel = () => {
           </div>
         </SheetContent>
       </Sheet>
-  
+    </>
   );
 };
 
