@@ -1,17 +1,62 @@
-import { useEffect } from "react";
+Individualverse · TSX
+Download
+
+// IndividualVerse.tsx — оновлена версія відповідно до PDF шаблону 1
+// Великий заголовок text-6xl, sticky header з іконками, окремі Volume2 кнопки для кожної секції
+
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
-import { VerseCard } from "@/components/VerseCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { 
+  ArrowLeft, 
+  ChevronLeft, 
+  ChevronRight,
+  Bookmark, 
+  Share2, 
+  Download, 
+  Settings,
+  Volume2,
+  Home
+} from "lucide-react";
 import { verses } from "@/data/verses";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAudio } from "@/components/GlobalAudioPlayer";
+import { toast } from "@/hooks/use-toast";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
+  const { playTrack } = useAudio();
+
+  // Глобальний fontSize із localStorage (синхронізація з GlobalSettingsPanel)
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem("vv_reader_fontSize");
+    return saved ? Number(saved) : 18;
+  });
+
+  const [lineHeight, setLineHeight] = useState(() => {
+    const saved = localStorage.getItem("vv_reader_lineHeight");
+    return saved ? Number(saved) : 1.6;
+  });
+
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  // Слухаємо зміни налаштувань з GlobalSettingsPanel
+  useEffect(() => {
+    const handlePrefsChanged = () => {
+      const newFont = localStorage.getItem("vv_reader_fontSize");
+      const newLH = localStorage.getItem("vv_reader_lineHeight");
+      if (newFont) setFontSize(Number(newFont));
+      if (newLH) setLineHeight(Number(newLH));
+    };
+
+    window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
+  }, []);
 
   const getBookTitle = (bid?: string): string => {
     switch (bid) {
@@ -20,24 +65,29 @@ export const IndividualVerse = () => {
       case "bhagavad-gita":
         return "Бгаґавад-ґіта";
       case "sri-isopanishad":
-        return "Шрі Ішопанішад";
+        return "Шрі Ішопанішада";
       default:
         return "Ведичні тексти";
     }
   };
 
-  const getFilteredVerses = (bid?: string) => {
-    if (!bid) return verses;
+  const getBookCode = (bid?: string): string => {
     switch (bid) {
       case "srimad-bhagavatam":
-        return verses.filter((v) => v.number.startsWith("ШБ"));
+        return "ШБ";
       case "bhagavad-gita":
-        return verses.filter((v) => v.number.startsWith("БГ"));
+        return "БГ";
       case "sri-isopanishad":
-        return verses.filter((v) => v.number.startsWith("ШІІ"));
+        return "ШІІ";
       default:
-        return verses;
+        return "";
     }
+  };
+
+  const getFilteredVerses = (bid?: string) => {
+    if (!bid) return verses;
+    const code = getBookCode(bid);
+    return code ? verses.filter((v) => v.number.startsWith(code)) : verses;
   };
 
   const filteredVerses = getFilteredVerses(bookId);
@@ -52,10 +102,10 @@ export const IndividualVerse = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-5xl text-center">
             <h1 className="mb-4 text-2xl font-bold">Вірш не знайдено</h1>
             <Link to={`/verses/${bookId}`}>
-              <Button variant="outline" className="hover:bg-foreground/5 hover:border hover:border-foreground/20">
+              <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Повернутися до читання
               </Button>
@@ -70,6 +120,7 @@ export const IndividualVerse = () => {
   const prevVerse = currentIndex > 0 ? filteredVerses[currentIndex - 1] : null;
   const nextVerse = currentIndex < filteredVerses.length - 1 ? filteredVerses[currentIndex + 1] : null;
 
+  // Хоткеї ← / →
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (document.activeElement?.tagName || "").toLowerCase();
@@ -87,96 +138,287 @@ export const IndividualVerse = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, [bookId, navigate, prevVerse, nextVerse]);
 
+  // Функції для іконок
+  const toggleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    toast({
+      title: isBookmarked ? "Закладку видалено" : "Додано до закладок",
+      description: `Вірш ${verseNumber}`,
+    });
+  };
+
+  const handleShare = () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: `Вірш ${verseNumber}`, url });
+    } else {
+      navigator.clipboard.writeText(url);
+      toast({ title: "Посилання скопійовано", description: url });
+    }
+  };
+
+  const handleDownload = () => {
+    toast({ title: "Завантаження", description: "Функція в розробці" });
+  };
+
+  // Відтворення аудіо для кожної секції (якщо є)
+  const playSection = (section: string) => {
+    if (!currentVerse.audioUrl) {
+      toast({ title: "Аудіо незабаром", description: `Для ${section}` });
+      return;
+    }
+    playTrack({
+      id: `${verseNumber}-${section}`,
+      title: `${verseNumber} — ${section}`,
+      src: currentVerse.audioUrl,
+      verseNumber,
+    });
+  };
+
+  // Парсинг послівного перекладу
+  const parseSynonyms = (raw: string): Array<{ term: string; meaning: string }> => {
+    if (!raw) return [];
+    const parts = raw
+      .split(/[;]+/g)
+      .map((p) => p.trim())
+      .filter(Boolean);
+
+    const dashVariants = [" — ", " – ", " - ", "—", "–", "-"];
+    const pairs: Array<{ term: string; meaning: string }> = [];
+
+    for (const part of parts) {
+      let idx = -1;
+      let used = "";
+      for (const d of dashVariants) {
+        idx = part.indexOf(d);
+        if (idx !== -1) {
+          used = d;
+          break;
+        }
+      }
+      if (idx === -1) {
+        pairs.push({ term: part, meaning: "" });
+        continue;
+      }
+      const term = part.slice(0, idx).trim();
+      const meaning = part.slice(idx + used.length).trim();
+      if (term) pairs.push({ term, meaning });
+    }
+    return pairs;
+  };
+
+  const openGlossary = (term: string) => {
+    window.open(`/glossary?search=${encodeURIComponent(term)}`, "_blank", "noopener,noreferrer");
+  };
+
+  const synonymPairs = parseSynonyms(currentVerse.synonyms || "");
+
+  // Стилі з урахуванням fontSize
+  const baseStyle: React.CSSProperties = {
+    fontSize: `${fontSize}px`,
+    lineHeight,
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-screen bg-background" style={baseStyle}>
+      {/* Sticky Header з іконками (як у PDF) */}
+      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+        <div className="mx-auto max-w-5xl px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-3 text-lg text-muted-foreground">
+              <a href="/" className="hover:underline flex items-center gap-2">
+                <Home className="h-5 w-5" /> Бібліотека
+              </a>
+              <span>›</span>
+              <a href={`/verses/${bookId}`} className="hover:underline">
+                {getBookTitle(bookId)}
+              </a>
+              <span>›</span>
+              <span>Вірш {verseNumber}</span>
+            </div>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mx-auto max-w-4xl">
-          <Breadcrumb
-            items={[
-              { label: "Головна", href: "/" },
-              { label: "Бібліотека", href: "/library" },
-              { label: getBookTitle(bookId), href: `/verses/${bookId}` },
-              { label: `Вірш ${verseNumber}` },
-            ]}
-          />
-
-          <div className="mb-8 flex items-center justify-between">
-            <Link
-              to={`/verses/${bookId}`}
-              className="flex items-center rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Повернутися до читання
-            </Link>
-          </div>
-
-          <div className="mb-8 text-center">
-            <h1 className="mb-2 text-3xl font-bold">{getBookTitle(bookId)}</h1>
-            <p className="text-muted-foreground">Вірш {verseNumber}</p>
-          </div>
-
-          <div className="verse-surface rounded-lg p-0">
-            <VerseCard
-              verseNumber={currentVerse.number}
-              sanskritText={currentVerse.sanskrit}
-              transliteration={currentVerse.transliteration}
-              synonyms={currentVerse.synonyms}
-              translation={currentVerse.translation}
-              commentary={currentVerse.commentary}
-              bookName={currentVerse.book}
-              audioUrl={currentVerse.audioUrl}
-              textDisplaySettings={{
-                showSanskrit: true,
-                showTransliteration: true,
-                showSynonyms: true,
-                showTranslation: true,
-                showCommentary: true,
-              }}
-              isAdmin={isAdmin}
-              onVerseUpdate={() => {}}
-            />
-          </div>
-
-          {/* Навігація між віршами */}
-          <div className="border-t pt-8">
-            <div className="flex items-center justify-between">
-              {prevVerse ? (
-                <Link to={`/verses/${bookId}/${prevVerse.number}`}>
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2 hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                    Попередній вірш
-                  </Button>
-                </Link>
-              ) : (
-                <div />
-              )}
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">
-                  {currentIndex + 1} з {filteredVerses.length}
-                </p>
-              </div>
-
-              {nextVerse ? (
-                <Link to={`/verses/${bookId}/${nextVerse.number}`}>
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2 hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  >
-                    Наступний вірш
-                    <ArrowLeft className="h-4 w-4 rotate-180" />
-                  </Button>
-                </Link>
-              ) : (
-                <div />
-              )}
+            {/* Icons (як у PDF) */}
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={toggleBookmark}>
+                <Bookmark className={`h-6 w-6 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleShare}>
+                <Share2 className="h-6 w-6" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleDownload}>
+                <Download className="h-6 w-6" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+                <Settings className="h-6 w-6" />
+              </Button>
             </div>
           </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-5xl px-6 py-12">
+        {/* Великий центральний заголовок (як у PDF) */}
+        <div className="mb-12 text-center">
+          <h1 className="mb-3 text-6xl font-bold">
+            {getBookCode(bookId)} {verseNumber}
+          </h1>
+        </div>
+
+        {/* Деванагарі з кнопкою Volume2 */}
+        {currentVerse.sanskrit && (
+          <section className="mb-12">
+            <div className="mb-4 flex justify-center">
+              <button
+                className="rounded-full p-3 hover:bg-accent transition-colors"
+                aria-label="Слухати санскрит"
+                onClick={() => playSection("Санскрит")}
+              >
+                <Volume2 className="h-8 w-8 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
+            <div
+              className="text-center leading-relaxed font-sanskrit"
+              style={{ fontSize: `${fontSize * 1.4}px`, lineHeight: 2.2 }}
+            >
+              {currentVerse.sanskrit.split("\n").map((line, i) => (
+                <div key={i} className="mb-4">
+                  {line}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Транслітерація */}
+        {currentVerse.transliteration && (
+          <section className="mb-12">
+            <div
+              className="text-center italic text-muted-foreground font-sanskrit-italic"
+              style={{ fontSize: `${fontSize * 1.1}px`, lineHeight: 2 }}
+            >
+              {currentVerse.transliteration.split("\n").map((line, i) => (
+                <div key={i} className="mb-3">
+                  {line}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Послівний переклад з кнопкою Volume2 */}
+        {currentVerse.synonyms && (
+          <section className="mb-12">
+            <div className="mb-6 flex items-center justify-center gap-4">
+              <h2 className="font-bold" style={{ fontSize: `${fontSize * 1.7}px` }}>
+                Послівний переклад
+              </h2>
+              <button
+                className="rounded-full p-2 hover:bg-accent transition-colors"
+                aria-label="Слухати послівний переклад"
+                onClick={() => playSection("Послівний переклад")}
+              >
+                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
+            <div style={{ fontSize: `${fontSize * 1.1}px`, lineHeight: 1.8 }}>
+              {synonymPairs.map((pair, i) => {
+                const words = pair.term
+                  .split(/\s+/)
+                  .map((w) => w.trim())
+                  .filter(Boolean);
+
+                return (
+                  <span key={i}>
+                    {words.map((w, wi) => (
+                      <span key={wi}>
+                        <span
+                          role="link"
+                          tabIndex={0}
+                          onClick={() => openGlossary(w)}
+                          onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                          className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          title="Відкрити у глосарії"
+                        >
+                          {w}
+                        </span>
+                        {wi < words.length - 1 && " "}
+                      </span>
+                    ))}
+                    {pair.meaning && <span> — {pair.meaning}</span>}
+                    {i < synonymPairs.length - 1 && <span>; </span>}
+                  </span>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Літературний переклад з кнопкою Volume2 */}
+        {currentVerse.translation && (
+          <section className="mb-12">
+            <div className="mb-6 flex items-center justify-center gap-4">
+              <h2 className="font-bold" style={{ fontSize: `${fontSize * 1.7}px` }}>
+                Літературний переклад
+              </h2>
+              <button
+                className="rounded-full p-2 hover:bg-accent transition-colors"
+                aria-label="Слухати переклад"
+                onClick={() => playSection("Переклад")}
+              >
+                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
+            <div className="font-bold" style={{ fontSize: `${fontSize * 1.1}px`, lineHeight: 1.8 }}>
+              {currentVerse.translation}
+            </div>
+          </section>
+        )}
+
+        {/* Пояснення з кнопкою Volume2 */}
+        {currentVerse.commentary && (
+          <section className="mb-12">
+            <div className="mb-6 flex items-center justify-center gap-4">
+              <h2 className="font-bold" style={{ fontSize: `${fontSize * 1.7}px` }}>
+                Пояснення
+              </h2>
+              <button
+                className="rounded-full p-2 hover:bg-accent transition-colors"
+                aria-label="Слухати пояснення"
+                onClick={() => playSection("Пояснення")}
+              >
+                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
+            <div style={{ fontSize: `${fontSize * 1.1}px`, lineHeight: 1.8 }}>
+              {currentVerse.commentary.split("\n\n").map((para, i) => (
+                <p key={i} className="mb-6 last:mb-0">
+                  {para}
+                </p>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Навігація між віршами (як у PDF) */}
+        <div className="flex items-center justify-between border-t border-border pt-8">
+          <Button
+            variant="secondary"
+            disabled={!prevVerse}
+            onClick={() => prevVerse && navigate(`/verses/${bookId}/${prevVerse.number}`)}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeft className="h-5 w-5" /> Попередній вірш
+          </Button>
+
+          <Button
+            variant="secondary"
+            disabled={!nextVerse}
+            onClick={() => nextVerse && navigate(`/verses/${bookId}/${nextVerse.number}`)}
+            className="flex items-center gap-2"
+          >
+            Наступний вірш <ChevronRight className="h-5 w-5" />
+          </Button>
         </div>
       </main>
     </div>
