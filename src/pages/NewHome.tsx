@@ -195,7 +195,7 @@ function Hero() {
                         </div>
                       </div>
 
-                      <Button size="sm" onClick={togglePlay} className="gap-2">
+                      <Button size="sm" onClick={togglePlay} className="gap-2 relative z-10">
                         {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                         {isPlaying ? "Пауза" : "Продовжити"}
                       </Button>
