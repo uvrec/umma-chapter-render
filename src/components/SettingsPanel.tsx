@@ -81,17 +81,9 @@ export const SettingsPanel = ({
   useEffect(() => {
     localStorage.setItem("vv_reader_lineHeight", String(lineHeight));
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
-    // якщо сторінка читання додала data-reader-root="true", підхопить стилями inline
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
     if (root) root.style.lineHeight = String(lineHeight);
   }, [lineHeight]);
-
-  // craft ↔ global theme
-  useEffect(() => {
-    if (craftPaperMode && theme !== "craft") setTheme("craft");
-    if (!craftPaperMode && theme === "craft") setTheme("light");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [craftPaperMode]);
 
   const filteredVerses = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();

@@ -100,6 +100,7 @@ const App = () => (
 
                   {/* Бібліотека */}
                   <Route path="/library" element={<Library />} />
+                  <Route path="/library/:slug" element={<BookOverview />} />
                   <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
                   <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
 

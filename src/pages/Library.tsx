@@ -5,12 +5,13 @@ import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Headphones, Edit } from "lucide-react";
+import { BookOpen, Headphones, Edit, Image as ImageIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { BookCoverEditor } from "@/components/BookCoverEditor";
+import { BannerEditor } from "@/components/BannerEditor";
 
 type DbBook = {
   id: string;
@@ -20,7 +21,7 @@ type DbBook = {
   description_ua: string | null;
   description_en: string | null;
   cover_image_url: string | null;
-  cover_image_path: string | null;
+  
   purchase_url: string | null;
   display_order: number | null;
   is_featured: boolean | null;
@@ -31,6 +32,8 @@ export const Library = () => {
   const { language } = useLanguage();
   const { isAdmin, loading: authLoading } = useAuth();
   const [editingBook, setEditingBook] = useState<DbBook | null>(null);
+  const [editingBanner, setEditingBanner] = useState(false);
+  const [bannerUrl, setBannerUrl] = useState("/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png");
 
   const {
     data: dbBooks = [],
@@ -42,7 +45,7 @@ export const Library = () => {
       const { data, error } = await supabase
         .from("books")
         .select(
-          "id, slug, title_ua, title_en, description_ua, description_en, cover_image_url, cover_image_path, purchase_url, display_order, is_featured, has_cantos",
+          "id, slug, title_ua, title_en, description_ua, description_en, cover_image_url, purchase_url, display_order, is_featured, has_cantos",
         )
         .order("display_order", { ascending: true })
         .order("is_featured", { ascending: false })
@@ -58,13 +61,24 @@ export const Library = () => {
       <Header />
       <main className="container mx-auto px-4 py-8">
         {/* Banner */}
-        <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg">
+        <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg group">
           <img
-            src="/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png"
+            src={bannerUrl}
             alt="Студія звукозапису"
             className="w-full h-full object-cover"
             loading="lazy"
           />
+          {!authLoading && isAdmin && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => setEditingBanner(true)}
+            >
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Змінити банер
+            </Button>
+          )}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
             <div className="w-56 h-56 md:w-72 md:h-72 drop-shadow-2xl">
               <img
@@ -166,9 +180,21 @@ export const Library = () => {
           bookId={editingBook.id}
           bookSlug={editingBook.slug}
           currentCoverUrl={editingBook.cover_image_url}
-          currentCoverPath={editingBook.cover_image_path}
+          currentCoverPath={null}
           isOpen={!!editingBook}
           onClose={() => setEditingBook(null)}
+        />
+      )}
+
+      {/* Діалог редагування банера */}
+      {editingBanner && (
+        <BannerEditor
+          pageSlug="library"
+          currentBannerUrl={bannerUrl}
+          isOpen={editingBanner}
+          onClose={() => setEditingBanner(false)}
+          onSave={(newUrl) => setBannerUrl(newUrl)}
+          title="Редагувати банер бібліотеки"
         />
       )}
     </div>

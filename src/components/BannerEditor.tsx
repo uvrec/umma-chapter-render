@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Upload, X, Check } from "lucide-react";
+import { Upload, X, Check, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,27 +8,32 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
-const MAX_IMAGE_MB = 5;
+const MAX_IMAGE_MB = 10;
 
-interface BookCoverEditorProps {
-  bookId: string;
-  bookSlug: string;
-  currentCoverUrl: string | null;
-  currentCoverPath: string | null;
+interface BannerEditorProps {
+  pageId?: string; // ID сторінки з таблиці pages
+  pageSlug: string; // slug для генерації імені файлу
+  currentBannerUrl: string | null;
+  tableName?: string; // 'pages' за замовчуванням
+  queryKey?: string[]; // для invalidate
   isOpen: boolean;
   onClose: () => void;
+  onSave?: (newUrl: string) => void; // callback для оновлення стану в батьківському компоненті
+  title?: string;
 }
 
-export const BookCoverEditor = ({
-  bookId,
-  bookSlug,
-  currentCoverUrl,
-  currentCoverPath,
+export const BannerEditor = ({
+  pageId,
+  pageSlug,
+  currentBannerUrl,
+  tableName = 'pages',
+  queryKey = ['pages'],
   isOpen,
   onClose,
-}: BookCoverEditorProps) => {
-  const [coverImageUrl, setCoverImageUrl] = useState(currentCoverUrl || "");
-  const [coverImagePath, setCoverImagePath] = useState<string | null>(currentCoverPath || null);
+  onSave,
+  title = "Редагувати банер",
+}: BannerEditorProps) => {
+  const [bannerUrl, setBannerUrl] = useState(currentBannerUrl || "");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -59,13 +64,8 @@ export const BookCoverEditor = ({
     setUploading(true);
     try {
       const fileExt = file.name.split(".").pop() || "jpg";
-      const fileName = `${bookSlug}-cover-${Date.now()}.${fileExt}`;
-      const filePath = `book-covers/${fileName}`;
-
-      // Видалити стару обкладинку, якщо вона є
-      if (coverImagePath) {
-        await supabase.storage.from("page-media").remove([coverImagePath]);
-      }
+      const fileName = `${pageSlug}-banner-${Date.now()}.${fileExt}`;
+      const filePath = `banners/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("page-media")
@@ -77,10 +77,8 @@ export const BookCoverEditor = ({
         data: { publicUrl },
       } = supabase.storage.from("page-media").getPublicUrl(filePath);
 
-      setCoverImageUrl(publicUrl);
-      setCoverImagePath(filePath);
-
-      toast({ title: "Успіх", description: "Обкладинку завантажено" });
+      setBannerUrl(publicUrl);
+      toast({ title: "Успіх", description: "Банер завантажено" });
     } catch (error: any) {
       toast({ title: "Помилка", description: String(error?.message || error), variant: "destructive" });
     } finally {
@@ -89,45 +87,39 @@ export const BookCoverEditor = ({
     }
   };
 
-  const handleRemoveImage = async () => {
-    try {
-      if (coverImagePath) {
-        const { error } = await supabase.storage.from("page-media").remove([coverImagePath]);
-        if (error) throw error;
-      }
-      setCoverImageUrl("");
-      setCoverImagePath(null);
-      toast({ title: "Обкладинка видалена" });
-    } catch (error: any) {
-      setCoverImageUrl("");
-      setCoverImagePath(null);
-      toast({
-        title: "Обкладинку прибрано з поста",
-        description: "Файл у сховищі не вдалось видалити: " + String(error?.message || error),
-      });
-    }
+  const handleRemoveImage = () => {
+    setBannerUrl("");
+    toast({ title: "Банер видалено" });
   };
 
   const handleSave = async () => {
     if (uploading) return;
 
-    if (coverImageUrl && !isValidHttpsOrEmpty(coverImageUrl)) {
+    if (bannerUrl && !isValidHttpsOrEmpty(bannerUrl)) {
       toast({ title: "Помилка", description: "Невірний URL. Використовуйте https://", variant: "destructive" });
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from("books")
-        .update({
-          cover_image_url: coverImageUrl.trim() || null,
-        })
-        .eq("id", bookId);
+      // Якщо є pageId, оновлюємо в базі даних
+      if (pageId) {
+        const { error } = await supabase
+          .from(tableName as any)
+          .update({
+            banner_image_url: bannerUrl.trim() || null,
+          })
+          .eq("id", pageId);
 
-      if (error) throw error;
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey });
+      }
 
-      queryClient.invalidateQueries({ queryKey: ["library-books"] });
-      toast({ title: "Успіх", description: "Обкладинку оновлено" });
+      // Викликаємо callback якщо є
+      if (onSave) {
+        onSave(bannerUrl.trim());
+      }
+
+      toast({ title: "Успіх", description: "Банер оновлено" });
       onClose();
     } catch (error: any) {
       toast({ title: "Помилка", description: String(error?.message || error), variant: "destructive" });
@@ -136,16 +128,20 @@ export const BookCoverEditor = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Редагувати обкладинку</DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Поточна обкладинка */}
-          {coverImageUrl && (
-            <div className="relative w-full aspect-[2/3] max-w-[200px] mx-auto">
-              <img src={coverImageUrl} alt="Обкладинка" className="w-full h-full object-cover rounded shadow-md" />
+          {/* Поточний банер */}
+          {bannerUrl && (
+            <div className="relative w-full aspect-[3/1] max-w-full mx-auto">
+              <img 
+                src={bannerUrl} 
+                alt="Банер" 
+                className="w-full h-full object-cover rounded shadow-md" 
+              />
               <Button
                 variant="destructive"
                 size="icon"
@@ -158,9 +154,18 @@ export const BookCoverEditor = ({
             </div>
           )}
 
+          {!bannerUrl && (
+            <div className="w-full aspect-[3/1] bg-muted rounded flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <ImageIcon className="w-16 h-16 mx-auto mb-2 opacity-50" />
+                <p>Банер відсутній</p>
+              </div>
+            </div>
+          )}
+
           {/* Завантаження файлу */}
           <div>
-            <Label htmlFor="cover-upload">Завантажити нову обкладинку</Label>
+            <Label htmlFor="banner-upload">Завантажити новий банер</Label>
             <Button
               variant="outline"
               className="w-full mt-2"
@@ -172,7 +177,7 @@ export const BookCoverEditor = ({
             </Button>
             <input
               ref={fileInputRef}
-              id="cover-upload"
+              id="banner-upload"
               type="file"
               accept="image/*"
               className="hidden"
@@ -182,30 +187,27 @@ export const BookCoverEditor = ({
 
           {/* Або URL */}
           <div>
-            <Label htmlFor="coverImageUrl" className="text-sm text-muted-foreground">
+            <Label htmlFor="bannerUrl" className="text-sm text-muted-foreground">
               Або введіть URL вручну (https://)
             </Label>
             <Input
-              id="coverImageUrl"
-              value={coverImageUrl}
-              onChange={(e) => {
-                setCoverImageUrl(e.target.value);
-                setCoverImagePath(null);
-              }}
-              placeholder="https://example.com/cover.jpg"
+              id="bannerUrl"
+              value={bannerUrl}
+              onChange={(e) => setBannerUrl(e.target.value)}
+              placeholder="https://example.com/banner.jpg"
               className="mt-2"
             />
-            {!!coverImageUrl && !isValidHttpsOrEmpty(coverImageUrl) && (
+            {!!bannerUrl && !isValidHttpsOrEmpty(bannerUrl) && (
               <p className="text-xs text-destructive mt-1">Невірний URL. Використовуйте https://</p>
             )}
           </div>
 
           {/* Технічні вимоги */}
           <div className="text-xs text-muted-foreground space-y-1 p-3 bg-muted/50 rounded">
-            <p className="font-semibold">Технічні вимоги до обкладинок:</p>
+            <p className="font-semibold">Технічні вимоги до банерів:</p>
             <ul className="list-disc list-inside space-y-1">
               <li>Формат: JPG, PNG, WEBP</li>
-              <li>Розмір: 800×1200px (співвідношення 2:3)</li>
+              <li>Оптимальний розмір: 1920×640px (співвідношення 3:1)</li>
               <li>Розмір файлу: до {MAX_IMAGE_MB}MB</li>
               <li>Мінімальна якість: 72 DPI</li>
             </ul>

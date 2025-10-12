@@ -16,7 +16,7 @@ type PlaylistRow = {
   title_ua?: string | null;
   description_ua?: string | null;
   cover_image_url?: string | null;
-  cover_image_path?: string | null;
+  
   year?: number | null;
   is_published?: boolean | null;
   tracks?: { count: number }[];
@@ -72,7 +72,6 @@ export const Audiobooks = () => {
             title_ua,
             description_ua,
             cover_image_url,
-            cover_image_path,
             year,
             is_published,
             tracks:audio_tracks(count)
@@ -218,7 +217,7 @@ export const Audiobooks = () => {
           itemId={editingPlaylist.id}
           itemSlug={`audiobook-${editingPlaylist.id}`}
           currentCoverUrl={editingPlaylist.cover_image_url}
-          currentCoverPath={editingPlaylist.cover_image_path}
+          currentCoverPath={null}
           tableName="audio_playlists"
           queryKey={["audiobooks-playlists", category?.id]}
           storageFolder="audio-covers"

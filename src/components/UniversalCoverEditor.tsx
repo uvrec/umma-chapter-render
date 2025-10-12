@@ -140,10 +140,9 @@ export const UniversalCoverEditor = ({
 
     try {
       const { error } = await supabase
-        .from(tableName)
+        .from(tableName as any)
         .update({
           cover_image_url: coverImageUrl.trim() || null,
-          cover_image_path: coverImagePath,
         })
         .eq("id", itemId);
 

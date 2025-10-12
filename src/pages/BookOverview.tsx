@@ -8,22 +8,23 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 export const BookOverview = () => {
-  const { bookId } = useParams();
+  const { bookId, slug } = useParams();
+  const bookSlug = slug || bookId;
   const { language, t } = useLanguage();
 
   // Fetch book
   const { data: book } = useQuery({
-    queryKey: ['book', bookId],
+    queryKey: ['book', bookSlug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('books')
         .select('*')
-        .eq('slug', bookId)
+        .eq('slug', bookSlug)
         .single();
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId
+    enabled: !!bookSlug
   });
 
   // Fetch cantos if book has them
@@ -124,10 +125,10 @@ export const BookOverview = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3">Вступні матеріали:</h3>
                   <ul className="space-y-2">
-                    {introChapters.map((intro) => (
+                     {introChapters.map((intro) => (
                       <li key={intro.id}>
                         <Link 
-                          to={`/veda-reader/${bookId}/intro/${intro.slug}`}
+                          to={`/veda-reader/${bookSlug}/intro/${intro.slug}`}
                           className="text-primary hover:underline"
                         >
                           {language === 'ua' ? intro.title_ua : intro.title_en}
@@ -161,7 +162,7 @@ export const BookOverview = () => {
                 return (
                   <Card key={canto.id} className="group hover:shadow-lg transition-all duration-300 border-border/50">
                     <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
-                      <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`} className="block w-full h-full">
+                      <Link to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`} className="block w-full h-full">
                         {coverImage ? (
                           <img 
                             src={coverImage} 
@@ -197,7 +198,7 @@ export const BookOverview = () => {
                         </p>
                       )}
                       <div className="flex items-center justify-center">
-                        <Link to={`/veda-reader/${bookId}/canto/${canto.canto_number}`}>
+                        <Link to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`}>
                           <Badge variant="outline" className="hover:bg-primary hover:text-primary-foreground transition-colors">
                             <BookOpen className="w-3 h-3 mr-1" />
                             {language === 'ua' ? 'Читати' : 'Read'}
@@ -213,7 +214,7 @@ export const BookOverview = () => {
               chapters.map((chapter) => (
                 <Link 
                   key={chapter.id}
-                  to={`/veda-reader/${bookId}/${chapter.chapter_number}`}
+                  to={`/veda-reader/${bookSlug}/${chapter.chapter_number}`}
                 >
                   <Card className="hover:shadow-lg transition-all duration-300 hover:border-primary/50">
                     <CardHeader className="pb-3">
