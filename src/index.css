@@ -169,6 +169,59 @@ body {
   box-shadow: none;
 }
 
+/* ==== Анти-бордери в зоні читання ==== */
+.prose-reader,
+.verse-surface,
+[data-reader-root="true"] {
+  /* запасний фон, щоб не було контрастної «межі» через злиття полів */
+  background: hsl(var(--card));
+}
+/* ховаємо всі hr і role="separator" локально в читанні */
+.prose-reader hr,
+.verse-surface hr,
+[data-reader-root="true"] hr,
+.prose-reader [role="separator"],
+.verse-surface [role="separator"],
+[data-reader-root="true"] [role="separator"] {
+  display: none !important;
+  border: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* знеактивовуємо будь-які border-t / border-b усередині карток віршів */
+.prose-reader [class*="border-t"],
+.verse-surface [class*="border-t"],
+[data-reader-root="true"] [class*="border-t"],
+.prose-reader [class*="border-b"],
+.verse-surface [class*="border-b"],
+[data-reader-root="true"] [class*="border-b"] {
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+  border-color: transparent !important;
+}
+/* вимикаємо розділювачі Tailwind `divide-y` у контейнерах */
+.prose-reader .divide-y > :not([hidden]) ~ :not([hidden]),
+.verse-surface .divide-y > :not([hidden]) ~ :not([hidden]),
+[data-reader-root="true"] .divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-top-width: 0 !important;
+}
+/* на випадок, якщо Separator має власний клас */
+.prose-reader .shadcn-separator,
+.verse-surface .shadcn-separator,
+[data-reader-root="true"] .shadcn-separator {
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+/* якщо десь лишились outline-бордери у секцій */
+.prose-reader section,
+.verse-surface section,
+[data-reader-root="true"] section {
+  border: 0 !important;
+}
+
 /* =========================
    Скидання демо-стилів Vite
    ========================= */
@@ -182,22 +235,4 @@ body {
   to {
     transform: none;
   }
-}
-/* Прибрати лінію-роздільник у читалці */
-.prose-reader hr,
-.verse-surface hr,
-.reader hr {
-  display: none !important;
-  border: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-}
-
-/* якщо десь стоїть Separator з shadcn — зробимо його невидимим саме у читалці */
-.prose-reader .shadcn-separator,
-.verse-surface .shadcn-separator {
-  opacity: 0 !important;
-  height: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
 }
