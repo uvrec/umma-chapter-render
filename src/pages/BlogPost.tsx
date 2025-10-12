@@ -225,9 +225,9 @@ export default function BlogPost() {
           </header>
 
           {/* Content */}
-          <div className="blog-body">
+          <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
             {hasContent ? (
-              <TiptapRenderer content={content} />
+              <TiptapRenderer content={content} className="!max-w-none" />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="text-lg">Контент поста ще не додано</p>
