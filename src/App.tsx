@@ -1,3 +1,4 @@
+// src/App.tsx — повністю готовий файл з правильними імпортами VedaReader/IndividualVerse
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,8 +12,9 @@ import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
 import { NewHome } from "./pages/NewHome";
-import VedaReader from "./pages/VedaReader"; // ← тепер існує
-import { IndividualVerse } from "./components/IndividualVerse";
+import { VedaReader } from "./components/VedaReader"; // ← ВАЖЛИВО: з components
+import { IndividualVerse } from "./components/IndividualVerse"; // ← ВАЖЛИВО: з components
+
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
@@ -21,6 +23,7 @@ import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
 import { SriIsopanishad } from "./pages/audiobooks/SriIsopanishad";
+import { Footer } from "./components/Footer";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
@@ -67,7 +70,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* craft — дефолт; storageKey узгоджений із ThemeProvider/ThemeToggle */}
+    {/* craft — дефолтна тема */}
     <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
       <LanguageProvider>
         <AuthProvider>
@@ -77,14 +80,15 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <Routes>
+                  {/* Головна */}
                   <Route path="/" element={<NewHome />} />
 
-                  {/* Читалка */}
+                  {/* Рідер (ВАЖЛИВО: порядок від більш загального до конкретного збережений) */}
                   <Route path="/verses" element={<VedaReader />} />
                   <Route path="/verses/:bookId" element={<VedaReader />} />
                   <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
 
-                  {/* Нові маршрути читання БД */}
+                  {/* Навігація по Vedabase-ридеру */}
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                   <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
@@ -94,7 +98,7 @@ const App = () => (
                   />
                   <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
 
-                  {/* Alias/redirects */}
+                  {/* Легасі редіректи */}
                   <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
                   <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
 
@@ -112,11 +116,11 @@ const App = () => (
                   <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
                   <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
                   <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
+                  <Route path="/audio/podcasts" element={<Podcasts />} />
 
-                  {/* Блог/інше */}
+                  {/* Блог / глосарій / контакт */}
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/audio/podcasts" element={<Podcasts />} />
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/contact" element={<Contact />} />
@@ -125,10 +129,10 @@ const App = () => (
                   <Route path="/payment/card" element={<CardPayment />} />
                   <Route path="/payment/bank" element={<BankTransfer />} />
 
-                  {/* Auth */}
+                  {/* Аутентифікація */}
                   <Route path="/auth" element={<Auth />} />
 
-                  {/* Admin */}
+                  {/* Адмінка */}
                   <Route path="/admin/dashboard" element={<Dashboard />} />
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
@@ -159,16 +163,14 @@ const App = () => (
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
 
-                  {/* Сторінки з CMS */}
+                  {/* Catch-all */}
                   <Route path="/:slug" element={<PageView />} />
-
-                  {/* 404 */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
 
-                {/* Глобальний плеєр і єдина панель налаштувань */}
                 <GlobalAudioPlayer />
                 <GlobalSettingsPanel />
+                <Footer />
               </BrowserRouter>
             </AudioProvider>
           </TooltipProvider>
