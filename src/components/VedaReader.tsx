@@ -1,14 +1,14 @@
-// VedaReader.tsx — єдина панель налаштувань, робочі розмір/міжряддя,
-// неперервний режим, craft-фон, «Пояснення» та правильна «Шрі Ішопанішада».
-
+// src/components/VedaReader.tsx
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Breadcrumb } from "@/components/Breadcrumb";
-import { Settings } from "lucide-react";
+import { VerseCard } from "./VerseCard";
+import { Header } from "./Header";
+import { Breadcrumb } from "./Breadcrumb";
+import { SettingsPanel, type ContinuousReadingSettings } from "./SettingsPanel";
 import { Button } from "@/components/ui/button";
-import { SettingsPanel, type ContinuousReadingSettings } from "@/components/SettingsPanel";
+import { Settings, ArrowLeft } from "lucide-react";
 import { verses as ALL_VERSES } from "@/data/verses";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 type OriginalLanguage = "sanskrit" | "english" | "bengali";
 
@@ -23,88 +23,29 @@ interface Verse {
   audioUrl?: string;
 }
 
-// --- helpers to persist settings ---
-const LS = {
-  fontSize: "vv_reader_fontSize",
-  lineHeight: "vv_reader_lineHeight",
-  dual: "vv_reader_dualMode",
-  blocks: "vv_reader_blocks",
-};
-const readNum = (k: string, d: number) => {
-  try {
-    const v = localStorage.getItem(k);
-    return v ? Number(v) : d;
-  } catch {
-    return d;
-  }
-};
-const readBool = (k: string, d: boolean) => {
-  try {
-    const v = localStorage.getItem(k);
-    return v ? v === "true" : d;
-  } catch {
-    return d;
-  }
-};
-const readBlocks = () => {
-  try {
-    const v = localStorage.getItem(LS.blocks);
-    return v
-      ? JSON.parse(v)
-      : {
-          showSanskrit: true,
-          showTransliteration: true,
-          showSynonyms: true,
-          showTranslation: true,
-          showCommentary: true,
-        };
-  } catch {
-    return {
-      showSanskrit: true,
-      showTransliteration: true,
-      showSynonyms: true,
-      showTranslation: true,
-      showCommentary: true,
-    };
-  }
-};
-
 export const VedaReader = () => {
   const { bookId } = useParams();
-
-  // core state (із localStorage)
-  const [fontSize, setFontSize] = useState<number>(() => readNum(LS.fontSize, 18));
-  const [lineHeight, setLineHeight] = useState<number>(() => readNum(LS.lineHeight, 1.6));
-  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => readBool(LS.dual, false));
-  const [textDisplaySettings, setTextDisplaySettings] = useState(readBlocks);
-
-  // решта
   const [showSettings, setShowSettings] = useState(false);
-  const [craftPaperMode, setCraftPaperMode] = useState(true); // можемо стартувати з craft
+
+  // ← головні налаштування беруться з useReaderSettings()
+  const {
+    fontSize,
+    setFontSize,
+    lineHeight, // застосовується через data-reader-root атрибут
+    dualLanguageMode,
+    setDualLanguageMode,
+    textDisplaySettings,
+    setTextDisplaySettings,
+    continuousReadingSettings,
+    setContinuousReadingSettings,
+  } = useReaderSettings();
+
+  // локальна “крафт-кнопка” залишаємо, але тема керується глобально
+  const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState<OriginalLanguage>("sanskrit");
-  const [continuousReadingSettings, setContinuousReadingSettings] = useState<ContinuousReadingSettings>({
-    enabled: false,
-    showVerseNumbers: true,
-    showSanskrit: false,
-    showTransliteration: false,
-    showTranslation: true,
-    showCommentary: false,
-  });
 
-  // anchors
+  // якір для швидкого скролу між віршами
   const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // persist
-  useEffect(() => localStorage.setItem(LS.fontSize, String(fontSize)), [fontSize]);
-  useEffect(() => localStorage.setItem(LS.lineHeight, String(lineHeight)), [lineHeight]);
-  useEffect(() => localStorage.setItem(LS.dual, String(dualLanguageMode)), [dualLanguageMode]);
-  useEffect(() => localStorage.setItem(LS.blocks, JSON.stringify(textDisplaySettings)), [textDisplaySettings]);
-
-  // live apply line-height for SettingsPanel slider
-  useEffect(() => {
-    const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
-    if (root) root.style.lineHeight = String(lineHeight);
-  }, [lineHeight]);
 
   const getBookTitle = (bid?: string): string => {
     switch (bid) {
@@ -138,7 +79,7 @@ export const VedaReader = () => {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // keyboard nav (←/→) when NOT continuous
+  // хоткеї ←/→ між віршами (коли не continuous)
   useEffect(() => {
     if (continuousReadingSettings.enabled) return;
     const onKey = (e: KeyboardEvent) => {
@@ -149,6 +90,7 @@ export const VedaReader = () => {
         tag === "select" ||
         (document.activeElement as HTMLElement | null)?.isContentEditable;
       if (editable) return;
+
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
 
       const anchors = filteredVerses
@@ -190,18 +132,23 @@ export const VedaReader = () => {
                 ВІРШ {verseShort}:
               </Link>
             )}
+
             {continuousReadingSettings.showSanskrit && verse.sanskrit && (
               <div className="mb-2">
                 <div className="text-lg leading-relaxed font-medium">{verse.sanskrit}</div>
               </div>
             )}
+
             {continuousReadingSettings.showTransliteration && verse.transliteration && (
               <div className="mb-2 italic leading-relaxed">{verse.transliteration}</div>
             )}
+
             {continuousReadingSettings.showTranslation && <span className="leading-relaxed">{verse.translation}</span>}
+
             {continuousReadingSettings.showCommentary && verse.commentary && (
               <div className="mt-2 leading-relaxed text-muted-foreground">{verse.commentary}</div>
             )}
+
             {index < filteredVerses.length - 1 && <span> </span>}
           </div>
         );
@@ -209,8 +156,8 @@ export const VedaReader = () => {
     </div>
   );
 
-  // стиль контейнера читалки (і саме тут — data-reader-root)
-  const contentStyle: React.CSSProperties = { fontSize: `${fontSize}px`, lineHeight };
+  // базові стилі (fontSize) — lineHeight керується хуком через data-reader-root
+  const contentStyle: React.CSSProperties = { fontSize: `${fontSize}px` };
 
   const originalHeader = (lang: OriginalLanguage) =>
     lang === "sanskrit" ? "संस्कृत" : lang === "english" ? "English" : "বাংলা";
@@ -222,7 +169,11 @@ export const VedaReader = () => {
       <Header />
 
       <main className="container mx-auto px-4 py-8" ref={containerRef}>
-        <div className="mx-auto max-w-4xl prose-reader" style={contentStyle} data-reader-root="true">
+        <div
+          className="mx-auto max-w-4xl"
+          style={contentStyle}
+          data-reader-root="true" // ← важливо для автоматичного міжряддя
+        >
           <Breadcrumb
             items={[
               { label: "Головна", href: "/" },
@@ -236,7 +187,7 @@ export const VedaReader = () => {
               to="/library"
               className="flex items-center text-muted-foreground transition-colors hover:text-foreground"
             >
-              <span className="mr-2 inline-block rotate-180">➔</span>
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Повернутися до бібліотеки
             </Link>
 
@@ -261,25 +212,48 @@ export const VedaReader = () => {
                         {/* Оригінал */}
                         <div className="verse-surface rounded-lg p-6">
                           <h4 className="mb-4 text-center font-semibold">{originalHeader(originalLanguage)}</h4>
-                          <VerseBlock
-                            verse={verse}
-                            show={{
-                              showSanskrit: originalLanguage === "sanskrit" && textDisplaySettings.showSanskrit,
-                              showTransliteration:
-                                originalLanguage === "sanskrit" && textDisplaySettings.showTransliteration,
-                              showSynonyms: originalLanguage === "sanskrit" && textDisplaySettings.showSynonyms,
-                              showTranslation: true,
-                              showCommentary: originalLanguage === "sanskrit" && textDisplaySettings.showCommentary,
-                            }}
+                          <VerseCard
+                            verseNumber={verse.number}
+                            bookName={verse.book}
+                            sanskritText={verse.sanskrit}
+                            transliteration={originalLanguage === "sanskrit" ? verse.transliteration : ""}
+                            synonyms={originalLanguage === "sanskrit" ? verse.synonyms : ""}
+                            translation={
+                              originalLanguage === "english"
+                                ? "English translation coming soon..."
+                                : originalLanguage === "bengali"
+                                  ? "বাংলা অনুবাদ শীঘ্রই আসছে..."
+                                  : verse.translation
+                            }
+                            commentary={originalLanguage === "sanskrit" ? verse.commentary : ""}
+                            audioUrl={verse.audioUrl}
+                            textDisplaySettings={
+                              originalLanguage === "sanskrit"
+                                ? textDisplaySettings
+                                : {
+                                    showSanskrit: false,
+                                    showTransliteration: false,
+                                    showSynonyms: false,
+                                    showTranslation: true,
+                                    showCommentary: false,
+                                  }
+                            }
                           />
                         </div>
 
                         {/* Український переклад */}
                         <div className="verse-surface rounded-lg p-6">
                           <h4 className="mb-4 text-center font-semibold">Українська</h4>
-                          <VerseBlock
-                            verse={verse}
-                            show={{
+                          <VerseCard
+                            verseNumber={verse.number}
+                            bookName={verse.book}
+                            sanskritText=""
+                            transliteration=""
+                            synonyms=""
+                            translation={verse.translation}
+                            commentary={verse.commentary}
+                            audioUrl={verse.audioUrl}
+                            textDisplaySettings={{
                               showSanskrit: false,
                               showTransliteration: false,
                               showSynonyms: false,
@@ -290,25 +264,37 @@ export const VedaReader = () => {
                         </div>
                       </div>
                     ) : (
-                      <div className="verse-surface rounded-lg p-6">
-                        <VerseBlock verse={verse} show={textDisplaySettings} />
-                      </div>
+                      <VerseCard
+                        verseNumber={verse.number}
+                        bookName={verse.book}
+                        sanskritText={verse.sanskrit}
+                        transliteration={verse.transliteration}
+                        synonyms={verse.synonyms}
+                        translation={verse.translation}
+                        commentary={verse.commentary}
+                        audioUrl={verse.audioUrl}
+                        textDisplaySettings={textDisplaySettings}
+                      />
                     )}
                   </div>
                 ))}
           </div>
 
-          {/* Навігація по "голові" (плейсхолдер) */}
+          {/* Навігація по главі (заглушка) */}
           <div className="mt-12 flex items-center justify-between border-t pt-8">
             <Button variant="outline" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
               Попередня глава
             </Button>
+
             <div className="text-center">
               <p className="text-sm text-muted-foreground">Глава</p>
               <p className="font-medium">{getBookTitle(bookId)}</p>
             </div>
+
             <Button variant="outline" className="flex items-center gap-2">
               Наступна глава
+              <ArrowLeft className="h-4 w-4 rotate-180" />
             </Button>
           </div>
         </div>
@@ -336,33 +322,3 @@ export const VedaReader = () => {
     </div>
   );
 };
-
-// невеликий внутрішній компонент для відображення блоку вірша
-function VerseBlock({
-  verse,
-  show,
-}: {
-  verse: Verse;
-  show: {
-    showSanskrit: boolean;
-    showTransliteration: boolean;
-    showSynonyms: boolean;
-    showTranslation: boolean;
-    showCommentary: boolean;
-  };
-}) {
-  return (
-    <div className="space-y-3">
-      <div className="text-xs text-muted-foreground">Вірш {verse.number}</div>
-      {show.showSanskrit && verse.sanskrit ? <div className="sanskrit-text">{verse.sanskrit}</div> : null}
-      {show.showTransliteration && verse.transliteration ? (
-        <div className="translit">{verse.transliteration}</div>
-      ) : null}
-      {show.showSynonyms && verse.synonyms ? <div className="text-sm">{verse.synonyms}</div> : null}
-      {show.showTranslation ? <p>{verse.translation}</p> : null}
-      {show.showCommentary && verse.commentary ? <div className="text-muted-foreground">{verse.commentary}</div> : null}
-    </div>
-  );
-}
-
-export default VedaReader;
