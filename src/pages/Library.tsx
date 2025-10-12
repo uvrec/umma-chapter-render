@@ -20,7 +20,7 @@ type DbBook = {
   description_ua: string | null;
   description_en: string | null;
   cover_image_url: string | null;
-  cover_image_path?: string | null;
+  cover_image_path: string | null;
   purchase_url: string | null;
   display_order: number | null;
   is_featured: boolean | null;
