@@ -1,26 +1,10 @@
-Individualverse · TSX
-Download
-
 // IndividualVerse.tsx — оновлена версія відповідно до PDF шаблону 1
 // Великий заголовок text-6xl, sticky header з іконками, окремі Volume2 кнопки для кожної секції
 
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Breadcrumb } from "@/components/Breadcrumb";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { 
-  ArrowLeft, 
-  ChevronLeft, 
-  ChevronRight,
-  Bookmark, 
-  Share2, 
-  Download, 
-  Settings,
-  Volume2,
-  Home
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Bookmark, Share2, Download, Settings, Volume2, Home } from "lucide-react";
 import { verses } from "@/data/verses";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudio } from "@/components/GlobalAudioPlayer";
@@ -100,16 +84,12 @@ export const IndividualVerse = () => {
   if (!currentVerse) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <main className="container mx-auto px-4 py-8">
           <div className="mx-auto max-w-5xl text-center">
             <h1 className="mb-4 text-2xl font-bold">Вірш не знайдено</h1>
-            <Link to={`/verses/${bookId}`}>
-              <Button variant="outline">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Повернутися до читання
-              </Button>
-            </Link>
+            <Button variant="outline" onClick={() => navigate(`/verses/${bookId}`)}>
+              Повернутися до читання
+            </Button>
           </div>
         </main>
       </div>
