@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import SiteBanners from "@/components/SiteBanners";
+import SiteBannersAdmin from "@/pages/admin/SiteBanners";
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -142,6 +142,13 @@ const App = () => (
 
                   {/* Admin */}
                   <Route path="/admin/banners" element={<AdminBanners />} />
+
+                  {/* Сторінка налаштувань Hero/банерів */}
+                  <Route path="/admin/site-banners" element={<SiteBannersAdmin />} />
+
+                  {/* Опційні синоніми/редіректи, щоб не ловити 404 на різні варіанти шляху */}
+                  <Route path="/admin/sitebanners" element={<Navigate to="/admin/site-banners" replace />} />
+                  <Route path="/admin/site_banners" element={<Navigate to="/admin/site-banners" replace />} />
                   <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
                   <Route path="/admin/dashboard" element={<Dashboard />} />
                   <Route path="/admin/books" element={<Books />} />
