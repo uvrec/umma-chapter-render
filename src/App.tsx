@@ -11,6 +11,9 @@ import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer
 import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css"; // ← Додати цей рядок
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
+import AdminBanners from "@/pages/admin/AdminBanners";
+import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
+
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader"; // ← тепер існує
 import { IndividualVerse } from "./components/IndividualVerse";
@@ -131,6 +134,8 @@ const App = () => (
                   <Route path="/auth" element={<Auth />} />
 
                   {/* Admin */}
+                  <Route path="/admin/banners" element={<AdminBanners />} />
+                  <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
                   <Route path="/admin/dashboard" element={<Dashboard />} />
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
