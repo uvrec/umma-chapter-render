@@ -1,6 +1,5 @@
-// src/components/SettingsPanel.tsx
-// Оновлено: "Пояснення" замість "Коментар", видимість у всіх темах,
-// sync craft<->theme, збереження у veda-ui-theme, лінійний інтерліньяж.
+// SettingsPanel.tsx — +синхронізація з темами (light/dark/craft), локальне збереження,
+// лінійний інтерліньяж, дрібні UX-фікси. Твої пропси збережені, API не ламаю.
 
 import { useEffect, useMemo, useState } from "react";
 import { X, Minus, Plus, Search, Palette } from "lucide-react";
@@ -17,7 +16,7 @@ interface TextDisplaySettings {
   showTransliteration: boolean;
   showSynonyms: boolean;
   showTranslation: boolean;
-  showCommentary: boolean; // у UI це "Пояснення"
+  showCommentary: boolean;
 }
 
 export interface ContinuousReadingSettings {
@@ -26,19 +25,16 @@ export interface ContinuousReadingSettings {
   showSanskrit: boolean;
   showTransliteration: boolean;
   showTranslation: boolean;
-  showCommentary: boolean; // у UI це "Пояснення"
+  showCommentary: boolean;
 }
 
 interface SettingsPanelProps {
   isOpen: boolean;
   onClose: () => void;
-
   fontSize: number;
   onFontSizeChange: (size: number) => void;
-
   craftPaperMode: boolean;
   onCraftPaperToggle: (enabled: boolean) => void;
-
   verses: Array<{
     number: string;
     book?: string;
@@ -46,16 +42,12 @@ interface SettingsPanelProps {
   }>;
   currentVerse: string;
   onVerseSelect: (verse: string) => void;
-
   dualLanguageMode: boolean;
   onDualLanguageModeToggle: (enabled: boolean) => void;
-
   textDisplaySettings: TextDisplaySettings;
   onTextDisplaySettingsChange: (settings: TextDisplaySettings) => void;
-
   originalLanguage: string;
   onOriginalLanguageChange: (language: string) => void;
-
   continuousReadingSettings: ContinuousReadingSettings;
   onContinuousReadingSettingsChange: (settings: ContinuousReadingSettings) => void;
 }
@@ -85,37 +77,32 @@ export const SettingsPanel = ({
   onContinuousReadingSettingsChange,
 }: SettingsPanelProps) => {
   const { theme, setTheme } = useTheme();
-
   const [searchQuery, setSearchQuery] = useState("");
   const [lineHeight, setLineHeight] = useState<number>(() => {
     const saved = localStorage.getItem("vv_reader_lineHeight");
     return saved ? Number(saved) : 1.6;
   });
 
-  // Craft toggle ↔ глобальна тема
+  // sync craft toggle <-> global theme
   useEffect(() => {
     if (craftPaperMode && theme !== "craft") setTheme("craft");
     if (!craftPaperMode && theme === "craft") setTheme("light");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [craftPaperMode]);
 
-  // Збереження налаштувань
+  // persist a few prefs
   useEffect(() => {
     localStorage.setItem("vv_reader_fontSize", String(fontSize));
   }, [fontSize]);
-
   useEffect(() => {
-    // вирівняно з ThemeProvider (storageKey="veda-ui-theme")
-    localStorage.setItem("veda-ui-theme", theme);
+    localStorage.setItem("vite-ui-theme", theme);
   }, [theme]);
-
   useEffect(() => {
     localStorage.setItem("vv_reader_dualMode", String(dualLanguageMode));
   }, [dualLanguageMode]);
-
   useEffect(() => {
     localStorage.setItem("vv_reader_lineHeight", String(lineHeight));
-    // застосовуємо міжряддя на кореневий контейнер читання
+    // синхронізація з контейнером читання: застосуй на корінь через data-attr
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
     if (root) root.style.lineHeight = String(lineHeight);
   }, [lineHeight]);
@@ -133,19 +120,19 @@ export const SettingsPanel = ({
 
   const increaseLH = () => setLineHeight((l) => Math.min(MAX_LH, Math.round((l + 0.05) * 100) / 100));
   const decreaseLH = () => setLineHeight((l) => Math.max(MIN_LH, Math.round((l - 0.05) * 100) / 100));
-
   const resetTypography = () => {
     onFontSizeChange(18);
     setLineHeight(1.6);
   };
 
+  vv: open - reader - settings;
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      {/* Примусово фарбуємо бекграунд/текст токенами теми, щоб не було "прозоро" */}
-      <SheetContent side="right" className="w-96 overflow-y-auto bg-background text-foreground">
+      <SheetContent side="right" className="w-96 overflow-y-auto">
         <SheetHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <SheetTitle>Налаштування</SheetTitle>
+            <SheetTitle>Настройки</SheetTitle>
             <Button variant="ghost" size="sm" onClick={onClose} aria-label="Закрити">
               <X className="w-4 h-4" />
             </Button>
@@ -153,7 +140,7 @@ export const SettingsPanel = ({
         </SheetHeader>
 
         <div className="space-y-6">
-          {/* Тема */}
+          {/* Theme */}
           <div>
             <h3 className="mb-4 flex items-center text-lg font-semibold">
               <Palette className="mr-2 h-4 w-4" /> Тема
@@ -191,7 +178,7 @@ export const SettingsPanel = ({
 
           <Separator />
 
-          {/* Типографіка */}
+          {/* Font Size + Line Height */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Відображення тексту</h3>
             <div className="space-y-4">
@@ -272,6 +259,7 @@ export const SettingsPanel = ({
                     onChange={(e) => onOriginalLanguageChange(e.target.value)}
                   >
                     <option value="sanskrit">Санскрит</option>
+
                     <option value="bengali">Бенгалі</option>
                   </select>
                 </div>
@@ -287,7 +275,7 @@ export const SettingsPanel = ({
 
           <Separator />
 
-          {/* Неперервний режим */}
+          {/* Continuous Reading Settings */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Режим читання</h3>
             <div className="space-y-4">
@@ -352,7 +340,7 @@ export const SettingsPanel = ({
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="cont-commentary">Пояснення</Label>
+                    <Label htmlFor="cont-commentary">Коментар</Label>
                     <Switch
                       id="cont-commentary"
                       checked={continuousReadingSettings.showCommentary}
@@ -368,7 +356,7 @@ export const SettingsPanel = ({
 
           <Separator />
 
-          {/* Відображення елементів тексту */}
+          {/* Text Display Settings */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Елементи тексту</h3>
             <div className="space-y-3">
@@ -431,7 +419,7 @@ export const SettingsPanel = ({
 
           <Separator />
 
-          {/* Пошук і навігація */}
+          {/* Search and Navigation */}
           <div>
             <div className="relative mb-4">
               <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
