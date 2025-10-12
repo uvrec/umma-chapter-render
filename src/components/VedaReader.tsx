@@ -332,8 +332,6 @@ export const VedaReader = () => {
         onOriginalLanguageChange={(v) => setOriginalLanguage(v as OriginalLanguage)}
         continuousReadingSettings={continuousReadingSettings}
         onContinuousReadingSettingsChange={setContinuousReadingSettings}
-        lineHeight={lineHeight}
-        onLineHeightChange={setLineHeight}
       />
     </div>
   );

@@ -1,6 +1,3 @@
-Individualverse · TSX
-Download
-
 // IndividualVerse.tsx — оновлена версія відповідно до PDF шаблону 1
 // Великий заголовок text-6xl, sticky header з іконками, окремі Volume2 кнопки для кожної секції
 

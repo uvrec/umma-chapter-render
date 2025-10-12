@@ -86,9 +86,10 @@ export default function AudioPlaylists() {
       const { data, error } = await supabase
         .from("audio_playlists")
         .insert({
+          title_en: "New Playlist",
           title_ua: "Новий плейліст",
           is_published: false,
-          display_order: 100000, // або залиш порожнім — якщо маєш тригер/дефолт
+          display_order: 100000,
           category_id: selectedCategory !== "all" ? selectedCategory : null,
         })
         .select("id")
