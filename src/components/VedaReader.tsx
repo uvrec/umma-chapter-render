@@ -2,7 +2,6 @@
 // + verse-surface у всіх релевантних блоках (колонки, continuous wrapper),
 //   стабільні типи, глобальний fontSize+lineHeight, хоткеї ←/→ між віршами.
 
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { VerseCard } from "./VerseCard";
 import { Header } from "./Header";
@@ -11,6 +10,56 @@ import { SettingsPanel, type ContinuousReadingSettings } from "./SettingsPanel";
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
 import { verses as ALL_VERSES } from "@/data/verses";
+// ... решта імпортів як у тебе
+import { useEffect, useMemo, useRef, useState } from "react";
+
+// КЛЮЧІ мають збігатися з GlobalSettingsPanel
+const LS = {
+  fontSize: "vv_reader_fontSize",
+  lineHeight: "vv_reader_lineHeight",
+  dual: "vv_reader_dualMode",
+  blocks: "vv_reader_blocks",
+};
+
+function readNum(key: string, fallback: number) {
+  const s = localStorage.getItem(key);
+  return s ? Number(s) : fallback;
+}
+
+function readBool(key: string, fallback: boolean) {
+  const s = localStorage.getItem(key);
+  return s == null ? fallback : s === "true";
+}
+
+function readBlocks() {
+  try {
+    const raw = localStorage.getItem(LS.blocks);
+    const base = {
+      showSanskrit: true,
+      showTransliteration: true,
+      showSynonyms: true,
+      showTranslation: true,
+      showCommentary: true,
+    };
+    if (!raw) return base;
+    const b = JSON.parse(raw);
+    return {
+      showSanskrit: !!b.sanskrit,
+      showTransliteration: !!b.translit,
+      showSynonyms: !!b.synonyms,
+      showTranslation: !!b.translation,
+      showCommentary: !!b.commentary,
+    };
+  } catch {
+    return {
+      showSanskrit: true,
+      showTransliteration: true,
+      showSynonyms: true,
+      showTranslation: true,
+      showCommentary: true,
+    };
+  }
+}
 
 type OriginalLanguage = "sanskrit" | "english" | "bengali";
 
