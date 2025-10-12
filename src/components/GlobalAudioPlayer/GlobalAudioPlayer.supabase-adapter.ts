@@ -1,10 +1,8 @@
-// GlobalAudioPlayer.supabase-adapter.ts
-// Адаптер для інтеграції GlobalAudioPlayer з існуючою Supabase базою
-
 import { supabase } from "@/integrations/supabase/client";
-import type { Track } from './GlobalAudioPlayer.types';
+import { useEffect, useRef } from "react";
+import type { Track } from "./GlobalAudioPlayer.types";
+import { useAudio } from "./GlobalAudioPlayer";
 
-// Типи з вашої бази даних
 type AudioTrack = {
   id: string;
   title_ua: string | null;
@@ -16,7 +14,6 @@ type AudioTrack = {
   lyrics_ua: string | null;
   lyrics_en: string | null;
 };
-
 type AudioPlaylist = {
   id: string;
   title_ua: string;
@@ -25,213 +22,146 @@ type AudioPlaylist = {
   author: string | null;
 };
 
-/**
- * Конвертує трек з Supabase в формат для GlobalAudioPlayer
- */
+const title = (lang: "ua" | "en", ua?: string | null, en?: string | null) =>
+  lang === "ua" ? (ua ?? en ?? "Без назви") : (en ?? ua ?? "Untitled");
+
 export function convertSupabaseTrackToPlayerTrack(
   track: AudioTrack,
   playlist?: AudioPlaylist,
-  language: 'ua' | 'en' = 'ua'
+  language: "ua" | "en" = "ua",
 ): Track {
   return {
     id: track.id,
-    title: language === 'ua' ? (track.title_ua || track.title_en || 'Без назви') : (track.title_en || track.title_ua || 'Untitled'),
+    title: title(language, track.title_ua, track.title_en),
     src: track.file_url,
     url: track.file_url,
     verseNumber: `Трек ${track.track_number}`,
     coverImage: playlist?.cover_image_url || undefined,
-    duration: track.duration || undefined,
+    duration: track.duration ?? undefined,
     metadata: {
-      artist: playlist?.author || 'Vedavoice',
-      album: language === 'ua' ? playlist?.title_ua : playlist?.title_en,
-    }
+      artist: playlist?.author || "Vedavoice",
+      album: title(language, playlist?.title_ua, playlist?.title_en),
+    },
   };
 }
 
-/**
- * Завантажує трек з бази даних по ID
- */
-export async function loadTrackFromSupabase(
-  trackId: string,
-  language: 'ua' | 'en' = 'ua'
-): Promise<Track | null> {
-  const { data: track, error: trackError } = await supabase
-    .from('audio_tracks')
-    .select('*')
-    .eq('id', trackId)
+export async function loadTrackFromSupabase(id: string, language: "ua" | "en" = "ua"): Promise<Track | null> {
+  const { data: track, error: te } = await supabase
+    .from("audio_tracks")
+    .select("id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en")
+    .eq("id", id)
     .single();
+  if (te || !track) return null;
 
-  if (trackError || !track) {
-    console.error('Failed to load track:', trackError);
-    return null;
-  }
-
-  // Завантажуємо інформацію про плейлист для обкладинки
   const { data: playlist } = await supabase
-    .from('audio_playlists')
-    .select('id, title_ua, title_en, cover_image_url, author')
-    .eq('id', track.playlist_id)
-    .single();
+    .from("audio_playlists")
+    .select("id,title_ua,title_en,cover_image_url,author")
+    .eq("id", track.playlist_id)
+    .maybeSingle();
 
-  return convertSupabaseTrackToPlayerTrack(track, playlist || undefined, language);
+  return convertSupabaseTrackToPlayerTrack(track as AudioTrack, playlist ?? undefined, language);
 }
 
-/**
- * Завантажує всі треки з плейлиста
- */
-export async function loadPlaylistTracks(
-  playlistId: string,
-  language: 'ua' | 'en' = 'ua'
-): Promise<Track[]> {
-  // Завантажуємо плейлист
-  const { data: playlist, error: playlistError } = await supabase
-    .from('audio_playlists')
-    .select('*')
-    .eq('id', playlistId)
-    .single();
-
-  if (playlistError || !playlist) {
-    console.error('Failed to load playlist:', playlistError);
-    return [];
-  }
-
-  // Завантажуємо треки
-  const { data: tracks, error: tracksError } = await supabase
-    .from('audio_tracks')
-    .select('*')
-    .eq('playlist_id', playlistId)
-    .order('track_number');
-
-  if (tracksError || !tracks) {
-    console.error('Failed to load tracks:', tracksError);
-    return [];
-  }
-
-  return tracks.map(track => convertSupabaseTrackToPlayerTrack(track, playlist, language));
+export async function loadPlaylistTracks(playlistId: string, language: "ua" | "en" = "ua"): Promise<Track[]> {
+  const [{ data: playlist, error: pe }, { data: tracks, error: te }] = await Promise.all([
+    supabase
+      .from("audio_playlists")
+      .select("id,title_ua,title_en,cover_image_url,author")
+      .eq("id", playlistId)
+      .single(),
+    supabase
+      .from("audio_tracks")
+      .select("id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en")
+      .eq("playlist_id", playlistId)
+      .order("track_number", { ascending: true }),
+  ]);
+  if (pe || !playlist || te || !tracks?.length) return [];
+  return (tracks as AudioTrack[]).map((t) => convertSupabaseTrackToPlayerTrack(t, playlist as AudioPlaylist, language));
 }
 
-/**
- * Завантажує останні відтворювані треки користувача
- */
 export async function loadRecentTracks(
   userId: string | null,
-  limit: number = 10,
-  language: 'ua' | 'en' = 'ua'
+  limit = 10,
+  language: "ua" | "en" = "ua",
 ): Promise<Track[]> {
   if (!userId) return [];
-
-  const { data: events, error } = await supabase
-    .from('audio_events')
-    .select('track_id')
-    .eq('user_id', userId)
-    .eq('event_type', 'play')
-    .order('created_at', { ascending: false })
+  const { data: events } = await supabase
+    .from("audio_events")
+    .select("track_id")
+    .eq("user_id", userId)
+    .eq("event_type", "play")
+    .order("created_at", { ascending: false })
     .limit(limit);
-
-  if (error || !events) {
-    console.error('Failed to load recent tracks:', error);
-    return [];
-  }
-
-  // Унікальні ID треків
-  const uniqueTrackIds = [...new Set(events.map(e => e.track_id))];
-
-  // Завантажуємо треки
-  const tracks: Track[] = [];
-  for (const trackId of uniqueTrackIds) {
-    const track = await loadTrackFromSupabase(trackId, language);
-    if (track) tracks.push(track);
-  }
-
-  return tracks;
+  if (!events?.length) return [];
+  const ids = Array.from(new Set(events.map((e) => e.track_id)));
+  const { data: tracks } = await supabase
+    .from("audio_tracks")
+    .select(
+      `
+      id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en,
+      playlist:audio_playlists ( id,title_ua,title_en,cover_image_url,author )
+    `,
+    )
+    .in("id", ids);
+  if (!tracks?.length) return [];
+  const map = new Map(
+    tracks.map((t: any) => [
+      t.id,
+      convertSupabaseTrackToPlayerTrack(t as AudioTrack, t.playlist as AudioPlaylist | undefined, language),
+    ]),
+  );
+  return ids.map((id) => map.get(id)).filter(Boolean) as Track[];
 }
 
-/**
- * Записує подію відтворення в базу (для аналітики)
- */
 export async function trackPlayEvent(
   trackId: string,
   userId: string | null,
-  positionMs: number = 0,
-  durationMs: number | null = null
+  positionMs = 0,
+  durationMs: number | null = null,
 ) {
-  const { error } = await supabase
-    .from('audio_events')
-    .insert({
-      track_id: trackId,
-      user_id: userId,
-      event_type: 'play',
-      position_ms: positionMs,
-      duration_ms: durationMs,
-    });
-
-  if (error) {
-    console.error('Failed to track play event:', error);
-  }
+  const { error } = await supabase.from("audio_events").insert({
+    track_id: trackId,
+    user_id: userId,
+    event_type: "play",
+    position_ms: Math.max(0, Math.floor(positionMs)),
+    duration_ms: durationMs,
+  });
+  if (error) console.error("Failed to track play event:", error);
 }
 
-/**
- * Хук для завантаження плейлиста з бази та додавання до плеєра
- */
-import { useEffect } from 'react';
-import { useAudio } from './GlobalAudioPlayer';
-
-export function useSupabasePlaylist(playlistId: string | null, language: 'ua' | 'en' = 'ua') {
-  const { playlist, clearPlaylist } = useAudio();
-
+export function useSupabasePlaylist(playlistId: string | null, language: "ua" | "en" = "ua") {
+  const { setQueue } = useAudio();
   useEffect(() => {
+    let off = false;
     if (!playlistId) return;
-
-    loadPlaylistTracks(playlistId, language).then(tracks => {
-      clearPlaylist();
-      tracks.forEach(track => {
-        // Додаємо треки до плеєра
-        // Тут потрібен метод addToPlaylist або setPlaylist
-      });
-    });
-  }, [playlistId, language]);
-
-  return { playlist };
+    (async () => {
+      const t = await loadPlaylistTracks(playlistId, language);
+      if (!off && t.length) setQueue(t);
+    })();
+    return () => {
+      off = true;
+    };
+  }, [playlistId, language, setQueue]);
+  return {};
 }
 
-/**
- * Хук для автоматичного трекінгу подій
- */
 export function useAudioTracking(userId: string | null) {
-  const { currentTrack, isPlaying, currentTime } = useAudio();
-
+  const { currentTrack, isPlaying, currentTime, duration } = useAudio();
+  const last = useRef<number>(-10000);
   useEffect(() => {
     if (!currentTrack || !isPlaying) return;
-
-    // Трекаємо подію після 3 секунд відтворення
-    const timer = setTimeout(() => {
-      trackPlayEvent(currentTrack.id, userId, currentTime * 1000);
+    const h = setTimeout(async () => {
+      const now = Date.now();
+      if (now - last.current >= 30_000) {
+        last.current = now;
+        await trackPlayEvent(
+          currentTrack.id,
+          userId,
+          Math.floor(currentTime * 1000),
+          Number.isFinite(duration) ? Math.floor((duration ?? 0) * 1000) : null,
+        );
+      }
     }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [currentTrack, isPlaying, userId]);
+    return () => clearTimeout(h);
+  }, [currentTrack?.id, isPlaying, currentTime, duration, userId]);
 }
-
-/**
- * Приклад використання в компоненті
- */
-export const SupabasePlayerIntegrationExample = () => {
-  const { playTrack, addToPlaylist } = useAudio();
-  const language = 'ua'; // або з context
-
-  // Відтворити один трек
-  const handlePlayTrack = async (trackId: string) => {
-    const track = await loadTrackFromSupabase(trackId, language);
-    if (track) {
-      playTrack(track);
-    }
-  };
-
-  // Додати весь плейлист до черги
-  const handleAddPlaylist = async (playlistId: string) => {
-    const tracks = await loadPlaylistTracks(playlistId, language);
-    tracks.forEach(track => addToPlaylist(track));
-  };
-
-  return null; // приклад
-};
