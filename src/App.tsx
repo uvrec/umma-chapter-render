@@ -2,14 +2,15 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
-// ⚠️ Прибрано GlobalSettingsPanel, щоб не було двох панелей налаштувань
+import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
+
 import { NewHome } from "./pages/NewHome";
-import { VedaReader } from "./components/VedaReader";
+import { VedaReader } from "./pages/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
@@ -19,7 +20,6 @@ import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
 import { SriIsopanishad } from "./pages/audiobooks/SriIsopanishad";
-import { Footer } from "./components/Footer";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
@@ -64,9 +64,18 @@ import { PageView } from "./pages/PageView";
 
 const queryClient = new QueryClient();
 
+function FloatingPanelsGuard() {
+  // Ховаємо глобальну панель налаштувань на маршрутах читалки,
+  // щоб не було «двох панелей»
+  const { pathname } = useLocation();
+  const isReader = pathname.startsWith("/veda-reader") || pathname.startsWith("/verses");
+
+  if (isReader) return null;
+  return <GlobalSettingsPanel />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    {/* craft — дефолтна тема, єдиний ключ зберігання */}
     <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
       <LanguageProvider>
         <AuthProvider>
@@ -80,6 +89,7 @@ const App = () => (
                   <Route path="/verses" element={<VedaReader />} />
                   <Route path="/verses/:bookId" element={<VedaReader />} />
                   <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                   <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
@@ -88,12 +98,14 @@ const App = () => (
                     element={<VedaReaderDB />}
                   />
                   <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
-                  {/* Legacy aliases/redirects */}
+
                   <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
                   <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
+
                   <Route path="/library" element={<Library />} />
                   <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
                   <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
+
                   <Route path="/audio" element={<Audio />} />
                   <Route path="/audiobooks" element={<Audiobooks />} />
                   <Route path="/audiobooks/:id" element={<AudiobookView />} />
@@ -102,14 +114,17 @@ const App = () => (
                   <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
                   <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
                   <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
+
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/audio/podcasts" element={<Podcasts />} />
+
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/payment/card" element={<CardPayment />} />
                   <Route path="/payment/bank" element={<BankTransfer />} />
+
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/admin/dashboard" element={<Dashboard />} />
                   <Route path="/admin/books" element={<Books />} />
@@ -140,11 +155,12 @@ const App = () => (
                   <Route path="/admin/pages" element={<Pages />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
-                  {/* catch-all */}
                   <Route path="/:slug" element={<PageView />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+
                 <GlobalAudioPlayer />
+                <FloatingPanelsGuard />
               </BrowserRouter>
             </AudioProvider>
           </TooltipProvider>
