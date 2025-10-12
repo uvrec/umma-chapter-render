@@ -1,36 +1,32 @@
-// IndividualVerse.tsx — оновлена версія відповідно до PDF шаблону 1
-// Великий заголовок text-6xl, sticky header з іконками, окремі Volume2 кнопки для кожної секції
-
+// src/components/IndividualVerse.tsx
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Breadcrumb } from "@/components/Breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { 
-  ArrowLeft, 
-  ChevronLeft, 
+import {
+  ArrowLeft,
+  ChevronLeft,
   ChevronRight,
-  Bookmark, 
-  Share2, 
-  Download, 
-  Settings,
+  Bookmark,
+  Share2,
+  Download,
+  Settings as SettingsIcon,
   Volume2,
-  Home
+  Home,
 } from "lucide-react";
 import { verses } from "@/data/verses";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAudio } from "@/components/GlobalAudioPlayer";
 import { toast } from "@/hooks/use-toast";
-import { useReaderSettings } from "@/lib/readerSettings";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth();
+  const { isAdmin } = useAuth(); // залишено, якщо треба
   const { playTrack } = useAudio();
 
-  // Використовуємо централізований хук для автоматичної синхронізації
+  // ← використовуємо єдиний хук
   const { fontSize, lineHeight } = useReaderSettings();
 
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -61,13 +57,11 @@ export const IndividualVerse = () => {
     }
   };
 
-  const getFilteredVerses = (bid?: string) => {
-    if (!bid) return verses;
-    const code = getBookCode(bid);
-    return code ? verses.filter((v) => v.number.startsWith(code)) : verses;
-  };
+  const filteredVerses = (() => {
+    const code = getBookCode(bookId);
+    return code ? verses.filter((v) => v.number === verseNumber || v.number.startsWith(code)) : verses;
+  })();
 
-  const filteredVerses = getFilteredVerses(bookId);
   const currentVerse = filteredVerses.find((v) => v.number === verseNumber);
 
   useEffect(() => {
@@ -152,7 +146,6 @@ export const IndividualVerse = () => {
     });
   };
 
-  // Парсинг послівного перекладу
   const parseSynonyms = (raw: string): Array<{ term: string; meaning: string }> => {
     if (!raw) return [];
     const parts = raw
@@ -190,15 +183,15 @@ export const IndividualVerse = () => {
 
   const synonymPairs = parseSynonyms(currentVerse.synonyms || "");
 
-  // Стилі з урахуванням fontSize
+  // стиль контейнера (fontSize/lineHeight)
   const baseStyle: React.CSSProperties = {
     fontSize: `${fontSize}px`,
     lineHeight,
   };
 
   return (
-    <div className="min-h-screen bg-background" style={baseStyle}>
-      {/* Sticky Header з іконками (як у PDF) */}
+    <div className="min-h-screen bg-background" style={baseStyle} data-reader-root="true">
+      {/* Sticky Header з іконками */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
         <div className="mx-auto max-w-5xl px-6 py-4">
           <div className="flex items-center justify-between">
@@ -215,7 +208,7 @@ export const IndividualVerse = () => {
               <span>Вірш {verseNumber}</span>
             </div>
 
-            {/* Icons (як у PDF) */}
+            {/* Icons */}
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={toggleBookmark}>
                 <Bookmark className={`h-6 w-6 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
@@ -227,7 +220,7 @@ export const IndividualVerse = () => {
                 <Download className="h-6 w-6" />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-                <Settings className="h-6 w-6" />
+                <SettingsIcon className="h-6 w-6" />
               </Button>
             </div>
           </div>
@@ -235,14 +228,14 @@ export const IndividualVerse = () => {
       </header>
 
       <main className="mx-auto max-w-5xl px-6 py-12">
-        {/* Великий центральний заголовок (як у PDF) */}
+        {/* Великий заголовок */}
         <div className="mb-12 text-center">
           <h1 className="mb-3 text-6xl font-bold">
             {getBookCode(bookId)} {verseNumber}
           </h1>
         </div>
 
-        {/* Деванагарі з кнопкою Volume2 */}
+        {/* Деванагарі */}
         {currentVerse.sanskrit && (
           <section className="mb-12">
             <div className="mb-4 flex justify-center">
@@ -283,7 +276,7 @@ export const IndividualVerse = () => {
           </section>
         )}
 
-        {/* Послівний переклад з кнопкою Volume2 */}
+        {/* Послівний переклад */}
         {currentVerse.synonyms && (
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-center gap-4">
@@ -331,7 +324,7 @@ export const IndividualVerse = () => {
           </section>
         )}
 
-        {/* Літературний переклад з кнопкою Volume2 */}
+        {/* Літературний переклад */}
         {currentVerse.translation && (
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-center gap-4">
@@ -352,7 +345,7 @@ export const IndividualVerse = () => {
           </section>
         )}
 
-        {/* Пояснення з кнопкою Volume2 */}
+        {/* Пояснення */}
         {currentVerse.commentary && (
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-center gap-4">
@@ -377,7 +370,7 @@ export const IndividualVerse = () => {
           </section>
         )}
 
-        {/* Навігація між віршами (як у PDF) */}
+        {/* Навігація між віршами */}
         <div className="flex items-center justify-between border-t border-border pt-8">
           <Button
             variant="secondary"
