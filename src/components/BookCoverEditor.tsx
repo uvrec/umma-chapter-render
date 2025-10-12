@@ -14,7 +14,7 @@ interface BookCoverEditorProps {
   bookId: string;
   bookSlug: string;
   currentCoverUrl: string | null;
-  currentCoverPath?: string | null;
+  currentCoverPath: string | null;
   isOpen: boolean;
   onClose: () => void;
 }
