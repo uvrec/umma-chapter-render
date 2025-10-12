@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from "tailwindcss";
 import colors from "tailwindcss/colors";
 
@@ -9,18 +10,17 @@ export default {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      screens: { "2xl": "1400px" },
     },
     extend: {
+      /* 🔷 КОЛЬОРИ: тільки семантичні токени + брендова бурштинова */
       colors: {
-        /* семантичні токени через CSS vars (як і було) */
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -51,28 +51,7 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
 
-        /* ісламські відтінки (як було) */
-        islamic: {
-          gold: "hsl(var(--islamic-gold))",
-          "gold-dark": "hsl(var(--islamic-gold-dark))",
-          blue: "hsl(var(--islamic-blue))",
-          "blue-light": "hsl(var(--islamic-blue-light))",
-          green: "hsl(var(--islamic-green))",
-        },
-
-        /* колірна схема для sidebar (як було) */
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
-        },
-
-        /* 🔶 НОВЕ: фірмова бурштинова палітра (amber) для явних класів */
+        /* брендова бурштинова палітра */
         brand: {
           50: "#fffbeb",
           100: "#fef3c7",
@@ -80,32 +59,28 @@ export default {
           300: "#fcd34d",
           400: "#fbbf24",
           500: "#f59e0b",
-          600: "#d97706", // базовий бурштин
+          600: "#d97706",
           700: "#b45309",
           800: "#92400e",
           900: "#78350f",
           950: "#451a03",
         },
 
-        /* опціонально: прямий доступ до стандартного amber */
+        /* доступ до стандартної amber за потреби */
         amber: colors.amber,
       },
 
+      /* Радіуси як раніше */
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
 
+      /* Анімації як були */
       keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
+        "accordion-down": { from: { height: "0" }, to: { height: "var(--radix-accordion-content-height)" } },
+        "accordion-up": { from: { height: "var(--radix-accordion-content-height)" }, to: { height: "0" } },
         "fade-in": {
           from: { opacity: "0", transform: "translateY(10px)" },
           to: { opacity: "1", transform: "translateY(0)" },
@@ -115,7 +90,6 @@ export default {
           to: { opacity: "1", transform: "translateY(0)" },
         },
       },
-
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
@@ -123,20 +97,19 @@ export default {
         "slide-up": "slide-up 0.6s ease-out",
       },
 
+      /* 🔷 ШРИФТИ: лишаємо ті, що використовуєш для читання */
       fontFamily: {
-        arabic: "var(--arabic-font)",
-        body: "var(--body-font)",
+        body: ["Inter", "system-ui", "ui-sans-serif", "Segoe UI", "Roboto", "Arial", "sans-serif"].join(", "),
         playfair: ["Playfair Display", "serif"],
         sanskrit: ["Noto Sans Devanagari", "serif"],
         "sanskrit-italic": ["Crimson Text", "Georgia", "serif"],
       },
 
+      /* 🔷 Крафт-фони */
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
         "gradient-header": "var(--gradient-header)",
         "gradient-card": "var(--gradient-card)",
-
-        /* 🔶 НОВЕ: утиліти для craft-фону (використовуйте bg-craft-paper / bg-craft-paper-soft) */
         "craft-paper":
           "radial-gradient(circle at 20% 50%, rgba(120,119,108,0.10) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(120,119,108,0.10) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(120,119,108,0.10) 0%, transparent 50%), radial-gradient(circle at 60% 30%, rgba(120,119,108,0.05) 0%, transparent 50%)",
         "craft-paper-soft":
