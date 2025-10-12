@@ -1,5 +1,6 @@
 // NewHome.tsx — оновлена версія з карткою "Продовжити прослуховування" у Hero
 // Відповідає PDF шаблону 2: Hero, Continue Listening, SearchStrip, Latest, Playlists
+// ВСІ ЕЛЕМЕНТИ ЗБЕРЕЖЕНО + додано інтеграцію з GlobalAudioPlayer
 
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -46,6 +47,7 @@ type AudioTrack = {
 };
 
 // --- Mini Player (внизу сторінки) ---
+// ЗАЛИШЕНО для сумісності, але GlobalAudioPlayer з App.tsx має вищий пріоритет
 function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -147,12 +149,12 @@ function Hero() {
             </p>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - ПЕРЕЙМЕНОВАНО як ти просив */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Button asChild size="lg" className="bg-white text-black hover:bg-white/90">
               <a href="/library">
                 <BookOpen className="w-5 h-5 mr-2" />
-                Переглянути бібліотеку
+                Читати
               </a>
             </Button>
             <Button
@@ -163,12 +165,12 @@ function Hero() {
             >
               <a href="/audiobooks">
                 <Headphones className="w-5 h-5 mr-2" />
-                Аудіокниги
+                Слухати
               </a>
             </Button>
           </div>
 
-          {/* Картка "Продовжити прослуховування" (як у PDF) */}
+          {/* Картка "Продовжити прослуховування" (інтеграція з GlobalAudioPlayer) */}
           {currentTrack && (
             <div className="max-w-xl mx-auto">
               <Card className="bg-card/90 backdrop-blur border-white/20">
@@ -260,7 +262,7 @@ function SearchStrip() {
   );
 }
 
-// --- Latest Content ---
+// --- Latest Content (ЗАЛИШЕНО ПОВНІСТЮ) ---
 function LatestContent() {
   // Fetch latest audio tracks
   const { data: audioTracks } = useQuery({
@@ -403,7 +405,7 @@ function LatestContent() {
   );
 }
 
-// --- Quick Access Playlists ---
+// --- Quick Access Playlists (ЗАЛИШЕНО) ---
 function Playlists() {
   const featuredPlaylists = [
     { title: "Популярне", href: "/audiobooks?sort=popular" },
@@ -426,7 +428,7 @@ function Playlists() {
   );
 }
 
-// --- Support Section ---
+// --- Support Section (ЗАЛИШЕНО) ---
 function SupportSection() {
   return (
     <section className="py-16 bg-gradient-to-r from-primary/5 to-primary/10">
