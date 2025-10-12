@@ -1,13 +1,10 @@
-// src/App.tsx
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import SiteBannersAdmin from "@/pages/admin/SiteBanners";
-
+import SiteBanners from "@/components/SiteBanners";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -24,8 +21,6 @@ import VedaReader from "./pages/VedaReader";
 import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
-import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
-import { AcharyasBooks } from "./pages/library/AcharyasBooks";
 import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
@@ -84,10 +79,9 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                {/* Баннери мають бути відрендерені ДО <Routes /> */}
                 <SiteBanners />
-
                 <Routes>
+                  {/* Головна */}
                   <Route path="/" element={<NewHome />} />
 
                   {/* Читалка */}
@@ -95,25 +89,8 @@ const App = () => (
                   <Route path="/verses/:bookId" element={<VedaReader />} />
                   <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
 
-                  {/* Нові маршрути читання БД */}
-                  <Route path="/veda-reader/:bookId" element={<BookOverview />} />
-                  <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
-                  <Route
-                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
-                    element={<VedaReaderDB />}
-                  />
-                  <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
-
-                  {/* Alias/redirects */}
-                  <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
-                  <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
-
                   {/* Бібліотека */}
                   <Route path="/library" element={<Library />} />
-                  <Route path="/library/:slug" element={<BookOverview />} />
-                  <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
-                  <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
 
                   {/* Аудіо */}
                   <Route path="/audio" element={<Audio />} />
@@ -125,12 +102,11 @@ const App = () => (
                   <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
                   <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
 
-                  {/* Блог/інше */}
+                  {/* Блог */}
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/audio/podcasts" element={<Podcasts />} />
                   <Route path="/glossary" element={<GlossaryDB />} />
-                  <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
@@ -141,16 +117,10 @@ const App = () => (
                   <Route path="/auth" element={<Auth />} />
 
                   {/* Admin */}
-                  <Route path="/admin/banners" element={<AdminBanners />} />
-
-                  {/* Сторінка налаштувань Hero/банерів */}
-                  <Route path="/admin/site-banners" element={<SiteBannersAdmin />} />
-
-                  {/* Опційні синоніми/редіректи, щоб не ловити 404 на різні варіанти шляху */}
-                  <Route path="/admin/sitebanners" element={<Navigate to="/admin/site-banners" replace />} />
-                  <Route path="/admin/site_banners" element={<Navigate to="/admin/site-banners" replace />} />
-                  <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
                   <Route path="/admin/dashboard" element={<Dashboard />} />
+                  <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
+                  <Route path="/admin/banners" element={<AdminBanners />} />
+                  <Route path="/admin/sitebanners" element={<SiteBannersAdmin />} />
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
                   <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
@@ -161,7 +131,6 @@ const App = () => (
                   <Route path="/admin/intro-chapters/:bookId/new" element={<AddEditIntroChapter />} />
                   <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
                   <Route path="/admin/chapters/:bookId" element={<Chapters />} />
-                  <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
                   <Route path="/admin/verses" element={<Verses />} />
                   <Route path="/admin/verses/new" element={<AddEditVerse />} />
                   <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
