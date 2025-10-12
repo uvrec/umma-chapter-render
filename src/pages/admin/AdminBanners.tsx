@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -58,7 +58,7 @@ export default function AdminBanners() {
 
   const checkAuth = async () => {
     if (!user) {
-      navigate("/login");
+      navigate("/auth");
       return;
     }
 
@@ -116,20 +116,16 @@ export default function AdminBanners() {
     try {
       setUploading(key);
 
-      // Створюємо унікальне ім'я файлу
       const fileExt = file.name.split(".").pop();
       const fileName = `${key}-${Date.now()}.${fileExt}`;
       const filePath = `banners/${fileName}`;
 
-      // Завантажуємо в storage bucket 'page-media'
       const { error: uploadError } = await supabase.storage.from("page-media").upload(filePath, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
-      // Отримуємо публічний URL
       const { data: urlData } = supabase.storage.from("page-media").getPublicUrl(filePath);
 
-      // Оновлюємо налаштування
       const newValue = {
         url: urlData.publicUrl,
         enabled: banners[key]?.value?.enabled ?? true,
@@ -139,7 +135,6 @@ export default function AdminBanners() {
 
       if (updateError) throw updateError;
 
-      // Оновлюємо локальний стан
       setBanners((prev) => ({
         ...prev,
         [key]: {
@@ -261,7 +256,6 @@ export default function AdminBanners() {
                   <p className="text-sm text-muted-foreground">{config.description}</p>
                 </div>
 
-                {/* Превью */}
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden relative">
                   {hasImage ? (
                     <img src={banner.value.url!} alt={config.title} className="w-full h-full object-cover" />
@@ -272,9 +266,7 @@ export default function AdminBanners() {
                   )}
                 </div>
 
-                {/* Контроли */}
                 <div className="space-y-3">
-                  {/* Увімкнено/Вимкнено */}
                   <div className="flex items-center justify-between">
                     <Label htmlFor={`toggle-${config.key}`} className="cursor-pointer">
                       Показувати баннер
@@ -287,7 +279,6 @@ export default function AdminBanners() {
                     />
                   </div>
 
-                  {/* Кнопки дій */}
                   <div className="flex gap-2">
                     <Label htmlFor={`file-${config.key}`} className="flex-1">
                       <Button variant="outline" className="w-full" disabled={uploading === config.key} asChild>
@@ -333,7 +324,7 @@ export default function AdminBanners() {
       </div>
 
       <div className="mt-8 flex justify-center">
-        <Button variant="outline" onClick={() => navigate("/admin")}>
+        <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
           Повернутися до адмін-панелі
         </Button>
       </div>
