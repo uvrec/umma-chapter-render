@@ -183,3 +183,21 @@ body {
     transform: none;
   }
 }
+/* Прибрати лінію-роздільник у читалці */
+.prose-reader hr,
+.verse-surface hr,
+.reader hr {
+  display: none !important;
+  border: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+}
+
+/* якщо десь стоїть Separator з shadcn — зробимо його невидимим саме у читалці */
+.prose-reader .shadcn-separator,
+.verse-surface .shadcn-separator {
+  opacity: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
