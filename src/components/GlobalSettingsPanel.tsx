@@ -253,7 +253,7 @@ export const GlobalSettingsPanel = () => {
           </div>
         </SheetContent>
       </Sheet>
-    </>
+  
   );
 };
 
