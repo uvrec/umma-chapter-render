@@ -1,44 +1,100 @@
-import { useEffect, useState } from "react";
-import { Settings, X, Globe, Palette } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Settings, X, Globe, Palette, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useTheme } from "@/components/ThemeProvider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Slider } from "@/components/ui/slider"; // якщо немає — заміни на свій інпут range
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { useTheme } from "@/components/ThemeProvider";
 
+const MIN_FONT = 12;
+const MAX_FONT = 24;
+const MIN_LH = 1.3;
+const MAX_LH = 2.0;
+
+// ключі локальних налаштувань читалки
 const LS_KEYS = {
-  fontSize: "vv-reader-font-size",
-  lineHeight: "vv-reader-line-height",
+  fontSize: "vv_reader_fontSize",
+  lineHeight: "vv_reader_lineHeight",
+  dual: "vv_reader_dualMode",
+  blocks: "vv_reader_blocks", // {sanskrit, translit, synonyms, translation, commentary}
 };
+
+type BlocksState = {
+  sanskrit: boolean;
+  translit: boolean;
+  synonyms: boolean;
+  translation: boolean;
+  commentary: boolean;
+};
+
+function readBlocks(): BlocksState {
+  try {
+    const raw = localStorage.getItem(LS_KEYS.blocks);
+    if (raw)
+      return {
+        sanskrit: true,
+        translit: true,
+        synonyms: true,
+        translation: true,
+        commentary: true,
+        ...JSON.parse(raw),
+      };
+  } catch {}
+  return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
+}
 
 export const GlobalSettingsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
 
-  // локальні стани читання
+  // читальні prefs
   const [fontSize, setFontSize] = useState<number>(() => {
-    const v = localStorage.getItem(LS_KEYS.fontSize);
-    return v ? parseFloat(v) : 20;
+    const s = localStorage.getItem(LS_KEYS.fontSize);
+    return s ? Number(s) : 18;
   });
   const [lineHeight, setLineHeight] = useState<number>(() => {
-    const v = localStorage.getItem(LS_KEYS.lineHeight);
-    return v ? parseFloat(v) : 1.6;
+    const s = localStorage.getItem(LS_KEYS.lineHeight);
+    return s ? Number(s) : 1.6;
   });
+  const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
+  const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
 
-  // застосовуємо у :root → працює на всіх сторінках/роутах
+  // збереження + повідомлення читалці
+  const bumpReader = () => {
+    window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
+  };
+
   useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty("--vv-reader-font-size", `${fontSize}px`);
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
+    bumpReader();
   }, [fontSize]);
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty("--vv-reader-line-height", String(lineHeight));
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
+    bumpReader();
   }, [lineHeight]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEYS.dual, String(dualMode));
+    bumpReader();
+  }, [dualMode]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
+    bumpReader();
+  }, [blocks]);
+
+  // утиліти
+  const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
+  const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
+  const decreaseLH = () => setLineHeight((v) => Math.max(MIN_LH, Math.round((v - 0.05) * 100) / 100));
+  const increaseLH = () => setLineHeight((v) => Math.min(MAX_LH, Math.round((v + 0.05) * 100) / 100));
+
+  const craftSwitchChecked = theme === "craft";
 
   return (
     <>
@@ -47,44 +103,41 @@ export const GlobalSettingsPanel = () => {
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg"
         size="icon"
+        aria-label={t("Налаштування", "Settings")}
       >
         <Settings className="h-6 w-6" />
       </Button>
 
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right" className="w-80">
-          <SheetHeader className="pb-2">
+        <SheetContent side="right" className="w-96">
+          <SheetHeader className="pb-4">
             <div className="flex items-center justify-between">
               <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
-              <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)}>
+              <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} aria-label={t("Закрити", "Close")}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
           </SheetHeader>
 
-          <div className="space-y-6 py-2">
-            {/* Theme */}
+          <div className="space-y-6">
+            {/* Тема */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Тема оформлення", "Theme")}</Label>
-              <div className="grid grid-cols-3 gap-2">
-                <Button variant={theme === "light" ? "default" : "outline"} onClick={() => setTheme("light")}>
-                  Світла
-                </Button>
-                <Button variant={theme === "dark" ? "default" : "outline"} onClick={() => setTheme("dark")}>
-                  Темна
-                </Button>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
                 <Button
-                  variant={theme === "craft" ? "default" : "outline"}
+                  variant={craftSwitchChecked ? "default" : "outline"}
                   onClick={() => setTheme("craft")}
-                  className="gap-1"
+                  className="gap-2"
                 >
-                  <Palette className="w-4 h-4" /> Крафт
+                  <Palette className="h-4 w-4" />
+                  Крафт
                 </Button>
               </div>
             </div>
 
-            {/* Language */}
+            {/* Мова інтерфейсу */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Мова інтерфейсу", "Interface Language")}</Label>
               <div className="flex gap-2">
@@ -107,37 +160,97 @@ export const GlobalSettingsPanel = () => {
               </div>
             </div>
 
-            {/* Reader: font size */}
+            <Separator />
+
+            {/* Налаштування читання (глобальні, працюють у читачі) */}
             <div>
-              <Label className="text-base font-semibold mb-3 block">{t("Розмір тексту", "Font size")}</Label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={14}
-                  max={28}
-                  step={1}
-                  value={fontSize}
-                  onChange={(e) => setFontSize(Number(e.target.value))}
-                  className="w-full"
-                />
-                <div className="w-12 text-right text-sm tabular-nums">{fontSize}px</div>
+              <h3 className="text-lg font-semibold mb-2">Відображення тексту</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Розмір шрифта</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={decreaseFont}
+                      disabled={fontSize <= MIN_FONT}
+                      aria-label="Зменшити"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-10 text-center text-sm tabular-nums">{fontSize}px</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={increaseFont}
+                      disabled={fontSize >= MAX_FONT}
+                      aria-label="Збільшити"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label>Міжряддя</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={decreaseLH}
+                      disabled={lineHeight <= MIN_LH}
+                      aria-label="Зменшити"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-12 text-center text-sm tabular-nums">{lineHeight.toFixed(2)}</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={increaseLH}
+                      disabled={lineHeight >= MAX_LH}
+                      aria-label="Збільшити"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="dual-language">Двомовний режим</Label>
+                  <Switch id="dual-language" checked={dualMode} onCheckedChange={(v) => setDualMode(v)} />
+                </div>
               </div>
             </div>
 
-            {/* Reader: line height */}
             <div>
-              <Label className="text-base font-semibold mb-3 block">{t("Міжряддя", "Line height")}</Label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min={1.2}
-                  max={2}
-                  step={0.05}
-                  value={lineHeight}
-                  onChange={(e) => setLineHeight(Number(e.target.value))}
-                  className="w-full"
+              <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
+              <div className="space-y-3">
+                <RowToggle
+                  label="Санскрит / Деванагарі"
+                  checked={blocks.sanskrit}
+                  onChange={(v) => setBlocks({ ...blocks, sanskrit: v })}
                 />
-                <div className="w-12 text-right text-sm tabular-nums">{lineHeight.toFixed(2)}</div>
+                <RowToggle
+                  label="Транслітерація"
+                  checked={blocks.translit}
+                  onChange={(v) => setBlocks({ ...blocks, translit: v })}
+                />
+                <RowToggle
+                  label="Послівний переклад"
+                  checked={blocks.synonyms}
+                  onChange={(v) => setBlocks({ ...blocks, synonyms: v })}
+                />
+                <RowToggle
+                  label="Переклад"
+                  checked={blocks.translation}
+                  onChange={(v) => setBlocks({ ...blocks, translation: v })}
+                />
+                <RowToggle
+                  label="Пояснення"
+                  checked={blocks.commentary}
+                  onChange={(v) => setBlocks({ ...blocks, commentary: v })}
+                />
               </div>
             </div>
           </div>
@@ -146,3 +259,12 @@ export const GlobalSettingsPanel = () => {
     </>
   );
 };
+
+function RowToggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label>{label}</Label>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  );
+}
