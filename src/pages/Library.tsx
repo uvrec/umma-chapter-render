@@ -29,7 +29,7 @@ type DbBook = {
 
 export const Library = () => {
   const { language } = useLanguage();
-  const { isAdmin } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const [editingBook, setEditingBook] = useState<DbBook | null>(null);
 
   const {
@@ -104,13 +104,14 @@ export const Library = () => {
                     className="group overflow-hidden hover:shadow-xl transition-shadow duration-300 relative"
                   >
                     {/* Кнопка редагування для адмінів */}
-                    {isAdmin && (
+                    {!authLoading && isAdmin && (
                       <Button
                         variant="secondary"
                         size="icon"
                         className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           setEditingBook(book);
                         }}
                       >
