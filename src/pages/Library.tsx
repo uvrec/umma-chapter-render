@@ -1,12 +1,16 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Headphones } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BookOpen, Headphones, Edit } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { BookCoverEditor } from "@/components/BookCoverEditor";
 
 type DbBook = {
   id: string;
@@ -16,6 +20,7 @@ type DbBook = {
   description_ua: string | null;
   description_en: string | null;
   cover_image_url: string | null;
+  cover_image_path?: string | null;
   purchase_url: string | null;
   display_order: number | null;
   is_featured: boolean | null;
@@ -24,6 +29,8 @@ type DbBook = {
 
 export const Library = () => {
   const { language } = useLanguage();
+  const { isAdmin } = useAuth();
+  const [editingBook, setEditingBook] = useState<DbBook | null>(null);
 
   const {
     data: dbBooks = [],
@@ -35,7 +42,7 @@ export const Library = () => {
       const { data, error } = await supabase
         .from("books")
         .select(
-          "id, slug, title_ua, title_en, description_ua, description_en, cover_image_url, purchase_url, display_order, is_featured, has_cantos",
+          "id, slug, title_ua, title_en, description_ua, description_en, cover_image_url, cover_image_path, purchase_url, display_order, is_featured, has_cantos",
         )
         .order("display_order", { ascending: true })
         .order("is_featured", { ascending: false })
@@ -62,7 +69,7 @@ export const Library = () => {
             <div className="w-56 h-56 md:w-72 md:h-72 drop-shadow-2xl">
               <img
                 src="/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png"
-                alt="Прабгупада солов'їною"
+                alt="Прабгупада соловйиною"
                 className="w-full h-full object-contain"
                 loading="lazy"
               />
@@ -80,116 +87,69 @@ export const Library = () => {
         {/* Books */}
         <section>
           {isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {Array.from({ length: 10 }).map((_, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <div className="aspect-[3/4] bg-muted animate-pulse" />
-                  <CardContent className="p-4 space-y-3">
-                    <div className="h-5 w-3/4 bg-muted animate-pulse rounded" />
-                    <div className="h-4 w-full bg-muted animate-pulse rounded" />
-                    <div className="h-4 w-2/3 bg-muted animate-pulse rounded" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <div className="text-center py-12">Завантаження книг...</div>
           ) : error ? (
-            <div className="text-center py-12">
-              <p className="text-destructive">Помилка завантаження книг. Спробуйте оновити сторінку.</p>
-            </div>
+            <div className="text-center py-12 text-red-500">Помилка завантаження: {String(error)}</div>
           ) : dbBooks.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">Книги поки що недоступні.</p>
-            </div>
+            <div className="text-center py-12 text-muted-foreground">Книги не знайдено</div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {dbBooks.map((book) => {
-                const title =
-                  (language === "ua" ? book.title_ua : book.title_en) || book.title_ua || book.title_en || "Без назви";
-                const description =
-                  (language === "ua" ? book.description_ua : book.description_en) ||
-                  book.description_ua ||
-                  book.description_en ||
-                  "";
-
-                // маршрути читача
-                const verseLink = book.has_cantos ? `/veda-reader/${book.slug}` : `/veda-reader/${book.slug}/1`;
-
-                // маршрути аудіо
-                const audioLink =
-                  book.slug === "gita"
-                    ? "/audiobooks/bhagavad-gita"
-                    : book.slug === "bhagavatam"
-                      ? "/audiobooks/srimad-bhagavatam"
-                      : book.slug === "iso"
-                        ? "/audiobooks/sri-isopanishad"
-                        : "/audiobooks";
+                const title = language === "ua" ? book.title_ua : book.title_en || book.title_ua;
+                const description = language === "ua" ? book.description_ua : book.description_en || book.description_ua;
 
                 return (
                   <Card
                     key={book.id}
-                    className="group hover:shadow-card transition-shadow border-border/50 flex flex-col"
+                    className="group overflow-hidden hover:shadow-xl transition-shadow duration-300 relative"
                   >
-                    <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg overflow-hidden">
-                      <Link to={verseLink} className="block w-full h-full">
+                    {/* Кнопка редагування для адмінів */}
+                    {isAdmin && (
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setEditingBook(book);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+
+                    <Link to={`/library/${book.slug}`}>
+                      <div className="aspect-[2/3] overflow-hidden bg-muted">
                         {book.cover_image_url ? (
                           <img
                             src={book.cover_image_url}
-                            alt={title}
+                            alt={title || "Обкладинка книги"}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-amber-50 to-orange-100 dark:from-amber-900/20 dark:to-orange-900/20 flex items-center justify-center">
-                            <div className="text-center p-4">
-                              <div className="text-6xl mb-4 text-primary">ॐ</div>
-                              <div className="text-lg font-semibold text-foreground/80 line-clamp-3">{title}</div>
-                            </div>
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <BookOpen className="w-16 h-16 text-muted-foreground" />
                           </div>
                         )}
-                      </Link>
-                    </div>
-
-                    <CardContent className="p-4 flex-1 flex flex-col">
-                      <Link to={verseLink} className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center group-hover:text-primary transition-colors">
-                          {title}
-                        </h3>
-                      </Link>
-
-                      {description && (
-                        <p className="text-sm text-muted-foreground mb-4 line-clamp-3 text-center">{description}</p>
-                      )}
-
-                      <div className="flex items-center justify-center gap-2 flex-wrap">
-                        <Link to={verseLink} aria-label={`Читати: ${title}`}>
-                          <Badge
-                            variant="outline"
-                            className="hover:bg-primary hover:text-primary-foreground transition-colors"
-                          >
-                            <BookOpen className="w-3 h-3 mr-1" />
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{title}</h3>
+                        {description && <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{description}</p>}
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge variant="secondary" className="flex items-center gap-1">
+                            <BookOpen className="w-3 h-3" />
                             Читати
                           </Badge>
-                        </Link>
-                        <Link to={audioLink} aria-label={`Аудіо: ${title}`}>
-                          <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">
-                            <Headphones className="w-3 h-3 mr-1" />
-                            Аудіо
-                          </Badge>
-                        </Link>
-                        {book.purchase_url && (
-                          <a
-                            href={book.purchase_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Купити: ${title}`}
-                          >
-                            <Badge variant="default" className="hover:bg-primary/80 transition-colors">
-                              Купити
+                          {book.purchase_url && (
+                            <Badge variant="outline" className="flex items-center gap-1">
+                              <Headphones className="w-3 h-3" />
+                              Аудіо
                             </Badge>
-                          </a>
-                        )}
-                      </div>
-                    </CardContent>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Link>
                   </Card>
                 );
               })}
@@ -198,6 +158,18 @@ export const Library = () => {
         </section>
       </main>
       <Footer />
+
+      {/* Діалог редагування обкладинки */}
+      {editingBook && (
+        <BookCoverEditor
+          bookId={editingBook.id}
+          bookSlug={editingBook.slug}
+          currentCoverUrl={editingBook.cover_image_url}
+          currentCoverPath={editingBook.cover_image_path}
+          isOpen={!!editingBook}
+          onClose={() => setEditingBook(null)}
+        />
+      )}
     </div>
   );
 };
