@@ -13,6 +13,7 @@ import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
+import SiteBanners from "./pages/admin/SiteBanners";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader"; // ← тепер існує
