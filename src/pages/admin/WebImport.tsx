@@ -18,7 +18,7 @@ export default function WebImport() {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
-  
+
   const [books, setBooks] = useState<any[]>([]);
   const [cantos, setCantos] = useState<any[]>([]);
   const [selectedBook, setSelectedBook] = useState<string>("");
@@ -43,7 +43,7 @@ export default function WebImport() {
       .from("books")
       .select("id, title_ua, title_en, has_cantos")
       .order("display_order");
-    
+
     if (error) {
       toast({
         title: "Помилка",
@@ -52,7 +52,7 @@ export default function WebImport() {
       });
       return;
     }
-    
+
     setBooks(data || []);
   };
 
@@ -62,7 +62,7 @@ export default function WebImport() {
       .select("id, canto_number, title_ua, title_en")
       .eq("book_id", bookId)
       .order("canto_number");
-    
+
     if (error) {
       toast({
         title: "Помилка",
@@ -71,7 +71,7 @@ export default function WebImport() {
       });
       return;
     }
-    
+
     setCantos(data || []);
   };
 
@@ -79,8 +79,8 @@ export default function WebImport() {
     setSelectedBook(bookId);
     setSelectedCanto("");
     setCantos([]);
-    
-    const book = books.find(b => b.id === bookId);
+
+    const book = books.find((b) => b.id === bookId);
     if (book?.has_cantos) {
       loadCantos(bookId);
     }
@@ -90,9 +90,8 @@ export default function WebImport() {
    * Завантажує HTML через CORS proxy
    */
   const fetchWithProxy = async (url: string): Promise<string> => {
-    // Варіант 1: Використати публічний CORS proxy
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    
+
     try {
       const response = await fetch(proxyUrl);
       if (!response.ok) {
@@ -106,7 +105,13 @@ export default function WebImport() {
   };
 
   const handleImport = async () => {
+    console.log("[WebImport] handleImport started");
+    console.log("[WebImport] selectedBook:", selectedBook);
+    console.log("[WebImport] selectedCanto:", selectedCanto);
+    console.log("[WebImport] cantos.length:", cantos.length);
+
     if (!selectedBook || (!selectedCanto && cantos.length > 0)) {
+      console.error("[WebImport] Validation failed: book or canto missing");
       toast({
         title: "Помилка",
         description: "Виберіть книгу" + (cantos.length > 0 ? " та кант" : ""),
@@ -116,6 +121,7 @@ export default function WebImport() {
     }
 
     if (!chapterTitleUa || !chapterTitleEn) {
+      console.error("[WebImport] Validation failed: chapter titles missing");
       toast({
         title: "Помилка",
         description: "Введіть назви глави українською та англійською",
@@ -125,6 +131,7 @@ export default function WebImport() {
     }
 
     if (!vedabaseUrl || !gitabaseUrl) {
+      console.error("[WebImport] Validation failed: URLs missing");
       toast({
         title: "Помилка",
         description: "Введіть обидва URL",
@@ -133,24 +140,30 @@ export default function WebImport() {
       return;
     }
 
+    console.log("[WebImport] Validation passed, starting import");
     setIsImporting(true);
 
     try {
       // Завантажуємо контент з обох сайтів через proxy
+      console.log("[WebImport] Fetching Vedabase:", vedabaseUrl);
       toast({
         title: "Завантаження",
         description: "Завантажуємо дані з Vedabase...",
       });
 
       const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
+      console.log("[WebImport] Vedabase HTML length:", vedabaseHtml.length);
 
+      console.log("[WebImport] Fetching Gitabase:", gitabaseUrl);
       toast({
         title: "Завантаження",
         description: "Завантажуємо дані з Gitabase...",
       });
 
       const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
+      console.log("[WebImport] Gitabase HTML length:", gitabaseHtml.length);
 
+      console.log("[WebImport] Parsing chapter");
       toast({
         title: "Парсинг",
         description: "Обробляємо дані...",
@@ -162,9 +175,16 @@ export default function WebImport() {
         gitabaseHtml,
         parseInt(chapterNumber),
         chapterTitleUa,
-        chapterTitleEn
+        chapterTitleEn,
       );
 
+      console.log("[WebImport] Parsed chapter:", {
+        chapter_number: chapter.chapter_number,
+        verses_count: chapter.verses.length,
+        title_ua: chapter.title_ua,
+      });
+
+      console.log("[WebImport] Importing to database");
       toast({
         title: "Імпорт",
         description: "Імпортуємо до бази даних...",
@@ -178,24 +198,25 @@ export default function WebImport() {
         strategy: "replace",
       });
 
+      console.log("[WebImport] Import successful!");
       toast({
         title: "Успіх!",
-        description: `Главу ${chapterNumber} успішно імпортовано`,
+        description: `Главу ${chapterNumber} успішно імпортовано (${chapter.verses.length} віршів)`,
       });
 
       // Очищуємо форму
       setChapterNumber("");
       setChapterTitleUa("");
       setChapterTitleEn("");
-      
     } catch (error) {
-      console.error("Import error:", error);
+      console.error("[WebImport] Import error:", error);
       toast({
         title: "Помилка",
         description: error instanceof Error ? error.message : "Не вдалося імпортувати главу",
         variant: "destructive",
       });
     } finally {
+      console.log("[WebImport] Import process finished");
       setIsImporting(false);
     }
   };
@@ -220,8 +241,8 @@ export default function WebImport() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Важливо</AlertTitle>
           <AlertDescription>
-            Імпорт використовує CORS proxy для завантаження контенту з Vedabase та Gitabase.
-            Якщо виникають помилки, перевірте правильність URL або спробуйте пізніше.
+            Імпорт використовує CORS proxy для завантаження контенту з Vedabase та Gitabase. Якщо виникають помилки,
+            перевірте правильність URL або спробуйте пізніше. Дивіться логи в консолі браузера (F12).
           </AlertDescription>
         </Alert>
 
@@ -300,9 +321,7 @@ export default function WebImport() {
                 onChange={(e) => setVedabaseUrl(e.target.value)}
                 placeholder="https://vedabase.io/en/library/cc/adi/1/1/"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Приклад: https://vedabase.io/en/library/cc/adi/1/1/
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Приклад: https://vedabase.io/en/library/cc/adi/1/1/</p>
             </div>
 
             <div>
@@ -313,24 +332,19 @@ export default function WebImport() {
                 onChange={(e) => setGitabaseUrl(e.target.value)}
                 placeholder="https://gitabase.com/ukr/CC/1/1"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Приклад: https://gitabase.com/ukr/CC/1/1
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Приклад: https://gitabase.com/ukr/CC/1/1</p>
             </div>
 
-            <Button
-              onClick={handleImport}
-              disabled={isImporting}
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={handleImport} disabled={isImporting} className="w-full" size="lg">
               <Download className="w-4 h-4 mr-2" />
               {isImporting ? "Імпортуємо..." : "Імпортувати главу"}
             </Button>
 
             <div className="text-xs text-muted-foreground space-y-1">
-              <p><strong>Порада:</strong> Переконайтеся що URL вказують на першу сторінку глави.</p>
-              <p>Якщо імпорт не спрацює через CORS, можна використати браузерне розширення для обходу CORS (CORS Unblock) або встановити серверний проксі.</p>
+              <p>
+                <strong>Порада:</strong> Відкрийте консоль браузера (F12) щоб бачити детальні логи імпорту.
+              </p>
+              <p>Переконайтеся що URL вказують на першу сторінку глави.</p>
             </div>
           </div>
         </Card>
