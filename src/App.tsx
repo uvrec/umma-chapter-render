@@ -18,6 +18,7 @@ import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import SiteBannersAdmin from "@/pages/admin/SiteBanners";
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
+import WebImport from "@/pages/admin/WebImport";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader";
@@ -143,6 +144,9 @@ const App = () => (
                   <Route path="/admin/sitebanners" element={<AdminBanners />} />
                   <Route path="/admin/site-banners" element={<AdminBanners />} />
 
+                  {/* ✅ ДОДАНО: Маршрут для імпорту з веб-сторінок */}
+                  <Route path="/admin/web-import" element={<WebImport />} />
+
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
                   <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
@@ -178,6 +182,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
 
+                {/* Глобальний аудіо плеєр і панель налаштувань */}
                 <GlobalAudioPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>
