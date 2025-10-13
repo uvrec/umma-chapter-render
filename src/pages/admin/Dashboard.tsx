@@ -17,6 +17,7 @@ import {
   Music,
   WrapText,
   FileEdit,
+  Globe,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
@@ -34,7 +35,7 @@ const Dashboard = () => {
     }
   }, [user, isAdmin, navigate]);
 
-  // завантаження книг для “Швидкого переходу”
+  // завантаження книг для "Швидкого переходу"
   useEffect(() => {
     if (!user || !isAdmin) return;
     supabase
@@ -239,6 +240,13 @@ const Dashboard = () => {
                 <Link to="/admin/import-wizard">
                   <Upload className="w-4 h-4 mr-2" />
                   Новий імпорт глави
+                </Link>
+              </Button>
+              {/* ✅ ДОДАНО: Кнопка імпорту з веб */}
+              <Button asChild variant="secondary" className="w-full">
+                <Link to="/admin/web-import">
+                  <Globe className="w-4 h-4 mr-2" />
+                  Імпорт з веб (Vedabase/Gitabase)
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
