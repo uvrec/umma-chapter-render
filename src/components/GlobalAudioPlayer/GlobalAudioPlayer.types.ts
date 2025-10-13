@@ -11,9 +11,6 @@ export interface Track {
   verseNumber?: string;
   
   /** URL аудіо файлу */
-  url: string;
-  
-  /** URL аудіо файлу (дублікат для зворотньої сумісності) */
   src: string;
   
   /** URL зображення обкладинки (опціонально) */
@@ -63,7 +60,7 @@ export interface AudioContextType {
    * Якщо трек вже є в плейлисті - перемикається на нього
    * Якщо ні - додає до плейлиста і починає відтворення
    */
-  playTrack: (track: Omit<Track, 'url'> & { src: string }) => void;
+  playTrack: (track: Track) => void;
   
   /**
    * Перемикає відтворення/паузу
@@ -105,7 +102,17 @@ export interface AudioContextType {
   /**
    * Додає трек до плейлиста без відтворення
    */
-  addToPlaylist: (track: Omit<Track, 'url'> & { src: string }) => void;
+  addToPlaylist: (track: Track) => void;
+  
+  /**
+   * Додає трек до черги (алі as для addToPlaylist)
+   */
+  addToQueue: (track: Track) => void;
+  
+  /**
+   * Встановлює весь плейлист
+   */
+  setQueue: (tracks: Track[]) => void;
   
   /**
    * Видаляє трек з плейлиста за індексом
