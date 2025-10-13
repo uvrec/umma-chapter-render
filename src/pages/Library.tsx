@@ -21,7 +21,7 @@ type DbBook = {
   description_ua: string | null;
   description_en: string | null;
   cover_image_url: string | null;
-  
+
   purchase_url: string | null;
   display_order: number | null;
   is_featured: boolean | null;
@@ -62,12 +62,7 @@ export const Library = () => {
       <main className="container mx-auto px-4 py-8">
         {/* Banner */}
         <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-lg mb-12 overflow-hidden shadow-lg group">
-          <img
-            src={bannerUrl}
-            alt="Студія звукозапису"
-            className="w-full h-full object-cover"
-            loading="lazy"
-          />
+          <img src={bannerUrl} alt="Студія звукозапису" className="w-full h-full object-cover" loading="lazy" />
           {!authLoading && isAdmin && (
             <Button
               variant="secondary"
@@ -110,7 +105,8 @@ export const Library = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {dbBooks.map((book) => {
                 const title = language === "ua" ? book.title_ua : book.title_en || book.title_ua;
-                const description = language === "ua" ? book.description_ua : book.description_en || book.description_ua;
+                const description =
+                  language === "ua" ? book.description_ua : book.description_en || book.description_ua;
 
                 return (
                   <Card
@@ -133,7 +129,8 @@ export const Library = () => {
                       </Button>
                     )}
 
-                    <Link to={`/library/${book.slug}`}>
+                    {/* ✅ ВИПРАВЛЕНО: Змінено посилання з /library/ на /veda-reader/ */}
+                    <Link to={`/veda-reader/${book.slug}`}>
                       <div className="aspect-[2/3] overflow-hidden bg-muted">
                         {book.cover_image_url ? (
                           <img
@@ -150,7 +147,9 @@ export const Library = () => {
                       </div>
                       <CardContent className="p-4">
                         <h3 className="font-semibold text-lg mb-2 line-clamp-2">{title}</h3>
-                        {description && <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{description}</p>}
+                        {description && (
+                          <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{description}</p>
+                        )}
                         <div className="flex gap-2 flex-wrap">
                           <Badge variant="secondary" className="flex items-center gap-1">
                             <BookOpen className="w-3 h-3" />
