@@ -196,7 +196,6 @@ export const fileToTrack = (file: File): Promise<Track> => {
         id: generateTrackId(url, file.name),
         title: file.name.replace(/\.[^/.]+$/, ''), // Видаляє розширення
         src: url,
-        url: url,
         duration: audio.duration,
       };
       

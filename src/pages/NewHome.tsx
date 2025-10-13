@@ -199,7 +199,7 @@ function Hero() {
                     <div className="min-w-0 flex-1 text-left">
                       <div className="mb-1 truncate text-base font-semibold text-foreground">{currentTrack.title}</div>
                       <div className="truncate text-sm text-muted-foreground">
-                        {currentTrack.album || "Vedavoice · Аудіо"}
+                        {currentTrack.metadata?.album || "Vedavoice · Аудіо"}
                       </div>
                       <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />

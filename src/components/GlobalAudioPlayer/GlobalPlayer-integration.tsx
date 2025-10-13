@@ -26,7 +26,7 @@ export function Hero() {
 }
 
 export function LatestAudioTracks() {
-  const { playTrack, addToQueue } = useAudio();
+  const { playTrack, addToPlaylist } = useAudio();
 
   const { data: tracks } = useQuery({
     queryKey: ["audio-tracks"],
@@ -64,7 +64,17 @@ export function LatestAudioTracks() {
   };
 
   const handleAddToQueue = (t: NonNullable<typeof tracks>[number]) => {
-    addToQueue({ id: t.id, title: t.title_ua ?? t.title_en ?? "Без назви", src: t.audio_url });
+    addToPlaylist({ 
+      id: t.id, 
+      title: t.title_ua ?? t.title_en ?? "Без назви", 
+      src: t.audio_url,
+      verseNumber: `Трек ${t.track_number}`,
+      coverImage: t.playlist?.cover_image_url ?? undefined,
+      metadata: {
+        artist: t.playlist?.author || "Vedavoice",
+        album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
+      },
+    });
   };
 
   return (

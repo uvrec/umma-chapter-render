@@ -11,9 +11,13 @@ interface Track {
   id: string;
   title: string;
   verseNumber?: string;
-  url: string;
   src: string;
   coverImage?: string;
+  duration?: number;
+  metadata?: {
+    artist?: string;
+    album?: string;
+  };
 }
 
 type RepeatMode = 'off' | 'all' | 'one';
@@ -27,7 +31,7 @@ interface AudioContextType {
   duration: number;
   volume: number;
   repeatMode: RepeatMode;
-  playTrack: (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => void;
+  playTrack: (track: Track) => void;
   togglePlay: () => void;
   stop: () => void;
   seek: (time: number) => void;
@@ -35,7 +39,9 @@ interface AudioContextType {
   prevTrack: () => void;
   nextTrack: () => void;
   toggleRepeat: () => void;
-  addToPlaylist: (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => void;
+  addToPlaylist: (track: Track) => void;
+  addToQueue: (track: Track) => void;
+  setQueue: (tracks: Track[]) => void;
   removeFromPlaylist: (index: number) => void;
   clearPlaylist: () => void;
 }
@@ -191,27 +197,18 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const playTrack = (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => {
+  const playTrack = (track: Track) => {
     const existingIndex = playlist.findIndex(t => t.id === track.id);
     
     if (existingIndex >= 0) {
       playTrackByIndex(existingIndex);
     } else {
-      const newTrack: Track = {
-        id: track.id,
-        title: track.title,
-        verseNumber: track.verseNumber,
-        url: track.src,
-        src: track.src,
-        coverImage: track.coverImage
-      };
-      
-      const newPlaylist = [...playlist, newTrack];
+      const newPlaylist = [...playlist, track];
       setPlaylist(newPlaylist);
       setCurrentIndex(newPlaylist.length - 1);
       
       if (audioRef.current) {
-        audioRef.current.src = newTrack.src;
+        audioRef.current.src = track.src;
         audioRef.current.load();
         
         const playPromise = audioRef.current.play();
@@ -227,20 +224,21 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const addToPlaylist = (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => {
+  const addToPlaylist = (track: Track) => {
     const existingIndex = playlist.findIndex(t => t.id === track.id);
     if (existingIndex >= 0) return;
-
-    const newTrack: Track = {
-      id: track.id,
-      title: track.title,
-      verseNumber: track.verseNumber,
-      url: track.src,
-      src: track.src,
-      coverImage: track.coverImage
-    };
     
-    setPlaylist(prev => [...prev, newTrack]);
+    setPlaylist(prev => [...prev, track]);
+  };
+
+  const addToQueue = (track: Track) => {
+    addToPlaylist(track);
+  };
+
+  const setQueue = (tracks: Track[]) => {
+    setPlaylist(tracks);
+    setCurrentIndex(null);
+    stop();
   };
 
   const removeFromPlaylist = (index: number) => {
@@ -342,6 +340,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     nextTrack,
     toggleRepeat,
     addToPlaylist,
+    addToQueue,
+    setQueue,
     removeFromPlaylist,
     clearPlaylist,
   };
