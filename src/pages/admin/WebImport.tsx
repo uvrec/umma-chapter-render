@@ -7,11 +7,12 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { parseChapterFromWeb } from "@/utils/import/webImporter";
 import { importSingleChapter } from "@/utils/import/importer";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function WebImport() {
   const navigate = useNavigate();
@@ -85,6 +86,25 @@ export default function WebImport() {
     }
   };
 
+  /**
+   * Завантажує HTML через CORS proxy
+   */
+  const fetchWithProxy = async (url: string): Promise<string> => {
+    // Варіант 1: Використати публічний CORS proxy
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    
+    try {
+      const response = await fetch(proxyUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.text();
+    } catch (error) {
+      console.error(`Failed to fetch ${url}:`, error);
+      throw new Error(`Не вдалося завантажити контент з ${url}. Перевірте URL.`);
+    }
+  };
+
   const handleImport = async () => {
     if (!selectedBook || (!selectedCanto && cantos.length > 0)) {
       toast({
@@ -104,22 +124,32 @@ export default function WebImport() {
       return;
     }
 
+    if (!vedabaseUrl || !gitabaseUrl) {
+      toast({
+        title: "Помилка",
+        description: "Введіть обидва URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsImporting(true);
 
     try {
-      // Завантажуємо контент з обох сайтів
+      // Завантажуємо контент з обох сайтів через proxy
       toast({
         title: "Завантаження",
-        description: "Завантажуємо дані з Vedabase та Gitabase...",
+        description: "Завантажуємо дані з Vedabase...",
       });
 
-      const [vedabaseResponse, gitabaseResponse] = await Promise.all([
-        fetch(vedabaseUrl),
-        fetch(gitabaseUrl),
-      ]);
+      const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
 
-      const vedabaseHtml = await vedabaseResponse.text();
-      const gitabaseHtml = await gitabaseResponse.text();
+      toast({
+        title: "Завантаження",
+        description: "Завантажуємо дані з Gitabase...",
+      });
+
+      const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
 
       toast({
         title: "Парсинг",
@@ -185,6 +215,16 @@ export default function WebImport() {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-3xl">
+        {/* Попередження про CORS */}
+        <Alert className="mb-6">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Важливо</AlertTitle>
+          <AlertDescription>
+            Імпорт використовує CORS proxy для завантаження контенту з Vedabase та Gitabase.
+            Якщо виникають помилки, перевірте правильність URL або спробуйте пізніше.
+          </AlertDescription>
+        </Alert>
+
         <Card className="p-6">
           <div className="space-y-6">
             <div>
@@ -260,6 +300,9 @@ export default function WebImport() {
                 onChange={(e) => setVedabaseUrl(e.target.value)}
                 placeholder="https://vedabase.io/en/library/cc/adi/1/1/"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Приклад: https://vedabase.io/en/library/cc/adi/1/1/
+              </p>
             </div>
 
             <div>
@@ -270,6 +313,9 @@ export default function WebImport() {
                 onChange={(e) => setGitabaseUrl(e.target.value)}
                 placeholder="https://gitabase.com/ukr/CC/1/1"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Приклад: https://gitabase.com/ukr/CC/1/1
+              </p>
             </div>
 
             <Button
@@ -281,6 +327,11 @@ export default function WebImport() {
               <Download className="w-4 h-4 mr-2" />
               {isImporting ? "Імпортуємо..." : "Імпортувати главу"}
             </Button>
+
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p><strong>Порада:</strong> Переконайтеся що URL вказують на першу сторінку глави.</p>
+              <p>Якщо імпорт не спрацює через CORS, можна використати браузерне розширення для обходу CORS (CORS Unblock) або встановити серверний проксі.</p>
+            </div>
           </div>
         </Card>
       </div>
