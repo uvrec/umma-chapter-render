@@ -116,9 +116,9 @@ function Hero() {
   const { data: settingsData, refetch } = useQuery({
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("site_settings").select("value").eq("key", "home_hero").single();
+      const { data, error } = await supabase.from("site_settings" as any).select("value").eq("key", "home_hero").single();
       if (error) throw error;
-      return data?.value as {
+      return (data as any)?.value as {
         background_image: string;
         logo_image: string;
         subtitle_ua: string;

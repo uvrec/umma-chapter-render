@@ -254,6 +254,31 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (currentIndex !== null && currentIndex < playlist.length - 1) playTrackByIndex(currentIndex + 1);
   };
 
+  const addToQueue = (track: {
+    id: string;
+    title: string;
+    src: string;
+    verseNumber?: string;
+    duration?: number;
+    metadata?: Track["metadata"];
+  }) => {
+    const newTrack: Track = {
+      id: track.id,
+      title: track.title,
+      verseNumber: track.verseNumber,
+      url: track.src,
+      src: track.src,
+      duration: track.duration,
+      metadata: track.metadata,
+    };
+    setPlaylist((prev) => [...prev, newTrack]);
+  };
+
+  const setQueue = (tracks: Track[]) => {
+    setPlaylist(tracks);
+    setCurrentIndex(null);
+  };
+
   const value: AudioContextType = {
     playlist,
     currentIndex,
@@ -269,6 +294,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setVolume,
     prevTrack,
     nextTrack,
+    addToQueue,
+    setQueue,
   };
 
   return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;

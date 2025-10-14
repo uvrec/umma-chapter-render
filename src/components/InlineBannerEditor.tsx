@@ -46,7 +46,7 @@ export function InlineBannerEditor({ settings, onUpdate }: InlineBannerEditorPro
     setSaving(true);
     try {
       const { error } = await supabase
-        .from("site_settings")
+        .from("site_settings" as any)
         .update({ value: editedSettings })
         .eq("key", "home_hero");
 

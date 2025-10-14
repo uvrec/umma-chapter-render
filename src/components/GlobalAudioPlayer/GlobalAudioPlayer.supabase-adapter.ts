@@ -33,9 +33,9 @@ export function convertSupabaseTrackToPlayerTrack(
     title: title(language, track.title_ua, track.title_en),
     src: track.audio_url,
     verseNumber: `Трек ${track.track_number}`,
-    coverImage: playlist?.cover_image_url || undefined,
     duration: track.duration ?? undefined,
     metadata: {
+      coverUrl: playlist?.cover_image_url || undefined,
       artist: playlist?.author || "Vedavoice",
       album: title(language, playlist?.title_ua, playlist?.title_en),
     },
@@ -127,7 +127,7 @@ export async function trackPlayEvent(
 }
 
 export function useSupabasePlaylist(playlistId: string | null, language: "ua" | "en" = "ua") {
-  const { setQueue } = useAudio();
+  const { setQueue, playTrack } = useAudio();
   useEffect(() => {
     let off = false;
     if (!playlistId) return;

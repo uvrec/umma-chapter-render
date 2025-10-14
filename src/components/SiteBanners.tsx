@@ -36,9 +36,9 @@ export default function SiteBanners() {
     queryKey: ["site-banner", key],
     enabled: !!key,
     queryFn: async () => {
-      const { data, error } = await supabase.from("site_settings").select("key,value").eq("key", key!).single();
+      const { data, error } = await supabase.from("site_settings" as any).select("key,value").eq("key", key!).single();
       if (error) return null; // якщо запису ще немає — не показуємо банер
-      return (data?.value || null) as BannerValue | null;
+      return ((data as any)?.value || null) as BannerValue | null;
     },
   });
 

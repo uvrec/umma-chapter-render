@@ -45,9 +45,9 @@ export default function SiteBannersAdmin() {
 
   const loadSettings = async () => {
     try {
-      const { data, error } = await supabase.from("site_settings").select("value").eq("key", "home_hero").single();
+      const { data, error } = await supabase.from("site_settings" as any).select("value").eq("key", "home_hero").single();
       if (error) throw error;
-      if (data?.value) setSettings(data.value as HeroSettings);
+      if ((data as any)?.value) setSettings((data as any).value as HeroSettings);
     } catch (err) {
       toast({ title: "Помилка", description: "Не вдалося завантажити налаштування", variant: "destructive" });
     } finally {
@@ -58,7 +58,7 @@ export default function SiteBannersAdmin() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase.from("site_settings").update({ value: settings }).eq("key", "home_hero");
+      const { error } = await supabase.from("site_settings" as any).update({ value: settings }).eq("key", "home_hero");
       if (error) throw error;
       toast({ title: "Успішно", description: "Налаштування збережено" });
     } catch (err: any) {

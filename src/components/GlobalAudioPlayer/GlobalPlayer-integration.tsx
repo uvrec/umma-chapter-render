@@ -26,7 +26,7 @@ export function Hero() {
 }
 
 export function LatestAudioTracks() {
-  const { playTrack, addToPlaylist } = useAudio();
+  const { playTrack, addToQueue } = useAudio();
 
   const { data: tracks } = useQuery({
     queryKey: ["audio-tracks"],
@@ -53,26 +53,27 @@ export function LatestAudioTracks() {
       id: t.id,
       title: t.title_ua ?? t.title_en ?? "Без назви",
       src: t.audio_url,
-      coverImage: t.playlist?.cover_image_url ?? undefined,
       verseNumber: `Трек ${t.track_number}`,
       duration: t.duration ?? undefined,
       metadata: {
         artist: t.playlist?.author || "Vedavoice",
         album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
+        coverUrl: t.playlist?.cover_image_url ?? undefined,
       },
     });
   };
 
   const handleAddToQueue = (t: NonNullable<typeof tracks>[number]) => {
-    addToPlaylist({ 
-      id: t.id, 
-      title: t.title_ua ?? t.title_en ?? "Без назви", 
+    addToQueue({
+      id: t.id,
+      title: t.title_ua ?? t.title_en ?? "Без назви",
       src: t.audio_url,
       verseNumber: `Трек ${t.track_number}`,
-      coverImage: t.playlist?.cover_image_url ?? undefined,
+      duration: t.duration ?? undefined,
       metadata: {
         artist: t.playlist?.author || "Vedavoice",
         album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
+        coverUrl: t.playlist?.cover_image_url ?? undefined,
       },
     });
   };
@@ -91,7 +92,7 @@ export function LatestAudioTracks() {
 }
 
 export function PlaylistCard({ playlistId }: { playlistId: string }) {
-  const { playTrack, setQueue } = useAudio();
+  const { playTrack, playlist, setQueue } = useAudio();
   const handlePlayPlaylist = async () => {
     const tracks = await loadPlaylistTracks(playlistId, "ua");
     if (!tracks.length) return;

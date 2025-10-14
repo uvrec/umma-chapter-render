@@ -71,7 +71,7 @@ export default function AdminAudiobooks() {
 
       // Завантажуємо налаштування з site_settings
       const { data, error } = await supabase
-        .from("site_settings")
+        .from("site_settings" as any)
         .select("value")
         .eq("key", "audiobooks_page")
         .single();
@@ -79,7 +79,7 @@ export default function AdminAudiobooks() {
       if (error && error.code !== "PGRST116") throw error;
 
       if (data?.value) {
-        setSettings(data.value as AudiobooksPageSettings);
+        setSettings((data as any).value as AudiobooksPageSettings);
       }
     } catch (error) {
       console.error("Error loading settings:", error);
@@ -99,7 +99,7 @@ export default function AdminAudiobooks() {
 
       // Перевіряємо чи існує запис
       const { data: existing } = await supabase
-        .from("site_settings")
+        .from("site_settings" as any)
         .select("id")
         .eq("key", "audiobooks_page")
         .single();
@@ -107,7 +107,7 @@ export default function AdminAudiobooks() {
       if (existing) {
         // Оновлюємо існуючий запис
         const { error } = await supabase
-          .from("site_settings")
+          .from("site_settings" as any)
           .update({
             value: settings,
             description: "Налаштування сторінки Аудіокниги",
@@ -117,7 +117,7 @@ export default function AdminAudiobooks() {
         if (error) throw error;
       } else {
         // Створюємо новий запис
-        const { error } = await supabase.from("site_settings").insert({
+        const { error } = await supabase.from("site_settings" as any).insert({
           key: "audiobooks_page",
           value: settings,
           description: "Налаштування сторінки Аудіокниги",

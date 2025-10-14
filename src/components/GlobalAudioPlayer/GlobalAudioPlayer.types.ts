@@ -9,22 +9,20 @@ export interface Track {
   
   /** Опис або номер вірша (опціонально) */
   verseNumber?: string;
-  
+
   /** URL аудіо файлу */
   src: string;
-  
-  /** URL зображення обкладинки (опціонально) */
-  coverImage?: string;
-  
+
   /** Тривалість у секундах (опціонально, визначається автоматично) */
   duration?: number;
-  
+
   /** Додаткові метадані (опціонально) */
   metadata?: {
     artist?: string;
     album?: string;
     year?: number;
     genre?: string;
+    coverUrl?: string;
   };
 }
 
@@ -95,20 +93,22 @@ export interface AudioContextType {
   nextTrack: () => void;
   
   /**
-   * Циклічно перемикає режим повтору: off → all → one → off
-   */
-  toggleRepeat: () => void;
-  
-  /**
    * Додає трек до плейлиста без відтворення
    */
   addToPlaylist: (track: Track) => void;
-  
+
   /**
-   * Додає трек до черги (алі as для addToPlaylist)
+   * Додає трек до черги (alias для addToPlaylist)
    */
-  addToQueue: (track: Track) => void;
-  
+  addToQueue: (track: {
+    id: string;
+    title: string;
+    src: string;
+    verseNumber?: string;
+    duration?: number;
+    metadata?: Track["metadata"];
+  }) => void;
+
   /**
    * Встановлює весь плейлист
    */

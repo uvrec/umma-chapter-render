@@ -64,10 +64,10 @@ export const updateMediaSession = (track: Track): void => {
     album: track.metadata?.album,
   };
   
-  if (track.coverImage) {
+  if (track.metadata?.coverUrl) {
     metadata.artwork = [
       {
-        src: track.coverImage,
+        src: track.metadata.coverUrl,
         sizes: '512x512',
         type: 'image/jpeg'
       }
