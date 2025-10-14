@@ -1,4 +1,4 @@
-// src/pages/admin/WebImport.tsx
+// src/pages/admin/WebImport.tsx - ПОКРАЩЕНА ВЕРСІЯ
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,12 +7,15 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Download, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Download, AlertTriangle, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { parseChapterFromWeb } from "@/utils/import/webImporter";
 import { importSingleChapter } from "@/utils/import/importer";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+
+type ImportStep = "idle" | "fetching-vedabase" | "fetching-gitabase" | "parsing" | "importing" | "done" | "error";
 
 export default function WebImport() {
   const navigate = useNavigate();
@@ -26,9 +29,12 @@ export default function WebImport() {
   const [chapterNumber, setChapterNumber] = useState<string>("1");
   const [chapterTitleUa, setChapterTitleUa] = useState<string>("");
   const [chapterTitleEn, setChapterTitleEn] = useState<string>("");
-  const [vedabaseUrl, setVedabaseUrl] = useState<string>("https://vedabase.io/en/library/cc/adi/1/1/");
+  const [vedabaseUrl, setVedabaseUrl] = useState<string>("https://vedabase.io/en/library/cc/adi/1/");
   const [gitabaseUrl, setGitabaseUrl] = useState<string>("https://gitabase.com/ukr/CC/1/1");
-  const [isImporting, setIsImporting] = useState(false);
+
+  const [importStep, setImportStep] = useState<ImportStep>("idle");
+  const [progress, setProgress] = useState<number>(0);
+  const [importResult, setImportResult] = useState<{ versesCount?: number; error?: string } | null>(null);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -87,89 +93,123 @@ export default function WebImport() {
   };
 
   /**
-   * Завантажує HTML через CORS proxy
+   * Завантажує HTML через CORS proxy з retry логікою
    */
-  const fetchWithProxy = async (url: string): Promise<string> => {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  const fetchWithProxy = async (url: string, retries = 2): Promise<string> => {
+    const proxies = [
+      `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    ];
 
-    try {
-      const response = await fetch(proxyUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const proxyUrl = proxies[attempt % proxies.length];
+
+      try {
+        console.log(`[WebImport] Attempt ${attempt + 1}: Fetching via`, proxyUrl);
+        const response = await fetch(proxyUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const text = await response.text();
+
+        if (text.length < 100) {
+          throw new Error("Response too short, possibly blocked");
+        }
+
+        console.log(`[WebImport] Success! Response length: ${text.length}`);
+        return text;
+      } catch (error) {
+        console.error(`[WebImport] Attempt ${attempt + 1} failed:`, error);
+
+        if (attempt === retries) {
+          throw new Error(
+            `Не вдалося завантажити ${url} після ${retries + 1} спроб: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
+        }
+
+        // Wait before retry
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
       }
-      return await response.text();
-    } catch (error) {
-      console.error(`Failed to fetch ${url}:`, error);
-      throw new Error(`Не вдалося завантажити контент з ${url}. Перевірте URL.`);
     }
+
+    throw new Error(`Failed to fetch ${url}`);
   };
 
-  const handleImport = async () => {
-    console.log("[WebImport] handleImport started");
-    console.log("[WebImport] selectedBook:", selectedBook);
-    console.log("[WebImport] selectedCanto:", selectedCanto);
-    console.log("[WebImport] cantos.length:", cantos.length);
-
-    if (!selectedBook || (!selectedCanto && cantos.length > 0)) {
-      console.error("[WebImport] Validation failed: book or canto missing");
+  const validateInputs = (): boolean => {
+    if (!selectedBook) {
       toast({
         title: "Помилка",
-        description: "Виберіть книгу" + (cantos.length > 0 ? " та кант" : ""),
+        description: "Виберіть книгу",
         variant: "destructive",
       });
-      return;
+      return false;
+    }
+
+    if (cantos.length > 0 && !selectedCanto) {
+      toast({
+        title: "Помилка",
+        description: "Виберіть кант",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!chapterNumber || parseInt(chapterNumber) < 1) {
+      toast({
+        title: "Помилка",
+        description: "Введіть правильний номер глави",
+        variant: "destructive",
+      });
+      return false;
     }
 
     if (!chapterTitleUa || !chapterTitleEn) {
-      console.error("[WebImport] Validation failed: chapter titles missing");
       toast({
         title: "Помилка",
         description: "Введіть назви глави українською та англійською",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     if (!vedabaseUrl || !gitabaseUrl) {
-      console.error("[WebImport] Validation failed: URLs missing");
       toast({
         title: "Помилка",
         description: "Введіть обидва URL",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
-    console.log("[WebImport] Validation passed, starting import");
-    setIsImporting(true);
+    return true;
+  };
+
+  const handleImport = async () => {
+    if (!validateInputs()) return;
+
+    setImportStep("fetching-vedabase");
+    setProgress(10);
+    setImportResult(null);
 
     try {
-      // Завантажуємо контент з обох сайтів через proxy
-      console.log("[WebImport] Fetching Vedabase:", vedabaseUrl);
-      toast({
-        title: "Завантаження",
-        description: "Завантажуємо дані з Vedabase...",
-      });
-
+      // Крок 1: Завантажуємо Vedabase
+      console.log("[WebImport] Step 1: Fetching Vedabase...");
       const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
       console.log("[WebImport] Vedabase HTML length:", vedabaseHtml.length);
+      setProgress(30);
 
-      console.log("[WebImport] Fetching Gitabase:", gitabaseUrl);
-      toast({
-        title: "Завантаження",
-        description: "Завантажуємо дані з Gitabase...",
-      });
-
+      // Крок 2: Завантажуємо Gitabase
+      setImportStep("fetching-gitabase");
+      console.log("[WebImport] Step 2: Fetching Gitabase...");
       const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
       console.log("[WebImport] Gitabase HTML length:", gitabaseHtml.length);
+      setProgress(50);
 
-      console.log("[WebImport] Parsing chapter");
-      toast({
-        title: "Парсинг",
-        description: "Обробляємо дані...",
-      });
-
-      // Парсимо главу
+      // Крок 3: Парсимо главу
+      setImportStep("parsing");
+      console.log("[WebImport] Step 3: Parsing chapter...");
       const chapter = await parseChapterFromWeb(
         vedabaseHtml,
         gitabaseHtml,
@@ -184,13 +224,15 @@ export default function WebImport() {
         title_ua: chapter.title_ua,
       });
 
-      console.log("[WebImport] Importing to database");
-      toast({
-        title: "Імпорт",
-        description: "Імпортуємо до бази даних...",
-      });
+      if (chapter.verses.length === 0) {
+        throw new Error("Не знайдено жодного вірша. Перевірте URL та структуру сторінок.");
+      }
 
-      // Імпортуємо в базу даних
+      setProgress(70);
+
+      // Крок 4: Імпортуємо в базу даних
+      setImportStep("importing");
+      console.log("[WebImport] Step 4: Importing to database...");
       await importSingleChapter(supabase, {
         bookId: selectedBook,
         cantoId: selectedCanto || null,
@@ -198,30 +240,46 @@ export default function WebImport() {
         strategy: "replace",
       });
 
-      console.log("[WebImport] Import successful!");
+      setProgress(100);
+      setImportStep("done");
+      setImportResult({ versesCount: chapter.verses.length });
+
+      console.log("[WebImport] ✅ Import successful!");
       toast({
         title: "Успіх!",
         description: `Главу ${chapterNumber} успішно імпортовано (${chapter.verses.length} віршів)`,
       });
 
-      // Очищуємо форму
-      setChapterNumber("");
-      setChapterTitleUa("");
-      setChapterTitleEn("");
+      // Очищуємо форму після успішного імпорту
+      setTimeout(() => {
+        setChapterNumber((prev) => (parseInt(prev) + 1).toString());
+        setChapterTitleUa("");
+        setChapterTitleEn("");
+        setImportStep("idle");
+        setProgress(0);
+      }, 3000);
     } catch (error) {
-      console.error("[WebImport] Import error:", error);
+      console.error("[WebImport] ❌ Import error:", error);
+      setImportStep("error");
+      setImportResult({ error: error instanceof Error ? error.message : "Невідома помилка" });
+
       toast({
-        title: "Помилка",
+        title: "Помилка імпорту",
         description: error instanceof Error ? error.message : "Не вдалося імпортувати главу",
         variant: "destructive",
       });
-    } finally {
-      console.log("[WebImport] Import process finished");
-      setIsImporting(false);
     }
   };
 
+  const resetImport = () => {
+    setImportStep("idle");
+    setProgress(0);
+    setImportResult(null);
+  };
+
   if (!user || !isAdmin) return null;
+
+  const isImporting = importStep !== "idle" && importStep !== "done" && importStep !== "error";
 
   return (
     <div className="min-h-screen bg-background">
@@ -241,16 +299,16 @@ export default function WebImport() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Важливо</AlertTitle>
           <AlertDescription>
-            Імпорт використовує CORS proxy для завантаження контенту з Vedabase та Gitabase. Якщо виникають помилки,
-            перевірте правильність URL або спробуйте пізніше. Дивіться логи в консолі браузера (F12).
+            Імпорт використовує CORS proxy для завантаження контенту з Vedabase та Gitabase. Процес може зайняти 30-60
+            секунд. Дивіться логи в консолі браузера (F12) для детальної інформації.
           </AlertDescription>
         </Alert>
 
-        <Card className="p-6">
+        <Card className="p-6 mb-6">
           <div className="space-y-6">
             <div>
-              <Label htmlFor="book">Книга</Label>
-              <Select value={selectedBook} onValueChange={handleBookChange}>
+              <Label htmlFor="book">Книга *</Label>
+              <Select value={selectedBook} onValueChange={handleBookChange} disabled={isImporting}>
                 <SelectTrigger id="book">
                   <SelectValue placeholder="Виберіть книгу" />
                 </SelectTrigger>
@@ -266,8 +324,8 @@ export default function WebImport() {
 
             {cantos.length > 0 && (
               <div>
-                <Label htmlFor="canto">Кант</Label>
-                <Select value={selectedCanto} onValueChange={setSelectedCanto}>
+                <Label htmlFor="canto">Кант *</Label>
+                <Select value={selectedCanto} onValueChange={setSelectedCanto} disabled={isImporting}>
                   <SelectTrigger id="canto">
                     <SelectValue placeholder="Виберіть кант" />
                   </SelectTrigger>
@@ -283,68 +341,124 @@ export default function WebImport() {
             )}
 
             <div>
-              <Label htmlFor="chapterNumber">Номер глави</Label>
+              <Label htmlFor="chapterNumber">Номер глави *</Label>
               <Input
                 id="chapterNumber"
                 type="number"
+                min="1"
                 value={chapterNumber}
                 onChange={(e) => setChapterNumber(e.target.value)}
                 placeholder="1"
+                disabled={isImporting}
               />
             </div>
 
             <div>
-              <Label htmlFor="titleUa">Назва глави (українською)</Label>
+              <Label htmlFor="titleUa">Назва глави (українською) *</Label>
               <Input
                 id="titleUa"
                 value={chapterTitleUa}
                 onChange={(e) => setChapterTitleUa(e.target.value)}
                 placeholder="Духовний учитель"
+                disabled={isImporting}
               />
             </div>
 
             <div>
-              <Label htmlFor="titleEn">Назва глави (англійською)</Label>
+              <Label htmlFor="titleEn">Назва глави (англійською) *</Label>
               <Input
                 id="titleEn"
                 value={chapterTitleEn}
                 onChange={(e) => setChapterTitleEn(e.target.value)}
                 placeholder="The Spiritual Master"
+                disabled={isImporting}
               />
             </div>
 
             <div>
-              <Label htmlFor="vedabaseUrl">URL Vedabase (бенгалі + англійська)</Label>
+              <Label htmlFor="vedabaseUrl">URL Vedabase (бенгалі + англійська) *</Label>
               <Input
                 id="vedabaseUrl"
                 value={vedabaseUrl}
                 onChange={(e) => setVedabaseUrl(e.target.value)}
-                placeholder="https://vedabase.io/en/library/cc/adi/1/1/"
+                placeholder="https://vedabase.io/en/library/cc/adi/1/"
+                disabled={isImporting}
               />
-              <p className="text-xs text-muted-foreground mt-1">Приклад: https://vedabase.io/en/library/cc/adi/1/1/</p>
+              <p className="text-xs text-muted-foreground mt-1">Приклад: https://vedabase.io/en/library/cc/adi/1/</p>
             </div>
 
             <div>
-              <Label htmlFor="gitabaseUrl">URL Gitabase (українська)</Label>
+              <Label htmlFor="gitabaseUrl">URL Gitabase (українська) *</Label>
               <Input
                 id="gitabaseUrl"
                 value={gitabaseUrl}
                 onChange={(e) => setGitabaseUrl(e.target.value)}
                 placeholder="https://gitabase.com/ukr/CC/1/1"
+                disabled={isImporting}
               />
               <p className="text-xs text-muted-foreground mt-1">Приклад: https://gitabase.com/ukr/CC/1/1</p>
             </div>
 
-            <Button onClick={handleImport} disabled={isImporting} className="w-full" size="lg">
-              <Download className="w-4 h-4 mr-2" />
-              {isImporting ? "Імпортуємо..." : "Імпортувати главу"}
-            </Button>
+            {/* Progress bar */}
+            {isImporting && (
+              <div className="space-y-2">
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-muted-foreground text-center">
+                  {importStep === "fetching-vedabase" && "⏳ Завантажуємо дані з Vedabase..."}
+                  {importStep === "fetching-gitabase" && "⏳ Завантажуємо дані з Gitabase..."}
+                  {importStep === "parsing" && "🔄 Обробляємо дані..."}
+                  {importStep === "importing" && "📥 Імпортуємо до бази даних..."}
+                </p>
+              </div>
+            )}
 
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>
-                <strong>Порада:</strong> Відкрийте консоль браузера (F12) щоб бачити детальні логи імпорту.
-              </p>
-              <p>Переконайтеся що URL вказують на першу сторінку глави.</p>
+            {/* Result messages */}
+            {importStep === "done" && importResult && (
+              <Alert className="bg-green-50 border-green-200">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertTitle className="text-green-800">Успішно імпортовано!</AlertTitle>
+                <AlertDescription className="text-green-700">
+                  Главу {chapterNumber} імпортовано. Знайдено {importResult.versesCount} віршів.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {importStep === "error" && importResult?.error && (
+              <Alert variant="destructive">
+                <XCircle className="h-4 w-4" />
+                <AlertTitle>Помилка імпорту</AlertTitle>
+                <AlertDescription>{importResult.error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              <Button onClick={handleImport} disabled={isImporting} className="flex-1" size="lg">
+                {isImporting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Імпортуємо...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Імпортувати главу
+                  </>
+                )}
+              </Button>
+
+              {(importStep === "done" || importStep === "error") && (
+                <Button onClick={resetImport} variant="outline" size="lg">
+                  Скинути
+                </Button>
+              )}
+            </div>
+
+            <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t">
+              <p className="font-semibold">💡 Порада:</p>
+              <p>• Відкрийте консоль браузера (F12) щоб бачити детальні логи імпорту</p>
+              <p>• Переконайтеся що URL вказують на першу сторінку глави</p>
+              <p>• Якщо імпорт не спрацював, спробуйте ще раз - це може бути тимчасова проблема proxy</p>
             </div>
           </div>
         </Card>
