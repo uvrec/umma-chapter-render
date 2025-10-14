@@ -1,145 +1,6 @@
 // src/utils/import/webImporter.ts
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
 
-/**
- * Витягує текст з HTML елемента за селектором
- */
-function extractText(html: string, selector: string): string {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-  const element = doc.querySelector(selector);
-  return element?.textContent?.trim() || "";
-}
-
-/**
- * Витягує всі вірші з HTML сторінки Vedabase
- * Vedabase має структуру: кожен вірш це окремий блок з класами
- */
-function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
-  console.log("[webImporter] Parsing Vedabase HTML");
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-
-  const verses = new Map<string, VedabaseVerse>();
-
-  // Шукаємо всі віршові блоки
-  // Vedabase використовує різні класи залежно від книги
-  const verseBlocks = doc.querySelectorAll('.r, .verse, [class*="verse-"]');
-
-  console.log(`[webImporter] Found ${verseBlocks.length} verse blocks in Vedabase`);
-
-  verseBlocks.forEach((block, index) => {
-    const verseNum = (index + 1).toString();
-
-    // Шукаємо бенгалі/санскрит текст
-    const bengaliEl = block.querySelector('.d, .devanagari, .bengali, [class*="sanskrit"]');
-    const bengali = bengaliEl?.textContent?.trim() || "";
-
-    // Шукаємо транслітерацію
-    const translitEl = block.querySelector('.v, .verse-text, [class*="translit"]');
-    const transliteration = translitEl?.textContent?.trim() || "";
-
-    // Шукаємо синоніми
-    const synonymsEl = block.querySelector(".w, .word-for-word, .synonyms");
-    const synonyms = synonymsEl?.textContent?.trim() || "";
-
-    // Шукаємо переклад
-    const translationEl = block.querySelector(".t, .translation");
-    const translation = translationEl?.textContent?.trim() || "";
-
-    // Шукаємо коментар
-    const commentaryEl = block.querySelector(".p, .purport, .commentary");
-    const commentary = commentaryEl?.textContent?.trim() || "";
-
-    if (bengali || transliteration || translation) {
-      verses.set(verseNum, {
-        verseNumber: verseNum,
-        bengali,
-        transliteration,
-        synonyms,
-        translation,
-        commentary,
-      });
-      console.log(`[webImporter] Vedabase verse ${verseNum}:`, {
-        bengali: bengali.substring(0, 50),
-        transliteration: transliteration.substring(0, 50),
-      });
-    }
-  });
-
-  // Якщо не знайшли жодного вірша, спробуємо альтернативний метод
-  if (verses.size === 0) {
-    console.log("[webImporter] No verses found with standard selectors, trying alternative method");
-
-    // Шукаємо текст який містить характерні маркери віршів
-    const bodyText = doc.body.textContent || "";
-
-    // Vedabase часто має TEXT 1, TEXT 2 тощо
-    const textMatches = bodyText.matchAll(/TEXT\s+(\d+)/gi);
-    const verseNumbers = Array.from(textMatches).map((m) => m[1]);
-
-    console.log(`[webImporter] Found ${verseNumbers.length} verse numbers via TEXT pattern`);
-
-    verseNumbers.forEach((num) => {
-      verses.set(num, {
-        verseNumber: num,
-        bengali: "",
-        transliteration: "",
-        synonyms: "",
-        translation: "",
-        commentary: "",
-      });
-    });
-  }
-
-  return verses;
-}
-
-/**
- * Витягує всі вірші з HTML сторінки Gitabase
- */
-function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
-  console.log("[webImporter] Parsing Gitabase HTML");
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-
-  const verses = new Map<string, GitabaseVerse>();
-
-  // Gitabase має структуру з текстами віршів
-  const bodyText = doc.body.textContent || "";
-
-  // Шукаємо вірші за патерном [Текст 1], [Текст 2] тощо
-  const verseMatches = Array.from(bodyText.matchAll(/\[?Текст\*?\s*(\d+)\]?[:\s]*([^[]+?)(?=\[?Текст\*?\s*\d+|$)/gis));
-
-  console.log(`[webImporter] Found ${verseMatches.length} verses in Gitabase`);
-
-  verseMatches.forEach((match) => {
-    const verseNum = match[1];
-    const content = match[2].trim();
-
-    // Розділяємо переклад і коментар
-    // Переклад зазвичай виділений жирним або в лапках
-    const translationMatch = content.match(/^[«"]?(.+?)[»"]?\s*[\.—]/);
-    const translation = translationMatch ? translationMatch[1].trim() : content.split(".")[0].trim();
-
-    // Коментар - все що після перекладу
-    const commentary = content.substring(translation.length).trim();
-
-    verses.set(verseNum, {
-      verseNumber: verseNum,
-      translation,
-      commentary,
-    });
-
-    console.log(`[webImporter] Gitabase verse ${verseNum}:`, {
-      translation: translation.substring(0, 50),
-      commentary: commentary.substring(0, 50),
-    });
-  });
-
-  return verses;
-}
-
 interface VedabaseVerse {
   verseNumber: string;
   bengali?: string;
@@ -153,6 +14,238 @@ interface GitabaseVerse {
   verseNumber: string;
   translation?: string;
   commentary?: string;
+}
+
+/**
+ * Витягує всі вірші з HTML сторінки Vedabase
+ */
+function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
+  console.log("[webImporter] Parsing Vedabase HTML, length:", html.length);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  const verses = new Map<string, VedabaseVerse>();
+
+  // МЕТОД 1: Шукаємо через data-id="text-X" (новий Vedabase)
+  const textBlocks = doc.querySelectorAll('[data-id^="text-"]');
+
+  if (textBlocks.length > 0) {
+    console.log(`[webImporter] Found ${textBlocks.length} verse blocks via data-id`);
+
+    textBlocks.forEach((block) => {
+      const dataId = block.getAttribute("data-id");
+      const verseNum = dataId?.match(/text-(\d+)/)?.[1] || "";
+
+      if (!verseNum) return;
+
+      // Шукаємо різні частини вірша в межах блоку
+      const bengaliEl = block.querySelector('[lang="sa"], .devanagari, .sanskrit-text, .bengali');
+      const bengali = bengaliEl?.textContent?.trim() || "";
+
+      const translitEl = block.querySelector('.verse-text, .transliteration, [class*="translit"]');
+      const transliteration = translitEl?.textContent?.trim() || "";
+
+      const synonymsEl = block.querySelector(".word-for-word, .synonyms");
+      const synonyms = synonymsEl?.textContent?.trim() || "";
+
+      const translationEl = block.querySelector(".translation");
+      const translation = translationEl?.textContent?.trim() || "";
+
+      const commentaryEl = block.querySelector(".purport, .commentary");
+      const commentary = commentaryEl?.textContent?.trim() || "";
+
+      if (bengali || transliteration || translation) {
+        verses.set(verseNum, {
+          verseNumber: verseNum,
+          bengali,
+          transliteration,
+          synonyms,
+          translation,
+          commentary,
+        });
+        console.log(`[webImporter] Vedabase verse ${verseNum}:`, {
+          hasBengali: !!bengali,
+          hasTranslit: !!transliteration,
+          hasTranslation: !!translation,
+        });
+      }
+    });
+  }
+
+  // МЕТОД 2: Парсимо через текстові маркери "TEXT X"
+  if (verses.size === 0) {
+    console.log("[webImporter] No data-id blocks, trying text-based parsing");
+    const bodyText = doc.body.textContent || "";
+
+    // Розбиваємо на секції по TEXT X
+    const sections = bodyText.split(/TEXT\s+(\d+)/i);
+
+    for (let i = 1; i < sections.length; i += 2) {
+      const verseNum = sections[i];
+      const content = sections[i + 1] || "";
+
+      if (!content.trim()) continue;
+
+      // Витягуємо різні компоненти
+      const lines = content
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      let bengali = "";
+      let transliteration = "";
+      let synonyms = "";
+      let translation = "";
+      let commentary = "";
+
+      let currentSection = "";
+
+      for (const line of lines) {
+        // Визначаємо тип контенту
+        if (/SYNONYMS?/i.test(line)) {
+          currentSection = "synonyms";
+          continue;
+        } else if (/TRANSLATION/i.test(line)) {
+          currentSection = "translation";
+          continue;
+        } else if (/PURPORT|COMMENTARY/i.test(line)) {
+          currentSection = "commentary";
+          continue;
+        }
+
+        // Бенгалі/санскрит (містить девангарі символи)
+        if (!bengali && /[\u0900-\u097F\u0980-\u09FF]/.test(line)) {
+          bengali = line;
+          continue;
+        }
+
+        // Транслітерація (латиниця з діакритикою)
+        if (!transliteration && /[āīūṛṝḷḹēōṁṃḥṅñṭḍṇśṣ]/.test(line) && line.length > 10) {
+          transliteration = line;
+          continue;
+        }
+
+        // Додаємо до поточної секції
+        switch (currentSection) {
+          case "synonyms":
+            synonyms += (synonyms ? "\n" : "") + line;
+            break;
+          case "translation":
+            translation += (translation ? " " : "") + line;
+            break;
+          case "commentary":
+            commentary += (commentary ? "\n\n" : "") + line;
+            break;
+        }
+      }
+
+      verses.set(verseNum, {
+        verseNumber: verseNum,
+        bengali: bengali.trim(),
+        transliteration: transliteration.trim(),
+        synonyms: synonyms.trim(),
+        translation: translation.trim(),
+        commentary: commentary.trim(),
+      });
+
+      console.log(`[webImporter] Parsed Vedabase verse ${verseNum}`);
+    }
+  }
+
+  console.log(`[webImporter] Vedabase parsing complete: ${verses.size} verses found`);
+  return verses;
+}
+
+/**
+ * Витягує всі вірші з HTML сторінки Gitabase
+ */
+function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
+  console.log("[webImporter] Parsing Gitabase HTML, length:", html.length);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
+
+  const verses = new Map<string, GitabaseVerse>();
+
+  // МЕТОД 1: Шукаємо через структуру DOM
+  const verseElements = doc.querySelectorAll('[class*="verse"], [data-verse], .text-block');
+
+  if (verseElements.length > 0) {
+    console.log(`[webImporter] Found ${verseElements.length} verse elements in Gitabase`);
+
+    verseElements.forEach((el, idx) => {
+      const verseNum = el.getAttribute("data-verse") || (idx + 1).toString();
+
+      const translationEl = el.querySelector('.translation, [class*="translation"]');
+      const translation = translationEl?.textContent?.trim() || "";
+
+      const commentaryEl = el.querySelector('.commentary, .purport, [class*="commentary"]');
+      const commentary = commentaryEl?.textContent?.trim() || "";
+
+      if (translation || commentary) {
+        verses.set(verseNum, {
+          verseNumber: verseNum,
+          translation,
+          commentary,
+        });
+      }
+    });
+  }
+
+  // МЕТОД 2: Парсимо через текстові маркери
+  if (verses.size === 0) {
+    console.log("[webImporter] No verse elements, trying text pattern matching");
+    const bodyText = doc.body.textContent || "";
+
+    // Gitabase часто має "[Текст X]" або "Текст X"
+    const pattern = /\[?Текст\*?\s*(\d+)\]?[:\s]*([\s\S]*?)(?=\[?Текст\*?\s*\d+|$)/gi;
+    const matches = Array.from(bodyText.matchAll(pattern));
+
+    console.log(`[webImporter] Found ${matches.length} text matches in Gitabase`);
+
+    matches.forEach((match) => {
+      const verseNum = match[1];
+      let content = match[2].trim();
+
+      // Видаляємо зайві пробіли та переноси
+      content = content.replace(/\s+/g, " ").trim();
+
+      let translation = "";
+      let commentary = "";
+
+      // Переклад зазвичай в лапках або виділений
+      const translMatch =
+        content.match(/^[«"](.+?)[»"]/) || content.match(/^([^.]+?\.)/) || content.match(/^(.{20,150}?\.)/);
+
+      if (translMatch) {
+        translation = translMatch[1].replace(/[«»"]/g, "").trim();
+        // Коментар - все що після перекладу
+        commentary = content.substring(translMatch[0].length).trim();
+      } else {
+        // Якщо не знайшли чіткий переклад, перше речення - переклад
+        const firstSentence = content.match(/^.+?\./);
+        if (firstSentence) {
+          translation = firstSentence[0];
+          commentary = content.substring(firstSentence[0].length).trim();
+        } else {
+          translation = content;
+        }
+      }
+
+      verses.set(verseNum, {
+        verseNumber: verseNum,
+        translation: translation.trim(),
+        commentary: commentary.trim(),
+      });
+
+      console.log(`[webImporter] Gitabase verse ${verseNum}:`, {
+        translationLength: translation.length,
+        commentaryLength: commentary.length,
+      });
+    });
+  }
+
+  console.log(`[webImporter] Gitabase parsing complete: ${verses.size} verses found`);
+  return verses;
 }
 
 /**
@@ -186,13 +279,17 @@ export async function parseChapterFromWeb(
   chapterTitleUa: string,
   chapterTitleEn: string,
 ): Promise<ParsedChapter> {
-  console.log("[webImporter] Starting chapter parsing");
+  console.log("[webImporter] ========== Starting chapter parsing ==========");
+  console.log("[webImporter] Chapter number:", chapterNumber);
   console.log("[webImporter] Vedabase HTML length:", vedabaseHTML.length);
   console.log("[webImporter] Gitabase HTML length:", gitabaseHTML.length);
 
   // Парсимо обидва джерела
   const vedabaseVerses = parseVedabaseHTML(vedabaseHTML);
   const gitabaseVerses = parseGitabaseHTML(gitabaseHTML);
+
+  console.log("[webImporter] Vedabase verses found:", vedabaseVerses.size);
+  console.log("[webImporter] Gitabase verses found:", gitabaseVerses.size);
 
   // Об'єднуємо всі унікальні номери віршів
   const allVerseNumbers = new Set<string>();
@@ -205,7 +302,11 @@ export async function parseChapterFromWeb(
   });
 
   console.log("[webImporter] Total unique verse numbers:", sortedVerseNumbers.length);
-  console.log("[webImporter] Verse numbers:", sortedVerseNumbers);
+  console.log("[webImporter] Verse numbers:", sortedVerseNumbers.join(", "));
+
+  if (sortedVerseNumbers.length === 0) {
+    throw new Error("Не знайдено жодного вірша. Перевірте URL або структуру сторінок.");
+  }
 
   // Створюємо ParsedVerse для кожного номера
   const verses: ParsedVerse[] = sortedVerseNumbers.map((verseNum) => {
@@ -215,7 +316,8 @@ export async function parseChapterFromWeb(
     return mergeVerseData(vedabaseVerse, gitabaseVerse, verseNum);
   });
 
-  console.log("[webImporter] Parsed verses:", verses.length);
+  console.log("[webImporter] ========== Parsing complete ==========");
+  console.log("[webImporter] Total verses created:", verses.length);
 
   return {
     chapter_number: chapterNumber,
