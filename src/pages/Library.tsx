@@ -89,7 +89,7 @@ export const Library = () => {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">Бібліотека</h1>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            Повна колекція ведичних писань з коментарями Його Божественної Милості А.Ч. Бхактіведанти Свамі Прабгупади
+            Ведичні писання з коментарями Його Божественної Милості А.Ч. Бхактіведанти Свамі Прабгупади
           </p>
         </div>
 
