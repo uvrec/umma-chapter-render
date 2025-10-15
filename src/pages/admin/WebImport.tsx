@@ -1,6 +1,5 @@
 // src/pages/admin/WebImport.tsx
 import { useState, useEffect } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -354,10 +353,11 @@ export default function WebImport() {
   }, []);
 
   return (
-    <AdminLayout
-      title="Веб-імпорт (Playwright)"
-      description="Імпорт з веб-сторінок з автоматичною транслітерацією та нормалізацією"
-    >
+    <div className="container mx-auto py-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Веб-імпорт (Playwright)</h1>
+        <p className="text-muted-foreground">Імпорт з веб-сторінок з автоматичною транслітерацією та нормалізацією</p>
+      </div>
       <div className="max-w-3xl mx-auto">
         {/* Інформаційний блок про новий парсер */}
         <Alert className="mb-6 bg-blue-50 border-blue-200">
@@ -544,6 +544,6 @@ export default function WebImport() {
           </div>
         </Card>
       </div>
-    </AdminLayout>
+    </div>
   );
 }

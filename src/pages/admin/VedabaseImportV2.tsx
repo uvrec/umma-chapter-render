@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Download, AlertCircle, BookOpen } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/vedabase-books";
+import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
 import { Badge } from "@/components/ui/badge";
 
 /**
@@ -302,10 +301,11 @@ export default function VedabaseImportV2() {
   };
 
   return (
-    <AdminLayout 
-      title="Vedabase Import v2"
-      description="Розумний імпорт з обробкою згрупованих віршів та поетапним додаванням даних"
-    >
+    <div className="container mx-auto py-8">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Vedabase Import v2</h1>
+        <p className="text-muted-foreground">Розумний імпорт з обробкою згрупованих віршів та поетапним додаванням даних</p>
+      </div>
       <Card>
         <CardHeader>
           <CardTitle>Вдосконалений імпорт з Vedabase.io</CardTitle>
@@ -496,6 +496,6 @@ export default function VedabaseImportV2() {
             </Tabs>
           </CardContent>
         </Card>
-    </AdminLayout>
+      </div>
   );
 }
