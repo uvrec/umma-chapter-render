@@ -173,7 +173,7 @@ export default function BlogPost() {
       <Header />
 
       <article className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto prose-reader" data-reader-root="true">
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
@@ -201,11 +201,11 @@ export default function BlogPost() {
           )}
 
           {/* Header */}
-          <header className="mb-8">
+          <header className="mb-8 verse-surface">
             {post.category && (
               <Badge className="mb-4">{language === "ua" ? post.category.name_ua : post.category.name_en}</Badge>
             )}
-            <h1 className="blog-title mb-4">{title}</h1>
+            <h1 className="text-4xl font-bold mb-4">{title}</h1>
 
             <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
               <div className="flex items-center gap-1">
@@ -255,7 +255,7 @@ export default function BlogPost() {
                 display_blocks: post.display_blocks,
               }}
               title={language === "ua" ? "Цитата з писань" : "Scripture Quote"}
-              className="mb-10"
+              className="mb-10 verse-surface"
               editable={!!isAdmin}
               onBlockToggle={async (block, visible) => {
                 try {
@@ -267,8 +267,6 @@ export default function BlogPost() {
                     .select("display_blocks")
                     .maybeSingle();
                   if (error) throw error;
-                  // optimistic UI: mutate cache locally
-                  // Note: react-query is available; quick local set to keep it minimal here
                   Object.assign(post, { display_blocks: data?.display_blocks || next });
                 } catch (e) {
                   console.error(e);
@@ -278,9 +276,9 @@ export default function BlogPost() {
           )}
 
           {/* Content */}
-          <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+          <div className="verse-surface mb-8">
             {hasContent ? (
-              <TiptapRenderer content={content} className="!max-w-none" />
+              <TiptapRenderer content={content} className="commentary-text" />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="text-lg">Контент поста ще не додано</p>

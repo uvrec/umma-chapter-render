@@ -46,13 +46,15 @@ export const TelegramEmbed = ({ url, className = "", width = "100%", theme = "li
   const [, channel, postId] = match;
 
   return (
-    <div className={`flex justify-center ${className}`}>
-      <blockquote
-        className="telegram-post"
-        data-telegram-post={`${channel}/${postId}`}
-        data-width={width}
-        data-dark={theme === "dark" ? "1" : "0"}
-      ></blockquote>
+    <div className={`w-full ${className}`}>
+      <div className="verse-surface p-6 rounded-lg">
+        <blockquote
+          className="telegram-post w-full"
+          data-telegram-post={`${channel}/${postId}`}
+          data-width="100%"
+          data-dark={theme === "dark" ? "1" : "0"}
+        ></blockquote>
+      </div>
     </div>
   );
 };
