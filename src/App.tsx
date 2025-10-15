@@ -18,11 +18,10 @@ import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import SiteBannersAdmin from "@/pages/admin/SiteBanners";
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
-import WebImport from "@/pages/admin/WebImport";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader";
-import { IndividualVerse } from "./components/IndividualVerse";
+import VerseView from "./pages/VerseView";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
@@ -67,8 +66,10 @@ import AudioCategories from "./pages/admin/AudioCategories";
 import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
+import WebImport from "./pages/admin/WebImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
-import CleanBengali from "./pages/admin/CleanBengali";
+import CleanBengali from "./pages/CleanBengali";
+import VedabaseImportV2 from "./pages/admin/VedabaseImportV2";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
@@ -96,7 +97,7 @@ const App = () => (
                   {/* Читалка */}
                   <Route path="/verses" element={<VedaReader />} />
                   <Route path="/verses/:bookId" element={<VedaReader />} />
-                  <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                  <Route path="/verses/:bookId/:verseNumber" element={<VerseView />} />
 
                   {/* Нові маршрути читання БД */}
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
@@ -145,12 +146,6 @@ const App = () => (
                   <Route path="/admin/sitebanners" element={<AdminBanners />} />
                   <Route path="/admin/site-banners" element={<AdminBanners />} />
 
-                  {/* ✅ ДОДАНО: Маршрут для імпорту з веб-сторінок */}
-                  <Route path="/admin/web-import" element={<WebImport />} />
-                  
-                  {/* ✅ ДОДАНО: Маршрут для очищення бенгалі тексту */}
-                  <Route path="/admin/clean-bengali" element={<CleanBengali />} />
-
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
                   <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
@@ -165,8 +160,11 @@ const App = () => (
                   <Route path="/admin/verses/new" element={<AddEditVerse />} />
                   <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
                   <Route path="/admin/data-migration" element={<DataMigration />} />
+                  <Route path="/admin/web-import" element={<WebImport />} />
                   <Route path="/admin/import-wizard" element={<ImportWizard />} />
+                  <Route path="/admin/vedabase-import-v2" element={<VedabaseImportV2 />} />
                   <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
+                  <Route path="/admin/clean-bengali" element={<CleanBengali />} />
                   <Route path="/admin/blog-posts" element={<BlogPosts />} />
                   <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
                   <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
@@ -186,7 +184,6 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
 
-                {/* Глобальний аудіо плеєр і панель налаштувань */}
                 <GlobalAudioPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>
