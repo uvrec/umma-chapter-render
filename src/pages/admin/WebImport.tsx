@@ -1,13 +1,13 @@
 // src/pages/admin/WebImport.tsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Download, AlertTriangle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Download, AlertTriangle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { parseChapterFromWeb } from "@/utils/import/webImporter";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -15,8 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function WebImport() {
-  const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
 
   const [books, setBooks] = useState<any[]>([]);
@@ -24,19 +22,15 @@ export default function WebImport() {
   const [selectedBook, setSelectedBook] = useState<string>("");
   const [selectedCanto, setSelectedCanto] = useState<string>("");
   const [chapterNumber, setChapterNumber] = useState<string>("1");
+  const [verseRange, setVerseRange] = useState<string>("1-64, 65-66, 67-96, 97-98, 99-110");
   const [chapterTitleUa, setChapterTitleUa] = useState<string>("");
   const [chapterTitleEn, setChapterTitleEn] = useState<string>("");
-  const [vedabaseUrl, setVedabaseUrl] = useState<string>("https://vedabase.io/en/library/cc/adi/1/1/");
+  const [vedabaseUrl, setVedabaseUrl] = useState<string>("https://vedabase.io/en/library/cc/adi/1/");
   const [gitabaseUrl, setGitabaseUrl] = useState<string>("https://gitabase.com/ukr/CC/1/1");
   const [isImporting, setIsImporting] = useState(false);
-
-  useEffect(() => {
-    if (!user || !isAdmin) {
-      navigate("/auth");
-      return;
-    }
-    loadBooks();
-  }, [user, isAdmin, navigate]);
+  const [parsingProgress, setParsingProgress] = useState<number>(0);
+  const [parsingStatus, setParsingStatus] = useState<string>("");
+  const [useServerParser, setUseServerParser] = useState<boolean>(true);
 
   const loadBooks = async () => {
     const { data, error } = await supabase
@@ -66,7 +60,7 @@ export default function WebImport() {
     if (error) {
       toast({
         title: "Помилка",
-        description: "Не вдалося завантажити канти",
+        description: "Не вдалося завантажити Пісні",
         variant: "destructive",
       });
       return;
@@ -114,7 +108,7 @@ export default function WebImport() {
       console.error("[WebImport] Validation failed: book or canto missing");
       toast({
         title: "Помилка",
-        description: "Виберіть книгу" + (cantos.length > 0 ? " та кант" : ""),
+        description: "Виберіть книгу" + (cantos.length > 0 ? " та Пісню" : ""),
         variant: "destructive",
       });
       return;
@@ -140,43 +134,169 @@ export default function WebImport() {
       return;
     }
 
+    const verseCountNum = verseRange.split(",").reduce((acc, range) => {
+      const parts = range
+        .trim()
+        .split("-")
+        .map((p) => parseInt(p.trim()));
+      if (parts.length === 1) return acc + 1;
+      if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+        return acc + (parts[1] - parts[0] + 1);
+      }
+      return acc;
+    }, 0);
+
+    if (verseCountNum < 1 || verseCountNum > 500) {
+      toast({
+        title: "Помилка",
+        description: "Кількість віршів має бути від 1 до 500",
+        variant: "destructive",
+      });
+      return;
+    }
+
     console.log("[WebImport] Validation passed, starting import");
     setIsImporting(true);
+    setParsingProgress(0);
+    setParsingStatus("Підготовка до парсингу...");
 
     try {
-      // Завантажуємо контент з обох сайтів через proxy
-      console.log("[WebImport] Fetching Vedabase:", vedabaseUrl);
-      toast({
-        title: "Завантаження",
-        description: "Завантажуємо дані з Vedabase...",
-      });
+      let chapter = null;
 
-      const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
-      console.log("[WebImport] Vedabase HTML length:", vedabaseHtml.length);
+      if (useServerParser) {
+        // ============================================================================
+        // НОВИЙ ПІДХІД: Playwright parser з нормалізацією через API
+        // ============================================================================
+        console.log("[WebImport] Using server-side Playwright parser with normalization");
+        setParsingStatus(`Парсинг ${verseCountNum} віршів через Playwright...`);
 
-      console.log("[WebImport] Fetching Gitabase:", gitabaseUrl);
-      toast({
-        title: "Завантаження",
-        description: "Завантажуємо дані з Gitabase...",
-      });
+        // Визначаємо lila number з UUID Пісні
+        const selectedCantoObj = cantos.find((c) => c.id === selectedCanto);
+        const lilaNum = selectedCantoObj ? selectedCantoObj.canto_number : 1;
 
-      const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
-      console.log("[WebImport] Gitabase HTML length:", gitabaseHtml.length);
+        try {
+          const apiUrl = "http://localhost:5003/admin/parse-web-chapter";
+          console.log("[WebImport] Calling API:", apiUrl);
+          console.log("[WebImport] Request payload:", {
+            lila: lilaNum,
+            chapter: parseInt(chapterNumber),
+            verse_ranges: verseRange,
+            vedabase_base: vedabaseUrl,
+            gitabase_base: gitabaseUrl,
+          });
 
-      console.log("[WebImport] Parsing chapter");
-      toast({
-        title: "Парсинг",
-        description: "Обробляємо дані...",
-      });
+          const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lila: lilaNum,
+              chapter: parseInt(chapterNumber),
+              verse_ranges: verseRange,
+              vedabase_base: vedabaseUrl,
+              gitabase_base: gitabaseUrl,
+            }),
+          });
 
-      // Парсимо главу
-      const chapter = await parseChapterFromWeb(
-        vedabaseHtml,
-        gitabaseHtml,
-        parseInt(chapterNumber),
-        chapterTitleUa,
-        chapterTitleEn,
-      );
+          console.log("[WebImport] Response status:", response.status);
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || errorData.error || `API помилка: ${response.statusText}`);
+          }
+
+          setParsingProgress(50);
+          setParsingStatus("Отримання даних з сервера...");
+
+          const result = await response.json();
+          console.log("[WebImport] Received from API:", {
+            verse_count: result.verses?.length,
+            summary: result.summary,
+          });
+
+          if (!result.verses || result.verses.length === 0) {
+            throw new Error("API не повернув віршів");
+          }
+
+          // Конвертуємо формат API у формат для імпорту
+          chapter = {
+            chapter_number: parseInt(chapterNumber),
+            title_ua: chapterTitleUa,
+            title_en: chapterTitleEn,
+            verses: result.verses.map((v: any) => ({
+              verse_number: parseInt(v.verse_number),
+              sanskrit: v.sanskrit || "",
+              transliteration: v.transliteration || "",
+              synonyms_en: v.synonyms_en || "",
+              translation_en: v.translation_en || "",
+              commentary_en: v.commentary_en || "",
+              synonyms_ua: v.synonyms_ua || "",
+              translation_ua: v.translation_ua || "",
+              commentary_ua: v.commentary_ua || "",
+            })),
+          };
+
+          // DEBUG: Логуємо перший вірш щоб побачити що передається
+          if (chapter.verses.length > 0) {
+            const v1 = chapter.verses[0];
+            console.log("[WebImport] Verse 1 field lengths:", {
+              sanskrit: v1.sanskrit.length,
+              transliteration: v1.transliteration.length,
+              synonyms_ua: v1.synonyms_ua.length,
+              translation_ua: v1.translation_ua.length,
+              commentary_ua: v1.commentary_ua.length,
+            });
+            console.log("[WebImport] Verse 1 samples:", {
+              sanskrit: v1.sanskrit.substring(0, 50),
+              transliteration: v1.transliteration.substring(0, 50),
+              synonyms_ua: v1.synonyms_ua.substring(0, 50),
+              translation_ua: v1.translation_ua.substring(0, 50),
+            });
+          }
+
+          setParsingProgress(75);
+          setParsingStatus(`Отримано ${chapter.verses.length} віршів з нормалізацією`);
+
+          toast({
+            title: "✅ Парсинг завершено",
+            description: `Отримано ${chapter.verses.length} віршів з транслітерацією`,
+          });
+        } catch (apiError) {
+          console.error("[WebImport] Server parser failed:", apiError);
+
+          // Показуємо помилку але не падаємо - можна спробувати fallback
+          toast({
+            title: "⚠️ Помилка серверного парсера",
+            description: apiError instanceof Error ? apiError.message : "Невідома помилка",
+            variant: "destructive",
+          });
+
+          throw apiError; // Не робимо fallback автоматично
+        }
+      } else {
+        // ============================================================================
+        // СТАРИЙ ПІДХІД: Client-side HTML parsing (без нормалізації)
+        // ============================================================================
+        console.log("[WebImport] Using client-side HTML parser (legacy)");
+        setParsingStatus("Завантаження HTML через CORS proxy...");
+
+        const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
+        setParsingProgress(25);
+
+        const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
+        setParsingProgress(50);
+
+        setParsingStatus("Парсинг HTML на клієнті...");
+        chapter = await parseChapterFromWeb(
+          vedabaseHtml,
+          gitabaseHtml,
+          parseInt(chapterNumber),
+          chapterTitleUa,
+          chapterTitleEn,
+        );
+
+        setParsingProgress(75);
+        setParsingStatus(`Розпізнано ${chapter.verses.length} віршів`);
+      }
 
       console.log("[WebImport] Parsed chapter:", {
         chapter_number: chapter.chapter_number,
@@ -184,13 +304,13 @@ export default function WebImport() {
         title_ua: chapter.title_ua,
       });
 
+      // ============================================================================
+      // ІМПОРТ У БАЗУ ДАНИХ
+      // ============================================================================
       console.log("[WebImport] Importing to database");
-      toast({
-        title: "Імпорт",
-        description: "Імпортуємо до бази даних...",
-      });
+      setParsingStatus("Імпорт у базу даних...");
+      setParsingProgress(80);
 
-      // Імпортуємо в базу даних
       await importSingleChapter(supabase, {
         bookId: selectedBook,
         cantoId: selectedCanto || null,
@@ -198,51 +318,59 @@ export default function WebImport() {
         strategy: "replace",
       });
 
+      setParsingProgress(100);
+      setParsingStatus("Готово!");
+
       console.log("[WebImport] Import successful!");
       toast({
-        title: "Успіх!",
+        title: "🎉 Успіх!",
         description: `Главу ${chapterNumber} успішно імпортовано (${chapter.verses.length} віршів)`,
       });
 
       // Очищуємо форму
-      setChapterNumber("");
+      setChapterNumber((parseInt(chapterNumber) + 1).toString());
       setChapterTitleUa("");
       setChapterTitleEn("");
     } catch (error) {
       console.error("[WebImport] Import error:", error);
+      setParsingStatus("Помилка");
       toast({
-        title: "Помилка",
+        title: "❌ Помилка",
         description: error instanceof Error ? error.message : "Не вдалося імпортувати главу",
         variant: "destructive",
       });
     } finally {
       console.log("[WebImport] Import process finished");
-      setIsImporting(false);
+      setTimeout(() => {
+        setIsImporting(false);
+        setParsingProgress(0);
+        setParsingStatus("");
+      }, 2000);
     }
   };
 
-  if (!user || !isAdmin) return null;
+  useEffect(() => {
+    loadBooks();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/admin/dashboard")}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад
-          </Button>
-          <h1 className="text-2xl font-bold">Імпорт з веб-сторінок</h1>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Попередження про CORS */}
-        <Alert className="mb-6">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Важливо</AlertTitle>
-          <AlertDescription>
-            Імпорт використовує CORS proxy для завантаження контенту з Vedabase та Gitabase. Якщо виникають помилки,
-            перевірте правильність URL або спробуйте пізніше. Дивіться логи в консолі браузера (F12).
+    <AdminLayout
+      title="Веб-імпорт (Playwright)"
+      description="Імпорт з веб-сторінок з автоматичною транслітерацією та нормалізацією"
+    >
+      <div className="max-w-3xl mx-auto">
+        {/* Інформаційний блок про новий парсер */}
+        <Alert className="mb-6 bg-blue-50 border-blue-200">
+          <Download className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="text-blue-900">Покращений імпорт</AlertTitle>
+          <AlertDescription className="text-blue-800">
+            <strong>Playwright парсер з нормалізацією:</strong>
+            <ul className="list-disc ml-5 mt-2 space-y-1">
+              <li>✅ Автоматична транслітерація (англійська IAST → українська)</li>
+              <li>✅ Нормалізація тексту (mojibake, діакритика)</li>
+              <li>✅ Правильні форми термінів (згідно стандарту)</li>
+              <li>⏱️ Час парсингу: ~2-3 сек/вірш (повна глава ~10-15 хв)</li>
+            </ul>
           </AlertDescription>
         </Alert>
 
@@ -266,15 +394,16 @@ export default function WebImport() {
 
             {cantos.length > 0 && (
               <div>
-                <Label htmlFor="canto">Кант</Label>
+                <Label htmlFor="canto">Ліла (Пісня)</Label>
                 <Select value={selectedCanto} onValueChange={setSelectedCanto}>
                   <SelectTrigger id="canto">
-                    <SelectValue placeholder="Виберіть кант" />
+                    <SelectValue placeholder="Виберіть лілу" />
                   </SelectTrigger>
                   <SelectContent>
                     {cantos.map((canto) => (
                       <SelectItem key={canto.id} value={canto.id}>
-                        Кант {canto.canto_number}: {canto.title_ua}
+                        {canto.canto_number === 1 ? "Аді" : canto.canto_number === 2 ? "Мадх'я" : "Антья"}-ліла:{" "}
+                        {canto.title_ua}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -282,15 +411,29 @@ export default function WebImport() {
               </div>
             )}
 
-            <div>
-              <Label htmlFor="chapterNumber">Номер глави</Label>
-              <Input
-                id="chapterNumber"
-                type="number"
-                value={chapterNumber}
-                onChange={(e) => setChapterNumber(e.target.value)}
-                placeholder="1"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="chapterNumber">Номер глави</Label>
+                <Input
+                  id="chapterNumber"
+                  type="number"
+                  value={chapterNumber}
+                  onChange={(e) => setChapterNumber(e.target.value)}
+                  placeholder="1"
+                  min="1"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="verseRange">Діапазон віршів</Label>
+                <Input
+                  id="verseRange"
+                  value={verseRange}
+                  onChange={(e) => setVerseRange(e.target.value)}
+                  placeholder="1-64, 65-66, 67-110"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Через кому, напр. 1-10, 12, 15-20</p>
+              </div>
             </div>
 
             <div>
@@ -314,14 +457,16 @@ export default function WebImport() {
             </div>
 
             <div>
-              <Label htmlFor="vedabaseUrl">URL Vedabase (бенгалі + англійська)</Label>
+              <Label htmlFor="vedabaseUrl">URL Vedabase (без номера вірша)</Label>
               <Input
                 id="vedabaseUrl"
                 value={vedabaseUrl}
                 onChange={(e) => setVedabaseUrl(e.target.value)}
-                placeholder="https://vedabase.io/en/library/cc/adi/1/1/"
+                placeholder="https://vedabase.io/en/library/cc/adi/1/"
               />
-              <p className="text-xs text-muted-foreground mt-1">Приклад: https://vedabase.io/en/library/cc/adi/1/1/</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Приклад: https://vedabase.io/en/library/cc/adi/1/ (без номера вірша в кінці)
+              </p>
             </div>
 
             <div>
@@ -332,23 +477,73 @@ export default function WebImport() {
                 onChange={(e) => setGitabaseUrl(e.target.value)}
                 placeholder="https://gitabase.com/ukr/CC/1/1"
               />
-              <p className="text-xs text-muted-foreground mt-1">Приклад: https://gitabase.com/ukr/CC/1/1</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Приклад: https://gitabase.com/ukr/CC/1/1 (ліла/глава без номера віршу)
+              </p>
             </div>
 
+            {/* Перемикач типу парсера */}
+            <div className="flex items-center space-x-2 p-4 bg-muted rounded-lg">
+              <input
+                type="checkbox"
+                id="useServerParser"
+                checked={useServerParser}
+                onChange={(e) => setUseServerParser(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <Label htmlFor="useServerParser" className="cursor-pointer">
+                <span className="font-semibold">Використовувати Playwright парсер</span>
+                <span className="text-xs text-muted-foreground ml-2">(рекомендовано для транслітерації)</span>
+              </Label>
+            </div>
+
+            {/* Прогрес-бар */}
+            {isImporting && (
+              <div className="space-y-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">{parsingStatus}</p>
+                    <Progress value={parsingProgress} className="mt-2 h-2" />
+                    <p className="text-xs text-blue-700 mt-1">{parsingProgress}% завершено</p>
+                  </div>
+                </div>
+                <p className="text-xs text-blue-600">
+                  ⏱️ Парсинг може зайняти 10-15 хвилин для повної глави. Не закривайте сторінку!
+                </p>
+              </div>
+            )}
+
             <Button onClick={handleImport} disabled={isImporting} className="w-full" size="lg">
-              <Download className="w-4 h-4 mr-2" />
-              {isImporting ? "Імпортуємо..." : "Імпортувати главу"}
+              {isImporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Парсинг віршів...
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" />
+                  Імпортувати главу
+                </>
+              )}
             </Button>
 
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>
-                <strong>Порада:</strong> Відкрийте консоль браузера (F12) щоб бачити детальні логи імпорту.
-              </p>
-              <p>Переконайтеся що URL вказують на першу сторінку глави.</p>
+            <div className="text-xs text-muted-foreground space-y-2 p-4 bg-muted rounded-lg">
+              <p className="font-semibold">💡 Поради:</p>
+              <ul className="list-disc ml-5 space-y-1">
+                <li>
+                  Переконайтеся що сервер парсера запущено:{" "}
+                  <code className="bg-background px-1 rounded">python3 tools/parse_server.py</code>
+                </li>
+                <li>URL Vedabase має вказувати на главу (без номера вірша в кінці)</li>
+                <li>URL Gitabase має вказувати на лілу/главу (без номера віршу)</li>
+                <li>Відкрийте консоль браузера (F12) для детальних логів</li>
+                <li>Для тестування почніть з 3-5 віршів</li>
+              </ul>
             </div>
           </div>
         </Card>
       </div>
-    </div>
+    </AdminLayout>
   );
 }
