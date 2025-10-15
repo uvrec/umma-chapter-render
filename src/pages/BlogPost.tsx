@@ -10,15 +10,18 @@ import { InstagramEmbed } from "@/components/blog/InstagramEmbed";
 import { TelegramEmbed } from "@/components/blog/TelegramEmbed";
 import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
+import VerseQuote from "@/components/blog/VerseQuote";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { Helmet } from "react-helmet-async";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
+  const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const {
@@ -28,7 +31,8 @@ export default function BlogPost() {
   } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Cast to any to allow selecting recently added verse-like fields not yet present in generated types
+      const { data, error } = await (supabase as any)
         .from("blog_posts")
         .select(
           `
@@ -44,6 +48,13 @@ export default function BlogPost() {
           featured_image,
           video_url,
           audio_url,
+          sanskrit,
+          transliteration,
+          synonyms_ua,
+          synonyms_en,
+          translation_ua,
+          translation_en,
+          display_blocks,
           instagram_embed_url,
           telegram_embed_url,
           substack_embed_url,
@@ -67,7 +78,8 @@ export default function BlogPost() {
         .maybeSingle();
 
       if (error) throw error;
-      return data;
+      // Loosen type so consumers can access extended fields without TS errors until types are regenerated
+      return data as any;
     },
     enabled: !!slug,
   });
@@ -223,6 +235,47 @@ export default function BlogPost() {
               Поділитися
             </Button>
           </header>
+
+          {/* Verse quote block if present */}
+          {(post.sanskrit ||
+            post.transliteration ||
+            post.synonyms_ua ||
+            post.synonyms_en ||
+            post.translation_ua ||
+            post.translation_en) && (
+            <VerseQuote
+              language={language === "ua" ? "ua" : "en"}
+              verse={{
+                sanskrit: post.sanskrit,
+                transliteration: post.transliteration,
+                synonyms_ua: post.synonyms_ua,
+                synonyms_en: post.synonyms_en,
+                translation_ua: post.translation_ua,
+                translation_en: post.translation_en,
+                display_blocks: post.display_blocks,
+              }}
+              title={language === "ua" ? "Цитата з писань" : "Scripture Quote"}
+              className="mb-10"
+              editable={!!isAdmin}
+              onBlockToggle={async (block, visible) => {
+                try {
+                  const next = { ...(post.display_blocks || {}), [block]: visible } as any;
+                  const { data, error } = await (supabase as any)
+                    .from("blog_posts")
+                    .update({ display_blocks: next })
+                    .eq("id", post.id)
+                    .select("display_blocks")
+                    .maybeSingle();
+                  if (error) throw error;
+                  // optimistic UI: mutate cache locally
+                  // Note: react-query is available; quick local set to keep it minimal here
+                  Object.assign(post, { display_blocks: data?.display_blocks || next });
+                } catch (e) {
+                  console.error(e);
+                }
+              }}
+            />
+          )}
 
           {/* Content */}
           <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
