@@ -23,6 +23,7 @@ export interface Track {
     year?: number;
     genre?: string;
     coverUrl?: string;
+    playlistTitle?: string;
   };
 }
 

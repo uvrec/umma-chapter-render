@@ -72,13 +72,13 @@ export default function AdminAudiobooks() {
       // Завантажуємо налаштування з site_settings
       const { data, error } = await supabase
         .from("site_settings" as any)
-        .select("value")
+        .select("*")
         .eq("key", "audiobooks_page")
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error) throw error;
 
-      if (data?.value) {
+      if (data && (data as any).value) {
         setSettings((data as any).value as AudiobooksPageSettings);
       }
     } catch (error) {

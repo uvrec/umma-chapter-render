@@ -68,6 +68,7 @@ import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
+import CleanBengali from "./pages/admin/CleanBengali";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
@@ -146,6 +147,9 @@ const App = () => (
 
                   {/* ✅ ДОДАНО: Маршрут для імпорту з веб-сторінок */}
                   <Route path="/admin/web-import" element={<WebImport />} />
+                  
+                  {/* ✅ ДОДАНО: Маршрут для очищення бенгалі тексту */}
+                  <Route path="/admin/clean-bengali" element={<CleanBengali />} />
 
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />

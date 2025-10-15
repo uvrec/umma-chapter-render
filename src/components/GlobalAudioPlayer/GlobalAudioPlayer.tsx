@@ -2,48 +2,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from "r
 import { Play, Pause, X, Volume2, SkipBack, SkipForward, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-
-// ✅ ВИПРАВЛЕНО: Додано duration та metadata
-interface Track {
-  id: string;
-  title: string;
-  verseNumber?: string;
-  url: string;
-  src: string;
-  duration?: number; // ✅ ДОДАНО: тривалість треку в секундах
-  metadata?: {
-    // ✅ ДОДАНО: додаткові метадані
-    artist?: string;
-    album?: string;
-    coverUrl?: string;
-    playlistTitle?: string;
-    [key: string]: any;
-  };
-}
-
-interface AudioContextType {
-  playlist: Track[];
-  currentIndex: number | null;
-  currentTrack: Track | null;
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  volume: number;
-  playTrack: (track: {
-    id: string;
-    title: string;
-    src: string;
-    verseNumber?: string;
-    duration?: number;
-    metadata?: Track["metadata"];
-  }) => void;
-  togglePlay: () => void;
-  stop: () => void;
-  seek: (time: number) => void;
-  setVolume: (v: number) => void;
-  prevTrack: () => void;
-  nextTrack: () => void;
-}
+import type { Track, AudioContextType, RepeatMode } from "./GlobalAudioPlayer.types";
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
@@ -60,6 +19,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(75);
+  const [repeatMode, setRepeatModeState] = useState<RepeatMode>('off');
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -173,10 +133,9 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         id: track.id,
         title: track.title,
         verseNumber: track.verseNumber,
-        url: track.src,
         src: track.src,
-        duration: track.duration, // ✅ ДОДАНО
-        metadata: track.metadata, // ✅ ДОДАНО
+        duration: track.duration,
+        metadata: track.metadata,
       };
 
       const newPlaylist = [...playlist, newTrack];
@@ -266,7 +225,6 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       id: track.id,
       title: track.title,
       verseNumber: track.verseNumber,
-      url: track.src,
       src: track.src,
       duration: track.duration,
       metadata: track.metadata,
@@ -279,6 +237,26 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentIndex(null);
   };
 
+  const addToPlaylist = (track: Track) => {
+    setPlaylist((prev) => [...prev, track]);
+  };
+
+  const removeFromPlaylist = (index: number) => {
+    setPlaylist((prev) => prev.filter((_, i) => i !== index));
+    if (currentIndex === index) {
+      setCurrentIndex(null);
+      stop();
+    } else if (currentIndex !== null && currentIndex > index) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const clearPlaylist = () => {
+    setPlaylist([]);
+    setCurrentIndex(null);
+    stop();
+  };
+
   const value: AudioContextType = {
     playlist,
     currentIndex,
@@ -287,6 +265,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     currentTime,
     duration,
     volume,
+    repeatMode,
     playTrack,
     togglePlay,
     stop,
@@ -294,8 +273,11 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setVolume,
     prevTrack,
     nextTrack,
+    addToPlaylist,
     addToQueue,
     setQueue,
+    removeFromPlaylist,
+    clearPlaylist,
   };
 
   return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;
