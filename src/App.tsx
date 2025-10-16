@@ -182,7 +182,7 @@ const App = () => (
                   <Route path="/admin/static-pages" element={<StaticPages />} />
 
                   {/* Сторінки з CMS */}
-                  <Route path="/:slug" element={<PageView />} />
+                  <Route path= "/:slug" element={<PageView />} />
 
                   {/* 404 */}
                   <Route path="*" element={<NotFound />} />
