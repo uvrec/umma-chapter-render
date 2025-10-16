@@ -289,7 +289,12 @@ export const PageView = () => {
                 label={`Контент (${language === "ua" ? "UA" : "EN"})`}
               />
             ) : (
-              content && <PageRenderer page={{ content_ua: editedContentUa, content_en: editedContentEn }} language={language} />
+              content && (
+                <PageRenderer
+                  page={{ content_ua: page.content_ua, content_en: page.content_en }}
+                  language={language}
+                />
+              )
             )}
           </div>
         </div>
