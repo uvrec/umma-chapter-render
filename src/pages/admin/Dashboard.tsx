@@ -242,10 +242,14 @@ const Dashboard = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/web-import">Веб-імпорт (Playwright)</Link>
+                <Link to="/admin/web-import">
+                  Веб-імпорт (Playwright)
+                </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/import-wizard">Імпорт з файлу</Link>
+                <Link to="/admin/import-wizard">
+                  Імпорт з файлу
+                </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/fix-verse-linebreaks">
