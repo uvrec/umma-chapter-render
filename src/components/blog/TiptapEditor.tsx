@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -79,6 +80,20 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       },
     },
   });
+
+  // Sync external content prop into editor after load
+  useEffect(() => {
+    if (!editor) return;
+    // TipTap doesn't sync props automatically after init
+    const current = editor.getHTML();
+    const next = content || '';
+    if (next && next !== current) {
+      editor.commands.setContent(next);
+    }
+    if (!next && current !== '') {
+      editor.commands.clearContent();
+    }
+  }, [content, editor]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");
