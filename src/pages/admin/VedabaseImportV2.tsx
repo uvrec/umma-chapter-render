@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AdminLayout } from "@/components/admin/AdminLayout";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Download, AlertCircle } from "lucide-react";
+import { Loader2, Download, AlertCircle, ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/vedabase-books";
+import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
 import { Badge } from "@/components/ui/badge";
 
 /**
@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
  * 3. Додавання українських перекладів з Gitabase
  */
 export default function VedabaseImportV2() {
+  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState<string>("");
   const [selectedBook, setSelectedBook] = useState("cc"); // За замовчуванням Chaitanya-charitamrita
@@ -330,10 +331,23 @@ export default function VedabaseImportV2() {
   };
 
   return (
-    <AdminLayout
-      title="Vedabase Import v2"
-      description="Розумний імпорт з обробкою згрупованих віршів та поетапним додаванням даних"
-    >
+    <div className="min-h-screen bg-background">
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/dashboard")}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Назад
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold">Vedabase Import v2</h1>
+              <p className="text-sm text-muted-foreground">Розумний імпорт з обробкою згрупованих віршів та поетапним додаванням даних</p>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div className="container mx-auto px-4 py-8">
       <Card>
         <CardHeader>
           <CardTitle>Вдосконалений імпорт з Vedabase.io</CardTitle>
@@ -563,6 +577,7 @@ export default function VedabaseImportV2() {
           </Tabs>
         </CardContent>
       </Card>
-    </AdminLayout>
+      </div>
+    </div>
   );
 }

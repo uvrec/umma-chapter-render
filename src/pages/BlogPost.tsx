@@ -194,7 +194,7 @@ export default function BlogPost() {
       <Header />
 
       <article className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto prose-reader" data-reader-root="true">
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
@@ -294,9 +294,11 @@ export default function BlogPost() {
           )}
 
           {/* Content */}
-          <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+          <div className="verse-surface mb-8 rounded-lg p-6 sm:p-8">
             {hasContent ? (
-              <TiptapRenderer content={content} className="!max-w-none" />
+              <div className="commentary-text">
+                <TiptapRenderer content={content} className="!max-w-none" />
+              </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="text-lg">Контент поста ще не додано</p>
@@ -314,12 +316,28 @@ export default function BlogPost() {
           </div>
 
           {/* Embeds */}
-          <div className="space-y-8 mb-8">
-            {post.video_url && <VideoEmbed url={post.video_url} />}
-            {post.audio_url && <AudioEmbed url={post.audio_url} />}
-            {post.instagram_embed_url && <InstagramEmbed url={post.instagram_embed_url} />}
+          <div className="space-y-6 mb-8">
+            {post.video_url && (
+              <div className="verse-surface rounded-lg overflow-hidden">
+                <VideoEmbed url={post.video_url} />
+              </div>
+            )}
+            {post.audio_url && (
+              <div className="verse-surface rounded-lg p-4">
+                <AudioEmbed url={post.audio_url} />
+              </div>
+            )}
+            {post.instagram_embed_url && (
+              <div className="verse-surface rounded-lg p-4">
+                <InstagramEmbed url={post.instagram_embed_url} />
+              </div>
+            )}
             {post.telegram_embed_url && <TelegramEmbed url={post.telegram_embed_url} />}
-            {post.substack_embed_url && <SubstackEmbed url={post.substack_embed_url} />}
+            {post.substack_embed_url && (
+              <div className="verse-surface rounded-lg p-4">
+                <SubstackEmbed url={post.substack_embed_url} />
+              </div>
+            )}
           </div>
         </div>
       </article>
