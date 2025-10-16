@@ -19,30 +19,83 @@ const LS_KEYS = {
   lineHeight: "vv_reader_lineHeight",
   dual: "vv_reader_dualMode",
   blocks: "vv_reader_blocks",
+  continuous: "vv_reader_continuous",
 };
 
 type BlocksState = {
-  sanskrit: boolean;
-  translit: boolean;
-  synonyms: boolean;
-  translation: boolean;
-  commentary: boolean;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showSynonyms: boolean;
+  showTranslation: boolean;
+  showCommentary: boolean;
+};
+
+type ContinuousState = {
+  enabled: boolean;
+  showVerseNumbers: boolean;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showTranslation: boolean;
+  showCommentary: boolean;
 };
 
 function readBlocks(): BlocksState {
   try {
     const raw = localStorage.getItem(LS_KEYS.blocks);
-    if (raw)
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Підтримка старого формату
+      if (parsed.sanskrit !== undefined) {
+        return {
+          showSanskrit: parsed.sanskrit ?? true,
+          showTransliteration: parsed.translit ?? true,
+          showSynonyms: parsed.synonyms ?? true,
+          showTranslation: parsed.translation ?? true,
+          showCommentary: parsed.commentary ?? true,
+        };
+      }
       return {
-        sanskrit: true,
-        translit: true,
-        synonyms: true,
-        translation: true,
-        commentary: true,
+        showSanskrit: true,
+        showTransliteration: true,
+        showSynonyms: true,
+        showTranslation: true,
+        showCommentary: true,
+        ...parsed,
+      };
+    }
+  } catch {}
+  return {
+    showSanskrit: true,
+    showTransliteration: true,
+    showSynonyms: true,
+    showTranslation: true,
+    showCommentary: true,
+  };
+}
+
+function readContinuous(): ContinuousState {
+  try {
+    const raw = localStorage.getItem(LS_KEYS.continuous);
+    if (raw) {
+      return {
+        enabled: false,
+        showVerseNumbers: true,
+        showSanskrit: false,
+        showTransliteration: false,
+        showTranslation: true,
+        showCommentary: false,
         ...JSON.parse(raw),
       };
+    }
   } catch {}
-  return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
+  return {
+    enabled: false,
+    showVerseNumbers: true,
+    showSanskrit: false,
+    showTransliteration: false,
+    showTranslation: true,
+    showCommentary: false,
+  };
 }
 
 export const GlobalSettingsPanel = () => {
@@ -60,6 +113,7 @@ export const GlobalSettingsPanel = () => {
   });
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
+  const [continuous, setContinuous] = useState<ContinuousState>(() => readContinuous());
 
   const bumpReader = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
@@ -84,6 +138,11 @@ export const GlobalSettingsPanel = () => {
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
     bumpReader();
   }, [blocks]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEYS.continuous, JSON.stringify(continuous));
+    bumpReader();
+  }, [continuous]);
 
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
   const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
@@ -219,33 +278,78 @@ export const GlobalSettingsPanel = () => {
               </div>
             </div>
 
+            <Separator />
+
+            {/* Безперервний режим читання */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Режим читання</h3>
+              <div className="space-y-3">
+                <RowToggle
+                  label="Неперервний текст"
+                  checked={continuous.enabled}
+                  onChange={(v) => setContinuous({ ...continuous, enabled: v })}
+                />
+                {continuous.enabled && (
+                  <div className="ml-4 space-y-2 border-l-2 border-muted pl-4">
+                    <RowToggle
+                      label="Номери віршів"
+                      checked={continuous.showVerseNumbers}
+                      onChange={(v) => setContinuous({ ...continuous, showVerseNumbers: v })}
+                    />
+                    <RowToggle
+                      label="Санскрит"
+                      checked={continuous.showSanskrit}
+                      onChange={(v) => setContinuous({ ...continuous, showSanskrit: v })}
+                    />
+                    <RowToggle
+                      label="Транслітерація"
+                      checked={continuous.showTransliteration}
+                      onChange={(v) => setContinuous({ ...continuous, showTransliteration: v })}
+                    />
+                    <RowToggle
+                      label="Переклад"
+                      checked={continuous.showTranslation}
+                      onChange={(v) => setContinuous({ ...continuous, showTranslation: v })}
+                    />
+                    <RowToggle
+                      label="Пояснення"
+                      checked={continuous.showCommentary}
+                      onChange={(v) => setContinuous({ ...continuous, showCommentary: v })}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
             <div>
               <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
               <div className="space-y-3">
                 <RowToggle
                   label="Санскрит / Деванагарі"
-                  checked={blocks.sanskrit}
-                  onChange={(v) => setBlocks({ ...blocks, sanskrit: v })}
+                  checked={blocks.showSanskrit}
+                  onChange={(v) => setBlocks({ ...blocks, showSanskrit: v })}
                 />
                 <RowToggle
                   label="Транслітерація"
-                  checked={blocks.translit}
-                  onChange={(v) => setBlocks({ ...blocks, translit: v })}
+                  checked={blocks.showTransliteration}
+                  onChange={(v) => setBlocks({ ...blocks, showTransliteration: v })}
                 />
                 <RowToggle
                   label="Послівний переклад"
-                  checked={blocks.synonyms}
-                  onChange={(v) => setBlocks({ ...blocks, synonyms: v })}
+                  checked={blocks.showSynonyms}
+                  onChange={(v) => setBlocks({ ...blocks, showSynonyms: v })}
                 />
                 <RowToggle
                   label="Переклад"
-                  checked={blocks.translation}
-                  onChange={(v) => setBlocks({ ...blocks, translation: v })}
+                  checked={blocks.showTranslation}
+                  onChange={(v) => setBlocks({ ...blocks, showTranslation: v })}
                 />
                 <RowToggle
                   label="Пояснення"
-                  checked={blocks.commentary}
-                  onChange={(v) => setBlocks({ ...blocks, commentary: v })}
+                  checked={blocks.showCommentary}
+                  onChange={(v) => setBlocks({ ...blocks, showCommentary: v })}
                 />
               </div>
             </div>

@@ -21,11 +21,11 @@ type DbBook = {
   description_ua: string | null;
   description_en: string | null;
   cover_image_url: string | null;
-
   purchase_url: string | null;
   display_order: number | null;
   is_featured: boolean | null;
   has_cantos: boolean | null;
+  is_published?: boolean | null;
 };
 
 export const Library = () => {
@@ -40,7 +40,7 @@ export const Library = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["library-books"],
+    queryKey: ["library-books", isAdmin],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
@@ -50,10 +50,15 @@ export const Library = () => {
         .order("display_order", { ascending: true })
         .order("is_featured", { ascending: false })
         .order("title_ua", { ascending: true });
+
       if (error) throw error;
+      
+      // Фільтруємо приховані книги (якщо потрібно в майбутньому)
+      // На разі повертаємо всі книги, бо поля is_published ще немає
       return (data || []) as DbBook[];
     },
     staleTime: 60_000,
+    enabled: !authLoading,
   });
 
   return (
