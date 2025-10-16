@@ -17,7 +17,6 @@ import {
   Music,
   WrapText,
   FileEdit,
-  Globe,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
@@ -35,7 +34,7 @@ const Dashboard = () => {
     }
   }, [user, isAdmin, navigate]);
 
-  // завантаження книг для "Швидкого переходу"
+  // завантаження книг для “Швидкого переходу”
   useEffect(() => {
     if (!user || !isAdmin) return;
     supabase
@@ -237,22 +236,27 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button asChild className="w-full">
-                <Link to="/admin/import-wizard">
+                <Link to="/admin/vedabase-import-v2">
                   <Upload className="w-4 h-4 mr-2" />
-                  Новий імпорт глави
+                  Vedabase Import v2 (Рекомендовано)
                 </Link>
               </Button>
-              {/* ✅ ДОДАНО: Кнопка імпорту з веб */}
-              <Button asChild variant="secondary" className="w-full">
-                <Link to="/admin/web-import">
-                  <Globe className="w-4 h-4 mr-2" />
-                  Імпорт з веб (Vedabase/Gitabase)
-                </Link>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/web-import">Веб-імпорт (Playwright)</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/import-wizard">Імпорт з файлу</Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/fix-verse-linebreaks">
                   <WrapText className="w-4 h-4 mr-2" />
                   Виправити розриви рядків
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/clean-bengali">
+                  <FileEdit className="w-4 h-4 mr-2" />
+                  Очистити бенгалі
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">

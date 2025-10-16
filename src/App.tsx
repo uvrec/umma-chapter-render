@@ -21,6 +21,7 @@ import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader";
+import VerseView from "./pages/VerseView";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
@@ -67,12 +68,13 @@ import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import WebImport from "./pages/admin/WebImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
-import CleanBengali from "./pages/admin/CleanBengali";
+import CleanBengali from "./pages/CleanBengali";
 import VedabaseImportV2 from "./pages/admin/VedabaseImportV2";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
 import { PageView } from "./pages/PageView";
+import NewPagesHub from "./pages/NewPagesHub";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +98,7 @@ const App = () => (
                   {/* Читалка */}
                   <Route path="/verses" element={<VedaReader />} />
                   <Route path="/verses/:bookId" element={<VedaReader />} />
+                  <Route path="/verses/:bookId/:verseNumber" element={<VerseView />} />
 
                   {/* Нові маршрути читання БД */}
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
@@ -121,8 +124,11 @@ const App = () => (
                   <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
 
                   {/* Блог/інше */}
+                  <Route path="/new-pages" element={<NewPagesHub />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogPost />} />
+                  {/* Явний маршрут 404, щоб уникнути перехоплення ":slug" */}
+                  <Route path="/404" element={<NotFound />} />
                   <Route path="/audio/podcasts" element={<Podcasts />} />
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
