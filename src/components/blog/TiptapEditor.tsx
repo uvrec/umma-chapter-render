@@ -47,7 +47,11 @@ interface TiptapEditorProps {
 export const TiptapEditor = ({ content, onChange, placeholder = "Почніть писати..." }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ gapcursor: false }),
+      StarterKit.configure({ 
+        gapcursor: false,
+        // Disable link from StarterKit to avoid duplicate
+        link: false,
+      }),
       Image,
       Link.configure({
         openOnClick: false,
@@ -66,7 +70,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
-        class: "prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none",
+        class: "verse-surface prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none border-0",
       },
     },
   });
@@ -278,7 +282,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       </div>
 
       {/* Editor content */}
-      <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px]" />
+      <EditorContent editor={editor} />
     </div>
   );
 };
