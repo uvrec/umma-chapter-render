@@ -166,8 +166,9 @@ export default function AddEditBlogPost() {
       title_ua: titleUa,
       title_en: titleEn,
       slug,
-      content_ua: contentUa,
-      content_en: contentEn,
+      // ensure content saved as strings
+      content_ua: (contentUa || "").trim(),
+      content_en: (contentEn || "").trim(),
       excerpt_ua: excerptUa,
       excerpt_en: excerptEn,
       category_id: categoryId || null,
@@ -183,14 +184,9 @@ export default function AddEditBlogPost() {
       meta_description_ua: metaDescUa,
       meta_description_en: metaDescEn,
       read_time: readTime,
-      author_display_name: authorName || "Аніруддга дас",
+      // match DB column name (see types and migrations)
+      author_display_name: (authorName || "Аніруддга дас").trim(),
     };
-
-    console.log("Saving blog post with data:", { 
-      content_ua_length: contentUa?.length || 0,
-      content_en_length: contentEn?.length || 0,
-      ...postData 
-    });
 
     try {
       if (isEdit) {
