@@ -4,15 +4,15 @@
  */
 
 export interface VedabaseBook {
-  slug: string;              // vedabase slug
-  our_slug?: string;         // наш slug в БД (якщо відрізняється)
+  slug: string; // vedabase slug
+  our_slug?: string; // наш slug в БД (якщо відрізняється)
   name_en: string;
   name_ua: string;
   has_cantos: boolean;
   url_pattern: string;
   gitabase_available: boolean;
   gitabase_slug?: string;
-  structure_type: 'full' | 'text_only' | 'mixed'; // Тип структури контенту
+  structure_type: "full" | "text_only" | "mixed"; // Тип структури контенту
 }
 
 export const VEDABASE_BOOKS: VedabaseBook[] = [
@@ -26,7 +26,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     url_pattern: "/library/bg/{chapter}/{verse}/",
     gitabase_available: true,
     gitabase_slug: "BG",
-    structure_type: "full"
+    structure_type: "full",
   },
   {
     slug: "sb",
@@ -37,7 +37,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     url_pattern: "/library/sb/{canto}/{chapter}/{verse}/",
     gitabase_available: true,
     gitabase_slug: "SB",
-    structure_type: "full"
+    structure_type: "full",
   },
   {
     slug: "cc",
@@ -48,7 +48,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     url_pattern: "/library/cc/{lila}/{chapter}/{verse}/",
     gitabase_available: true,
     gitabase_slug: "CC",
-    structure_type: "full"
+    structure_type: "full",
   },
   {
     slug: "iso",
@@ -59,7 +59,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     url_pattern: "/library/iso/{verse}/",
     gitabase_available: true,
     gitabase_slug: "ISO",
-    structure_type: "full"
+    structure_type: "full",
   },
   {
     slug: "noi",
@@ -69,9 +69,9 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/noi/{verse}/",
     gitabase_available: false,
-    structure_type: "full"
+    structure_type: "full",
   },
-  
+
   // Інші книги (тільки на Vedabase, немає в нашій БД)
   {
     slug: "nod",
@@ -80,7 +80,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/nod/{chapter}/{section}/",
     gitabase_available: false,
-    structure_type: "text_only" // Тільки текст, без віршів
+    structure_type: "text_only", // Тільки текст, без віршів
   },
   {
     slug: "kb",
@@ -89,7 +89,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/kb/{chapter}/",
     gitabase_available: false,
-    structure_type: "text_only"
+    structure_type: "text_only",
   },
   {
     slug: "tlc",
@@ -98,7 +98,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/tlc/{chapter}/",
     gitabase_available: false,
-    structure_type: "text_only"
+    structure_type: "text_only",
   },
   {
     slug: "tlk",
@@ -107,7 +107,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/tlk/{chapter}/",
     gitabase_available: false,
-    structure_type: "text_only"
+    structure_type: "text_only",
   },
   {
     slug: "ssr",
@@ -116,7 +116,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/ssr/{chapter}/{section}/",
     gitabase_available: false,
-    structure_type: "text_only"
+    structure_type: "text_only",
   },
   {
     slug: "bs",
@@ -125,7 +125,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/bs/{verse}/",
     gitabase_available: false,
-    structure_type: "full" // Має вірші
+    structure_type: "full", // Має вірші
   },
   {
     slug: "bbd",
@@ -134,8 +134,8 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/bbd/{chapter}/",
     gitabase_available: false,
-    structure_type: "text_only"
-  }
+    structure_type: "text_only",
+  },
 ];
 
 /**
@@ -144,21 +144,21 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
 export const CC_LILAS: { [key: string]: string } = {
   "1": "adi",
   "2": "madhya",
-  "3": "antya"
+  "3": "antya",
 };
 
 /**
  * Отримати конфігурацію книги по slug
  */
 export function getBookConfig(slug: string): VedabaseBook | undefined {
-  return VEDABASE_BOOKS.find(book => book.slug === slug);
+  return VEDABASE_BOOKS.find((book) => book.slug === slug);
 }
 
 /**
  * Отримати конфігурацію книги по нашому slug
  */
 export function getBookConfigByOurSlug(ourSlug: string): VedabaseBook | undefined {
-  return VEDABASE_BOOKS.find(book => book.our_slug === ourSlug || book.slug === ourSlug);
+  return VEDABASE_BOOKS.find((book) => book.our_slug === ourSlug || book.slug === ourSlug);
 }
 
 /**
@@ -178,7 +178,7 @@ export function buildVedabaseUrl(
     lila?: string;
     chapter?: string;
     verse?: string;
-  }
+  },
 ): string {
   const baseUrl = "https://vedabase.io/en";
   let url = book.url_pattern;
@@ -200,9 +200,9 @@ export function buildVedabaseUrl(
   }
 
   // Видаляємо незамінені плейсхолдери для отримання базового URL глави
-  url = url.replace(/\{[^}]+\}/g, '').replace(/\/+$/, '');
+  url = url.replace(/\{[^}]+\}/g, "").replace(/\/+$/, "");
 
-  return baseUrl + url + '/';
+  return baseUrl + url + "/";
 }
 
 /**
@@ -214,7 +214,7 @@ export function buildGitabaseUrl(
     canto?: string;
     chapter?: string;
     verse?: string;
-  }
+  },
 ): string | null {
   if (!book.gitabase_available || !book.gitabase_slug) {
     return null;
@@ -226,16 +226,16 @@ export function buildGitabaseUrl(
   // Формат для різних книг
   if (book.slug === "bg") {
     // BG: https://gitabase.com/ukr/BG/1/1
-    return `${baseUrl}/${slug}/${params.chapter}/${params.verse || ''}`;
+    return `${baseUrl}/${slug}/${params.chapter}/${params.verse || ""}`;
   } else if (book.slug === "sb") {
     // SB: https://gitabase.com/ukr/SB/1/1/1
-    return `${baseUrl}/${slug}/${params.canto}/${params.chapter}/${params.verse || ''}`;
+    return `${baseUrl}/${slug}/${params.canto}/${params.chapter}/${params.verse || ""}`;
   } else if (book.slug === "cc") {
     // CC: https://gitabase.com/ukr/CC/1/1/1
-    return `${baseUrl}/${slug}/${params.canto}/${params.chapter}/${params.verse || ''}`;
+    return `${baseUrl}/${slug}/${params.canto}/${params.chapter}/${params.verse || ""}`;
   } else if (book.slug === "iso") {
     // ISO: https://gitabase.com/ukr/ISO/1
-    return `${baseUrl}/${slug}/${params.verse || ''}`;
+    return `${baseUrl}/${slug}/${params.verse || ""}`;
   }
 
   return null;
@@ -244,4 +244,4 @@ export function buildGitabaseUrl(
 /**
  * Типи для TypeScript
  */
-export type BookSlug = typeof VEDABASE_BOOKS[number]['slug'];
+export type BookSlug = (typeof VEDABASE_BOOKS)[number]["slug"];
