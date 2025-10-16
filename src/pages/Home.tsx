@@ -92,11 +92,18 @@ export const Home = () => {
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link to="/audiobooks">
-                  <Headphones className="w-5 h-5 mr-2" />
-                  Аудіокниги
-                </Link>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                onClick={() => {
+                  if (bhagavatamPlaylist?.tracks && bhagavatamPlaylist.tracks.length > 0) {
+                    playTrack(bhagavatamPlaylist.tracks[0]);
+                  }
+                }}
+                disabled={!bhagavatamPlaylist?.tracks || bhagavatamPlaylist.tracks.length === 0}
+              >
+                <Headphones className="w-5 h-5 mr-2" />
+                Слухати Бгаґаватам
               </Button>
             </div>
           </div>

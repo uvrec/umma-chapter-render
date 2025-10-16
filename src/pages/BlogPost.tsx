@@ -122,6 +122,38 @@ export default function BlogPost() {
     );
   });
 
+  // Prepare content data early (before any conditional returns)
+  const title = post ? (language === "ua" ? post.title_ua : post.title_en) : "";
+  const primaryContent = post ? (language === "ua" ? post.content_ua : post.content_en) : "";
+  const fallbackContentCandidates = post ? [
+    primaryContent,
+    (post as any)?.content_html,
+    (post as any)?.body_html,
+    (post as any)?.body,
+    (post as any)?.content,
+  ].filter(Boolean) as string[] : [];
+  const content = fallbackContentCandidates.find((c) => typeof c === "string" && c.trim().length > 0) || "";
+  const excerpt = post ? (language === "ua" ? post.excerpt_ua : post.excerpt_en) : "";
+  const metaDesc = post ? (language === "ua" ? post.meta_description_ua : post.meta_description_en) : "";
+  
+  // Consider content present if, after stripping HTML tags, there's any non-whitespace text
+  const hasContent = useMemo(() => {
+    if (!content) return false;
+    const plain = content
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .trim();
+    return plain.length > 0;
+  }, [content]);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      await navigator.share({ title, text: excerpt, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -161,37 +193,6 @@ export default function BlogPost() {
       </div>
     );
   }
-
-  const title = language === "ua" ? post.title_ua : post.title_en;
-  // Primary content from UA/EN columns; fallback to other common columns if an external editor saved elsewhere
-  const primaryContent = language === "ua" ? post.content_ua : post.content_en;
-  const fallbackContentCandidates = [
-    primaryContent,
-    (post as any)?.content_html,
-    (post as any)?.body_html,
-    (post as any)?.body,
-    (post as any)?.content,
-  ].filter(Boolean) as string[];
-  const content = fallbackContentCandidates.find((c) => typeof c === "string" && c.trim().length > 0) || "";
-  const excerpt = language === "ua" ? post.excerpt_ua : post.excerpt_en;
-  const metaDesc = language === "ua" ? post.meta_description_ua : post.meta_description_en;
-  // Consider content present if, after stripping HTML tags, there's any non-whitespace text
-  const hasContent = useMemo(() => {
-    if (!content) return false;
-    const plain = content
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .trim();
-    return plain.length > 0;
-  }, [content]);
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ title, text: excerpt, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">

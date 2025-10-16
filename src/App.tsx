@@ -53,6 +53,7 @@ import { VedaReaderDB } from "./components/VedaReaderDB";
 import GlossaryDB from "./pages/GlossaryDB";
 import { BookOverview } from "./pages/BookOverview";
 import CantoOverview from "./pages/CantoOverview";
+import TransliterationTool from "./pages/TransliterationTool";
 import { IntroChapter } from "./pages/IntroChapter";
 import Cantos from "./pages/admin/Cantos";
 import AddEditCanto from "./pages/admin/AddEditCanto";
@@ -70,7 +71,6 @@ import WebImport from "./pages/admin/WebImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import CleanBengali from "./pages/admin/CleanBengali";
 import VedabaseImportV2 from "./pages/admin/VedabaseImportV2";
-import TransliterationTool from "./pages/TransliterationTool";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
@@ -134,6 +134,9 @@ const App = () => (
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/contact" element={<Contact />} />
+                  
+                  {/* Tools */}
+                  <Route path="/tools/transliteration" element={<TransliterationTool />} />
 
                   {/* Платежі */}
                   <Route path="/payment/card" element={<CardPayment />} />

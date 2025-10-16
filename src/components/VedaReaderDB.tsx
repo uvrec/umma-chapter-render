@@ -370,7 +370,7 @@ export const VedaReaderDB = () => {
                   { label: t("Бібліотека", "Library"), href: "/library" },
                   { label: bookTitle || "", href: `/veda-reader/${bookId}` },
                   {
-                    label: `${t("Пісня", "Canto")} ${cantoNumber}`,
+                    label: `${t("Пісня", "Song")} ${cantoNumber}`,
                     href: `/veda-reader/${bookId}/canto/${cantoNumber}`,
                   },
                   { label: chapterTitle || "" },
