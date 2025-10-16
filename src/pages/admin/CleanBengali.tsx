@@ -23,13 +23,15 @@ export default function CleanBengali() {
     if (!text) return text;
 
     // Регулярний вираз для бенгалі символів та потрібних розділових знаків
-    // \u0980-\u09FF - бенгалі блок Unicode
+    // \u0980-\u09FF - бенгалі блок Unicode (включає бенгальські цифри \u09E6-\u09EF)
+    // \u09E6-\u09EF - бенгальські цифри (০১২৩৪৫৬৭৮৯)
     // । - danda (розділовий знак)
     // ॥ - double danda
     // \s - пробіли
-    const bengaliPattern = /[\u0980-\u09FF।॥\s\d]/g;
+    // Виключаємо арабські цифри 0-9
+    const bengaliPattern = /[\u0980-\u09FF।॥\s]/g;
     
-    // Витягуємо тільки бенгалі символи
+    // Витягуємо тільки бенгалі символи (без арабських цифр)
     const cleaned = text.match(bengaliPattern)?.join('') || '';
     
     // Видаляємо зайві пробіли
@@ -146,6 +148,8 @@ export default function CleanBengali() {
               <h3 className="font-semibold mb-2">Що буде зроблено:</h3>
               <ul className="list-disc list-inside space-y-1 text-sm">
                 <li>Видалення всіх символів, крім бенгалі (Unicode: \u0980-\u09FF)</li>
+                <li>Збереження бенгальських цифр (০১২৩৪৫৬৭৮৯)</li>
+                <li>Видалення арабських цифр (0-9)</li>
                 <li>Збереження розділових знаків: । та ॥</li>
                 <li>Очищення зайвих пробілів</li>
                 <li>

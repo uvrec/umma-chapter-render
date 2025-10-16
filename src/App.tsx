@@ -68,7 +68,7 @@ import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import WebImport from "./pages/admin/WebImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
-import CleanBengali from "./pages/CleanBengali";
+import CleanBengali from "./pages/admin/CleanBengali";
 import VedabaseImportV2 from "./pages/admin/VedabaseImportV2";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";

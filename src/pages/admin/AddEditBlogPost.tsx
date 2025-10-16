@@ -183,8 +183,14 @@ export default function AddEditBlogPost() {
       meta_description_ua: metaDescUa,
       meta_description_en: metaDescEn,
       read_time: readTime,
-      author_name: authorName || "Аніруддга дас",
+      author_display_name: authorName || "Аніруддга дас",
     };
+
+    console.log("Saving blog post with data:", { 
+      content_ua_length: contentUa?.length || 0,
+      content_en_length: contentEn?.length || 0,
+      ...postData 
+    });
 
     try {
       if (isEdit) {
