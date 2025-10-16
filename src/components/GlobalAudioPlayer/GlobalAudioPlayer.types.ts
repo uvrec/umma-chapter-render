@@ -54,6 +54,9 @@ export interface AudioContextType {
   /** Режим повтору */
   repeatMode: RepeatMode;
   
+  /** Перемикає режим повтору */
+  toggleRepeat: () => void;
+  
   /**
    * Відтворити трек
    * Якщо трек вже є в плейлисті - перемикається на нього

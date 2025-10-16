@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useRef, useEffect } from "react";
-import { Play, Pause, X, Volume2, SkipBack, SkipForward, ChevronDown, ChevronUp } from "lucide-react";
+import { Play, Pause, X, Volume2, SkipBack, SkipForward, ChevronDown, ChevronUp, Repeat, Repeat1 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import type { Track, AudioContextType, RepeatMode } from "./GlobalAudioPlayer.types";
@@ -68,8 +68,23 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onDurationChange = () => setDuration(audio.duration);
     const onEnded = () => {
-      setIsPlaying(false);
-      if (currentIndex !== null && currentIndex < playlist.length - 1) {
+      // Handle repeat modes
+      if (!audioRef.current) return;
+      if (repeatMode === 'one') {
+        audioRef.current.currentTime = 0;
+        const p = audioRef.current.play();
+        if (p !== undefined) p.catch(() => setIsPlaying(false));
+        return;
+      }
+
+      const isLast = currentIndex !== null && currentIndex >= playlist.length - 1;
+      if (isLast) {
+        if (repeatMode === 'all' && playlist.length > 0) {
+          playTrackByIndex(0);
+        } else {
+          setIsPlaying(false);
+        }
+      } else if (currentIndex !== null) {
         playTrackByIndex(currentIndex + 1);
       }
     };
