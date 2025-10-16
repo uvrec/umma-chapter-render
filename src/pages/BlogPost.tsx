@@ -26,13 +26,18 @@ export default function BlogPost() {
   const queryClient = useQueryClient();
   const isPreview = useMemo(() => {
     try {
-      return new URLSearchParams(window.location.search).get('preview') === '1';
+      return new URLSearchParams(window.location.search).get("preview") === "1";
     } catch {
       return false;
     }
   }, []);
 
-  const { data: post, isLoading, isError, error } = useQuery({
+  const {
+    data: post,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: async () => {
       // Cast to any to allow selecting recently added verse-like fields not yet present in generated types
@@ -55,6 +60,7 @@ export default function BlogPost() {
           sanskrit,
           transliteration,
           synonyms_ua,
+          import { useMemo, useState } from "react";
           synonyms_en,
           translation_ua,
           translation_en,
@@ -73,6 +79,8 @@ export default function BlogPost() {
           category_id,
           author_display_name,
           category:blog_categories(name_ua, name_en),
+          import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+          import { toast } from "@/hooks/use-toast";
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `,
         )
@@ -165,10 +173,18 @@ export default function BlogPost() {
     (post as any)?.body,
     (post as any)?.content,
   ].filter(Boolean) as string[];
-  const content = fallbackContentCandidates.find((c) => typeof c === 'string' && c.trim().length > 0) || "";
+  const content = fallbackContentCandidates.find((c) => typeof c === "string" && c.trim().length > 0) || "";
   const excerpt = language === "ua" ? post.excerpt_ua : post.excerpt_en;
   const metaDesc = language === "ua" ? post.meta_description_ua : post.meta_description_en;
-  const hasContent = content && content.trim().length > 20;
+  // Consider content present if, after stripping HTML tags, there's any non-whitespace text
+  const hasContent = useMemo(() => {
+    if (!content) return false;
+    const plain = content
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .trim();
+    return plain.length > 0;
+  }, [content]);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -258,9 +274,14 @@ export default function BlogPost() {
           </header>
 
           {/* Verse quote block if present */}
-          {(post.sanskrit || post.transliteration || post.synonyms_ua || post.synonyms_en || post.translation_ua || post.translation_en) && (
+          {(post.sanskrit ||
+            post.transliteration ||
+            post.synonyms_ua ||
+            post.synonyms_en ||
+            post.translation_ua ||
+            post.translation_en) && (
             <VerseQuote
-              language={language === 'ua' ? 'ua' : 'en'}
+              language={language === "ua" ? "ua" : "en"}
               verse={{
                 sanskrit: post.sanskrit,
                 transliteration: post.transliteration,
@@ -270,17 +291,17 @@ export default function BlogPost() {
                 translation_en: post.translation_en,
                 display_blocks: post.display_blocks,
               }}
-              title={language === 'ua' ? 'Цитата з писань' : 'Scripture Quote'}
+              title={language === "ua" ? "Цитата з писань" : "Scripture Quote"}
               className="mb-10"
               editable={!!isAdmin}
               onBlockToggle={async (block, visible) => {
                 try {
                   const next = { ...(post.display_blocks || {}), [block]: visible } as any;
                   const { data, error } = await (supabase as any)
-                    .from('blog_posts')
+                    .from("blog_posts")
                     .update({ display_blocks: next })
-                    .eq('id', post.id)
-                    .select('display_blocks')
+                    .eq("id", post.id)
+                    .select("display_blocks")
                     .maybeSingle();
                   if (error) throw error;
                   // optimistic UI: mutate cache locally
@@ -332,7 +353,11 @@ export default function BlogPost() {
                 <InstagramEmbed url={post.instagram_embed_url} />
               </div>
             )}
-            {post.telegram_embed_url && <TelegramEmbed url={post.telegram_embed_url} />}
+            {post.telegram_embed_url && (
+              <div className="verse-surface rounded-lg p-4">
+                <TelegramEmbed url={post.telegram_embed_url} />
+              </div>
+            )}
             {post.substack_embed_url && (
               <div className="verse-surface rounded-lg p-4">
                 <SubstackEmbed url={post.substack_embed_url} />
