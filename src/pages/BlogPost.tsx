@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -18,6 +18,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/contexts/AuthContext";
+import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { toast } from "@/hooks/use-toast";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -60,7 +62,6 @@ export default function BlogPost() {
           sanskrit,
           transliteration,
           synonyms_ua,
-          import { useMemo, useState } from "react";
           synonyms_en,
           translation_ua,
           translation_en,
@@ -79,8 +80,6 @@ export default function BlogPost() {
           category_id,
           author_display_name,
           category:blog_categories(name_ua, name_en),
-          import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
-          import { toast } from "@/hooks/use-toast";
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `,
         )
