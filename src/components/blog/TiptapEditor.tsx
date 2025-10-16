@@ -9,6 +9,7 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
+import TextAlign from "@tiptap/extension-text-align";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +37,10 @@ import {
   Redo,
   Palette,
   Type,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -47,11 +52,7 @@ interface TiptapEditorProps {
 export const TiptapEditor = ({ content, onChange, placeholder = "Почніть писати..." }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ 
-        gapcursor: false,
-        // Disable link from StarterKit to avoid duplicate
-        link: false,
-      }),
+      StarterKit.configure({ gapcursor: false }),
       Image,
       Link.configure({
         openOnClick: false,
@@ -64,13 +65,14 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       TableCell,
       Color,
       TextStyle,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
     ],
     content,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
-        class: "verse-surface prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none border-0",
+        class: "prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none",
       },
     },
   });
@@ -166,6 +168,44 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
 
         <div className="w-px h-6 bg-border mx-1" />
 
+        {/* Text Align */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          className={editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          className={editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""}
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          className={editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          className={editor.isActive({ textAlign: "justify" }) ? "bg-accent" : ""}
+        >
+          <AlignJustify className="h-4 w-4" />
+        </Button>
+
         {/* Headings */}
         {[1, 2, 3].map((lvl) => (
           <Button
@@ -173,7 +213,13 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => editor.chain().focus().toggleHeading({ level: lvl as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .toggleHeading({ level: lvl as 1 | 2 | 3 | 4 | 5 | 6 })
+                .run()
+            }
             className={editor.isActive("heading", { level: lvl }) ? "bg-accent" : ""}
           >
             {lvl === 1 ? (
@@ -282,7 +328,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       </div>
 
       {/* Editor content */}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px]" />
     </div>
   );
 };
