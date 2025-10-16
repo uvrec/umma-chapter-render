@@ -2,7 +2,7 @@
 // Оновлена домашня сторінка з Hero + "Продовжити прослуховування", SearchStrip, Latest, Playlists, Support
 // Інтегровано з GlobalAudioPlayer (useAudio) і динамічним Hero з БД (site_settings.home_hero)
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InlineBannerEditor } from "@/components/InlineBannerEditor";
@@ -19,17 +19,18 @@ import {
   BookOpen,
   Play,
   Pause,
-  SkipBack,
-  SkipForward,
   Clock,
   ArrowRight,
-  Music4,
   Search,
   ChevronDown,
   ExternalLink,
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/components/GlobalAudioPlayer";
+import { loadPlaylistTracks } from "@/components/GlobalAudioPlayer/GlobalAudioPlayer.supabase-adapter";
+
+// Шрімад-Бгаґаватам playlist ID
+const BHAGAVATAM_PLAYLIST_ID = "fc2a05f5-151b-482e-8040-341d8d247657";
 
 // --- Types ---
 type ContentItem = {
@@ -51,60 +52,6 @@ type AudioTrack = {
   verseNumber?: string | number;
 };
 
-// --- Mini Player (внизу сторінки) ---
-function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
-  const [index, setIndex] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const current = useMemo(() => queue[index], [queue, index]);
-
-  const playPause = () => {
-    const el = audioRef.current;
-    if (!el) return;
-    if (playing) {
-      el.pause();
-    } else {
-      el.play();
-    }
-  };
-
-  const next = () => setIndex((i) => (i + 1) % queue.length);
-  const prev = () => setIndex((i) => (i - 1 + queue.length) % queue.length);
-
-  if (!current) return null;
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur">
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
-        <Music4 className="h-5 w-5" />
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium">{current.title}</div>
-          <div className="truncate text-xs text-muted-foreground">{current.playlist_title || "Vedavoice · Аудіо"}</div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={prev} disabled={queue.length <= 1} className="h-9 w-9">
-            <SkipBack className="h-5 w-5" />
-          </Button>
-          <Button size="icon" onClick={playPause} className="h-9 w-9">
-            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-          </Button>
-          <Button variant="ghost" size="icon" onClick={next} disabled={queue.length <= 1} className="h-9 w-9">
-            <SkipForward className="h-5 w-5" />
-          </Button>
-        </div>
-        <audio
-          ref={audioRef}
-          src={current.src}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={next}
-          className="hidden"
-        />
-      </div>
-    </div>
-  );
-}
 
 // --- Hero Section (динамічний, з карткою "Продовжити") ---
 function Hero() {
@@ -451,17 +398,36 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const queue: AudioTrack[] = [
-    {
-      id: "a1",
-      title: "ШБ 3.26.19 — Бомбей, 1974",
-      src: "/media/sb-32619.mp3",
-      playlist_title: "Шрімад-Бгаґаватам",
-    },
-  ];
+  const { setQueue, playTrack, playlist } = useAudio();
+  const { language } = useLanguage();
+
+  // Автозавантаження плейлиста Шрімад-Бгаґаватам БЕЗ автоплею
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBhagavatam = async () => {
+      try {
+        const tracks = await loadPlaylistTracks(BHAGAVATAM_PLAYLIST_ID, language);
+        if (!cancelled && tracks.length > 0) {
+          setQueue(tracks);
+        }
+      } catch (error) {
+        console.error("Failed to load Bhagavatam playlist:", error);
+      }
+    };
+
+    // Завантажуємо тільки якщо плейлист порожній
+    if (playlist.length === 0) {
+      loadBhagavatam();
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [language, playlist.length, setQueue]);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background">
       <Header />
       <main>
         <Hero />
@@ -471,7 +437,6 @@ export const NewHome = () => {
         <SupportSection />
       </main>
       <Footer />
-      <MiniPlayer queue={queue} />
     </div>
   );
 };

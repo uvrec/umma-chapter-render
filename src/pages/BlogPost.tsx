@@ -13,13 +13,88 @@ import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
 import VerseQuote from "@/components/blog/VerseQuote";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Eye, Share2 } from "lucide-react";
+import { Calendar, Clock, Eye, Share2, Save } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { Helmet } from "react-helmet-async";
 import { useAuth } from "@/contexts/AuthContext";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { toast } from "@/hooks/use-toast";
+
+// Inline content editor component for admins
+function AdminInlineEditor({
+  postId,
+  language,
+  contentUa,
+  contentEn,
+}: {
+  postId: string;
+  language: string;
+  contentUa: string | null;
+  contentEn: string | null;
+}) {
+  const [editingUa, setEditingUa] = useState(contentUa || "");
+  const [editingEn, setEditingEn] = useState(contentEn || "");
+  const [isSaving, setIsSaving] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from("blog_posts")
+        .update({
+          content_ua: editingUa,
+          content_en: editingEn,
+        })
+        .eq("id", postId);
+
+      if (error) throw error;
+
+      toast({ title: "✅ Контент збережено" });
+      queryClient.invalidateQueries({ queryKey: ["blog-post"] });
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Помилка збереження", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="text-sm font-medium text-muted-foreground">Інлайн-редагування контенту</div>
+        <Button onClick={handleSave} disabled={isSaving} size="sm">
+          <Save className="h-4 w-4 mr-2" />
+          {isSaving ? "Збереження..." : "Зберегти"}
+        </Button>
+      </div>
+
+      <InlineTiptapEditor
+        content={language === "ua" ? editingUa : editingEn}
+        onChange={(html) => {
+          if (language === "ua") {
+            setEditingUa(html);
+          } else {
+            setEditingEn(html);
+          }
+        }}
+        label={language === "ua" ? "Контент (UA)" : "Content (EN)"}
+        editable={true}
+      />
+
+      {language !== "ua" && (
+        <details className="mt-4">
+          <summary className="cursor-pointer text-sm text-muted-foreground">Редагувати UA версію</summary>
+          <div className="mt-4">
+            <InlineTiptapEditor content={editingUa} onChange={setEditingUa} label="Контент (UA)" editable={true} />
+          </div>
+        </details>
+      )}
+    </div>
+  );
+}
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -316,7 +391,9 @@ export default function BlogPost() {
 
           {/* Content */}
           <div className="verse-surface mb-8 rounded-lg p-6 sm:p-8">
-            {hasContent ? (
+            {isAdmin ? (
+              <AdminInlineEditor postId={post.id} language={language} contentUa={post.content_ua} contentEn={post.content_en} />
+            ) : hasContent ? (
               <div className="commentary-text">
                 <TiptapRenderer content={content} className="!max-w-none" />
               </div>

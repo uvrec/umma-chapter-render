@@ -12,7 +12,54 @@ import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import TextAlign from "@tiptap/extension-text-align";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import FontFamily from "@tiptap/extension-font-family";
+import { Extension } from "@tiptap/core";
 import { Button } from "@/components/ui/button";
+
+// FontSize extension
+const FontSize = Extension.create({
+  name: "fontSize",
+  addOptions() {
+    return {
+      types: ["textStyle"],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => element.style.fontSize?.replace(/['"]+/g, ""),
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        (fontSize: string) =>
+        ({ chain }) => {
+          return chain().setMark("textStyle", { fontSize }).run();
+        },
+      unsetFontSize:
+        () =>
+        ({ chain }) => {
+          return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
+        },
+    };
+  },
+});
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -69,6 +116,8 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       TableCell,
       Color,
       TextStyle,
+      FontFamily,
+      FontSize,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
     ],
@@ -140,7 +189,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
   };
 
   const setFontSize = (size: string) => {
-    editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
+    editor?.chain().focus().setFontSize(size).run();
   };
 
   if (!editor) return null;
