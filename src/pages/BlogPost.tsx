@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -23,16 +24,19 @@ export default function BlogPost() {
   const { language } = useLanguage();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
+  const isPreview = useMemo(() => {
+    try {
+      return new URLSearchParams(window.location.search).get('preview') === '1';
+    } catch {
+      return false;
+    }
+  }, []);
 
-  const {
-    data: post,
-    isLoading,
-    isError,
-  } = useQuery({
+  const { data: post, isLoading, isError, error } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: async () => {
       // Cast to any to allow selecting recently added verse-like fields not yet present in generated types
-      const { data, error } = await (supabase as any)
+      let query: any = (supabase as any)
         .from("blog_posts")
         .select(
           `
@@ -72,10 +76,13 @@ export default function BlogPost() {
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `,
         )
-        .eq("slug", slug)
-        .eq("is_published", true)
-        .lte("published_at", new Date().toISOString())
-        .maybeSingle();
+        .eq("slug", slug);
+
+      if (!isPreview) {
+        query = query.eq("is_published", true).lte("published_at", new Date().toISOString());
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
       // Loosen type so consumers can access extended fields without TS errors until types are regenerated
@@ -134,6 +141,11 @@ export default function BlogPost() {
           <p className="text-muted-foreground mb-6">
             {isError ? "Виникла помилка при завантаженні поста" : "Такого поста не існує або він ще не опублікований"}
           </p>
+          {error && (
+            <pre className="text-xs opacity-80 whitespace-pre-wrap break-words mb-4">
+              {String((error as any)?.message || error)}
+            </pre>
+          )}
           <Link to="/blog">
             <Button>Повернутися до блогу</Button>
           </Link>
@@ -144,7 +156,16 @@ export default function BlogPost() {
   }
 
   const title = language === "ua" ? post.title_ua : post.title_en;
-  const content = language === "ua" ? post.content_ua : post.content_en;
+  // Primary content from UA/EN columns; fallback to other common columns if an external editor saved elsewhere
+  const primaryContent = language === "ua" ? post.content_ua : post.content_en;
+  const fallbackContentCandidates = [
+    primaryContent,
+    (post as any)?.content_html,
+    (post as any)?.body_html,
+    (post as any)?.body,
+    (post as any)?.content,
+  ].filter(Boolean) as string[];
+  const content = fallbackContentCandidates.find((c) => typeof c === 'string' && c.trim().length > 0) || "";
   const excerpt = language === "ua" ? post.excerpt_ua : post.excerpt_en;
   const metaDesc = language === "ua" ? post.meta_description_ua : post.meta_description_en;
   const hasContent = content && content.trim().length > 20;
@@ -173,7 +194,7 @@ export default function BlogPost() {
       <Header />
 
       <article className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto prose-reader" data-reader-root="true">
+        <div className="max-w-4xl mx-auto">
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
@@ -201,11 +222,11 @@ export default function BlogPost() {
           )}
 
           {/* Header */}
-          <header className="mb-8 verse-surface">
+          <header className="mb-8">
             {post.category && (
               <Badge className="mb-4">{language === "ua" ? post.category.name_ua : post.category.name_en}</Badge>
             )}
-            <h1 className="text-4xl font-bold mb-4">{title}</h1>
+            <h1 className="blog-title mb-4">{title}</h1>
 
             <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
               <div className="flex items-center gap-1">
@@ -237,14 +258,9 @@ export default function BlogPost() {
           </header>
 
           {/* Verse quote block if present */}
-          {(post.sanskrit ||
-            post.transliteration ||
-            post.synonyms_ua ||
-            post.synonyms_en ||
-            post.translation_ua ||
-            post.translation_en) && (
+          {(post.sanskrit || post.transliteration || post.synonyms_ua || post.synonyms_en || post.translation_ua || post.translation_en) && (
             <VerseQuote
-              language={language === "ua" ? "ua" : "en"}
+              language={language === 'ua' ? 'ua' : 'en'}
               verse={{
                 sanskrit: post.sanskrit,
                 transliteration: post.transliteration,
@@ -254,19 +270,21 @@ export default function BlogPost() {
                 translation_en: post.translation_en,
                 display_blocks: post.display_blocks,
               }}
-              title={language === "ua" ? "Цитата з писань" : "Scripture Quote"}
-              className="mb-10 verse-surface"
+              title={language === 'ua' ? 'Цитата з писань' : 'Scripture Quote'}
+              className="mb-10"
               editable={!!isAdmin}
               onBlockToggle={async (block, visible) => {
                 try {
                   const next = { ...(post.display_blocks || {}), [block]: visible } as any;
                   const { data, error } = await (supabase as any)
-                    .from("blog_posts")
+                    .from('blog_posts')
                     .update({ display_blocks: next })
-                    .eq("id", post.id)
-                    .select("display_blocks")
+                    .eq('id', post.id)
+                    .select('display_blocks')
                     .maybeSingle();
                   if (error) throw error;
+                  // optimistic UI: mutate cache locally
+                  // Note: react-query is available; quick local set to keep it minimal here
                   Object.assign(post, { display_blocks: data?.display_blocks || next });
                 } catch (e) {
                   console.error(e);
@@ -276,13 +294,21 @@ export default function BlogPost() {
           )}
 
           {/* Content */}
-          <div className="verse-surface mb-8">
+          <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
             {hasContent ? (
-              <TiptapRenderer content={content} className="commentary-text" />
+              <TiptapRenderer content={content} className="!max-w-none" />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="text-lg">Контент поста ще не додано</p>
                 <p className="text-sm mt-2">Будь ласка, зверніться до адміністратора</p>
+                {isPreview && (
+                  <div className="mt-4 text-xs">
+                    <div className="mb-1">Debug:</div>
+                    <pre className="opacity-80 whitespace-pre-wrap break-words">
+                      {JSON.stringify({ hasContent, contentLen: content?.length, lang: language, slug }, null, 2)}
+                    </pre>
+                  </div>
+                )}
               </div>
             )}
           </div>
