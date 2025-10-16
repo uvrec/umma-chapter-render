@@ -70,6 +70,7 @@ import WebImport from "./pages/admin/WebImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import CleanBengali from "./pages/admin/CleanBengali";
 import VedabaseImportV2 from "./pages/admin/VedabaseImportV2";
+import TransliterationTool from "./pages/TransliterationTool";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";

@@ -94,7 +94,7 @@ const Cantos = () => {
                   Назад до книг
                 </Link>
               </Button>
-              <h1 className="text-2xl font-bold">Пісні: {book?.title_ua || "Завантаження..."}</h1>
+              <h1 className="text-2xl font-bold">Пісні книги: {book?.title_ua || "Завантаження..."}</h1>
             </div>
             <Button asChild>
               <Link to={`/admin/cantos/${bookId}/new`}>
