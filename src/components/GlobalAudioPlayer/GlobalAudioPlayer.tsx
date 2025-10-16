@@ -272,6 +272,14 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     stop();
   };
 
+  const toggleRepeat = () => {
+    setRepeatModeState((prev) => {
+      if (prev === 'off') return 'all';
+      if (prev === 'all') return 'one';
+      return 'off';
+    });
+  };
+
   const value: AudioContextType = {
     playlist,
     currentIndex,
@@ -281,6 +289,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     duration,
     volume,
     repeatMode,
+    toggleRepeat,
     playTrack,
     togglePlay,
     stop,
@@ -305,7 +314,9 @@ export const GlobalAudioPlayer = () => {
     currentTime,
     duration,
     volume,
+    repeatMode,
     togglePlay,
+    toggleRepeat,
     stop,
     setVolume,
     seek,
@@ -345,13 +356,23 @@ export const GlobalAudioPlayer = () => {
 
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center gap-4">
+          {/* Cover art */}
+          {currentTrack.metadata?.coverUrl && (
+            <div className="flex-shrink-0">
+              <img
+                src={currentTrack.metadata.coverUrl}
+                alt={currentTrack.title}
+                className="w-16 h-16 object-cover rounded"
+              />
+            </div>
+          )}
+
           {/* Track info */}
           <div className="flex-1 min-w-0">
             <div className="font-medium truncate">{currentTrack.title}</div>
             {currentTrack.verseNumber && (
               <div className="text-sm text-muted-foreground">Вірш {currentTrack.verseNumber}</div>
             )}
-            {/* ✅ ВИПРАВЛЕНО: Тепер metadata доступна */}
             {currentTrack.metadata?.artist && (
               <div className="text-xs text-muted-foreground">{currentTrack.metadata.artist}</div>
             )}
@@ -382,6 +403,15 @@ export const GlobalAudioPlayer = () => {
               disabled={currentIndex === null || currentIndex >= playlist.length - 1}
             >
               <SkipForward className="h-5 w-5" />
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleRepeat}
+              className={repeatMode !== 'off' ? 'text-primary' : ''}
+            >
+              {repeatMode === 'one' ? <Repeat1 className="h-5 w-5" /> : <Repeat className="h-5 w-5" />}
             </Button>
 
             <Button variant="ghost" size="icon" onClick={stop}>
