@@ -485,6 +485,7 @@ export type Database = {
           has_cantos: boolean | null
           id: string
           is_featured: boolean | null
+          is_published: boolean
           purchase_url: string | null
           slug: string
           title_en: string
@@ -504,6 +505,7 @@ export type Database = {
           has_cantos?: boolean | null
           id?: string
           is_featured?: boolean | null
+          is_published?: boolean
           purchase_url?: string | null
           slug: string
           title_en: string
@@ -523,6 +525,7 @@ export type Database = {
           has_cantos?: boolean | null
           id?: string
           is_featured?: boolean | null
+          is_published?: boolean
           purchase_url?: string | null
           slug?: string
           title_en?: string
