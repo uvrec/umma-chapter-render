@@ -361,7 +361,6 @@ export default function VedabaseImportV2() {
         try {
           setCurrentStep("Завантаження текстової глави з Vedabase...");
           console.log("Fetching text_only chapter from:", chapterBaseUrl);
-          console.log("Book config structure_type:", bookConfig.structure_type);
           
           const html = await fetchHtmlViaProxy(chapterBaseUrl);
           console.log("HTML fetched, length:", html?.length || 0);
@@ -369,46 +368,53 @@ export default function VedabaseImportV2() {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, "text/html");
           
-          // Try multiple selectors to find the content
-          const main =
-            doc.querySelector("article") ||
-            doc.querySelector("main") ||
-            doc.querySelector(".r.verse-text") ||
-            doc.querySelector(".content") ||
-            doc.querySelector("#content") ||
+          // Remove unwanted elements (navigation, headers, footers)
+          const removeSelectors = [
+            'nav', 'header', 'footer', '.navigation', '.sidebar', 
+            '.menu', '.breadcrumb', '#navigation', '.nav-links',
+            'script', 'style', 'link', 'meta'
+          ];
+          
+          removeSelectors.forEach(selector => {
+            doc.querySelectorAll(selector).forEach(el => el.remove());
+          });
+          
+          // Find the main content area
+          let contentElement = 
+            doc.querySelector('article') ||
+            doc.querySelector('main') ||
+            doc.querySelector('.r.verse-text') ||
+            doc.querySelector('.content') ||
+            doc.querySelector('#content') ||
             doc.body;
           
-          console.log("Main element found:", !!main);
+          console.log("Content element found:", !!contentElement, contentElement?.tagName);
           
-          let contentHtml = "";
-          
-          // First try to find all paragraphs
-          const paragraphs = main?.querySelectorAll("p");
-          console.log("Paragraphs found:", paragraphs?.length || 0);
-          
-          if (paragraphs && paragraphs.length > 0) {
-            contentHtml = Array.from(paragraphs).map((p) => p.outerHTML).join("\n");
-          } else {
-            // If no paragraphs, try to get text content with basic formatting
-            const textNodes = main?.querySelectorAll("div, span, p, h1, h2, h3, h4, h5, h6");
-            if (textNodes && textNodes.length > 0) {
-              contentHtml = Array.from(textNodes).map((node) => node.outerHTML).join("\n");
-            } else {
-              contentHtml = main?.innerHTML || "";
-            }
+          if (!contentElement) {
+            throw new Error("Не вдалося знайти основний контент на сторінці");
           }
+          
+          // Extract all text content with structure
+          // Priority: get the innerHTML of main content area
+          let contentHtml = contentElement.innerHTML;
           
           console.log("Content HTML length before sanitization:", contentHtml.length);
           
-          if (!contentHtml || contentHtml.trim().length === 0) {
-            throw new Error("Не вдалося знайти контент на сторінці");
+          if (!contentHtml || contentHtml.trim().length < 100) {
+            // If too short, try alternative approach: collect all visible text nodes
+            const textElements = contentElement.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, blockquote');
+            if (textElements.length > 0) {
+              contentHtml = Array.from(textElements)
+                .map(el => el.outerHTML)
+                .join('\n');
+            }
           }
           
           const safe = safeHtml(contentHtml);
           console.log("Content HTML length after sanitization:", safe.length);
           
-          if (!safe || safe.trim().length === 0) {
-            throw new Error("Контент було видалено під час санітизації");
+          if (!safe || safe.trim().length < 50) {
+            throw new Error(`Контент занадто короткий (${safe.length} символів). Можливо, структура сторінки змінилася.`);
           }
           
           const { error: updErr } = await supabase
@@ -426,8 +432,8 @@ export default function VedabaseImportV2() {
             throw updErr;
           }
           
-          console.log("Chapter updated successfully with content");
-          toast.success("Текстову главу збережено успішно");
+          console.log(`Chapter updated successfully with ${safe.length} chars of content`);
+          toast.success(`Текстову главу збережено (${Math.round(safe.length / 1000)}KB)`);
           setIsProcessing(false);
           setCurrentStep("");
           return;
