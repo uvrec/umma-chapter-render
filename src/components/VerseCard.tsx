@@ -38,6 +38,7 @@ interface VerseCardProps {
     showCommentary: boolean;
   };
 
+  showNumberBadge?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (
     verseId: string,
@@ -115,6 +116,7 @@ export const VerseCard = ({
     showTranslation: true,
     showCommentary: true,
   },
+  showNumberBadge = true,
   isAdmin = false,
   onVerseUpdate,
 }: VerseCardProps) => {
