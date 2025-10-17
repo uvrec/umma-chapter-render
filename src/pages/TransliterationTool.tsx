@@ -25,7 +25,11 @@ export default function TransliterationTool() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (inputText) {
-        const result = processText(inputText, mode, textType);
+        const result = processText(inputText, mode, textType, {
+          addHyphens: true,
+          convertNums: true,
+          preservePunct: true,
+        });
         setOutputText(result);
 
         // Валідація
@@ -244,10 +248,24 @@ export default function TransliterationTool() {
                   <div>bh → бг</div>
                   <div>gh → ґг</div>
                   <div>dh → дг</div>
+                  <div>ḍh → д̣г</div>
                   <div>th → тх</div>
                   <div>kh → кх</div>
+                  <div>ch → чх</div>
+                  <div>jh → джх</div>
                   <div>kṣ → кш</div>
+                  <div>jñ → джн̃</div>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Спеціальні можливості</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                  <li>Автоматична конвертація індійських цифр (१२३ → 123)</li>
+                  <li>Обробка пунктуації (। → .)</li>
+                  <li>Додавання дефісів у композитах (кр̣шн̣ачаітанйа → кр̣шн̣а-чаітанйа)</li>
+                  <li>Збереження подвійної данди (॥)</li>
+                </ul>
               </div>
 
               <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">

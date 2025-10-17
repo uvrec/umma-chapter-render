@@ -338,8 +338,15 @@ export function capitalizeAfterPeriod(text: string): string {
 export function processText(
   inputText: string,
   mode: "iast" | "devanagari" | "bengali",
-  textType: "shloka" | "purport"
+  textType: "shloka" | "purport",
+  options: {
+    addHyphens?: boolean;
+    convertNums?: boolean;
+    preservePunct?: boolean;
+  } = {}
 ): string {
+  const { addHyphens = true, convertNums = true, preservePunct = true } = options;
+
   let result = "";
 
   // Крок 1: Транслітерація згідно з обраним режимом
@@ -351,13 +358,112 @@ export function processText(
     result = transliterateBengali(inputText);
   }
 
-  // Крок 2: Застосування правил капіталізації
+  // Крок 2: Конвертувати цифри
+  if (convertNums) {
+    result = convertNumbers(result);
+  }
+
+  // Крок 3: Зберегти пунктуацію
+  if (preservePunct) {
+    result = preservePunctuation(result);
+  }
+
+  // Крок 4: Додати дефіси в композити
+  if (addHyphens) {
+    result = addCompoundHyphens(result);
+  }
+
+  // Крок 5: Застосування правил капіталізації
   if (textType === "shloka") {
     // У шлоках всі слова з маленької літери
     result = result.toLowerCase();
   } else if (textType === "purport") {
     // У поясненні велика літера тільки після крапки
     result = capitalizeAfterPeriod(result);
+  }
+
+  return result;
+}
+
+/**
+ * Конвертує індійські цифри в арабські
+ */
+export function convertNumbers(text: string): string {
+  const numbers: Record<string, string> = {
+    // Деванагарі
+    "०": "0",
+    "१": "1",
+    "२": "2",
+    "३": "3",
+    "४": "4",
+    "५": "5",
+    "६": "6",
+    "७": "7",
+    "८": "8",
+    "९": "9",
+    // Бенгалі
+    "০": "0",
+    "১": "1",
+    "২": "2",
+    "৩": "3",
+    "৪": "4",
+    "৫": "5",
+    "৬": "6",
+    "৭": "7",
+    "৮": "8",
+    "৯": "9",
+  };
+
+  let result = text;
+  for (const [old, newChar] of Object.entries(numbers)) {
+    result = result.replace(new RegExp(old, "g"), newChar);
+  }
+  return result;
+}
+
+/**
+ * Зберігає та конвертує санскритську пунктуацію
+ */
+export function preservePunctuation(text: string): string {
+  // Конвертувати данди в крапку
+  let result = text.replace(/।/g, ".");
+  // Подвійну данду залишаємо як є
+  // Вже збережено ॥
+  return result;
+}
+
+/**
+ * Додає дефіси в композити (складні слова)
+ */
+export function addCompoundHyphens(text: string): string {
+  let result = text;
+
+  // Патерни для розпізнавання композитів
+  const patterns: Array<[RegExp, string]> = [
+    // Префікси + слово
+    [/(маха̄)([а-яґіа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇]+)/g, "$1-$2"],
+    [/(ш́рī)([а-яґіа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇]+)/g, "$1-$2"],
+    [/(бгаґават)([а-яґіа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇]+)/g, "$1-$2"],
+
+    // Дгарма-композити
+    [/(дгарма)(кшетре|ш́а̄стра|йуддга)/g, "$1-$2"],
+
+    // Кр̣шн̣а-композити
+    [/(кр̣шн̣а)(чаітанйа|према|бгакті|ліла̄)/g, "$1-$2"],
+
+    // Куру-композити
+    [/(куру)(кшетре|ван̇ш́а)/g, "$1-$2"],
+
+    // Па̄н̣д̣ава-композити
+    [/(па̄н̣д̣ава̄)(ш́|н)/g, "$1-$2"],
+
+    // Подвійні композити (ім'я-ім'я)
+    [/(нітйа̄)(нанда)/g, "$1-$2"],
+    [/(ра̄ма)(чандра)/g, "$1-$2"],
+  ];
+
+  for (const [pattern, replacement] of patterns) {
+    result = result.replace(pattern, replacement);
   }
 
   return result;
@@ -388,18 +494,26 @@ export const TEST_EXAMPLES = {
     purport: "Kṛṣṇa є верховною особистістю бога. Mahāprabhu з'явився в Навадвіпі на березі Gaṅgā.",
   },
   devanagari: {
-    shloka: ["कृष्ण", "महाप्रभु", "गङ्गा", "सञ्जय उवाच", "दृष्ट्वा तु पाण्डवानीकं"],
-    purport: "कृष्ण є верховною особистістю. Mahāprabhu прийшов.",
+    shloka: [
+      "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।",
+      "मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ।। १ ।।",
+      "",
+      "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन ।",
+      "मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ।। ४७ ।।",
+    ],
+    purport:
+      "धर्मक्षेत्रे означає місце паломництва. कृष्ण є верховною особистістю. भगवद्गीता є священним текстом.",
   },
   bengali: {
     shloka: [
-      "কৃষ্ণ",
-      "মহাপ্রভু",
-      "গঙ্গা",
-      "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্‌",
-      "তৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্‌",
+      "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্ ।",
+      "তৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্ ॥ १ ॥",
+      "",
+      "বন্দে শ্রীকৃষ্ণচৈতন্যনিত্যানন্দৌ সহোদিতৌ ।",
+      "গৌড়োদয়ে পুষ্পবন্তৌ চিত্রৌ শন্দৌ তমোনুদৌ ॥ २ ॥",
     ],
-    purport: "কৃষ্ণ є верховною особистістю. মহাপ্রভু прийшов.",
+    purport:
+      "কৃষ্ণ є верховною особистістю. মহাপ্রভু з'явився в Навадвіпі. শ্রীচৈতন্য প্রদав безмежну милість.",
   },
 };
 
