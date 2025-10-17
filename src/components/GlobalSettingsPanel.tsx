@@ -116,30 +116,36 @@ export const GlobalSettingsPanel = () => {
   const [continuous, setContinuous] = useState<ContinuousState>(() => readContinuous());
 
   const bumpReader = () => {
+    console.log('🔧 [GlobalSettingsPanel] Dispatching vv-reader-prefs-changed event');
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
 
   useEffect(() => {
+    console.log('🔧 [GlobalSettingsPanel] fontSize changed:', fontSize);
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
     setTimeout(() => bumpReader(), 10);
   }, [fontSize]);
 
   useEffect(() => {
+    console.log('🔧 [GlobalSettingsPanel] lineHeight changed:', lineHeight);
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
     setTimeout(() => bumpReader(), 10);
   }, [lineHeight]);
 
   useEffect(() => {
+    console.log('🔧 [GlobalSettingsPanel] dualMode changed:', dualMode);
     localStorage.setItem(LS_KEYS.dual, String(dualMode));
     setTimeout(() => bumpReader(), 10);
   }, [dualMode]);
 
   useEffect(() => {
+    console.log('🔧 [GlobalSettingsPanel] blocks changed:', blocks);
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
     setTimeout(() => bumpReader(), 10);
   }, [blocks]);
 
   useEffect(() => {
+    console.log('🔧 [GlobalSettingsPanel] continuous changed:', continuous);
     localStorage.setItem(LS_KEYS.continuous, JSON.stringify(continuous));
     setTimeout(() => bumpReader(), 10);
   }, [continuous]);

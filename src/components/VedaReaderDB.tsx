@@ -99,11 +99,20 @@ export const VedaReaderDB = () => {
       if (fs) setFontSize(Number(fs));
       const lh = localStorage.getItem("vv_reader_lineHeight");
       if (lh) setLineHeight(Number(lh));
-      setDualLanguageMode(localStorage.getItem("vv_reader_dualMode") === "true");
+      const dualMode = localStorage.getItem("vv_reader_dualMode") === "true";
+      setDualLanguageMode(dualMode);
+      
+      console.log('🔧 [VedaReaderDB] Syncing settings from localStorage:', {
+        fontSize: fs,
+        lineHeight: lh,
+        dualMode,
+      });
+
       try {
         const b = localStorage.getItem("vv_reader_blocks");
         if (b) {
           const parsed = JSON.parse(b);
+          console.log('🔧 [VedaReaderDB] Text display settings:', parsed);
           setTextDisplaySettings(prev => ({
             ...prev,
             showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
@@ -118,6 +127,7 @@ export const VedaReaderDB = () => {
         const c = localStorage.getItem("vv_reader_continuous");
         if (c) {
           const parsed = JSON.parse(c);
+          console.log('🔧 [VedaReaderDB] Continuous reading settings:', parsed);
           setContinuousReadingSettings(prev => ({
             ...prev,
             enabled: parsed.enabled ?? prev.enabled,
@@ -379,22 +389,46 @@ export const VedaReaderDB = () => {
 
   // Навігація між главами
   const handlePrevChapter = () => {
-    if (currentChapterIndex > 0) {
+    console.log('🔧 [VedaReaderDB] handlePrevChapter:', {
+      currentChapterIndex,
+      allChapters: allChapters.length,
+      canNavigate: currentChapterIndex > 0
+    });
+    
+    if (currentChapterIndex === -1 || currentChapterIndex === 0) {
+      console.warn('🔧 [VedaReaderDB] Cannot navigate to previous chapter - at first chapter or invalid index');
+      return;
+    }
+    
+    if (currentChapterIndex > 0 && currentChapterIndex < allChapters.length) {
       const prevChapter = allChapters[currentChapterIndex - 1];
       const path = isCantoMode
         ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}`
         : `/veda-reader/${bookId}/${prevChapter.chapter_number}`;
+      console.log('🔧 [VedaReaderDB] Navigating to prev chapter:', path);
       navigate(path);
       setCurrentVerseIndex(0);
     }
   };
 
   const handleNextChapter = () => {
-    if (currentChapterIndex < allChapters.length - 1) {
+    console.log('🔧 [VedaReaderDB] handleNextChapter:', {
+      currentChapterIndex,
+      allChapters: allChapters.length,
+      canNavigate: currentChapterIndex < allChapters.length - 1
+    });
+    
+    if (currentChapterIndex === -1 || currentChapterIndex >= allChapters.length - 1) {
+      console.warn('🔧 [VedaReaderDB] Cannot navigate to next chapter - at last chapter or invalid index');
+      return;
+    }
+    
+    if (currentChapterIndex >= 0 && currentChapterIndex < allChapters.length - 1) {
       const nextChapter = allChapters[currentChapterIndex + 1];
       const path = isCantoMode
         ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}`
         : `/veda-reader/${bookId}/${nextChapter.chapter_number}`;
+      console.log('🔧 [VedaReaderDB] Navigating to next chapter:', path);
       navigate(path);
       setCurrentVerseIndex(0);
     }
@@ -472,7 +506,11 @@ export const VedaReaderDB = () => {
         <div className="mb-6">
           {isTextChapter ? (
             <div className="flex items-center justify-between">
-              <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+              <Button 
+                variant="secondary" 
+                onClick={handlePrevChapter} 
+                disabled={currentChapterIndex === -1 || currentChapterIndex === 0}
+              >
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 {t("Попередня глава", "Previous Chapter")}
               </Button>
@@ -482,7 +520,7 @@ export const VedaReaderDB = () => {
               <Button
                 variant="secondary"
                 onClick={handleNextChapter}
-                disabled={currentChapterIndex === allChapters.length - 1}
+                disabled={currentChapterIndex === -1 || currentChapterIndex === allChapters.length - 1}
               >
                 {t("Наступна глава", "Next Chapter")}
                 <ChevronRight className="ml-2 h-4 w-4" />
@@ -697,7 +735,11 @@ export const VedaReaderDB = () => {
 
                     <div className="border-t pt-6">
                       <div className="flex items-center justify-between">
-                        <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                        <Button 
+                          variant="secondary" 
+                          onClick={handlePrevChapter} 
+                          disabled={currentChapterIndex === -1 || currentChapterIndex === 0}
+                        >
                           <ChevronLeft className="mr-2 h-4 w-4" />
                           {t("Попередня глава", "Previous Chapter")}
                         </Button>
@@ -709,7 +751,7 @@ export const VedaReaderDB = () => {
                         <Button
                           variant="secondary"
                           onClick={handleNextChapter}
-                          disabled={currentChapterIndex === allChapters.length - 1}
+                          disabled={currentChapterIndex === -1 || currentChapterIndex === allChapters.length - 1}
                         >
                           {t("Наступна глава", "Next Chapter")}
                           <ChevronRight className="ml-2 h-4 w-4" />
