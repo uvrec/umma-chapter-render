@@ -32,6 +32,15 @@ export default function VedabaseImportV2() {
   const [manualFrom, setManualFrom] = useState("1");
   const [manualTo, setManualTo] = useState("10");
 
+  // Проксі-фетч для обходу CORS (Supabase Edge Function "fetch-proxy")
+  const fetchHtmlViaProxy = async (url: string): Promise<string> => {
+    const { data, error } = await supabase.functions.invoke("fetch-proxy", { body: { url } });
+    if (error) throw new Error(error.message || "Proxy error");
+    const html = (data as any)?.html as string | undefined;
+    if (!html) throw new Error("Порожня відповідь від проксі");
+    return html;
+  };
+
   const [stats, setStats] = useState<{
     total: number;
     imported: number;
@@ -56,8 +65,7 @@ export default function VedabaseImportV2() {
     setCurrentStep("Сканування сторінки глави...");
 
     try {
-      const response = await fetch(baseUrl, { mode: "cors" });
-      const html = await response.text();
+      const html = await fetchHtmlViaProxy(baseUrl);
 
       // Парсимо HTML для знаходження всіх посилань на вірші
       const parser = new DOMParser();
@@ -103,12 +111,7 @@ export default function VedabaseImportV2() {
     try {
       setCurrentStep(`Імпорт вірша ${verseNumber}...`);
 
-      const response = await fetch(verseUrl);
-      if (!response.ok) {
-        return { success: false, isGrouped: false, error: `HTTP ${response.status}` };
-      }
-
-      const html = await response.text();
+      const html = await fetchHtmlViaProxy(verseUrl);
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
 
@@ -321,19 +324,31 @@ export default function VedabaseImportV2() {
           chapterPayload.book_id = dbBook.id;
         }
         
-        const { data: newChapter, error: createChapterError } = await supabase
+        const conflictTarget = cantoId ? "canto_id,chapter_number" : "book_id,chapter_number";
+        const { data: upsertedChapter, error: upsertErr } = await supabase
           .from("chapters")
-          .insert(chapterPayload)
+          .upsert(chapterPayload, { onConflict: conflictTarget })
           .select("id, chapter_number, book_id, canto_id")
           .single();
         
-        if (createChapterError) {
-          toast.error(`Не вдалося створити главу: ${createChapterError.message}`);
-          return;
+        if (upsertErr) {
+          // Якщо сталося змагання або будь-яка інша помилка — спробуємо ще раз отримати існуючу главу
+          const { data: fallbackChapter } = await (supabase as any)
+            .from("chapters")
+            .select("id, chapter_number, book_id, canto_id")
+            .eq("chapter_number", chapterNumberInt)
+            .eq(cantoId ? "canto_id" : "book_id", cantoId ?? dbBook.id)
+            .limit(1);
+          const existing = fallbackChapter?.[0] ?? null;
+          if (!existing) {
+            toast.error(`Не вдалося створити главу: ${upsertErr.message}`);
+            return;
+          }
+          chapter = existing;
+        } else {
+          chapter = upsertedChapter;
+          toast.success(`Глава ${chapterNumberInt} створена/оновлена успішно!`);
         }
-        
-        chapter = newChapter;
-        toast.success(`Глава ${chapterNumberInt} створена успішно!`);
       }
       
       if (!chapter) {
@@ -345,8 +360,7 @@ export default function VedabaseImportV2() {
       if (bookConfig.structure_type === "text_only") {
         try {
           setCurrentStep("Завантаження текстової глави з Vedabase...");
-          const res = await fetch(chapterBaseUrl, { mode: "cors" });
-          const html = await res.text();
+          const html = await fetchHtmlViaProxy(chapterBaseUrl);
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, "text/html");
           const main =

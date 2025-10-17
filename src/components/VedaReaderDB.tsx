@@ -686,7 +686,10 @@ export const VedaReaderDB = () => {
                           translation={currentVerse.translation_ua || ""}
                           commentary={currentVerse.commentary_ua || ""}
                           audioUrl={currentVerse.audio_url || ""}
-                          textDisplaySettings={textDisplaySettings}
+                          textDisplaySettings={{
+                            ...textDisplaySettings,
+                            showTranslation: true,
+                          }}
                           showNumberBadge={false}
                           isAdmin={isAdmin}
                           onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
@@ -701,7 +704,10 @@ export const VedaReaderDB = () => {
                           translation={currentVerse.translation_en || ""}
                           commentary={currentVerse.commentary_en || ""}
                           audioUrl={currentVerse.audio_url || ""}
-                          textDisplaySettings={textDisplaySettings}
+                          textDisplaySettings={{
+                            ...textDisplaySettings,
+                            showTranslation: true,
+                          }}
                           showNumberBadge={false}
                           isAdmin={false}
                           onVerseUpdate={() => {}}

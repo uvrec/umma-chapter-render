@@ -44,12 +44,17 @@ const Books = () => {
               </Button>
               <h1 className="text-2xl font-bold">Книги</h1>
             </div>
-            <Button asChild>
-              <Link to="/admin/books/new">
-                <Plus className="w-4 h-4 mr-2" />
-                Додати книгу
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild>
+                <Link to="/admin/books/new">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Додати книгу
+                </Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/admin/vedabase-import-v2">Імпорт</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
