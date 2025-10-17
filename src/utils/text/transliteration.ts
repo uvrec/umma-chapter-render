@@ -239,17 +239,89 @@ export function validateOutput(text: string): { valid: boolean; errors: string[]
 
 /**
  * Транслітерація IAST латиниці → українська кирилиця
+ * Базовано на логіці iast_to_ukrainian з Python скрипту
  */
 export function transliterateIAST(text: string): string {
   let result = text;
 
-  // Сортуємо ключі за довжиною (спочатку довші)
-  const sortedKeys = Object.keys(IAST_TO_CYRILLIC).sort((a, b) => b.length - a.length);
+  // Список замін (від довших до коротших для правильної обробки)
+  const replacements: Array<[string, string]> = [
+    // Спочатку складні кластери (2-3 літери)
+    ["kṣ", "кш"],
+    ["jñ", "джн̃"],
+    ["tr", "тр"],
+    ["śr", "ш́р"],
 
-  // Замінюємо кожну комбінацію
-  for (const key of sortedKeys) {
-    const regex = new RegExp(escapeRegExp(key), "g");
-    result = result.replace(regex, IAST_TO_CYRILLIC[key]);
+    // Потім аспіровані (2 літери)
+    ["kh", "кх"],
+    ["gh", "ґг"],
+    ["ch", "чх"],
+    ["jh", "джх"],
+    ["ṭh", "т̣х"],
+    ["ḍh", "д̣г"],
+    ["th", "тх"],
+    ["dh", "дг"],
+    ["ph", "пх"],
+    ["bh", "бг"],
+
+    // Дифтонги
+    ["ai", "аі"],
+    ["au", "ау"],
+
+    // Довгі голосні
+    ["ā", "а̄"],
+    ["ī", "ī"],
+    ["ū", "ӯ"],
+    ["ṝ", "р̣̄"],
+    ["ḹ", "л̣̄"],
+
+    // Ретрофлексні з діакритикою
+    ["ṭ", "т̣"],
+    ["ḍ", "д̣"],
+    ["ṇ", "н̣"],
+    ["ṣ", "ш"],
+    ["ḻ", "л̣"],
+
+    // Інші з діакритикою
+    ["ṛ", "р̣"],
+    ["ḷ", "л̣"],
+    ["ś", "ш́"],
+    ["ṅ", "н̇"],
+    ["ñ", "н̃"],
+
+    // Спеціальні
+    ["ṃ", "м̇"],
+    ["ṁ", "м̇"],
+    ["ḥ", "х̣"],
+
+    // Звичайні приголосні (1 літера)
+    ["k", "к"],
+    ["g", "ґ"],
+    ["c", "ч"],
+    ["j", "дж"],
+    ["t", "т"],
+    ["d", "д"],
+    ["n", "н"],
+    ["p", "п"],
+    ["b", "б"],
+    ["m", "м"],
+    ["y", "й"],
+    ["r", "р"],
+    ["l", "л"],
+    ["v", "в"],
+    ["s", "с"],
+    ["h", "х"],
+
+    // Звичайні голосні
+    ["a", "а"],
+    ["i", "і"],
+    ["u", "у"],
+    ["e", "е"],
+    ["o", "о"],
+  ];
+
+  for (const [iast, uk] of replacements) {
+    result = result.replace(new RegExp(escapeRegExp(iast), "g"), uk);
   }
 
   return result;
@@ -333,7 +405,21 @@ export function capitalizeAfterPeriod(text: string): string {
 }
 
 /**
+ * Капіталізація для шлок (перша літера кожного рядка велика, решта маленькі)
+ * Базовано на логіці preserve_case=False з Python скрипту
+ */
+export function capitalizeShloka(text: string): string {
+  const lines = text.split("\n");
+  const processedLines = lines.map((line) => {
+    if (!line.trim()) return line;
+    return line.charAt(0).toUpperCase() + line.slice(1).toLowerCase();
+  });
+  return processedLines.join("\n");
+}
+
+/**
  * Основна функція обробки тексту
+ * Базовано на логіці з Python скрипту sanskrit_advanced.py
  */
 export function processText(
   inputText: string,
@@ -343,9 +429,15 @@ export function processText(
     addHyphens?: boolean;
     convertNums?: boolean;
     preservePunct?: boolean;
+    preserveCase?: boolean;
   } = {}
 ): string {
-  const { addHyphens = true, convertNums = true, preservePunct = true } = options;
+  const {
+    addHyphens = true,
+    convertNums = true,
+    preservePunct = true,
+    preserveCase = false,
+  } = options;
 
   let result = "";
 
@@ -374,12 +466,14 @@ export function processText(
   }
 
   // Крок 5: Застосування правил капіталізації
-  if (textType === "shloka") {
-    // У шлоках всі слова з маленької літери
-    result = result.toLowerCase();
-  } else if (textType === "purport") {
-    // У поясненні велика літера тільки після крапки
-    result = capitalizeAfterPeriod(result);
+  if (!preserveCase) {
+    if (textType === "shloka") {
+      // У шлоках перша літера рядка велика, решта маленькі
+      result = capitalizeShloka(result);
+    } else if (textType === "purport") {
+      // У поясненні велика літера тільки після крапки
+      result = capitalizeAfterPeriod(result);
+    }
   }
 
   return result;
@@ -434,32 +528,42 @@ export function preservePunctuation(text: string): string {
 
 /**
  * Додає дефіси в композити (складні слова)
+ * Базовано на логіці з Python скрипту sanskrit_advanced.py
  */
 export function addCompoundHyphens(text: string): string {
   let result = text;
 
   // Патерни для розпізнавання композитів
+  // Використовуємо Unicode діапазони для українських літер + діакритика
+  const cyrillicWithDiacritics = "[а-яґєіїёюйа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇л̣]+";
+  
   const patterns: Array<[RegExp, string]> = [
     // Префікси + слово
-    [/(маха̄)([а-яґіа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇]+)/g, "$1-$2"],
-    [/(ш́рī)([а-яґіа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇]+)/g, "$1-$2"],
-    [/(бгаґават)([а-яґіа̄ī̄ӯр̣н̣т̣д̣ш́м̇х̣н̃н̇]+)/g, "$1-$2"],
+    [new RegExp(`(маха̄)(${cyrillicWithDiacritics})`, "g"), "$1-$2"],
+    [new RegExp(`(ш́рī)(${cyrillicWithDiacritics})`, "g"), "$1-$2"],
+    [new RegExp(`(бгаґават)(${cyrillicWithDiacritics})`, "g"), "$1-$2"],
+    [new RegExp(`(пара)(${cyrillicWithDiacritics})`, "g"), "$1-$2"],
+    [new RegExp(`(су)(${cyrillicWithDiacritics})`, "g"), "$1-$2"],
+    [new RegExp(`(дур)(${cyrillicWithDiacritics})`, "g"), "$1-$2"],
 
     // Дгарма-композити
     [/(дгарма)(кшетре|ш́а̄стра|йуддга)/g, "$1-$2"],
 
     // Кр̣шн̣а-композити
     [/(кр̣шн̣а)(чаітанйа|према|бгакті|ліла̄)/g, "$1-$2"],
+    
+    // Ра̄ма-композити
+    [/(ра̄ма)(чандра|кр̣шн̣а)/g, "$1-$2"],
 
     // Куру-композити
     [/(куру)(кшетре|ван̇ш́а)/g, "$1-$2"],
 
     // Па̄н̣д̣ава-композити
-    [/(па̄н̣д̣ава̄)(ш́|н)/g, "$1-$2"],
+    [/(па̄н̣д̣ава̄?)(ш́|н|а̄нīкам̇)/g, "$1-$2"],
 
     // Подвійні композити (ім'я-ім'я)
     [/(нітйа̄)(нанда)/g, "$1-$2"],
-    [/(ра̄ма)(чандра)/g, "$1-$2"],
+    [/(ґурӯ)(нīш́а)/g, "$1-$2"],
   ];
 
   for (const [pattern, replacement] of patterns) {

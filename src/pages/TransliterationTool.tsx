@@ -29,6 +29,7 @@ export default function TransliterationTool() {
           addHyphens: true,
           convertNums: true,
           preservePunct: true,
+          preserveCase: false, // Застосовувати правила капіталізації
         });
         setOutputText(result);
 
@@ -111,7 +112,7 @@ export default function TransliterationTool() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="shloka">Шлока (всі слова з маленької)</SelectItem>
+                  <SelectItem value="shloka">Шлока (перша літера рядка велика)</SelectItem>
                   <SelectItem value="purport">Пояснення (велика після крапки)</SelectItem>
                 </SelectContent>
               </Select>
@@ -263,9 +264,72 @@ export default function TransliterationTool() {
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
                   <li>Автоматична конвертація індійських цифр (१२३ → 123)</li>
                   <li>Обробка пунктуації (। → .)</li>
-                  <li>Додавання дефісів у композитах (кр̣шн̣ачаітанйа → кр̣шн̣а-чаітанйа)</li>
-                  <li>Збереження подвійної данди (॥)</li>
+                  <li>Додавання дефісів у композитах (маха̄пурушах̣ → маха̄-пурушах̣, ш́рīкр̣шн̣а → ш́рī-кр̣шн̣а)</li>
+                  <li>Збереження подвійної данди (॥) для нумерації віршів</li>
+                  <li>Правильна капіталізація: для шлок (перша літера кожного рядка), для пояснень (після крапки)</li>
                 </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Тестові приклади</h3>
+                <div className="grid md:grid-cols-2 gap-2">
+                  <Button
+                    onClick={() => {
+                      setMode("devanagari");
+                      setTextType("shloka");
+                      setInputText(
+                        "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः । मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ।। १ ।।"
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Бгаґавад-Ґīта̄ 1.1
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("devanagari");
+                      setTextType("shloka");
+                      setInputText(
+                        "सञ्जय उवाच दृष्ट्वा तु पाण्डवानीकं व्यूढं दुर्योधनस्तदा । आचार्यमुपसङ्गम्य राजा वचनमब्रवीत् ॥ २ ॥"
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Бгаґавад-Ґīта̄ 1.2
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("bengali");
+                      setTextType("shloka");
+                      setInputText(
+                        "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্ । তৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্ ॥ १ ॥"
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Чаітанйа-чаріта̄мр̣та 1.1
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("bengali");
+                      setTextType("shloka");
+                      setInputText(
+                        "বন্দে শ্রীকৃষ্ণচৈতন্যনিত্যানন্দৌ সহোদিতৌ । গৌড়োদয়ে পুষ্পবন্তৌ চিত্রৌ শন্দৌ তমোনুদৌ ॥ २ ॥"
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Чаітанйа-чаріта̄мр̣та 1.2
+                  </Button>
+                </div>
               </div>
 
               <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
