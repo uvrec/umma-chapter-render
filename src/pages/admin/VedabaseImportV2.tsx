@@ -413,7 +413,12 @@ export default function VedabaseImportV2() {
           
           const { error: updErr } = await supabase
             .from("chapters")
-            .update({ chapter_type: "text", content_en: safe })
+            .update({ 
+              chapter_type: "text", 
+              content_en: safe,
+              content_format: "html",
+              is_published: true
+            })
             .eq("id", chapter.id);
             
           if (updErr) {

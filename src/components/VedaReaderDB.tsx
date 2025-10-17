@@ -573,33 +573,77 @@ export const VedaReaderDB = () => {
         </div>
 
         {isTextChapter ? (
-          <Card className="verse-surface p-8">
-            <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer
-                content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || chapter.content_ua || ""}
-              />
+          dualLanguageMode ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <Card className="verse-surface p-8">
+                  <div className="text-center mb-4 text-sm font-semibold text-muted-foreground">
+                    Українська
+                  </div>
+                  <div className="prose prose-lg max-w-none dark:prose-invert">
+                    <TiptapRenderer content={chapter.content_ua || chapter.content_en || ""} />
+                  </div>
+                </Card>
+                
+                <Card className="verse-surface p-8">
+                  <div className="text-center mb-4 text-sm font-semibold text-muted-foreground">
+                    English
+                  </div>
+                  <div className="prose prose-lg max-w-none dark:prose-invert">
+                    <TiptapRenderer content={chapter.content_en || chapter.content_ua || ""} />
+                  </div>
+                </Card>
+              </div>
+
+              <div className="flex items-center justify-between border-t pt-8">
+                <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередня глава", "Previous Chapter")}
+                </Button>
+
+                <span className="text-sm text-muted-foreground">
+                  {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
+                </span>
+
+                <Button
+                  variant="secondary"
+                  onClick={handleNextChapter}
+                  disabled={currentChapterIndex === allChapters.length - 1}
+                >
+                  {t("Наступна глава", "Next Chapter")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
+          ) : (
+            <Card className="verse-surface p-8">
+              <div className="prose prose-lg max-w-none dark:prose-invert">
+                <TiptapRenderer
+                  content={language === "ua" ? (chapter.content_ua || chapter.content_en || "") : (chapter.content_en || chapter.content_ua || "")}
+                />
+              </div>
 
-            <div className="mt-8 flex items-center justify-between border-t pt-8">
-              <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                {t("Попередня глава", "Previous Chapter")}
-              </Button>
+              <div className="mt-8 flex items-center justify-between border-t pt-8">
+                <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередня глава", "Previous Chapter")}
+                </Button>
 
-              <span className="text-sm text-muted-foreground">
-                {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
-              </span>
+                <span className="text-sm text-muted-foreground">
+                  {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
+                </span>
 
-              <Button
-                variant="secondary"
-                onClick={handleNextChapter}
-                disabled={currentChapterIndex === allChapters.length - 1}
-              >
-                {t("Наступна глава", "Next Chapter")}
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </Card>
+                <Button
+                  variant="secondary"
+                  onClick={handleNextChapter}
+                  disabled={currentChapterIndex === allChapters.length - 1}
+                >
+                  {t("Наступна глава", "Next Chapter")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </Card>
+          )
         ) : continuousReadingSettings.enabled ? (
           <div className="space-y-8">
             {verses.map((verse) => {
