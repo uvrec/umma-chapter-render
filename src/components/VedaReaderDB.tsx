@@ -512,7 +512,7 @@ export const VedaReaderDB = () => {
         />
 
         <div className="mt-4 mb-8 text-center">
-          <h1 className="text-3xl font-bold">{bookTitle}</h1>
+          <h1 className="text-5xl md:text-6xl font-bold">{bookTitle}</h1>
         </div>
 
         <div className="mb-6">

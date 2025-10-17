@@ -113,8 +113,8 @@ export const IntroChapter = () => {
         />
 
         <div className="mt-6 mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">{bookTitle}</h1>
-          <h2 className="text-2xl text-muted-foreground">{chapterTitle}</h2>
+          <h1 className="text-6xl md:text-7xl font-bold text-foreground mb-2">{bookTitle}</h1>
+          <h2 className="text-3xl md:text-4xl text-muted-foreground">{chapterTitle}</h2>
         </div>
 
         <Card className="p-8 mb-8">

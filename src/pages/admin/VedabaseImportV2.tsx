@@ -28,6 +28,13 @@ export default function VedabaseImportV2() {
   const [manualFrom, setManualFrom] = useState("1");
   const [manualTo, setManualTo] = useState("10");
 
+  // Мовні опції імпорту
+  const [importEN, setImportEN] = useState(true);
+  const [importUA, setImportUA] = useState(() => selectedBook === "cc");
+  // доступність UA: лише для CC
+  const allowUA = useMemo(() => importUA && selectedBook === "cc", [importUA, selectedBook]);
+  const allowEN = useMemo(() => importEN, [importEN]);
+
   const fetchHtmlViaProxy = async (url: string): Promise<string> => {
     const { data, error } = await supabase.functions.invoke("fetch-proxy", { body: { url } });
     if (error) throw new Error(error.message || "Proxy error");
@@ -50,8 +57,7 @@ export default function VedabaseImportV2() {
     () => !!bookConfig?.url_pattern?.includes("{chapter}") || !!bookConfig?.url_pattern?.includes("{lila}"),
     [bookConfig],
   );
-  // Дозволяємо імпорт УКР лише для Чайтанья-чарітамріти (cc)
-  const uaAllowed = useMemo(() => selectedBook === "cc", [selectedBook]);
+  // allowUA визначається вище з урахуванням вибору і обмеження CC
 
   /**
    * Нормалізація тексту для порівняння (видалення діакритики та зайвих пробілів)
@@ -200,27 +206,29 @@ export default function VedabaseImportV2() {
       const commentary_ua = locateSection(doc, "Пояснення") || locateSection(doc, "Коментар") || "";
       const commentary_en = locateSection(doc, "Purport") || locateSection(doc, "Commentary") || "";
 
-      // Формуємо display_blocks з урахуванням дозволу на UA
+      // Формуємо display_blocks з урахуванням вибору мов
       const displayBlocks = {
         sanskrit: !!sanskrit,
         transliteration: !!transliteration,
-        synonyms: !!(synonyms_en || (uaAllowed && synonyms_ua)),
-        translation: !!(translation_en || (uaAllowed && translation_ua)),
-        commentary: !!(commentary_en || (uaAllowed && commentary_ua)),
+        synonyms: !!((allowEN && synonyms_en) || (allowUA && synonyms_ua)),
+        translation: !!((allowEN && translation_en) || (allowUA && translation_ua)),
+        commentary: !!((allowEN && commentary_en) || (allowUA && commentary_ua)),
       };
 
-      // Динамічний payload: не перезаписувати UA-поля, якщо UA заборонено
+      // Динамічний payload: включаємо лише дозволені мовні поля
       const insertPayload: any = {
         chapter_id: chapterId,
         verse_number: verseNumber,
         sanskrit,
         transliteration,
-        synonyms_en,
-        translation_en,
-        commentary_en,
         display_blocks: displayBlocks,
       };
-      if (uaAllowed) {
+      if (allowEN) {
+        insertPayload.synonyms_en = synonyms_en;
+        insertPayload.translation_en = translation_en;
+        insertPayload.commentary_en = commentary_en;
+      }
+      if (allowUA) {
         insertPayload.synonyms_ua = synonyms_ua;
         insertPayload.translation_ua = translation_ua;
         insertPayload.commentary_ua = commentary_ua;
@@ -233,12 +241,14 @@ export default function VedabaseImportV2() {
         const updatePayload: any = {
           sanskrit,
           transliteration,
-          synonyms_en,
-          translation_en,
-          commentary_en,
           display_blocks: displayBlocks,
         };
-        if (uaAllowed) {
+        if (allowEN) {
+          updatePayload.synonyms_en = synonyms_en;
+          updatePayload.translation_en = translation_en;
+          updatePayload.commentary_en = commentary_en;
+        }
+        if (allowUA) {
           updatePayload.synonyms_ua = synonyms_ua;
           updatePayload.translation_ua = translation_ua;
           updatePayload.commentary_ua = commentary_ua;
@@ -390,7 +400,7 @@ export default function VedabaseImportV2() {
             .from("chapters")
             .update({
               title_en: chapterTitleEn,
-              ...(uaAllowed ? { title_ua: chapterTitleUa } : {}),
+              ...(allowUA ? { title_ua: chapterTitleUa } : {}),
             })
             .eq("id", chapterId);
         } else {
@@ -426,7 +436,7 @@ export default function VedabaseImportV2() {
             .from("chapters")
             .update({
               title_en: chapterTitleEn,
-              ...(uaAllowed ? { title_ua: chapterTitleUa } : {}),
+              ...(allowUA ? { title_ua: chapterTitleUa } : {}),
             })
             .eq("id", chapterId);
         } else {
@@ -573,7 +583,30 @@ export default function VedabaseImportV2() {
                   </div>
                 )}
 
-                <div className="flex items-center gap-2">
+                {/* Мови імпорту */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="import-en"
+                      checked={importEN}
+                      onChange={(e) => setImportEN(e.target.checked)}
+                    />
+                    <Label htmlFor="import-en">Імпортувати English</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="import-ua"
+                      checked={importUA}
+                      onChange={(e) => setImportUA(e.target.checked)}
+                      disabled={selectedBook !== "cc"}
+                    />
+                    <Label htmlFor="import-ua">Імпортувати Українську {selectedBook !== "cc" && "(доступно лише для ЧЧ)"}</Label>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 mt-4">
                   <input
                     type="checkbox"
                     id="manual-mode"

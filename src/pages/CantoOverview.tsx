@@ -99,7 +99,7 @@ const CantoOverview = () => {
         />
 
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="text-5xl md:text-6xl font-bold mb-4">
             Пісня {cantoNumber}: {cantoTitle}
           </h1>
           {cantoDescription && (
