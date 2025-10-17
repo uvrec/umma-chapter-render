@@ -366,15 +366,15 @@ export default function VedabaseImportV2() {
           chapterPayload.book_id = dbBook.id;
         }
         
-        const conflictTarget = cantoId ? "canto_id,chapter_number" : "book_id,chapter_number";
-        const { data: upsertedChapter, error: upsertErr } = await supabase
+        // Вставляємо без upsert, щоб уникнути помилки ON CONFLICT
+        const { data: newChapter, error: insertErr } = await supabase
           .from("chapters")
-          .upsert(chapterPayload, { onConflict: conflictTarget })
+          .insert(chapterPayload)
           .select("id, chapter_number, book_id, canto_id")
           .single();
         
-        if (upsertErr) {
-          // Якщо сталося змагання або будь-яка інша помилка — спробуємо ще раз отримати існуючу главу
+        if (insertErr) {
+          // Якщо одночасно створили або вже існує — пробуємо знайти
           const { data: fallbackChapter } = await (supabase as any)
             .from("chapters")
             .select("id, chapter_number, book_id, canto_id")
@@ -383,13 +383,13 @@ export default function VedabaseImportV2() {
             .limit(1);
           const existing = fallbackChapter?.[0] ?? null;
           if (!existing) {
-            toast.error(`Не вдалося створити главу: ${upsertErr.message}`);
+            toast.error(`Не вдалося створити главу: ${insertErr.message}`);
             return;
           }
           chapter = existing;
         } else {
-          chapter = upsertedChapter;
-          toast.success(`Глава ${chapterNumberInt} створена/оновлена успішно!`);
+          chapter = newChapter;
+          toast.success(`Глава ${chapterNumberInt} створена успішно!`);
         }
       }
       
