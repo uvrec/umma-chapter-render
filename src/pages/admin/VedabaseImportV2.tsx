@@ -113,10 +113,16 @@ export default function VedabaseImportV2() {
       const headingText = normalizeText(heading.textContent || "");
 
       if (headingText.includes(normalizedName)) {
-        // Збираємо весь контент після цього заголовка до наступного заголовка
+        // Починаємо збір контенту після усіх послідовних заголовків (side-by-side має дублікати)
         const contentParts: string[] = [];
-        let sibling = heading.nextElementSibling;
+        let sibling: Element | null = heading.nextElementSibling;
 
+        // пропускаємо послідовні заголовки (EN/UA дублікати)
+        while (sibling && headings.includes(sibling as HTMLElement)) {
+          sibling = sibling.nextElementSibling;
+        }
+
+        // збираємо до наступного заголовка
         while (sibling && !headings.includes(sibling as HTMLElement)) {
           const text = sibling.textContent?.trim();
           if (text) contentParts.push(text);
