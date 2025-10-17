@@ -98,27 +98,29 @@ export const VedaReader = () => {
         const b = localStorage.getItem("vv_reader_blocks");
         if (b) {
           const parsed = JSON.parse(b);
-          setTextDisplaySettings({
-            showSanskrit: parsed.showSanskrit ?? true,
-            showTransliteration: parsed.showTransliteration ?? true,
-            showSynonyms: parsed.showSynonyms ?? true,
-            showTranslation: parsed.showTranslation ?? true,
-            showCommentary: parsed.showCommentary ?? true,
-          });
+          setTextDisplaySettings(prev => ({
+            ...prev,
+            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
+            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showSynonyms: parsed.showSynonyms ?? prev.showSynonyms,
+            showTranslation: parsed.showTranslation ?? prev.showTranslation,
+            showCommentary: parsed.showCommentary ?? prev.showCommentary,
+          }));
         }
       } catch {}
       try {
         const c = localStorage.getItem("vv_reader_continuous");
         if (c) {
           const parsed = JSON.parse(c);
-          setContinuousReadingSettings({
-            enabled: parsed.enabled ?? false,
-            showVerseNumbers: parsed.showVerseNumbers ?? true,
-            showSanskrit: parsed.showSanskrit ?? false,
-            showTransliteration: parsed.showTransliteration ?? false,
-            showTranslation: parsed.showTranslation ?? true,
-            showCommentary: parsed.showCommentary ?? false,
-          });
+          setContinuousReadingSettings(prev => ({
+            ...prev,
+            enabled: parsed.enabled ?? prev.enabled,
+            showVerseNumbers: parsed.showVerseNumbers ?? prev.showVerseNumbers,
+            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
+            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showTranslation: parsed.showTranslation ?? prev.showTranslation,
+            showCommentary: parsed.showCommentary ?? prev.showCommentary,
+          }));
         }
       } catch {}
     };

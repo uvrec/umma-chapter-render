@@ -104,27 +104,29 @@ export const VedaReaderDB = () => {
         const b = localStorage.getItem("vv_reader_blocks");
         if (b) {
           const parsed = JSON.parse(b);
-          setTextDisplaySettings({
-            showSanskrit: parsed.showSanskrit ?? true,
-            showTransliteration: parsed.showTransliteration ?? true,
-            showSynonyms: parsed.showSynonyms ?? true,
-            showTranslation: parsed.showTranslation ?? true,
-            showCommentary: parsed.showCommentary ?? true,
-          });
+          setTextDisplaySettings(prev => ({
+            ...prev,
+            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
+            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showSynonyms: parsed.showSynonyms ?? prev.showSynonyms,
+            showTranslation: parsed.showTranslation ?? prev.showTranslation,
+            showCommentary: parsed.showCommentary ?? prev.showCommentary,
+          }));
         }
       } catch {}
       try {
         const c = localStorage.getItem("vv_reader_continuous");
         if (c) {
           const parsed = JSON.parse(c);
-          setContinuousReadingSettings({
-            enabled: parsed.enabled ?? false,
-            showVerseNumbers: parsed.showVerseNumbers ?? true,
-            showSanskrit: parsed.showSanskrit ?? false,
-            showTransliteration: parsed.showTransliteration ?? false,
-            showTranslation: parsed.showTranslation ?? true,
-            showCommentary: parsed.showCommentary ?? false,
-          });
+          setContinuousReadingSettings(prev => ({
+            ...prev,
+            enabled: parsed.enabled ?? prev.enabled,
+            showVerseNumbers: parsed.showVerseNumbers ?? prev.showVerseNumbers,
+            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
+            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showTranslation: parsed.showTranslation ?? prev.showTranslation,
+            showCommentary: parsed.showCommentary ?? prev.showCommentary,
+          }));
         }
       } catch {}
     };
@@ -279,10 +281,11 @@ export const VedaReaderDB = () => {
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const chapterTitle = language === "ua" ? chapter?.title_ua : chapter?.title_en;
 
-  const currentChapterIndex = useMemo(
-    () => allChapters.findIndex((ch) => ch.id === chapter?.id),
-    [allChapters, chapter?.id],
-  );
+  const currentChapterIndex = useMemo(() => {
+    const idx = allChapters.findIndex((ch) => ch.id === chapter?.id);
+    console.log('🔧 [VedaReaderDB] currentChapterIndex:', idx, 'chapter?.id:', chapter?.id, 'allChapters:', allChapters.length);
+    return idx >= 0 ? idx : 0;
+  }, [allChapters, chapter?.id]);
 
   // Мутація з мовно-залежним мапінгом полів
   const updateVerseMutation = useMutation({
@@ -434,7 +437,7 @@ export const VedaReaderDB = () => {
   // Глобальне застосування розміру шрифту до контенту рідера
   const readerStyle: React.CSSProperties = {
     fontSize: `${fontSize}px`,
-    // line-height керуємо з SettingsPanel через data-reader-root
+    lineHeight: String(lineHeight),
   };
 
   return (

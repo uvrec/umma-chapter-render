@@ -121,27 +121,27 @@ export const GlobalSettingsPanel = () => {
 
   useEffect(() => {
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
-    bumpReader();
+    setTimeout(() => bumpReader(), 10);
   }, [fontSize]);
 
   useEffect(() => {
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
-    bumpReader();
+    setTimeout(() => bumpReader(), 10);
   }, [lineHeight]);
 
   useEffect(() => {
     localStorage.setItem(LS_KEYS.dual, String(dualMode));
-    bumpReader();
+    setTimeout(() => bumpReader(), 10);
   }, [dualMode]);
 
   useEffect(() => {
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
-    bumpReader();
+    setTimeout(() => bumpReader(), 10);
   }, [blocks]);
 
   useEffect(() => {
     localStorage.setItem(LS_KEYS.continuous, JSON.stringify(continuous));
-    bumpReader();
+    setTimeout(() => bumpReader(), 10);
   }, [continuous]);
 
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
