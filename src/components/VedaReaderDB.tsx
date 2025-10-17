@@ -38,24 +38,65 @@ export const VedaReaderDB = () => {
     return saved ? Number(saved) : 1.6;
   });
   const [craftPaperMode, setCraftPaperMode] = useState(false);
-  const [dualLanguageMode, setDualLanguageMode] = useState(false);
+  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => localStorage.getItem("vv_reader_dualMode") === "true");
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
 
-  const [textDisplaySettings, setTextDisplaySettings] = useState({
-    showSanskrit: true,
-    showTransliteration: true,
-    showSynonyms: true,
-    showTranslation: true,
-    showCommentary: true,
+  const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
+    try {
+      const raw = localStorage.getItem("vv_reader_blocks");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.sanskrit !== undefined) {
+          return {
+            showSanskrit: parsed.sanskrit ?? true,
+            showTransliteration: parsed.translit ?? true,
+            showSynonyms: parsed.synonyms ?? true,
+            showTranslation: parsed.translation ?? true,
+            showCommentary: parsed.commentary ?? true,
+          };
+        }
+        return {
+          showSanskrit: true,
+          showTransliteration: true,
+          showSynonyms: true,
+          showTranslation: true,
+          showCommentary: true,
+          ...parsed,
+        };
+      }
+    } catch {}
+    return {
+      showSanskrit: true,
+      showTransliteration: true,
+      showSynonyms: true,
+      showTranslation: true,
+      showCommentary: true,
+    };
   });
 
-  const [continuousReadingSettings, setContinuousReadingSettings] = useState({
-    enabled: false,
-    showVerseNumbers: true,
-    showSanskrit: true,
-    showTransliteration: true,
-    showTranslation: true,
-    showCommentary: true,
+  const [continuousReadingSettings, setContinuousReadingSettings] = useState(() => {
+    try {
+      const raw = localStorage.getItem("vv_reader_continuous");
+      if (raw) {
+        return {
+          enabled: false,
+          showVerseNumbers: true,
+          showSanskrit: false,
+          showTransliteration: false,
+          showTranslation: true,
+          showCommentary: false,
+          ...JSON.parse(raw),
+        };
+      }
+    } catch {}
+    return {
+      enabled: false,
+      showVerseNumbers: true,
+      showSanskrit: false,
+      showTransliteration: false,
+      showTranslation: true,
+      showCommentary: false,
+    };
   });
 
   // Persist settings
@@ -66,6 +107,78 @@ export const VedaReaderDB = () => {
   useEffect(() => {
     localStorage.setItem("vv_reader_lineHeight", String(lineHeight));
   }, [lineHeight]);
+  
+  // Застосувати line-height до контейнера рідера
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
+    if (root) root.style.lineHeight = String(lineHeight);
+  }, [lineHeight]);
+
+  // Слухач глобальних змін із GlobalSettingsPanel та між вкладками
+  useEffect(() => {
+    const syncFromLS = () => {
+      const fs = localStorage.getItem("vv_reader_fontSize");
+      if (fs) setFontSize(Number(fs));
+      const lh = localStorage.getItem("vv_reader_lineHeight");
+      if (lh) setLineHeight(Number(lh));
+      setDualLanguageMode(localStorage.getItem("vv_reader_dualMode") === "true");
+      try {
+        const b = localStorage.getItem("vv_reader_blocks");
+        if (b) {
+          const parsed = JSON.parse(b);
+          if (parsed.sanskrit !== undefined) {
+            setTextDisplaySettings({
+              showSanskrit: parsed.sanskrit ?? true,
+              showTransliteration: parsed.translit ?? true,
+              showSynonyms: parsed.synonyms ?? true,
+              showTranslation: parsed.translation ?? true,
+              showCommentary: parsed.commentary ?? true,
+            });
+          } else {
+            setTextDisplaySettings({
+              showSanskrit: true,
+              showTransliteration: true,
+              showSynonyms: true,
+              showTranslation: true,
+              showCommentary: true,
+              ...parsed,
+            });
+          }
+        }
+      } catch {}
+      try {
+        const c = localStorage.getItem("vv_reader_continuous");
+        if (c) {
+          const parsed = JSON.parse(c);
+          setContinuousReadingSettings({
+            enabled: false,
+            showVerseNumbers: true,
+            showSanskrit: false,
+            showTransliteration: false,
+            showTranslation: true,
+            showCommentary: false,
+            ...parsed,
+          });
+        }
+      } catch {}
+    };
+
+    const onPrefs = () => syncFromLS();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || !e.key.startsWith("vv_reader_")) return;
+      syncFromLS();
+    };
+
+    window.addEventListener("vv-reader-prefs-changed", onPrefs as any);
+    window.addEventListener("storage", onStorage);
+    // Ініціалізація при монтуванні
+    syncFromLS();
+
+    return () => {
+      window.removeEventListener("vv-reader-prefs-changed", onPrefs as any);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   // Витягає відображуваний номер (останній сегмент)
   const getDisplayVerseNumber = (verseNumber: string): string => {
@@ -201,8 +314,8 @@ export const VedaReaderDB = () => {
   const chapterTitle = language === "ua" ? chapter?.title_ua : chapter?.title_en;
 
   const currentChapterIndex = useMemo(
-    () => allChapters.findIndex((ch) => ch.chapter_number === parseInt(effectiveChapterParam || "1")),
-    [allChapters, effectiveChapterParam],
+    () => allChapters.findIndex((ch) => ch.id === chapter?.id),
+    [allChapters, chapter?.id],
   );
 
   // Мутація з мовно-залежним мапінгом полів
@@ -388,6 +501,59 @@ export const VedaReaderDB = () => {
           <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)}>
             <Settings className="h-5 w-5" />
           </Button>
+        </div>
+
+        <div className="mb-6">
+          {isTextChapter ? (
+            <div className="flex items-center justify-between">
+              <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                {t("Попередня глава", "Previous Chapter")}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
+              </span>
+              <Button
+                variant="secondary"
+                onClick={handleNextChapter}
+                disabled={currentChapterIndex === allChapters.length - 1}
+              >
+                {t("Наступна глава", "Next Chapter")}
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередній вірш", "Previous verse")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleNextVerse}
+                  disabled={currentVerseIndex === verses.length - 1}
+                >
+                  {t("Наступний вірш", "Next verse")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередня глава", "Previous Chapter")}
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={handleNextChapter}
+                  disabled={currentChapterIndex === allChapters.length - 1}
+                >
+                  {t("Наступна глава", "Next Chapter")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {isTextChapter ? (
