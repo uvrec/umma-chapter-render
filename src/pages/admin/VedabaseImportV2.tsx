@@ -50,6 +50,8 @@ export default function VedabaseImportV2() {
     () => !!bookConfig?.url_pattern?.includes("{chapter}") || !!bookConfig?.url_pattern?.includes("{lila}"),
     [bookConfig],
   );
+  // Дозволяємо імпорт УКР лише для Чайтанья-чарітамріти (cc)
+  const uaAllowed = useMemo(() => selectedBook === "cc", [selectedBook]);
 
   /**
    * Нормалізація тексту для порівняння (видалення діакритики та зайвих пробілів)
@@ -198,44 +200,53 @@ export default function VedabaseImportV2() {
       const commentary_ua = locateSection(doc, "Пояснення") || locateSection(doc, "Коментар") || "";
       const commentary_en = locateSection(doc, "Purport") || locateSection(doc, "Commentary") || "";
 
-      // Формуємо display_blocks
+      // Формуємо display_blocks з урахуванням дозволу на UA
       const displayBlocks = {
         sanskrit: !!sanskrit,
         transliteration: !!transliteration,
-        synonyms: !!(synonyms_ua || synonyms_en),
-        translation: !!(translation_ua || translation_en),
-        commentary: !!(commentary_ua || commentary_en),
+        synonyms: !!(synonyms_en || (uaAllowed && synonyms_ua)),
+        translation: !!(translation_en || (uaAllowed && translation_ua)),
+        commentary: !!(commentary_en || (uaAllowed && commentary_ua)),
       };
 
-      // Зберігаємо
-      const { error: insertError } = await supabase.from("verses").insert({
+      // Динамічний payload: не перезаписувати UA-поля, якщо UA заборонено
+      const insertPayload: any = {
         chapter_id: chapterId,
         verse_number: verseNumber,
         sanskrit,
         transliteration,
-        synonyms_ua,
         synonyms_en,
-        translation_ua,
         translation_en,
-        commentary_ua,
         commentary_en,
         display_blocks: displayBlocks,
-      });
+      };
+      if (uaAllowed) {
+        insertPayload.synonyms_ua = synonyms_ua;
+        insertPayload.translation_ua = translation_ua;
+        insertPayload.commentary_ua = commentary_ua;
+      }
+
+      // Зберігаємо
+      const { error: insertError } = await supabase.from("verses").insert(insertPayload);
 
       if (insertError) {
+        const updatePayload: any = {
+          sanskrit,
+          transliteration,
+          synonyms_en,
+          translation_en,
+          commentary_en,
+          display_blocks: displayBlocks,
+        };
+        if (uaAllowed) {
+          updatePayload.synonyms_ua = synonyms_ua;
+          updatePayload.translation_ua = translation_ua;
+          updatePayload.commentary_ua = commentary_ua;
+        }
+
         const { error: updateError } = await supabase
           .from("verses")
-          .update({
-            sanskrit,
-            transliteration,
-            synonyms_ua,
-            synonyms_en,
-            translation_ua,
-            translation_en,
-            commentary_ua,
-            commentary_en,
-            display_blocks: displayBlocks,
-          })
+          .update(updatePayload)
           .eq("chapter_id", chapterId)
           .eq("verse_number", verseNumber);
 
@@ -378,8 +389,8 @@ export default function VedabaseImportV2() {
           await supabase
             .from("chapters")
             .update({
-              title_ua: chapterTitleUa,
               title_en: chapterTitleEn,
+              ...(uaAllowed ? { title_ua: chapterTitleUa } : {}),
             })
             .eq("id", chapterId);
         } else {
@@ -414,8 +425,8 @@ export default function VedabaseImportV2() {
           await supabase
             .from("chapters")
             .update({
-              title_ua: chapterTitleUa,
               title_en: chapterTitleEn,
+              ...(uaAllowed ? { title_ua: chapterTitleUa } : {}),
             })
             .eq("id", chapterId);
         } else {
