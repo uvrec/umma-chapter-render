@@ -146,6 +146,29 @@ export default function VedabaseImportV2() {
       }
     }
 
+    // Fallback: шукаємо типові класи секцій, якщо заголовки не знайдені
+    const names = sectionNames.map((n) => normalizeText(n)).join(" ");
+    let selector: string | null = null;
+    if (/synonym|word\s*for\s*word|синонім|посл.?вн/i.test(names)) {
+      selector = ".word-for-word, .synonyms, [class*='synonym']";
+    } else if (/translation|переклад/i.test(names)) {
+      selector = ".translation, [class*='translation']";
+    } else if (/purport|commentary|пояснен|коментар/i.test(names)) {
+      selector = ".purport, .commentary, [class*='purport'], [class*='commentary']";
+    } else if (/devanagari|sanskrit|bengali|деванагарі|санскрит|бенгалі/i.test(names)) {
+      selector = "[lang='sa'], .devanagari, .sanskrit-text, .bengali";
+    }
+
+    if (selector) {
+      const text = stripLabels(
+        Array.from(doc.querySelectorAll(selector))
+          .map((el) => el.textContent?.trim() || "")
+          .filter(Boolean)
+          .join("\n")
+      );
+      if (text) return text;
+    }
+
     return "";
   };
 
@@ -343,35 +366,18 @@ export default function VedabaseImportV2() {
         insertPayload.commentary_ua = commentary_ua;
       }
 
-      // Зберігаємо
-      const { error: insertError } = await supabase.from("verses").insert(insertPayload);
+      // Зберігаємо (upsert по унікальному ключу chapter_id+verse_number)
+      const { error: upsertError } = await supabase
+        .from("verses")
+        .upsert(
+          {
+            ...insertPayload,
+          },
+          { onConflict: "chapter_id,verse_number", ignoreDuplicates: false }
+        );
 
-      if (insertError) {
-        const updatePayload: any = {
-          sanskrit,
-          transliteration,
-          display_blocks: displayBlocks,
-        };
-        if (allowEN) {
-          updatePayload.synonyms_en = synonyms_en;
-          updatePayload.translation_en = translation_en;
-          updatePayload.commentary_en = commentary_en;
-        }
-        if (allowUA) {
-          updatePayload.synonyms_ua = synonyms_ua;
-          updatePayload.translation_ua = translation_ua;
-          updatePayload.commentary_ua = commentary_ua;
-        }
-
-        const { error: updateError } = await supabase
-          .from("verses")
-          .update(updatePayload)
-          .eq("chapter_id", chapterId)
-          .eq("verse_number", verseNumber);
-
-        if (updateError) {
-          return { success: false, isGrouped: false, error: updateError.message };
-        }
+      if (upsertError) {
+        return { success: false, isGrouped: false, error: upsertError.message };
       }
 
       return { success: true, isGrouped: false };
