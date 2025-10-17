@@ -118,12 +118,54 @@ export default function VedabaseImportV2() {
       // Перевірка чи це згрупований вірш
       const isGrouped = verseNumber.includes("-");
 
-      // Витягуємо блоки
-      const sanskrit = doc.querySelector(".verse-text")?.textContent?.trim() || "";
-      const transliteration = doc.querySelector(".transliteration")?.textContent?.trim() || "";
-      const synonyms = doc.querySelector(".synonyms")?.textContent?.trim() || "";
-      const translation = doc.querySelector(".translation")?.textContent?.trim() || "";
-      const purport = doc.querySelector(".purport")?.innerHTML?.trim() || "";
+      // Витягуємо блоки з множинними fallback селекторами
+      const extractContent = (selectors: string[], asHtml = false): string => {
+        for (const selector of selectors) {
+          const el = doc.querySelector(selector);
+          if (el) {
+            const content = asHtml ? el.innerHTML : el.textContent;
+            if (content && content.trim().length > 0) {
+              return content.trim();
+            }
+          }
+        }
+        return "";
+      };
+
+      const sanskrit = extractContent([
+        ".verse-text",
+        ".r.verse-text", 
+        ".devanagari",
+        ".sanskrit-text",
+        "[class*='verse-text']",
+        "[class*='devanagari']"
+      ]);
+      
+      const transliteration = extractContent([
+        ".transliteration",
+        ".r.transliteration",
+        "[class*='transliteration']"
+      ]);
+      
+      const synonyms = extractContent([
+        ".synonyms",
+        ".r.synonyms",
+        "[class*='synonyms']",
+        "[class*='word-meanings']"
+      ]);
+      
+      const translation = extractContent([
+        ".translation",
+        ".r.translation",
+        "[class*='translation']"
+      ]);
+      
+      const purport = extractContent([
+        ".purport",
+        ".r.purport",
+        "[class*='purport']",
+        "[class*='commentary']"
+      ], true);
 
       if (isGrouped) {
         console.log(`⚠️ Вірш ${verseNumber} згрупований - пропускаємо для ручного введення`);
