@@ -18,6 +18,7 @@ interface GitabaseVerse {
 
 /**
  * Витягує всі вірші з HTML сторінки Vedabase
+ * FIXED: Працює з side-by-side view та звичайним виглядом
  */
 function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
   console.log("[webImporter] Parsing Vedabase HTML, length:", html.length);
@@ -26,133 +27,78 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 
   const verses = new Map<string, VedabaseVerse>();
 
-  // МЕТОД 1: Шукаємо через data-id="text-X" (новий Vedabase)
-  const textBlocks = doc.querySelectorAll('[data-id^="text-"]');
+  // Парсинг через текстові маркери (найнадійніший)
+  const bodyText = doc.body.textContent || "";
 
-  if (textBlocks.length > 0) {
-    console.log(`[webImporter] Found ${textBlocks.length} verse blocks via data-id`);
+  // Шукаємо "Text 1", "Text 2" і т.д.
+  const textMarkers = Array.from(bodyText.matchAll(/Text\s+(\d+)/gi));
 
-    textBlocks.forEach((block) => {
-      const dataId = block.getAttribute("data-id");
-      const verseNum = dataId?.match(/text-(\d+)/)?.[1] || "";
+  console.log(`[webImporter] Found ${textMarkers.length} "Text X" markers`);
 
-      if (!verseNum) return;
+  for (let i = 0; i < textMarkers.length; i++) {
+    const match = textMarkers[i];
+    const verseNum = match[1];
+    const startIdx = match.index! + match[0].length;
+    const endIdx = i < textMarkers.length - 1 ? textMarkers[i + 1].index! : bodyText.length;
+    const verseContent = bodyText.substring(startIdx, endIdx);
 
-      // Шукаємо різні частини вірша в межах блоку
-      const bengaliEl = block.querySelector('[lang="sa"], .devanagari, .sanskrit-text, .bengali');
-      const bengali = bengaliEl?.textContent?.trim() || "";
+    // Розбираємо контент вірша
+    let bengali = "";
+    let transliteration = "";
+    let synonyms = "";
+    let translation = "";
+    let commentary = "";
 
-      const translitEl = block.querySelector('.verse-text, .transliteration, [class*="translit"]');
-      const transliteration = translitEl?.textContent?.trim() || "";
+    // Шукаємо бенгалі/санскрит (перший рядок з девангарі)
+    const bengaliMatch = verseContent.match(/[\u0900-\u097F\u0980-\u09FF][^\n]*/);
+    if (bengaliMatch) {
+      bengali = bengaliMatch[0].trim();
+    }
 
-      const synonymsEl = block.querySelector(".word-for-word, .synonyms");
-      const synonyms = synonymsEl?.textContent?.trim() || "";
+    // Шукаємо транслітерацію (після бенгалі, має діакритику)
+    const translitMatch = verseContent.match(/[a-z][āīūṛṝḷḹēōṁṃḥṅñṭḍṇśṣ][^\n]*/i);
+    if (translitMatch) {
+      transliteration = translitMatch[0].trim();
+    }
 
-      const translationEl = block.querySelector(".translation");
-      const translation = translationEl?.textContent?.trim() || "";
+    // Шукаємо SYNONYMS
+    const synonymsMatch = verseContent.match(/SYNONYMS\s+([\s\S]*?)(?=TRANSLATION|PURPORT|Text\s+\d+|$)/i);
+    if (synonymsMatch) {
+      synonyms = synonymsMatch[1].trim().replace(/\s+/g, " ");
+    }
 
-      const commentaryEl = block.querySelector(".purport, .commentary");
-      const commentary = commentaryEl?.textContent?.trim() || "";
+    // Шукаємо TRANSLATION
+    const translationMatch = verseContent.match(/TRANSLATION\s+([\s\S]*?)(?=PURPORT|Text\s+\d+|$)/i);
+    if (translationMatch) {
+      translation = translationMatch[1].trim().replace(/\s+/g, " ");
+    }
 
-      if (bengali || transliteration || translation) {
-        verses.set(verseNum, {
-          verseNumber: verseNum,
-          bengali,
-          transliteration,
-          synonyms,
-          translation,
-          commentary,
-        });
-        console.log(`[webImporter] Vedabase verse ${verseNum}:`, {
-          hasBengali: !!bengali,
-          hasTranslit: !!transliteration,
-          hasTranslation: !!translation,
-        });
-      }
-    });
-  }
+    // Шукаємо PURPORT
+    const purportMatch = verseContent.match(/PURPORT\s+([\s\S]*?)(?=Text\s+\d+|$)/i);
+    if (purportMatch) {
+      commentary = purportMatch[1].trim();
+    }
 
-  // МЕТОД 2: Парсимо через текстові маркери "TEXT X"
-  if (verses.size === 0) {
-    console.log("[webImporter] No data-id blocks, trying text-based parsing");
-    const bodyText = doc.body.textContent || "";
-
-    // Розбиваємо на секції по TEXT X
-    const sections = bodyText.split(/TEXT\s+(\d+)/i);
-
-    for (let i = 1; i < sections.length; i += 2) {
-      const verseNum = sections[i];
-      const content = sections[i + 1] || "";
-
-      if (!content.trim()) continue;
-
-      // Витягуємо різні компоненти
-      const lines = content
-        .split("\n")
-        .map((l) => l.trim())
-        .filter(Boolean);
-
-      let bengali = "";
-      let transliteration = "";
-      let synonyms = "";
-      let translation = "";
-      let commentary = "";
-
-      let currentSection = "";
-
-      for (const line of lines) {
-        // Визначаємо тип контенту
-        if (/SYNONYMS?/i.test(line)) {
-          currentSection = "synonyms";
-          continue;
-        } else if (/TRANSLATION/i.test(line)) {
-          currentSection = "translation";
-          continue;
-        } else if (/PURPORT|COMMENTARY/i.test(line)) {
-          currentSection = "commentary";
-          continue;
-        }
-
-        // Бенгалі/санскрит (містить девангарі символи)
-        if (!bengali && /[\u0900-\u097F\u0980-\u09FF]/.test(line)) {
-          bengali = line;
-          continue;
-        }
-
-        // Транслітерація (латиниця з діакритикою)
-        if (!transliteration && /[āīūṛṝḷḹēōṁṃḥṅñṭḍṇśṣ]/.test(line) && line.length > 10) {
-          transliteration = line;
-          continue;
-        }
-
-        // Додаємо до поточної секції
-        switch (currentSection) {
-          case "synonyms":
-            synonyms += (synonyms ? "\n" : "") + line;
-            break;
-          case "translation":
-            translation += (translation ? " " : "") + line;
-            break;
-          case "commentary":
-            commentary += (commentary ? "\n\n" : "") + line;
-            break;
-        }
-      }
-
+    // Якщо знайшли хоч щось - зберігаємо
+    if (bengali || transliteration || translation) {
       verses.set(verseNum, {
         verseNumber: verseNum,
-        bengali: bengali.trim(),
-        transliteration: transliteration.trim(),
-        synonyms: synonyms.trim(),
-        translation: translation.trim(),
-        commentary: commentary.trim(),
+        bengali,
+        transliteration,
+        synonyms,
+        translation,
+        commentary,
       });
 
-      console.log(`[webImporter] Parsed Vedabase verse ${verseNum}`);
+      console.log(
+        `[webImporter] ✓ Verse ${verseNum}: bengali=${!!bengali}, translit=${!!transliteration}, trans=${!!translation}`,
+      );
+    } else {
+      console.warn(`[webImporter] ✗ Verse ${verseNum}: NO CONTENT FOUND`);
     }
   }
 
-  console.log(`[webImporter] Vedabase parsing complete: ${verses.size} verses found`);
+  console.log(`[webImporter] Vedabase complete: ${verses.size} verses`);
   return verses;
 }
 
@@ -166,90 +112,53 @@ export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
 
   const verses = new Map<string, GitabaseVerse>();
 
-  // МЕТОД 1: Шукаємо через структуру DOM
-  const verseElements = doc.querySelectorAll('[class*="verse"], [data-verse], .text-block');
+  const bodyText = doc.body.textContent || "";
 
-  if (verseElements.length > 0) {
-    console.log(`[webImporter] Found ${verseElements.length} verse elements in Gitabase`);
+  // Gitabase: "[Текст 1]" або "Текст 1:"
+  const pattern = /\[?Текст\*?\s*(\d+)\]?[:\s]*([\s\S]*?)(?=\[?Текст\*?\s*\d+|$)/gi;
+  const matches = Array.from(bodyText.matchAll(pattern));
 
-    verseElements.forEach((el, idx) => {
-      const verseNum = el.getAttribute("data-verse") || (idx + 1).toString();
+  console.log(`[webImporter] Found ${matches.length} Gitabase verses`);
 
-      const translationEl = el.querySelector('.translation, [class*="translation"]');
-      const translation = translationEl?.textContent?.trim() || "";
+  matches.forEach((match) => {
+    const verseNum = match[1];
+    let content = match[2].trim().replace(/\s+/g, " ");
 
-      const commentaryEl = el.querySelector('.commentary, .purport, [class*="commentary"]');
-      const commentary = commentaryEl?.textContent?.trim() || "";
+    let translation = "";
+    let commentary = "";
 
-      if (translation || commentary) {
-        verses.set(verseNum, {
-          verseNumber: verseNum,
-          translation,
-          commentary,
-        });
-      }
-    });
-  }
+    // Переклад в лапках або перше речення
+    const translMatch = content.match(/^[«"](.+?)[»"]/) || content.match(/^([^.]+?\.)/);
 
-  // МЕТОД 2: Парсимо через текстові маркери
-  if (verses.size === 0) {
-    console.log("[webImporter] No verse elements, trying text pattern matching");
-    const bodyText = doc.body.textContent || "";
-
-    // Gitabase часто має "[Текст X]" або "Текст X"
-    const pattern = /\[?Текст\*?\s*(\d+)\]?[:\s]*([\s\S]*?)(?=\[?Текст\*?\s*\d+|$)/gi;
-    const matches = Array.from(bodyText.matchAll(pattern));
-
-    console.log(`[webImporter] Found ${matches.length} text matches in Gitabase`);
-
-    matches.forEach((match) => {
-      const verseNum = match[1];
-      let content = match[2].trim();
-
-      // Видаляємо зайві пробіли та переноси
-      content = content.replace(/\s+/g, " ").trim();
-
-      let translation = "";
-      let commentary = "";
-
-      // Переклад зазвичай в лапках або виділений
-      const translMatch =
-        content.match(/^[«"](.+?)[»"]/) || content.match(/^([^.]+?\.)/) || content.match(/^(.{20,150}?\.)/);
-
-      if (translMatch) {
-        translation = translMatch[1].replace(/[«»"]/g, "").trim();
-        // Коментар - все що після перекладу
-        commentary = content.substring(translMatch[0].length).trim();
+    if (translMatch) {
+      translation = translMatch[1].replace(/[«»"]/g, "").trim();
+      commentary = content.substring(translMatch[0].length).trim();
+    } else {
+      // Якщо нема чіткого перекладу - перше речення
+      const firstSentence = content.match(/^.+?\./);
+      if (firstSentence) {
+        translation = firstSentence[0];
+        commentary = content.substring(firstSentence[0].length).trim();
       } else {
-        // Якщо не знайшли чіткий переклад, перше речення - переклад
-        const firstSentence = content.match(/^.+?\./);
-        if (firstSentence) {
-          translation = firstSentence[0];
-          commentary = content.substring(firstSentence[0].length).trim();
-        } else {
-          translation = content;
-        }
+        translation = content;
       }
+    }
 
-      verses.set(verseNum, {
-        verseNumber: verseNum,
-        translation: translation.trim(),
-        commentary: commentary.trim(),
-      });
-
-      console.log(`[webImporter] Gitabase verse ${verseNum}:`, {
-        translationLength: translation.length,
-        commentaryLength: commentary.length,
-      });
+    verses.set(verseNum, {
+      verseNumber: verseNum,
+      translation: translation.trim(),
+      commentary: commentary.trim(),
     });
-  }
 
-  console.log(`[webImporter] Gitabase parsing complete: ${verses.size} verses found`);
+    console.log(`[webImporter] ✓ Gitabase verse ${verseNum}`);
+  });
+
+  console.log(`[webImporter] Gitabase complete: ${verses.size} verses`);
   return verses;
 }
 
 /**
- * Об'єднує дані з обох джерел в один ParsedVerse
+ * Об'єднує дані з обох джерел
  */
 function mergeVerseData(
   vedabaseVerse: VedabaseVerse | undefined,
@@ -261,7 +170,7 @@ function mergeVerseData(
     sanskrit: vedabaseVerse?.bengali || "",
     transliteration: vedabaseVerse?.transliteration || "",
     synonyms_en: vedabaseVerse?.synonyms || "",
-    synonyms_ua: "", // Gitabase не має пословного перекладу
+    synonyms_ua: "",
     translation_en: vedabaseVerse?.translation || "",
     translation_ua: gitabaseVerse?.translation || "",
     commentary_en: vedabaseVerse?.commentary || "",
@@ -270,7 +179,7 @@ function mergeVerseData(
 }
 
 /**
- * Парсить повну главу з HTML контенту обох сайтів
+ * Парсить повну главу з HTML контенту
  */
 export async function parseChapterFromWeb(
   vedabaseHTML: string,
@@ -279,45 +188,32 @@ export async function parseChapterFromWeb(
   chapterTitleUa: string,
   chapterTitleEn: string,
 ): Promise<ParsedChapter> {
-  console.log("[webImporter] ========== Starting chapter parsing ==========");
-  console.log("[webImporter] Chapter number:", chapterNumber);
-  console.log("[webImporter] Vedabase HTML length:", vedabaseHTML.length);
-  console.log("[webImporter] Gitabase HTML length:", gitabaseHTML.length);
+  console.log("[webImporter] ========== Parsing chapter ==========");
+  console.log("[webImporter] Chapter:", chapterNumber);
 
-  // Парсимо обидва джерела
   const vedabaseVerses = parseVedabaseHTML(vedabaseHTML);
   const gitabaseVerses = parseGitabaseHTML(gitabaseHTML);
 
-  console.log("[webImporter] Vedabase verses found:", vedabaseVerses.size);
-  console.log("[webImporter] Gitabase verses found:", gitabaseVerses.size);
-
-  // Об'єднуємо всі унікальні номери віршів
+  // Всі унікальні номери
   const allVerseNumbers = new Set<string>();
   vedabaseVerses.forEach((_, num) => allVerseNumbers.add(num));
   gitabaseVerses.forEach((_, num) => allVerseNumbers.add(num));
 
-  // Сортуємо номери віршів
-  const sortedVerseNumbers = Array.from(allVerseNumbers).sort((a, b) => {
-    return parseInt(a) - parseInt(b);
-  });
+  const sortedVerseNumbers = Array.from(allVerseNumbers).sort((a, b) => parseInt(a) - parseInt(b));
 
-  console.log("[webImporter] Total unique verse numbers:", sortedVerseNumbers.length);
-  console.log("[webImporter] Verse numbers:", sortedVerseNumbers.join(", "));
+  console.log("[webImporter] Total verses:", sortedVerseNumbers.length);
 
   if (sortedVerseNumbers.length === 0) {
-    throw new Error("Не знайдено жодного вірша. Перевірте URL або структуру сторінок.");
+    throw new Error("Не знайдено жодного вірша. Перевірте URL.");
   }
 
-  // Створюємо ParsedVerse для кожного номера
   const verses: ParsedVerse[] = sortedVerseNumbers.map((verseNum) => {
     const vedabaseVerse = vedabaseVerses.get(verseNum);
     const gitabaseVerse = gitabaseVerses.get(verseNum);
-
     return mergeVerseData(vedabaseVerse, gitabaseVerse, verseNum);
   });
 
-  console.log("[webImporter] ========== Parsing complete ==========");
-  console.log("[webImporter] Total verses created:", verses.length);
+  console.log("[webImporter] ========== Complete ==========");
 
   return {
     chapter_number: chapterNumber,
