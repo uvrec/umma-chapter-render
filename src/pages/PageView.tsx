@@ -302,7 +302,7 @@ export const PageView = () => {
       
       <Footer />
 
-      {isAdmin && !isMobile && (
+      {isAdmin && (
         <div className="fixed bottom-8 right-8 flex gap-2 z-50">
           {!isEditMode ? (
             <Button

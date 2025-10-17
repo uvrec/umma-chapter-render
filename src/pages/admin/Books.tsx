@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,8 @@ const Books = () => {
     }
   }, [user, isAdmin, navigate]);
 
+  const queryClient = useQueryClient();
+
   const { data: books, isLoading } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
@@ -27,6 +29,17 @@ const Books = () => {
     },
     enabled: !!user && isAdmin,
   });
+
+  const togglePublish = async (id: string, is_published: boolean) => {
+    const { error } = await supabase
+      .from("books")
+      .update({ is_published: !is_published })
+      .eq("id", id);
+
+    if (!error) {
+      await queryClient.invalidateQueries({ queryKey: ["admin-books"] });
+    }
+  };
 
   if (!user || !isAdmin) return null;
 
@@ -71,7 +84,10 @@ const Books = () => {
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">Slug: {book.slug}</p>
+                  <p className="text-sm text-muted-foreground mb-2">Slug: {book.slug}</p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Статус: {book.is_published ? "опубліковано" : "приховано"}
+                  </p>
                   <div className="flex gap-2 flex-wrap">
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
@@ -85,6 +101,13 @@ const Books = () => {
                         <Link to={`/admin/chapters/${book.id}`}>Глави</Link>
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant={book.is_published ? "destructive" : "secondary"}
+                      onClick={() => togglePublish(book.id, book.is_published)}
+                    >
+                      {book.is_published ? "Приховати" : "Показати"}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

@@ -73,12 +73,6 @@ export const Header = () => {
               </Link>
             </Button>
 
-            <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/tools/transliteration" aria-label="Транслітерація">
-                <Type className="mr-2 h-4 w-4" />
-                Транслітерація
-              </Link>
-            </Button>
           </nav>
 
           {/* Desktop Controls */}
@@ -219,14 +213,6 @@ export const Header = () => {
                   <span>Блог</span>
                 </Link>
 
-                <Link
-                  to="/tools/transliteration"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
-                  <Type className="h-5 w-5" />
-                  <span>Транслітерація</span>
-                </Link>
 
                 <Link
                   to="/contact"
