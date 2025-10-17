@@ -199,10 +199,38 @@ export default function VedabaseImportV2() {
         .eq("vedabase_slug", selectedBook)
         .limit(1);
 
-      const dbBook = dbBooks?.[0] ?? null;
+      let dbBook = dbBooks?.[0] ?? null;
 
       if (dbBookError) {
         console.warn("Помилка пошуку книги за vedabase_slug:", dbBookError.message);
+      }
+
+      // Якщо книга не існує, створюємо її автоматично
+      if (!dbBook) {
+        console.log(`📚 Книга з vedabase_slug="${selectedBook}" не знайдена. Створюємо автоматично...`);
+        
+        const ourSlug = getOurSlug(bookConfig) || selectedBook;
+        const bookTitle = bookConfig.name_ua || bookConfig.name_en || selectedBook.toUpperCase();
+        
+        const { data: newBook, error: createBookError } = await supabase
+          .from("books")
+          .insert({
+            slug: ourSlug,
+            vedabase_slug: selectedBook,
+            title_ua: bookConfig.name_ua || bookTitle,
+            title_en: bookConfig.name_en || bookTitle,
+            has_cantos: bookConfig.has_cantos || false,
+          })
+          .select("id, slug, has_cantos")
+          .single();
+        
+        if (createBookError) {
+          toast.error(`Не вдалося створити книгу: ${createBookError.message}`);
+          return;
+        }
+        
+        dbBook = newBook;
+        toast.success(`Книга "${bookTitle}" створена успішно!`);
       }
 
       // Якщо книга існує і має Пісні/ліли, ми зможемо точніше знайти потрібну главу
@@ -218,28 +246,43 @@ export default function VedabaseImportV2() {
       const chapterNumberInt = parseInt(chapterNumber);
 
       let cantoId: string | null = null;
-      if (bookConfig.has_cantos) {
-        if (!dbBook) {
-          console.warn("Книга з vedabase_slug не знайдена в БД, пошук Пісень/ліл неможливий.");
-        } else {
-          const cantoNumberInt = parseInt(cantoNumber);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const { data: cantoRows, error: cantoErr } = await (supabase as any)
+      if (bookConfig.has_cantos && dbBook) {
+        const cantoNumberInt = parseInt(cantoNumber);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data: cantoRows, error: cantoErr } = await (supabase as any)
+          .from("cantos")
+          .select("id, canto_number, book_id")
+          .eq("book_id", dbBook.id)
+          .eq("canto_number", cantoNumberInt)
+          .limit(1);
+        
+        let canto = cantoRows?.[0] ?? null;
+        
+        // Якщо Пісня не існує, створюємо її автоматично
+        if (!canto) {
+          console.log(`🎵 Пісня/Ліла ${cantoNumberInt} не знайдена. Створюємо автоматично...`);
+          
+          const { data: newCanto, error: createCantoError } = await supabase
             .from("cantos")
+            .insert({
+              book_id: dbBook.id,
+              canto_number: cantoNumberInt,
+              title_ua: `Пісня ${cantoNumberInt}`,
+              title_en: `Canto ${cantoNumberInt}`,
+            })
             .select("id, canto_number, book_id")
-            .eq("book_id", dbBook.id)
-            .eq("canto_number", cantoNumberInt)
-            .limit(1);
-          if (cantoErr) {
-            console.warn("Помилка пошуку Пісні/ліли:", cantoErr.message);
-          }
-          const canto = cantoRows?.[0] ?? null;
-          if (!canto) {
-            toast.error("Пісня/Ліла не знайдена в БД. Спочатку створіть її.");
+            .single();
+          
+          if (createCantoError) {
+            toast.error(`Не вдалося створити Пісню: ${createCantoError.message}`);
             return;
           }
-          cantoId = canto.id;
+          
+          canto = newCanto;
+          toast.success(`Пісня ${cantoNumberInt} створена успішно!`);
         }
+        
+        cantoId = canto.id;
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -258,13 +301,42 @@ export default function VedabaseImportV2() {
 
       const { data: chapterRows, error: chapterErr } = await chapterQuery;
 
-      const chapter = chapterRows?.[0] ?? null;
-      if (chapterErr) {
-        console.warn("Не знайдено главу за поточними критеріями:", chapterErr.message);
+      let chapter = chapterRows?.[0] ?? null;
+      
+      // Якщо глава не існує, створюємо її автоматично
+      if (!chapter && dbBook) {
+        console.log(`📖 Глава ${chapterNumberInt} не знайдена. Створюємо автоматично...`);
+        
+        const chapterPayload: any = {
+          chapter_number: chapterNumberInt,
+          chapter_type: "verses",
+          title_ua: `Глава ${chapterNumberInt}`,
+          title_en: `Chapter ${chapterNumberInt}`,
+        };
+        
+        if (cantoId) {
+          chapterPayload.canto_id = cantoId;
+        } else {
+          chapterPayload.book_id = dbBook.id;
+        }
+        
+        const { data: newChapter, error: createChapterError } = await supabase
+          .from("chapters")
+          .insert(chapterPayload)
+          .select("id, chapter_number, book_id, canto_id")
+          .single();
+        
+        if (createChapterError) {
+          toast.error(`Не вдалося створити главу: ${createChapterError.message}`);
+          return;
+        }
+        
+        chapter = newChapter;
+        toast.success(`Глава ${chapterNumberInt} створена успішно!`);
       }
-
+      
       if (!chapter) {
-        toast.error("Глава не знайдена в базі даних. Створіть її спочатку.");
+        toast.error("Не вдалося знайти або створити главу.");
         return;
       }
 

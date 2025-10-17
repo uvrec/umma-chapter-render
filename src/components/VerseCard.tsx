@@ -191,9 +191,11 @@ export const VerseCard = ({
         {/* Верхня панель: номер/книга + кнопка редагування */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-              <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-            </div>
+            {showNumberBadge && (
+              <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+                <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+              </div>
+            )}
 
             {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
           </div>

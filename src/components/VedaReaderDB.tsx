@@ -292,10 +292,22 @@ export const VedaReaderDB = () => {
   const chapterTitle = language === "ua" ? chapter?.title_ua : chapter?.title_en;
 
   const currentChapterIndex = useMemo(() => {
-    const idx = allChapters.findIndex((ch) => ch.id === chapter?.id);
+    if (!chapter?.id) {
+      console.log('🔧 [VedaReaderDB] No chapter.id, returning 0');
+      return 0;
+    }
+    
+    let idx = allChapters.findIndex((ch) => ch.id === chapter.id);
+    
+    // Fallback: якщо не знайшли за id, шукаємо за chapter_number
+    if (idx === -1 && chapter.chapter_number) {
+      idx = allChapters.findIndex((ch) => ch.chapter_number === chapter.chapter_number);
+      console.log('🔧 [VedaReaderDB] Found by chapter_number:', idx);
+    }
+    
     console.log('🔧 [VedaReaderDB] currentChapterIndex:', idx, 'chapter?.id:', chapter?.id, 'allChapters:', allChapters.length);
     return idx >= 0 ? idx : 0;
-  }, [allChapters, chapter?.id]);
+  }, [allChapters, chapter?.id, chapter?.chapter_number]);
 
   // Мутація з мовно-залежним мапінгом полів
   const updateVerseMutation = useMutation({
@@ -499,7 +511,7 @@ export const VedaReaderDB = () => {
           }
         />
 
-        <div className="mt-4 mb-8">
+        <div className="mt-4 mb-8 text-center">
           <h1 className="text-3xl font-bold">{bookTitle}</h1>
         </div>
 
@@ -623,6 +635,7 @@ export const VedaReaderDB = () => {
                     commentary={language === "ua" ? verse.commentary_ua || "" : verse.commentary_en || ""}
                     audioUrl={verse.audio_url || ""}
                     textDisplaySettings={contSettings}
+                    showNumberBadge={false}
                     isAdmin={false}
                     onVerseUpdate={() => {}}
                   />
@@ -674,6 +687,7 @@ export const VedaReaderDB = () => {
                           commentary={currentVerse.commentary_ua || ""}
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
+                          showNumberBadge={false}
                           isAdmin={isAdmin}
                           onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                         />
@@ -688,6 +702,7 @@ export const VedaReaderDB = () => {
                           commentary={currentVerse.commentary_en || ""}
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
+                          showNumberBadge={false}
                           isAdmin={false}
                           onVerseUpdate={() => {}}
                         />
@@ -708,6 +723,7 @@ export const VedaReaderDB = () => {
                         }
                         audioUrl={currentVerse.audio_url || ""}
                         textDisplaySettings={textDisplaySettings}
+                        showNumberBadge={false}
                         isAdmin={isAdmin}
                         onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                       />
