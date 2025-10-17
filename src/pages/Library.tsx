@@ -58,7 +58,7 @@ export const Library = () => {
       const { data, error } = await q;
       if (error) throw error;
       return (data || []) as DbBook[];
-    }
+    },
     staleTime: 60_000,
     enabled: !authLoading,
   });
