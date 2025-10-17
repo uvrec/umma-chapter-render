@@ -10,29 +10,24 @@ import { toast } from "sonner";
 import { Loader2, Download, AlertCircle, ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
-import { safeHtml } from "@/utils/import/importer";
 import { Badge } from "@/components/ui/badge";
+import { detectScript } from "@/utils/synonyms";
 
 /**
- * Вдосконалений інструмент імпорту з Vedabase.io та Gitabase.com
- *
- * Етапи:
- * 1. Імпорт базової структури з Vedabase (англійська)
- * 2. Обробка згрупованих віршів
- * 3. Додавання українських перекладів з Gitabase
+ * Вдосконалений інструмент імпорту з Vedabase.io (side-by-side pages)
+ * Автоматично витягує EN+UA контент, назви глав, та коректно обробляє Bengali/Devanagari
  */
 export default function VedabaseImportV2() {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState<string>("");
-  const [selectedBook, setSelectedBook] = useState("cc"); // За замовчуванням Chaitanya-charitamrita
+  const [selectedBook, setSelectedBook] = useState("bg");
   const [cantoNumber, setCantoNumber] = useState("1");
   const [chapterNumber, setChapterNumber] = useState("1");
   const [manualMode, setManualMode] = useState(false);
   const [manualFrom, setManualFrom] = useState("1");
   const [manualTo, setManualTo] = useState("10");
 
-  // Проксі-фетч для обходу CORS (Supabase Edge Function "fetch-proxy")
   const fetchHtmlViaProxy = async (url: string): Promise<string> => {
     const { data, error } = await supabase.functions.invoke("fetch-proxy", { body: { url } });
     if (error) throw new Error(error.message || "Proxy error");
@@ -51,34 +46,95 @@ export default function VedabaseImportV2() {
 
   const bookConfig = useMemo(() => getBookConfig(selectedBook)!, [selectedBook]);
   const requiresCanto = !!bookConfig?.has_cantos;
-  // Потрібен номер глави лише якщо у шаблоні є {chapter} або {lila}
   const requiresChapter = useMemo(
     () => !!bookConfig?.url_pattern?.includes("{chapter}") || !!bookConfig?.url_pattern?.includes("{lila}"),
     [bookConfig],
   );
 
   /**
-   * Крок 1: Сканування сторінки для отримання списку всіх віршів
-   * Підтримує як сторінки глави, так і індексні сторінки книги (ISO/BS/NOI)
+   * Нормалізація тексту для порівняння (видалення діакритики та зайвих пробілів)
+   */
+  const normalizeText = (text: string): string => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // діакритика
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  /**
+   * Видалення ярликів типу "Devanagari:", "Purport", тощо
+   */
+  const stripLabels = (text: string): string => {
+    if (!text) return "";
+    const normalized = normalizeText(text);
+    const labels = [
+      "devanagari",
+      "sanskrit",
+      "bengali",
+      "translation",
+      "synonyms",
+      "purport",
+      "commentary",
+      "word for word",
+    ];
+
+    let result = text.trim();
+    // Видаляємо лейбл на початку рядка
+    for (const label of labels) {
+      const regex = new RegExp(`^\\s*${label}\\s*:?\\s*`, "i");
+      result = result.replace(regex, "");
+    }
+    // Видаляємо окремі слова "Purport" у тексті
+    result = result.replace(/\bPurport\b/gi, "").trim();
+    return result;
+  };
+
+  /**
+   * Локатор секції: знаходить заголовок секції та збирає весь контент після нього до наступного заголовка
+   */
+  const locateSection = (doc: Document, sectionName: string): string => {
+    const headings = Array.from(doc.querySelectorAll("h1, h2, h3, h4, .section-header, [class*='heading']"));
+    const normalizedName = normalizeText(sectionName);
+
+    for (let i = 0; i < headings.length; i++) {
+      const heading = headings[i];
+      const headingText = normalizeText(heading.textContent || "");
+
+      if (headingText.includes(normalizedName)) {
+        // Збираємо весь контент після цього заголовка до наступного заголовка
+        const contentParts: string[] = [];
+        let sibling = heading.nextElementSibling;
+
+        while (sibling && !headings.includes(sibling as HTMLElement)) {
+          const text = sibling.textContent?.trim();
+          if (text) contentParts.push(text);
+          sibling = sibling.nextElementSibling;
+        }
+
+        return stripLabels(contentParts.join("\n"));
+      }
+    }
+
+    return "";
+  };
+
+  /**
+   * Сканування сторінки для отримання списку всіх віршів
    */
   const scanChapterVerses = async (baseUrl: string): Promise<string[]> => {
-    setCurrentStep("Сканування сторінки глави...");
-
+    setCurrentStep("Сканування сторінки...");
     try {
       const html = await fetchHtmlViaProxy(baseUrl);
-
-      // Парсимо HTML для знаходження всіх посилань на вірші
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
 
-      // Адаптивний пошук посилань: використовуємо абсолютний href, шукаємо кінцевий числовий сегмент
       const anchors = Array.from(doc.querySelectorAll<HTMLAnchorElement>("a[href]"));
       const verseLinks = anchors
         .map((a) => a.href || "")
         .map((href) => {
           try {
-            // Залишаємо лише лінки, що ведуть до поточної книги (на будь-якій мові сайту)
-            // приклади: https://vedabase.io/en/library/sb/1/1/2/ → 2 ; https://vedabase.io/en/library/bs/5/ → 5 ; relative теж нормалізовані у a.href
             const path = new URL(href).pathname;
             if (!path.includes(`/library/${bookConfig.slug}/`)) return null;
             const m = path.match(/\/(\d+(?:-\d+)?)\/?$/);
@@ -89,19 +145,17 @@ export default function VedabaseImportV2() {
         })
         .filter((v): v is string => !!v);
 
-      // Унікальні вірші в порядку появи
       const uniqueVerses = Array.from(new Set(verseLinks));
-
-      console.log(`Знайдено віршів на сторінці: ${uniqueVerses.length}`, uniqueVerses);
+      console.log(`Знайдено віршів: ${uniqueVerses.length}`, uniqueVerses);
       return uniqueVerses;
     } catch (error) {
-      console.error("Помилка сканування сторінки глави:", error);
+      console.error("Помилка сканування:", error);
       return [];
     }
   };
 
   /**
-   * Крок 2: Імпорт одного вірша з Vedabase
+   * Імпорт одного вірша з side-by-side сторінки Vedabase
    */
   const importVerseFromVedabase = async (
     verseNumber: string,
@@ -111,115 +165,75 @@ export default function VedabaseImportV2() {
     try {
       setCurrentStep(`Імпорт вірша ${verseNumber}...`);
 
-      const html = await fetchHtmlViaProxy(verseUrl);
+      // Завантажуємо side-by-side версію (EN + UA)
+      const sideBySideUrl = verseUrl.replace(/\/$/, "") + "/side-by-side/uk/";
+      const html = await fetchHtmlViaProxy(sideBySideUrl);
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
 
-      // Перевірка чи це згрупований вірш
       const isGrouped = verseNumber.includes("-");
-
-      // Витягуємо блоки з множинними fallback селекторами
-      const extractContent = (selectors: string[], asHtml = false): string => {
-        for (const selector of selectors) {
-          const el = doc.querySelector(selector);
-          if (el) {
-            const content = asHtml ? el.innerHTML : el.textContent;
-            if (content && content.trim().length > 0) {
-              return content.trim();
-            }
-          }
-        }
-        return "";
-      };
-
-      // Допоміжна очистка ярликів типу "Devanagari", "Purport" тощо
-      const stripLabels = (s: string) =>
-        (s || "")
-          .replace(/^\s*(Devanagari|Sanskrit|Bengali|Санскрит|Бенгалі|Translation|TRANSLATION|Synonyms|SYNONYMS|Purport|COMMENTARY)\s*:*/i, "")
-          .replace(/\bPurport\b/gi, "")
-          .trim();
-
-      const sanskritRaw = extractContent([
-        ".verse-text",
-        ".r.verse-text",
-        ".devanagari",
-        ".sanskrit-text",
-        ".bengali",
-        ".bengali-text",
-        "[lang='bn']",
-        "[class*='verse-text']",
-        "[class*='devanagari']"
-      ]);
-
-      const transliterationRaw = extractContent([
-        ".transliteration",
-        ".r.transliteration",
-        "[class*='transliteration']"
-      ]);
-
-      const synonymsRaw = extractContent([
-        ".synonyms",
-        ".r.synonyms",
-        "[class*='synonyms']",
-        "[class*='word-meanings']"
-      ]);
-
-      const translationRaw = extractContent([
-        ".translation",
-        ".r.translation",
-        "[class*='translation']"
-      ]);
-
-      // Беремо текст замість HTML, щоб не тягнути заголовки Purport
-      const purportRaw = extractContent([
-        ".purport",
-        ".r.purport",
-        "[class*='purport']",
-        "[class*='commentary']"
-      ]);
-
-      const sanskrit = stripLabels(sanskritRaw);
-      const transliteration = stripLabels(transliterationRaw);
-      const synonyms = stripLabels(synonymsRaw);
-      const translation = stripLabels(translationRaw);
-      const purport = stripLabels(purportRaw);
-
       if (isGrouped) {
-        console.log(`⚠️ Вірш ${verseNumber} згрупований - пропускаємо для ручного введення`);
+        console.log(`⚠️ Вірш ${verseNumber} згрупований - пропускаємо`);
         return { success: true, isGrouped: true };
       }
 
-      // Формуємо display_blocks на базі наявності контенту
+      // Витягуємо санскрит/бенгалі
+      const sanskrit = locateSection(doc, "Devanagari") || locateSection(doc, "Bengali") || locateSection(doc, "Sanskrit") || "";
+
+      // Транслітерація
+      const transliteration = Array.from(doc.querySelectorAll(".transliteration, [class*='translit']"))
+        .map((el) => el.textContent?.trim())
+        .filter(Boolean)
+        .join("\n");
+
+      // Синоніми (word-for-word) - шукаємо в обох мовах
+      const synonyms_ua = locateSection(doc, "Пословний переклад") || locateSection(doc, "Синоніми") || "";
+      const synonyms_en = locateSection(doc, "Synonyms") || locateSection(doc, "Word for word") || "";
+
+      // Переклад - шукаємо в обох мовах
+      const translation_ua = locateSection(doc, "Переклад") || "";
+      const translation_en = locateSection(doc, "Translation") || "";
+
+      // Пояснення - шукаємо в обох мовах
+      const commentary_ua = locateSection(doc, "Пояснення") || locateSection(doc, "Коментар") || "";
+      const commentary_en = locateSection(doc, "Purport") || locateSection(doc, "Commentary") || "";
+
+      // Формуємо display_blocks
       const displayBlocks = {
-        sanskrit: !!sanskrit && sanskrit.trim().length > 0,
-        transliteration: !!transliteration && transliteration.trim().length > 0,
-        synonyms: !!synonyms && synonyms.trim().length > 0,
-        translation: !!translation && translation.trim().length > 0,
-        commentary: !!purport && purport.trim().length > 0,
+        sanskrit: !!sanskrit,
+        transliteration: !!transliteration,
+        synonyms: !!(synonyms_ua || synonyms_en),
+        translation: !!(translation_ua || translation_en),
+        commentary: !!(commentary_ua || commentary_en),
       };
 
-      // Зберігаємо в базу даних із display_blocks
+      // Зберігаємо
       const { error: insertError } = await supabase.from("verses").insert({
         chapter_id: chapterId,
         verse_number: verseNumber,
-        sanskrit: sanskrit,
-        transliteration: transliteration,
-        synonyms_en: synonyms,
-        translation_en: translation,
-        commentary_en: purport,
+        sanskrit,
+        transliteration,
+        synonyms_ua,
+        synonyms_en,
+        translation_ua,
+        translation_en,
+        commentary_ua,
+        commentary_en,
         display_blocks: displayBlocks,
       });
 
       if (insertError) {
-        // Якщо вірш вже існує, оновлюємо
         const { error: updateError } = await supabase
           .from("verses")
           .update({
-            sanskrit: sanskrit,
-            transliteration: transliteration,
-            synonyms_en: synonyms,
-            translation_en: translation,
-            commentary_en: purport,
+            sanskrit,
+            transliteration,
+            synonyms_ua,
+            synonyms_en,
+            translation_ua,
+            translation_en,
+            commentary_ua,
+            commentary_en,
             display_blocks: displayBlocks,
           })
           .eq("chapter_id", chapterId)
@@ -248,14 +262,12 @@ export default function VedabaseImportV2() {
     setStats({ total: 0, imported: 0, skipped: 0, grouped: [], errors: [] });
 
     try {
-      // Отримуємо конфігурацію обраної книги (vedabase slug)
       if (!bookConfig) {
         toast.error("Невідома книга");
         return;
       }
 
-      // Додатково перевіряємо наявність книги в БД за vedabase_slug
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // Знаходимо або створюємо книгу
       const { data: dbBooks, error: dbBookError } = await (supabase as any)
         .from("books")
         .select("id, slug, has_cantos")
@@ -264,17 +276,11 @@ export default function VedabaseImportV2() {
 
       let dbBook = dbBooks?.[0] ?? null;
 
-      if (dbBookError) {
-        console.warn("Помилка пошуку книги за vedabase_slug:", dbBookError.message);
-      }
-
-      // Якщо книга не існує, створюємо її автоматично
       if (!dbBook) {
-        console.log(`📚 Книга з vedabase_slug="${selectedBook}" не знайдена. Створюємо автоматично...`);
-        
+        console.log(`📚 Створюємо книгу з vedabase_slug="${selectedBook}"...`);
         const ourSlug = getOurSlug(bookConfig) || selectedBook;
         const bookTitle = bookConfig.name_ua || bookConfig.name_en || selectedBook.toUpperCase();
-        
+
         const { data: newBook, error: createBookError } = await supabase
           .from("books")
           .insert({
@@ -286,281 +292,203 @@ export default function VedabaseImportV2() {
           })
           .select("id, slug, has_cantos")
           .single();
-        
+
         if (createBookError) {
           toast.error(`Не вдалося створити книгу: ${createBookError.message}`);
           return;
         }
-        
+
         dbBook = newBook;
-        toast.success(`Книга "${bookTitle}" створена успішно!`);
+        toast.success(`Книга "${bookTitle}" створена!`);
       }
 
-      // Якщо книга існує і має Пісні/ліли, ми зможемо точніше знайти потрібну главу
-      // Формуємо базовий URL для глави
-      const chapterBaseUrl = buildVedabaseUrl(bookConfig, {
-        canto: bookConfig.has_cantos ? cantoNumber : undefined,
-        chapter: requiresChapter ? chapterNumber : undefined,
+      // Формуємо URL для side-by-side сторінки
+      const baseUrl = buildVedabaseUrl(bookConfig, {
+        canto: cantoNumber,
+        chapter: chapterNumber,
       });
 
-      console.log("Базовий URL:", chapterBaseUrl);
+      const chapterUrl = baseUrl.replace(/\/$/, "") + "/side-by-side/uk/";
 
-      // Отримуємо ID глави з бази даних з урахуванням книги (і Пісні/ліли якщо є)
-      const chapterNumberInt = parseInt(chapterNumber);
+      // Витягуємо назву глави з side-by-side сторінки
+      let chapterTitleUa = `Глава ${chapterNumber}`;
+      let chapterTitleEn = `Chapter ${chapterNumber}`;
 
-      let cantoId: string | null = null;
-      if (bookConfig.has_cantos && dbBook) {
-        const cantoNumberInt = parseInt(cantoNumber);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { data: cantoRows, error: cantoErr } = await (supabase as any)
+      try {
+        const chapterHtml = await fetchHtmlViaProxy(chapterUrl);
+        const chapterDoc = new DOMParser().parseFromString(chapterHtml, "text/html");
+        const h1 = chapterDoc.querySelector("h1");
+        if (h1) {
+          const fullTitle = h1.textContent?.trim() || "";
+          // Розділяємо на український та англійський (зазвичай розділені "/" або "-")
+          const parts = fullTitle.split(/[\/\-]/);
+          if (parts.length >= 2) {
+            chapterTitleUa = parts[0].trim();
+            chapterTitleEn = parts[1].trim();
+          } else {
+            chapterTitleUa = fullTitle;
+            chapterTitleEn = fullTitle;
+          }
+        }
+      } catch (error) {
+        console.warn("Не вдалося витягнути назву глави:", error);
+      }
+
+      // Знаходимо або створюємо главу
+      let chapterId: string;
+
+      if (requiresCanto) {
+        const { data: canto } = await supabase
           .from("cantos")
-          .select("id, canto_number, book_id")
+          .select("id")
           .eq("book_id", dbBook.id)
-          .eq("canto_number", cantoNumberInt)
-          .limit(1);
-        
-        let canto = cantoRows?.[0] ?? null;
-        
-        // Якщо Пісня не існує, створюємо її автоматично
-        if (!canto) {
-          console.log(`🎵 Пісня/Ліла ${cantoNumberInt} не знайдена. Створюємо автоматично...`);
-          
-          const { data: newCanto, error: createCantoError } = await supabase
+          .eq("canto_number", parseInt(cantoNumber))
+          .single();
+
+        let cantoId = canto?.id;
+
+        if (!cantoId) {
+          const { data: newCanto, error: cantoError } = await supabase
             .from("cantos")
             .insert({
               book_id: dbBook.id,
-              canto_number: cantoNumberInt,
-              title_ua: `Пісня ${cantoNumberInt}`,
-              title_en: `Canto ${cantoNumberInt}`,
+              canto_number: parseInt(cantoNumber),
+              title_ua: `Пісня ${cantoNumber}`,
+              title_en: `Canto ${cantoNumber}`,
             })
-            .select("id, canto_number, book_id")
+            .select("id")
             .single();
-          
-          if (createCantoError) {
-            toast.error(`Не вдалося створити Пісню: ${createCantoError.message}`);
+
+          if (cantoError) {
+            toast.error(`Помилка створення canto: ${cantoError.message}`);
             return;
           }
-          
-          canto = newCanto;
-          toast.success(`Пісня ${cantoNumberInt} створена успішно!`);
+          cantoId = newCanto.id;
         }
-        
-        cantoId = canto.id;
-      }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let chapterQuery: any = (supabase as any)
-        .from("chapters")
-        .select("id, chapter_number, book_id, canto_id")
-        .eq("chapter_number", chapterNumberInt)
-        .limit(1);
-
-      if (dbBook?.id) {
-        chapterQuery = chapterQuery.eq("book_id", dbBook.id);
-      }
-      if (bookConfig.has_cantos && cantoId) {
-        chapterQuery = chapterQuery.eq("canto_id", cantoId);
-      }
-
-      const { data: chapterRows, error: chapterErr } = await chapterQuery;
-
-      let chapter = chapterRows?.[0] ?? null;
-      
-      // Якщо глава не існує, створюємо її автоматично
-      if (!chapter && dbBook) {
-        console.log(`📖 Глава ${chapterNumberInt} не знайдена. Створюємо автоматично...`);
-        
-        const chapterPayload: any = {
-          chapter_number: chapterNumberInt,
-          chapter_type: bookConfig.structure_type === "text_only" ? "text" : "verses",
-          title_ua: `Глава ${chapterNumberInt}`,
-          title_en: `Chapter ${chapterNumberInt}`,
-        };
-        
-        if (cantoId) {
-          chapterPayload.canto_id = cantoId;
-        } else {
-          chapterPayload.book_id = dbBook.id;
-        }
-        
-        // Вставляємо без upsert, щоб уникнути помилки ON CONFLICT
-        const { data: newChapter, error: insertErr } = await supabase
+        const { data: existingChapter } = await supabase
           .from("chapters")
-          .insert(chapterPayload)
-          .select("id, chapter_number, book_id, canto_id")
+          .select("id")
+          .eq("canto_id", cantoId)
+          .eq("chapter_number", parseInt(chapterNumber))
           .single();
-        
-        if (insertErr) {
-          // Якщо одночасно створили або вже існує — пробуємо знайти
-          const { data: fallbackChapter } = await (supabase as any)
+
+        if (existingChapter) {
+          chapterId = existingChapter.id;
+          await supabase
             .from("chapters")
-            .select("id, chapter_number, book_id, canto_id")
-            .eq("chapter_number", chapterNumberInt)
-            .eq(cantoId ? "canto_id" : "book_id", cantoId ?? dbBook.id)
-            .limit(1);
-          const existing = fallbackChapter?.[0] ?? null;
-          if (!existing) {
-            toast.error(`Не вдалося створити главу: ${insertErr.message}`);
+            .update({
+              title_ua: chapterTitleUa,
+              title_en: chapterTitleEn,
+            })
+            .eq("id", chapterId);
+        } else {
+          const { data: newChapter, error: chapterError } = await supabase
+            .from("chapters")
+            .insert({
+              canto_id: cantoId,
+              chapter_number: parseInt(chapterNumber),
+              title_ua: chapterTitleUa,
+              title_en: chapterTitleEn,
+              chapter_type: "verses",
+            })
+            .select("id")
+            .single();
+
+          if (chapterError) {
+            toast.error(`Помилка створення глави: ${chapterError.message}`);
             return;
           }
-          chapter = existing;
-        } else {
-          chapter = newChapter;
-          toast.success(`Глава ${chapterNumberInt} створена успішно!`);
+          chapterId = newChapter.id;
         }
-      }
-      
-      if (!chapter) {
-        toast.error("Не вдалося знайти або створити главу.");
-        return;
-      }
-
-      // Якщо книга має тип "text_only" — завантажуємо весь текст глави і зберігаємо як content_en
-      if (bookConfig.structure_type === "text_only") {
-        try {
-          setCurrentStep("Завантаження текстової глави з Vedabase...");
-          console.log("Fetching text_only chapter from:", chapterBaseUrl);
-          
-          const html = await fetchHtmlViaProxy(chapterBaseUrl);
-          console.log("HTML fetched, length:", html?.length || 0);
-          
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, "text/html");
-          
-          // Remove unwanted elements (navigation, headers, footers)
-          const removeSelectors = [
-            'nav', 'header', 'footer', '.navigation', '.sidebar', 
-            '.menu', '.breadcrumb', '#navigation', '.nav-links',
-            'script', 'style', 'link', 'meta'
-          ];
-          
-          removeSelectors.forEach(selector => {
-            doc.querySelectorAll(selector).forEach(el => el.remove());
-          });
-          
-          // Find the main content area
-          let contentElement = 
-            doc.querySelector('article') ||
-            doc.querySelector('main') ||
-            doc.querySelector('.r.verse-text') ||
-            doc.querySelector('.content') ||
-            doc.querySelector('#content') ||
-            doc.body;
-          
-          console.log("Content element found:", !!contentElement, contentElement?.tagName);
-          
-          if (!contentElement) {
-            throw new Error("Не вдалося знайти основний контент на сторінці");
-          }
-          
-          // Extract all text content with structure
-          // Priority: get the innerHTML of main content area
-          let contentHtml = contentElement.innerHTML;
-          
-          console.log("Content HTML length before sanitization:", contentHtml.length);
-          
-          if (!contentHtml || contentHtml.trim().length < 100) {
-            // If too short, try alternative approach: collect all visible text nodes
-            const textElements = contentElement.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, blockquote');
-            if (textElements.length > 0) {
-              contentHtml = Array.from(textElements)
-                .map(el => el.outerHTML)
-                .join('\n');
-            }
-          }
-          
-          const safe = safeHtml(contentHtml);
-          console.log("Content HTML length after sanitization:", safe.length);
-          
-          if (!safe || safe.trim().length < 50) {
-            throw new Error(`Контент занадто короткий (${safe.length} символів). Можливо, структура сторінки змінилася.`);
-          }
-          
-          const { error: updErr } = await supabase
-            .from("chapters")
-            .update({ 
-              chapter_type: "text", 
-              content_en: safe,
-              content_format: "html",
-              is_published: true
-            })
-            .eq("id", chapter.id);
-            
-          if (updErr) {
-            console.error("Update error:", updErr);
-            throw updErr;
-          }
-          
-          console.log(`Chapter updated successfully with ${safe.length} chars of content`);
-          toast.success(`Текстову главу збережено (${Math.round(safe.length / 1000)}KB)`);
-          setIsProcessing(false);
-          setCurrentStep("");
-          return;
-        } catch (e: any) {
-          console.error("Помилка імпорту текстової глави:", e);
-          toast.error(`Не вдалося імпортувати текст глави: ${e.message}`);
-          setIsProcessing(false);
-          setCurrentStep("");
-          return;
-        }
-      }
-
-      // Крок 1: Сканування всіх віршів або ручний режим
-      let verses: string[] = [];
-      if (manualMode) {
-        const from = Math.max(1, parseInt(manualFrom || "1", 10));
-        const to = Math.max(from, parseInt(manualTo || String(from), 10));
-        verses = Array.from({ length: to - from + 1 }, (_, i) => String(from + i));
       } else {
-        verses = await scanChapterVerses(chapterBaseUrl);
+        const { data: existingChapter } = await supabase
+          .from("chapters")
+          .select("id")
+          .eq("book_id", dbBook.id)
+          .eq("chapter_number", parseInt(chapterNumber))
+          .single();
+
+        if (existingChapter) {
+          chapterId = existingChapter.id;
+          await supabase
+            .from("chapters")
+            .update({
+              title_ua: chapterTitleUa,
+              title_en: chapterTitleEn,
+            })
+            .eq("id", chapterId);
+        } else {
+          const { data: newChapter, error: chapterError } = await supabase
+            .from("chapters")
+            .insert({
+              book_id: dbBook.id,
+              chapter_number: parseInt(chapterNumber),
+              title_ua: chapterTitleUa,
+              title_en: chapterTitleEn,
+              chapter_type: "verses",
+            })
+            .select("id")
+            .single();
+
+          if (chapterError) {
+            toast.error(`Помилка створення глави: ${chapterError.message}`);
+            return;
+          }
+          chapterId = newChapter.id;
+        }
       }
 
-      if (verses.length === 0) {
-        toast.error(
-          "Не вдалося знайти вірші на сторінці. Це може бути CORS або на сторінці немає списку віршів. Спробуйте ручний діапазон.",
-        );
-        return;
+      // Сканування віршів
+      let verseNumbers: string[];
+
+      if (manualMode) {
+        const from = parseInt(manualFrom);
+        const to = parseInt(manualTo);
+        verseNumbers = Array.from({ length: to - from + 1 }, (_, i) => (from + i).toString());
+        console.log("Ручний режим:", verseNumbers);
+      } else {
+        verseNumbers = await scanChapterVerses(baseUrl);
+        if (verseNumbers.length === 0) {
+          toast.error("Не знайдено жодного вірша. Спробуйте ручний режим.");
+          return;
+        }
       }
 
-      setStats({ total: verses.length, imported: 0, skipped: 0, grouped: [], errors: [] });
+      setStats((prev) => ({ ...prev!, total: verseNumbers.length }));
 
-      let imported = 0;
-      let skipped = 0;
-      const grouped: string[] = [];
-      const errors: string[] = [];
-
-      // Крок 2: Імпорт кожного вірша
-      for (const verseNumber of verses) {
-        // Формуємо URL конкретного вірша
+      // Імпорт кожного вірша
+      for (const verseNum of verseNumbers) {
         const verseUrl = buildVedabaseUrl(bookConfig, {
-          canto: bookConfig.has_cantos ? cantoNumber : undefined,
-          chapter: requiresChapter ? chapterNumber : undefined,
-          verse: verseNumber,
+          canto: cantoNumber,
+          chapter: chapterNumber,
+          verse: verseNum,
         });
 
-        const result = await importVerseFromVedabase(verseNumber, verseUrl, chapter.id);
+        const result = await importVerseFromVedabase(verseNum, verseUrl, chapterId);
 
         if (result.success) {
           if (result.isGrouped) {
-            grouped.push(verseNumber);
+            setStats((prev) => ({
+              ...prev!,
+              grouped: [...prev!.grouped, verseNum],
+              skipped: prev!.skipped + 1,
+            }));
           } else {
-            imported++;
+            setStats((prev) => ({ ...prev!, imported: prev!.imported + 1 }));
           }
         } else {
-          errors.push(`${verseNumber}: ${result.error}`);
-          skipped++;
+          setStats((prev) => ({
+            ...prev!,
+            errors: [...prev!.errors, `${verseNum}: ${result.error}`],
+          }));
         }
-
-        setStats({ total: verses.length, imported, skipped, grouped, errors });
-
-        // Затримка між запитами
-        await new Promise((resolve) => setTimeout(resolve, 500));
       }
 
-      toast.success(`Імпорт завершено! Імпортовано: ${imported}, Пропущено: ${skipped}`);
+      toast.success("Імпорт завершено!");
     } catch (error) {
       console.error("Помилка імпорту:", error);
-      toast.error("Помилка під час імпорту");
+      toast.error(`Помилка: ${error instanceof Error ? error.message : "Unknown"}`);
     } finally {
       setIsProcessing(false);
       setCurrentStep("");
@@ -570,250 +498,166 @@ export default function VedabaseImportV2() {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/admin/dashboard")}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Vedabase Import v2</h1>
-              <p className="text-sm text-muted-foreground">Розумний імпорт з обробкою згрупованих віршів та поетапним додаванням даних</p>
-            </div>
-          </div>
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Button variant="ghost" onClick={() => navigate("/admin/dashboard")}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Назад
+          </Button>
+          <h1 className="text-2xl font-bold">Імпорт з Vedabase (Side-by-Side)</h1>
         </div>
       </header>
-      
-      <div className="container mx-auto px-4 py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Вдосконалений імпорт з Vedabase.io</CardTitle>
-          <CardDescription>Автоматичне сканування та імпорт віршів з підтримкою згрупованих елементів</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="vedabase" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="vedabase">
-                <Download className="w-4 h-4 mr-2" />
-                Етап 1: Vedabase (EN)
-              </TabsTrigger>
-              <TabsTrigger value="gitabase" disabled>
-                Етап 2: Gitabase (UA)
-              </TabsTrigger>
-            </TabsList>
 
-            <TabsContent value="vedabase" className="space-y-6">
-              {/* Підказка з прямим посиланням для перевірки та CORS-нота */}
-              <div className="p-3 rounded-lg border bg-muted/30 text-sm">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-muted-foreground">URL для сканування:</span>
-                  <a
-                    className="underline break-all"
-                    href={buildVedabaseUrl(bookConfig, {
-                      canto: requiresCanto ? cantoNumber : undefined,
-                      chapter: requiresChapter ? chapterNumber : undefined,
-                    })}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {buildVedabaseUrl(bookConfig, {
-                      canto: requiresCanto ? cantoNumber : undefined,
-                      chapter: requiresChapter ? chapterNumber : undefined,
-                    })}
-                  </a>
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">
-                  Якщо після натискання "Почати імпорт" вірші не знайдено, це може бути через CORS або відсутність
-                  списку віршів на сторінці. У такому разі скористайтеся режимом "Ручний діапазон" нижче.
-                </div>
-              </div>
-              {/* Інформаційний блок про маппінг Vedabase → Наша БД */}
-              <div className="p-4 rounded-lg border bg-card text-card-foreground shadow-soft">
-                <div className="flex flex-col gap-2">
-                  <div className="text-sm text-muted-foreground">Маппінг книги та структура</div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="outline">Vedabase: {selectedBook.toUpperCase()}</Badge>
-                    {getBookConfig(selectedBook)?.our_slug && (
-                      <>
-                        <span className="text-muted-foreground">→</span>
-                        <Badge variant="secondary">Наша БД: {getOurSlug(getBookConfig(selectedBook)!)}</Badge>
-                      </>
-                    )}
-                    {getBookConfig(selectedBook)?.structure_type && (
-                      <Badge>Структура: {getBookConfig(selectedBook)!.structure_type}</Badge>
-                    )}
-                    {getBookConfig(selectedBook)?.has_cantos && <Badge variant="outline">Має пісні/ліли</Badge>}
-                    {!requiresChapter && <Badge variant="outline">Без глав (лише вірші)</Badge>}
-                  </div>
-                </div>
-              </div>
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-                <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                  ℹ️ Етап 1: Базовий імпорт з Vedabase
-                </h4>
-                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                  <li>• Сканування всіх віршів глави (включно зі згрупованими)</li>
-                  <li>• Імпорт оригіналу, транслітерації, синонімів</li>
-                  <li>• Імпорт англійського перекладу та пояснення</li>
-                  <li>• Автоматичний пропуск згрупованих віршів (65-66, 69-70 тощо)</li>
-                </ul>
-              </div>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <Tabs defaultValue="vedabase" className="w-full">
+          <TabsList className="grid w-full grid-cols-1">
+            <TabsTrigger value="vedabase">Vedabase (EN+UA)</TabsTrigger>
+          </TabsList>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                {/* Book select */}
+          <TabsContent value="vedabase" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Налаштування імпорту</CardTitle>
+                <CardDescription>
+                  Використовує side-by-side сторінки для автоматичного витягування UA+EN контенту
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="bookSelect">Книга</Label>
+                  <Label>Книга</Label>
                   <Select value={selectedBook} onValueChange={setSelectedBook}>
-                    <SelectTrigger id="bookSelect">
-                      <SelectValue placeholder="Виберіть книгу" />
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {VEDABASE_BOOKS.map((book) => (
                         <SelectItem key={book.slug} value={book.slug}>
-                          <div>
-                            <div className="font-medium">{book.slug.toUpperCase()}</div>
-                            <div className="text-xs text-muted-foreground">{book.name_ua}</div>
-                          </div>
+                          {book.name_ua} ({book.slug})
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Canto input if needed */}
                 {requiresCanto && (
                   <div className="space-y-2">
-                    <Label htmlFor="cantoNumber">Номер пісні/ліли</Label>
+                    <Label>Номер пісні/ліли</Label>
                     <Input
-                      id="cantoNumber"
+                      type="number"
                       value={cantoNumber}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCantoNumber(e.target.value)}
-                      placeholder="1"
+                      onChange={(e) => setCantoNumber(e.target.value)}
+                      min="1"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      {selectedBook === "cc" ? "1 — Аді, 2 — Мадхʼя, 3 — Антья" : "Номер Пісні"}
-                    </p>
                   </div>
                 )}
 
-                {/* Chapter input if required */}
                 {requiresChapter && (
                   <div className="space-y-2">
-                    <Label htmlFor="chapterNumber">Номер глави</Label>
+                    <Label>Номер глави</Label>
                     <Input
-                      id="chapterNumber"
+                      type="number"
                       value={chapterNumber}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setChapterNumber(e.target.value)}
-                      placeholder="1"
+                      onChange={(e) => setChapterNumber(e.target.value)}
+                      min="1"
                     />
                   </div>
                 )}
-              </div>
 
-              {/* Ручний режим (коли сканер не знаходить вірші або CORS) */}
-              <div className="rounded-lg border p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="font-medium">Ручний діапазон (fallback)</div>
-                  <div className="text-xs text-muted-foreground">Корисно для ISO/BS/NOI або при CORS</div>
-                </div>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <label className="text-sm text-muted-foreground" htmlFor="from">
-                    Від
-                  </label>
-                  <Input
-                    id="from"
-                    className="w-24"
-                    value={manualFrom}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setManualFrom(e.target.value)}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="manual-mode"
+                    checked={manualMode}
+                    onChange={(e) => setManualMode(e.target.checked)}
                   />
-                  <label className="text-sm text-muted-foreground" htmlFor="to">
-                    До
-                  </label>
-                  <Input
-                    id="to"
-                    className="w-24"
-                    value={manualTo}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setManualTo(e.target.value)}
-                  />
-                  <div className="flex items-center gap-2 ml-2">
-                    <input
-                      id="manualMode"
-                      type="checkbox"
-                      checked={manualMode}
-                      onChange={(e) => setManualMode(e.currentTarget.checked)}
-                    />
-                    <label htmlFor="manualMode" className="text-sm">
-                      Використовувати ручний діапазон
-                    </label>
-                  </div>
+                  <Label htmlFor="manual-mode">Ручний режим (вказати діапазон віршів)</Label>
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  Підказка: стандартні діапазони — ISO (1–18), NOI (1–11), BS (1–62). Для BG/SB/CC використовуйте сканер
-                  по главах/лілах.
-                </div>
-              </div>
 
-              <Button onClick={startImport} disabled={isProcessing} className="w-full" size="lg">
-                {isProcessing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {isProcessing ? currentStep : "Почати імпорт"}
-              </Button>
-
-              {stats && (
-                <div className="space-y-4">
-                  <div className="bg-primary/10 p-4 rounded-lg">
-                    <h3 className="font-semibold mb-3">Статистика імпорту:</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <div className="text-muted-foreground">Всього віршів</div>
-                        <div className="text-2xl font-bold">{stats.total}</div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground">Імпортовано</div>
-                        <div className="text-2xl font-bold text-green-600">{stats.imported}</div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground">Пропущено</div>
-                        <div className="text-2xl font-bold text-yellow-600">{stats.skipped}</div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground">Згруповані</div>
-                        <div className="text-2xl font-bold text-blue-600">{stats.grouped.length}</div>
-                      </div>
+                {manualMode && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Від вірша</Label>
+                      <Input
+                        type="number"
+                        value={manualFrom}
+                        onChange={(e) => setManualFrom(e.target.value)}
+                        min="1"
+                      />
+                    </div>
+                    <div>
+                      <Label>До вірша</Label>
+                      <Input
+                        type="number"
+                        value={manualTo}
+                        onChange={(e) => setManualTo(e.target.value)}
+                        min="1"
+                      />
                     </div>
                   </div>
+                )}
 
+                <Button onClick={startImport} disabled={isProcessing} className="w-full">
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      {currentStep || "Імпортуємо..."}
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Почати імпорт
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {stats && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Статистика</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>Всього:</span>
+                    <Badge>{stats.total}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Імпортовано:</span>
+                    <Badge variant="default">{stats.imported}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Пропущено:</span>
+                    <Badge variant="secondary">{stats.skipped}</Badge>
+                  </div>
                   {stats.grouped.length > 0 && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                      <h4 className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2 flex items-center">
-                        <AlertCircle className="w-4 h-4 mr-2" />
-                        Згруповані вірші (для ручного введення):
-                      </h4>
-                      <div className="text-sm text-yellow-700 dark:text-yellow-300">{stats.grouped.join(", ")}</div>
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2">Згруповані вірші:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {stats.grouped.map((v) => (
+                          <Badge key={v} variant="outline">
+                            {v}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
-
                   {stats.errors.length > 0 && (
-                    <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
-                      <h4 className="font-semibold text-red-800 dark:text-red-200 mb-2">Помилки:</h4>
-                      <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
-                        {stats.errors.map((error, i) => (
-                          <li key={i}>• {error}</li>
+                    <div className="mt-4">
+                      <h4 className="font-semibold mb-2 text-destructive">Помилки:</h4>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        {stats.errors.map((err, i) => (
+                          <li key={i} className="text-destructive">
+                            {err}
+                          </li>
                         ))}
                       </ul>
                     </div>
                   )}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="gitabase">
-              <div className="text-center py-8 text-muted-foreground">
-                Етап 2 буде доступний після завершення імпорту з Vedabase
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

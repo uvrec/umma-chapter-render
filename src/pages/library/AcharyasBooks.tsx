@@ -119,7 +119,7 @@ export const AcharyasBooks = () => {
                   )}
                 </div>
                 <CardContent className="p-3">
-                  <h3 className="font-semibold text-foreground mb-2 text-xl md:text-2xl line-clamp-2 text-center">
+                  <h3 className="font-semibold text-foreground mb-2 text-3xl md:text-4xl line-clamp-2 text-center">
                     {book.title}
                   </h3>
                   <p className="text-xs text-muted-foreground mb-2 line-clamp-2">

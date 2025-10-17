@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/components/GlobalAudioPlayer";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { parseSynonyms, openGlossary } from "@/utils/synonyms";
 
 /* =========================
    Типи пропсів
@@ -52,45 +53,6 @@ interface VerseCardProps {
   ) => void;
 }
 
-/* =========================
-   Допоміжні функції
-   ========================= */
-
-function parseSynonyms(raw: string): Array<{ term: string; meaning: string }> {
-  if (!raw) return [];
-  const parts = raw
-    .split(/[;]+/g)
-    .map((p) => p.trim())
-    .filter(Boolean);
-
-  const dashVariants = [" — ", " – ", " - ", "—", "–", "-", " —\n", " –\n", " -\n", "—\n", "–\n", "-\n"];
-  const pairs: Array<{ term: string; meaning: string }> = [];
-
-  for (const part of parts) {
-    let idx = -1;
-    let used = "";
-    for (const d of dashVariants) {
-      idx = part.indexOf(d);
-      if (idx !== -1) {
-        used = d;
-        break;
-      }
-    }
-    if (idx === -1) {
-      pairs.push({ term: part, meaning: "" });
-      continue;
-    }
-    const term = part.slice(0, idx).trim();
-    const meaning = part.slice(idx + used.length).trim();
-    if (term) pairs.push({ term, meaning });
-  }
-  return pairs;
-}
-
-function openGlossary(term: string) {
-  const url = `/glossary?search=${encodeURIComponent(term)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
 
 /* =========================
    Компонент

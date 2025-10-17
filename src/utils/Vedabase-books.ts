@@ -82,16 +82,6 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     gitabase_available: false,
     structure_type: "full",
   },
-  {
-    slug: "un",
-    name_en: "Śrī Upadeśāmṛta (Nectar of Instruction)",
-    name_ua: "Шрі Упадешамріта",
-    has_cantos: false,
-    url_pattern: "/library/un/{verse}/",
-    gitabase_available: false,
-    structure_type: "full",
-  },
-
   // 📖 ГОТОВІ ДО ІМПОРТУ: Текстові книги (без віршів)
   {
     slug: "bbd",
@@ -148,11 +138,11 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     structure_type: "text_only",
   },
   {
-    slug: "lok",
+    slug: "lob",
     name_en: "Light of the Bhāgavata",
     name_ua: "Світло Бгаґаватам",
     has_cantos: false,
-    url_pattern: "/library/lok/{verse}/",
+    url_pattern: "/library/lob/{verse}/",
     gitabase_available: false,
     structure_type: "full", // Має вірші з поясненнями
   },

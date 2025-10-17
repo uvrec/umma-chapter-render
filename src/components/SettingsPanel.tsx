@@ -104,7 +104,7 @@ export const SettingsPanel = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-96 h-svh overflow-y-auto">
+      <SheetContent side="right" className="w-96 h-svh overflow-y-auto max-h-screen">
         <SheetHeader className="pb-4">
           <div className="flex items-center justify-between">
             <SheetTitle>Налаштування</SheetTitle>
