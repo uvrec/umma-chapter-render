@@ -718,66 +718,131 @@ export const VedaReaderDB = () => {
 
                 return (
                   <div className="space-y-6">
-                    {dualLanguageMode ? (
-                      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                        <VerseCard
-                          verseId={currentVerse.id}
-                          verseNumber={fullVerseNumber}
-                          bookName={chapter?.title_ua}
-                          sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration || ""}
-                          synonyms={currentVerse.synonyms_ua || ""}
-                          translation={currentVerse.translation_ua || ""}
-                          commentary={currentVerse.commentary_ua || ""}
-                          audioUrl={currentVerse.audio_url || ""}
-                          textDisplaySettings={{
-                            ...textDisplaySettings,
-                            showTranslation: true,
-                          }}
-                          showNumberBadge={false}
-                          isAdmin={isAdmin}
-                          onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
-                        />
-                        <VerseCard
-                          verseId={currentVerse.id}
-                          verseNumber={fullVerseNumber}
-                          bookName={book?.title_en}
-                          sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration || ""}
-                          synonyms={currentVerse.synonyms_en || ""}
-                          translation={currentVerse.translation_en || ""}
-                          commentary={currentVerse.commentary_en || ""}
-                          audioUrl={currentVerse.audio_url || ""}
-                          textDisplaySettings={{
-                            ...textDisplaySettings,
-                            showTranslation: true,
-                          }}
-                          showNumberBadge={false}
-                          isAdmin={false}
-                          onVerseUpdate={() => {}}
-                        />
+                    <Card className="verse-surface w-full animate-fade-in border-gray-100 bg-card shadow-sm dark:border-border">
+                      <div className="p-6">
+                        {/* Верхня панель: номер вірша */}
+                        <div className="mb-4 flex items-center justify-between">
+                          <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+                            <span className="text-sm font-semibold text-primary">Вірш {fullVerseNumber}</span>
+                          </div>
+                        </div>
+
+                        {/* Санскрит (спільний для обох мов) */}
+                        {textDisplaySettings.showSanskrit && currentVerse.sanskrit && (
+                          <div className="mb-10">
+                            <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                              {currentVerse.sanskrit}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Транслітерація (спільна) */}
+                        {textDisplaySettings.showTransliteration && currentVerse.transliteration && (
+                          <div className="mb-8">
+                            <div className="space-y-1 text-center">
+                              {currentVerse.transliteration.split("\n").map((line, idx) => (
+                                <p
+                                  key={idx}
+                                  className="font-sanskrit-italic italic text-[1.22em] leading-relaxed text-gray-500 dark:text-muted-foreground"
+                                >
+                                  {line}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Послівний переклад */}
+                        {textDisplaySettings.showSynonyms && (currentVerse.synonyms_ua || currentVerse.synonyms_en) && (
+                          <div className="mb-6 border-t border-border pt-6">
+                            <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
+                              {t("Послівний переклад", "Word-for-word")}
+                            </h4>
+                            {dualLanguageMode ? (
+                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div className="border-r border-border pr-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                  <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
+                                    {currentVerse.synonyms_ua || "—"}
+                                  </p>
+                                </div>
+                                <div className="pl-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                  <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
+                                    {currentVerse.synonyms_en || "—"}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
+                                {language === "ua" ? currentVerse.synonyms_ua : currentVerse.synonyms_en}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Літературний переклад */}
+                        {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && (
+                          <div className="mb-6 border-t border-border pt-6">
+                            <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
+                              {t("Літературний переклад", "Translation")}
+                            </h4>
+                            {dualLanguageMode ? (
+                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div className="border-r border-border pr-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                  <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                    {currentVerse.translation_ua || "—"}
+                                  </p>
+                                </div>
+                                <div className="pl-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                  <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                    {currentVerse.translation_en || "—"}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Пояснення */}
+                        {textDisplaySettings.showCommentary && (currentVerse.commentary_ua || currentVerse.commentary_en) && (
+                          <div className="border-t border-border pt-6">
+                            <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
+                              {t("Пояснення", "Purport")}
+                            </h4>
+                            {dualLanguageMode ? (
+                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div className="border-r border-border pr-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                  <TiptapRenderer 
+                                    content={currentVerse.commentary_ua || ""} 
+                                    className="text-[1.22em] leading-relaxed" 
+                                  />
+                                </div>
+                                <div className="pl-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                  <TiptapRenderer 
+                                    content={currentVerse.commentary_en || ""} 
+                                    className="text-[1.22em] leading-relaxed" 
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <TiptapRenderer 
+                                content={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""} 
+                                className="text-[1.22em] leading-relaxed" 
+                              />
+                            )}
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <VerseCard
-                        verseId={currentVerse.id}
-                        verseNumber={fullVerseNumber}
-                        bookName={chapterTitle}
-                        sanskritText={currentVerse.sanskrit || ""}
-                        transliteration={currentVerse.transliteration || ""}
-                        synonyms={language === "ua" ? currentVerse.synonyms_ua || "" : currentVerse.synonyms_en || ""}
-                        translation={
-                          language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""
-                        }
-                        commentary={
-                          language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""
-                        }
-                        audioUrl={currentVerse.audio_url || ""}
-                        textDisplaySettings={textDisplaySettings}
-                        showNumberBadge={false}
-                        isAdmin={isAdmin}
-                        onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
-                      />
-                    )}
+                    </Card>
 
                     <div className="flex items-center justify-between">
                       <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0}>
