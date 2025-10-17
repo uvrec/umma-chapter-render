@@ -132,40 +132,57 @@ export default function VedabaseImportV2() {
         return "";
       };
 
-      const sanskrit = extractContent([
+      // Допоміжна очистка ярликів типу "Devanagari", "Purport" тощо
+      const stripLabels = (s: string) =>
+        (s || "")
+          .replace(/^\s*(Devanagari|Sanskrit|Bengali|Санскрит|Бенгалі|Translation|TRANSLATION|Synonyms|SYNONYMS|Purport|COMMENTARY)\s*:*/i, "")
+          .replace(/\bPurport\b/gi, "")
+          .trim();
+
+      const sanskritRaw = extractContent([
         ".verse-text",
-        ".r.verse-text", 
+        ".r.verse-text",
         ".devanagari",
         ".sanskrit-text",
+        ".bengali",
+        ".bengali-text",
+        "[lang='bn']",
         "[class*='verse-text']",
         "[class*='devanagari']"
       ]);
-      
-      const transliteration = extractContent([
+
+      const transliterationRaw = extractContent([
         ".transliteration",
         ".r.transliteration",
         "[class*='transliteration']"
       ]);
-      
-      const synonyms = extractContent([
+
+      const synonymsRaw = extractContent([
         ".synonyms",
         ".r.synonyms",
         "[class*='synonyms']",
         "[class*='word-meanings']"
       ]);
-      
-      const translation = extractContent([
+
+      const translationRaw = extractContent([
         ".translation",
         ".r.translation",
         "[class*='translation']"
       ]);
-      
-      const purport = extractContent([
+
+      // Беремо текст замість HTML, щоб не тягнути заголовки Purport
+      const purportRaw = extractContent([
         ".purport",
         ".r.purport",
         "[class*='purport']",
         "[class*='commentary']"
-      ], true);
+      ]);
+
+      const sanskrit = stripLabels(sanskritRaw);
+      const transliteration = stripLabels(transliterationRaw);
+      const synonyms = stripLabels(synonymsRaw);
+      const translation = stripLabels(translationRaw);
+      const purport = stripLabels(purportRaw);
 
       if (isGrouped) {
         console.log(`⚠️ Вірш ${verseNumber} згрупований - пропускаємо для ручного введення`);

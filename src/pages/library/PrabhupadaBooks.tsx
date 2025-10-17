@@ -133,7 +133,7 @@ export const PrabhupadaBooks = () => {
                   )}
                 </div>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-foreground mb-2 line-clamp-2 text-center">
+                  <h3 className="font-semibold text-2xl md:text-3xl text-foreground mb-2 line-clamp-2 text-center">
                     {book.title}
                   </h3>
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-3 text-center font-light">

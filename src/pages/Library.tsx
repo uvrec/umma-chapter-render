@@ -153,7 +153,7 @@ export const Library = () => {
                         )}
                       </div>
                       <CardContent className="p-4">
-                        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{title}</h3>
+                        <h3 className="font-semibold text-2xl md:text-3xl mb-2 leading-tight line-clamp-2">{title}</h3>
                         {description && (
                           <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{description}</p>
                         )}
