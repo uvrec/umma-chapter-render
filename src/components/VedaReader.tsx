@@ -47,22 +47,12 @@ export const VedaReader = () => {
       const raw = localStorage.getItem("vv_reader_blocks");
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed.sanskrit !== undefined) {
-          return {
-            showSanskrit: parsed.sanskrit ?? true,
-            showTransliteration: parsed.translit ?? true,
-            showSynonyms: parsed.synonyms ?? true,
-            showTranslation: parsed.translation ?? true,
-            showCommentary: parsed.commentary ?? true,
-          };
-        }
         return {
-          showSanskrit: true,
-          showTransliteration: true,
-          showSynonyms: true,
-          showTranslation: true,
-          showCommentary: true,
-          ...parsed,
+          showSanskrit: parsed.showSanskrit ?? true,
+          showTransliteration: parsed.showTransliteration ?? true,
+          showSynonyms: parsed.showSynonyms ?? true,
+          showTranslation: parsed.showTranslation ?? true,
+          showCommentary: parsed.showCommentary ?? true,
         };
       }
     } catch {}
@@ -79,14 +69,14 @@ export const VedaReader = () => {
     try {
       const raw = localStorage.getItem("vv_reader_continuous");
       if (raw) {
+        const parsed = JSON.parse(raw);
         return {
-          enabled: false,
-          showVerseNumbers: true,
-          showSanskrit: false,
-          showTransliteration: false,
-          showTranslation: true,
-          showCommentary: false,
-          ...JSON.parse(raw),
+          enabled: parsed.enabled ?? false,
+          showVerseNumbers: parsed.showVerseNumbers ?? true,
+          showSanskrit: parsed.showSanskrit ?? false,
+          showTransliteration: parsed.showTransliteration ?? false,
+          showTranslation: parsed.showTranslation ?? true,
+          showCommentary: parsed.showCommentary ?? false,
         };
       }
     } catch {}
@@ -108,23 +98,27 @@ export const VedaReader = () => {
         const b = localStorage.getItem("vv_reader_blocks");
         if (b) {
           const parsed = JSON.parse(b);
-          if (parsed.sanskrit !== undefined) {
-            setTextDisplaySettings({
-              showSanskrit: parsed.sanskrit ?? true,
-              showTransliteration: parsed.translit ?? true,
-              showSynonyms: parsed.synonyms ?? true,
-              showTranslation: parsed.translation ?? true,
-              showCommentary: parsed.commentary ?? true,
-            });
-          } else {
-            setTextDisplaySettings((prev) => ({ ...prev, ...parsed }));
-          }
+          setTextDisplaySettings({
+            showSanskrit: parsed.showSanskrit ?? true,
+            showTransliteration: parsed.showTransliteration ?? true,
+            showSynonyms: parsed.showSynonyms ?? true,
+            showTranslation: parsed.showTranslation ?? true,
+            showCommentary: parsed.showCommentary ?? true,
+          });
         }
       } catch {}
       try {
         const c = localStorage.getItem("vv_reader_continuous");
         if (c) {
-          setContinuousReadingSettings((prev) => ({ ...prev, ...JSON.parse(c) }));
+          const parsed = JSON.parse(c);
+          setContinuousReadingSettings({
+            enabled: parsed.enabled ?? false,
+            showVerseNumbers: parsed.showVerseNumbers ?? true,
+            showSanskrit: parsed.showSanskrit ?? false,
+            showTransliteration: parsed.showTransliteration ?? false,
+            showTranslation: parsed.showTranslation ?? true,
+            showCommentary: parsed.showCommentary ?? false,
+          });
         }
       } catch {}
     };
