@@ -16,10 +16,10 @@ export interface VedabaseBook {
 }
 
 export const VEDABASE_BOOKS: VedabaseBook[] = [
-  // Основні книги (Є в нашій БД з українською)
+  // ✅ ПРОТЕСТОВАНІ: Основні книги (Є в нашій БД з українською)
   {
     slug: "bg",
-    our_slug: "gita", // В нашій БД називається "gita"
+    our_slug: "gita",
     name_en: "Bhagavad-gītā As It Is",
     name_ua: "Бгаґавад-ґіта як вона є",
     has_cantos: false,
@@ -30,7 +30,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
   },
   {
     slug: "sb",
-    our_slug: "bhagavatam", // В нашій БД називається "bhagavatam"
+    our_slug: "bhagavatam",
     name_en: "Śrīmad-Bhāgavatam",
     name_ua: "Шрімад-Бгаґаватам",
     has_cantos: true,
@@ -41,10 +41,10 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
   },
   {
     slug: "cc",
-    our_slug: "scc", // В нашій БД називається "scc"
+    our_slug: "scc",
     name_en: "Śrī Caitanya-caritāmṛta",
     name_ua: "Шрі Чайтанья-чарітамріта",
-    has_cantos: true, // Adi, Madhya, Antya
+    has_cantos: true, // Adi (1), Madhya (2), Antya (3)
     url_pattern: "/library/cc/{lila}/{chapter}/{verse}/",
     gitabase_available: true,
     gitabase_slug: "CC",
@@ -52,7 +52,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
   },
   {
     slug: "iso",
-    our_slug: "iso", // Збіг slug
+    our_slug: "iso",
     name_en: "Śrī Īśopaniṣad",
     name_ua: "Шрі Ішопанішад",
     has_cantos: false,
@@ -63,7 +63,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
   },
   {
     slug: "noi",
-    our_slug: "noi", // Збіг slug
+    our_slug: "noi",
     name_en: "Nectar of Instruction",
     name_ua: "Нектар настанов",
     has_cantos: false,
@@ -72,15 +72,35 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     structure_type: "full",
   },
 
-  // Інші книги (тільки на Vedabase, немає в нашій БД)
+  // 📚 ГОТОВІ ДО ІМПОРТУ: Книги з віршами
   {
-    slug: "nod",
-    name_en: "The Nectar of Devotion",
-    name_ua: "Нектар відданості",
+    slug: "bs",
+    name_en: "Śrī Brahma-saṁhitā",
+    name_ua: "Шрі Брахма-самгіта",
     has_cantos: false,
-    url_pattern: "/library/nod/{chapter}/{section}/",
+    url_pattern: "/library/bs/{verse}/",
     gitabase_available: false,
-    structure_type: "text_only", // Тільки текст, без віршів
+    structure_type: "full",
+  },
+  {
+    slug: "un",
+    name_en: "Śrī Upadeśāmṛta (Nectar of Instruction)",
+    name_ua: "Шрі Упадешамріта",
+    has_cantos: false,
+    url_pattern: "/library/un/{verse}/",
+    gitabase_available: false,
+    structure_type: "full",
+  },
+
+  // 📖 ГОТОВІ ДО ІМПОРТУ: Текстові книги (без віршів)
+  {
+    slug: "bbd",
+    name_en: "Beyond Birth and Death",
+    name_ua: "За межами народження і смерті",
+    has_cantos: false,
+    url_pattern: "/library/bbd/{chapter}/",
+    gitabase_available: false,
+    structure_type: "text_only",
   },
   {
     slug: "kb",
@@ -114,25 +134,43 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     name_en: "The Science of Self-Realization",
     name_ua: "Наука самоусвідомлення",
     has_cantos: false,
-    url_pattern: "/library/ssr/{chapter}/{section}/",
+    url_pattern: "/library/ssr/{chapter}/",
     gitabase_available: false,
     structure_type: "text_only",
   },
   {
-    slug: "bs",
-    name_en: "Śrī Brahma-saṁhitā",
-    name_ua: "Шрі Брахма-самгіта",
+    slug: "pqn",
+    name_en: "Perfect Questions, Perfect Answers",
+    name_ua: "Досконалі запитання, досконалі відповіді",
     has_cantos: false,
-    url_pattern: "/library/bs/{verse}/",
+    url_pattern: "/library/pqn/{chapter}/",
     gitabase_available: false,
-    structure_type: "full", // Має вірші
+    structure_type: "text_only",
   },
   {
-    slug: "bbd",
-    name_en: "Beyond Birth and Death",
-    name_ua: "За межами народження і смерті",
+    slug: "lok",
+    name_en: "Light of the Bhāgavata",
+    name_ua: "Світло Бгаґаватам",
     has_cantos: false,
-    url_pattern: "/library/bbd/{chapter}/",
+    url_pattern: "/library/lok/{verse}/",
+    gitabase_available: false,
+    structure_type: "full", // Має вірші з поясненнями
+  },
+  {
+    slug: "rvs",
+    name_en: "Rāja-Vidyā: The King of Knowledge",
+    name_ua: "Раджа-відья: Цар знання",
+    has_cantos: false,
+    url_pattern: "/library/rvs/{chapter}/",
+    gitabase_available: false,
+    structure_type: "text_only",
+  },
+  {
+    slug: "ea",
+    name_en: "Easy Journey to Other Planets",
+    name_ua: "Легка подорож на інші планети",
+    has_cantos: false,
+    url_pattern: "/library/ea/{chapter}/",
     gitabase_available: false,
     structure_type: "text_only",
   },
