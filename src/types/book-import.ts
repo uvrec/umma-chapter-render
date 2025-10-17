@@ -1,16 +1,16 @@
 // src/types/book-import.ts
-export type ChapterType = "verses" | "text";
+export type ChapterType = "verses" | "text" | "intro";
 
 export interface ParsedVerse {
   verse_number: string;
   sanskrit?: string;
   transliteration?: string;
-  synonyms_ua?: string;
   synonyms_en?: string;
-  translation_ua?: string;
+  synonyms_ua?: string;
   translation_en?: string;
-  commentary_ua?: string;
+  translation_ua?: string;
   commentary_en?: string;
+  commentary_ua?: string;
   /** клієнтські дані часто приходять як audioUrl */
   audioUrl?: string;
   /** у БД поле під змійкою */
@@ -19,9 +19,9 @@ export interface ParsedVerse {
 
 export interface ParsedChapter {
   chapter_number: number;
-  chapter_type: ChapterType;
+  chapter_type: "verses" | "text" | "intro";
   title_ua: string;
-  title_en?: string;
+  title_en: string;
   verses: ParsedVerse[];
   content_ua?: string;
   content_en?: string;
