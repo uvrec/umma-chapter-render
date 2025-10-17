@@ -42,7 +42,7 @@ export const Library = () => {
   } = useQuery({
     queryKey: ["library-books", isAdmin],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = (supabase as any)
         .from("books")
         .select(
           "id, slug, title_ua, title_en, description_ua, description_en, cover_image_url, purchase_url, display_order, is_featured, has_cantos",
@@ -51,12 +51,14 @@ export const Library = () => {
         .order("is_featured", { ascending: false })
         .order("title_ua", { ascending: true });
 
+      if (!isAdmin) {
+        q = q.eq("is_published", true);
+      }
+
+      const { data, error } = await q;
       if (error) throw error;
-      
-      // Фільтруємо приховані книги (якщо потрібно в майбутньому)
-      // На разі повертаємо всі книги, бо поля is_published ще немає
       return (data || []) as DbBook[];
-    },
+    }
     staleTime: 60_000,
     enabled: !authLoading,
   });

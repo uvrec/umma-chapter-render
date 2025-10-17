@@ -293,8 +293,8 @@ export const VedaReaderDB = () => {
 
   const currentChapterIndex = useMemo(() => {
     if (!chapter?.id) {
-      console.log('🔧 [VedaReaderDB] No chapter.id, returning 0');
-      return 0;
+      console.log('🔧 [VedaReaderDB] No chapter.id, returning -1');
+      return -1;
     }
     
     let idx = allChapters.findIndex((ch) => ch.id === chapter.id);
@@ -306,7 +306,7 @@ export const VedaReaderDB = () => {
     }
     
     console.log('🔧 [VedaReaderDB] currentChapterIndex:', idx, 'chapter?.id:', chapter?.id, 'allChapters:', allChapters.length);
-    return idx >= 0 ? idx : 0;
+    return idx >= 0 ? idx : -1;
   }, [allChapters, chapter?.id, chapter?.chapter_number]);
 
   // Мутація з мовно-залежним мапінгом полів
@@ -555,14 +555,14 @@ export const VedaReaderDB = () => {
                 </Button>
               </div>
               <div className="flex gap-2">
-                <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === -1 || currentChapterIndex === 0}>
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   {t("Попередня глава", "Previous Chapter")}
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={handleNextChapter}
-                  disabled={currentChapterIndex === allChapters.length - 1}
+                  disabled={currentChapterIndex === -1 || currentChapterIndex === allChapters.length - 1}
                 >
                   {t("Наступна глава", "Next Chapter")}
                   <ChevronRight className="ml-2 h-4 w-4" />

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Loader2, Download, AlertCircle, ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
+import { safeHtml } from "@/utils/import/importer";
 import { Badge } from "@/components/ui/badge";
 
 /**
@@ -309,7 +310,7 @@ export default function VedabaseImportV2() {
         
         const chapterPayload: any = {
           chapter_number: chapterNumberInt,
-          chapter_type: "verses",
+          chapter_type: bookConfig.structure_type === "text_only" ? "text" : "verses",
           title_ua: `Глава ${chapterNumberInt}`,
           title_en: `Chapter ${chapterNumberInt}`,
         };
@@ -338,6 +339,46 @@ export default function VedabaseImportV2() {
       if (!chapter) {
         toast.error("Не вдалося знайти або створити главу.");
         return;
+      }
+
+      // Якщо книга має тип "text_only" — завантажуємо весь текст глави і зберігаємо як content_en
+      if (bookConfig.structure_type === "text_only") {
+        try {
+          setCurrentStep("Завантаження текстової глави з Vedabase...");
+          const res = await fetch(chapterBaseUrl, { mode: "cors" });
+          const html = await res.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+          const main =
+            doc.querySelector("article") ||
+            doc.querySelector("main") ||
+            doc.querySelector(".content") ||
+            doc.querySelector("#content") ||
+            doc.body;
+          let contentHtml = "";
+          const paragraphs = main?.querySelectorAll("p");
+          if (paragraphs && paragraphs.length > 0) {
+            contentHtml = Array.from(paragraphs).map((p) => p.outerHTML).join("\n");
+          } else {
+            contentHtml = main?.innerHTML || "";
+          }
+          const safe = safeHtml(contentHtml);
+          const { error: updErr } = await supabase
+            .from("chapters")
+            .update({ chapter_type: "text", content_en: safe })
+            .eq("id", chapter.id);
+          if (updErr) throw updErr;
+          toast.success("Текстову главу збережено успішно");
+          setIsProcessing(false);
+          setCurrentStep("");
+          return;
+        } catch (e: any) {
+          console.error("Помилка імпорту текстової глави:", e);
+          toast.error("Не вдалося імпортувати текст глави");
+          setIsProcessing(false);
+          setCurrentStep("");
+          return;
+        }
       }
 
       // Крок 1: Сканування всіх віршів або ручний режим
