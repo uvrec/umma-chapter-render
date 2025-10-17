@@ -360,35 +360,75 @@ export default function VedabaseImportV2() {
       if (bookConfig.structure_type === "text_only") {
         try {
           setCurrentStep("Завантаження текстової глави з Vedabase...");
+          console.log("Fetching text_only chapter from:", chapterBaseUrl);
+          console.log("Book config structure_type:", bookConfig.structure_type);
+          
           const html = await fetchHtmlViaProxy(chapterBaseUrl);
+          console.log("HTML fetched, length:", html?.length || 0);
+          
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, "text/html");
+          
+          // Try multiple selectors to find the content
           const main =
             doc.querySelector("article") ||
             doc.querySelector("main") ||
+            doc.querySelector(".r.verse-text") ||
             doc.querySelector(".content") ||
             doc.querySelector("#content") ||
             doc.body;
+          
+          console.log("Main element found:", !!main);
+          
           let contentHtml = "";
+          
+          // First try to find all paragraphs
           const paragraphs = main?.querySelectorAll("p");
+          console.log("Paragraphs found:", paragraphs?.length || 0);
+          
           if (paragraphs && paragraphs.length > 0) {
             contentHtml = Array.from(paragraphs).map((p) => p.outerHTML).join("\n");
           } else {
-            contentHtml = main?.innerHTML || "";
+            // If no paragraphs, try to get text content with basic formatting
+            const textNodes = main?.querySelectorAll("div, span, p, h1, h2, h3, h4, h5, h6");
+            if (textNodes && textNodes.length > 0) {
+              contentHtml = Array.from(textNodes).map((node) => node.outerHTML).join("\n");
+            } else {
+              contentHtml = main?.innerHTML || "";
+            }
           }
+          
+          console.log("Content HTML length before sanitization:", contentHtml.length);
+          
+          if (!contentHtml || contentHtml.trim().length === 0) {
+            throw new Error("Не вдалося знайти контент на сторінці");
+          }
+          
           const safe = safeHtml(contentHtml);
+          console.log("Content HTML length after sanitization:", safe.length);
+          
+          if (!safe || safe.trim().length === 0) {
+            throw new Error("Контент було видалено під час санітизації");
+          }
+          
           const { error: updErr } = await supabase
             .from("chapters")
             .update({ chapter_type: "text", content_en: safe })
             .eq("id", chapter.id);
-          if (updErr) throw updErr;
+            
+          if (updErr) {
+            console.error("Update error:", updErr);
+            throw updErr;
+          }
+          
+          console.log("Chapter updated successfully with content");
           toast.success("Текстову главу збережено успішно");
           setIsProcessing(false);
           setCurrentStep("");
           return;
         } catch (e: any) {
           console.error("Помилка імпорту текстової глави:", e);
-          toast.error("Не вдалося імпортувати текст глави");
+          toast.error(`Не вдалося імпортувати текст глави: ${e.message}`);
           setIsProcessing(false);
           setCurrentStep("");
           return;
