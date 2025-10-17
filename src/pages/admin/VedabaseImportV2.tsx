@@ -9,9 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Loader2, Download, AlertCircle, ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
+import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
 import { Badge } from "@/components/ui/badge";
 import { detectScript } from "@/utils/synonyms";
+import { parseGitabaseHTML } from "@/utils/import/webImporter";
 
 /**
  * Вдосконалений інструмент імпорту з Vedabase.io (side-by-side pages)
@@ -31,6 +32,7 @@ export default function VedabaseImportV2() {
   // Мовні опції імпорту
   const [importEN, setImportEN] = useState(true);
   const [importUA, setImportUA] = useState(() => selectedBook === "cc");
+  const [useGitabaseUA, setUseGitabaseUA] = useState(() => selectedBook === "cc");
   // доступність UA: лише для CC
   const allowUA = useMemo(() => importUA && selectedBook === "cc", [importUA, selectedBook]);
   const allowEN = useMemo(() => importEN, [importEN]);
@@ -169,13 +171,19 @@ export default function VedabaseImportV2() {
     verseNumber: string,
     verseUrl: string,
     chapterId: string,
+    gitabaseMap?: Map<string, { translation?: string; commentary?: string }>
   ): Promise<{ success: boolean; isGrouped: boolean; error?: string }> => {
     try {
       setCurrentStep(`Імпорт вірша ${verseNumber}...`);
 
-      // Завантажуємо side-by-side версію (EN + UA)
-      const sideBySideUrl = verseUrl.replace(/\/$/, "") + "/side-by-side/uk/";
-      const html = await fetchHtmlViaProxy(sideBySideUrl);
+      // Завантажуємо side-by-side версію (EN + UA), пробуємо uk -> ua
+      const base = verseUrl.replace(/\/$/, "");
+      let html = "";
+      try {
+        html = await fetchHtmlViaProxy(base + "/side-by-side/uk/");
+      } catch (e) {
+        html = await fetchHtmlViaProxy(base + "/side-by-side/ua/");
+      }
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, "text/html");
 
@@ -186,7 +194,13 @@ export default function VedabaseImportV2() {
       }
 
       // Витягуємо санскрит/бенгалі
-      const sanskrit = locateSection(doc, "Devanagari") || locateSection(doc, "Bengali") || locateSection(doc, "Sanskrit") || "";
+      let sanskrit = locateSection(doc, "Devanagari") || locateSection(doc, "Bengali") || locateSection(doc, "Sanskrit") || "";
+      if (!sanskrit) {
+        const candidates = Array.from(doc.querySelectorAll("p, div, span"))
+          .map(el => el.textContent?.trim() || "")
+          .filter(t => /[\u0980-\u09FF\u0900-\u097F]/.test(t) && t.length > 10);
+        if (candidates.length) sanskrit = candidates[0];
+      }
 
       // Транслітерація
       const transliteration = Array.from(doc.querySelectorAll(".transliteration, [class*='translit']"))
@@ -199,12 +213,21 @@ export default function VedabaseImportV2() {
       const synonyms_en = locateSection(doc, "Synonyms") || locateSection(doc, "Word for word") || "";
 
       // Переклад - шукаємо в обох мовах
-      const translation_ua = locateSection(doc, "Переклад") || "";
+      let translation_ua = locateSection(doc, "Переклад") || "";
       const translation_en = locateSection(doc, "Translation") || "";
 
       // Пояснення - шукаємо в обох мовах
-      const commentary_ua = locateSection(doc, "Пояснення") || locateSection(doc, "Коментар") || "";
+      let commentary_ua = locateSection(doc, "Пояснення") || locateSection(doc, "Коментар") || "";
       const commentary_en = locateSection(doc, "Purport") || locateSection(doc, "Commentary") || "";
+
+      // Додаткове злиття з Gitabase (UA)
+      if (gitabaseMap && allowUA) {
+        const g = gitabaseMap.get(verseNumber);
+        if (g) {
+          if (!translation_ua && g.translation) translation_ua = g.translation;
+          if (!commentary_ua && g.commentary) commentary_ua = g.commentary;
+        }
+      }
 
       // Формуємо display_blocks з урахуванням вибору мов
       const displayBlocks = {
@@ -460,6 +483,20 @@ export default function VedabaseImportV2() {
         }
       }
 
+      // Попереднє завантаження Gitabase (UA), якщо увімкнено
+      let gitabaseMap: Map<string, { translation?: string; commentary?: string }> | undefined = undefined;
+      if (useGitabaseUA && bookConfig.gitabase_available) {
+        try {
+          const gUrl = buildGitabaseUrl(bookConfig, { canto: cantoNumber, chapter: chapterNumber });
+          if (gUrl) {
+            const gHtml = await fetchHtmlViaProxy(gUrl);
+            gitabaseMap = parseGitabaseHTML(gHtml);
+          }
+        } catch (e) {
+          console.warn("Gitabase недоступний або помилка парсингу:", e);
+        }
+      }
+
       // Сканування віршів
       let verseNumbers: string[];
 
@@ -486,7 +523,7 @@ export default function VedabaseImportV2() {
           verse: verseNum,
         });
 
-        const result = await importVerseFromVedabase(verseNum, verseUrl, chapterId);
+        const result = await importVerseFromVedabase(verseNum, verseUrl, chapterId, gitabaseMap);
 
         if (result.success) {
           if (result.isGrouped) {

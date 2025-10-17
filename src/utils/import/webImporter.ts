@@ -159,7 +159,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 /**
  * Витягує всі вірші з HTML сторінки Gitabase
  */
-function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
+export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
   console.log("[webImporter] Parsing Gitabase HTML, length:", html.length);
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
