@@ -88,6 +88,16 @@ export default function VedabaseImportV2() {
       "purport",
       "commentary",
       "word for word",
+      "деванагарі",
+      "санскрит",
+      "бенгалі",
+      "бенгальська",
+      "переклад",
+      "синоніми",
+      "послівний переклад",
+      "пословний переклад",
+      "пояснення",
+      "коментар",
     ];
 
     let result = text.trim();
@@ -104,32 +114,35 @@ export default function VedabaseImportV2() {
   /**
    * Локатор секції: знаходить заголовок секції та збирає весь контент після нього до наступного заголовка
    */
-  const locateSection = (doc: Document, sectionName: string): string => {
+  const locateSection = (doc: Document, sectionNames: string[]): string => {
     const headings = Array.from(doc.querySelectorAll("h1, h2, h3, h4, .section-header, [class*='heading']"));
-    const normalizedName = normalizeText(sectionName);
 
-    for (let i = 0; i < headings.length; i++) {
-      const heading = headings[i];
-      const headingText = normalizeText(heading.textContent || "");
+    for (const sectionName of sectionNames) {
+      const normalizedName = normalizeText(sectionName);
 
-      if (headingText.includes(normalizedName)) {
-        // Починаємо збір контенту після усіх послідовних заголовків (side-by-side має дублікати)
-        const contentParts: string[] = [];
-        let sibling: Element | null = heading.nextElementSibling;
+      for (let i = 0; i < headings.length; i++) {
+        const heading = headings[i];
+        const headingText = normalizeText(heading.textContent || "");
 
-        // пропускаємо послідовні заголовки (EN/UA дублікати)
-        while (sibling && headings.includes(sibling as HTMLElement)) {
-          sibling = sibling.nextElementSibling;
+        if (headingText.includes(normalizedName)) {
+          const contentParts: string[] = [];
+          let sibling: Element | null = heading.nextElementSibling;
+
+          // пропускаємо послідовні заголовки
+          while (sibling && headings.includes(sibling as HTMLElement)) {
+            sibling = sibling.nextElementSibling;
+          }
+
+          // збираємо до наступного заголовка
+          while (sibling && !headings.includes(sibling as HTMLElement)) {
+            const text = sibling.textContent?.trim();
+            if (text) contentParts.push(text);
+            sibling = sibling.nextElementSibling;
+          }
+
+          const result = stripLabels(contentParts.join("\n"));
+          if (result) return result;
         }
-
-        // збираємо до наступного заголовка
-        while (sibling && !headings.includes(sibling as HTMLElement)) {
-          const text = sibling.textContent?.trim();
-          if (text) contentParts.push(text);
-          sibling = sibling.nextElementSibling;
-        }
-
-        return stripLabels(contentParts.join("\n"));
       }
     }
 
@@ -171,7 +184,7 @@ export default function VedabaseImportV2() {
   };
 
   /**
-   * Імпорт одного вірша з side-by-side сторінки Vedabase
+   * Імпорт одного вірша з окремих EN та UA сторінок Vedabase
    */
   const importVerseFromVedabase = async (
     verseNumber: string,
@@ -182,26 +195,55 @@ export default function VedabaseImportV2() {
     try {
       setCurrentStep(`Імпорт вірша ${verseNumber}...`);
 
-      // Завантажуємо side-by-side версію (EN + UA), пробуємо uk -> ua
-      const base = verseUrl.replace(/\/$/, "");
-      let html = "";
-      try {
-        html = await fetchHtmlViaProxy(base + "/side-by-side/uk/");
-      } catch (e) {
-        html = await fetchHtmlViaProxy(base + "/side-by-side/ua/");
-      }
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-
       const isGrouped = verseNumber.includes("-");
       if (isGrouped) {
         console.log(`⚠️ Вірш ${verseNumber} згрупований - пропускаємо`);
         return { success: true, isGrouped: true };
       }
 
-      // Витягуємо санскрит/бенгалі
-      let sanskrit = locateSection(doc, "Devanagari") || locateSection(doc, "Bengali") || locateSection(doc, "Sanskrit") || "";
-      if (!sanskrit) {
+      const base = verseUrl.replace(/\/$/, "");
+      const parser = new DOMParser();
+
+      // Завантажуємо English сторінку
+      let htmlEN = "";
+      let docEN: Document | null = null;
+      if (allowEN) {
+        try {
+          htmlEN = await fetchHtmlViaProxy(base + "/side-by-side/en/");
+          docEN = parser.parseFromString(htmlEN, "text/html");
+        } catch (e) {
+          console.warn(`⚠️ Не вдалося завантажити EN для ${verseNumber}:`, e);
+        }
+      }
+
+      // Завантажуємо Ukrainian сторінку
+      let htmlUA = "";
+      let docUA: Document | null = null;
+      if (allowUA) {
+        try {
+          htmlUA = await fetchHtmlViaProxy(base + "/side-by-side/uk/");
+          docUA = parser.parseFromString(htmlUA, "text/html");
+        } catch (e1) {
+          try {
+            htmlUA = await fetchHtmlViaProxy(base + "/side-by-side/ua/");
+            docUA = parser.parseFromString(htmlUA, "text/html");
+          } catch (e2) {
+            console.warn(`⚠️ Не вдалося завантажити UA для ${verseNumber}:`, e1, e2);
+          }
+        }
+      }
+
+      // Витягуємо санскрит/бенгалі (пріоритет EN, фолбек UA)
+      let sanskrit = "";
+      if (docEN) {
+        sanskrit = locateSection(docEN, ["Devanagari", "Bengali", "Sanskrit"]);
+      }
+      if (!sanskrit && docUA) {
+        sanskrit = locateSection(docUA, ["Деванагарі", "Бенгалі", "Санскрит", "Бенгальська"]);
+      }
+      // Фолбек: шукаємо за діапазонами Unicode
+      if (!sanskrit && (docEN || docUA)) {
+        const doc = docEN || docUA!;
         const candidates = Array.from(doc.querySelectorAll("p, div, span"))
           .map(el => el.textContent?.trim() || "")
           .filter(t => /[\u0980-\u09FF\u0900-\u097F]/.test(t) && t.length > 10);
@@ -209,24 +251,41 @@ export default function VedabaseImportV2() {
       }
 
       // Транслітерація
-      const transliteration = Array.from(doc.querySelectorAll(".transliteration, [class*='translit']"))
-        .map((el) => el.textContent?.trim())
-        .filter(Boolean)
-        .join("\n");
+      let transliteration = "";
+      if (docEN) {
+        transliteration = Array.from(docEN.querySelectorAll(".transliteration, [class*='translit']"))
+          .map((el) => el.textContent?.trim())
+          .filter(Boolean)
+          .join("\n");
+      }
+      if (!transliteration && docUA) {
+        transliteration = Array.from(docUA.querySelectorAll(".transliteration, [class*='translit']"))
+          .map((el) => el.textContent?.trim())
+          .filter(Boolean)
+          .join("\n");
+      }
 
-      // Синоніми (word-for-word) - шукаємо в обох мовах
-      const synonyms_ua = locateSection(doc, "Пословний переклад") || locateSection(doc, "Синоніми") || "";
-      const synonyms_en = locateSection(doc, "Synonyms") || locateSection(doc, "Word for word") || "";
+      // English поля
+      let synonyms_en = "";
+      let translation_en = "";
+      let commentary_en = "";
+      if (docEN && allowEN) {
+        synonyms_en = locateSection(docEN, ["Synonyms", "Word for word"]);
+        translation_en = locateSection(docEN, ["Translation"]);
+        commentary_en = locateSection(docEN, ["Purport", "Commentary"]);
+      }
 
-      // Переклад - шукаємо в обох мовах
-      let translation_ua = locateSection(doc, "Переклад") || "";
-      const translation_en = locateSection(doc, "Translation") || "";
+      // Ukrainian поля
+      let synonyms_ua = "";
+      let translation_ua = "";
+      let commentary_ua = "";
+      if (docUA && allowUA) {
+        synonyms_ua = locateSection(docUA, ["Послівний переклад", "Синоніми", "Пословний переклад"]);
+        translation_ua = locateSection(docUA, ["Переклад"]);
+        commentary_ua = locateSection(docUA, ["Пояснення", "Коментар"]);
+      }
 
-      // Пояснення - шукаємо в обох мовах
-      let commentary_ua = locateSection(doc, "Пояснення") || locateSection(doc, "Коментар") || "";
-      const commentary_en = locateSection(doc, "Purport") || locateSection(doc, "Commentary") || "";
-
-      // Додаткове злиття з Gitabase (UA)
+      // Gitabase фолбек для UA
       if (gitabaseMap && allowUA) {
         const g = gitabaseMap.get(verseNumber);
         if (g) {
@@ -235,7 +294,28 @@ export default function VedabaseImportV2() {
         }
       }
 
-      // Формуємо display_blocks з урахуванням вибору мов
+      // Перевірка: чи є хоч якийсь контент?
+      const hasContent = !!(
+        sanskrit ||
+        transliteration ||
+        (allowEN && (synonyms_en || translation_en || commentary_en)) ||
+        (allowUA && (synonyms_ua || translation_ua || commentary_ua))
+      );
+
+      if (!hasContent) {
+        console.warn(`⚠️ Вірш ${verseNumber}: порожній контент, пропускаємо`);
+        return { success: false, isGrouped: false, error: "Порожній контент" };
+      }
+
+      // Логування знайденого
+      console.log(`✅ Вірш ${verseNumber}:`, {
+        hasSanskrit: !!sanskrit,
+        hasTranslit: !!transliteration,
+        hasEN: !!(allowEN && (synonyms_en || translation_en || commentary_en)),
+        hasUA: !!(allowUA && (synonyms_ua || translation_ua || commentary_ua)),
+      });
+
+      // Формуємо display_blocks
       const displayBlocks = {
         sanskrit: !!sanskrit,
         transliteration: !!transliteration,
@@ -244,7 +324,7 @@ export default function VedabaseImportV2() {
         commentary: !!((allowEN && commentary_en) || (allowUA && commentary_ua)),
       };
 
-      // Динамічний payload: включаємо лише дозволені мовні поля
+      // Payload
       const insertPayload: any = {
         chapter_id: chapterId,
         verse_number: verseNumber,
