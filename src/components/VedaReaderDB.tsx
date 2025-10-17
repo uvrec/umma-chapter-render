@@ -5,11 +5,10 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
-import { SettingsPanel } from "@/components/SettingsPanel";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,9 +25,8 @@ export const VedaReaderDB = () => {
   const queryClient = useQueryClient();
 
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Глобальний розмір шрифту для сторінки рідера
+  // Глобальні налаштування - синхронізуються з GlobalSettingsPanel
   const [fontSize, setFontSize] = useState(() => {
     const saved = localStorage.getItem("vv_reader_fontSize");
     return saved ? Number(saved) : 18;
@@ -37,9 +35,7 @@ export const VedaReaderDB = () => {
     const saved = localStorage.getItem("vv_reader_lineHeight");
     return saved ? Number(saved) : 1.6;
   });
-  const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => localStorage.getItem("vv_reader_dualMode") === "true");
-  const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
 
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
     try {
@@ -98,14 +94,11 @@ export const VedaReaderDB = () => {
       showCommentary: false,
     };
   });
-
-  // Persist settings
+  
+  // Застосувати line-height до контейнера рідера
   useEffect(() => {
-    localStorage.setItem("vv_reader_fontSize", String(fontSize));
-  }, [fontSize]);
-
-  useEffect(() => {
-    localStorage.setItem("vv_reader_lineHeight", String(lineHeight));
+    const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
+    if (root) root.style.lineHeight = String(lineHeight);
   }, [lineHeight]);
   
   // Застосувати line-height до контейнера рідера
@@ -472,7 +465,7 @@ export const VedaReaderDB = () => {
   };
 
   return (
-    <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
+    <div className="min-h-screen bg-background">
       <Header />
 
       <div className="container mx-auto px-4 py-8" style={readerStyle} data-reader-root="true">
@@ -496,11 +489,8 @@ export const VedaReaderDB = () => {
           }
         />
 
-        <div className="mt-4 mb-8 flex items-center justify-between">
+        <div className="mt-4 mb-8">
           <h1 className="text-3xl font-bold">{bookTitle}</h1>
-          <Button variant="outline" size="icon" onClick={() => setSettingsOpen(true)}>
-            <Settings className="h-5 w-5" />
-          </Button>
         </div>
 
         <div className="mb-6">
@@ -592,24 +582,59 @@ export const VedaReaderDB = () => {
                 ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
                 : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
 
+              // Налаштування для безперервного режиму
+              const contSettings = {
+                showSanskrit: continuousReadingSettings.showSanskrit,
+                showTransliteration: continuousReadingSettings.showTransliteration,
+                showSynonyms: false, // в безперервному режимі не показуємо
+                showTranslation: continuousReadingSettings.showTranslation,
+                showCommentary: continuousReadingSettings.showCommentary,
+              };
+
               return (
-                <VerseCard
-                  key={verse.id}
-                  verseId={verse.id}
-                  verseNumber={fullVerseNumber}
-                  bookName={chapterTitle}
-                  sanskritText={verse.sanskrit || ""}
-                  transliteration={verse.transliteration || ""}
-                  synonyms={language === "ua" ? verse.synonyms_ua || "" : verse.synonyms_en || ""}
-                  translation={language === "ua" ? verse.translation_ua || "" : verse.translation_en || ""}
-                  commentary={language === "ua" ? verse.commentary_ua || "" : verse.commentary_en || ""}
-                  audioUrl={verse.audio_url || ""}
-                  textDisplaySettings={textDisplaySettings}
-                  isAdmin={isAdmin}
-                  onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
-                />
+                <div key={verse.id}>
+                  {continuousReadingSettings.showVerseNumbers && (
+                    <div className="mb-2 text-sm font-semibold text-primary">
+                      Вірш {fullVerseNumber}
+                    </div>
+                  )}
+                  <VerseCard
+                    verseId={verse.id}
+                    verseNumber={fullVerseNumber}
+                    bookName={chapterTitle}
+                    sanskritText={verse.sanskrit || ""}
+                    transliteration={verse.transliteration || ""}
+                    synonyms={language === "ua" ? verse.synonyms_ua || "" : verse.synonyms_en || ""}
+                    translation={language === "ua" ? verse.translation_ua || "" : verse.translation_en || ""}
+                    commentary={language === "ua" ? verse.commentary_ua || "" : verse.commentary_en || ""}
+                    audioUrl={verse.audio_url || ""}
+                    textDisplaySettings={contSettings}
+                    isAdmin={false}
+                    onVerseUpdate={() => {}}
+                  />
+                </div>
               );
             })}
+
+            <div className="mt-8 flex items-center justify-between border-t pt-8">
+              <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                <ChevronLeft className="mr-2 h-4 w-4" />
+                {t("Попередня глава", "Previous Chapter")}
+              </Button>
+
+              <span className="text-sm text-muted-foreground">
+                {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
+              </span>
+
+              <Button
+                variant="secondary"
+                onClick={handleNextChapter}
+                disabled={currentChapterIndex === allChapters.length - 1}
+              >
+                {t("Наступна глава", "Next Chapter")}
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         ) : (
           <>
@@ -721,33 +746,6 @@ export const VedaReaderDB = () => {
           </>
         )}
       </div>
-
-      <SettingsPanel
-        isOpen={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        craftPaperMode={craftPaperMode}
-        onCraftPaperToggle={setCraftPaperMode}
-        verses={verses.map((v) => ({
-          number: v.verse_number,
-          book: bookTitle,
-          translation: language === "ua" ? v.translation_ua : v.translation_en,
-        }))}
-        currentVerse={currentVerse?.verse_number || ""}
-        onVerseSelect={(verseNum) => {
-          const index = verses.findIndex((v) => v.verse_number === verseNum);
-          if (index !== -1) setCurrentVerseIndex(index);
-        }}
-        dualLanguageMode={dualLanguageMode}
-        onDualLanguageModeToggle={setDualLanguageMode}
-        textDisplaySettings={textDisplaySettings}
-        onTextDisplaySettingsChange={setTextDisplaySettings}
-        originalLanguage={originalLanguage}
-        onOriginalLanguageChange={(lang) => setOriginalLanguage(lang as "sanskrit" | "ua" | "en")}
-        continuousReadingSettings={continuousReadingSettings}
-        onContinuousReadingSettingsChange={setContinuousReadingSettings}
-      />
     </div>
   );
 };
