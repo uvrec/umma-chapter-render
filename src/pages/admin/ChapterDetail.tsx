@@ -22,14 +22,12 @@ export default function ChapterDetail() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("chapters")
-        .select(
-          `
+        .select(`
           *,
           book:books(id, title_ua, title_en),
           canto:cantos(id, canto_number, title_ua),
           verses(id, verse_number)
-        `,
-        )
+        `)
         .eq("id", id)
         .single();
 
@@ -101,7 +99,9 @@ export default function ChapterDetail() {
                 </Link>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">{chapter.title_ua}</h1>
+                <h1 className="text-2xl font-bold">
+                  {chapter.title_ua}
+                </h1>
                 <p className="text-sm text-muted-foreground">
                   {chapter.book?.title_ua}
                   {chapter.canto && ` • Пісня ${chapter.canto.canto_number}`}
@@ -118,7 +118,11 @@ export default function ChapterDetail() {
                   </Link>
                 </Button>
               )}
-              <Button variant="destructive" onClick={handleDelete} disabled={deleteMutation.isPending}>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={deleteMutation.isPending}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Видалити
               </Button>
@@ -141,11 +145,15 @@ export default function ChapterDetail() {
               </div>
               <div>
                 <span className="text-muted-foreground">Тип:</span>
-                <div className="font-medium">{isTextChapter ? "Текстова глава" : "Глава з віршами"}</div>
+                <div className="font-medium">
+                  {isTextChapter ? "Текстова глава" : "Глава з віршами"}
+                </div>
               </div>
               <div>
                 <span className="text-muted-foreground">Віршів:</span>
-                <div className="font-medium">{isTextChapter ? "—" : chapter.verses?.length || 0}</div>
+                <div className="font-medium">
+                  {isTextChapter ? "—" : chapter.verses?.length || 0}
+                </div>
               </div>
               <div>
                 <span className="text-muted-foreground">Книга:</span>
@@ -247,7 +255,9 @@ export default function ChapterDetail() {
               <div className="flex items-center justify-between">
                 <CardTitle>Вірші ({chapter.verses?.length || 0})</CardTitle>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to={`/admin/verses?chapter=${chapter.id}`}>Переглянути всі</Link>
+                  <Link to={`/admin/verses?chapter=${chapter.id}`}>
+                    Переглянути всі
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
@@ -256,7 +266,9 @@ export default function ChapterDetail() {
                 <div className="text-center py-8 text-muted-foreground">
                   <p>Віршів поки немає</p>
                   <Button className="mt-4" asChild>
-                    <Link to={`/admin/verses/new?chapter=${chapter.id}`}>Додати перший вірш</Link>
+                    <Link to={`/admin/verses/new?chapter=${chapter.id}`}>
+                      Додати перший вірш
+                    </Link>
                   </Button>
                 </div>
               ) : (
@@ -268,7 +280,9 @@ export default function ChapterDetail() {
                     >
                       <span className="font-medium">Вірш {verse.verse_number}</span>
                       <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/admin/verses/${verse.id}/edit`}>Редагувати</Link>
+                        <Link to={`/admin/verses/${verse.id}/edit`}>
+                          Редагувати
+                        </Link>
                       </Button>
                     </div>
                   ))}
