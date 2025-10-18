@@ -1,6 +1,6 @@
 // src/pages/admin/WebImport.tsx
 import { useState, useEffect } from "react";
-import { useSupabaseClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,9 +27,11 @@ interface Canto {
   title_en: string;
 }
 
-export default function WebImport() {
-  const supabase = useSupabaseClient();
+// Book IDs for lectures and letters
+const LECTURES_BOOK_ID = "2c99d79a-5c20-4b02-ac86-00551c475379";
+const LETTERS_BOOK_ID = "4edac4c6-bcdf-413a-b444-6628ebfca892";
 
+export default function WebImport() {
   // Book/Canto selection
   const [books, setBooks] = useState<Book[]>([]);
   const [cantos, setCantos] = useState<Canto[]>([]);
@@ -48,6 +50,10 @@ export default function WebImport() {
   const [useServerParser, setUseServerParser] = useState(false);
   const [useTextOnly, setUseTextOnly] = useState(false);
 
+  // Parser status
+  const [parserStatus, setParserStatus] = useState<"unknown" | "online" | "offline">("unknown");
+  const [checkingParser, setCheckingParser] = useState(false);
+
   // Progress
   const [isImporting, setIsImporting] = useState(false);
   const [parsingProgress, setParsingProgress] = useState(0);
@@ -55,7 +61,23 @@ export default function WebImport() {
 
   useEffect(() => {
     loadBooks();
+    checkParserHealth();
   }, []);
+
+  const checkParserHealth = async () => {
+    setCheckingParser(true);
+    try {
+      const response = await fetch("http://localhost:5003/health", {
+        method: "GET",
+        signal: AbortSignal.timeout(2000),
+      });
+      setParserStatus(response.ok ? "online" : "offline");
+    } catch {
+      setParserStatus("offline");
+    } finally {
+      setCheckingParser(false);
+    }
+  };
 
   const loadBooks = async () => {
     const { data, error } = await supabase.from("books").select("id, title_ua, title_en, has_cantos").order("title_en");
@@ -211,7 +233,10 @@ export default function WebImport() {
     try {
       let chapter = null;
 
-      if (useServerParser) {
+      // Auto-fallback: if parser is offline or not explicitly requested, use client-side
+      const shouldUseServerParser = useServerParser && parserStatus === "online";
+
+      if (shouldUseServerParser) {
         // ============================================================================
         // НОВИЙ ПІДХІД: Playwright parser з нормалізацією через API
         // ============================================================================
@@ -280,13 +305,31 @@ export default function WebImport() {
             description: `Отримано ${chapter.verses.length} віршів з транслітерацією`,
           });
         } catch (apiError) {
-          console.error("[WebImport] Server parser failed:", apiError);
+          console.error("[WebImport] Server parser failed, falling back to client-side:", apiError);
           toast({
-            title: "⚠️ Помилка серверного парсера",
-            description: apiError instanceof Error ? apiError.message : "Невідома помилка",
-            variant: "destructive",
+            title: "⚠️ Сервер недоступний",
+            description: "Використовую клієнтський парсер...",
           });
-          throw apiError;
+
+          // Fallback to client-side HTML parser
+          setParsingStatus("Завантаження HTML через CORS proxy...");
+          const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
+          setParsingProgress(25);
+
+          const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
+          setParsingProgress(50);
+
+          setParsingStatus("Парсинг HTML на клієнті...");
+          chapter = await parseChapterFromWeb(
+            vedabaseHtml,
+            gitabaseHtml,
+            parseInt(chapterNumber),
+            chapterTitleUa,
+            chapterTitleEn,
+          );
+
+          setParsingProgress(75);
+          setParsingStatus(`Розпізнано ${chapter.verses.length} віршів (fallback)`);
         }
       } else if (useTextOnly) {
         // ============================================================================
@@ -509,6 +552,43 @@ export default function WebImport() {
                 Приклад: https://gitabase.com/ukr/CC/1/1 (ліла/глава без номера віршу)
               </p>
             </div>
+
+            {/* Parser status */}
+            <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border">
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-sm font-medium">Playwright сервер:</span>
+                {checkingParser ? (
+                  <span className="text-xs text-muted-foreground">Перевірка...</span>
+                ) : (
+                  <span
+                    className={`text-xs font-semibold ${
+                      parserStatus === "online"
+                        ? "text-green-600"
+                        : parserStatus === "offline"
+                        ? "text-red-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {parserStatus === "online" ? "🟢 Online" : parserStatus === "offline" ? "🔴 Offline" : "⚪ Unknown"}
+                  </span>
+                )}
+              </div>
+              <Button variant="outline" size="sm" onClick={checkParserHealth} disabled={checkingParser}>
+                Перевірити
+              </Button>
+            </div>
+
+            {parserStatus === "offline" && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm">
+                <p className="font-semibold text-amber-900">💡 Playwright сервер не запущено</p>
+                <p className="text-amber-700 mt-1">
+                  Запустіть термінал та виконайте: <code className="bg-amber-100 px-1 rounded">python3 tools/parse_server.py</code>
+                </p>
+                <p className="text-amber-600 text-xs mt-1">
+                  Або продовжуйте - система автоматично використає вбудований клієнтський парсер
+                </p>
+              </div>
+            )}
 
             {/* Перемикачі типу парсера */}
             <div className="space-y-3">
