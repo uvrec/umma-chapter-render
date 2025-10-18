@@ -277,14 +277,27 @@ export default function WebImport() {
         } catch (apiError) {
           console.error("[WebImport] Server parser failed:", apiError);
 
-          // Показуємо помилку але не падаємо - можна спробувати fallback
+          // Автоматичний фолбек на клієнтський парсер через Supabase proxy
           toast({
-            title: "⚠️ Помилка серверного парсера",
-            description: apiError instanceof Error ? apiError.message : "Невідома помилка",
-            variant: "destructive",
+            title: "⚠️ Playwright парсер недоступний",
+            description: "Перехід на вбудований парсер без Python",
           });
 
-          throw apiError; // Не робимо fallback автоматично
+          setParsingStatus("Використання вбудованого парсера...");
+          // Legacy path inline
+          const vedabaseHtml = await fetchWithProxy(vedabaseUrl);
+          setParsingProgress(25);
+          const gitabaseHtml = await fetchWithProxy(gitabaseUrl);
+          setParsingProgress(50);
+          chapter = await parseChapterFromWeb(
+            vedabaseHtml,
+            gitabaseHtml,
+            parseInt(chapterNumber),
+            chapterTitleUa,
+            chapterTitleEn,
+          );
+          setParsingProgress(75);
+          setParsingStatus(`Розпізнано ${chapter.verses.length} віршів (fallback)`);
         }
       } else {
         // ============================================================================

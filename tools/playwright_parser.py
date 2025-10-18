@@ -635,11 +635,16 @@ async def parse_chapter_async(
                 v = start_v
                 ved_urls = {v: join_ved(vedabase_base, v)}
             
-            # Validate URLs
-            if not urlparse(ved_url).scheme.startswith('http'):
-                raise RuntimeError(f"Invalid Vedabase URL: {ved_url}")
-            if not urlparse(git_url).scheme.startswith('http'):
-                raise RuntimeError(f"Invalid Gitabase URL: {git_url}")
+            # Validate URLs (fixed): validate a sample Vedabase URL and Gitabase base
+            try:
+                any_v_for_validation = next(iter(ved_urls.keys()))
+                ved_url_any = ved_urls[any_v_for_validation]
+                if not urlparse(ved_url_any).scheme.startswith('http'):
+                    raise RuntimeError(f"Invalid Vedabase URL: {ved_url_any}")
+                if not urlparse(gitabase_base).scheme.startswith('http'):
+                    raise RuntimeError(f"Invalid Gitabase base URL: {gitabase_base}")
+            except StopIteration:
+                raise RuntimeError("No verse URLs constructed for validation")
             
             # VEDABASE: fetch once per segment (group or single)
             import requests
