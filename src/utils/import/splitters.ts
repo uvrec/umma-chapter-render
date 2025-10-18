@@ -67,6 +67,7 @@ export function splitIntoChapters(
         chapter_number: 1,
         chapter_type: 'text',
         title_ua: 'Розділ 1',
+        title_en: 'Chapter 1',
         verses: [],
         content_ua: text.trim()
       }];
@@ -75,6 +76,7 @@ export function splitIntoChapters(
       chapter_number: 1,
       chapter_type: 'verses',
       title_ua: 'Розділ 1',
+      title_en: 'Chapter 1',
       verses: verses
     }];
   }
@@ -150,6 +152,7 @@ export function splitIntoChapters(
       chapter_number: chapterNum,
       chapter_type: chapterType,
       title_ua: chapterTitle,
+      title_en: chapterTitle, // Use same title or translate if needed
       verses: verses,
       content_ua: contentUa
     });

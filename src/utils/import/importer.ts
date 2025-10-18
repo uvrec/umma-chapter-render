@@ -208,11 +208,15 @@ export async function importSingleChapter(
 ) {
   const { bookId, cantoId, chapter, strategy = "replace" } = payload;
 
+  // Normalize chapter_type: "intro" is treated as "text"
+  const normalizedType: "verses" | "text" = 
+    chapter.chapter_type === "verses" ? "verses" : "text";
+
   const chapterId = await upsertChapter(supabase, {
     bookId,
     cantoId: cantoId ?? null,
     chapter_number: chapter.chapter_number,
-    chapter_type: chapter.chapter_type ?? "verses",
+    chapter_type: normalizedType,
     title_ua: chapter.title_ua,
     title_en: chapter.title_en,
     content_ua: chapter.content_ua,

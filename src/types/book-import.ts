@@ -1,5 +1,5 @@
 // src/types/book-import.ts
-export type ChapterType = "verses" | "text" | "intro";
+export type ChapterType = "verses" | "text";
 
 export interface ParsedVerse {
   verse_number: string;
@@ -19,7 +19,7 @@ export interface ParsedVerse {
 
 export interface ParsedChapter {
   chapter_number: number;
-  chapter_type: "verses" | "text" | "intro";
+  chapter_type: "verses" | "text";
   title_ua: string;
   title_en: string;
   verses: ParsedVerse[];
