@@ -80,20 +80,31 @@ export default function WebImport() {
   };
 
   /**
-   * Завантажує HTML через CORS proxy
+   * Завантажує HTML через Supabase Edge Function (CORS-safe)
    */
   const fetchWithProxy = async (url: string): Promise<string> => {
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-
     try {
-      const response = await fetch(proxyUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      console.log("[WebImport] Fetching via Supabase proxy:", url);
+
+      const { data, error } = await supabase.functions.invoke("fetch-proxy", {
+        body: { url },
+      });
+
+      if (error) {
+        console.error("[WebImport] Proxy error:", error);
+        throw new Error(error.message || "Proxy error");
       }
-      return await response.text();
+
+      const html = data?.html;
+      if (!html) {
+        throw new Error("Порожня відповідь від проксі");
+      }
+
+      console.log("[WebImport] Successfully fetched:", html.length, "chars");
+      return html;
     } catch (error) {
       console.error(`Failed to fetch ${url}:`, error);
-      throw new Error(`Не вдалося завантажити контент з ${url}. Перевірте URL.`);
+      throw new Error(`Не вдалося завантажити контент з ${url}. ${error instanceof Error ? error.message : ""}`);
     }
   };
 
