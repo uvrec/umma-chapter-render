@@ -98,6 +98,44 @@ function parseVedabaseText(text: string): Map<string, Partial<ParsedVerse>> {
 }
 
 /**
+ * Витягує метадані лекції (дата, місце, аудіо)
+ */
+function extractLectureMetadata(text: string): {
+  date?: string;
+  location?: string;
+  audioUrl?: string;
+  type?: string;
+} {
+  const metadata: any = {};
+  
+  // Дата: "February 19th 1966", "July 12th 1947"
+  const dateMatch = text.match(/(?:Dated:|Date:)?\s*([A-Z][a-z]+\s+\d{1,2}(?:st|nd|rd|th)?\s+\d{4})/i);
+  if (dateMatch) {
+    metadata.date = dateMatch[1];
+  }
+  
+  // Місце: "New York", "Cawnpore", "Location: New York"
+  const locationMatch = text.match(/(?:Location:|Place:)\s*([A-Z][a-z\s]+)/i);
+  if (locationMatch) {
+    metadata.location = locationMatch[1].trim();
+  }
+  
+  // Тип: "Bhagavad-gītā", "Letter to:"
+  const typeMatch = text.match(/Type:\s*([^\n]+)/i);
+  if (typeMatch) {
+    metadata.type = typeMatch[1].trim();
+  }
+  
+  // Аудіо файл: ".mp3"
+  const audioMatch = text.match(/(\w+\.mp3)/i);
+  if (audioMatch) {
+    metadata.audioUrl = `https://vedabase.io/audio/${audioMatch[1]}`;
+  }
+  
+  return metadata;
+}
+
+/**
  * Парсить текст Gitabase без використання DOM
  */
 function parseGitabaseText(text: string): Map<string, Partial<ParsedVerse>> {
@@ -178,6 +216,7 @@ function mergeVerseData(
 
 /**
  * Парсить повну главу з текстового контенту (без DOM)
+ * Для лекцій/листів - повертає весь текст + метадані
  */
 export async function parseChapterTextOnly(
   vedabaseText: string,
@@ -188,7 +227,50 @@ export async function parseChapterTextOnly(
 ): Promise<ParsedChapter> {
   console.log("[textOnlyParser] Starting text-only chapter parsing");
 
-  const vedabaseVerses = parseVedabaseText(vedabaseText);
+  // Перевіряємо чи це лекція/лист (немає TEXT X маркерів)
+  const hasVerseMarkers = /TEXT\s+\d+/i.test(vedabaseText);
+  
+  if (!hasVerseMarkers) {
+    // Це лекція/лист - витягуємо весь текст
+    console.log("[textOnlyParser] Detected lecture/letter format");
+    
+    const metadata = extractLectureMetadata(vedabaseText);
+    
+    // Видаляємо метадані з початку тексту
+    let content = vedabaseText
+      .replace(/Type:.*?\n/gi, '')
+      .replace(/Dated?:.*?\n/gi, '')
+      .replace(/Location:.*?\n/gi, '')
+      .replace(/Audio file:.*?\n/gi, '')
+      .replace(/Letter to:.*?\n/gi, '')
+      .trim();
+    
+    // Видаляємо прабхупаду блок на початку (санскрит мантри)
+    content = content.replace(/Prabhupāda:[\s\S]*?(?=\[|$)/i, '').trim();
+    
+    return {
+      chapter_number: chapterNumber,
+      chapter_type: "text",
+      title_ua: chapterTitleUa,
+      title_en: chapterTitleEn,
+ 
+// Розширені типи для ParsedChapter
+interface ParsedChapter {
+  chapter_number: number;
+  chapter_type: "verses" | "text";
+  title_ua: string;
+  title_en: string;
+  verses?: ParsedVerse[];
+  content_en?: string;
+  content_ua?: string;
+  metadata?: {
+    date?: string;
+    location?: string;
+    audio_url?: string;
+    type?: string;
+  };
+}
+baseText(vedabaseText);
   const gitabaseVerses = parseGitabaseText(gitabaseText);
 
   // Об'єднуємо всі унікальні номери віршів
