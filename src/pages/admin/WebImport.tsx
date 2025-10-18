@@ -51,6 +51,85 @@ export default function WebImport() {
   const [parsingProgress, setParsingProgress] = useState(0);
   const [parsingStatus, setParsingStatus] = useState("");
 
+  // Автоматично генеруємо назву з URL
+  useEffect(() => {
+    if (!vedabaseUrl) return;
+
+    try {
+      const urlParts = vedabaseUrl.split("/").filter(Boolean);
+      const lastPart = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+
+      if (lastPart) {
+        // Для лекцій: 660219bg-new-york
+        const match = lastPart.match(/(\d{6})([a-z]+)-(.+)/i);
+        if (match) {
+          const dateStr = match[1];
+          const bookCode = match[2];
+          const location = match[3].replace(/-/g, " ");
+
+          const year = "19" + dateStr.substring(0, 2);
+          const month = parseInt(dateStr.substring(2, 4));
+          const day = parseInt(dateStr.substring(4, 6));
+
+          const months = [
+            "",
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+          ];
+          const monthsUa = [
+            "",
+            "Січня",
+            "Лютого",
+            "Березня",
+            "Квітня",
+            "Травня",
+            "Червня",
+            "Липня",
+            "Серпня",
+            "Вересня",
+            "Жовтня",
+            "Листопада",
+            "Грудня",
+          ];
+
+          const books: any = { bg: "Bhagavad-gita", sb: "Srimad-Bhagavatam", cc: "Caitanya-caritamrta" };
+          const booksUa: any = { bg: "Бхагавад-гіта", sb: "Шрімад-Бхагаватам", cc: "Чайтанья-чарітамрита" };
+
+          const loc = location
+            .split(" ")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ");
+
+          setChapterTitleEn(`${books[bookCode] || bookCode.toUpperCase()} ${months[month]} ${day}, ${year} - ${loc}`);
+          setChapterTitleUa(
+            `${booksUa[bookCode] || bookCode.toUpperCase()} ${day} ${monthsUa[month]} ${year} - ${loc}`,
+          );
+        } else {
+          // Для листів: letter-to-mahatma-gandhi
+          const title = lastPart
+            .replace(/-/g, " ")
+            .split(" ")
+            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(" ");
+          setChapterTitleEn(title);
+          setChapterTitleUa(title);
+        }
+      }
+    } catch (e) {
+      console.error("Title parse error:", e);
+    }
+  }, [vedabaseUrl]);
+
   useEffect(() => {
     loadBooks();
   }, []);
