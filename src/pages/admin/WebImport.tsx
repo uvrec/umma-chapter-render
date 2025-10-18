@@ -56,77 +56,43 @@ export default function WebImport() {
     if (!vedabaseUrl) return;
 
     try {
-      const urlParts = vedabaseUrl.split("/").filter(Boolean);
+      const urlParts = vedabaseUrl.split('/').filter(Boolean);
       const lastPart = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
-
+      
       if (lastPart) {
         // Для лекцій: 660219bg-new-york
         const match = lastPart.match(/(\d{6})([a-z]+)-(.+)/i);
         if (match) {
           const dateStr = match[1];
           const bookCode = match[2];
-          const location = match[3].replace(/-/g, " ");
-
-          const year = "19" + dateStr.substring(0, 2);
+          const location = match[3].replace(/-/g, ' ');
+          
+          const year = '19' + dateStr.substring(0, 2);
           const month = parseInt(dateStr.substring(2, 4));
           const day = parseInt(dateStr.substring(4, 6));
-
-          const months = [
-            "",
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-          ];
-          const monthsUa = [
-            "",
-            "Січня",
-            "Лютого",
-            "Березня",
-            "Квітня",
-            "Травня",
-            "Червня",
-            "Липня",
-            "Серпня",
-            "Вересня",
-            "Жовтня",
-            "Листопада",
-            "Грудня",
-          ];
-
-          const books: any = { bg: "Bhagavad-gita", sb: "Srimad-Bhagavatam", cc: "Caitanya-caritamrta" };
-          const booksUa: any = { bg: "Бхагавад-гіта", sb: "Шрімад-Бхагаватам", cc: "Чайтанья-чарітамрита" };
-
-          const loc = location
-            .split(" ")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
-
+          
+          const months = ['', 'January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+          const monthsUa = ['', 'Січня', 'Лютого', 'Березня', 'Квітня', 'Травня', 'Червня',
+                            'Липня', 'Серпня', 'Вересня', 'Жовтня', 'Листопада', 'Грудня'];
+          
+          const books: any = { bg: 'Bhagavad-gita', sb: 'Srimad-Bhagavatam', cc: 'Caitanya-caritamrta' };
+          const booksUa: any = { bg: 'Бхагавад-гіта', sb: 'Шрімад-Бхагаватам', cc: 'Чайтанья-чарітамрита' };
+          
+          const loc = location.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          
           setChapterTitleEn(`${books[bookCode] || bookCode.toUpperCase()} ${months[month]} ${day}, ${year} - ${loc}`);
-          setChapterTitleUa(
-            `${booksUa[bookCode] || bookCode.toUpperCase()} ${day} ${monthsUa[month]} ${year} - ${loc}`,
-          );
+          setChapterTitleUa(`${booksUa[bookCode] || bookCode.toUpperCase()} ${day} ${monthsUa[month]} ${year} - ${loc}`);
         } else {
           // Для листів: letter-to-mahatma-gandhi
-          const title = lastPart
-            .replace(/-/g, " ")
-            .split(" ")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
+          const title = lastPart.replace(/-/g, ' ').split(' ')
+            .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
           setChapterTitleEn(title);
           setChapterTitleUa(title);
         }
       }
     } catch (e) {
-      console.error("Title parse error:", e);
+      console.error('Title parse error:', e);
     }
   }, [vedabaseUrl]);
 
@@ -135,7 +101,10 @@ export default function WebImport() {
   }, []);
 
   const loadBooks = async () => {
-    const { data, error } = await supabase.from("books").select("id, title_ua, title_en, has_cantos").order("title_en");
+    const { data, error } = await supabase
+      .from("books")
+      .select("id, title_ua, title_en, has_cantos")
+      .order("title_en");
 
     if (error) {
       toast({
@@ -204,10 +173,10 @@ export default function WebImport() {
     // Видаляємо script та style теги
     let text = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
     text = text.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
-
+    
     // Видаляємо HTML теги
     text = text.replace(/<[^>]+>/g, " ");
-
+    
     // Декодуємо HTML entities
     text = text.replace(/&nbsp;/g, " ");
     text = text.replace(/&amp;/g, "&");
@@ -216,10 +185,10 @@ export default function WebImport() {
     text = text.replace(/&quot;/g, '"');
     text = text.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code)));
     text = text.replace(/&#x([0-9A-Fa-f]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
-
+    
     // Нормалізуємо пробіли
     text = text.replace(/\s+/g, " ");
-
+    
     return text.trim();
   };
 
@@ -387,13 +356,13 @@ export default function WebImport() {
         setParsingProgress(50);
 
         setParsingStatus("Витягування тексту...");
-
+        
         const vedabaseText = extractPlainText(vedabaseHtml);
         const gitabaseText = extractPlainText(gitabaseHtml);
-
+        
         console.log("[WebImport] Extracted text lengths:", {
           vedabase: vedabaseText.length,
-          gitabase: gitabaseText.length,
+          gitabase: gitabaseText.length
         });
 
         setParsingStatus("Парсинг тексту...");
@@ -449,7 +418,7 @@ export default function WebImport() {
       // Для text-only лекцій/листів використовуємо інший формат імпорту
       if (useTextOnly && chapter.chapter_type === "text") {
         console.log("[WebImport] Importing as text chapter (lecture/letter)");
-
+        
         // Спочатку перевіряємо чи існує глава
         const { data: existing } = await supabase
           .from("chapters")
@@ -474,20 +443,22 @@ export default function WebImport() {
           if (error) throw error;
         } else {
           // Створюємо нову
-          const { error } = await supabase.from("chapters").insert({
-            book_id: selectedBook,
-            canto_id: selectedCanto || null,
-            chapter_number: chapter.chapter_number,
-            chapter_type: "text",
-            title_ua: chapter.title_ua,
-            title_en: chapter.title_en,
-            content_en: chapter.content_en || "",
-            content_ua: chapter.content_ua || "",
-          });
+          const { error } = await supabase
+            .from("chapters")
+            .insert({
+              book_id: selectedBook,
+              canto_id: selectedCanto || null,
+              chapter_number: chapter.chapter_number,
+              chapter_type: "text",
+              title_ua: chapter.title_ua,
+              title_en: chapter.title_en,
+              content_en: chapter.content_en || "",
+              content_ua: chapter.content_ua || "",
+            });
 
           if (error) throw error;
         }
-
+        
         console.log("[WebImport] Lecture imported successfully");
       } else {
         // Звичайний імпорт глави з віршами
@@ -591,7 +562,9 @@ export default function WebImport() {
                   onChange={(e) => setVerseRange(e.target.value)}
                   placeholder="1-10 або 1,3,5-8"
                 />
-                <p className="text-xs text-muted-foreground mt-1">Наприклад: "1-10" або "1,3,5-8,12"</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Наприклад: "1-10" або "1,3,5-8,12"
+                </p>
               </div>
             </div>
 
@@ -636,7 +609,9 @@ export default function WebImport() {
                 onChange={(e) => setGitabaseUrl(e.target.value)}
                 placeholder="https://gitabase.com/ukr/CC/1/1"
               />
-              <p className="text-xs text-muted-foreground mt-1">Для лекцій/листів можна залишити порожнім</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Для лекцій/листів можна залишити порожнім
+              </p>
             </div>
 
             {/* Перемикачі типу парсера */}
@@ -655,7 +630,9 @@ export default function WebImport() {
                 />
                 <Label htmlFor="useServerParser" className="cursor-pointer">
                   <span className="font-semibold">Playwright парсер</span>
-                  <span className="text-xs text-muted-foreground ml-2">(рекомендовано для транслітерації)</span>
+                  <span className="text-xs text-muted-foreground ml-2">
+                    (рекомендовано для транслітерації)
+                  </span>
                 </Label>
               </div>
 
@@ -715,7 +692,8 @@ export default function WebImport() {
               <p className="font-semibold">💡 Поради:</p>
               <ul className="list-disc ml-5 space-y-1">
                 <li>
-                  <strong>Text-only парсер:</strong> швидший, не потребує сервера, працює напряму з текстом
+                  <strong>Text-only парсер:</strong> швидший, не потребує сервера, працює напряму з
+                  текстом
                 </li>
                 <li>
                   <strong>Playwright парсер:</strong> точніше розпізнає транслітерацію, потребує сервер
