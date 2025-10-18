@@ -4,19 +4,19 @@
  */
 
 export interface VedabaseBook {
-  slug: string; // vedabase slug
-  our_slug?: string; // наш slug в БД (якщо відрізняється)
+  slug: string;
+  our_slug?: string;
   name_en: string;
   name_ua: string;
   has_cantos: boolean;
   url_pattern: string;
   gitabase_available: boolean;
   gitabase_slug?: string;
-  structure_type: "full" | "text_only" | "mixed"; // Тип структури контенту
+  structure_type: "full" | "text_only" | "mixed";
 }
 
 export const VEDABASE_BOOKS: VedabaseBook[] = [
-  // ✅ ПРОТЕСТОВАНІ: Основні книги (Є в нашій БД з українською)
+  // ✅ ПРОТЕСТОВАНІ: Основні книги
   {
     slug: "bg",
     our_slug: "gita",
@@ -44,7 +44,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     our_slug: "scc",
     name_en: "Śrī Caitanya-caritāmṛta",
     name_ua: "Шрі Чайтанья-чарітамріта",
-    has_cantos: true, // Adi (1), Madhya (2), Antya (3)
+    has_cantos: true,
     url_pattern: "/library/cc/{lila}/{chapter}/{verse}/",
     gitabase_available: true,
     gitabase_slug: "CC",
@@ -71,8 +71,6 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     gitabase_available: false,
     structure_type: "full",
   },
-
-  // 📚 ГОТОВІ ДО ІМПОРТУ: Книги з віршами
   {
     slug: "bs",
     name_en: "Śrī Brahma-saṁhitā",
@@ -82,7 +80,8 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     gitabase_available: false,
     structure_type: "full",
   },
-  // 📖 ГОТОВІ ДО ІМПОРТУ: Текстові книги (без віршів)
+
+  // 📖 Текстові книги
   {
     slug: "bbd",
     name_en: "Beyond Birth and Death",
@@ -144,7 +143,7 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     has_cantos: false,
     url_pattern: "/library/lob/{verse}/",
     gitabase_available: false,
-    structure_type: "full", // Має вірші з поясненнями
+    structure_type: "full",
   },
   {
     slug: "rvs",
@@ -164,41 +163,48 @@ export const VEDABASE_BOOKS: VedabaseBook[] = [
     gitabase_available: false,
     structure_type: "text_only",
   },
+
+  // 🎤 ЛЕКЦІЇ
+  {
+    slug: "lectures",
+    name_en: "Lectures by Srila Prabhupada",
+    name_ua: "Лекції Шріли Прабгупади",
+    has_cantos: false,
+    url_pattern: "/library/lectures/",
+    gitabase_available: false,
+    structure_type: "text_only",
+  },
+
+  // ✉️ ЛИСТИ
+  {
+    slug: "letters",
+    name_en: "Letters by Srila Prabhupada",
+    name_ua: "Листи Шріли Прабгупади",
+    has_cantos: false,
+    url_pattern: "/library/letters/",
+    gitabase_available: false,
+    structure_type: "text_only",
+  },
 ];
 
-/**
- * Маппінг ліл Chaitanya-caritamrita
- */
 export const CC_LILAS: { [key: string]: string } = {
   "1": "adi",
   "2": "madhya",
   "3": "antya",
 };
 
-/**
- * Отримати конфігурацію книги по slug
- */
 export function getBookConfig(slug: string): VedabaseBook | undefined {
   return VEDABASE_BOOKS.find((book) => book.slug === slug);
 }
 
-/**
- * Отримати конфігурацію книги по нашому slug
- */
 export function getBookConfigByOurSlug(ourSlug: string): VedabaseBook | undefined {
   return VEDABASE_BOOKS.find((book) => book.our_slug === ourSlug || book.slug === ourSlug);
 }
 
-/**
- * Отримати наш slug для імпорту (наш slug або vedabase slug якщо наш не вказаний)
- */
 export function getOurSlug(vedabaseBook: VedabaseBook): string {
   return vedabaseBook.our_slug || vedabaseBook.slug;
 }
 
-/**
- * Сформувати URL для Vedabase
- */
 export function buildVedabaseUrl(
   book: VedabaseBook,
   params: {
@@ -211,7 +217,6 @@ export function buildVedabaseUrl(
   const baseUrl = "https://vedabase.io/en";
   let url = book.url_pattern;
 
-  // Для CC використовуємо назви ліл
   if (book.slug === "cc" && params.canto) {
     const lilaName = CC_LILAS[params.canto] || "adi";
     url = url.replace("{lila}", lilaName);
@@ -227,15 +232,11 @@ export function buildVedabaseUrl(
     url = url.replace("{verse}", params.verse);
   }
 
-  // Видаляємо незамінені плейсхолдери для отримання базового URL глави
   url = url.replace(/\{[^}]+\}/g, "").replace(/\/+$/, "");
 
   return baseUrl + url + "/";
 }
 
-/**
- * Сформувати URL для Gitabase
- */
 export function buildGitabaseUrl(
   book: VedabaseBook,
   params: {
@@ -251,25 +252,17 @@ export function buildGitabaseUrl(
   const baseUrl = "https://gitabase.com/ukr";
   const slug = book.gitabase_slug;
 
-  // Формат для різних книг
   if (book.slug === "bg") {
-    // BG: https://gitabase.com/ukr/BG/1/1
     return `${baseUrl}/${slug}/${params.chapter}/${params.verse || ""}`;
   } else if (book.slug === "sb") {
-    // SB: https://gitabase.com/ukr/SB/1/1/1
     return `${baseUrl}/${slug}/${params.canto}/${params.chapter}/${params.verse || ""}`;
   } else if (book.slug === "cc") {
-    // CC: https://gitabase.com/ukr/CC/1/1/1
     return `${baseUrl}/${slug}/${params.canto}/${params.chapter}/${params.verse || ""}`;
   } else if (book.slug === "iso") {
-    // ISO: https://gitabase.com/ukr/ISO/1
     return `${baseUrl}/${slug}/${params.verse || ""}`;
   }
 
   return null;
 }
 
-/**
- * Типи для TypeScript
- */
 export type BookSlug = (typeof VEDABASE_BOOKS)[number]["slug"];
