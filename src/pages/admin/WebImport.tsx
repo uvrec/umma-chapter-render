@@ -80,10 +80,7 @@ export default function WebImport() {
   };
 
   /**
-   * Завантажує HTML через CORS proxy
-   */
-  /**
-   * Завантажує HTML через Supabase Edge Function (CORS-safe)
+   * Завантажує HTML через Supabase Edge Function
    */
   const fetchWithProxy = async (url: string): Promise<string> => {
     try {
@@ -100,14 +97,14 @@ export default function WebImport() {
 
       const html = data?.html;
       if (!html) {
-        throw new Error("Порожня відповідь від проксі");
+        throw new Error("Порожня відповідь");
       }
 
-      console.log("[WebImport] Successfully fetched:", html.length, "chars");
+      console.log("[WebImport] Fetched:", html.length, "chars");
       return html;
     } catch (error) {
       console.error(`Failed to fetch ${url}:`, error);
-      throw new Error(`Не вдалося завантажити контент з ${url}. ${error instanceof Error ? error.message : ""}`);
+      throw new Error(`Помилка: ${error instanceof Error ? error.message : "Unknown"}`);
     }
   };
 
