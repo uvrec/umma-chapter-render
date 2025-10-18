@@ -253,23 +253,16 @@ export async function parseChapterTextOnly(
       chapter_type: "text",
       title_ua: chapterTitleUa,
       title_en: chapterTitleEn,
- 
-// Розширені типи для ParsedChapter
-interface ParsedChapter {
-  chapter_number: number;
-  chapter_type: "verses" | "text";
-  title_ua: string;
-  title_en: string;
-  verses?: ParsedVerse[];
-  content_en?: string;
-  content_ua?: string;
-  metadata?: {
-    date?: string;
-    location?: string;
-    audio_url?: string;
-    type?: string;
-  };
-}
+      content_en: content,
+      content_ua: "",
+      verses: [],
+      metadata: {
+        date: metadata.date,
+        location: metadata.location,
+        audio_url: metadata.audioUrl,
+        type: metadata.type,
+      }
+    };
 baseText(vedabaseText);
   const gitabaseVerses = parseGitabaseText(gitabaseText);
 
