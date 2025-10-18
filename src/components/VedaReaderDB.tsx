@@ -1,7 +1,3 @@
-// VedaReaderDB.tsx — оновлена версія: інтеграція з новим VerseCard, мовно-залежне збереження,
-// хоткеї (←/→), стабільні ключі запитів, глобальний fontSize/lineHeight,
-// craft-папір: виправлено клас контейнера і додано verse-surface на текстову главу.
-
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { UniversalInlineEditor } from "@/components/UniversalInlineEditor";
 
 export const VedaReaderDB = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
@@ -35,7 +32,9 @@ export const VedaReaderDB = () => {
     const saved = localStorage.getItem("vv_reader_lineHeight");
     return saved ? Number(saved) : 1.6;
   });
-  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => localStorage.getItem("vv_reader_dualMode") === "true");
+  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(
+    () => localStorage.getItem("vv_reader_dualMode") === "true",
+  );
 
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
     try {
@@ -84,8 +83,7 @@ export const VedaReaderDB = () => {
       showCommentary: false,
     };
   });
-  
-  
+
   // Застосувати line-height до контейнера рідера
   useEffect(() => {
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
@@ -101,19 +99,12 @@ export const VedaReaderDB = () => {
       if (lh) setLineHeight(Number(lh));
       const dualMode = localStorage.getItem("vv_reader_dualMode") === "true";
       setDualLanguageMode(dualMode);
-      
-      console.log('🔧 [VedaReaderDB] Syncing settings from localStorage:', {
-        fontSize: fs,
-        lineHeight: lh,
-        dualMode,
-      });
 
       try {
         const b = localStorage.getItem("vv_reader_blocks");
         if (b) {
           const parsed = JSON.parse(b);
-          console.log('🔧 [VedaReaderDB] Text display settings:', parsed);
-          setTextDisplaySettings(prev => ({
+          setTextDisplaySettings((prev) => ({
             ...prev,
             showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
             showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
@@ -127,8 +118,7 @@ export const VedaReaderDB = () => {
         const c = localStorage.getItem("vv_reader_continuous");
         if (c) {
           const parsed = JSON.parse(c);
-          console.log('🔧 [VedaReaderDB] Continuous reading settings:', parsed);
-          setContinuousReadingSettings(prev => ({
+          setContinuousReadingSettings((prev) => ({
             ...prev,
             enabled: parsed.enabled ?? prev.enabled,
             showVerseNumbers: parsed.showVerseNumbers ?? prev.showVerseNumbers,
@@ -292,20 +282,11 @@ export const VedaReaderDB = () => {
   const chapterTitle = language === "ua" ? chapter?.title_ua : chapter?.title_en;
 
   const currentChapterIndex = useMemo(() => {
-    if (!chapter?.id) {
-      console.log('🔧 [VedaReaderDB] No chapter.id, returning -1');
-      return -1;
-    }
-    
+    if (!chapter?.id) return -1;
     let idx = allChapters.findIndex((ch) => ch.id === chapter.id);
-    
-    // Fallback: якщо не знайшли за id, шукаємо за chapter_number
     if (idx === -1 && chapter.chapter_number) {
       idx = allChapters.findIndex((ch) => ch.chapter_number === chapter.chapter_number);
-      console.log('🔧 [VedaReaderDB] Found by chapter_number:', idx);
     }
-    
-    console.log('🔧 [VedaReaderDB] currentChapterIndex:', idx, 'chapter?.id:', chapter?.id, 'allChapters:', allChapters.length);
     return idx >= 0 ? idx : -1;
   }, [allChapters, chapter?.id, chapter?.chapter_number]);
 
@@ -401,46 +382,24 @@ export const VedaReaderDB = () => {
 
   // Навігація між главами
   const handlePrevChapter = () => {
-    console.log('🔧 [VedaReaderDB] handlePrevChapter:', {
-      currentChapterIndex,
-      allChapters: allChapters.length,
-      canNavigate: currentChapterIndex > 0
-    });
-    
-    if (currentChapterIndex === -1 || currentChapterIndex === 0) {
-      console.warn('🔧 [VedaReaderDB] Cannot navigate to previous chapter - at first chapter or invalid index');
-      return;
-    }
-    
+    if (currentChapterIndex === -1 || currentChapterIndex === 0) return;
     if (currentChapterIndex > 0 && currentChapterIndex < allChapters.length) {
       const prevChapter = allChapters[currentChapterIndex - 1];
       const path = isCantoMode
         ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}`
         : `/veda-reader/${bookId}/${prevChapter.chapter_number}`;
-      console.log('🔧 [VedaReaderDB] Navigating to prev chapter:', path);
       navigate(path);
       setCurrentVerseIndex(0);
     }
   };
 
   const handleNextChapter = () => {
-    console.log('🔧 [VedaReaderDB] handleNextChapter:', {
-      currentChapterIndex,
-      allChapters: allChapters.length,
-      canNavigate: currentChapterIndex < allChapters.length - 1
-    });
-    
-    if (currentChapterIndex === -1 || currentChapterIndex >= allChapters.length - 1) {
-      console.warn('🔧 [VedaReaderDB] Cannot navigate to next chapter - at last chapter or invalid index');
-      return;
-    }
-    
+    if (currentChapterIndex === -1 || currentChapterIndex >= allChapters.length - 1) return;
     if (currentChapterIndex >= 0 && currentChapterIndex < allChapters.length - 1) {
       const nextChapter = allChapters[currentChapterIndex + 1];
       const path = isCantoMode
         ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}`
         : `/veda-reader/${bookId}/${nextChapter.chapter_number}`;
-      console.log('🔧 [VedaReaderDB] Navigating to next chapter:', path);
       navigate(path);
       setCurrentVerseIndex(0);
     }
@@ -518,9 +477,9 @@ export const VedaReaderDB = () => {
         <div className="mb-6">
           {isTextChapter ? (
             <div className="flex items-center justify-between">
-              <Button 
-                variant="secondary" 
-                onClick={handlePrevChapter} 
+              <Button
+                variant="secondary"
+                onClick={handlePrevChapter}
                 disabled={currentChapterIndex === -1 || currentChapterIndex === 0}
               >
                 <ChevronLeft className="mr-2 h-4 w-4" />
@@ -545,17 +504,17 @@ export const VedaReaderDB = () => {
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   {t("Попередній вірш", "Previous verse")}
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleNextVerse}
-                  disabled={currentVerseIndex === verses.length - 1}
-                >
+                <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1}>
                   {t("Наступний вірш", "Next verse")}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
               <div className="flex gap-2">
-                <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === -1 || currentChapterIndex === 0}>
+                <Button
+                  variant="secondary"
+                  onClick={handlePrevChapter}
+                  disabled={currentChapterIndex === -1 || currentChapterIndex === 0}
+                >
                   <ChevronLeft className="mr-2 h-4 w-4" />
                   {t("Попередня глава", "Previous Chapter")}
                 </Button>
@@ -577,20 +536,40 @@ export const VedaReaderDB = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <Card className="verse-surface p-8">
-                  <div className="text-center mb-4 text-sm font-semibold text-muted-foreground">
-                    Українська
-                  </div>
+                  <div className="text-center mb-4 text-sm font-semibold text-muted-foreground">Українська</div>
                   <div className="prose prose-lg max-w-none dark:prose-invert">
-                    <TiptapRenderer content={chapter.content_ua || chapter.content_en || ""} />
+                    {isAdmin ? (
+                      <UniversalInlineEditor
+                        table="chapters"
+                        recordId={chapter.id}
+                        field="content_ua"
+                        initialValue={chapter.content_ua || chapter.content_en || ""}
+                        label={`Контент лекції (UA)`}
+                        language="ua"
+                        showToggle={true}
+                      />
+                    ) : (
+                      <TiptapRenderer content={chapter.content_ua || chapter.content_en || ""} />
+                    )}
                   </div>
                 </Card>
-                
+
                 <Card className="verse-surface p-8">
-                  <div className="text-center mb-4 text-sm font-semibold text-muted-foreground">
-                    English
-                  </div>
+                  <div className="text-center mb-4 text-sm font-semibold text-muted-foreground">English</div>
                   <div className="prose prose-lg max-w-none dark:prose-invert">
-                    <TiptapRenderer content={chapter.content_en || chapter.content_ua || ""} />
+                    {isAdmin ? (
+                      <UniversalInlineEditor
+                        table="chapters"
+                        recordId={chapter.id}
+                        field="content_en"
+                        initialValue={chapter.content_en || chapter.content_ua || ""}
+                        label={`Контент лекції (EN)`}
+                        language="en"
+                        showToggle={true}
+                      />
+                    ) : (
+                      <TiptapRenderer content={chapter.content_en || chapter.content_ua || ""} />
+                    )}
                   </div>
                 </Card>
               </div>
@@ -618,9 +597,29 @@ export const VedaReaderDB = () => {
           ) : (
             <Card className="verse-surface p-8">
               <div className="prose prose-lg max-w-none dark:prose-invert">
-                <TiptapRenderer
-                  content={language === "ua" ? (chapter.content_ua || chapter.content_en || "") : (chapter.content_en || chapter.content_ua || "")}
-                />
+                {isAdmin ? (
+                  <UniversalInlineEditor
+                    table="chapters"
+                    recordId={chapter.id}
+                    field={language === "ua" ? "content_ua" : "content_en"}
+                    initialValue={
+                      language === "ua"
+                        ? chapter.content_ua || chapter.content_en || ""
+                        : chapter.content_en || chapter.content_ua || ""
+                    }
+                    label={`Контент лекції (${language.toUpperCase()})`}
+                    language={language}
+                    showToggle={true}
+                  />
+                ) : (
+                  <TiptapRenderer
+                    content={
+                      language === "ua"
+                        ? chapter.content_ua || chapter.content_en || ""
+                        : chapter.content_en || chapter.content_ua || ""
+                    }
+                  />
+                )}
               </div>
 
               <div className="mt-8 flex items-center justify-between border-t pt-8">
@@ -664,9 +663,7 @@ export const VedaReaderDB = () => {
               return (
                 <div key={verse.id}>
                   {continuousReadingSettings.showVerseNumbers && (
-                    <div className="mb-2 text-sm font-semibold text-primary">
-                      Вірш {fullVerseNumber}
-                    </div>
+                    <div className="mb-2 text-sm font-semibold text-primary">Вірш {fullVerseNumber}</div>
                   )}
                   <VerseCard
                     verseId={verse.id}
@@ -782,65 +779,71 @@ export const VedaReaderDB = () => {
                         )}
 
                         {/* Літературний переклад */}
-                        {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && (
-                          <div className="mb-6 border-t border-border pt-6">
-                            <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
-                              {t("Літературний переклад", "Translation")}
-                            </h4>
-                            {dualLanguageMode ? (
-                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                <div className="border-r border-border pr-4">
-                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                  <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                    {currentVerse.translation_ua || "—"}
-                                  </p>
+                        {textDisplaySettings.showTranslation &&
+                          (currentVerse.translation_ua || currentVerse.translation_en) && (
+                            <div className="mb-6 border-t border-border pt-6">
+                              <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
+                                {t("Літературний переклад", "Translation")}
+                              </h4>
+                              {dualLanguageMode ? (
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                  <div className="border-r border-border pr-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                    <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                      {currentVerse.translation_ua || "—"}
+                                    </p>
+                                  </div>
+                                  <div className="pl-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                    <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                      {currentVerse.translation_en || "—"}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div className="pl-4">
-                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                  <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                    {currentVerse.translation_en || "—"}
-                                  </p>
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
-                              </p>
-                            )}
-                          </div>
-                        )}
+                              ) : (
+                                <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                  {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
+                                </p>
+                              )}
+                            </div>
+                          )}
 
                         {/* Пояснення */}
-                        {textDisplaySettings.showCommentary && (currentVerse.commentary_ua || currentVerse.commentary_en) && (
-                          <div className="border-t border-border pt-6">
-                            <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
-                              {t("Пояснення", "Purport")}
-                            </h4>
-                            {dualLanguageMode ? (
-                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                <div className="border-r border-border pr-4">
-                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                  <TiptapRenderer 
-                                    content={currentVerse.commentary_ua || ""} 
-                                    className="text-[1.22em] leading-relaxed" 
-                                  />
+                        {textDisplaySettings.showCommentary &&
+                          (currentVerse.commentary_ua || currentVerse.commentary_en) && (
+                            <div className="border-t border-border pt-6">
+                              <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
+                                {t("Пояснення", "Purport")}
+                              </h4>
+                              {dualLanguageMode ? (
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                  <div className="border-r border-border pr-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                    <TiptapRenderer
+                                      content={currentVerse.commentary_ua || ""}
+                                      className="text-[1.22em] leading-relaxed"
+                                    />
+                                  </div>
+                                  <div className="pl-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                    <TiptapRenderer
+                                      content={currentVerse.commentary_en || ""}
+                                      className="text-[1.22em] leading-relaxed"
+                                    />
+                                  </div>
                                 </div>
-                                <div className="pl-4">
-                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                  <TiptapRenderer 
-                                    content={currentVerse.commentary_en || ""} 
-                                    className="text-[1.22em] leading-relaxed" 
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <TiptapRenderer 
-                                content={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""} 
-                                className="text-[1.22em] leading-relaxed" 
-                              />
-                            )}
-                          </div>
-                        )}
+                              ) : (
+                                <TiptapRenderer
+                                  content={
+                                    language === "ua"
+                                      ? currentVerse.commentary_ua || ""
+                                      : currentVerse.commentary_en || ""
+                                  }
+                                  className="text-[1.22em] leading-relaxed"
+                                />
+                              )}
+                            </div>
+                          )}
                       </div>
                     </Card>
 
@@ -866,9 +869,9 @@ export const VedaReaderDB = () => {
 
                     <div className="border-t pt-6">
                       <div className="flex items-center justify-between">
-                        <Button 
-                          variant="secondary" 
-                          onClick={handlePrevChapter} 
+                        <Button
+                          variant="secondary"
+                          onClick={handlePrevChapter}
                           disabled={currentChapterIndex === -1 || currentChapterIndex === 0}
                         >
                           <ChevronLeft className="mr-2 h-4 w-4" />
