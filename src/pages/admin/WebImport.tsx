@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Download, AlertTriangle, Loader2 } from "lucide-react";
+import { Download, AlertTriangle, Loader2, PlayCircle, CheckCircle, XCircle, Terminal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { parseChapterFromWeb } from "@/utils/import/webImporter";
 import { importSingleChapter } from "@/utils/import/importer";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 export default function WebImport() {
   const { toast } = useToast();
@@ -30,6 +31,9 @@ export default function WebImport() {
   const [parsingProgress, setParsingProgress] = useState<number>(0);
   const [parsingStatus, setParsingStatus] = useState<string>("");
   const [useServerParser, setUseServerParser] = useState<boolean>(true);
+  const [contentType, setContentType] = useState<string>("verses");
+  const [parserStatus, setParserStatus] = useState<"unknown" | "online" | "offline">("unknown");
+  const [checkingParser, setCheckingParser] = useState(false);
 
   const loadBooks = async () => {
     const { data, error } = await supabase
@@ -359,17 +363,107 @@ export default function WebImport() {
     }
   };
 
+  const checkParserHealth = async () => {
+    setCheckingParser(true);
+    try {
+      const response = await fetch("http://localhost:5003/health", {
+        method: "GET",
+        signal: AbortSignal.timeout(3000),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === "ok") {
+          setParserStatus("online");
+          toast({
+            title: "✅ Playwright парсер онлайн",
+            description: "Сервер готовий до роботи",
+          });
+        } else {
+          setParserStatus("offline");
+          toast({
+            title: "⚠️ Помилка парсера",
+            description: data.import_error || "Перевірте логи сервера",
+            variant: "destructive",
+          });
+        }
+      } else {
+        setParserStatus("offline");
+      }
+    } catch (error) {
+      setParserStatus("offline");
+      console.log("Parser server not running:", error);
+    } finally {
+      setCheckingParser(false);
+    }
+  };
+
   useEffect(() => {
     loadBooks();
+    checkParserHealth();
   }, []);
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Веб-імпорт (Playwright)</h1>
-        <p className="text-muted-foreground">Імпорт з веб-сторінок з автоматичною транслітерацією та нормалізацією</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Веб-імпорт (Playwright)</h1>
+          <p className="text-muted-foreground">Імпорт з веб-сторінок з автоматичною транслітерацією та нормалізацією</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {parserStatus === "online" && (
+              <Badge variant="default" className="bg-green-500">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Онлайн
+              </Badge>
+            )}
+            {parserStatus === "offline" && (
+              <Badge variant="destructive">
+                <XCircle className="w-3 h-3 mr-1" />
+                Оффлайн
+              </Badge>
+            )}
+            {parserStatus === "unknown" && (
+              <Badge variant="secondary">
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                Перевірка...
+              </Badge>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={checkParserHealth}
+            disabled={checkingParser}
+          >
+            {checkingParser ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <PlayCircle className="w-4 h-4" />
+            )}
+            <span className="ml-2">Перевірити статус</span>
+          </Button>
+        </div>
       </div>
       <div className="max-w-3xl mx-auto">
+        {/* Інструкції для запуску парсера */}
+        {parserStatus === "offline" && (
+          <Alert className="mb-6 bg-amber-50 border-amber-200">
+            <Terminal className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-900">Запустіть Playwright парсер</AlertTitle>
+            <AlertDescription className="text-amber-800">
+              <p className="mb-2">Для роботи імпорту потрібно запустити локальний сервер:</p>
+              <div className="bg-black text-green-400 p-3 rounded font-mono text-sm">
+                python3 tools/parse_server.py
+              </div>
+              <p className="mt-2 text-xs">
+                Сервер буде доступний на <code>http://localhost:5003</code>
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Інформаційний блок про новий парсер */}
         <Alert className="mb-6 bg-blue-50 border-blue-200">
           <Download className="h-4 w-4 text-blue-600" />
@@ -387,6 +481,30 @@ export default function WebImport() {
 
         <Card className="p-6">
           <div className="space-y-6">
+            <div>
+              <Label htmlFor="contentType">Тип контенту</Label>
+              <Select value={contentType} onValueChange={setContentType}>
+                <SelectTrigger id="contentType">
+                  <SelectValue placeholder="Виберіть тип" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="verses">Вірші (Verses)</SelectItem>
+                  <SelectItem value="transcripts">Лекції (Transcripts)</SelectItem>
+                  <SelectItem value="letters">Листи (Letters)</SelectItem>
+                </SelectContent>
+              </Select>
+              {contentType === "transcripts" && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  3,703 транскрипти з /library/transcripts/
+                </p>
+              )}
+              {contentType === "letters" && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  6,587 листів з /library/letters/
+                </p>
+              )}
+            </div>
+
             <div>
               <Label htmlFor="book">Книга</Label>
               <Select value={selectedBook} onValueChange={handleBookChange}>
