@@ -80,7 +80,7 @@ export default function WebImport() {
   };
 
   /**
-   * Завантажує HTML через Supabase Edge Function
+   * Завантажує HTML через CORS proxy
    */
   const fetchWithProxy = async (url: string): Promise<string> => {
     try {
