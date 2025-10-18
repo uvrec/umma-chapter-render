@@ -1,6 +1,6 @@
 // src/pages/admin/WebImport.tsx
 import { useState, useEffect } from "react";
-import { useSupabaseClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,8 +28,6 @@ interface Canto {
 }
 
 export default function WebImport() {
-  const supabase = useSupabaseClient();
-
   // Book/Canto selection
   const [books, setBooks] = useState<Book[]>([]);
   const [cantos, setCantos] = useState<Canto[]>([]);
