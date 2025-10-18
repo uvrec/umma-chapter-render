@@ -18,6 +18,7 @@ import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import SiteBannersAdmin from "@/pages/admin/SiteBanners";
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
+import ChapterDetail from "./pages/admin/ChapterDetail";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader";
