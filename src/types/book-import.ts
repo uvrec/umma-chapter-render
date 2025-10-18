@@ -25,6 +25,13 @@ export interface ParsedChapter {
   verses: ParsedVerse[];
   content_ua?: string;
   content_en?: string;
+  // ✅ ДОДАЙ ЦЕ:
+  metadata?: {
+    date?: string;
+    location?: string;
+    audio_url?: string;
+    type?: string;
+  };
 }
 
 export interface ParsedBook {
