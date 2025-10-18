@@ -1,10 +1,9 @@
 // src/utils/import/webImporter.ts
-// ПОКРАЩЕНА ВЕРСІЯ З ВИПРАВЛЕНИМ ПАРСИНГОМ
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
 
 interface VedabaseVerse {
   verseNumber: string;
-  sanskrit?: string;
+  bengali?: string;
   transliteration?: string;
   synonyms?: string;
   translation?: string;
@@ -18,9 +17,50 @@ interface GitabaseVerse {
 }
 
 /**
- * ========================================
- * VEDABASE PARSER - Покращена версія
- * ========================================
+ * Очищення Sanskrit/Bengali тексту
+ */
+function cleanSanskrit(text: string): string {
+  if (!text) return "";
+  return text
+    .trim()
+    .replace(/<[^>]+>/g, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
+ * Очищення транслітерації
+ */
+function cleanTransliteration(text: string): string {
+  if (!text) return "";
+  return text
+    .trim()
+    .replace(/<[^>]+>/g, "")
+    .replace(/^(?:TEXT\s+)?\d+(?:-\d+)?\s*/i, "")
+    .replace(/^(?:Transliteration|Translation|Verse)[:\s]*/gi, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
+ * Загальне очищення тексту
+ */
+function cleanText(text: string): string {
+  if (!text) return "";
+  return text
+    .trim()
+    .replace(/<[^>]+>/g, "")
+    .replace(/^(?:SYNONYMS?|TRANSLATION|PURPORT|COMMENTARY)[:\s]*/gi, "")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\n\s+/g, "\n")
+    .trim();
+}
+
+/**
+ * Витягує всі вірші з HTML сторінки Vedabase
  */
 function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
   console.log("[Vedabase] Parsing HTML, length:", html.length);
@@ -51,7 +91,6 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 
       let sanskrit = "";
       if (sanskritEl) {
-        // Для <script> тегів витягуємо вміст
         if (sanskritEl.tagName === "SCRIPT") {
           sanskrit = sanskritEl.textContent?.trim() || "";
         } else {
@@ -59,7 +98,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
         }
       }
 
-      // Transliteration - зазвичай перший text після sanskrit
+      // Transliteration
       const translitEl =
         block.querySelector(".verse-text") ||
         block.querySelector(".r") ||
@@ -68,7 +107,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 
       const transliteration = translitEl?.textContent?.trim() || "";
 
-      // Synonyms (Word-for-word)
+      // Synonyms
       const synonymsEl =
         block.querySelector(".word-for-word") || block.querySelector(".synonyms") || block.querySelector(".w");
 
@@ -79,7 +118,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 
       const translation = translationEl?.textContent?.trim() || "";
 
-      // Commentary (Purport)
+      // Commentary
       const commentaryEl =
         block.querySelector(".purport") || block.querySelector(".commentary") || block.querySelector(".p");
 
@@ -88,7 +127,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
       if (sanskrit || transliteration || translation) {
         verses.set(verseNum, {
           verseNumber: verseNum,
-          sanskrit: cleanSanskrit(sanskrit),
+          bengali: cleanSanskrit(sanskrit),
           transliteration: cleanTransliteration(transliteration),
           synonyms: cleanText(synonyms),
           translation: cleanText(translation),
@@ -114,7 +153,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 
       verses.set(verseNum, {
         verseNumber: verseNum,
-        sanskrit: cleanSanskrit(sanskritEl?.textContent || ""),
+        bengali: cleanSanskrit(sanskritEl?.textContent || ""),
         transliteration: cleanTransliteration(translitEl?.textContent || ""),
         synonyms: cleanText(synonymsEl?.textContent || ""),
         translation: cleanText(translationEl?.textContent || ""),
@@ -123,7 +162,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
     });
   }
 
-  // МЕТОД 3: Regex fallback для TEXT X
+  // МЕТОД 3: Regex fallback
   if (verses.size === 0) {
     console.log("[Vedabase] Trying regex pattern matching");
     const bodyText = doc.body.textContent || "";
@@ -133,7 +172,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
       const verseNum = match[1];
       verses.set(verseNum, {
         verseNumber: verseNum,
-        sanskrit: "",
+        bengali: "",
         transliteration: "",
         synonyms: "",
         translation: "",
@@ -147,9 +186,7 @@ function parseVedabaseHTML(html: string): Map<string, VedabaseVerse> {
 }
 
 /**
- * ========================================
- * GITABASE PARSER - Покращена версія
- * ========================================
+ * Витягує всі вірші з HTML сторінки Gitabase
  */
 export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
   console.log("[Gitabase] Parsing HTML, length:", html.length);
@@ -169,20 +206,17 @@ export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
         block.querySelector("[data-verse]")?.getAttribute("data-verse") ||
         (idx + 1).toString();
 
-      // Переклад - зазвичай в <strong> або окремому блоці
       const translationEl =
         block.querySelector(".translation") || block.querySelector("strong") || block.querySelector("p:first-child");
 
       let translation = translationEl?.textContent?.trim() || "";
 
-      // Коментар - весь інший текст після перекладу
       let commentary = "";
       const allPs = block.querySelectorAll("p");
       if (allPs.length > 1) {
         const commentaryParts: string[] = [];
         allPs.forEach((p, pIdx) => {
           if (pIdx > 0) {
-            // Skip first p (translation)
             const text = p.textContent?.trim();
             if (text) commentaryParts.push(text);
           }
@@ -205,7 +239,6 @@ export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
     console.log("[Gitabase] Trying text pattern matching");
     const bodyText = doc.body.textContent || "";
 
-    // Паттерн: [Текст X] або Текст X
     const pattern = /(?:\[)?Текст\*?\s*(\d+(?:-\d+)?)(?:\])?[:\s]*(.+?)(?=(?:\[)?Текст\*?\s*\d+|$)/gis;
     const matches = Array.from(bodyText.matchAll(pattern));
 
@@ -215,7 +248,6 @@ export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
       const verseNum = match[1];
       const content = match[2].trim();
 
-      // Переклад в лапках або перше речення
       let translation = "";
       let commentary = "";
 
@@ -224,7 +256,6 @@ export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
         translation = quotedMatch[1];
         commentary = content.substring(quotedMatch[0].length).trim();
       } else {
-        // Перше речення - переклад
         const firstSentMatch = content.match(/^(.+?[.!?])\s*/);
         if (firstSentMatch) {
           translation = firstSentMatch[1];
@@ -247,78 +278,6 @@ export function parseGitabaseHTML(html: string): Map<string, GitabaseVerse> {
 }
 
 /**
- * ========================================
- * CLEANING UTILITIES
- * ========================================
- */
-
-/**
- * Очищення Sanskrit/Bengali тексту
- */
-function cleanSanskrit(text: string): string {
-  if (!text) return "";
-
-  return (
-    text
-      .trim()
-      // Видалити HTML теги
-      .replace(/<[^>]+>/g, "")
-      // Видалити зайві пробіли між словами але зберегти переноси
-      .replace(/[ \t]+/g, " ")
-      // Видалити зайві переноси (більше 2 підряд)
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-  );
-}
-
-/**
- * Очищення транслітерації
- */
-function cleanTransliteration(text: string): string {
-  if (!text) return "";
-
-  return (
-    text
-      .trim()
-      .replace(/<[^>]+>/g, "")
-      // Видалити номери віршів на початку
-      .replace(/^(?:TEXT\s+)?\d+(?:-\d+)?\s*/i, "")
-      // Видалити labels
-      .replace(/^(?:Transliteration|Translation|Verse)[:\s]*/gi, "")
-      .replace(/[ \t]+/g, " ")
-      .replace(/\n{3,}/g, "\n\n")
-      .trim()
-  );
-}
-
-/**
- * Загальне очищення тексту
- */
-function cleanText(text: string): string {
-  if (!text) return "";
-
-  return (
-    text
-      .trim()
-      .replace(/<[^>]+>/g, "")
-      // Видалити section labels
-      .replace(/^(?:SYNONYMS?|TRANSLATION|PURPORT|COMMENTARY)[:\s]*/gi, "")
-      // Нормалізувати пробіли
-      .replace(/[ \t]+/g, " ")
-      .replace(/\n{3,}/g, "\n\n")
-      // Видалити зайві пробіли навколо абзаців
-      .replace(/\n\s+/g, "\n")
-      .trim()
-  );
-}
-
-/**
- * ========================================
- * MERGE & EXPORT
- * ========================================
- */
-
-/**
  * Об'єднує дані з Vedabase та Gitabase
  */
 function mergeVerseData(
@@ -326,40 +285,18 @@ function mergeVerseData(
   gitabaseVerse: GitabaseVerse | undefined,
   verseNum: string,
 ): ParsedVerse {
-  // Логування для дебагу
-  if (vedabaseVerse) {
-    console.log(`[Merge] Verse ${verseNum} from Vedabase:`, {
-      hasSanskrit: !!vedabaseVerse.sanskrit,
-      hasTranslit: !!vedabaseVerse.transliteration,
-      hasTranslation: !!vedabaseVerse.translation,
-    });
-  }
-
-  if (gitabaseVerse) {
-    console.log(`[Merge] Verse ${verseNum} from Gitabase:`, {
-      hasTranslation: !!gitabaseVerse.translation,
-      hasCommentary: !!gitabaseVerse.commentary,
-    });
-  }
-
   return {
     verse_number: verseNum,
-    sanskrit: vedabaseVerse?.sanskrit || "",
+    sanskrit: vedabaseVerse?.bengali || "",
     transliteration: vedabaseVerse?.transliteration || "",
     synonyms_en: vedabaseVerse?.synonyms || "",
-    synonyms_ua: "", // Gitabase не має синонімів
+    synonyms_ua: "",
     translation_en: vedabaseVerse?.translation || "",
     translation_ua: gitabaseVerse?.translation || "",
     commentary_en: vedabaseVerse?.commentary || "",
     commentary_ua: gitabaseVerse?.commentary || "",
   };
 }
-
-/**
- * ========================================
- * MAIN EXPORT FUNCTION
- * ========================================
- */
 
 /**
  * Парсить повну главу з HTML обох джерел
@@ -371,53 +308,40 @@ export async function parseChapterFromWeb(
   chapterTitleUa: string,
   chapterTitleEn: string,
 ): Promise<ParsedChapter> {
-  console.log("\n========================================");
-  console.log("STARTING CHAPTER PARSING");
-  console.log("========================================");
+  console.log("\n========== CHAPTER PARSING ==========");
   console.log("Chapter:", chapterNumber);
   console.log("Vedabase HTML:", vedabaseHTML.length, "chars");
   console.log("Gitabase HTML:", gitabaseHTML.length, "chars");
 
-  // Парсинг обох джерел
   const vedabaseVerses = parseVedabaseHTML(vedabaseHTML);
   const gitabaseVerses = parseGitabaseHTML(gitabaseHTML);
 
-  console.log("\n--- PARSING RESULTS ---");
   console.log("Vedabase verses:", vedabaseVerses.size);
   console.log("Gitabase verses:", gitabaseVerses.size);
 
-  // Збираємо всі унікальні номери віршів
   const allVerseNumbers = new Set<string>();
   vedabaseVerses.forEach((_, num) => allVerseNumbers.add(num));
   gitabaseVerses.forEach((_, num) => allVerseNumbers.add(num));
 
-  // Сортуємо
   const sortedVerseNumbers = Array.from(allVerseNumbers).sort((a, b) => {
-    // Обробка діапазонів типу "1-2"
     const aNum = parseInt(a.split("-")[0]);
     const bNum = parseInt(b.split("-")[0]);
     return aNum - bNum;
   });
 
-  console.log("\n--- FINAL VERSE LIST ---");
-  console.log("Total unique verses:", sortedVerseNumbers.length);
-  console.log("Verse numbers:", sortedVerseNumbers.join(", "));
+  console.log("Total verses:", sortedVerseNumbers.length);
 
   if (sortedVerseNumbers.length === 0) {
-    throw new Error("Не знайдено жодного вірша. Перевірте URL або структуру HTML.");
+    throw new Error("Не знайдено жодного вірша. Перевірте URL.");
   }
 
-  // Об'єднуємо дані
   const verses: ParsedVerse[] = sortedVerseNumbers.map((verseNum) => {
     const vedabaseVerse = vedabaseVerses.get(verseNum);
     const gitabaseVerse = gitabaseVerses.get(verseNum);
     return mergeVerseData(vedabaseVerse, gitabaseVerse, verseNum);
   });
 
-  console.log("\n========================================");
-  console.log("PARSING COMPLETE");
-  console.log("Total verses created:", verses.length);
-  console.log("========================================\n");
+  console.log("========== PARSING COMPLETE ==========\n");
 
   return {
     chapter_number: chapterNumber,
