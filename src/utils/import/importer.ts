@@ -2,39 +2,59 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
 
-/** Санітизація HTML на імпорті (додатковий “пояс безпеки” до DOMPurify на рендері) */
+/** Безпечна конвертація verse_number в integer */
+function safeVerseNumber(verseNum: string | number | undefined | null): number | null {
+  if (verseNum === null || verseNum === undefined || verseNum === "") {
+    return null;
+  }
+
+  if (typeof verseNum === "number") {
+    return Number.isInteger(verseNum) && verseNum > 0 ? verseNum : null;
+  }
+
+  const strNum = String(verseNum).trim();
+
+  // Діапазон типу "1-64" - беремо перше число
+  const rangeMatch = strNum.match(/^(\d+)-\d+$/);
+  if (rangeMatch) {
+    console.warn(`⚠️ Verse range "${strNum}", using first: ${rangeMatch[1]}`);
+    return parseInt(rangeMatch[1], 10);
+  }
+
+  const num = parseInt(strNum, 10);
+  if (!isNaN(num) && num > 0) {
+    return num;
+  }
+
+  console.error(`❌ Invalid verse_number: "${verseNum}"`);
+  return null;
+}
+
+/** Санітизація HTML */
 export const safeHtml = (html?: string) => {
   const s = html ?? "";
-
-  // 1) прибираємо явні небезпеки
   let out = s
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
-    // inline-івенти типу onclick="", onerror='' або onload=something
     .replace(/on\w+="[^"]*"/gi, "")
     .replace(/on\w+='[^']*'/gi, "")
     .replace(/on\w+=\w+/gi, "");
-
-  // 2) “javascript:” та data:text/html у href/src
   out = out.replace(/(href|src)\s*=\s*(['"])\s*(javascript:|data:text\/html)[^'"]*\2/gi, '$1="#"');
-
-  // 3) дозволяємо лише http/https/mailto/tel у href/src
   out = out.replace(/(href|src)\s*=\s*(['"])\s*([^'"]+)\2/gi, (m, attr, q, url) => {
     const ok = /^(https?:|mailto:|tel:)/i.test((url || "").trim());
     return ok ? m : `${attr}="#"`;
   });
-
   return out.trim();
 };
 
-/** Нормалізація послівного (мʼяка) */
+/** Нормалізація послівного */
 export const normalizeSynonymsSoft = (s?: string) =>
   (s ?? "")
     .replace(/\s+\n/g, "\n")
     .replace(/[ \t]+/g, " ")
     .trim();
 
-/** Пошук або створення глави (bookId/cantoId + chapter_number) з оновленням полів */
+/** Пошук або створення глави */
 export async function upsertChapter(
   supabase: SupabaseClient,
   params: {
@@ -81,7 +101,7 @@ export async function upsertChapter(
   }
 }
 
-/** Повна заміна віршів глави: delete all -> insert */
+/** Повна заміна віршів глави з фільтрацією невалідних */
 export async function replaceChapterVerses(
   supabase: SupabaseClient,
   chapterId: string,
@@ -93,57 +113,96 @@ export async function replaceChapterVerses(
 
   if (!verses?.length) return;
 
-  const rows = verses.map((v) => ({
-    chapter_id: chapterId,
-    verse_number: v.verse_number,
-    sanskrit: v.sanskrit ?? null,
-    transliteration: v.transliteration ?? null,
-    synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
-    synonyms_en: (v as any).synonyms_en ?? null,
-    translation_ua: (v as any).translation_ua ?? null,
-    translation_en: (v as any).translation_en ?? null,
-    commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
-    commentary_en: safeHtml((v as any).commentary_en ?? ""),
-    // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
-    audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
-  }));
+  const validRows: any[] = [];
+  let skippedCount = 0;
 
-  const { error: insErr } = await supabase.from("verses").insert(rows);
+  verses.forEach((v, index) => {
+    const verseNum = safeVerseNumber(v.verse_number);
+
+    if (verseNum === null) {
+      console.warn(`⚠️ Skipping verse ${index}: invalid verse_number "${v.verse_number}"`);
+      skippedCount++;
+      return;
+    }
+
+    validRows.push({
+      chapter_id: chapterId,
+      verse_number: verseNum,
+      sanskrit: v.sanskrit ?? null,
+      transliteration: v.transliteration ?? null,
+      synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
+      synonyms_en: (v as any).synonyms_en ?? null,
+      translation_ua: (v as any).translation_ua ?? null,
+      translation_en: (v as any).translation_en ?? null,
+      commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
+      commentary_en: safeHtml((v as any).commentary_en ?? ""),
+      audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
+    });
+  });
+
+  console.log(`✅ Valid verses: ${validRows.length}, Skipped: ${skippedCount}`);
+
+  if (validRows.length === 0) {
+    console.warn("⚠️ No valid verses to insert");
+    return;
+  }
+
+  const { error: insErr } = await supabase.from("verses").insert(validRows);
   if (insErr) throw insErr;
 }
 
-/** АЛЬТЕРНАТИВА: лише upsert віршів (за унікальним ключем chapter_id,verse_number) */
+/** Upsert віршів з фільтрацією */
 export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: string, verses: ParsedVerse[]) {
   if (!verses?.length) return;
 
-  const rows = verses.map((v) => ({
-    chapter_id: chapterId,
-    verse_number: v.verse_number,
-    sanskrit: v.sanskrit ?? null,
-    transliteration: v.transliteration ?? null,
-    synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
-    synonyms_en: (v as any).synonyms_en ?? null,
-    translation_ua: (v as any).translation_ua ?? null,
-    translation_en: (v as any).translation_en ?? null,
-    commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
-    commentary_en: safeHtml((v as any).commentary_en ?? ""),
-    audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
-  }));
+  const validRows: any[] = [];
+  let skippedCount = 0;
+
+  verses.forEach((v, index) => {
+    const verseNum = safeVerseNumber(v.verse_number);
+
+    if (verseNum === null) {
+      console.warn(`⚠️ Skipping verse ${index}: invalid verse_number "${v.verse_number}"`);
+      skippedCount++;
+      return;
+    }
+
+    validRows.push({
+      chapter_id: chapterId,
+      verse_number: verseNum,
+      sanskrit: v.sanskrit ?? null,
+      transliteration: v.transliteration ?? null,
+      synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
+      synonyms_en: (v as any).synonyms_en ?? null,
+      translation_ua: (v as any).translation_ua ?? null,
+      translation_en: (v as any).translation_en ?? null,
+      commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
+      commentary_en: safeHtml((v as any).commentary_en ?? ""),
+      audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
+    });
+  });
+
+  console.log(`✅ Valid verses: ${validRows.length}, Skipped: ${skippedCount}`);
+
+  if (validRows.length === 0) {
+    console.warn("⚠️ No valid verses to upsert");
+    return;
+  }
 
   const { error } = await supabase
     .from("verses")
-    .upsert(rows, { onConflict: "chapter_id,verse_number", ignoreDuplicates: false });
+    .upsert(validRows, { onConflict: "chapter_id,verse_number", ignoreDuplicates: false });
+
   if (error) throw error;
 }
 
-/** Імпорт однієї глави (оновити або створити) + вірші (за замовчуванням — повна заміна) */
+/** Імпорт однієї глави */
 export async function importSingleChapter(
   supabase: SupabaseClient,
   payload: {
     bookId: string;
     cantoId?: string | null;
     chapter: ParsedChapter;
-    /** опційно: "replace" (default) або "upsert" */
     strategy?: "replace" | "upsert";
   },
 ) {
@@ -169,7 +228,7 @@ export async function importSingleChapter(
   }
 }
 
-/** Масовий імпорт усієї книги (послідовно) */
+/** Масовий імпорт книги */
 export async function importBook(
   supabase: SupabaseClient,
   payload: {
@@ -177,7 +236,6 @@ export async function importBook(
     cantoId?: string | null;
     chapters: ParsedChapter[];
     onProgress?: (info: { index: number; total: number; chapter: ParsedChapter }) => void;
-    /** опційно: "replace" (default) або "upsert" */
     strategy?: "replace" | "upsert";
   },
 ) {
