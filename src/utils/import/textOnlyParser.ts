@@ -55,11 +55,7 @@ function parseVedabaseText(text: string): Map<string, Partial<ParsedVerse>> {
       }
 
       // Транслітерація - латиниця з діакритикою
-      if (
-        !sections.transliteration &&
-        /[āīūṛṝḷḹēōṁṃḥṅñṭḍṇśṣ]/i.test(trimmed) &&
-        trimmed.length > 10
-      ) {
+      if (!sections.transliteration && /[āīūṛṝḷḹēōṁṃḥṅñṭḍṇśṣ]/i.test(trimmed) && trimmed.length > 10) {
         sections.transliteration = trimmed;
         continue;
       }
@@ -107,31 +103,31 @@ function extractLectureMetadata(text: string): {
   type?: string;
 } {
   const metadata: any = {};
-  
+
   // Дата: "February 19th 1966", "July 12th 1947"
   const dateMatch = text.match(/(?:Dated:|Date:)?\s*([A-Z][a-z]+\s+\d{1,2}(?:st|nd|rd|th)?\s+\d{4})/i);
   if (dateMatch) {
     metadata.date = dateMatch[1];
   }
-  
+
   // Місце: "New York", "Cawnpore", "Location: New York"
   const locationMatch = text.match(/(?:Location:|Place:)\s*([A-Z][a-z\s]+)/i);
   if (locationMatch) {
     metadata.location = locationMatch[1].trim();
   }
-  
+
   // Тип: "Bhagavad-gītā", "Letter to:"
   const typeMatch = text.match(/Type:\s*([^\n]+)/i);
   if (typeMatch) {
     metadata.type = typeMatch[1].trim();
   }
-  
+
   // Аудіо файл: ".mp3"
   const audioMatch = text.match(/(\w+\.mp3)/i);
   if (audioMatch) {
     metadata.audioUrl = `https://vedabase.io/audio/${audioMatch[1]}`;
   }
-  
+
   return metadata;
 }
 
@@ -229,25 +225,25 @@ export async function parseChapterTextOnly(
 
   // Перевіряємо чи це лекція/лист (немає TEXT X маркерів)
   const hasVerseMarkers = /TEXT\s+\d+/i.test(vedabaseText);
-  
+
   if (!hasVerseMarkers) {
     // Це лекція/лист - витягуємо весь текст
     console.log("[textOnlyParser] Detected lecture/letter format");
-    
+
     const metadata = extractLectureMetadata(vedabaseText);
-    
+
     // Видаляємо метадані з початку тексту
     let content = vedabaseText
-      .replace(/Type:.*?\n/gi, '')
-      .replace(/Dated?:.*?\n/gi, '')
-      .replace(/Location:.*?\n/gi, '')
-      .replace(/Audio file:.*?\n/gi, '')
-      .replace(/Letter to:.*?\n/gi, '')
+      .replace(/Type:.*?\n/gi, "")
+      .replace(/Dated?:.*?\n/gi, "")
+      .replace(/Location:.*?\n/gi, "")
+      .replace(/Audio file:.*?\n/gi, "")
+      .replace(/Letter to:.*?\n/gi, "")
       .trim();
-    
+
     // Видаляємо прабхупаду блок на початку (санскрит мантри)
-    content = content.replace(/Prabhupāda:[\s\S]*?(?=\[|$)/i, '').trim();
-    
+    content = content.replace(/Prabhupāda:[\s\S]*?(?=\[|$)/i, "").trim();
+
     return {
       chapter_number: chapterNumber,
       chapter_type: "text",
@@ -261,9 +257,12 @@ export async function parseChapterTextOnly(
         location: metadata.location,
         audio_url: metadata.audioUrl,
         type: metadata.type,
-      }
+      },
     };
-baseText(vedabaseText);
+  }
+
+  // Звичайна глава з віршами
+  const vedabaseVerses = parseVedabaseText(vedabaseText);
   const gitabaseVerses = parseGitabaseText(gitabaseText);
 
   // Об'єднуємо всі унікальні номери віршів
