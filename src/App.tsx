@@ -185,6 +185,7 @@ const App = () => (
                   <Route path="/admin/pages" element={<Pages />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
+                  <Route path="/admin/chapters/:id" element={<ChapterDetail />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />
