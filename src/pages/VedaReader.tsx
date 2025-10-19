@@ -13,6 +13,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { UniversalInlineEditor } from "@/components/UniversalInlineEditor";
+import { VedaReaderDB } from "@/components/VedaReaderDB";
+
+export function VedaReader() {
+  return <VedaReaderDB />;
+}
+
+export default VedaReader;
 
 export const VedaReaderDB = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
