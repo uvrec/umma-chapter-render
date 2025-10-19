@@ -178,7 +178,6 @@ export default function ChapterDetail() {
                 initialValue={chapter.title_ua || ""}
                 label="Назва UA"
                 showToggle={true}
-                className="mt-2"
               />
             </div>
             <div>
@@ -190,7 +189,6 @@ export default function ChapterDetail() {
                 initialValue={chapter.title_en || ""}
                 label="Назва EN"
                 showToggle={true}
-                className="mt-2"
               />
             </div>
           </CardContent>
@@ -230,7 +228,6 @@ export default function ChapterDetail() {
                   label="Контент (українською)"
                   language="ua"
                   showToggle={true}
-                  className="min-h-[400px]"
                 />
               ) : (
                 <UniversalInlineEditor
@@ -241,7 +238,6 @@ export default function ChapterDetail() {
                   label="Контент (англійською)"
                   language="en"
                   showToggle={true}
-                  className="min-h-[400px]"
                 />
               )}
             </CardContent>
