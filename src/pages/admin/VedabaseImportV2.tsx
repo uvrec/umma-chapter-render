@@ -13,6 +13,9 @@ import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl, getO
 import { Badge } from "@/components/ui/badge";
 import { detectScript } from "@/utils/synonyms";
 import { parseGitabaseHTML } from "@/utils/import/webImporter";
+import { ParserStatus } from "@/components/admin/ParserStatus";
+import { useParserHealth } from "@/hooks/useParserHealth";
+import { ImportIds } from "@/config/importIds";
 
 /**
  * FIXED: Improved Vedabase import with proper HTML parsing
@@ -22,6 +25,8 @@ import { parseGitabaseHTML } from "@/utils/import/webImporter";
  */
 export default function VedabaseImportV2() {
   const navigate = useNavigate();
+  const { status: parserStatus } = useParserHealth();
+  
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState<string>("");
   const [selectedBook, setSelectedBook] = useState("bg");
@@ -666,6 +671,8 @@ export default function VedabaseImportV2() {
           </TabsList>
 
           <TabsContent value="vedabase" className="space-y-4">
+            <ParserStatus className="mb-3" />
+            
             <Card>
               <CardHeader>
                 <CardTitle>Import Settings</CardTitle>

@@ -12,6 +12,9 @@ import { Progress } from "@/components/ui/progress";
 import { parseChapterFromWeb } from "@/utils/import/webImporter";
 import { parseChapterTextOnly } from "@/utils/import/textOnlyParser";
 import { importSingleChapter } from "@/utils/import/chapterImporter";
+import { ParserStatus } from "@/components/admin/ParserStatus";
+import { useParserHealth } from "@/hooks/useParserHealth";
+import { ImportIds } from "@/config/importIds";
 
 interface Book {
   id: string;
@@ -28,6 +31,9 @@ interface Canto {
 }
 
 export default function WebImport() {
+  // Parser health monitoring
+  const { status: parserStatus } = useParserHealth();
+  
   // Book/Canto selection
   const [books, setBooks] = useState<Book[]>([]);
   const [cantos, setCantos] = useState<Canto[]>([]);
@@ -266,7 +272,7 @@ export default function WebImport() {
     try {
       let chapter = null;
 
-      if (useServerParser) {
+      if (useServerParser && parserStatus === 'online') {
         // ============================================================================
         // НОВИЙ ПІДХІД: Playwright parser з нормалізацією через API
         // ============================================================================
@@ -335,14 +341,45 @@ export default function WebImport() {
             description: `Отримано ${chapter.verses.length} віршів з транслітерацією`,
           });
         } catch (apiError) {
-          console.error("[WebImport] Server parser failed:", apiError);
+          console.error("[WebImport] Server parser failed, falling back to client parser:", apiError);
+          setParsingStatus("Використовую клієнтський парсер (fallback)...");
           toast({
-            title: "⚠️ Помилка серверного парсера",
-            description: apiError instanceof Error ? apiError.message : "Невідома помилка",
-            variant: "destructive",
+            title: "⚠️ Сервер недоступний",
+            description: "Використовую клієнтський парсер (fallback)",
           });
-          throw apiError;
+          
+          // Auto-fallback to client parser
+          console.log("[WebImport] Falling back to client parser");
+          const vedabaseHTML = await fetchWithProxy(vedabaseUrl);
+          const gitabaseHTML = gitabaseUrl ? await fetchWithProxy(gitabaseUrl) : "";
+          
+          chapter = await parseChapterFromWeb(
+            vedabaseHTML,
+            gitabaseHTML,
+            parseInt(chapterNumber),
+            chapterTitleUa,
+            chapterTitleEn
+          );
         }
+      } else if (useServerParser && parserStatus === 'offline') {
+        // Server is offline, use client parser directly
+        console.log("[WebImport] Server parser offline, using client parser");
+        setParsingStatus("Сервер offline, використовую клієнтський парсер...");
+        toast({
+          title: "🔴 Playwright сервер offline",
+          description: "Використовую клієнтський парсер",
+        });
+        
+        const vedabaseHTML = await fetchWithProxy(vedabaseUrl);
+        const gitabaseHTML = gitabaseUrl ? await fetchWithProxy(gitabaseUrl) : "";
+        
+        chapter = await parseChapterFromWeb(
+          vedabaseHTML,
+          gitabaseHTML,
+          parseInt(chapterNumber),
+          chapterTitleUa,
+          chapterTitleEn
+        );
       } else if (useTextOnly) {
         // ============================================================================
         // TEXT-ONLY ПІДХІД: Парсинг чистого тексту без DOM
@@ -504,6 +541,8 @@ export default function WebImport() {
           <h1 className="text-3xl font-bold">Web Import</h1>
           <p className="text-muted-foreground mt-2">Імпорт глав з vedabase.io та gitabase.com</p>
         </div>
+
+        <ParserStatus className="mb-3" />
 
         <Card className="p-6">
           <div className="space-y-4">
