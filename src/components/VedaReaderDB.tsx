@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tantml:invoke>
-<parameter name="query">ChevronLeft, ChevronRight } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
@@ -23,7 +23,6 @@ export function VedaReaderDB() {
 
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
 
-  // Глобальні налаштування - синхронізуються з GlobalSettingsPanel
   const [fontSize, setFontSize] = useState(() => {
     const saved = localStorage.getItem("vv_reader_fontSize");
     return saved ? Number(saved) : 18;
@@ -84,13 +83,11 @@ export function VedaReaderDB() {
     };
   });
 
-  // Застосувати line-height до контейнера рідера
   useEffect(() => {
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
     if (root) root.style.lineHeight = String(lineHeight);
   }, [lineHeight]);
 
-  // Слухач глобальних змін із GlobalSettingsPanel та між вкладками
   useEffect(() => {
     const syncFromLS = () => {
       const fs = localStorage.getItem("vv_reader_fontSize");
@@ -139,7 +136,6 @@ export function VedaReaderDB() {
 
     window.addEventListener("vv-reader-prefs-changed", onPrefs as any);
     window.addEventListener("storage", onStorage);
-    // Ініціалізація при монтуванні
     syncFromLS();
 
     return () => {
@@ -148,17 +144,14 @@ export function VedaReaderDB() {
     };
   }, []);
 
-  // Витягає відображуваний номер (останній сегмент)
   const getDisplayVerseNumber = (verseNumber: string): string => {
     const parts = verseNumber.split(/[\s.]+/);
     return parts[parts.length - 1] || verseNumber;
   };
 
-  // Режим пісень (canto), якщо у URL є cantoNumber
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
 
-  // BOOK
   const { data: book } = useQuery({
     queryKey: ["book", bookId],
     staleTime: 60_000,
@@ -174,7 +167,6 @@ export function VedaReaderDB() {
     },
   });
 
-  // CANTO (якщо cantoMode)
   const { data: canto } = useQuery({
     queryKey: ["canto", book?.id, cantoNumber],
     staleTime: 60_000,
@@ -191,29 +183,11 @@ export function VedaReaderDB() {
     },
   });
 
-  // CHAPTER (single chapter або в рамках canto)
   const { data: chapter, isLoading: chapterLoading } = useQuery({
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam],
     staleTime: 60_000,
     enabled: !!book?.id && !!effectiveChapterParam,
     queryFn: async () => {
-      let query = supabase
-        .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, intro_html_ua, intro_html_en, canto_id, book_id")
-        .eq("book_id", book!.id);
-
-      if (canto?.id) {
-        query = query.eq("canto_id", canto.id);
-      } else {
-        query = query.is("canto_id", null);
-      }
-
-      if (/^\d+$/.test(effectiveChapterParam!)) {
-        query = query.eq("chapter_number", Number(effectiveChapterParam));
-      } else {
-        query = query.eq("id", effectiveChapterParam);
-      }
-
       const { data, error } = await supabase
         .from("chapters")
         .select("id, chapter_number, title_ua, title_en, intro_html_ua, intro_html_en, canto_id, book_id")
@@ -225,7 +199,6 @@ export function VedaReaderDB() {
     },
   });
 
-  // ALL CHAPTERS (для навігації)
   const { data: allChapters = [] } = useQuery({
     queryKey: ["allChapters", book?.id, canto?.id],
     staleTime: 60_000,
@@ -249,7 +222,6 @@ export function VedaReaderDB() {
     },
   });
 
-  // VERSES
   const { data: verses = [], isLoading: versesLoading } = useQuery({
     queryKey: ["verses", chapter?.id],
     staleTime: 60_000,
@@ -272,7 +244,6 @@ export function VedaReaderDB() {
     return allChapters.findIndex((ch) => ch.id === chapter.id);
   }, [chapter, allChapters]);
 
-  // Навігація між віршами
   const handlePrevVerse = useCallback(() => {
     setCurrentVerseIndex((prev) => Math.max(0, prev - 1));
   }, []);
@@ -281,7 +252,6 @@ export function VedaReaderDB() {
     setCurrentVerseIndex((prev) => Math.min(verses.length - 1, prev + 1));
   }, [verses.length]);
 
-  // Навігація між главами
   const handlePrevChapter = useCallback(() => {
     if (currentChapterIndex <= 0) return;
     const prevChapter = allChapters[currentChapterIndex - 1];
@@ -306,7 +276,6 @@ export function VedaReaderDB() {
     }
   }, [currentChapterIndex, allChapters, isCantoMode, navigate, bookId, cantoNumber]);
 
-  // Мутація для оновлення intro_html
   const updateIntroMutation = useMutation({
     mutationFn: async ({ field, value }: { field: "intro_html_ua" | "intro_html_en"; value: string }) => {
       if (!chapter?.id) throw new Error("No chapter");
@@ -354,9 +323,8 @@ export function VedaReaderDB() {
     }
 
     return items;
-  }, [book, canto, chapter, bookId, cantoNumber, chapterNumber, language, t, isCantoMode]);
+  }, [book, canto, chapter, bookId, cantoNumber, language, t, isCantoMode]);
 
-  // РЕНДЕР
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -386,7 +354,6 @@ export function VedaReaderDB() {
               </p>
             </div>
 
-            {/* Вступ до глави */}
             {(chapter.intro_html_ua || chapter.intro_html_en) && (
               <Card className="mb-8 p-6">
                 {dualLanguageMode ? (
@@ -446,11 +413,10 @@ export function VedaReaderDB() {
               </div>
             ) : (
               (() => {
-                // Неперервний режим
                 if (continuousReadingSettings.enabled) {
                   return (
                     <div className="space-y-6">
-                      {verses.map((v, idx) => (
+                      {verses.map((v) => (
                         <div key={v.id} className="pb-6 border-b border-border last:border-0">
                           {continuousReadingSettings.showVerseNumbers && (
                             <div className="mb-4 text-center">
@@ -567,19 +533,16 @@ export function VedaReaderDB() {
                   );
                 }
 
-                // Пов'язочний режим (одночасно)
                 return (
                   <div className="mx-auto max-w-4xl">
                     <Card className="mb-6 p-8">
                       <div>
-                        {/* Номер вірша */}
                         <div className="mb-8 text-center">
                           <span className="inline-block rounded bg-muted px-4 py-2 text-lg font-bold text-muted-foreground">
                             {t("Текст", "Text")} {getDisplayVerseNumber(currentVerse.verse_number)}
                           </span>
                         </div>
 
-                        {/* Санскрит (спільний) */}
                         {textDisplaySettings.showSanskrit && currentVerse.sanskrit && (
                           <div className="mb-10">
                             <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
@@ -588,7 +551,6 @@ export function VedaReaderDB() {
                           </div>
                         )}
 
-                        {/* Транслітерація (спільна) */}
                         {textDisplaySettings.showTransliteration && currentVerse.transliteration && (
                           <div className="mb-8">
                             <div className="space-y-1 text-center">
@@ -604,7 +566,6 @@ export function VedaReaderDB() {
                           </div>
                         )}
 
-                        {/* Послівний переклад */}
                         {textDisplaySettings.showSynonyms && (currentVerse.synonyms_ua || currentVerse.synonyms_en) && (
                           <div className="mb-6 border-t border-border pt-6">
                             <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
@@ -633,7 +594,6 @@ export function VedaReaderDB() {
                           </div>
                         )}
 
-                        {/* Літературний переклад */}
                         {textDisplaySettings.showTranslation &&
                           (currentVerse.translation_ua || currentVerse.translation_en) && (
                             <div className="mb-6 border-t border-border pt-6">
@@ -663,7 +623,6 @@ export function VedaReaderDB() {
                             </div>
                           )}
 
-                        {/* Пояснення */}
                         {textDisplaySettings.showCommentary &&
                           (currentVerse.commentary_ua || currentVerse.commentary_en) && (
                             <div className="border-t border-border pt-6">
