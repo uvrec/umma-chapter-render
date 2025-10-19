@@ -21,7 +21,7 @@ import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
 import ChapterDetail from "./pages/admin/ChapterDetail";
 
 import { NewHome } from "./pages/NewHome";
-import VedaReader from "./pages/VedaReader";
+import { VedaReader } from "./pages/VedaReader";
 import VerseView from "./pages/VerseView";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
@@ -135,7 +135,7 @@ const App = () => (
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/contact" element={<Contact />} />
-                  
+
                   {/* Tools */}
                   <Route path="/tools/transliteration" element={<TransliterationTool />} />
 
