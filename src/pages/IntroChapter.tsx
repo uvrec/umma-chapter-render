@@ -8,8 +8,11 @@ import { Breadcrumb } from '@/components/Breadcrumb';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { TiptapRenderer } from '@/components/blog/TiptapRenderer';
+import { UniversalInlineEditor } from '@/components/UniversalInlineEditor';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const IntroChapter = () => {
+  const { isAdmin } = useAuth();
   const { bookId, slug } = useParams();
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -118,9 +121,20 @@ export const IntroChapter = () => {
         </div>
 
         <Card className="p-8 mb-8">
-          <div className="prose prose-lg max-w-none dark:prose-invert">
-            <TiptapRenderer content={content || ''} />
-          </div>
+          {isAdmin ? (
+            <UniversalInlineEditor
+              table="intro_chapters"
+              recordId={introChapter.id}
+              field={language === 'ua' ? 'content_ua' : 'content_en'}
+              initialValue={content || ''}
+              label={language === 'ua' ? 'Контент (UA)' : 'Content (EN)'}
+              language={language}
+            />
+          ) : (
+            <div className="prose prose-lg max-w-none dark:prose-invert">
+              <TiptapRenderer content={content || ''} />
+            </div>
+          )}
         </Card>
 
         {/* Navigation */}

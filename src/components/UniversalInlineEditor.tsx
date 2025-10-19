@@ -8,10 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils"; // якщо немає — заміни className конкатенацією
+import { cn } from "@/lib/utils";
 
 type Props = {
-  table: "chapters" | "verses";
+  table: "chapters" | "verses" | "intro_chapters" | "blog_posts" | string;
   recordId: string;
   field: string;
   initialValue: string;
@@ -46,8 +46,8 @@ export const UniversalInlineEditor = ({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        codeBlock: true,
-        blockquote: true,
+        codeBlock: {},
+        blockquote: {},
         bulletList: { keepMarks: true, keepAttributes: true },
         orderedList: { keepMarks: true, keepAttributes: true },
       }),
@@ -86,16 +86,15 @@ export const UniversalInlineEditor = ({
   useEffect(() => {
     // якщо initialValue змінився (перемкнули мову/главу)
     if (editor && initialValue !== editor.getHTML()) {
-      editor.commands.setContent(initialValue || "", false, { preserveWhitespace: "full" });
+      editor.commands.setContent(initialValue || "");
       setDirty(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialValue, editor?.commands, table, recordId, field]);
+  }, [initialValue, editor]);
 
   const saveToDB = async (html: string) => {
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from(table)
         .update({ [field]: html })
         .eq("id", recordId);

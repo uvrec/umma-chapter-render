@@ -6,11 +6,14 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { VersesDisplay } from "@/components/VersesDisplay";
-import type { VerseData } from "@/types/verse-display";
+import type { VerseData, DisplayBlocks } from "@/types/verse-display";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 // Renders a single verse page using the universal VersesDisplay
 export default function VerseView() {
+  const { isAdmin } = useAuth();
   const { bookId, verseNumber } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
@@ -139,6 +142,23 @@ export default function VerseView() {
         <VersesDisplay
           language={language === 'ua' ? 'ua' : 'en'}
           verse={target as VerseData}
+          editable={!!isAdmin}
+          onBlockToggle={async (block, visible) => {
+            try {
+              const next = { ...(target.display_blocks || {}), [block]: visible } as any;
+              const { error } = await (supabase as any)
+                .from("verses")
+                .update({ display_blocks: next })
+                .eq("id", target.id);
+              if (error) throw error;
+              toast({ title: "✅ Налаштування збережено" });
+              // Update locally
+              Object.assign(target, { display_blocks: next });
+            } catch (e) {
+              console.error(e);
+              toast({ title: "Помилка збереження", variant: "destructive" });
+            }
+          }}
         />
 
         <div className="mt-10 flex items-center justify-between border-t border-border pt-6">

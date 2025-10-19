@@ -190,7 +190,7 @@ export function VedaReaderDB() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, intro_html_ua, intro_html_en, canto_id, book_id")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, canto_id, book_id")
         .eq("id", effectiveChapterParam)
         .maybeSingle();
 
@@ -353,59 +353,6 @@ export function VedaReaderDB() {
                 {t("Глава", "Chapter")} {chapter.chapter_number}
               </p>
             </div>
-
-            {(chapter.intro_html_ua || chapter.intro_html_en) && (
-              <Card className="mb-8 p-6">
-                {dualLanguageMode ? (
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <div className="border-r border-border pr-4">
-                      <div className="mb-4 text-sm font-semibold text-muted-foreground">Українська</div>
-                      {isAdmin ? (
-                        <UniversalInlineEditor
-                          content={chapter.intro_html_ua || ""}
-                          onSave={(val) => updateIntroMutation.mutate({ field: "intro_html_ua", value: val })}
-                          className="prose prose-sm max-w-none dark:prose-invert"
-                        />
-                      ) : (
-                        <TiptapRenderer content={chapter.intro_html_ua || ""} className="prose dark:prose-invert" />
-                      )}
-                    </div>
-                    <div className="pl-4">
-                      <div className="mb-4 text-sm font-semibold text-muted-foreground">English</div>
-                      {isAdmin ? (
-                        <UniversalInlineEditor
-                          content={chapter.intro_html_en || ""}
-                          onSave={(val) => updateIntroMutation.mutate({ field: "intro_html_en", value: val })}
-                          className="prose prose-sm max-w-none dark:prose-invert"
-                        />
-                      ) : (
-                        <TiptapRenderer content={chapter.intro_html_en || ""} className="prose dark:prose-invert" />
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {isAdmin ? (
-                      <UniversalInlineEditor
-                        content={language === "ua" ? chapter.intro_html_ua || "" : chapter.intro_html_en || ""}
-                        onSave={(val) =>
-                          updateIntroMutation.mutate({
-                            field: language === "ua" ? "intro_html_ua" : "intro_html_en",
-                            value: val,
-                          })
-                        }
-                        className="prose prose-sm max-w-none dark:prose-invert"
-                      />
-                    ) : (
-                      <TiptapRenderer
-                        content={language === "ua" ? chapter.intro_html_ua || "" : chapter.intro_html_en || ""}
-                        className="prose dark:prose-invert"
-                      />
-                    )}
-                  </>
-                )}
-              </Card>
-            )}
 
             {verses.length === 0 ? (
               <div className="text-center">
@@ -708,7 +655,8 @@ export function VedaReaderDB() {
                     </div>
                   </div>
                 );
-              })()}
+              })()
+            )}
           </>
         )}
       </div>

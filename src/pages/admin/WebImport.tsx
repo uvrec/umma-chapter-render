@@ -234,8 +234,9 @@ export default function WebImport() {
     }
 
     // Для лекцій/листів діапазон віршів не потрібен
+    let verseCountNum = 0;
     if (!useTextOnly) {
-      const verseCountNum = verseRange.split(",").reduce((acc, range) => {
+      verseCountNum = verseRange.split(",").reduce((acc, range) => {
         const parts = range
           .trim()
           .split("-")

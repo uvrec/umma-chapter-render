@@ -3,7 +3,7 @@
 
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useSupabaseClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { UniversalInlineEditor } from "@/components/UniversalInlineEditor";
@@ -12,7 +12,6 @@ import { Loader2 } from "lucide-react";
 
 export default function LectureReader() {
   const { chapterId } = useParams<{ chapterId: string }>();
-  const supabase = useSupabaseClient();
   const { language } = useLanguage();
 
   // Завантажуємо главу (лекцію)
@@ -106,7 +105,6 @@ export default function LectureReader() {
               label={`Контент лекції (${language.toUpperCase()})`}
               language={language}
               showToggle={true}
-              className="min-h-[400px]"
             />
           ) : (
             <div className="p-8 text-center border rounded-lg bg-muted/20">

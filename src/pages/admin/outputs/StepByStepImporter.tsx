@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { useSupabaseClient } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Check, AlertCircle } from "lucide-react";
 
@@ -27,7 +27,6 @@ interface StepResult {
 }
 
 export default function StepByStepImporter() {
-  const supabase = useSupabaseClient();
   
   const [url, setUrl] = useState("");
   const [bookId, setBookId] = useState("");
