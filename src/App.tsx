@@ -21,7 +21,7 @@ import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
 import ChapterDetail from "./pages/admin/ChapterDetail";
 
 import { NewHome } from "./pages/NewHome";
-import { VedaReader } from "./pages/VedaReader";
+import VedaReader from "./pages/VedaReader";
 import VerseView from "./pages/VerseView";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
