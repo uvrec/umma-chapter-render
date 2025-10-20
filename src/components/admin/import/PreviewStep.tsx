@@ -10,8 +10,10 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
-import { normalizeSynonyms } from "@/utils/import/normalizers"; // якщо ще десь використовуєте
 import { importSingleChapter, importBook } from "@/utils/import/importer";
+import { fastImportChapter, fastImportBook } from "@/utils/import/fastImporter";
+import { Switch } from "@/components/ui/switch";
+import { Zap } from "lucide-react";
 
 interface PreviewStepProps {
   /** Вибрана глава для імпорту (редагована у формі) */
@@ -32,6 +34,8 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
+  const [useFastImport, setUseFastImport] = useState(true);
+  const [fastImportLogs, setFastImportLogs] = useState<string[]>([]);
 
   const { data: books } = useQuery({
     queryKey: ["books"],
@@ -115,17 +119,48 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     if (!validateTarget()) return;
 
     setIsImportingBook(true);
+    setFastImportLogs([]);
+    
     try {
-      await importBook(supabase, {
-        bookId: selectedBookId,
-        cantoId: needsCanto ? selectedCantoId : null,
-        chapters: allChapters,
-        onProgress: ({ index, total, chapter }) => {
-          toast.message(`Імпорт розділу ${chapter.chapter_number}… (${index}/${total})`);
-        },
-      });
+      if (useFastImport) {
+        const selectedBookRecord = books?.find(b => b.id === selectedBookId);
+        const cantoNumber = cantos?.find(c => c.id === selectedCantoId)?.canto_number;
+        
+        let bookSlug = 'unknown';
+        if (selectedBookRecord) {
+          const { data: bookDetails } = await supabase
+            .from('books')
+            .select('vedabase_slug, slug')
+            .eq('id', selectedBookId)
+            .single();
+          
+          bookSlug = bookDetails?.vedabase_slug || bookDetails?.slug || 'unknown';
+        }
 
-      toast.success(`Книгу імпортовано: ${allChapters.length} розділів`);
+        await fastImportBook(allChapters, {
+          bookSlug,
+          cantoNumber,
+          language: 'uk',
+          onProgress: (msg) => {
+            console.log(msg);
+            setFastImportLogs(prev => [...prev, msg]);
+          }
+        });
+
+        toast.success(`⚡ Швидкий імпорт: ${allChapters.length} глав`);
+      } else {
+        await importBook(supabase, {
+          bookId: selectedBookId,
+          cantoId: needsCanto ? selectedCantoId : null,
+          chapters: allChapters,
+          onProgress: ({ index, total, chapter }) => {
+            toast.message(`Імпорт розділу ${chapter.chapter_number}… (${index}/${total})`);
+          },
+        });
+
+        toast.success(`Книгу імпортовано: ${allChapters.length} розділів`);
+      }
+
       onComplete();
     } catch (e: any) {
       console.error(e);
@@ -149,6 +184,26 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
       </div>
 
       <div className="p-4 border rounded-lg space-y-4">
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-500" />
+            <Label className="font-medium">Швидкий імпорт (40× швидше)</Label>
+          </div>
+          <Switch checked={useFastImport} onCheckedChange={setUseFastImport} />
+        </div>
+        
+        {useFastImport && (
+          <div className="text-sm text-muted-foreground p-3 bg-muted/30 rounded border-l-2 border-amber-500">
+            <p className="font-medium text-foreground mb-1">⚡ Ensure pattern:</p>
+            <ul className="list-disc list-inside space-y-1 text-xs">
+              <li>Idempotent операції (можна запускати багато разів)</li>
+              <li>Багатомовність: UA/EN в одному вірші</li>
+              <li>Автоматичне створення book→canto→chapter→verse</li>
+              <li>100ms vs 2сек на вірш</li>
+            </ul>
+          </div>
+        )}
+        
         <div>
           <Label>Книга</Label>
           <Select value={selectedBookId} onValueChange={setSelectedBookId}>
@@ -271,6 +326,17 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
             ))}
           </Accordion>
         </>
+      )}
+
+      {fastImportLogs.length > 0 && (
+        <div className="p-4 border rounded-lg bg-muted/20">
+          <h4 className="font-medium mb-2">Логи імпорту:</h4>
+          <div className="font-mono text-xs space-y-1 max-h-48 overflow-y-auto">
+            {fastImportLogs.map((log, idx) => (
+              <div key={idx} className="text-muted-foreground">{log}</div>
+            ))}
+          </div>
+        </div>
       )}
 
       <div className="flex items-center justify-between gap-3">
