@@ -188,12 +188,21 @@ export function VedaReaderDB() {
     staleTime: 60_000,
     enabled: !!book?.id && !!effectiveChapterParam,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, canto_id, book_id")
-        .eq("id", effectiveChapterParam)
-        .maybeSingle();
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, canto_id, book_id");
 
+      // If in canto mode, query by chapter_number and canto_id
+      if (isCantoMode && canto?.id) {
+        query = query
+          .eq("chapter_number", Number(effectiveChapterParam))
+          .eq("canto_id", canto.id);
+      } else {
+        // Otherwise query by UUID
+        query = query.eq("id", effectiveChapterParam);
+      }
+
+      const { data, error } = await query.maybeSingle();
       if (error) throw error;
       return data;
     },

@@ -1,4 +1,4 @@
-// src/components/VersesDisplay.tsx - ВИПРАВЛЕНА з двомовними назвами
+// src/components/VersesDisplay.tsx
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
@@ -18,15 +18,14 @@ interface VersesDisplayProps {
 
 export function VersesDisplay({
   verse,
-  language: propLanguage, // приймаємо, але не обов’язково
+  language: propLanguage,
   editable = false,
   onBlockToggle,
   className = ""
 }: VersesDisplayProps) {
 
-  // ✅ головна зміна: слухаємо глобальний контекст
   const { language: contextLanguage } = useLanguage();
-  const language = propLanguage || contextLanguage; // проп має пріоритет, якщо явно передано
+  const language = propLanguage || contextLanguage;
   
   const displayBlocks: DisplayBlocks = verse.display_blocks || {
     sanskrit: true,
@@ -36,7 +35,6 @@ export function VersesDisplay({
     commentary: true
   };
 
-  // Вибираємо поля в залежності від мови
   const synonyms = language === 'ua' ? verse.synonyms_ua : verse.synonyms_en;
   const translation = language === 'ua' ? verse.translation_ua : verse.translation_en;
   const commentary = language === 'ua' ? verse.commentary_ua : verse.commentary_en;
@@ -58,7 +56,7 @@ export function VersesDisplay({
   return (
     <div className={`verse-display space-y-6 ${className}`}>
       
-      {/* САНСКРИТ (спільний блок) */}
+      {/* САНСКРИТ */}
       {shouldShow('sanskrit', verse.sanskrit) && (
         <div className="sanskrit-block">
           <div className="text-center font-sanskrit text-2xl leading-relaxed text-primary">
