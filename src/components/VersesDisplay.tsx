@@ -3,8 +3,18 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { getBlockLabel } from "@/utils/blockLabels";
-import { useLanguage } from "@/contexts/LanguageContext"; // ✅ додати
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { DisplayBlocks, VerseData } from "@/types/verse-display";
+
+export type { DisplayBlocks, VerseData };
+
+interface VersesDisplayProps {
+  verse: VerseData;
+  language?: 'ua' | 'en';
+  editable?: boolean;
+  onBlockToggle?: (block: keyof DisplayBlocks, visible: boolean) => void;
+  className?: string;
+}
 
 export function VersesDisplay({
   verse,

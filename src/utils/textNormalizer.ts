@@ -13,7 +13,6 @@ const MOJIBAKE_REPLACEMENTS: Record<string, string> = {
   'â€œ': '"',
   'â€': '"',
   'â€"': '—',
-  'â€"': '–',
   "''": "'",
   '``': '"',
   'Ã¡': 'á',
@@ -21,10 +20,6 @@ const MOJIBAKE_REPLACEMENTS: Record<string, string> = {
   'Ã­': 'í',
   'Ã³': 'ó',
   'Ãº': 'ú',
-  '': '',
-  '': '',
-  '': '',
-  '': '',
   '\ufeff': '',
 };
 
@@ -161,7 +156,7 @@ function normalizeMojibake(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(MOJIBAKE_REPLACEMENTS)) {
-    result = result.replaceAll(old, newVal);
+    result = result.replace(new RegExp(old.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newVal);
   }
   return result;
 }
@@ -170,7 +165,7 @@ function normalizeDiacritics(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(DIACRITIC_FIXES)) {
-    result = result.replaceAll(old, newVal);
+    result = result.replace(new RegExp(old.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newVal);
   }
   return result;
 }
@@ -179,7 +174,7 @@ function normalizeWordReplacements(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(WORD_REPLACEMENTS)) {
-    result = result.replaceAll(old, newVal);
+    result = result.replace(new RegExp(old.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newVal);
   }
   return result;
 }
@@ -188,7 +183,7 @@ function normalizeConsonantClusters(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
-    result = result.replaceAll(old, newVal);
+    result = result.replace(new RegExp(old.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newVal);
   }
   return result;
 }
@@ -257,7 +252,7 @@ export function normalizeVerseField(text: string, fieldType: string): string {
       // Виправляємо тільки неправильні поєднання (тг→тх, але не нйа→нья!)
       for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
         if (['тг', 'пг', 'кг', 'чг', 'Тг', 'Пг', 'Кг', 'Чг'].includes(old)) {
-          result = result.replaceAll(old, newVal);
+          result = result.replace(new RegExp(old.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), newVal);
         }
       }
       break;
