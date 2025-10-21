@@ -18,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
-import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } from "@/utils/Vedabase-books";
+import { VEDABASE_BOOKS, buildVedabaseUrl, buildGitabaseUrl } from "@/utils/Vedabase-books";
 import { normalizeVerseField } from "@/utils/textNormalizer";
 import { Badge } from "@/components/ui/badge";
 
@@ -48,7 +48,7 @@ export default function VedabaseImportV3() {
 
   const [stats, setStats] = useState<ImportStats | null>(null);
 
-  const bookConfig = getBookConfig(selectedBook);
+  const bookConfig = VEDABASE_BOOKS.find((b) => b.slug === selectedBook);
 
   // ========================================================================
   // CORS FALLBACK
@@ -229,8 +229,8 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             vedabase_slug: selectedBook,
-            title_en: bookConfig.title,
-            title_ua: bookConfig.titleUA || bookConfig.title,
+            title_en: bookConfig.name_en,
+            title_ua: bookConfig.name_ua || bookConfig.name_en,
           })
           .select()
           .single();
@@ -515,10 +515,10 @@ export default function VedabaseImportV3() {
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                {Object.entries(VEDABASE_BOOKS).map(([key, book]) => (
-                  <SelectItem key={key} value={key}>
-                    {book.title}
+              <SelectContent className="max-h-[300px]">
+                {VEDABASE_BOOKS.map((book) => (
+                  <SelectItem key={book.slug} value={book.slug}>
+                    {book.name_ua || book.name_en}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -526,7 +526,7 @@ export default function VedabaseImportV3() {
           </div>
 
           {/* Пісня/Розділ */}
-          {bookConfig?.hasCanto && (
+          {bookConfig?.has_cantos && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Пісня (Canto)</Label>
@@ -539,7 +539,7 @@ export default function VedabaseImportV3() {
             </div>
           )}
 
-          {!bookConfig?.hasCanto && (
+          {!bookConfig?.has_cantos && (
             <div>
               <Label>Розділ (Chapter)</Label>
               <Input type="number" value={chapterNumber} onChange={(e) => setChapterNumber(e.target.value)} min="1" />
