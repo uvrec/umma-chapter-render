@@ -17,6 +17,7 @@ import {
   Music,
   WrapText,
   FileEdit,
+  Download,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
