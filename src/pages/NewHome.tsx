@@ -338,8 +338,8 @@ function SupportSection() {
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl">
           <h2 className="mb-6 text-center text-3xl font-bold md:text-3xl">Підтримати проєкт</h2>
-          <p className="mb-8 text-center text-lg text-muted-foreground">Можна допомогти з перевіркою вже записаного матеріалу, 
-або просто пожертвувати кошти на розвиток та підтримку проєкту.</p>
+          <p className="mb-8 text-center text-lg text-muted-foreground">Можна допомогти з перевіркою вже записаного матеріалу,  
+або просто пожертвувати щось на утримання сайту.</p>
           <div className="flex justify-center gap-4">
             <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2">
               PayPal
