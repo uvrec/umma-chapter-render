@@ -15,13 +15,17 @@ interface VersesDisplayProps {
   className?: string;
 }
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export function VersesDisplay({
   verse,
-  language = 'ua',
+  language: propLanguage,
   editable = false,
   onBlockToggle,
   className = ""
 }: VersesDisplayProps) {
+  const { language: contextLanguage } = useLanguage();
+  const language = propLanguage || contextLanguage;
   
   const displayBlocks: DisplayBlocks = verse.display_blocks || {
     sanskrit: true,
