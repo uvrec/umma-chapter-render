@@ -1,12 +1,3 @@
-// src/components/GlobalSettingsPanel.tsx
-/**
- * ПОВНІСТЮ ВИПРАВЛЕНА ПАНЕЛЬ НАЛАШТУВАНЬ
- *
- * ✅ Правильна синхронізація з localStorage
- * ✅ Всі перемикачі працюють
- * ✅ Події vv-reader-prefs-changed спрацьовують
- */
-
 import { useEffect, useState } from "react";
 import { Settings, X, Globe, Palette, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,12 +44,23 @@ function readBlocks(): BlocksState {
     const raw = localStorage.getItem(LS_KEYS.blocks);
     if (raw) {
       const parsed = JSON.parse(raw);
+      // Підтримка старого формату
+      if (parsed.sanskrit !== undefined) {
+        return {
+          showSanskrit: parsed.sanskrit ?? true,
+          showTransliteration: parsed.translit ?? true,
+          showSynonyms: parsed.synonyms ?? true,
+          showTranslation: parsed.translation ?? true,
+          showCommentary: parsed.commentary ?? true,
+        };
+      }
       return {
-        showSanskrit: parsed.showSanskrit ?? true,
-        showTransliteration: parsed.showTransliteration ?? true,
-        showSynonyms: parsed.showSynonyms ?? true,
-        showTranslation: parsed.showTranslation ?? true,
-        showCommentary: parsed.showCommentary ?? true,
+        showSanskrit: true,
+        showTransliteration: true,
+        showSynonyms: true,
+        showTranslation: true,
+        showCommentary: true,
+        ...parsed,
       };
     }
   } catch {}
@@ -105,62 +107,45 @@ export const GlobalSettingsPanel = () => {
     const s = localStorage.getItem(LS_KEYS.fontSize);
     return s ? Number(s) : 18;
   });
-
   const [lineHeight, setLineHeight] = useState<number>(() => {
     const s = localStorage.getItem(LS_KEYS.lineHeight);
     return s ? Number(s) : 1.6;
   });
-
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
-
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
   const [continuous, setContinuous] = useState<ContinuousState>(() => readContinuous());
 
-  // Функція для оповіщення про зміни
   const bumpReader = () => {
-    console.log("🔧 [GlobalSettingsPanel] Dispatching vv-reader-prefs-changed event");
+    console.log('🔧 [GlobalSettingsPanel] Dispatching vv-reader-prefs-changed event');
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
 
-  // Синхронізація fontSize
   useEffect(() => {
-    console.log("🔧 [GlobalSettingsPanel] fontSize changed:", fontSize);
+    console.log('🔧 [GlobalSettingsPanel] fontSize changed:', fontSize);
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
-
-    // Оновлюємо CSS змінну
-    document.documentElement.style.setProperty("--vv-reader-font-size", `${fontSize}px`);
-
     setTimeout(() => bumpReader(), 10);
   }, [fontSize]);
 
-  // Синхронізація lineHeight
   useEffect(() => {
-    console.log("🔧 [GlobalSettingsPanel] lineHeight changed:", lineHeight);
+    console.log('🔧 [GlobalSettingsPanel] lineHeight changed:', lineHeight);
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
-
-    // Оновлюємо CSS змінну
-    document.documentElement.style.setProperty("--vv-reader-line-height", String(lineHeight));
-
     setTimeout(() => bumpReader(), 10);
   }, [lineHeight]);
 
-  // Синхронізація dualMode
   useEffect(() => {
-    console.log("🔧 [GlobalSettingsPanel] dualMode changed:", dualMode);
+    console.log('🔧 [GlobalSettingsPanel] dualMode changed:', dualMode);
     localStorage.setItem(LS_KEYS.dual, String(dualMode));
     setTimeout(() => bumpReader(), 10);
   }, [dualMode]);
 
-  // Синхронізація blocks
   useEffect(() => {
-    console.log("🔧 [GlobalSettingsPanel] blocks changed:", blocks);
+    console.log('🔧 [GlobalSettingsPanel] blocks changed:', blocks);
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
     setTimeout(() => bumpReader(), 10);
   }, [blocks]);
 
-  // Синхронізація continuous
   useEffect(() => {
-    console.log("🔧 [GlobalSettingsPanel] continuous changed:", continuous);
+    console.log('🔧 [GlobalSettingsPanel] continuous changed:', continuous);
     localStorage.setItem(LS_KEYS.continuous, JSON.stringify(continuous));
     setTimeout(() => bumpReader(), 10);
   }, [continuous]);
@@ -177,37 +162,52 @@ export const GlobalSettingsPanel = () => {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-6 z-50 h-14 w-14 rounded-full shadow-lg"
+        className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
         size="icon"
+        aria-label="Open settings"
       >
         <Settings className="h-6 w-6" />
       </Button>
 
-      {/* Settings Sheet */}
+      {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="flex items-center justify-between">
-              <span>Налаштування</span>
-              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                <X className="h-5 w-5" />
+        <SheetContent side="right" className="w-96">
+          <SheetHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
+              <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} aria-label={t("Закрити", "Close")}>
+                <X className="w-4 h-4" />
               </Button>
-            </SheetTitle>
+            </div>
           </SheetHeader>
 
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6">
+            {/* Тема */}
+            <div>
+              <Label className="text-base font-semibold mb-3 block">{t("Тема оформлення", "Theme")}</Label>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button
+                  variant={craftSwitchChecked ? "default" : "outline"}
+                  onClick={() => setTheme("craft")}
+                  className="gap-2"
+                >
+                  <Palette className="h-4 w-4" />
+                  Крафт
+                </Button>
+              </div>
+            </div>
+
             {/* Мова інтерфейсу */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Globe className="h-5 w-5" />
-                Мова інтерфейсу
-              </h3>
+              <Label className="text-base font-semibold mb-3 block">{t("Мова інтерфейсу", "Interface Language")}</Label>
               <div className="flex gap-2">
                 <Button
                   variant={language === "ua" ? "default" : "outline"}
                   onClick={() => setLanguage("ua")}
                   className="flex-1"
                 >
+                  <Globe className="w-4 h-4 mr-2" />
                   Українська
                 </Button>
                 <Button
@@ -215,6 +215,7 @@ export const GlobalSettingsPanel = () => {
                   onClick={() => setLanguage("en")}
                   className="flex-1"
                 >
+                  <Globe className="w-4 h-4 mr-2" />
                   English
                 </Button>
               </div>
@@ -222,207 +223,140 @@ export const GlobalSettingsPanel = () => {
 
             <Separator />
 
-            {/* Тема */}
+            {/* Налаштування читання */}
             <div>
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Palette className="h-5 w-5" />
-                Тема оформлення
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label>Крафтова тема</Label>
-                  <Switch
-                    checked={craftSwitchChecked}
-                    onCheckedChange={(checked) => {
-                      setTheme(checked ? "craft" : "light");
-                    }}
-                  />
-                </div>
-                <ThemeToggle />
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Типографіка */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Відображення тексту</h3>
-
-              {/* Розмір шрифта */}
-              <div className="space-y-3">
-                <div>
-                  <Label className="mb-2 block">Розмір шрифта: {fontSize}px</Label>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={decreaseFont} disabled={fontSize <= MIN_FONT}>
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <input
-                      type="range"
-                      min={MIN_FONT}
-                      max={MAX_FONT}
-                      value={fontSize}
-                      onChange={(e) => setFontSize(Number(e.target.value))}
-                      className="flex-1"
-                    />
-                    <Button variant="outline" size="icon" onClick={increaseFont} disabled={fontSize >= MAX_FONT}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Міжряддя */}
-                <div>
-                  <Label className="mb-2 block">Міжряддя: {lineHeight.toFixed(2)}</Label>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={decreaseLH} disabled={lineHeight <= MIN_LH}>
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <input
-                      type="range"
-                      min={MIN_LH}
-                      max={MAX_LH}
-                      step="0.05"
-                      value={lineHeight}
-                      onChange={(e) => setLineHeight(Number(e.target.value))}
-                      className="flex-1"
-                    />
-                    <Button variant="outline" size="icon" onClick={increaseLH} disabled={lineHeight >= MAX_LH}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Двомовний режим */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Режим перекладу</h3>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dual-language">Двомовний режим</Label>
-                <Switch id="dual-language" checked={dualMode} onCheckedChange={setDualMode} />
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Елементи тексту */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Елементи тексту</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-sanskrit">Санскрит / Деванагарі</Label>
-                  <Switch
-                    id="show-sanskrit"
-                    checked={blocks.showSanskrit}
-                    onCheckedChange={(checked) => setBlocks((prev) => ({ ...prev, showSanskrit: checked }))}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-translit">Транслітерація</Label>
-                  <Switch
-                    id="show-translit"
-                    checked={blocks.showTransliteration}
-                    onCheckedChange={(checked) => setBlocks((prev) => ({ ...prev, showTransliteration: checked }))}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-synonyms">Послівний переклад</Label>
-                  <Switch
-                    id="show-synonyms"
-                    checked={blocks.showSynonyms}
-                    onCheckedChange={(checked) => setBlocks((prev) => ({ ...prev, showSynonyms: checked }))}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-translation">Переклад</Label>
-                  <Switch
-                    id="show-translation"
-                    checked={blocks.showTranslation}
-                    onCheckedChange={(checked) => setBlocks((prev) => ({ ...prev, showTranslation: checked }))}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="show-commentary">Пояснення</Label>
-                  <Switch
-                    id="show-commentary"
-                    checked={blocks.showCommentary}
-                    onCheckedChange={(checked) => setBlocks((prev) => ({ ...prev, showCommentary: checked }))}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Режим безперервного читання */}
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Режим читання</h3>
+              <h3 className="text-lg font-semibold mb-2">Відображення тексту</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="continuous-reading">Безперервне читання</Label>
-                  <Switch
-                    id="continuous-reading"
-                    checked={continuous.enabled}
-                    onCheckedChange={(checked) => setContinuous((prev) => ({ ...prev, enabled: checked }))}
-                  />
+                  <Label>Розмір шрифта</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={decreaseFont}
+                      disabled={fontSize <= MIN_FONT}
+                      aria-label="Зменшити"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-10 text-center text-sm tabular-nums">{fontSize}px</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={increaseFont}
+                      disabled={fontSize >= MAX_FONT}
+                      aria-label="Збільшити"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
+                <div className="flex items-center justify-between">
+                  <Label>Міжряддя</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={decreaseLH}
+                      disabled={lineHeight <= MIN_LH}
+                      aria-label="Зменшити"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </Button>
+                    <span className="w-12 text-center text-sm tabular-nums">{lineHeight.toFixed(2)}</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={increaseLH}
+                      disabled={lineHeight >= MAX_LH}
+                      aria-label="Збільшити"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="dual-language">Двомовний режим</Label>
+                  <Switch id="dual-language" checked={dualMode} onCheckedChange={(v) => setDualMode(v)} />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Безперервний режим читання */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Режим читання</h3>
+              <div className="space-y-3">
+                <RowToggle
+                  label="Неперервний текст"
+                  checked={continuous.enabled}
+                  onChange={(v) => setContinuous({ ...continuous, enabled: v })}
+                />
                 {continuous.enabled && (
-                  <div className="ml-4 space-y-3 border-l-2 border-muted pl-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="cont-verse-nums">Номери віршів</Label>
-                      <Switch
-                        id="cont-verse-nums"
-                        checked={continuous.showVerseNumbers}
-                        onCheckedChange={(checked) => setContinuous((prev) => ({ ...prev, showVerseNumbers: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="cont-sanskrit">Санскрит</Label>
-                      <Switch
-                        id="cont-sanskrit"
-                        checked={continuous.showSanskrit}
-                        onCheckedChange={(checked) => setContinuous((prev) => ({ ...prev, showSanskrit: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="cont-translit">Транслітерація</Label>
-                      <Switch
-                        id="cont-translit"
-                        checked={continuous.showTransliteration}
-                        onCheckedChange={(checked) =>
-                          setContinuous((prev) => ({ ...prev, showTransliteration: checked }))
-                        }
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="cont-translation">Переклад</Label>
-                      <Switch
-                        id="cont-translation"
-                        checked={continuous.showTranslation}
-                        onCheckedChange={(checked) => setContinuous((prev) => ({ ...prev, showTranslation: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="cont-commentary">Пояснення</Label>
-                      <Switch
-                        id="cont-commentary"
-                        checked={continuous.showCommentary}
-                        onCheckedChange={(checked) => setContinuous((prev) => ({ ...prev, showCommentary: checked }))}
-                      />
-                    </div>
+                  <div className="ml-4 space-y-2 border-l-2 border-muted pl-4">
+                    <RowToggle
+                      label="Номери віршів"
+                      checked={continuous.showVerseNumbers}
+                      onChange={(v) => setContinuous({ ...continuous, showVerseNumbers: v })}
+                    />
+                    <RowToggle
+                      label="Санскрит"
+                      checked={continuous.showSanskrit}
+                      onChange={(v) => setContinuous({ ...continuous, showSanskrit: v })}
+                    />
+                    <RowToggle
+                      label="Транслітерація"
+                      checked={continuous.showTransliteration}
+                      onChange={(v) => setContinuous({ ...continuous, showTransliteration: v })}
+                    />
+                    <RowToggle
+                      label="Переклад"
+                      checked={continuous.showTranslation}
+                      onChange={(v) => setContinuous({ ...continuous, showTranslation: v })}
+                    />
+                    <RowToggle
+                      label="Пояснення"
+                      checked={continuous.showCommentary}
+                      onChange={(v) => setContinuous({ ...continuous, showCommentary: v })}
+                    />
                   </div>
                 )}
+              </div>
+            </div>
+
+            <Separator />
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
+              <div className="space-y-3">
+                <RowToggle
+                  label="Санскрит / Деванагарі"
+                  checked={blocks.showSanskrit}
+                  onChange={(v) => setBlocks({ ...blocks, showSanskrit: v })}
+                />
+                <RowToggle
+                  label="Транслітерація"
+                  checked={blocks.showTransliteration}
+                  onChange={(v) => setBlocks({ ...blocks, showTransliteration: v })}
+                />
+                <RowToggle
+                  label="Послівний переклад"
+                  checked={blocks.showSynonyms}
+                  onChange={(v) => setBlocks({ ...blocks, showSynonyms: v })}
+                />
+                <RowToggle
+                  label="Переклад"
+                  checked={blocks.showTranslation}
+                  onChange={(v) => setBlocks({ ...blocks, showTranslation: v })}
+                />
+                <RowToggle
+                  label="Пояснення"
+                  checked={blocks.showCommentary}
+                  onChange={(v) => setBlocks({ ...blocks, showCommentary: v })}
+                />
               </div>
             </div>
           </div>
@@ -431,3 +365,12 @@ export const GlobalSettingsPanel = () => {
     </>
   );
 };
+
+function RowToggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label>{label}</Label>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  );
+}
