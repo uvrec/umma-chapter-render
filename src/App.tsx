@@ -72,6 +72,7 @@ import WebImport from "./pages/admin/WebImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import CleanBengali from "./pages/admin/CleanBengali";
 import VedabaseImportV2 from "./pages/admin/VedabaseImportV2";
+import VedabaseImportV3 from "./pages/admin/VedabaseImportV3";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
@@ -187,6 +188,7 @@ const App = () => (
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
                   <Route path="/admin/chapters/:id" element={<ChapterDetail />} />
+                  <Route path="/admin/import-v3" element={<VedabaseImportV3 />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />

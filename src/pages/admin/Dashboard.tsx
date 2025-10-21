@@ -242,13 +242,15 @@ const Dashboard = () => {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/web-import">
-                  Веб-імпорт (Playwright)
-                </Link>
+                <Link to="/admin/web-import">Веб-імпорт (Playwright)</Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/import-wizard">
-                  Імпорт з файлу
+                <Link to="/admin/import-wizard">Імпорт з файлу</Link>
+              </Button>
+              <Button asChild>
+                <Link to="/admin/import-v3">
+                  <Download className="w-4 h-4 mr-2" />
+                  Імпорт V3 (Повна версія)
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
