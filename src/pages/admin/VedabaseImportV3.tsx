@@ -1,100 +1,153 @@
-// ДІАГНОСТИЧНА версія VedabaseImportV3 - показує що відбувається
+// Тестова версія з покращеним парсером
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowLeft, Play } from "lucide-react";
-import { toast } from "sonner";
+
+// Вбудований парсер (скопіюй це потім в окремий файл)
+function extractVedabaseContent(html: string) {
+  const result = {
+    sanskrit: "",
+    transliteration: "",
+    synonyms: "",
+    translation: "",
+    commentary: "",
+  };
+
+  try {
+    // САНСКРИТ - шукаємо Devanagari/Bengali
+    const devanagariMatch = html.match(/[\u0900-\u097F।॥\s]+/g);
+    const bengaliMatch = html.match(/[\u0980-\u09FF।॥\s]+/g);
+
+    const allMatches = [...(devanagariMatch || []), ...(bengaliMatch || [])];
+    const longest = allMatches
+      .map((s) => s.trim())
+      .filter((s) => s.length > 10)
+      .sort((a, b) => b.length - a.length)[0];
+
+    if (longest) {
+      result.sanskrit = longest;
+    }
+
+    // ТРАНСЛІТЕРАЦІЯ - IAST з діакритикою
+    const iastPattern = /\b[a-zA-Zāīūṛṝḷḹēōṃḥśṣṇṭḍñṅ\s\-']+\b/g;
+    const iastMatches = html.match(iastPattern);
+
+    if (iastMatches) {
+      const withDiacritics = iastMatches.filter(
+        (text) => /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
+      );
+
+      if (withDiacritics.length > 0) {
+        result.transliteration = withDiacritics.sort((a, b) => b.length - a.length)[0].trim();
+      }
+    }
+
+    // СИНОНІМИ
+    const synonymsMatch = html.match(/(?:SYNONYMS|Word for word)[:\s]*(.*?)(?=TRANSLATION|$)/is);
+    if (synonymsMatch) {
+      result.synonyms = synonymsMatch[1]
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .substring(0, 2000);
+    }
+
+    // ПЕРЕКЛАД
+    const translationMatch = html.match(/TRANSLATION[:\s]*(.*?)(?=PURPORT|COMMENTARY|$)/is);
+    if (translationMatch) {
+      result.translation = translationMatch[1]
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .substring(0, 1000);
+    }
+
+    // КОМЕНТАР
+    const commentaryMatch = html.match(/(?:PURPORT|COMMENTARY)[:\s]*(.*?)$/is);
+    if (commentaryMatch) {
+      result.commentary = commentaryMatch[1]
+        .replace(/<script[^>]*>.*?<\/script>/gis, "")
+        .replace(/<style[^>]*>.*?<\/style>/gis, "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .substring(0, 10000);
+    }
+  } catch (error) {
+    console.error("Parse error:", error);
+  }
+
+  return result;
+}
 
 export default function VedabaseImportV3() {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<string[]>([]);
   const [isTesting, setIsTesting] = useState(false);
+  const [parsedData, setParsedData] = useState<any>(null);
 
   const addLog = (msg: string) => {
     console.log(msg);
     setLogs((prev) => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
   };
 
-  const testProxies = async () => {
+  const testParser = async () => {
     setIsTesting(true);
     setLogs([]);
+    setParsedData(null);
 
     const testUrl = "https://vedabase.io/en/library/bg/1/1/";
 
-    addLog("🧪 Тест 1: Supabase Edge Function...");
-    try {
-      const response = await fetch(
-        "https://caf8c97b-0aea-4eba-8bd0-7e77e5a22197.supabase.co/functions/v1/fetch-proxy",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: testUrl }),
-        },
-      );
-      const data = await response.json();
-      if (data.html && data.html.length > 100) {
-        addLog(`✅ Supabase працює! (${data.html.length} символів)`);
-      } else {
-        addLog(`❌ Supabase: порожня відповідь`);
-      }
-    } catch (e) {
-      addLog(`❌ Supabase: ${e instanceof Error ? e.message : "помилка"}`);
-    }
-
-    await new Promise((r) => setTimeout(r, 1000));
-
-    addLog("🧪 Тест 2: AllOrigins...");
+    addLog("🧪 Завантаження HTML з AllOrigins...");
     try {
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(testUrl)}`;
       const response = await fetch(proxyUrl);
       const html = await response.text();
-      if (html.length > 100) {
-        addLog(`✅ AllOrigins працює! (${html.length} символів)`);
 
-        // Перевірка чи є Sanskrit
-        if (html.includes("sanskrit") || /[\u0980-\u09FF]/.test(html)) {
-          addLog(`✅ Знайдено санскрит в HTML!`);
-        } else {
-          addLog(`⚠️ Санскрит НЕ знайдено в HTML`);
-        }
+      addLog(`✅ Завантажено ${html.length} символів`);
 
-        // Перевірка структури
-        if (html.includes("transliteration")) {
-          addLog(`✅ Знайдено транслітерацію`);
-        }
-        if (html.includes("SYNONYMS") || html.includes("synonyms")) {
-          addLog(`✅ Знайдено синоніми`);
-        }
-        if (html.includes("TRANSLATION") || html.includes("translation")) {
-          addLog(`✅ Знайдено переклад`);
-        }
+      addLog("🔍 Парсинг контенту...");
+      const parsed = extractVedabaseContent(html);
+
+      setParsedData(parsed);
+
+      if (parsed.sanskrit) {
+        addLog(`✅ Санскрит: "${parsed.sanskrit.substring(0, 50)}..."`);
       } else {
-        addLog(`❌ AllOrigins: порожня відповідь`);
+        addLog(`⚠️ Санскрит не знайдено`);
       }
+
+      if (parsed.transliteration) {
+        addLog(`✅ Транслітерація: "${parsed.transliteration.substring(0, 50)}..."`);
+      } else {
+        addLog(`⚠️ Транслітерація не знайдена`);
+      }
+
+      if (parsed.synonyms) {
+        addLog(`✅ Синоніми: ${parsed.synonyms.length} символів`);
+      } else {
+        addLog(`⚠️ Синоніми не знайдені`);
+      }
+
+      if (parsed.translation) {
+        addLog(`✅ Переклад: ${parsed.translation.length} символів`);
+      } else {
+        addLog(`⚠️ Переклад не знайдений`);
+      }
+
+      if (parsed.commentary) {
+        addLog(`✅ Коментар: ${parsed.commentary.length} символів`);
+      } else {
+        addLog(`⚠️ Коментар не знайдений`);
+      }
+
+      addLog("✅ Парсинг завершено!");
     } catch (e) {
-      addLog(`❌ AllOrigins: ${e instanceof Error ? e.message : "помилка"}`);
+      addLog(`❌ Помилка: ${e instanceof Error ? e.message : "unknown"}`);
     }
 
-    await new Promise((r) => setTimeout(r, 1000));
-
-    addLog("🧪 Тест 3: CORSProxy...");
-    try {
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(testUrl)}`;
-      const response = await fetch(proxyUrl);
-      const html = await response.text();
-      if (html.length > 100) {
-        addLog(`✅ CORSProxy працює! (${html.length} символів)`);
-      } else {
-        addLog(`❌ CORSProxy: порожня відповідь`);
-      }
-    } catch (e) {
-      addLog(`❌ CORSProxy: ${e instanceof Error ? e.message : "помилка"}`);
-    }
-
-    addLog("✅ Тести завершені!");
     setIsTesting(false);
   };
 
@@ -107,16 +160,14 @@ export default function VedabaseImportV3() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Діагностика імпорту V3</CardTitle>
+          <CardTitle>Тест парсера V3</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Цей тест перевірить чи працюють CORS проксі та чи можна отримати HTML з Vedabase
-          </p>
+          <p className="text-sm text-muted-foreground">Тестує новий парсер який витягує санскрит з JavaScript</p>
 
-          <Button onClick={testProxies} disabled={isTesting} className="w-full">
+          <Button onClick={testParser} disabled={isTesting} className="w-full">
             <Play className="w-4 h-4 mr-2" />
-            {isTesting ? "Тестування..." : "Запустити діагностику"}
+            {isTesting ? "Тестування..." : "Протестувати парсер"}
           </Button>
 
           {logs.length > 0 && (
@@ -127,15 +178,46 @@ export default function VedabaseImportV3() {
             </div>
           )}
 
-          <div className="bg-muted p-4 rounded text-sm">
-            <strong>Що тестується:</strong>
-            <ul className="list-disc ml-6 mt-2 space-y-1">
-              <li>Supabase Edge Function fetch-proxy</li>
-              <li>AllOrigins публічний proxy</li>
-              <li>CORSProxy публічний proxy</li>
-              <li>Чи є санскрит/переклад в отриманому HTML</li>
-            </ul>
-          </div>
+          {parsedData && (
+            <div className="space-y-4 mt-6">
+              <h3 className="font-semibold">Розпарсені дані:</h3>
+
+              {parsedData.sanskrit && (
+                <div className="bg-muted p-3 rounded">
+                  <div className="text-xs font-bold mb-1">САНСКРИТ:</div>
+                  <div className="font-sanskrit text-lg">{parsedData.sanskrit}</div>
+                </div>
+              )}
+
+              {parsedData.transliteration && (
+                <div className="bg-muted p-3 rounded">
+                  <div className="text-xs font-bold mb-1">ТРАНСЛІТЕРАЦІЯ:</div>
+                  <div className="italic">{parsedData.transliteration}</div>
+                </div>
+              )}
+
+              {parsedData.synonyms && (
+                <div className="bg-muted p-3 rounded">
+                  <div className="text-xs font-bold mb-1">СИНОНІМИ:</div>
+                  <div className="text-sm">{parsedData.synonyms.substring(0, 200)}...</div>
+                </div>
+              )}
+
+              {parsedData.translation && (
+                <div className="bg-muted p-3 rounded">
+                  <div className="text-xs font-bold mb-1">ПЕРЕКЛАД:</div>
+                  <div>{parsedData.translation}</div>
+                </div>
+              )}
+
+              {parsedData.commentary && (
+                <div className="bg-muted p-3 rounded">
+                  <div className="text-xs font-bold mb-1">КОМЕНТАР:</div>
+                  <div className="text-sm">{parsedData.commentary.substring(0, 300)}...</div>
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
