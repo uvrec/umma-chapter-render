@@ -240,7 +240,7 @@ export function VedaReaderDB() {
         .from("verses")
         .select("*")
         .eq("chapter_id", chapter!.id)
-        .order("verse_order", { ascending: true });
+        .order("verse_number_sort", { ascending: true });
 
       if (error) throw error;
       return data || [];
