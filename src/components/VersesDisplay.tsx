@@ -1,19 +1,9 @@
+// src/components/VersesDisplay.tsx - ВИПРАВЛЕНА з двомовними назвами
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
+import { getBlockLabel } from "@/utils/blockLabels";
 import type { DisplayBlocks, VerseData } from "@/types/verse-display";
-
-/**
- * Універсальний компонент для відображення віршів/контенту
- * Використовується в: книгах, блозі, адмін панелі
- * 
- * Особливості:
- * - Автоматично приховує порожні блоки
- * - Гнучке керування відображенням через display_blocks
- * - Підтримка редагування (кнопки показати/приховати)
- * - Однакові стилі для всього сайту
- * - Підтримка темної/світлої теми
- */
 
 export type { DisplayBlocks, VerseData };
 
@@ -33,7 +23,6 @@ export function VersesDisplay({
   className = ""
 }: VersesDisplayProps) {
   
-  // Отримуємо налаштування відображення
   const displayBlocks: DisplayBlocks = verse.display_blocks || {
     sanskrit: true,
     transliteration: true,
@@ -47,17 +36,14 @@ export function VersesDisplay({
   const translation = language === 'ua' ? verse.translation_ua : verse.translation_en;
   const commentary = language === 'ua' ? verse.commentary_ua : verse.commentary_en;
 
-  // Перевірка чи поле заповнене
   const hasContent = (content?: string | null): boolean => {
     return content !== null && content !== undefined && content.trim() !== '';
   };
 
-  // Чи показувати блок (налаштування && є контент)
   const shouldShow = (block: keyof DisplayBlocks, content?: string | null): boolean => {
     return displayBlocks[block] && hasContent(content);
   };
 
-  // Обробник кнопки показати/приховати
   const handleToggle = (block: keyof DisplayBlocks) => {
     if (onBlockToggle) {
       onBlockToggle(block, !displayBlocks[block]);
@@ -67,7 +53,7 @@ export function VersesDisplay({
   return (
     <div className={`verse-display space-y-6 ${className}`}>
       
-      {/* САНСКРИТ (ДЕВАНАГАРІ) */}
+      {/* САНСКРИТ (спільний блок) */}
       {shouldShow('sanskrit', verse.sanskrit) && (
         <div className="sanskrit-block">
           <div className="text-center font-sanskrit text-2xl leading-relaxed text-primary">
@@ -89,7 +75,7 @@ export function VersesDisplay({
       {shouldShow('synonyms', synonyms) && (
         <div className="synonyms-block border-l-4 border-primary/50 pl-4 py-2 bg-muted/30 rounded-r">
           <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide text-primary">
-            Послівний переклад:
+            {getBlockLabel('synonyms', language)}:
           </h4>
           <div className="text-sm leading-relaxed whitespace-pre-wrap">
             {synonyms}
@@ -106,7 +92,7 @@ export function VersesDisplay({
         </div>
       )}
 
-      {/* ПОЯСНЕННЯ/КОМЕНТАР */}
+      {/* ПОЯСНЕННЯ */}
       {shouldShow('commentary', commentary) && (
         <div className="commentary-block prose prose-lg dark:prose-invert max-w-none">
           <div 
@@ -116,7 +102,7 @@ export function VersesDisplay({
         </div>
       )}
 
-      {/* КНОПКИ КЕРУВАННЯ (тільки якщо editable) */}
+      {/* КНОПКИ КЕРУВАННЯ */}
       {editable && (
         <div className="edit-controls mt-8 pt-6 border-t border-border">
           <h5 className="text-sm font-semibold mb-3 text-muted-foreground">
@@ -131,7 +117,7 @@ export function VersesDisplay({
                 onClick={() => handleToggle('sanskrit')}
               >
                 {displayBlocks.sanskrit ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                Санскрит
+                {getBlockLabel('sanskrit', language)}
               </Button>
             )}
 
@@ -142,7 +128,7 @@ export function VersesDisplay({
                 onClick={() => handleToggle('transliteration')}
               >
                 {displayBlocks.transliteration ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                Транслітерація
+                {getBlockLabel('transliteration', language)}
               </Button>
             )}
 
@@ -153,7 +139,7 @@ export function VersesDisplay({
                 onClick={() => handleToggle('synonyms')}
               >
                 {displayBlocks.synonyms ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                Послівний переклад
+                {getBlockLabel('synonyms', language)}
               </Button>
             )}
 
@@ -164,7 +150,7 @@ export function VersesDisplay({
                 onClick={() => handleToggle('translation')}
               >
                 {displayBlocks.translation ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                Переклад
+                {getBlockLabel('translation', language)}
               </Button>
             )}
 
@@ -175,7 +161,7 @@ export function VersesDisplay({
                 onClick={() => handleToggle('commentary')}
               >
                 {displayBlocks.commentary ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                Пояснення
+                {getBlockLabel('commentary', language)}
               </Button>
             )}
           </div>
@@ -192,43 +178,6 @@ export function VersesDisplay({
           <p className="text-sm">Контент відсутній або прихований</p>
         </div>
       )}
-    </div>
-  );
-}
-
-/**
- * Допоміжний компонент для контейнера віршів
- * Використовується для обгортки списку віршів
- */
-export function VersesContainer({ 
-  children, 
-  className = "" 
-}: { 
-  children: React.ReactNode; 
-  className?: string;
-}) {
-  return (
-    <div className={`verses-container space-y-12 ${className}`}>
-      {children}
-    </div>
-  );
-}
-
-/**
- * Компонент для заголовка вірша (номер вірша)
- */
-export function VerseHeader({ 
-  verseNumber, 
-  className = "" 
-}: { 
-  verseNumber: string | number; 
-  className?: string;
-}) {
-  return (
-    <div className={`verse-header mb-6 ${className}`}>
-      <h3 className="text-xl font-bold text-primary border-b-2 border-primary/20 pb-2 inline-block">
-        Текст {verseNumber}
-      </h3>
     </div>
   );
 }
