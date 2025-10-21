@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export default function VedabaseImportV3() {
   const navigate = useNavigate();
   const [logs, setLogs] = useState<string[]>([]);
-  const [isTestng, setIsTesting] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
 
   const addLog = (msg: string) => {
     console.log(msg);
