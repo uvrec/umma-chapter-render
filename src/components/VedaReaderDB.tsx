@@ -144,9 +144,11 @@ export function VedaReaderDB() {
     const parts = verseNumber.split(/[\s.]+/);
     return parts[parts.length - 1] || verseNumber;
   };
-  const isCantoMode = !!cantoNumber;
-  const isChapterNumberMode = !!chapterNumber && !cantoNumber;
-  const effectiveChapterParam = isCantoMode || isChapterNumberMode ? chapterNumber : chapterId;
+const isCantoMode = !!cantoNumber;
+const isExplicitChapterNumberMode = !!chapterNumber && !cantoNumber;
+const isNumericChapterIdMode = !!chapterId && !cantoNumber && /^\d+$/.test(chapterId);
+const isChapterNumberMode = isExplicitChapterNumberMode || isNumericChapterIdMode;
+const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNumber ?? chapterId)! : chapterId;
   const {
     data: book
   } = useQuery({
@@ -325,7 +327,7 @@ export function VedaReaderDB() {
       const chTitle = language === "ua" ? chapter.title_ua : chapter.title_en;
       items.push({
         label: `${t("Глава", "Chapter")} ${chapter.chapter_number}: ${chTitle}`,
-        href: isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}` : `/veda-reader/${bookId}/${chapter.id}`
+        href: isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}` : (isChapterNumberMode ? `/veda-reader/${bookId}/chapter/${chapter.chapter_number}` : `/veda-reader/${bookId}/${chapter.id}`)
       });
     }
     return items;
