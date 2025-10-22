@@ -111,6 +111,7 @@ const App = () => (
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
                     element={<VedaReaderDB />}
                   />
+                  <Route path="/veda-reader/:bookId/chapter/:chapterNumber" element={<VedaReaderDB />} />
                   <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
 
                   {/* Бібліотека */}

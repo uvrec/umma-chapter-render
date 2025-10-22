@@ -145,7 +145,8 @@ export function VedaReaderDB() {
     return parts[parts.length - 1] || verseNumber;
   };
   const isCantoMode = !!cantoNumber;
-  const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
+  const isChapterNumberMode = !!chapterNumber && !cantoNumber;
+  const effectiveChapterParam = isCantoMode || isChapterNumberMode ? chapterNumber : chapterId;
   const {
     data: book
   } = useQuery({
@@ -189,6 +190,9 @@ export function VedaReaderDB() {
       // If in canto mode, query by chapter_number and canto_id
       if (isCantoMode && canto?.id) {
         query = query.eq("chapter_number", Number(effectiveChapterParam)).eq("canto_id", canto.id);
+      } else if (isChapterNumberMode) {
+        // Query by chapter_number for books without cantos
+        query = query.eq("chapter_number", Number(effectiveChapterParam)).eq("book_id", book!.id).is("canto_id", null);
       } else {
         // Otherwise query by UUID
         query = query.eq("id", effectiveChapterParam);
@@ -259,6 +263,8 @@ export function VedaReaderDB() {
     if (!prevChapter) return;
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}`);
+    } else if (isChapterNumberMode) {
+      navigate(`/veda-reader/${bookId}/chapter/${prevChapter.chapter_number}`);
     } else {
       navigate(`/veda-reader/${bookId}/${prevChapter.id}`);
     }
@@ -269,6 +275,8 @@ export function VedaReaderDB() {
     if (!nextChapter) return;
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}`);
+    } else if (isChapterNumberMode) {
+      navigate(`/veda-reader/${bookId}/chapter/${nextChapter.chapter_number}`);
     } else {
       navigate(`/veda-reader/${bookId}/${nextChapter.id}`);
     }
