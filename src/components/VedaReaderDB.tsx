@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { UniversalInlineEditor } from "@/components/UniversalInlineEditor";
+import { useReaderPrefs } from "@/hooks/useReaderPrefs";
 export function VedaReaderDB() {
   const {
     bookId,
@@ -30,15 +31,12 @@ export function VedaReaderDB() {
   } = useAuth();
   const queryClient = useQueryClient();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_fontSize");
-    return saved ? Number(saved) : 18;
-  });
-  const [lineHeight, setLineHeight] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_lineHeight");
-    return saved ? Number(saved) : 1.6;
-  });
-  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => localStorage.getItem("vv_reader_dualMode") === "true");
+  
+  // Use centralized reader preferences hook
+  const readerPrefs = useReaderPrefs();
+  const fontSize = readerPrefs.fontSize;
+  const lineHeight = readerPrefs.lineHeight;
+  const dualLanguageMode = readerPrefs.dualLanguageMode;
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
     try {
       const raw = localStorage.getItem("vv_reader_blocks");
@@ -89,57 +87,6 @@ export function VedaReaderDB() {
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
     if (root) root.style.lineHeight = String(lineHeight);
   }, [lineHeight]);
-  useEffect(() => {
-    const syncFromLS = () => {
-      const fs = localStorage.getItem("vv_reader_fontSize");
-      if (fs) setFontSize(Number(fs));
-      const lh = localStorage.getItem("vv_reader_lineHeight");
-      if (lh) setLineHeight(Number(lh));
-      const dualMode = localStorage.getItem("vv_reader_dualMode") === "true";
-      setDualLanguageMode(dualMode);
-      try {
-        const b = localStorage.getItem("vv_reader_blocks");
-        if (b) {
-          const parsed = JSON.parse(b);
-          setTextDisplaySettings(prev => ({
-            ...prev,
-            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
-            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
-            showSynonyms: parsed.showSynonyms ?? prev.showSynonyms,
-            showTranslation: parsed.showTranslation ?? prev.showTranslation,
-            showCommentary: parsed.showCommentary ?? prev.showCommentary
-          }));
-        }
-      } catch {}
-      try {
-        const c = localStorage.getItem("vv_reader_continuous");
-        if (c) {
-          const parsed = JSON.parse(c);
-          setContinuousReadingSettings(prev => ({
-            ...prev,
-            enabled: parsed.enabled ?? prev.enabled,
-            showVerseNumbers: parsed.showVerseNumbers ?? prev.showVerseNumbers,
-            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
-            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
-            showTranslation: parsed.showTranslation ?? prev.showTranslation,
-            showCommentary: parsed.showCommentary ?? prev.showCommentary
-          }));
-        }
-      } catch {}
-    };
-    const onPrefs = () => syncFromLS();
-    const onStorage = (e: StorageEvent) => {
-      if (!e.key || !e.key.startsWith("vv_reader_")) return;
-      syncFromLS();
-    };
-    window.addEventListener("vv-reader-prefs-changed", onPrefs as any);
-    window.addEventListener("storage", onStorage);
-    syncFromLS();
-    return () => {
-      window.removeEventListener("vv-reader-prefs-changed", onPrefs as any);
-      window.removeEventListener("storage", onStorage);
-    };
-  }, []);
   const getDisplayVerseNumber = (verseNumber: string): string => {
     const parts = verseNumber.split(/[\s.]+/);
     return parts[parts.length - 1] || verseNumber;
@@ -249,6 +196,34 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
     }
   });
   const currentVerse = verses[currentVerseIndex];
+
+  // Prefetch neighboring verses for smoother navigation
+  useEffect(() => {
+    if (!verses?.length || verses.length <= 1) return;
+    
+    const prefetchVerse = async (index: number) => {
+      if (index < 0 || index >= verses.length) return;
+      const verse = verses[index];
+      await queryClient.prefetchQuery({
+        queryKey: ["verse", verse.id],
+        queryFn: async () => {
+          const { data } = await supabase
+            .from("verses")
+            .select("*")
+            .eq("id", verse.id)
+            .single();
+          return data;
+        },
+      });
+    };
+
+    // Prefetch previous and next verses
+    const prev = currentVerseIndex - 1;
+    const next = currentVerseIndex + 1;
+    
+    if (prev >= 0) prefetchVerse(prev);
+    if (next < verses.length) prefetchVerse(next);
+  }, [currentVerseIndex, verses, queryClient]);
   const currentChapterIndex = useMemo(() => {
     if (!chapter) return -1;
     return allChapters.findIndex(ch => ch.id === chapter.id);
