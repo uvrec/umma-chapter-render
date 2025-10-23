@@ -1,4 +1,4 @@
-// VedabaseImportV3 - FIXED VERSION - Dual language import
+// Fixed VedabaseImportV3 - corrected property names
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
-import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } from "@/utils/Vedabase-books";
+import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
 import { Badge } from "@/components/ui/badge";
 
 interface ImportStats {
@@ -22,7 +21,7 @@ interface ImportStats {
 }
 
 // ============================================================================
-// PARSERS - FIXED VERSION
+// PARSERS
 // ============================================================================
 
 function extractVedabaseContent(html: string) {
@@ -35,7 +34,6 @@ function extractVedabaseContent(html: string) {
   };
 
   try {
-    // SANSKRIT (common for both languages)
     const devanagariMatch = html.match(/[\u0900-\u097F।॥\s]+/g);
     const bengaliMatch = html.match(/[\u0980-\u09FF।॥\s]+/g);
 
@@ -49,7 +47,6 @@ function extractVedabaseContent(html: string) {
       result.sanskrit = longest;
     }
 
-    // TRANSLITERATION (IAST)
     const iastPattern = /\b[a-zA-ZĀāĪīŪūṛṝḷḹĒēŌōṃḥṚṛṢṣṆṇṬṭḌḍÑñṄṅ\s\-']+\b/g;
     const iastMatches = html.match(iastPattern);
 
@@ -63,7 +60,6 @@ function extractVedabaseContent(html: string) {
       }
     }
 
-    // SYNONYMS - NO LENGTH LIMIT
     const synonymsMatch = html.match(/(?:SYNONYMS|Word for word)[:\s]*(.*?)(?=TRANSLATION|$)/is);
     if (synonymsMatch) {
       result.synonyms = synonymsMatch[1]
@@ -72,7 +68,6 @@ function extractVedabaseContent(html: string) {
         .trim();
     }
 
-    // TRANSLATION - NO LENGTH LIMIT
     const translationMatch = html.match(/TRANSLATION[:\s]*(.*?)(?=PURPORT|COMMENTARY|$)/is);
     if (translationMatch) {
       result.translation = translationMatch[1]
@@ -81,12 +76,10 @@ function extractVedabaseContent(html: string) {
         .trim();
     }
 
-    // PURPORT - NO LENGTH LIMIT, NO FOOTER
     const purportMatch = html.match(/(?:PURPORT|COMMENTARY)[:\s]*(.*?)$/is);
     if (purportMatch) {
       let purportText = purportMatch[1];
 
-      // Remove footer patterns
       purportText = purportText.replace(/Help Srila Prabhupada send[\s\S]*$/i, "");
       purportText = purportText.replace(/Support this website[\s\S]*$/i, "");
 
@@ -116,45 +109,117 @@ function extractGitabaseContent(html: string) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    // TRANSLITERATION - from header
-    const headerText = doc.querySelector("h1, h2")?.textContent || "";
-    const iastPattern = /\b[a-zA-ZĀāĪīŪūṛṝḷḹĒēŌōṃḥṚṛṢṣṆṇṬṭḌḍÑñṄṅ\s\-']+\b/g;
-    const iastMatches = headerText.match(iastPattern);
+    const scripts = doc.querySelectorAll("script, style");
+    scripts.forEach((el) => el.remove());
 
-    if (iastMatches) {
-      const withDiacritics = iastMatches.filter(
-        (text) => /[ĀāĪīŪūṛṝḷḹĒēŌōṃḥṚṛṢṣṆṇṬṭḌḍÑñṄṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
-      );
-
-      if (withDiacritics.length > 0) {
-        result.transliteration = withDiacritics[0].trim();
+    const italics = doc.querySelectorAll("i");
+    if (italics.length > 0) {
+      for (const italic of italics) {
+        const text = italic.textContent?.trim() || "";
+        if (text.length > 20 && /[а-яґєії]/i.test(text)) {
+          result.transliteration = text;
+          break;
+        }
       }
     }
 
-    // Find content blocks
-    const allBlocks = Array.from(doc.querySelectorAll("p, div"));
+    const synonymPairs: string[] = [];
+    const wordTranslations = new Map<string, string>();
 
-    for (const block of allBlocks) {
-      const text = block.textContent?.trim() || "";
+    italics.forEach((italic) => {
+      const word = italic.textContent?.trim() || "";
+      if (word.length < 3 || word.length > 50) return;
 
-      // Skip empty or very short blocks
-      if (text.length < 10) continue;
+      let nextNode = italic.nextSibling;
+      let translation = "";
+      let found = false;
 
-      // SYNONYMS - word-for-word translation
-      if (text.includes("—") && text.split("—").length > 3) {
-        if (!result.synonyms || result.synonyms.length < text.length) {
-          result.synonyms = text;
+      while (nextNode && !found) {
+        const text = nextNode.textContent || "";
+
+        if (text.includes(" — ") || text.includes(" – ")) {
+          const parts = text.split(/\s+[—–]\s+/);
+          if (parts.length > 1) {
+            translation = parts[1].split(/[;,]/)[0].trim();
+            found = true;
+          }
+        }
+
+        nextNode = nextNode.nextSibling;
+        if (nextNode && nextNode.nodeType === Node.ELEMENT_NODE) {
+          const el = nextNode as Element;
+          if (el.tagName === "I") break;
         }
       }
-      // TRANSLATION - "Текст" section
-      else if (text.length > 50 && text.length < 1000 && !result.translation) {
-        // This is likely the translation
-        result.translation = text;
+
+      if (translation) {
+        wordTranslations.set(word, translation);
       }
-      // PURPORT - "Комментарий" section
-      else if (text.length > 500 && !result.purport) {
-        result.purport = text;
+    });
+
+    wordTranslations.forEach((translation, word) => {
+      synonymPairs.push(`${word} — ${translation}`);
+    });
+
+    if (synonymPairs.length > 0) {
+      result.synonyms = synonymPairs.join("; ");
+    }
+
+    const textBlocks = Array.from(doc.querySelectorAll("p, div"));
+    let foundText = false;
+
+    for (const block of textBlocks) {
+      const text = block.textContent?.trim() || "";
+
+      if (text === "Текст" || text.startsWith("Текст:")) {
+        foundText = true;
+        continue;
       }
+
+      if (foundText && text.length > 30 && text.length < 1500) {
+        result.translation = text.replace(/^["«]/, "").replace(/[»"]$/, "").trim();
+        break;
+      }
+    }
+
+    let foundCommentary = false;
+    const purportParts: string[] = [];
+
+    for (const block of textBlocks) {
+      const text = block.textContent?.trim() || "";
+
+      if (text === "Комментарий" || text.startsWith("Комментарий")) {
+        foundCommentary = true;
+        continue;
+      }
+
+      if (foundCommentary) {
+        if (
+          text.includes("function(") ||
+          text.includes("GoogleAnalytics") ||
+          text.includes("ga('create')") ||
+          text.includes("charset")
+        ) {
+          continue;
+        }
+
+        if (
+          text.includes("След. >>") ||
+          text.includes("Donate") ||
+          text.includes("Thanks to") ||
+          text.includes("gitabase.com")
+        ) {
+          break;
+        }
+
+        if (text.length > 50) {
+          purportParts.push(text);
+        }
+      }
+    }
+
+    if (purportParts.length > 0) {
+      result.purport = purportParts.join("\n\n").replace(/\s+/g, " ").trim();
     }
   } catch (error) {
     console.error("Gitabase parse error:", error);
@@ -199,22 +264,20 @@ export default function VedabaseImportV3() {
     try {
       if (!bookConfig) throw new Error("Unknown book configuration");
 
-      // 1. Book
       setCurrentStep("Checking book...");
-      let { data: book } = await supabase
-        .from("books")
-        .select("id, slug")
-        .eq("vedabase_slug", selectedBook)
-        .maybeSingle();
+
+      // FIXED: Use our_slug or slug for database, slug for URLs
+      const ourSlug = getOurSlug(bookConfig);
+
+      let { data: book } = await supabase.from("books").select("id, slug").eq("slug", ourSlug).maybeSingle();
 
       if (!book) {
         const { data: newBook, error } = await supabase
           .from("books")
           .insert({
-            slug: selectedBook,
-            vedabase_slug: selectedBook,
-            title_ua: bookConfig.name_ua || selectedBook.toUpperCase(),
-            title_en: bookConfig.name_en || selectedBook.toUpperCase(),
+            slug: ourSlug,
+            title_ua: bookConfig.name_ua,
+            title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos || false,
             is_published: true,
           })
@@ -225,12 +288,10 @@ export default function VedabaseImportV3() {
         book = newBook;
       }
 
-      // 2. Chapter
       setCurrentStep("Checking chapter...");
       let chapterId: string;
 
       if (bookConfig.has_cantos) {
-        // WITH CANTOS (e.g., Srimad Bhagavatam)
         let { data: canto } = await supabase
           .from("cantos")
           .select("id")
@@ -282,7 +343,6 @@ export default function VedabaseImportV3() {
 
         chapterId = chapter.id;
       } else {
-        // WITHOUT CANTOS (e.g., Bhagavad Gita)
         let { data: chapter } = await supabase
           .from("chapters")
           .select("id")
@@ -310,7 +370,6 @@ export default function VedabaseImportV3() {
         chapterId = chapter.id;
       }
 
-      // 3. Import verses
       const from = parseInt(fromVerse);
       const to = parseInt(toVerse);
       const verseNumbers = Array.from({ length: to - from + 1 }, (_, i) => (from + i).toString());
@@ -330,7 +389,6 @@ export default function VedabaseImportV3() {
         let translationUA = "";
         let purportUA = "";
 
-        // VEDABASE (English)
         if (importEN) {
           try {
             const vedabaseUrl = buildVedabaseUrl(bookConfig, {
@@ -353,7 +411,6 @@ export default function VedabaseImportV3() {
           }
         }
 
-        // GITABASE (Ukrainian)
         if (importUA && useGitabase && bookConfig?.gitabase_available) {
           try {
             const gitabaseUrl = buildGitabaseUrl(bookConfig, {
@@ -375,7 +432,6 @@ export default function VedabaseImportV3() {
           }
         }
 
-        // Content check
         const hasContent =
           sanskrit || synonymsEN || translationEN || purportEN || synonymsUA || translationUA || purportUA;
 
@@ -387,7 +443,6 @@ export default function VedabaseImportV3() {
           continue;
         }
 
-        // Save to database
         const displayBlocks = {
           sanskrit: !!sanskrit,
           transliteration: !!(transliterationEN || transliterationUA),
@@ -434,10 +489,6 @@ export default function VedabaseImportV3() {
     }
   };
 
-  // ========================================================================
-  // UI
-  // ========================================================================
-
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -453,11 +504,10 @@ export default function VedabaseImportV3() {
       <main className="container mx-auto px-4 py-8 max-w-5xl">
         <Card>
           <CardHeader>
-            <CardTitle>Двомовний імпорт віршів</CardTitle>
-            <CardDescription>EN (Vedabase) + UA (Gitabase з автовиправленням)</CardDescription>
+            <CardTitle>Двомовний імпорт</CardTitle>
+            <CardDescription>EN (Vedabase) + UA (Gitabase)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Book Selection */}
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label>Книга</Label>
@@ -467,7 +517,7 @@ export default function VedabaseImportV3() {
                   </SelectTrigger>
                   <SelectContent>
                     {VEDABASE_BOOKS.map((b) => (
-                      <SelectItem key={b.vedabase_slug} value={b.vedabase_slug}>
+                      <SelectItem key={b.slug} value={b.slug}>
                         {b.name_ua}
                       </SelectItem>
                     ))}
@@ -478,51 +528,35 @@ export default function VedabaseImportV3() {
               {bookConfig?.has_cantos && (
                 <div>
                   <Label>Канто/Ліла</Label>
-                  <Input
-                    type="number"
-                    value={cantoNumber}
-                    onChange={(e) => setCantoNumber(e.target.value)}
-                    placeholder="4"
-                  />
+                  <Input type="number" value={cantoNumber} onChange={(e) => setCantoNumber(e.target.value)} />
                 </div>
               )}
             </div>
 
-            {/* Chapter & Verse Range */}
             <div className="grid gap-4 md:grid-cols-3">
               <div>
                 <Label>Глава</Label>
-                <Input
-                  type="number"
-                  value={chapterNumber}
-                  onChange={(e) => setChapterNumber(e.target.value)}
-                  placeholder="1"
-                />
+                <Input type="number" value={chapterNumber} onChange={(e) => setChapterNumber(e.target.value)} />
               </div>
               <div>
                 <Label>Від вірша</Label>
-                <Input type="number" value={fromVerse} onChange={(e) => setFromVerse(e.target.value)} placeholder="1" />
+                <Input type="number" value={fromVerse} onChange={(e) => setFromVerse(e.target.value)} />
               </div>
               <div>
                 <Label>До вірша</Label>
-                <Input type="number" value={toVerse} onChange={(e) => setToVerse(e.target.value)} placeholder="10" />
+                <Input type="number" value={toVerse} onChange={(e) => setToVerse(e.target.value)} />
               </div>
             </div>
 
-            {/* Language Options */}
             <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
               <div className="flex items-center space-x-2">
                 <Checkbox id="import-en" checked={importEN} onCheckedChange={(checked) => setImportEN(!!checked)} />
-                <Label htmlFor="import-en" className="cursor-pointer">
-                  Імпортувати англійською (Vedabase)
-                </Label>
+                <Label htmlFor="import-en">Імпортувати англійською (Vedabase)</Label>
               </div>
 
               <div className="flex items-center space-x-2">
                 <Checkbox id="import-ua" checked={importUA} onCheckedChange={(checked) => setImportUA(!!checked)} />
-                <Label htmlFor="import-ua" className="cursor-pointer">
-                  Імпортувати українською
-                </Label>
+                <Label htmlFor="import-ua">Імпортувати українською</Label>
               </div>
 
               {importUA && bookConfig?.gitabase_available && (
@@ -532,19 +566,11 @@ export default function VedabaseImportV3() {
                     checked={useGitabase}
                     onCheckedChange={(checked) => setUseGitabase(!!checked)}
                   />
-                  <Label htmlFor="use-gitabase" className="cursor-pointer">
-                    Gitabase (з автовиправленням)
-                  </Label>
+                  <Label htmlFor="use-gitabase">Gitabase</Label>
                 </div>
               )}
             </div>
 
-            {/* Note */}
-            <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-900">
-              <strong>Примітка:</strong> Санскрит - спільний блок для обох мов. Purport = "Пояснення" українською.
-            </div>
-
-            {/* Import Button */}
             <Button onClick={startImport} disabled={isProcessing} size="lg" className="w-full">
               {isProcessing ? (
                 <>
@@ -556,7 +582,6 @@ export default function VedabaseImportV3() {
               )}
             </Button>
 
-            {/* Stats */}
             {stats && (
               <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
                 <div className="flex items-center justify-between">
