@@ -13,7 +13,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { UniversalInlineEditor } from "@/components/UniversalInlineEditor";
-import { useReaderPrefs } from "@/hooks/useReaderPrefs";
 export function VedaReaderDB() {
   const {
     bookId,
@@ -31,12 +30,15 @@ export function VedaReaderDB() {
   } = useAuth();
   const queryClient = useQueryClient();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  
-  // Use centralized reader preferences hook
-  const readerPrefs = useReaderPrefs();
-  const fontSize = readerPrefs.fontSize;
-  const lineHeight = readerPrefs.lineHeight;
-  const dualLanguageMode = readerPrefs.dualLanguageMode;
+  const [fontSize, setFontSize] = useState(() => {
+    const saved = localStorage.getItem("vv_reader_fontSize");
+    return saved ? Number(saved) : 18;
+  });
+  const [lineHeight, setLineHeight] = useState(() => {
+    const saved = localStorage.getItem("vv_reader_lineHeight");
+    return saved ? Number(saved) : 1.6;
+  });
+  const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => localStorage.getItem("vv_reader_dualMode") === "true");
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
     try {
       const raw = localStorage.getItem("vv_reader_blocks");
@@ -87,15 +89,63 @@ export function VedaReaderDB() {
     const root = document.querySelector<HTMLElement>('[data-reader-root="true"]');
     if (root) root.style.lineHeight = String(lineHeight);
   }, [lineHeight]);
+  useEffect(() => {
+    const syncFromLS = () => {
+      const fs = localStorage.getItem("vv_reader_fontSize");
+      if (fs) setFontSize(Number(fs));
+      const lh = localStorage.getItem("vv_reader_lineHeight");
+      if (lh) setLineHeight(Number(lh));
+      const dualMode = localStorage.getItem("vv_reader_dualMode") === "true";
+      setDualLanguageMode(dualMode);
+      try {
+        const b = localStorage.getItem("vv_reader_blocks");
+        if (b) {
+          const parsed = JSON.parse(b);
+          setTextDisplaySettings(prev => ({
+            ...prev,
+            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
+            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showSynonyms: parsed.showSynonyms ?? prev.showSynonyms,
+            showTranslation: parsed.showTranslation ?? prev.showTranslation,
+            showCommentary: parsed.showCommentary ?? prev.showCommentary
+          }));
+        }
+      } catch {}
+      try {
+        const c = localStorage.getItem("vv_reader_continuous");
+        if (c) {
+          const parsed = JSON.parse(c);
+          setContinuousReadingSettings(prev => ({
+            ...prev,
+            enabled: parsed.enabled ?? prev.enabled,
+            showVerseNumbers: parsed.showVerseNumbers ?? prev.showVerseNumbers,
+            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
+            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showTranslation: parsed.showTranslation ?? prev.showTranslation,
+            showCommentary: parsed.showCommentary ?? prev.showCommentary
+          }));
+        }
+      } catch {}
+    };
+    const onPrefs = () => syncFromLS();
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || !e.key.startsWith("vv_reader_")) return;
+      syncFromLS();
+    };
+    window.addEventListener("vv-reader-prefs-changed", onPrefs as any);
+    window.addEventListener("storage", onStorage);
+    syncFromLS();
+    return () => {
+      window.removeEventListener("vv-reader-prefs-changed", onPrefs as any);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
   const getDisplayVerseNumber = (verseNumber: string): string => {
     const parts = verseNumber.split(/[\s.]+/);
     return parts[parts.length - 1] || verseNumber;
   };
-const isCantoMode = !!cantoNumber;
-const isExplicitChapterNumberMode = !!chapterNumber && !cantoNumber;
-const isNumericChapterIdMode = !!chapterId && !cantoNumber && /^\d+$/.test(chapterId);
-const isChapterNumberMode = isExplicitChapterNumberMode || isNumericChapterIdMode;
-const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNumber ?? chapterId)! : chapterId;
+  const isCantoMode = !!cantoNumber;
+  const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
   const {
     data: book
   } = useQuery({
@@ -139,9 +189,6 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
       // If in canto mode, query by chapter_number and canto_id
       if (isCantoMode && canto?.id) {
         query = query.eq("chapter_number", Number(effectiveChapterParam)).eq("canto_id", canto.id);
-      } else if (isChapterNumberMode) {
-        // Query by chapter_number for books without cantos
-        query = query.eq("chapter_number", Number(effectiveChapterParam)).eq("book_id", book!.id).is("canto_id", null);
       } else {
         // Otherwise query by UUID
         query = query.eq("id", effectiveChapterParam);
@@ -196,34 +243,6 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
     }
   });
   const currentVerse = verses[currentVerseIndex];
-
-  // Prefetch neighboring verses for smoother navigation
-  useEffect(() => {
-    if (!verses?.length || verses.length <= 1) return;
-    
-    const prefetchVerse = async (index: number) => {
-      if (index < 0 || index >= verses.length) return;
-      const verse = verses[index];
-      await queryClient.prefetchQuery({
-        queryKey: ["verse", verse.id],
-        queryFn: async () => {
-          const { data } = await supabase
-            .from("verses")
-            .select("*")
-            .eq("id", verse.id)
-            .single();
-          return data;
-        },
-      });
-    };
-
-    // Prefetch previous and next verses
-    const prev = currentVerseIndex - 1;
-    const next = currentVerseIndex + 1;
-    
-    if (prev >= 0) prefetchVerse(prev);
-    if (next < verses.length) prefetchVerse(next);
-  }, [currentVerseIndex, verses, queryClient]);
   const currentChapterIndex = useMemo(() => {
     if (!chapter) return -1;
     return allChapters.findIndex(ch => ch.id === chapter.id);
@@ -240,8 +259,6 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
     if (!prevChapter) return;
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}`);
-    } else if (isChapterNumberMode) {
-      navigate(`/veda-reader/${bookId}/chapter/${prevChapter.chapter_number}`);
     } else {
       navigate(`/veda-reader/${bookId}/${prevChapter.id}`);
     }
@@ -252,28 +269,41 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
     if (!nextChapter) return;
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}`);
-    } else if (isChapterNumberMode) {
-      navigate(`/veda-reader/${bookId}/chapter/${nextChapter.chapter_number}`);
     } else {
       navigate(`/veda-reader/${bookId}/${nextChapter.id}`);
     }
   }, [currentChapterIndex, allChapters, isCantoMode, navigate, bookId, cantoNumber]);
-  const updateVerseMutation = useMutation({
-    mutationFn: async ({ verseId, field, value }: { verseId: string; field: string; value: string }) => {
-      const { error } = await supabase
-        .from("verses")
-        .update({ [field]: value })
-        .eq("id", verseId);
+  const updateIntroMutation = useMutation({
+    mutationFn: async ({
+      field,
+      value
+    }: {
+      field: "intro_html_ua" | "intro_html_en";
+      value: string;
+    }) => {
+      if (!chapter?.id) throw new Error("No chapter");
+      const {
+        error
+      } = await supabase.from("chapters").update({
+        [field]: value
+      }).eq("id", chapter.id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["verses", chapter?.id] });
-      toast({ title: language === "ua" ? "Збережено" : "Saved" });
+      queryClient.invalidateQueries({
+        queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam]
+      });
+      toast({
+        title: language === "ua" ? "Збережено" : "Saved"
+      });
     },
     onError: (err: any) => {
       console.error(err);
-      toast({ title: language === "ua" ? "Помилка" : "Error", variant: "destructive" });
-    },
+      toast({
+        title: language === "ua" ? "Помилка" : "Error",
+        variant: "destructive"
+      });
+    }
   });
   const breadcrumbs = useMemo(() => {
     const items: Array<{
@@ -302,7 +332,7 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
       const chTitle = language === "ua" ? chapter.title_ua : chapter.title_en;
       items.push({
         label: `${t("Глава", "Chapter")} ${chapter.chapter_number}: ${chTitle}`,
-        href: isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}` : (isChapterNumberMode ? `/veda-reader/${bookId}/chapter/${chapter.chapter_number}` : `/veda-reader/${bookId}/${chapter.id}`)
+        href: isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}` : `/veda-reader/${bookId}/${chapter.id}`
       });
     }
     return items;
@@ -343,155 +373,49 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
                             </div>}
 
                           {continuousReadingSettings.showSanskrit && v.sanskrit && <div className="mb-6">
-                              {isAdmin ? (
-                                <UniversalInlineEditor
-                                  table="verses"
-                                  recordId={v.id}
-                                  field="sanskrit"
-                                  initialValue={v.sanskrit}
-                                  label="Sanskrit"
-                                  language={language}
-                                  showToggle={true}
-                                />
-                              ) : (
-                                <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
-                                  {v.sanskrit}
-                                </p>
-                              )}
+                              <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                                {v.sanskrit}
+                              </p>
                             </div>}
 
                           {continuousReadingSettings.showTransliteration && v.transliteration && <div className="mb-6">
-                              {isAdmin ? (
-                                <UniversalInlineEditor
-                                  table="verses"
-                                  recordId={v.id}
-                                  field="transliteration"
-                                  initialValue={v.transliteration}
-                                  label="Transliteration"
-                                  language={language}
-                                  showToggle={true}
-                                />
-                              ) : (
-                                <div className="space-y-1 text-center">
-                                  {v.transliteration.split("\n").map((line, i) => <p key={i} className="font-sanskrit-italic italic text-[1.22em] leading-relaxed text-gray-500 dark:text-muted-foreground">
-                                      {line}
-                                    </p>)}
-                                </div>
-                              )}
+                              <div className="space-y-1 text-center">
+                                {v.transliteration.split("\n").map((line, i) => <p key={i} className="font-sanskrit-italic italic text-[1.22em] leading-relaxed text-gray-500 dark:text-muted-foreground">
+                                    {line}
+                                  </p>)}
+                              </div>
                             </div>}
 
                           {continuousReadingSettings.showTranslation && <div className="mb-6">
-                              {isAdmin ? (
-                                dualLanguageMode ? (
-                                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={v.id}
-                                        field="translation_ua"
-                                        initialValue={v.translation_ua || ""}
-                                        label="Translation UA"
-                                        language="ua"
-                                        showToggle={true}
-                                      />
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={v.id}
-                                        field="translation_en"
-                                        initialValue={v.translation_en || ""}
-                                        label="Translation EN"
-                                        language="en"
-                                        showToggle={true}
-                                      />
-                                    </div>
+                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                  <div className="border-r border-border pr-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                    <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                      {v.translation_ua || "—"}
+                                    </p>
                                   </div>
-                                ) : (
-                                  <UniversalInlineEditor
-                                    table="verses"
-                                    recordId={v.id}
-                                    field={language === "ua" ? "translation_ua" : "translation_en"}
-                                    initialValue={(language === "ua" ? v.translation_ua : v.translation_en) || ""}
-                                    label={`Translation (${language.toUpperCase()})`}
-                                    language={language}
-                                    showToggle={true}
-                                  />
-                                )
-                              ) : (
-                                dualLanguageMode ? <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                        {v.translation_ua || "—"}
-                                      </p>
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                        {v.translation_en || "—"}
-                                      </p>
-                                    </div>
-                                  </div> : <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                    {language === "ua" ? v.translation_ua : v.translation_en}
-                                  </p>
-                              )}
+                                  <div className="pl-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                    <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                      {v.translation_en || "—"}
+                                    </p>
+                                  </div>
+                                </div> : <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                  {language === "ua" ? v.translation_ua : v.translation_en}
+                                </p>}
                             </div>}
 
                           {continuousReadingSettings.showCommentary && (v.commentary_ua || v.commentary_en) && <div className="border-t border-border pt-6">
-                              {isAdmin ? (
-                                dualLanguageMode ? (
-                                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={v.id}
-                                        field="commentary_ua"
-                                        initialValue={v.commentary_ua || ""}
-                                        label="Commentary UA"
-                                        language="ua"
-                                        showToggle={true}
-                                      />
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={v.id}
-                                        field="commentary_en"
-                                        initialValue={v.commentary_en || ""}
-                                        label="Commentary EN"
-                                        language="en"
-                                        showToggle={true}
-                                      />
-                                    </div>
+                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                  <div className="border-r border-border pr-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                    <TiptapRenderer content={v.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
                                   </div>
-                                ) : (
-                                  <UniversalInlineEditor
-                                    table="verses"
-                                    recordId={v.id}
-                                    field={language === "ua" ? "commentary_ua" : "commentary_en"}
-                                    initialValue={(language === "ua" ? v.commentary_ua : v.commentary_en) || ""}
-                                    label={`Commentary (${language.toUpperCase()})`}
-                                    language={language}
-                                    showToggle={true}
-                                  />
-                                )
-                              ) : (
-                                dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <TiptapRenderer content={v.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <TiptapRenderer content={v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
-                                    </div>
-                                  </div> : <TiptapRenderer content={language === "ua" ? v.commentary_ua || "" : v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
-                              )}
+                                  <div className="pl-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                    <TiptapRenderer content={v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
+                                  </div>
+                                </div> : <TiptapRenderer content={language === "ua" ? v.commentary_ua || "" : v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />}
                             </div>}
                         </div>)}
 
@@ -524,224 +448,77 @@ const effectiveChapterParam = (isCantoMode || isChapterNumberMode) ? (chapterNum
                         </div>
 
                         {textDisplaySettings.showSanskrit && currentVerse.sanskrit && <div className="mb-10">
-                            {isAdmin ? (
-                              <UniversalInlineEditor
-                                table="verses"
-                                recordId={currentVerse.id}
-                                field="sanskrit"
-                                initialValue={currentVerse.sanskrit}
-                                label="Sanskrit"
-                                language={language}
-                                showToggle={true}
-                              />
-                            ) : (
-                              <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
-                                {currentVerse.sanskrit}
-                              </p>
-                            )}
+                            <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                              {currentVerse.sanskrit}
+                            </p>
                           </div>}
 
                         {textDisplaySettings.showTransliteration && currentVerse.transliteration && <div className="mb-8">
-                            {isAdmin ? (
-                              <UniversalInlineEditor
-                                table="verses"
-                                recordId={currentVerse.id}
-                                field="transliteration"
-                                initialValue={currentVerse.transliteration}
-                                label="Transliteration"
-                                language={language}
-                                showToggle={true}
-                              />
-                            ) : (
-                              <div className="space-y-1 text-center">
-                                {currentVerse.transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground font-extralight text-3xl">
-                                    {line}
-                                  </p>)}
-                              </div>
-                            )}
+                            <div className="space-y-1 text-center">
+                              {currentVerse.transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground font-extralight text-3xl">
+                                  {line}
+                                </p>)}
+                            </div>
                           </div>}
 
                         {textDisplaySettings.showSynonyms && (currentVerse.synonyms_ua || currentVerse.synonyms_en) && <div className="mb-6 border-t border-border pt-6">
                             <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                               {t("Послівний переклад", "Word-for-word")}
                             </h4>
-                            {isAdmin ? (
-                              dualLanguageMode ? (
-                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                  <div className="border-r border-border pr-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                    <UniversalInlineEditor
-                                      table="verses"
-                                      recordId={currentVerse.id}
-                                      field="synonyms_ua"
-                                      initialValue={currentVerse.synonyms_ua || ""}
-                                      label="Synonyms UA"
-                                      language="ua"
-                                      showToggle={true}
-                                    />
-                                  </div>
-                                  <div className="pl-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                    <UniversalInlineEditor
-                                      table="verses"
-                                      recordId={currentVerse.id}
-                                      field="synonyms_en"
-                                      initialValue={currentVerse.synonyms_en || ""}
-                                      label="Synonyms EN"
-                                      language="en"
-                                      showToggle={true}
-                                    />
-                                  </div>
+                            {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div className="border-r border-border pr-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                  <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
+                                    {currentVerse.synonyms_ua || "—"}
+                                  </p>
                                 </div>
-                              ) : (
-                                <UniversalInlineEditor
-                                  table="verses"
-                                  recordId={currentVerse.id}
-                                  field={language === "ua" ? "synonyms_ua" : "synonyms_en"}
-                                  initialValue={(language === "ua" ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || ""}
-                                  label={`Synonyms (${language.toUpperCase()})`}
-                                  language={language}
-                                  showToggle={true}
-                                />
-                              )
-                            ) : (
-                              dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                  <div className="border-r border-border pr-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                    <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
-                                      {currentVerse.synonyms_ua || "—"}
-                                    </p>
-                                  </div>
-                                  <div className="pl-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                    <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
-                                      {currentVerse.synonyms_en || "—"}
-                                    </p>
-                                  </div>
-                                </div> : <p className="leading-relaxed text-foreground whitespace-pre-line text-3xl">
-                                  {language === "ua" ? currentVerse.synonyms_ua : currentVerse.synonyms_en}
-                                </p>
-                            )}
+                                <div className="pl-4">
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                  <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
+                                    {currentVerse.synonyms_en || "—"}
+                                  </p>
+                                </div>
+                              </div> : <p className="leading-relaxed text-foreground whitespace-pre-line text-3xl">
+                                {language === "ua" ? currentVerse.synonyms_ua : currentVerse.synonyms_en}
+                              </p>}
                           </div>}
 
                         {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && <div className="mb-6 border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                                 {t("Літературний переклад", "Translation")}
                               </h4>
-                              {isAdmin ? (
-                                dualLanguageMode ? (
-                                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={currentVerse.id}
-                                        field="translation_ua"
-                                        initialValue={currentVerse.translation_ua || ""}
-                                        label="Translation UA"
-                                        language="ua"
-                                        showToggle={true}
-                                      />
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={currentVerse.id}
-                                        field="translation_en"
-                                        initialValue={currentVerse.translation_en || ""}
-                                        label="Translation EN"
-                                        language="en"
-                                        showToggle={true}
-                                      />
-                                    </div>
+                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                  <div className="border-r border-border pr-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                    <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                      {currentVerse.translation_ua || "—"}
+                                    </p>
                                   </div>
-                                ) : (
-                                  <UniversalInlineEditor
-                                    table="verses"
-                                    recordId={currentVerse.id}
-                                    field={language === "ua" ? "translation_ua" : "translation_en"}
-                                    initialValue={(language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en) || ""}
-                                    label={`Translation (${language.toUpperCase()})`}
-                                    language={language}
-                                    showToggle={true}
-                                  />
-                                )
-                              ) : (
-                                dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                        {currentVerse.translation_ua || "—"}
-                                      </p>
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                        {currentVerse.translation_en || "—"}
-                                      </p>
-                                    </div>
-                                  </div> : <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-3xl">
-                                    {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
-                                  </p>
-                              )}
+                                  <div className="pl-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                    <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                      {currentVerse.translation_en || "—"}
+                                    </p>
+                                  </div>
+                                </div> : <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-3xl">
+                                  {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
+                                </p>}
                             </div>}
 
                         {textDisplaySettings.showCommentary && (currentVerse.commentary_ua || currentVerse.commentary_en) && <div className="border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                                 {t("Пояснення", "Purport")}
                               </h4>
-                              {isAdmin ? (
-                                dualLanguageMode ? (
-                                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={currentVerse.id}
-                                        field="commentary_ua"
-                                        initialValue={currentVerse.commentary_ua || ""}
-                                        label="Commentary UA"
-                                        language="ua"
-                                        showToggle={true}
-                                      />
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <UniversalInlineEditor
-                                        table="verses"
-                                        recordId={currentVerse.id}
-                                        field="commentary_en"
-                                        initialValue={currentVerse.commentary_en || ""}
-                                        label="Commentary EN"
-                                        language="en"
-                                        showToggle={true}
-                                      />
-                                    </div>
+                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                  <div className="border-r border-border pr-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
+                                    <TiptapRenderer content={currentVerse.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
                                   </div>
-                                ) : (
-                                  <UniversalInlineEditor
-                                    table="verses"
-                                    recordId={currentVerse.id}
-                                    field={language === "ua" ? "commentary_ua" : "commentary_en"}
-                                    initialValue={(language === "ua" ? currentVerse.commentary_ua : currentVerse.commentary_en) || ""}
-                                    label={`Commentary (${language.toUpperCase()})`}
-                                    language={language}
-                                    showToggle={true}
-                                  />
-                                )
-                              ) : (
-                                dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                    <div className="border-r border-border pr-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                      <TiptapRenderer content={currentVerse.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
-                                    </div>
-                                    <div className="pl-4">
-                                      <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                      <TiptapRenderer content={currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
-                                    </div>
-                                  </div> : <TiptapRenderer content={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
-                              )}
+                                  <div className="pl-4">
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
+                                    <TiptapRenderer content={currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
+                                  </div>
+                                </div> : <TiptapRenderer content={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />}
                             </div>}
                       </div>
                     </Card>
