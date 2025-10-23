@@ -28,8 +28,10 @@ export function VersesDisplay({
   const language = propLanguage || contextLanguage;
   
   const displayBlocks: DisplayBlocks = verse.display_blocks || {
-    sanskrit: true,
-    transliteration: true,
+    sanskrit_ua: true,
+    sanskrit_en: true,
+    transliteration_ua: true,
+    transliteration_en: true,
     synonyms: true,
     translation: true,
     commentary: true
@@ -57,7 +59,7 @@ export function VersesDisplay({
     <div className={`verse-display space-y-6 ${className}`}>
       
       {/* САНСКРИТ */}
-      {shouldShow('sanskrit', verse.sanskrit) && (
+      {shouldShow(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', verse.sanskrit) && (
         <div className="sanskrit-block">
           <div className="text-center font-sanskrit text-2xl leading-relaxed text-primary">
             {verse.sanskrit}
@@ -66,7 +68,7 @@ export function VersesDisplay({
       )}
 
       {/* ТРАНСЛІТЕРАЦІЯ */}
-      {shouldShow('transliteration', verse.transliteration) && (
+      {shouldShow(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', verse.transliteration) && (
         <div className="transliteration-block">
           <div className="text-center italic text-lg text-muted-foreground leading-relaxed">
             {verse.transliteration}
@@ -115,23 +117,23 @@ export function VersesDisplay({
             
             {hasContent(verse.sanskrit) && (
               <Button
-                variant={displayBlocks.sanskrit ? "default" : "outline"}
+                variant={displayBlocks[language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en'] ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleToggle('sanskrit')}
+                onClick={() => handleToggle(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en')}
               >
-                {displayBlocks.sanskrit ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                {getBlockLabel('sanskrit', language)}
+                {displayBlocks[language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en'] ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
+                {getBlockLabel(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', language)}
               </Button>
             )}
 
             {hasContent(verse.transliteration) && (
               <Button
-                variant={displayBlocks.transliteration ? "default" : "outline"}
+                variant={displayBlocks[language === 'ua' ? 'transliteration_ua' : 'transliteration_en'] ? "default" : "outline"}
                 size="sm"
-                onClick={() => handleToggle('transliteration')}
+                onClick={() => handleToggle(language === 'ua' ? 'transliteration_ua' : 'transliteration_en')}
               >
-                {displayBlocks.transliteration ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                {getBlockLabel('transliteration', language)}
+                {displayBlocks[language === 'ua' ? 'transliteration_ua' : 'transliteration_en'] ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
+                {getBlockLabel(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', language)}
               </Button>
             )}
 
@@ -172,8 +174,8 @@ export function VersesDisplay({
       )}
 
       {/* Повідомлення якщо всі блоки порожні */}
-      {!shouldShow('sanskrit', verse.sanskrit) &&
-       !shouldShow('transliteration', verse.transliteration) &&
+      {!shouldShow(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', verse.sanskrit) &&
+       !shouldShow(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', verse.transliteration) &&
        !shouldShow('synonyms', synonyms) &&
        !shouldShow('translation', translation) &&
        !shouldShow('commentary', commentary) && (

@@ -48,8 +48,10 @@ export const VedaReader = () => {
       if (raw) {
         const parsed = JSON.parse(raw);
         return {
-          showSanskrit: parsed.showSanskrit ?? true,
-          showTransliteration: parsed.showTransliteration ?? true,
+          showSanskritUa: parsed.showSanskritUa ?? parsed.showSanskrit ?? true,
+          showSanskritEn: parsed.showSanskritEn ?? parsed.showSanskrit ?? true,
+          showTransliterationUa: parsed.showTransliterationUa ?? parsed.showTransliteration ?? true,
+          showTransliterationEn: parsed.showTransliterationEn ?? parsed.showTransliteration ?? true,
           showSynonyms: parsed.showSynonyms ?? true,
           showTranslation: parsed.showTranslation ?? true,
           showCommentary: parsed.showCommentary ?? true,
@@ -57,8 +59,10 @@ export const VedaReader = () => {
       }
     } catch {}
     return {
-      showSanskrit: true,
-      showTransliteration: true,
+      showSanskritUa: true,
+      showSanskritEn: true,
+      showTransliterationUa: true,
+      showTransliterationEn: true,
       showSynonyms: true,
       showTranslation: true,
       showCommentary: true,
@@ -100,8 +104,10 @@ export const VedaReader = () => {
           const parsed = JSON.parse(b);
           setTextDisplaySettings(prev => ({
             ...prev,
-            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
-            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showSanskritUa: parsed.showSanskritUa ?? parsed.showSanskrit ?? prev.showSanskritUa,
+            showSanskritEn: parsed.showSanskritEn ?? parsed.showSanskrit ?? prev.showSanskritEn,
+            showTransliterationUa: parsed.showTransliterationUa ?? parsed.showTransliteration ?? prev.showTransliterationUa,
+            showTransliterationEn: parsed.showTransliterationEn ?? parsed.showTransliteration ?? prev.showTransliterationEn,
             showSynonyms: parsed.showSynonyms ?? prev.showSynonyms,
             showTranslation: parsed.showTranslation ?? prev.showTranslation,
             showCommentary: parsed.showCommentary ?? prev.showCommentary,
@@ -311,7 +317,11 @@ export const VedaReader = () => {
                           commentary={verse.commentary}
                           audioUrl={verse.audioUrl}
                           textDisplaySettings={{
+                            showSanskritUa: false,
+                            showSanskritEn: false,
                             showSanskrit: false,
+                            showTransliterationUa: false,
+                            showTransliterationEn: false,
                             showTransliteration: false,
                             showSynonyms: false,
                             showTranslation: true,

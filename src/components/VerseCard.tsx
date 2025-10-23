@@ -32,8 +32,12 @@ interface VerseCardProps {
   audioCommentary?: string; // окреме аудіо для пояснення
 
   textDisplaySettings?: {
-    showSanskrit: boolean;
-    showTransliteration: boolean;
+    showSanskritUa?: boolean;
+    showSanskritEn?: boolean;
+    showSanskrit?: boolean;
+    showTransliterationUa?: boolean;
+    showTransliterationEn?: boolean;
+    showTransliteration?: boolean;
     showSynonyms: boolean;
     showTranslation: boolean;
     showCommentary: boolean;
@@ -72,7 +76,11 @@ export const VerseCard = ({
   audioTranslation,
   audioCommentary,
   textDisplaySettings = {
+    showSanskritUa: true,
+    showSanskritEn: true,
     showSanskrit: true,
+    showTransliterationUa: true,
+    showTransliterationEn: true,
     showTransliteration: true,
     showSynonyms: true,
     showTranslation: true,
@@ -186,7 +194,7 @@ export const VerseCard = ({
         </div>
 
         {/* Деванагарі з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
+        {(textDisplaySettings.showSanskritUa || textDisplaySettings.showSanskritEn || textDisplaySettings.showSanskrit) && (isEditing || sanskritText) && (
           <div className="mb-10">
             {/* Кнопка Volume2 для Санскриту */}
             <div className="mb-4 flex justify-center">
@@ -215,7 +223,7 @@ export const VerseCard = ({
         )}
 
         {/* Транслітерація */}
-        {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
+        {(textDisplaySettings.showTransliterationUa || textDisplaySettings.showTransliterationEn || textDisplaySettings.showTransliteration) && (isEditing || transliteration) && (
           <div className="mb-8">
             {isEditing ? (
               <Textarea

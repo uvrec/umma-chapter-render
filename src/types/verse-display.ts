@@ -3,8 +3,10 @@
  */
 
 export interface DisplayBlocks {
-  sanskrit: boolean;
-  transliteration: boolean;
+  sanskrit_ua: boolean;
+  sanskrit_en: boolean;
+  transliteration_ua: boolean;
+  transliteration_en: boolean;
   synonyms: boolean;
   translation: boolean;
   commentary: boolean;

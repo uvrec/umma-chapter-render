@@ -10,8 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/components/ThemeProvider";
 
 interface TextDisplaySettings {
-  showSanskrit: boolean;
-  showTransliteration: boolean;
+  showSanskritUa: boolean;
+  showSanskritEn: boolean;
+  showTransliterationUa: boolean;
+  showTransliterationEn: boolean;
   showSynonyms: boolean;
   showTranslation: boolean;
   showCommentary: boolean;
@@ -333,28 +335,63 @@ export const SettingsPanel = ({
           {/* Text Display Settings */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Елементи тексту</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-sanskrit">Санскрит/Деванагарі</Label>
-                <Switch
-                  id="show-sanskrit"
-                  checked={textDisplaySettings.showSanskrit}
-                  onCheckedChange={(checked) =>
-                    onTextDisplaySettingsChange({ ...textDisplaySettings, showSanskrit: checked })
-                  }
-                />
+            <div className="space-y-4">
+              
+              {/* Санскрит */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Санскрит/Деванагарі</Label>
+                <div className="ml-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-sanskrit-ua" className="text-sm font-normal">Українська</Label>
+                    <Switch
+                      id="show-sanskrit-ua"
+                      checked={textDisplaySettings.showSanskritUa}
+                      onCheckedChange={(checked) =>
+                        onTextDisplaySettingsChange({ ...textDisplaySettings, showSanskritUa: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-sanskrit-en" className="text-sm font-normal">Англійська</Label>
+                    <Switch
+                      id="show-sanskrit-en"
+                      checked={textDisplaySettings.showSanskritEn}
+                      onCheckedChange={(checked) =>
+                        onTextDisplaySettingsChange({ ...textDisplaySettings, showSanskritEn: checked })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="show-transliteration">Транслітерація</Label>
-                <Switch
-                  id="show-transliteration"
-                  checked={textDisplaySettings.showTransliteration}
-                  onCheckedChange={(checked) =>
-                    onTextDisplaySettingsChange({ ...textDisplaySettings, showTransliteration: checked })
-                  }
-                />
+              {/* Транслітерація */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Транслітерація</Label>
+                <div className="ml-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-transliteration-ua" className="text-sm font-normal">Українська</Label>
+                    <Switch
+                      id="show-transliteration-ua"
+                      checked={textDisplaySettings.showTransliterationUa}
+                      onCheckedChange={(checked) =>
+                        onTextDisplaySettingsChange({ ...textDisplaySettings, showTransliterationUa: checked })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="show-transliteration-en" className="text-sm font-normal">Англійська</Label>
+                    <Switch
+                      id="show-transliteration-en"
+                      checked={textDisplaySettings.showTransliterationEn}
+                      onCheckedChange={(checked) =>
+                        onTextDisplaySettingsChange({ ...textDisplaySettings, showTransliterationEn: checked })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
+
+              <Separator />
 
               <div className="flex items-center justify-between">
                 <Label htmlFor="show-synonyms">Послівний переклад</Label>

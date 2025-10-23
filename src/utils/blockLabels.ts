@@ -4,7 +4,14 @@
  * Використовується у всіх компонентах читалки
  */
 
-export type BlockType = 'sanskrit' | 'transliteration' | 'synonyms' | 'translation' | 'commentary';
+export type BlockType = 
+  | 'sanskrit_ua' 
+  | 'sanskrit_en' 
+  | 'transliteration_ua' 
+  | 'transliteration_en' 
+  | 'synonyms' 
+  | 'translation' 
+  | 'commentary';
 
 export type Language = 'ua' | 'en';
 
@@ -17,13 +24,21 @@ interface BlockLabel {
  * Назви блоків для відображення
  */
 export const BLOCK_LABELS: Record<BlockType, BlockLabel> = {
-  sanskrit: {
-    ua: 'Санскрит',
-    en: 'Sanskrit',
+  sanskrit_ua: {
+    ua: 'Санскрит (УКР)',
+    en: 'Sanskrit (UA)',
   },
-  transliteration: {
-    ua: 'Транслітерація',
-    en: 'Transliteration',
+  sanskrit_en: {
+    ua: 'Санскрит (АНГЛ)',
+    en: 'Sanskrit (EN)',
+  },
+  transliteration_ua: {
+    ua: 'Транслітерація (УКР)',
+    en: 'Transliteration (UA)',
+  },
+  transliteration_en: {
+    ua: 'Транслітерація (АНГЛ)',
+    en: 'Transliteration (EN)',
   },
   synonyms: {
     ua: 'Послівний переклад',
@@ -51,8 +66,10 @@ export function getBlockLabel(block: BlockType, language: Language): string {
  */
 export function getAllBlockLabels(language: Language): Record<BlockType, string> {
   return {
-    sanskrit: BLOCK_LABELS.sanskrit[language],
-    transliteration: BLOCK_LABELS.transliteration[language],
+    sanskrit_ua: BLOCK_LABELS.sanskrit_ua[language],
+    sanskrit_en: BLOCK_LABELS.sanskrit_en[language],
+    transliteration_ua: BLOCK_LABELS.transliteration_ua[language],
+    transliteration_en: BLOCK_LABELS.transliteration_en[language],
     synonyms: BLOCK_LABELS.synonyms[language],
     translation: BLOCK_LABELS.translation[language],
     commentary: BLOCK_LABELS.commentary[language],
@@ -64,8 +81,10 @@ export function getAllBlockLabels(language: Language): Record<BlockType, string>
  */
 export function useBlockLabels(language: Language = 'ua') {
   return {
-    sanskrit: getBlockLabel('sanskrit', language),
-    transliteration: getBlockLabel('transliteration', language),
+    sanskrit_ua: getBlockLabel('sanskrit_ua', language),
+    sanskrit_en: getBlockLabel('sanskrit_en', language),
+    transliteration_ua: getBlockLabel('transliteration_ua', language),
+    transliteration_en: getBlockLabel('transliteration_en', language),
     synonyms: getBlockLabel('synonyms', language),
     translation: getBlockLabel('translation', language),
     commentary: getBlockLabel('commentary', language),

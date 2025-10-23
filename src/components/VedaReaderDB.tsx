@@ -45,8 +45,10 @@ export function VedaReaderDB() {
       if (raw) {
         const parsed = JSON.parse(raw);
         return {
-          showSanskrit: parsed.showSanskrit ?? true,
-          showTransliteration: parsed.showTransliteration ?? true,
+          showSanskritUa: parsed.showSanskritUa ?? parsed.showSanskrit ?? true,
+          showSanskritEn: parsed.showSanskritEn ?? parsed.showSanskrit ?? true,
+          showTransliterationUa: parsed.showTransliterationUa ?? parsed.showTransliteration ?? true,
+          showTransliterationEn: parsed.showTransliterationEn ?? parsed.showTransliteration ?? true,
           showSynonyms: parsed.showSynonyms ?? true,
           showTranslation: parsed.showTranslation ?? true,
           showCommentary: parsed.showCommentary ?? true
@@ -54,8 +56,10 @@ export function VedaReaderDB() {
       }
     } catch {}
     return {
-      showSanskrit: true,
-      showTransliteration: true,
+      showSanskritUa: true,
+      showSanskritEn: true,
+      showTransliterationUa: true,
+      showTransliterationEn: true,
       showSynonyms: true,
       showTranslation: true,
       showCommentary: true
@@ -103,8 +107,10 @@ export function VedaReaderDB() {
           const parsed = JSON.parse(b);
           setTextDisplaySettings(prev => ({
             ...prev,
-            showSanskrit: parsed.showSanskrit ?? prev.showSanskrit,
-            showTransliteration: parsed.showTransliteration ?? prev.showTransliteration,
+            showSanskritUa: parsed.showSanskritUa ?? parsed.showSanskrit ?? prev.showSanskritUa,
+            showSanskritEn: parsed.showSanskritEn ?? parsed.showSanskrit ?? prev.showSanskritEn,
+            showTransliterationUa: parsed.showTransliterationUa ?? parsed.showTransliteration ?? prev.showTransliterationUa,
+            showTransliterationEn: parsed.showTransliterationEn ?? parsed.showTransliteration ?? prev.showTransliterationEn,
             showSynonyms: parsed.showSynonyms ?? prev.showSynonyms,
             showTranslation: parsed.showTranslation ?? prev.showTranslation,
             showCommentary: parsed.showCommentary ?? prev.showCommentary
@@ -447,13 +453,13 @@ export function VedaReaderDB() {
                           </span>
                         </div>
 
-                        {textDisplaySettings.showSanskrit && currentVerse.sanskrit && <div className="mb-10">
+                        {(language === 'ua' ? textDisplaySettings.showSanskritUa : textDisplaySettings.showSanskritEn) && currentVerse.sanskrit && <div className="mb-10">
                             <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
                               {currentVerse.sanskrit}
                             </p>
                           </div>}
 
-                        {textDisplaySettings.showTransliteration && currentVerse.transliteration && <div className="mb-8">
+                        {(language === 'ua' ? textDisplaySettings.showTransliterationUa : textDisplaySettings.showTransliterationEn) && currentVerse.transliteration && <div className="mb-8">
                             <div className="space-y-1 text-center">
                               {currentVerse.transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground font-extralight text-3xl">
                                   {line}
