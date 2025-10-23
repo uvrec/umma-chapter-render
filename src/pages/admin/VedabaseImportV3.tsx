@@ -1,4 +1,4 @@
-// Fixed VedabaseImportV3 - corrected property names
+// ПОВНА ВЕРСІЯ VedabaseImportV3 - Двомовний імпорт + Вступні глави
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
-import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl, getOurSlug } from "@/utils/Vedabase-books";
+import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } from "@/utils/Vedabase-books";
+import { normalizeVerseField } from "@/utils/textNormalizer";
 import { Badge } from "@/components/ui/badge";
 
 interface ImportStats {
@@ -21,7 +23,7 @@ interface ImportStats {
 }
 
 // ============================================================================
-// PARSERS
+// ПАРСЕРИ
 // ============================================================================
 
 function extractVedabaseContent(html: string) {
@@ -34,6 +36,7 @@ function extractVedabaseContent(html: string) {
   };
 
   try {
+    // САНСКРИТ (спільний для обох мов)
     const devanagariMatch = html.match(/[\u0900-\u097F।॥\s]+/g);
     const bengaliMatch = html.match(/[\u0980-\u09FF।॥\s]+/g);
 
@@ -47,12 +50,13 @@ function extractVedabaseContent(html: string) {
       result.sanskrit = longest;
     }
 
-    const iastPattern = /\b[a-zA-ZĀāĪīŪūṛṝḷḹĒēŌōṃḥṚṛṢṣṆṇṬṭḌḍÑñṄṅ\s\-']+\b/g;
+    // ТРАНСЛІТЕРАЦІЯ (IAST)
+    const iastPattern = /\b[a-zA-Zāīūṛṝḷḹēōṃḥśṣṇṭḍñṅ\s\-']+\b/g;
     const iastMatches = html.match(iastPattern);
 
     if (iastMatches) {
       const withDiacritics = iastMatches.filter(
-        (text) => /[ĀāĪīŪūṛṝḷḹĒēŌōṃḥṚṛṢṣṆṇṬṭḌḍÑñṄṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
+        (text) => /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
       );
 
       if (withDiacritics.length > 0) {
@@ -60,38 +64,39 @@ function extractVedabaseContent(html: string) {
       }
     }
 
+    // СИНОНІМИ
     const synonymsMatch = html.match(/(?:SYNONYMS|Word for word)[:\s]*(.*?)(?=TRANSLATION|$)/is);
     if (synonymsMatch) {
       result.synonyms = synonymsMatch[1]
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
-        .trim();
+        .trim()
+        .substring(0, 2000);
     }
 
+    // ПЕРЕКЛАД
     const translationMatch = html.match(/TRANSLATION[:\s]*(.*?)(?=PURPORT|COMMENTARY|$)/is);
     if (translationMatch) {
       result.translation = translationMatch[1]
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
-        .trim();
+        .trim()
+        .substring(0, 1000);
     }
 
+    // ПОЯСНЕННЯ (Purport)
     const purportMatch = html.match(/(?:PURPORT|COMMENTARY)[:\s]*(.*?)$/is);
     if (purportMatch) {
-      let purportText = purportMatch[1];
-
-      purportText = purportText.replace(/Help Srila Prabhupada send[\s\S]*$/i, "");
-      purportText = purportText.replace(/Support this website[\s\S]*$/i, "");
-
-      result.purport = purportText
+      result.purport = purportMatch[1]
         .replace(/<script[^>]*>.*?<\/script>/gis, "")
         .replace(/<style[^>]*>.*?<\/style>/gis, "")
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
-        .trim();
+        .trim()
+        .substring(0, 10000);
     }
   } catch (error) {
-    console.error("Vedabase parse error:", error);
+    console.error("Parse error:", error);
   }
 
   return result;
@@ -106,192 +111,254 @@ function extractGitabaseContent(html: string) {
   };
 
   try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    const scripts = doc.querySelectorAll("script, style");
-    scripts.forEach((el) => el.remove());
-
-    const italics = doc.querySelectorAll("i");
-    if (italics.length > 0) {
-      for (const italic of italics) {
-        const text = italic.textContent?.trim() || "";
-        if (text.length > 20 && /[а-яґєії]/i.test(text)) {
-          result.transliteration = text;
-          break;
-        }
-      }
+    // Транслітерація
+    const translitMatch = html.match(/<i[^>]*>([а-яґєії\s\-'ʼ]+)<\/i>/i);
+    if (translitMatch) {
+      result.transliteration = translitMatch[1].trim();
     }
 
-    const synonymPairs: string[] = [];
-    const wordTranslations = new Map<string, string>();
+    // Синоніми
+    const italicsPattern = /<i[^>]*>([^<]+)<\/i>/gi;
+    const allItalics = [...html.matchAll(italicsPattern)].map((m) => m[1].trim());
 
-    italics.forEach((italic) => {
-      const word = italic.textContent?.trim() || "";
-      if (word.length < 3 || word.length > 50) return;
-
-      let nextNode = italic.nextSibling;
-      let translation = "";
-      let found = false;
-
-      while (nextNode && !found) {
-        const text = nextNode.textContent || "";
-
-        if (text.includes(" — ") || text.includes(" – ")) {
-          const parts = text.split(/\s+[—–]\s+/);
-          if (parts.length > 1) {
-            translation = parts[1].split(/[;,]/)[0].trim();
-            found = true;
-          }
-        }
-
-        nextNode = nextNode.nextSibling;
-        if (nextNode && nextNode.nodeType === Node.ELEMENT_NODE) {
-          const el = nextNode as Element;
-          if (el.tagName === "I") break;
-        }
-      }
-
-      if (translation) {
-        wordTranslations.set(word, translation);
-      }
-    });
-
-    wordTranslations.forEach((translation, word) => {
-      synonymPairs.push(`${word} — ${translation}`);
-    });
-
-    if (synonymPairs.length > 0) {
-      result.synonyms = synonymPairs.join("; ");
+    if (allItalics.length > 5) {
+      result.synonyms = allItalics.slice(0, 60).join(" ; ");
     }
 
-    const textBlocks = Array.from(doc.querySelectorAll("p, div"));
-    let foundText = false;
-
-    for (const block of textBlocks) {
-      const text = block.textContent?.trim() || "";
-
-      if (text === "Текст" || text.startsWith("Текст:")) {
-        foundText = true;
-        continue;
-      }
-
-      if (foundText && text.length > 30 && text.length < 1500) {
-        result.translation = text.replace(/^["«]/, "").replace(/[»"]$/, "").trim();
-        break;
-      }
+    // Переклад
+    const translationMatch = html.match(/[«"]([^»"]{20,500})[»"]/);
+    if (translationMatch) {
+      result.translation = translationMatch[1].trim();
     }
 
-    let foundCommentary = false;
-    const purportParts: string[] = [];
+    // Пояснення
+    if (result.translation) {
+      const purportStart = html.indexOf(result.translation) + result.translation.length;
+      let purport = html
+        .substring(purportStart)
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+        .substring(0, 5000);
 
-    for (const block of textBlocks) {
-      const text = block.textContent?.trim() || "";
-
-      if (text === "Комментарий" || text.startsWith("Комментарий")) {
-        foundCommentary = true;
-        continue;
-      }
-
-      if (foundCommentary) {
-        if (
-          text.includes("function(") ||
-          text.includes("GoogleAnalytics") ||
-          text.includes("ga('create')") ||
-          text.includes("charset")
-        ) {
-          continue;
-        }
-
-        if (
-          text.includes("След. >>") ||
-          text.includes("Donate") ||
-          text.includes("Thanks to") ||
-          text.includes("gitabase.com")
-        ) {
-          break;
-        }
-
-        if (text.length > 50) {
-          purportParts.push(text);
-        }
-      }
-    }
-
-    if (purportParts.length > 0) {
-      result.purport = purportParts.join("\n\n").replace(/\s+/g, " ").trim();
+      result.purport = purport;
     }
   } catch (error) {
-    console.error("Gitabase parse error:", error);
+    console.error("Parse error:", error);
   }
 
   return result;
 }
 
 // ============================================================================
-// COMPONENT
+// КОМПОНЕНТ
 // ============================================================================
 
 export default function VedabaseImportV3() {
   const navigate = useNavigate();
-  const [selectedBook, setSelectedBook] = useState("sb");
+
+  const [activeTab, setActiveTab] = useState<"verses" | "intro">("verses");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentStep, setCurrentStep] = useState<string>("");
+  const [selectedBook, setSelectedBook] = useState("bg");
   const [cantoNumber, setCantoNumber] = useState("1");
   const [chapterNumber, setChapterNumber] = useState("1");
   const [fromVerse, setFromVerse] = useState("1");
   const [toVerse, setToVerse] = useState("10");
 
+  // Для вступних глав
+  const [introTitleEN, setIntroTitleEN] = useState("");
+  const [introTitleUA, setIntroTitleUA] = useState("");
+  const [introUrlEN, setIntroUrlEN] = useState("");
+  const [introUrlUA, setIntroUrlUA] = useState("");
+
+  // Налаштування
   const [importEN, setImportEN] = useState(true);
   const [importUA, setImportUA] = useState(true);
-  const [useGitabase, setUseGitabase] = useState(false);
+  const [useGitabase, setUseGitabase] = useState(true);
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [currentStep, setCurrentStep] = useState("");
   const [stats, setStats] = useState<ImportStats | null>(null);
-
   const bookConfig = useMemo(() => getBookConfig(selectedBook), [selectedBook]);
 
-  const fetchHTML = async (url: string): Promise<string> => {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return response.text();
-  };
+  // ========================================================================
+  // CORS PROXY
+  // ========================================================================
 
-  const startImport = async () => {
-    setIsProcessing(true);
-    setCurrentStep("Initialization...");
-    setStats({ total: 0, imported: 0, skipped: 0, errors: [] });
+  const fetchHTML = async (url: string, attempt = 1): Promise<string> => {
+    const proxies = [
+      async () => {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.text();
+      },
+      async () => {
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+        const response = await fetch(proxyUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.text();
+      },
+    ];
+
+    if (attempt > proxies.length) {
+      throw new Error(`Не вдалося завантажити ${url}`);
+    }
 
     try {
-      if (!bookConfig) throw new Error("Unknown book configuration");
+      console.log(`Спроба ${attempt}: ${url}`);
+      const html = await proxies[attempt - 1]();
+      if (!html || html.length < 100) throw new Error("Порожня відповідь");
+      return html;
+    } catch (error) {
+      if (attempt < proxies.length) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        return fetchHTML(url, attempt + 1);
+      }
+      throw error;
+    }
+  };
 
-      setCurrentStep("Checking book...");
+  // ========================================================================
+  // ІМПОРТ ВСТУПНОЇ ГЛАВИ
+  // ========================================================================
 
-      // FIXED: Use our_slug or slug for database, slug for URLs
-      const ourSlug = getOurSlug(bookConfig);
+  const importIntroChapter = async () => {
+    setIsProcessing(true);
+    setStats({ total: 1, imported: 0, skipped: 0, errors: [] });
 
-      let { data: book } = await supabase.from("books").select("id, slug").eq("slug", ourSlug).maybeSingle();
+    try {
+      if (!bookConfig) {
+        toast.error("Невідома книга");
+        return;
+      }
+
+      if (!introTitleEN && !introTitleUA) {
+        toast.error("Вкажіть назву хоча б однією мовою");
+        return;
+      }
+
+      setCurrentStep("Створення книги...");
+
+      // 1. Книга
+      let { data: book } = await supabase.from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
 
       if (!book) {
         const { data: newBook, error } = await supabase
           .from("books")
           .insert({
-            slug: ourSlug,
+            slug: bookConfig.our_slug || selectedBook,
+            vedabase_slug: selectedBook,
             title_ua: bookConfig.name_ua,
             title_en: bookConfig.name_en,
-            has_cantos: bookConfig.has_cantos || false,
+            has_cantos: bookConfig.has_cantos,
             is_published: true,
           })
-          .select("id, slug")
+          .select("id")
+          .single();
+
+        if (error) {
+          toast.error(`Помилка: ${error.message}`);
+          return;
+        }
+        book = newBook;
+      }
+
+      // 2. Завантаження контенту
+      let contentEN = "";
+      let contentUA = "";
+
+      if (importEN && introUrlEN) {
+        setCurrentStep("Завантаження англійської версії...");
+        try {
+          const html = await fetchHTML(introUrlEN);
+          const parsed = extractVedabaseContent(html);
+          contentEN = parsed.purport || parsed.translation || "";
+        } catch (e) {
+          console.error("Помилка EN:", e);
+        }
+      }
+
+      if (importUA && introUrlUA) {
+        setCurrentStep("Завантаження української версії...");
+        try {
+          const html = await fetchHTML(introUrlUA);
+          const parsed = useGitabase ? extractGitabaseContent(html) : extractVedabaseContent(html);
+          contentUA = parsed.purport || parsed.translation || "";
+        } catch (e) {
+          console.error("Помилка UA:", e);
+        }
+      }
+
+      // 3. Збереження
+      setCurrentStep("Збереження в БД...");
+      const { error } = await supabase.from("intro_chapters").insert({
+        book_id: book.id,
+        title_en: introTitleEN || null,
+        title_ua: introTitleUA || null,
+        content_en: contentEN || null,
+        content_ua: contentUA || null,
+        slug: (introTitleEN || introTitleUA).toLowerCase().replace(/\s+/g, "-"),
+        order_index: 0,
+        is_published: true,
+      });
+
+      if (error) {
+        toast.error(`Помилка: ${error.message}`);
+        return;
+      }
+
+      setStats((prev) => ({ ...prev!, imported: 1 }));
+      toast.success("Вступну главу імпортовано!");
+    } catch (error) {
+      console.error("Помилка:", error);
+      toast.error(`Помилка: ${error instanceof Error ? error.message : "Невідома"}`);
+    } finally {
+      setIsProcessing(false);
+      setCurrentStep("");
+    }
+  };
+
+  // ========================================================================
+  // ІМПОРТ ВІРШІВ
+  // ========================================================================
+
+  const importVerses = async () => {
+    setIsProcessing(true);
+    setStats({ total: 0, imported: 0, skipped: 0, errors: [] });
+
+    try {
+      if (!bookConfig) {
+        toast.error("Невідома книга");
+        return;
+      }
+
+      // 1. Книга
+      let { data: book } = await supabase.from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+
+      if (!book) {
+        const { data: newBook, error } = await supabase
+          .from("books")
+          .insert({
+            slug: bookConfig.our_slug || selectedBook,
+            vedabase_slug: selectedBook,
+            gitabase_slug: bookConfig.gitabase_slug,
+            title_ua: bookConfig.name_ua,
+            title_en: bookConfig.name_en,
+            has_cantos: bookConfig.has_cantos,
+            is_published: true,
+          })
+          .select("id")
           .single();
 
         if (error) throw new Error(error.message);
         book = newBook;
       }
 
-      setCurrentStep("Checking chapter...");
+      // 2. Глава
       let chapterId: string;
 
       if (bookConfig.has_cantos) {
+        // З канто
         let { data: canto } = await supabase
           .from("cantos")
           .select("id")
@@ -324,10 +391,10 @@ export default function VedabaseImportV3() {
           .maybeSingle();
 
         if (!chapter) {
-          // FIXED: Do NOT include book_id when canto_id is set
           const { data: newChapter, error } = await supabase
             .from("chapters")
             .insert({
+              book_id: book.id,
               canto_id: canto.id,
               chapter_number: parseInt(chapterNumber),
               title_ua: `Глава ${chapterNumber}`,
@@ -343,6 +410,7 @@ export default function VedabaseImportV3() {
 
         chapterId = chapter.id;
       } else {
+        // Без канто
         let { data: chapter } = await supabase
           .from("chapters")
           .select("id")
@@ -370,6 +438,7 @@ export default function VedabaseImportV3() {
         chapterId = chapter.id;
       }
 
+      // 3. Імпорт віршів
       const from = parseInt(fromVerse);
       const to = parseInt(toVerse);
       const verseNumbers = Array.from({ length: to - from + 1 }, (_, i) => (from + i).toString());
@@ -377,7 +446,7 @@ export default function VedabaseImportV3() {
       setStats((prev) => ({ ...prev!, total: verseNumbers.length }));
 
       for (const verseNum of verseNumbers) {
-        setCurrentStep(`Importing verse ${verseNum}...`);
+        setCurrentStep(`Імпорт вірша ${verseNum}...`);
 
         let sanskrit = "";
         let transliterationEN = "";
@@ -389,17 +458,18 @@ export default function VedabaseImportV3() {
         let translationUA = "";
         let purportUA = "";
 
-        if (importEN) {
+        // VEDABASE (англійська)
+        if (importEN && bookConfig) {
           try {
             const vedabaseUrl = buildVedabaseUrl(bookConfig, {
               canto: cantoNumber,
               chapter: chapterNumber,
               verse: verseNum,
             });
-            const html = await fetchHTML(vedabaseUrl!);
+            const html = await fetchHTML(vedabaseUrl);
             const data = extractVedabaseContent(html);
 
-            sanskrit = data.sanskrit;
+            sanskrit = data.sanskrit; // СПІЛЬНИЙ!
             transliterationEN = data.transliteration;
             synonymsEN = data.synonyms;
             translationEN = data.translation;
@@ -407,10 +477,11 @@ export default function VedabaseImportV3() {
 
             await new Promise((r) => setTimeout(r, 500));
           } catch (e) {
-            console.error(`Vedabase error ${verseNum}:`, e);
+            console.error(`Помилка Vedabase ${verseNum}:`, e);
           }
         }
 
+        // GITABASE (українська)
         if (importUA && useGitabase && bookConfig?.gitabase_available) {
           try {
             const gitabaseUrl = buildGitabaseUrl(bookConfig, {
@@ -428,21 +499,35 @@ export default function VedabaseImportV3() {
 
             await new Promise((r) => setTimeout(r, 500));
           } catch (e) {
-            console.error(`Gitabase error ${verseNum}:`, e);
+            console.error(`Помилка Gitabase ${verseNum}:`, e);
           }
         }
+        if (transliterationUA) {
+          transliterationUA = normalizeVerseField(transliterationUA, "transliteration");
+        }
+        if (synonymsUA) {
+          synonymsUA = normalizeVerseField(synonymsUA, "synonyms");
+        }
+        if (translationUA) {
+          translationUA = normalizeVerseField(translationUA, "translation");
+        }
+        if (purportUA) {
+          purportUA = normalizeVerseField(purportUA, "commentary");
+        }
 
+        // Перевірка контенту
         const hasContent =
           sanskrit || synonymsEN || translationEN || purportEN || synonymsUA || translationUA || purportUA;
 
         if (!hasContent) {
           setStats((prev) => ({
             ...prev!,
-            errors: [...prev!.errors, `${verseNum}: empty`],
+            errors: [...prev!.errors, `${verseNum}: порожній`],
           }));
           continue;
         }
 
+        // Збереження
         const displayBlocks = {
           sanskrit: !!sanskrit,
           transliteration: !!(transliterationEN || transliterationUA),
@@ -456,7 +541,7 @@ export default function VedabaseImportV3() {
             chapter_id: chapterId,
             verse_number: verseNum,
             sanskrit,
-            transliteration: transliterationUA || transliterationEN,
+            transliteration: transliterationUA || transliterationEN, // пріоритет UA
             synonyms_en: synonymsEN,
             translation_en: translationEN,
             commentary_en: purportEN,
@@ -479,147 +564,270 @@ export default function VedabaseImportV3() {
         }
       }
 
-      toast.success(`Import complete! Imported: ${stats?.imported || 0}`);
+      toast.success(`Імпорт завершено! Імпортовано: ${stats?.imported || 0}`);
     } catch (error) {
-      console.error("Error:", error);
-      toast.error(`Error: ${error instanceof Error ? error.message : "Unknown"}`);
+      console.error("Помилка:", error);
+      toast.error(`Помилка: ${error instanceof Error ? error.message : "Невідома"}`);
     } finally {
       setIsProcessing(false);
       setCurrentStep("");
     }
   };
 
+  // ========================================================================
+  // UI
+  // ========================================================================
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-16 items-center px-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mr-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex items-center gap-4">
+          <Button variant="ghost" onClick={() => navigate("/admin/dashboard")}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
             Назад
           </Button>
-          <h1 className="text-xl font-bold">Імпорт віршів з Vedabase</h1>
+          <h1 className="text-2xl font-bold">Імпорт з Vedabase V3</h1>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>Двомовний імпорт</CardTitle>
-            <CardDescription>EN (Vedabase) + UA (Gitabase)</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <Label>Книга</Label>
-                <Select value={selectedBook} onValueChange={setSelectedBook}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {VEDABASE_BOOKS.map((b) => (
-                      <SelectItem key={b.slug} value={b.slug}>
-                        {b.name_ua}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="verses">Вірші</TabsTrigger>
+            <TabsTrigger value="intro">Вступні глави</TabsTrigger>
+          </TabsList>
 
-              {bookConfig?.has_cantos && (
+          {/* ====== ВІРШІ ====== */}
+          <TabsContent value="verses" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Імпорт віршів</CardTitle>
+                <CardDescription>Двомовний режим: EN (Vedabase) + UA (Gitabase)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label>Канто/Ліла</Label>
-                  <Input type="number" value={cantoNumber} onChange={(e) => setCantoNumber(e.target.value)} />
-                </div>
-              )}
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-3">
-              <div>
-                <Label>Глава</Label>
-                <Input type="number" value={chapterNumber} onChange={(e) => setChapterNumber(e.target.value)} />
-              </div>
-              <div>
-                <Label>Від вірша</Label>
-                <Input type="number" value={fromVerse} onChange={(e) => setFromVerse(e.target.value)} />
-              </div>
-              <div>
-                <Label>До вірша</Label>
-                <Input type="number" value={toVerse} onChange={(e) => setToVerse(e.target.value)} />
-              </div>
-            </div>
-
-            <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="import-en" checked={importEN} onCheckedChange={(checked) => setImportEN(!!checked)} />
-                <Label htmlFor="import-en">Імпортувати англійською (Vedabase)</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox id="import-ua" checked={importUA} onCheckedChange={(checked) => setImportUA(!!checked)} />
-                <Label htmlFor="import-ua">Імпортувати українською</Label>
-              </div>
-
-              {importUA && bookConfig?.gitabase_available && (
-                <div className="ml-6 flex items-center space-x-2">
-                  <Checkbox
-                    id="use-gitabase"
-                    checked={useGitabase}
-                    onCheckedChange={(checked) => setUseGitabase(!!checked)}
-                  />
-                  <Label htmlFor="use-gitabase">Gitabase</Label>
-                </div>
-              )}
-            </div>
-
-            <Button onClick={startImport} disabled={isProcessing} size="lg" className="w-full">
-              {isProcessing ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  {currentStep || "Обробка..."}
-                </>
-              ) : (
-                "Імпортувати вірші"
-              )}
-            </Button>
-
-            {stats && (
-              <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Всього:</span>
-                  <Badge variant="secondary">{stats.total}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Імпортовано:
-                  </span>
-                  <Badge variant="default" className="bg-green-600">
-                    {stats.imported}
-                  </Badge>
-                </div>
-                {stats.errors.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <XCircle className="h-4 w-4 text-destructive" />
-                      <span className="text-sm font-medium">Помилки:</span>
-                    </div>
-                    <ul className="text-xs space-y-1 pl-6">
-                      {stats.errors.slice(0, 5).map((err, i) => (
-                        <li key={i} className="text-destructive">
-                          {err}
-                        </li>
+                  <Label>Книга</Label>
+                  <Select value={selectedBook} onValueChange={setSelectedBook}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VEDABASE_BOOKS.map((book) => (
+                        <SelectItem key={book.slug} value={book.slug}>
+                          {book.name_ua} ({book.slug.toUpperCase()})
+                          {book.gitabase_available && (
+                            <Badge variant="outline" className="ml-2">
+                              UA
+                            </Badge>
+                          )}
+                        </SelectItem>
                       ))}
-                      {stats.errors.length > 5 && (
-                        <li className="text-muted-foreground">... та ще {stats.errors.length - 5} помилок</li>
-                      )}
-                    </ul>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {bookConfig?.has_cantos && (
+                  <div>
+                    <Label>Канто/Ліла</Label>
+                    <Input type="number" value={cantoNumber} onChange={(e) => setCantoNumber(e.target.value)} min="1" />
                   </div>
                 )}
+
+                <div>
+                  <Label>Глава</Label>
+                  <Input
+                    type="number"
+                    value={chapterNumber}
+                    onChange={(e) => setChapterNumber(e.target.value)}
+                    min="1"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Від вірша</Label>
+                    <Input type="number" value={fromVerse} onChange={(e) => setFromVerse(e.target.value)} min="1" />
+                  </div>
+                  <div>
+                    <Label>До вірша</Label>
+                    <Input type="number" value={toVerse} onChange={(e) => setToVerse(e.target.value)} min="1" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="importEN"
+                      checked={importEN}
+                      onCheckedChange={(checked) => setImportEN(checked as boolean)}
+                    />
+                    <Label htmlFor="importEN">Імпортувати англійською (Vedabase)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="importUA"
+                      checked={importUA}
+                      onCheckedChange={(checked) => setImportUA(checked as boolean)}
+                    />
+                    <Label htmlFor="importUA">Імпортувати українською</Label>
+                  </div>
+                  {importUA && (
+                    <div className="flex items-center space-x-2 ml-6">
+                      <Checkbox
+                        id="useGitabase"
+                        checked={useGitabase}
+                        onCheckedChange={(checked) => setUseGitabase(checked as boolean)}
+                        disabled={!bookConfig?.gitabase_available}
+                      />
+                      <Label htmlFor="useGitabase">
+                        Gitabase (з автовиправленням)
+                        {!bookConfig?.gitabase_available && " - недоступно"}
+                      </Label>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-muted p-3 rounded text-sm">
+                  <strong>Примітка:</strong> Санскрит - спільний блок для обох мов. Purport = "Пояснення" українською.
+                </div>
+
+                <Button onClick={importVerses} disabled={isProcessing} className="w-full">
+                  {isProcessing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isProcessing ? currentStep || "Обробка..." : "Імпортувати вірші"}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* ====== ВСТУПНІ ГЛАВИ ====== */}
+          <TabsContent value="intro" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Імпорт вступної глави</CardTitle>
+                <CardDescription>Introduction, Preface, Вступ, Передмова тощо</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label>Книга</Label>
+                  <Select value={selectedBook} onValueChange={setSelectedBook}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {VEDABASE_BOOKS.map((book) => (
+                        <SelectItem key={book.slug} value={book.slug}>
+                          {book.name_ua} ({book.slug.toUpperCase()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Назва англійською (необов'язково)</Label>
+                    <Input
+                      value={introTitleEN}
+                      onChange={(e) => setIntroTitleEN(e.target.value)}
+                      placeholder="Introduction"
+                    />
+                  </div>
+                  <div>
+                    <Label>Назва українською (необов'язково)</Label>
+                    <Input value={introTitleUA} onChange={(e) => setIntroTitleUA(e.target.value)} placeholder="Вступ" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="importIntroEN"
+                      checked={importEN}
+                      onCheckedChange={(checked) => setImportEN(checked as boolean)}
+                    />
+                    <Label htmlFor="importIntroEN">Імпортувати англійською</Label>
+                  </div>
+                  {importEN && (
+                    <div className="ml-6">
+                      <Label>URL англійської версії</Label>
+                      <Input
+                        value={introUrlEN}
+                        onChange={(e) => setIntroUrlEN(e.target.value)}
+                        placeholder="https://vedabase.io/en/library/bg/introduction/"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="importIntroUA"
+                      checked={importUA}
+                      onCheckedChange={(checked) => setImportUA(checked as boolean)}
+                    />
+                    <Label htmlFor="importIntroUA">Імпортувати українською</Label>
+                  </div>
+                  {importUA && (
+                    <div className="ml-6">
+                      <Label>URL української версії</Label>
+                      <Input
+                        value={introUrlUA}
+                        onChange={(e) => setIntroUrlUA(e.target.value)}
+                        placeholder="https://gitabase.com/ukr/BG/introduction"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <Button onClick={importIntroChapter} disabled={isProcessing} className="w-full">
+                  {isProcessing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isProcessing ? currentStep || "Обробка..." : "Імпортувати вступну главу"}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Статистика */}
+        {stats && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Статистика</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold">{stats.total}</div>
+                  <div className="text-sm text-muted-foreground">Всього</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">{stats.imported}</div>
+                  <div className="text-sm text-muted-foreground">Імпортовано</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">{stats.errors.length}</div>
+                  <div className="text-sm text-muted-foreground">Помилок</div>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </main>
+
+              {stats.errors.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Помилки:</h4>
+                  <div className="space-y-1 max-h-48 overflow-y-auto">
+                    {stats.errors.map((error, i) => (
+                      <div key={i} className="text-sm text-red-600 flex items-start gap-2">
+                        <XCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                        <span>{error}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
