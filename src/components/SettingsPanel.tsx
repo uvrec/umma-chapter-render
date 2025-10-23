@@ -10,13 +10,12 @@ import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/components/ThemeProvider";
 
 interface TextDisplaySettings {
-  showSanskritUa: boolean;
-  showSanskritEn: boolean;
-  showTransliterationUa: boolean;
-  showTransliterationEn: boolean;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
   showSynonyms: boolean;
   showTranslation: boolean;
   showCommentary: boolean;
+  sideBySideMode: boolean; // режим двох стовпців UA/EN
 }
 
 export interface ContinuousReadingSettings {
@@ -209,41 +208,9 @@ export const SettingsPanel = ({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <Label htmlFor="craft-paper">Фон для читання (крафт)</Label>
-                <Switch
-                  id="craft-paper"
-                  checked={craftPaperMode}
-                  onCheckedChange={(checked) => {
-                    onCraftPaperToggle(checked);
-                    setTheme(checked ? "craft" : "light");
-                  }}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dual-language">Двомовний режим</Label>
-                <Switch id="dual-language" checked={dualLanguageMode} onCheckedChange={onDualLanguageModeToggle} />
-              </div>
-
-              {dualLanguageMode && (
-                <div>
-                  <Label htmlFor="orig-lang">Мова оригіналу</Label>
-                  <select
-                    id="orig-lang"
-                    className="mt-2 w-full rounded-md border border-input bg-background p-2"
-                    value={originalLanguage}
-                    onChange={(e) => onOriginalLanguageChange(e.target.value)}
-                  >
-                    <option value="sanskrit">Санскрит</option>
-                    <option value="bengali">Бенгалі</option>
-                  </select>
-                </div>
-              )}
-
               <div className="flex justify-end">
-                <Button variant="outline" size="sm" onClick={resetTypography}>
-                  Скинути типографіку
+                <Button variant="ghost" size="sm" onClick={resetTypography}>
+                  Скинути
                 </Button>
               </div>
             </div>
@@ -251,83 +218,98 @@ export const SettingsPanel = ({
 
           <Separator />
 
-          {/* Continuous Reading Settings */}
+          {/* Display Mode */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Режим читання</h3>
+            <h3 className="text-lg font-semibold mb-4">Режим відображення</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label htmlFor="continuous-reading">Неперервний текст</Label>
+                <Label htmlFor="side-by-side">Два стовпці (UA/EN)</Label>
                 <Switch
-                  id="continuous-reading"
-                  checked={continuousReadingSettings.enabled}
+                  id="side-by-side"
+                  checked={textDisplaySettings.sideBySideMode}
                   onCheckedChange={(checked) =>
-                    onContinuousReadingSettingsChange({ ...continuousReadingSettings, enabled: checked })
+                    onTextDisplaySettingsChange({ ...textDisplaySettings, sideBySideMode: checked })
                   }
                 />
               </div>
-
-              {continuousReadingSettings.enabled && (
-                <div className="ml-4 space-y-3 border-l-2 border-muted pl-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-verse-numbers">Номери віршів</Label>
-                    <Switch
-                      id="show-verse-numbers"
-                      checked={continuousReadingSettings.showVerseNumbers}
-                      onCheckedChange={(checked) =>
-                        onContinuousReadingSettingsChange({ ...continuousReadingSettings, showVerseNumbers: checked })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="cont-sanskrit">Санскрит</Label>
-                    <Switch
-                      id="cont-sanskrit"
-                      checked={continuousReadingSettings.showSanskrit}
-                      onCheckedChange={(checked) =>
-                        onContinuousReadingSettingsChange({ ...continuousReadingSettings, showSanskrit: checked })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="cont-transliteration">Транслітерація</Label>
-                    <Switch
-                      id="cont-transliteration"
-                      checked={continuousReadingSettings.showTransliteration}
-                      onCheckedChange={(checked) =>
-                        onContinuousReadingSettingsChange({
-                          ...continuousReadingSettings,
-                          showTransliteration: checked,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="cont-translation">Переклад</Label>
-                    <Switch
-                      id="cont-translation"
-                      checked={continuousReadingSettings.showTranslation}
-                      onCheckedChange={(checked) =>
-                        onContinuousReadingSettingsChange({ ...continuousReadingSettings, showTranslation: checked })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="cont-commentary">Пояснення</Label>
-                    <Switch
-                      id="cont-commentary"
-                      checked={continuousReadingSettings.showCommentary}
-                      onCheckedChange={(checked) =>
-                        onContinuousReadingSettingsChange({ ...continuousReadingSettings, showCommentary: checked })
-                      }
-                    />
-                  </div>
-                </div>
-              )}
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Continuous Reading */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Безперервне читання</h3>
+              <Switch
+                checked={continuousReadingSettings.enabled}
+                onCheckedChange={(checked) =>
+                  onContinuousReadingSettingsChange({ ...continuousReadingSettings, enabled: checked })
+                }
+              />
+            </div>
+
+            {continuousReadingSettings.enabled && (
+              <div className="ml-4 space-y-3 border-l-2 border-muted pl-4">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="cont-verse-numbers">Номери віршів</Label>
+                  <Switch
+                    id="cont-verse-numbers"
+                    checked={continuousReadingSettings.showVerseNumbers}
+                    onCheckedChange={(checked) =>
+                      onContinuousReadingSettingsChange({ ...continuousReadingSettings, showVerseNumbers: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="cont-sanskrit">Санскрит</Label>
+                  <Switch
+                    id="cont-sanskrit"
+                    checked={continuousReadingSettings.showSanskrit}
+                    onCheckedChange={(checked) =>
+                      onContinuousReadingSettingsChange({ ...continuousReadingSettings, showSanskrit: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="cont-transliteration">Транслітерація</Label>
+                  <Switch
+                    id="cont-transliteration"
+                    checked={continuousReadingSettings.showTransliteration}
+                    onCheckedChange={(checked) =>
+                      onContinuousReadingSettingsChange({
+                        ...continuousReadingSettings,
+                        showTransliteration: checked,
+                      })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="cont-translation">Переклад</Label>
+                  <Switch
+                    id="cont-translation"
+                    checked={continuousReadingSettings.showTranslation}
+                    onCheckedChange={(checked) =>
+                      onContinuousReadingSettingsChange({ ...continuousReadingSettings, showTranslation: checked })
+                    }
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="cont-commentary">Пояснення</Label>
+                  <Switch
+                    id="cont-commentary"
+                    checked={continuousReadingSettings.showCommentary}
+                    onCheckedChange={(checked) =>
+                      onContinuousReadingSettingsChange({ ...continuousReadingSettings, showCommentary: checked })
+                    }
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <Separator />
@@ -336,59 +318,26 @@ export const SettingsPanel = ({
           <div>
             <h3 className="text-lg font-semibold mb-4">Елементи тексту</h3>
             <div className="space-y-4">
-              
-              {/* Санскрит */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Санскрит/Деванагарі</Label>
-                <div className="ml-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-sanskrit-ua" className="text-sm font-normal">Українська</Label>
-                    <Switch
-                      id="show-sanskrit-ua"
-                      checked={textDisplaySettings.showSanskritUa}
-                      onCheckedChange={(checked) =>
-                        onTextDisplaySettingsChange({ ...textDisplaySettings, showSanskritUa: checked })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-sanskrit-en" className="text-sm font-normal">Англійська</Label>
-                    <Switch
-                      id="show-sanskrit-en"
-                      checked={textDisplaySettings.showSanskritEn}
-                      onCheckedChange={(checked) =>
-                        onTextDisplaySettingsChange({ ...textDisplaySettings, showSanskritEn: checked })
-                      }
-                    />
-                  </div>
-                </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-sanskrit">Санскрит/Деванагарі</Label>
+                <Switch
+                  id="show-sanskrit"
+                  checked={textDisplaySettings.showSanskrit}
+                  onCheckedChange={(checked) =>
+                    onTextDisplaySettingsChange({ ...textDisplaySettings, showSanskrit: checked })
+                  }
+                />
               </div>
 
-              {/* Транслітерація */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Транслітерація</Label>
-                <div className="ml-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-transliteration-ua" className="text-sm font-normal">Українська</Label>
-                    <Switch
-                      id="show-transliteration-ua"
-                      checked={textDisplaySettings.showTransliterationUa}
-                      onCheckedChange={(checked) =>
-                        onTextDisplaySettingsChange({ ...textDisplaySettings, showTransliterationUa: checked })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="show-transliteration-en" className="text-sm font-normal">Англійська</Label>
-                    <Switch
-                      id="show-transliteration-en"
-                      checked={textDisplaySettings.showTransliterationEn}
-                      onCheckedChange={(checked) =>
-                        onTextDisplaySettingsChange({ ...textDisplaySettings, showTransliterationEn: checked })
-                      }
-                    />
-                  </div>
-                </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-transliteration">Транслітерація</Label>
+                <Switch
+                  id="show-transliteration"
+                  checked={textDisplaySettings.showTransliteration}
+                  onCheckedChange={(checked) =>
+                    onTextDisplaySettingsChange({ ...textDisplaySettings, showTransliteration: checked })
+                  }
+                />
               </div>
 
               <Separator />
