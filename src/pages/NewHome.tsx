@@ -334,22 +334,106 @@ function LatestContent() {
 
 // --- Quick Access Playlists ---
 function Playlists() {
-  const featuredPlaylists = [
-    { title: "Популярне", href: "/audiobooks?sort=popular" },
-    { title: "Останні", href: "/audiobooks?sort=latest" },
-    { title: "Бгаґаватам", href: "/audiobooks?tag=sb" },
-    { title: "Бгаґавад-ґіта", href: "/audiobooks?tag=bg" },
-  ];
+  const { setPlaylist } = useAudio();
+  const { language } = useLanguage();
+
+  // Завантажуємо всі опубліковані плейлісти
+  const { data: playlists } = useQuery({
+    queryKey: ["all-playlists"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("audio_playlists")
+        .select("id, title_ua, title_en, cover_image_url, author")
+        .eq("is_published", true)
+        .order("display_order", { ascending: true })
+        .limit(10);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const loadPlaylist = async (playlistId: string) => {
+    const { data: playlist } = await supabase
+      .from("audio_playlists")
+      .select("id, title_ua, title_en, cover_image_url, author")
+      .eq("id", playlistId)
+      .single();
+
+    if (!playlist) return;
+
+    const { data: tracks } = await supabase
+      .from("audio_tracks")
+      .select("id, title_ua, title_en, file_url, track_number, duration")
+      .eq("playlist_id", playlistId)
+      .eq("is_published", true)
+      .order("track_number", { ascending: true });
+
+    if (!tracks || tracks.length === 0) return;
+
+    const formattedTracks = tracks.map((track) => ({
+      id: track.id,
+      title:
+        language === "ua"
+          ? track.title_ua || track.title_en || "Без назви"
+          : track.title_en || track.title_ua || "Untitled",
+      src: track.file_url,
+      url: track.file_url,
+      verseNumber: `Трек ${track.track_number}`,
+      coverImage: playlist.cover_image_url || undefined,
+      duration: track.duration || undefined,
+      metadata: {
+        artist: playlist.author || "Vedavoice",
+        album: language === "ua" ? playlist.title_ua || playlist.title_en : playlist.title_en || playlist.title_ua,
+      },
+    }));
+
+    setPlaylist(formattedTracks);
+  };
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 pb-8">
-      <h3 className="mb-4 font-serif text-xl font-semibold">Швидкий доступ</h3>
-      <div className="flex flex-wrap gap-2">
-        {featuredPlaylists.map((p) => (
-          <Button key={p.href} variant="outline" asChild>
-            <a href={p.href}>{p.title}</a>
-          </Button>
+      <h3 className="mb-4 font-serif text-xl font-semibold">Аудіокниги - Швидкий доступ</h3>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {playlists?.map((playlist) => (
+          <Card
+            key={playlist.id}
+            className="transition-shadow hover:shadow-md cursor-pointer"
+            onClick={() => loadPlaylist(playlist.id)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                {playlist.cover_image_url ? (
+                  <img
+                    src={playlist.cover_image_url}
+                    alt={playlist.title_ua || playlist.title_en || ""}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
+                    <Headphones className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold truncate">
+                    {language === "ua"
+                      ? playlist.title_ua || playlist.title_en
+                      : playlist.title_en || playlist.title_ua}
+                  </h4>
+                  {playlist.author && <p className="text-sm text-muted-foreground truncate">{playlist.author}</p>}
+                </div>
+                <Play className="h-5 w-5 text-primary flex-shrink-0" />
+              </div>
+            </CardContent>
+          </Card>
         ))}
+      </div>
+      <div className="mt-4 text-center">
+        <Button variant="outline" asChild>
+          <a href="/audiobooks">
+            <Headphones className="mr-2 h-4 w-4" />
+            Всі аудіокниги
+          </a>
+        </Button>
       </div>
     </section>
   );
