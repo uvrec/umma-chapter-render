@@ -340,7 +340,7 @@ export type Database = {
           read_time: number | null
           sanskrit: string | null
           scheduled_publish_at: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           slug: string
           substack_embed_url: string | null
           synonyms_en: string | null
@@ -379,7 +379,7 @@ export type Database = {
           read_time?: number | null
           sanskrit?: string | null
           scheduled_publish_at?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           slug: string
           substack_embed_url?: string | null
           synonyms_en?: string | null
@@ -418,7 +418,7 @@ export type Database = {
           read_time?: number | null
           sanskrit?: string | null
           scheduled_publish_at?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           slug?: string
           substack_embed_url?: string | null
           synonyms_en?: string | null
@@ -586,6 +586,13 @@ export type Database = {
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "cantos_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["book_id"]
+          },
         ]
       }
       chapters: {
@@ -648,6 +655,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["book_id"]
           },
           {
             foreignKeyName: "chapters_canto_id_fkey"
@@ -793,6 +807,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "intro_chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["book_id"]
           },
         ]
       }
@@ -978,12 +999,16 @@ export type Database = {
           id: string
           is_published: boolean | null
           sanskrit: string | null
-          search_vector: unknown | null
+          sanskrit_en: string | null
+          sanskrit_ua: string | null
+          search_vector: unknown
           synonyms_en: string | null
           synonyms_ua: string | null
           translation_en: string | null
           translation_ua: string | null
           transliteration: string | null
+          transliteration_en: string | null
+          transliteration_ua: string | null
           verse_number: string
           verse_number_sort: number | null
         }
@@ -997,12 +1022,16 @@ export type Database = {
           id?: string
           is_published?: boolean | null
           sanskrit?: string | null
-          search_vector?: unknown | null
+          sanskrit_en?: string | null
+          sanskrit_ua?: string | null
+          search_vector?: unknown
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
           translation_ua?: string | null
           transliteration?: string | null
+          transliteration_en?: string | null
+          transliteration_ua?: string | null
           verse_number: string
           verse_number_sort?: number | null
         }
@@ -1016,12 +1045,16 @@ export type Database = {
           id?: string
           is_published?: boolean | null
           sanskrit?: string | null
-          search_vector?: unknown | null
+          sanskrit_en?: string | null
+          sanskrit_ua?: string | null
+          search_vector?: unknown
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
           translation_ua?: string | null
           transliteration?: string | null
+          transliteration_en?: string | null
+          transliteration_ua?: string | null
           verse_number?: string
           verse_number_sort?: number | null
         }
@@ -1032,6 +1065,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "chapters"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verses_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["chapter_id"]
           },
         ]
       }
@@ -1044,7 +1084,7 @@ export type Database = {
           created_at: string
           id: string
           sanskrit: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           synonyms_en: string | null
           synonyms_ua: string | null
           translation_en: string | null
@@ -1061,7 +1101,7 @@ export type Database = {
           created_at?: string
           id?: string
           sanskrit?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -1078,7 +1118,7 @@ export type Database = {
           created_at?: string
           id?: string
           sanskrit?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -1098,7 +1138,7 @@ export type Database = {
           created_at: string | null
           id: string | null
           sanskrit: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           synonyms_en: string | null
           synonyms_ua: string | null
           translation_en: string | null
@@ -1115,7 +1155,7 @@ export type Database = {
           created_at?: string | null
           id?: string | null
           sanskrit?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -1132,7 +1172,7 @@ export type Database = {
           created_at?: string | null
           id?: string | null
           sanskrit?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -1188,7 +1228,7 @@ export type Database = {
           published_at: string | null
           read_time: number | null
           scheduled_publish_at: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           slug: string | null
           substack_embed_url: string | null
           tags: string[] | null
@@ -1218,7 +1258,7 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           slug?: string | null
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -1248,7 +1288,7 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           slug?: string | null
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -1307,6 +1347,23 @@ export type Database = {
           },
         ]
       }
+      readable_chapters: {
+        Row: {
+          book_id: string | null
+          book_slug: string | null
+          book_title_en: string | null
+          book_title_ua: string | null
+          chapter_id: string | null
+          chapter_number: number | null
+          chapter_title_en: string | null
+          chapter_title_ua: string | null
+          chapter_type: Database["public"]["Enums"]["chapter_type"] | null
+          completion_percentage: number | null
+          filled_verses: number | null
+          total_verses: number | null
+        }
+        Relationships: []
+      }
       verses_with_structure: {
         Row: {
           chapter_id: string | null
@@ -1352,14 +1409,18 @@ export type Database = {
             referencedRelation: "chapters"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "verses_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["chapter_id"]
+          },
         ]
       }
     }
     Functions: {
-      count_visible_blocks: {
-        Args: { verse_id: string }
-        Returns: number
-      }
+      count_visible_blocks: { Args: { verse_id: string }; Returns: number }
       create_blog_post: {
         Args: {
           _audio_url?: string
@@ -1399,7 +1460,7 @@ export type Database = {
           read_time: number | null
           sanskrit: string | null
           scheduled_publish_at: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           slug: string
           substack_embed_url: string | null
           synonyms_en: string | null
@@ -1414,6 +1475,12 @@ export type Database = {
           updated_at: string
           video_url: string | null
           view_count: number | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "blog_posts"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       get_book_by_vedabase_slug: {
@@ -1439,10 +1506,8 @@ export type Database = {
         Args: { post_id: string }
         Returns: undefined
       }
-      slugify: {
-        Args: { "": string }
-        Returns: string
-      }
+      is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
+      slugify: { Args: { "": string }; Returns: string }
       update_intro_chapters_order: {
         Args: { p_items: Json }
         Returns: undefined

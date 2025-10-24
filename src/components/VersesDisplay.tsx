@@ -27,14 +27,16 @@ export function VersesDisplay({
   const { language: contextLanguage } = useLanguage();
   const language = propLanguage || contextLanguage;
   
-  const displayBlocks: DisplayBlocks = verse.display_blocks || {
-    sanskrit_ua: true,
-    sanskrit_en: true,
-    transliteration_ua: true,
-    transliteration_en: true,
-    synonyms: true,
-    translation: true,
-    commentary: true
+  const rawBlocks = (verse.display_blocks as Partial<DisplayBlocks> | null) || null;
+  const displayBlocks: DisplayBlocks = {
+    // Normalize with backwards compatibility for legacy keys (sanskrit, transliteration)
+    sanskrit_ua: rawBlocks?.sanskrit_ua ?? (rawBlocks as any)?.sanskrit ?? true,
+    sanskrit_en: rawBlocks?.sanskrit_en ?? (rawBlocks as any)?.sanskrit ?? true,
+    transliteration_ua: rawBlocks?.transliteration_ua ?? (rawBlocks as any)?.transliteration ?? true,
+    transliteration_en: rawBlocks?.transliteration_en ?? (rawBlocks as any)?.transliteration ?? true,
+    synonyms: rawBlocks?.synonyms ?? true,
+    translation: rawBlocks?.translation ?? true,
+    commentary: rawBlocks?.commentary ?? true,
   };
 
   const synonyms = language === 'ua' ? verse.synonyms_ua : verse.synonyms_en;
