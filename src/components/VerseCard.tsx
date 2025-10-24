@@ -1,5 +1,6 @@
 // VerseCard.tsx — оновлена версія з окремими Volume2 кнопками для кожної секції
 // Відповідає PDF шаблону: кожен блок (Санскрит, Послівний, Переклад, Пояснення) має свою кнопку Volume2
+// + VerseNumberEditor для мануального редагування номерів віршів адміністратором
 
 import { useState } from "react";
 import { Play, Pause, Edit, Save, X, Volume2 } from "lucide-react";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/components/GlobalAudioPlayer";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 
 /* =========================
    Типи пропсів
@@ -49,6 +51,7 @@ interface VerseCardProps {
       commentary: string;
     },
   ) => void;
+  onVerseNumberUpdate?: () => void; // коллбек після зміни номера
 }
 
 /* =========================
@@ -117,6 +120,7 @@ export const VerseCard = ({
   },
   isAdmin = false,
   onVerseUpdate,
+  onVerseNumberUpdate,
 }: VerseCardProps) => {
   const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
 
@@ -189,9 +193,14 @@ export const VerseCard = ({
         {/* Верхня панель: номер/книга + кнопка редагування */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-              <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-            </div>
+            {/* Якщо адмін — показуємо VerseNumberEditor */}
+            {isAdmin && verseId ? (
+              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+            ) : (
+              <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+                <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+              </div>
+            )}
 
             {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
           </div>
