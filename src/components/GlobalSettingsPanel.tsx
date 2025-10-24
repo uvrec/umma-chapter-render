@@ -8,7 +8,16 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/components/ThemeProvider";
-export type { ContinuousReadingSettings } from "./GlobalSettingsPanel";
+
+// 🔹 типи всередині цього ж файлу — без повторного імпорту
+export type ContinuousReadingSettings = {
+  enabled: boolean;
+  showVerseNumbers: boolean;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showTranslation: boolean;
+  showCommentary: boolean;
+};
 
 interface GlobalSettingsPanelProps {
   isOpen: boolean;
@@ -40,7 +49,7 @@ const LS_KEYS = {
   lineHeight: "vv_reader_lineHeight",
   dual: "vv_reader_dualMode",
   blocks: "vv_reader_blocks",
-  continuous: "vv_reader_continuous", // 🆕
+  continuous: "vv_reader_continuous",
 };
 
 type BlocksState = {
@@ -49,15 +58,6 @@ type BlocksState = {
   synonyms: boolean;
   translation: boolean;
   commentary: boolean;
-};
-
-export type ContinuousReadingSettings = {
-  enabled: boolean;
-  showVerseNumbers: boolean;
-  showSanskrit: boolean;
-  showTransliteration: boolean;
-  showTranslation: boolean;
-  showCommentary: boolean;
 };
 
 function readBlocks(): BlocksState {
@@ -117,9 +117,7 @@ export const GlobalSettingsPanel = (props: GlobalSettingsPanelProps) => {
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
   const [continuous, setContinuous] = useState<ContinuousReadingSettings>(() => readContinuous());
 
-  const bumpReader = () => {
-    window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
-  };
+  const bumpReader = () => window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
 
   useEffect(() => {
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
@@ -176,7 +174,6 @@ export const GlobalSettingsPanel = (props: GlobalSettingsPanelProps) => {
           </SheetHeader>
 
           <div className="space-y-6">
-            {/* Тема */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Тема оформлення", "Theme")}</Label>
               <div className="flex items-center gap-2">
@@ -192,7 +189,6 @@ export const GlobalSettingsPanel = (props: GlobalSettingsPanelProps) => {
               </div>
             </div>
 
-            {/* Мова інтерфейсу */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Мова інтерфейсу", "Interface Language")}</Label>
               <div className="flex gap-2">
@@ -217,67 +213,26 @@ export const GlobalSettingsPanel = (props: GlobalSettingsPanelProps) => {
 
             <Separator />
 
-            {/* Налаштування читання */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Відображення тексту</h3>
               <div className="space-y-4">
-                <RowFontControl
-                  label="Розмір шрифта"
-                  value={fontSize}
-                  min={MIN_FONT}
-                  max={MAX_FONT}
-                  onDecrease={decreaseFont}
-                  onIncrease={increaseFont}
-                />
-                <RowFontControl
-                  label="Міжряддя"
-                  value={lineHeight}
-                  min={MIN_LH}
-                  max={MAX_LH}
-                  step={0.05}
-                  onDecrease={decreaseLH}
-                  onIncrease={increaseLH}
-                />
+                <RowFontControl label="Розмір шрифта" value={fontSize} min={MIN_FONT} max={MAX_FONT} onDecrease={decreaseFont} onIncrease={increaseFont} />
+                <RowFontControl label="Міжряддя" value={lineHeight} min={MIN_LH} max={MAX_LH} step={0.05} onDecrease={decreaseLH} onIncrease={increaseLH} />
                 <RowToggle label="Двомовний режим" checked={dualMode} onChange={(v) => setDualMode(v)} />
               </div>
             </div>
 
-            {/* 🆕 Режим читання */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Режим читання</h3>
               <div className="space-y-3">
-                <RowToggle
-                  label="Неперервний текст"
-                  checked={continuous.enabled}
-                  onChange={(v) => setContinuous({ ...continuous, enabled: v })}
-                />
+                <RowToggle label="Неперервний текст" checked={continuous.enabled} onChange={(v) => setContinuous({ ...continuous, enabled: v })} />
                 {continuous.enabled && (
                   <div className="ml-4 border-l border-border pl-4 space-y-2">
-                    <RowToggle
-                      label="Номери віршів"
-                      checked={continuous.showVerseNumbers}
-                      onChange={(v) => setContinuous({ ...continuous, showVerseNumbers: v })}
-                    />
-                    <RowToggle
-                      label="Санскрит"
-                      checked={continuous.showSanskrit}
-                      onChange={(v) => setContinuous({ ...continuous, showSanskrit: v })}
-                    />
-                    <RowToggle
-                      label="Транслітерація"
-                      checked={continuous.showTransliteration}
-                      onChange={(v) => setContinuous({ ...continuous, showTransliteration: v })}
-                    />
-                    <RowToggle
-                      label="Переклад"
-                      checked={continuous.showTranslation}
-                      onChange={(v) => setContinuous({ ...continuous, showTranslation: v })}
-                    />
-                    <RowToggle
-                      label="Пояснення"
-                      checked={continuous.showCommentary}
-                      onChange={(v) => setContinuous({ ...continuous, showCommentary: v })}
-                    />
+                    <RowToggle label="Номери віршів" checked={continuous.showVerseNumbers} onChange={(v) => setContinuous({ ...continuous, showVerseNumbers: v })} />
+                    <RowToggle label="Санскрит" checked={continuous.showSanskrit} onChange={(v) => setContinuous({ ...continuous, showSanskrit: v })} />
+                    <RowToggle label="Транслітерація" checked={continuous.showTransliteration} onChange={(v) => setContinuous({ ...continuous, showTransliteration: v })} />
+                    <RowToggle label="Переклад" checked={continuous.showTranslation} onChange={(v) => setContinuous({ ...continuous, showTranslation: v })} />
+                    <RowToggle label="Пояснення" checked={continuous.showCommentary} onChange={(v) => setContinuous({ ...continuous, showCommentary: v })} />
                   </div>
                 )}
               </div>
@@ -285,35 +240,14 @@ export const GlobalSettingsPanel = (props: GlobalSettingsPanelProps) => {
 
             <Separator />
 
-            {/* Елементи тексту */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
               <div className="space-y-3">
-                <RowToggle
-                  label="Санскрит / Деванагарі"
-                  checked={blocks.sanskrit}
-                  onChange={(v) => setBlocks({ ...blocks, sanskrit: v })}
-                />
-                <RowToggle
-                  label="Транслітерація"
-                  checked={blocks.translit}
-                  onChange={(v) => setBlocks({ ...blocks, translit: v })}
-                />
-                <RowToggle
-                  label="Послівний переклад"
-                  checked={blocks.synonyms}
-                  onChange={(v) => setBlocks({ ...blocks, synonyms: v })}
-                />
-                <RowToggle
-                  label="Переклад"
-                  checked={blocks.translation}
-                  onChange={(v) => setBlocks({ ...blocks, translation: v })}
-                />
-                <RowToggle
-                  label="Пояснення"
-                  checked={blocks.commentary}
-                  onChange={(v) => setBlocks({ ...blocks, commentary: v })}
-                />
+                <RowToggle label="Санскрит / Деванагарі" checked={blocks.sanskrit} onChange={(v) => setBlocks({ ...blocks, sanskrit: v })} />
+                <RowToggle label="Транслітерація" checked={blocks.translit} onChange={(v) => setBlocks({ ...blocks, translit: v })} />
+                <RowToggle label="Послівний переклад" checked={blocks.synonyms} onChange={(v) => setBlocks({ ...blocks, synonyms: v })} />
+                <RowToggle label="Переклад" checked={blocks.translation} onChange={(v) => setBlocks({ ...blocks, translation: v })} />
+                <RowToggle label="Пояснення" checked={blocks.commentary} onChange={(v) => setBlocks({ ...blocks, commentary: v })} />
               </div>
             </div>
           </div>
@@ -332,23 +266,7 @@ function RowToggle({ label, checked, onChange }: { label: string; checked: boole
   );
 }
 
-function RowFontControl({
-  label,
-  value,
-  min,
-  max,
-  onDecrease,
-  onIncrease,
-  step,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onDecrease: () => void;
-  onIncrease: () => void;
-  step?: number;
-}) {
+function RowFontControl({ label, value, min, max, onDecrease, onIncrease, step }: { label: string; value: number; min: number; max: number; onDecrease: () => void; onIncrease: () => void; step?: number; }) {
   return (
     <div className="flex items-center justify-between">
       <Label>{label}</Label>
@@ -356,9 +274,7 @@ function RowFontControl({
         <Button variant="outline" size="sm" onClick={onDecrease} disabled={value <= min}>
           <Minus className="w-4 h-4" />
         </Button>
-        <span className="w-12 text-center text-sm tabular-nums">
-          {step ? value.toFixed(2) : `${value}px`}
-        </span>
+        <span className="w-12 text-center text-sm tabular-nums">{step ? value.toFixed(2) : `${value}px`}</span>
         <Button variant="outline" size="sm" onClick={onIncrease} disabled={value >= max}>
           <Plus className="w-4 h-4" />
         </Button>
