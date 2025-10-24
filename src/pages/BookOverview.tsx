@@ -7,10 +7,24 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect, useState } from "react";
+
 export const BookOverview = () => {
   const { bookId, slug } = useParams();
   const bookSlug = slug || bookId;
   const { language, t } = useLanguage();
+
+  // Читаємо dualMode з localStorage
+  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+
+  // Слухаємо зміни з GlobalSettingsPanel
+  useEffect(() => {
+    const handler = () => {
+      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+    };
+    window.addEventListener("vv-reader-prefs-changed", handler);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
+  }, []);
 
   // Fetch book
   const { data: book } = useQuery({
@@ -129,8 +143,33 @@ export const BookOverview = () => {
             {book?.has_cantos
               ? // Cantos як список
                 cantos.map((canto) => {
-                  const cantoTitle = language === "ua" ? canto.title_ua : canto.title_en;
-                  return (
+                  const cantoTitleUa = canto.title_ua;
+                  const cantoTitleEn = canto.title_en;
+
+                  return dualMode ? (
+                    // Side-by-side для cantos
+                    <Link
+                      key={canto.id}
+                      to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`}
+                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
+                    >
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-semibold text-primary">Пісня {canto.canto_number}</span>
+                          <span className="text-base text-foreground hover:text-primary transition-colors">
+                            {cantoTitleUa}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 border-l border-border pl-6">
+                          <span className="text-sm font-semibold text-primary">Canto {canto.canto_number}</span>
+                          <span className="text-base text-foreground hover:text-primary transition-colors">
+                            {cantoTitleEn}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    // Одна мова для cantos
                     <Link
                       key={canto.id}
                       to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`}
@@ -141,7 +180,7 @@ export const BookOverview = () => {
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
                         <span className="text-base text-foreground hover:text-primary transition-colors">
-                          {cantoTitle}
+                          {language === "ua" ? cantoTitleUa : cantoTitleEn}
                         </span>
                       </div>
                     </Link>
@@ -149,8 +188,33 @@ export const BookOverview = () => {
                 })
               : // Chapters як список
                 chapters.map((chapter) => {
-                  const chapterTitle = language === "ua" ? chapter.title_ua : chapter.title_en;
-                  return (
+                  const chapterTitleUa = chapter.title_ua;
+                  const chapterTitleEn = chapter.title_en;
+
+                  return dualMode ? (
+                    // Side-by-side для chapters
+                    <Link
+                      key={chapter.id}
+                      to={`/veda-reader/${bookSlug}/${chapter.chapter_number}`}
+                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
+                    >
+                      <div className="grid gap-6 md:grid-cols-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-semibold text-primary">Глава {chapter.chapter_number}</span>
+                          <span className="text-base text-foreground hover:text-primary transition-colors">
+                            {chapterTitleUa}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 border-l border-border pl-6">
+                          <span className="text-sm font-semibold text-primary">Chapter {chapter.chapter_number}</span>
+                          <span className="text-base text-foreground hover:text-primary transition-colors">
+                            {chapterTitleEn}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    // Одна мова для chapters
                     <Link
                       key={chapter.id}
                       to={`/veda-reader/${bookSlug}/${chapter.chapter_number}`}
@@ -161,7 +225,7 @@ export const BookOverview = () => {
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
                         <span className="text-base text-foreground hover:text-primary transition-colors">
-                          {chapterTitle}
+                          {language === "ua" ? chapterTitleUa : chapterTitleEn}
                         </span>
                       </div>
                     </Link>
