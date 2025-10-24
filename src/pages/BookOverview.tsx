@@ -151,20 +151,16 @@ export const BookOverview = () => {
                     <Link
                       key={canto.id}
                       to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`}
-                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
+                      className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
-                      <div className="grid gap-6 md:grid-cols-2">
+                      <div className="grid gap-8 md:grid-cols-2">
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-primary">Пісня {canto.canto_number}</span>
-                          <span className="text-base text-foreground hover:text-primary transition-colors">
-                            {cantoTitleUa}
-                          </span>
+                          <span className="text-base text-foreground">{cantoTitleUa}</span>
                         </div>
-                        <div className="flex items-center gap-3 border-l border-border pl-6">
+                        <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-primary">Canto {canto.canto_number}</span>
-                          <span className="text-base text-foreground hover:text-primary transition-colors">
-                            {cantoTitleEn}
-                          </span>
+                          <span className="text-base text-foreground">{cantoTitleEn}</span>
                         </div>
                       </div>
                     </Link>
@@ -173,13 +169,13 @@ export const BookOverview = () => {
                     <Link
                       key={canto.id}
                       to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`}
-                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
+                      className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-primary">
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
-                        <span className="text-base text-foreground hover:text-primary transition-colors">
+                        <span className="text-base text-foreground">
                           {language === "ua" ? cantoTitleUa : cantoTitleEn}
                         </span>
                       </div>
@@ -196,20 +192,16 @@ export const BookOverview = () => {
                     <Link
                       key={chapter.id}
                       to={`/veda-reader/${bookSlug}/${chapter.chapter_number}`}
-                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
+                      className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
-                      <div className="grid gap-6 md:grid-cols-2">
+                      <div className="grid gap-8 md:grid-cols-2">
                         <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-primary">Глава {chapter.chapter_number}</span>
-                          <span className="text-base text-foreground hover:text-primary transition-colors">
-                            {chapterTitleUa}
-                          </span>
+                          <span className="text-base text-foreground">{chapterTitleUa}</span>
                         </div>
-                        <div className="flex items-center gap-3 border-l border-border pl-6">
+                        <div className="flex items-center gap-3">
                           <span className="text-sm font-semibold text-primary">Chapter {chapter.chapter_number}</span>
-                          <span className="text-base text-foreground hover:text-primary transition-colors">
-                            {chapterTitleEn}
-                          </span>
+                          <span className="text-base text-foreground">{chapterTitleEn}</span>
                         </div>
                       </div>
                     </Link>
@@ -218,13 +210,13 @@ export const BookOverview = () => {
                     <Link
                       key={chapter.id}
                       to={`/veda-reader/${bookSlug}/${chapter.chapter_number}`}
-                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
+                      className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-sm font-semibold text-primary">
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
-                        <span className="text-base text-foreground hover:text-primary transition-colors">
+                        <span className="text-base text-foreground">
                           {language === "ua" ? chapterTitleUa : chapterTitleEn}
                         </span>
                       </div>
