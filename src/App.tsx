@@ -95,11 +95,16 @@ const App = () => (
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                   <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
+                  <Route path="/veda-reader/:bookId/:chapterId" element={<ChapterVersesList />} />
+                  <Route path="/veda-reader/:bookId/:chapterId/:verseNumber" element={<VedaReaderDB />} />
                   <Route
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
+                    element={<ChapterVersesList />}
+                  />
+                  <Route
+                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber"
                     element={<VedaReaderDB />}
                   />
-                  <Route path="/veda-reader/:bookId/:chapterId" element={<VedaReaderDB />} />
 
                   {/* Alias/redirects */}
                   <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
