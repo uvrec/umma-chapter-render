@@ -549,7 +549,7 @@ export function VedaReaderDB() {
                                 ))}
                               </div>
                             </div>
-                          )}
+                          </div>}
 
                         {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && <div className="mb-6 border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
