@@ -1,7 +1,6 @@
 // src/pages/NewHome.tsx
 // Оновлена домашня сторінка з Hero + "Продовжити прослуховування", SearchStrip, Latest, Playlists, Support
 // Інтегровано з GlobalAudioPlayer (useAudio) і динамічним Hero з БД (site_settings.home_hero)
-// + АВТОМАТИЧНЕ ЗАВАНТАЖЕННЯ ПЛЕЙЛІСТУ ШРІМАД-БГАВАТАМ
 
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -40,6 +39,71 @@ type ContentItem = {
   duration?: string;
   created_at: string;
 };
+
+type AudioTrack = {
+  id: string;
+  title: string;
+  src: string;
+  playlist_title?: string;
+  album?: string;
+  verseNumber?: string | number;
+};
+
+// --- Mini Player (внизу сторінки) ---
+// ЗАЛИШЕНО для сумісності, але GlobalAudioPlayer з App.tsx має вищий пріоритет
+function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const current = useMemo(() => queue[index], [queue, index]);
+
+  const playPause = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+    } else {
+      el.play();
+    }
+  };
+
+  const next = () => setIndex((i) => (i + 1) % queue.length);
+  const prev = () => setIndex((i) => (i - 1 + queue.length) % queue.length);
+
+  if (!current) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
+        <Music4 className="h-5 w-5" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium">{current.title}</div>
+          <div className="truncate text-xs text-muted-foreground">{current.playlist_title || "Vedavoice · Аудіо"}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={prev} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipBack className="h-5 w-5" />
+          </Button>
+          <Button size="icon" onClick={playPause} className="h-9 w-9">
+            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={next} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipForward className="h-5 w-5" />
+          </Button>
+        </div>
+        <audio
+          ref={audioRef}
+          src={current.src}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={next}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
 
 // --- Hero Section (динамічний, з карткою "Продовжити") ---
 function Hero() {
@@ -130,7 +194,7 @@ function Hero() {
                     <div className="min-w-0 flex-1 text-left">
                       <div className="mb-1 truncate text-base font-semibold text-foreground">{currentTrack.title}</div>
                       <div className="truncate text-sm text-muted-foreground">
-                        {currentTrack.metadata?.album || "Vedavoice · Аудіо"}
+                        {currentTrack.album || "Vedavoice · Аудіо"}
                       </div>
                       <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
@@ -165,15 +229,15 @@ function SearchStrip() {
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      navigate(`/library?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/glossary?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-8">
-      <Card className="border-2 border-primary/20 bg-primary/5">
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-3 sm:flex-row">
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -334,112 +398,22 @@ function LatestContent() {
 
 // --- Quick Access Playlists ---
 function Playlists() {
-  const { setPlaylist, playTrack } = useAudio();
-  const { language } = useLanguage();
-
-  // Завантажуємо всі опубліковані плейлісти
-  const { data: playlists } = useQuery({
-    queryKey: ["all-playlists"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("audio_playlists")
-        .select("id, title_ua, title_en, cover_image_url, author")
-        .eq("is_published", true)
-        .order("display_order", { ascending: true })
-        .limit(10);
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const loadPlaylist = async (playlistId: string) => {
-    const { data: playlist } = await supabase
-      .from("audio_playlists")
-      .select("id, title_ua, title_en, cover_image_url, author")
-      .eq("id", playlistId)
-      .single();
-
-    if (!playlist) return;
-
-    const { data: tracks } = await supabase
-      .from("audio_tracks")
-      .select("id, title_ua, title_en, file_url, track_number, duration")
-      .eq("playlist_id", playlistId)
-      .eq("is_published", true)
-      .order("track_number", { ascending: true });
-
-    if (!tracks || tracks.length === 0) return;
-
-    const formattedTracks = tracks.map((track) => ({
-      id: track.id,
-      title:
-        language === "ua"
-          ? track.title_ua || track.title_en || "Без назви"
-          : track.title_en || track.title_ua || "Untitled",
-      src: track.file_url,
-      url: track.file_url,
-      verseNumber: `Трек ${track.track_number}`,
-      coverImage: playlist.cover_image_url || undefined,
-      duration: track.duration || undefined,
-      metadata: {
-        artist: playlist.author || "Vedavoice",
-        album: language === "ua" ? playlist.title_ua || playlist.title_en : playlist.title_en || playlist.title_ua,
-      },
-    }));
-
-    // Спочатку завантажуємо весь плейліст
-    setPlaylist(formattedTracks);
-
-    // Потім запускаємо перший трек
-    if (formattedTracks.length > 0) {
-      playTrack(formattedTracks[0]);
-    }
-  };
+  const featuredPlaylists = [
+    { title: "Популярне", href: "/audiobooks?sort=popular" },
+    { title: "Останні", href: "/audiobooks?sort=latest" },
+    { title: "Бгаґаватам", href: "/audiobooks?tag=sb" },
+    { title: "Бгаґавад-ґіта", href: "/audiobooks?tag=bg" },
+  ];
 
   return (
     <section className="mx-auto w-full max-w-6xl px-4 pb-8">
-      <h3 className="mb-4 font-serif text-xl font-semibold">Аудіокниги - Швидкий доступ</h3>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {playlists?.map((playlist) => (
-          <Card
-            key={playlist.id}
-            className="transition-shadow hover:shadow-md cursor-pointer"
-            onClick={() => loadPlaylist(playlist.id)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                {playlist.cover_image_url ? (
-                  <img
-                    src={playlist.cover_image_url}
-                    alt={playlist.title_ua || playlist.title_en || ""}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                ) : (
-                  <div className="w-16 h-16 bg-muted rounded flex items-center justify-center">
-                    <Headphones className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold truncate">
-                    {language === "ua"
-                      ? playlist.title_ua || playlist.title_en
-                      : playlist.title_en || playlist.title_ua}
-                  </h4>
-                  {playlist.author && <p className="text-sm text-muted-foreground truncate">{playlist.author}</p>}
-                </div>
-                <Play className="h-5 w-5 text-primary flex-shrink-0" />
-              </div>
-            </CardContent>
-          </Card>
+      <h3 className="mb-4 font-serif text-xl font-semibold">Швидкий доступ</h3>
+      <div className="flex flex-wrap gap-2">
+        {featuredPlaylists.map((p) => (
+          <Button key={p.href} variant="outline" asChild>
+            <a href={p.href}>{p.title}</a>
+          </Button>
         ))}
-      </div>
-      <div className="mt-4 text-center">
-        <Button variant="outline" asChild>
-          <a href="/audiobooks">
-            <Headphones className="mr-2 h-4 w-4" />
-            Всі аудіокниги
-          </a>
-        </Button>
       </div>
     </section>
   );
@@ -474,51 +448,15 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const { setPlaylist, playTrack } = useAudio();
-  const { language } = useLanguage();
-
-  // Завантажуємо плейліст Шрімад-Бгаватам при загрузці сторінки
-  useQuery({
-    queryKey: ["home-playlist-srimad-bhagavatam"],
-    queryFn: async () => {
-      const { data: playlist } = await supabase
-        .from("audio_playlists")
-        .select("id, title_ua, title_en, cover_image_url, author")
-        .eq("id", "fc2a05f5-151b-482e-8040-341d8d247657")
-        .single();
-
-      if (!playlist) return null;
-
-      const { data: tracks } = await supabase
-        .from("audio_tracks")
-        .select("id, title_ua, title_en, file_url, track_number, duration")
-        .eq("playlist_id", "fc2a05f5-151b-482e-8040-341d8d247657")
-        .eq("is_published", true)
-        .order("track_number", { ascending: true });
-
-      if (!tracks || tracks.length === 0) return null;
-
-      const formattedTracks = tracks.map((track) => ({
-        id: track.id,
-        title:
-          language === "ua"
-            ? track.title_ua || track.title_en || "Без назви"
-            : track.title_en || track.title_ua || "Untitled",
-        src: track.file_url,
-        url: track.file_url,
-        verseNumber: `Трек ${track.track_number}`,
-        coverImage: playlist.cover_image_url || undefined,
-        duration: track.duration || undefined,
-        metadata: {
-          artist: playlist.author || "Vedavoice",
-          album: language === "ua" ? playlist.title_ua || playlist.title_en : playlist.title_en || playlist.title_ua,
-        },
-      }));
-
-      setPlaylist(formattedTracks);
-      return formattedTracks;
+  // Мок-черга (можна прибрати коли буде джерело "продовжити")
+  const queue: AudioTrack[] = [
+    {
+      id: "a1",
+      title: "ШБ 3.26.19 — Бомбей, 1974",
+      src: "/media/sb-32619.mp3",
+      playlist_title: "Шрімад-Бгаґаватам",
     },
-  });
+  ];
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -531,6 +469,7 @@ export const NewHome = () => {
         <SupportSection />
       </main>
       <Footer />
+      <MiniPlayer queue={queue} />
     </div>
   );
 };
