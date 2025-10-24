@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home }
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
-import { SettingsPanel } from "@/components/SettingsPanel";
+import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 
 export const VedaReaderDB = () => {
-  const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
+  const { bookId, chapterId, cantoNumber, chapterNumber, verseNumber } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const { isAdmin } = useAuth();
@@ -576,24 +576,8 @@ export const VedaReaderDB = () => {
         )}
       </div>
 
-      <SettingsPanel
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        lineHeight={lineHeight}
-        onLineHeightChange={setLineHeight}
-        craftPaperMode={craftPaperMode}
-        onCraftPaperModeChange={setCraftPaperMode}
-        dualLanguageMode={dualLanguageMode}
-        onDualLanguageModeChange={setDualLanguageMode}
-        originalLanguage={originalLanguage}
-        onOriginalLanguageChange={(lang: string) => setOriginalLanguage(lang as "sanskrit" | "ua" | "en")}
-        textDisplaySettings={textDisplaySettings}
-        onTextDisplaySettingsChange={setTextDisplaySettings}
-        continuousReadingSettings={continuousReadingSettings}
-        onContinuousReadingSettingsChange={setContinuousReadingSettings}
-      />
+      {/* Глобальна панель налаштувань */}
+      <GlobalSettingsPanel />
     </div>
   );
 };
