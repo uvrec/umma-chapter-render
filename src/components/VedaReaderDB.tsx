@@ -4,11 +4,17 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home } from "lucide-react";
+import { 
+  ChevronLeft, 
+  ChevronRight,
+  Bookmark,
+  Share2,
+  Download,
+  Home
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
-import { SettingsPanel } from "@/components/SettingsPanel";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,8 +31,7 @@ export const VedaReaderDB = () => {
   const queryClient = useQueryClient();
 
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
+  
   // 🆕 Bookmark state
   const [isBookmarked, setIsBookmarked] = useState(false);
 
@@ -39,7 +44,9 @@ export const VedaReaderDB = () => {
     const saved = localStorage.getItem("vv_reader_lineHeight");
     return saved ? Number(saved) : 1.6;
   });
-  const [dualLanguageMode, setDualLanguageMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+  const [dualLanguageMode, setDualLanguageMode] = useState(() => 
+    localStorage.getItem("vv_reader_dualMode") === "true"
+  );
 
   // Читаємо блоки з localStorage
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
@@ -164,7 +171,10 @@ export const VedaReaderDB = () => {
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
 
-      const base = supabase.from("chapters").select("*").eq("chapter_number", parseInt(effectiveChapterParam));
+      const base = supabase
+        .from("chapters")
+        .select("*")
+        .eq("chapter_number", parseInt(effectiveChapterParam));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
 
@@ -252,24 +262,24 @@ export const VedaReaderDB = () => {
   const handleShare = () => {
     const url = window.location.href;
     if (navigator.share) {
-      navigator.share({
-        title: `${bookTitle} - ${chapterTitle}`,
-        url,
+      navigator.share({ 
+        title: `${bookTitle} - ${chapterTitle}`, 
+        url 
       });
     } else {
       navigator.clipboard.writeText(url);
-      toast({
-        title: t("Посилання скопійовано", "Link copied"),
-        description: url,
+      toast({ 
+        title: t("Посилання скопійовано", "Link copied"), 
+        description: url 
       });
     }
   };
 
   // 🆕 Download функція
   const handleDownload = () => {
-    toast({
-      title: t("Завантаження", "Download"),
-      description: t("Функція в розробці", "Feature in development"),
+    toast({ 
+      title: t("Завантаження", "Download"), 
+      description: t("Функція в розробці", "Feature in development") 
     });
   };
 
@@ -278,7 +288,7 @@ export const VedaReaderDB = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ігноруємо якщо фокус в input/textarea
       const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
         return;
       }
 
@@ -391,8 +401,8 @@ export const VedaReaderDB = () => {
               {cantoTitle && (
                 <>
                   <span>›</span>
-                  <a
-                    href={`/veda-reader/${bookId}/canto/${cantoNumber}`}
+                  <a 
+                    href={`/veda-reader/${bookId}/canto/${cantoNumber}`} 
                     className="hover:text-foreground transition-colors"
                   >
                     {cantoTitle}
@@ -414,14 +424,7 @@ export const VedaReaderDB = () => {
               <Button variant="ghost" size="icon" onClick={handleDownload} title={t("Завантажити", "Download")}>
                 <Download className="h-5 w-5" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSettingsOpen(true)}
-                title={t("Налаштування", "Settings")}
-              >
-                <Settings className="h-5 w-5" />
-              </Button>
+            </div>
             </div>
           </div>
         </div>
@@ -537,12 +540,8 @@ export const VedaReaderDB = () => {
                         sanskritText={currentVerse.sanskrit || ""}
                         transliteration={currentVerse.transliteration || ""}
                         synonyms={language === "ua" ? currentVerse.synonyms_ua || "" : currentVerse.synonyms_en || ""}
-                        translation={
-                          language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""
-                        }
-                        commentary={
-                          language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""
-                        }
+                        translation={language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""}
+                        commentary={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""}
                         audioUrl={currentVerse.audio_url || ""}
                         textDisplaySettings={textDisplaySettings}
                         isAdmin={isAdmin}
@@ -575,25 +574,6 @@ export const VedaReaderDB = () => {
           </>
         )}
       </div>
-
-      <SettingsPanel
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        lineHeight={lineHeight}
-        onLineHeightChange={setLineHeight}
-        craftPaperMode={craftPaperMode}
-        onCraftPaperModeChange={setCraftPaperMode}
-        dualLanguageMode={dualLanguageMode}
-        onDualLanguageModeChange={setDualLanguageMode}
-        originalLanguage={originalLanguage}
-        onOriginalLanguageChange={(lang: string) => setOriginalLanguage(lang as "sanskrit" | "ua" | "en")}
-        textDisplaySettings={textDisplaySettings}
-        onTextDisplaySettingsChange={setTextDisplaySettings}
-        continuousReadingSettings={continuousReadingSettings}
-        onContinuousReadingSettingsChange={setContinuousReadingSettings}
-      />
     </div>
   );
 };
