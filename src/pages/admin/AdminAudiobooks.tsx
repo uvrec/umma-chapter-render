@@ -20,6 +20,14 @@ interface AudiobooksPageSettings {
   description_en: string;
 }
 
+type SiteSettingsRow = {
+  id: string;
+  key: string;
+  value: AudiobooksPageSettings;
+  description?: string | null;
+  created_at?: string;
+};
+
 export default function AdminAudiobooks() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -70,18 +78,18 @@ export default function AdminAudiobooks() {
       setLoading(true);
 
       const { data, error } = await supabase
-        .from<any>("site_settings")
-        .select("value")
+        .from<SiteSettingsRow, SiteSettingsRow>("site_settings")
+        .select("*")
         .eq("key", "audiobooks_page")
         .single();
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error && (error as any).code !== "PGRST116") throw error;
 
       if (data?.value) {
-        setSettings(data.value as AudiobooksPageSettings);
+        setSettings(data.value);
       }
-    } catch (error) {
-      console.error("Error loading settings:", error);
+    } catch (err) {
+      console.error("Error loading settings:", err);
       toast({
         title: "Помилка",
         description: "Не вдалося завантажити налаштування",
@@ -97,14 +105,14 @@ export default function AdminAudiobooks() {
       setSaving(true);
 
       const { data: existing } = await supabase
-        .from<any>("site_settings")
+        .from<SiteSettingsRow, SiteSettingsRow>("site_settings")
         .select("id")
         .eq("key", "audiobooks_page")
         .single();
 
       if (existing) {
         const { error } = await supabase
-          .from<any>("site_settings")
+          .from<SiteSettingsRow, SiteSettingsRow>("site_settings")
           .update({
             value: settings,
             description: "Налаштування сторінки Аудіокниги",
@@ -113,7 +121,7 @@ export default function AdminAudiobooks() {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase.from<any>("site_settings").insert({
+        const { error } = await supabase.from<SiteSettingsRow, SiteSettingsRow>("site_settings").insert({
           key: "audiobooks_page",
           value: settings,
           description: "Налаштування сторінки Аудіокниги",
@@ -126,8 +134,8 @@ export default function AdminAudiobooks() {
         title: "Збережено",
         description: "Налаштування успішно оновлено",
       });
-    } catch (error) {
-      console.error("Error saving settings:", error);
+    } catch (err) {
+      console.error("Error saving settings:", err);
       toast({
         title: "Помилка",
         description: "Не вдалося зберегти налаштування",
@@ -160,8 +168,8 @@ export default function AdminAudiobooks() {
         title: "Завантажено",
         description: "Зображення успішно завантажено",
       });
-    } catch (error) {
-      console.error("Error uploading image:", error);
+    } catch (err) {
+      console.error("Error uploading image:", err);
       toast({
         title: "Помилка",
         description: "Не вдалося завантажити зображення",
@@ -196,6 +204,7 @@ export default function AdminAudiobooks() {
       </div>
 
       <div className="space-y-6">
+        {/* Hero зображення */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Hero зображення</h2>
 
@@ -244,6 +253,7 @@ export default function AdminAudiobooks() {
           </div>
         </Card>
 
+        {/* Заголовки */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Заголовки та підзаголовки</h2>
 
@@ -290,6 +300,7 @@ export default function AdminAudiobooks() {
           </div>
         </Card>
 
+        {/* Описи */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Описи (SEO)</h2>
 
@@ -318,8 +329,9 @@ export default function AdminAudiobooks() {
           </div>
         </Card>
 
+        {/* Кнопки дій */}
         <div className="flex gap-4 justify-end">
-          <Button variant="outline" onClick={() => navigate("/admin")}>
+          <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
             Скасувати
           </Button>
           <Button onClick={handleSave} disabled={saving}>
