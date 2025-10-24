@@ -574,26 +574,10 @@ export const VedaReaderDB = () => {
               })()}
           </>
         )}
-      </div>
+       </div>
 
-      <GlobalSettingsPanel
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        fontSize={fontSize}
-        onFontSizeChange={setFontSize}
-        lineHeight={lineHeight}
-        onLineHeightChange={setLineHeight}
-        craftPaperMode={craftPaperMode}
-        onCraftPaperModeChange={setCraftPaperMode}
-        dualLanguageMode={dualLanguageMode}
-        onDualLanguageModeChange={setDualLanguageMode}
-        originalLanguage={originalLanguage}
-        onOriginalLanguageChange={(lang: string) => setOriginalLanguage(lang as "sanskrit" | "ua" | "en")}
-        textDisplaySettings={textDisplaySettings}
-        onTextDisplaySettingsChange={setTextDisplaySettings}
-        continuousReadingSettings={continuousReadingSettings}
-        onContinuousReadingSettingsChange={setContinuousReadingSettings}
-      />
+      {/* Глобальна панель налаштувань */}
+      <GlobalSettingsPanel />
     </div>
   );
 };
