@@ -344,7 +344,8 @@ export function VedaReaderDB() {
     }
     return items;
   }, [book, canto, chapter, bookId, cantoNumber, language, t, isCantoMode]);
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8" data-reader-root="true" style={{
       fontSize: `${fontSize}px`
@@ -393,8 +394,10 @@ export function VedaReaderDB() {
                               </div>
                             </div>}
 
-                          {continuousReadingSettings.showTranslation && <div className="mb-6">
-                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                          {continuousReadingSettings.showTranslation && (
+                            <div className="mb-6">
+                              {dualLanguageMode ? (
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
@@ -407,13 +410,19 @@ export function VedaReaderDB() {
                                       {v.translation_en || "â€”"}
                                     </p>
                                   </div>
-                                </div> : <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
+                                </div>
+                              ) : (
+                                <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
                                   {language === "ua" ? v.translation_ua : v.translation_en}
-                                </p>}
-                            </div>}
+                                </p>
+                              )}
+                            </div>
+                          )}
 
-                          {continuousReadingSettings.showCommentary && (v.commentary_ua || v.commentary_en) && <div className="border-t border-border pt-6">
-                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                          {continuousReadingSettings.showCommentary && (v.commentary_ua || v.commentary_en) && (
+                            <div className="border-t border-border pt-6">
+                              {dualLanguageMode ? (
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
                                     <TiptapRenderer content={v.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
@@ -422,8 +431,12 @@ export function VedaReaderDB() {
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
                                     <TiptapRenderer content={v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
                                   </div>
-                                </div> : <TiptapRenderer content={language === "ua" ? v.commentary_ua || "" : v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />}
-                            </div>}
+                                </div>
+                              ) : (
+                                <TiptapRenderer content={language === "ua" ? v.commentary_ua || "" : v.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
+                              )}
+                            </div>
+                          )}
                         </div>)}
 
                       <div className="border-t pt-6">
@@ -468,11 +481,13 @@ export function VedaReaderDB() {
                             </div>
                           </div>}
 
-                        {textDisplaySettings.showSynonyms && (currentVerse.synonyms_ua || currentVerse.synonyms_en) && <div className="mb-6 border-t border-border pt-6">
+                        {textDisplaySettings.showSynonyms && (currentVerse.synonyms_ua || currentVerse.synonyms_en) && (
+                          <div className="mb-6 border-t border-border pt-6">
                             <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                               {t("ÐŸÐ¾ÑÐ»Ñ–Ð²Ð½Ð¸Ð¹ Ð¿ÐµÑ€ÐµÐºÐ»Ð°Ð´", "Word-for-word")}
                             </h4>
-                            {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            {dualLanguageMode ? (
+                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 <div className="border-r border-border pr-4">
                                   <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
                                   <div className="text-[1.17em] leading-relaxed text-foreground">
@@ -525,7 +540,8 @@ export function VedaReaderDB() {
                                     ))}
                                   </div>
                                 </div>
-                              </div> : <div className="text-[1.17em] leading-relaxed text-foreground">
+                              </div>
+                            ) : (
                                 {parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').map((pair, i) => (
                                   <span key={i} className="whitespace-pre-wrap">
                                     {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
@@ -548,13 +564,18 @@ export function VedaReaderDB() {
                                   </span>
                                 ))}
                               </div>
-                          </div>}
+                              </div>
+                            )}
+                          </div>
+                        )}
 
-                        {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && <div className="mb-6 border-t border-border pt-6">
+                        {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && (
+                          <div className="mb-6 border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                                 {t("Ð›Ñ–Ñ‚ÐµÑ€Ð°Ñ‚ÑƒÑ€Ð½Ð¸Ð¹ Ð¿ÐµÑ€ÐµÐºÐ»Ð°Ð´", "Translation")}
                               </h4>
-                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                              {dualLanguageMode ? (
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
@@ -565,18 +586,22 @@ export function VedaReaderDB() {
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
                                       {currentVerse.translation_en || "â€”"}
-                                    </p>
-                                  </div>
-                                </div> : <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-[1.28em]">
+                                    </p>                                </div>
+                              ) : (
+                                <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-[1.28em]">
                                   {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
-                                </p>}
-                            </div>}
+                                </p>
+                              )}
+                            </div>
+                          )}
 
-                        {textDisplaySettings.showCommentary && (currentVerse.commentary_ua || currentVerse.commentary_en) && <div className="border-t border-border pt-6">
+                        {textDisplaySettings.showCommentary && (currentVerse.commentary_ua || currentVerse.commentary_en) && (
+                          <div className="border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                                 {t("ÐŸÐ¾ÑÑÐ½ÐµÐ½Ð½Ñ", "Purport")}
                               </h4>
-                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                              {dualLanguageMode ? (
+                                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
                                     <TiptapRenderer content={currentVerse.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
@@ -585,8 +610,12 @@ export function VedaReaderDB() {
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
                                     <TiptapRenderer content={currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
                                   </div>
-                                </div> : <TiptapRenderer content={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />}
-                            </div>}
+                                                                </div>
+                              ) : (
+                                <TiptapRenderer content={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""} className="text-[1.22em] leading-relaxed" />
+                              )}
+                            </div>
+                          )}
                       </div>
                     </Card>
 
@@ -648,6 +677,7 @@ export function VedaReaderDB() {
         })()}
           </>}
       </div>
-    </div>;
+    </div>
+  );
 }
 export default VedaReaderDB;
