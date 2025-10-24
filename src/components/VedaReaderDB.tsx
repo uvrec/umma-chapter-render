@@ -473,7 +473,8 @@ export function VedaReaderDB() {
                             <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
                               {t("ÐŸÐ¾ÑÐ»Ñ–Ð²Ð½Ð¸Ð¹ Ð¿ÐµÑ€ÐµÐºÐ»Ð°Ð´", "Word-for-word")}
                             </h4>
-                            {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            {dualLanguageMode ? (
+                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 <div className="border-r border-border pr-4">
                                   <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
                                   <div className="text-[1.17em] leading-relaxed text-foreground">
@@ -526,7 +527,8 @@ export function VedaReaderDB() {
                                     ))}
                                   </div>
                                 </div>
-                              </div> : <div className="text-[1.17em] leading-relaxed text-foreground">
+                              </div>
+                            ) : (
                                 {parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').map((pair, i) => (
                                   <span key={i} className="whitespace-pre-wrap">
                                     {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
