@@ -1,5 +1,7 @@
+// BlogPost.tsx - з підтримкою двомовного режиму
+
 import { useParams, Link } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tantml:react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -15,11 +17,24 @@ import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { Helmet } from "react-helmet-async";
+import { useEffect, useState } from "react";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
   const queryClient = useQueryClient();
+
+  // Читаємо dualMode з localStorage
+  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+
+  // Слухаємо зміни з GlobalSettingsPanel
+  useEffect(() => {
+    const handler = () => {
+      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+    };
+    window.addEventListener("vv-reader-prefs-changed", handler);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
+  }, []);
 
   const {
     data: post,
@@ -89,7 +104,6 @@ export default function BlogPost() {
     enabled: !!post?.category_id,
   });
 
-  // 👇 інкремент + локальне оновлення
   useBlogPostView(post?.id, () => {
     queryClient.setQueryData(["blog-post", slug], (old: any) =>
       old ? { ...old, view_count: (old.view_count ?? 0) + 1 } : old,
@@ -131,11 +145,22 @@ export default function BlogPost() {
     );
   }
 
-  const title = language === "ua" ? post.title_ua : post.title_en;
-  const content = language === "ua" ? post.content_ua : post.content_en;
-  const excerpt = language === "ua" ? post.excerpt_ua : post.excerpt_en;
-  const metaDesc = language === "ua" ? post.meta_description_ua : post.meta_description_en;
-  const hasContent = content && content.trim().length > 20;
+  const titleUa = post.title_ua;
+  const titleEn = post.title_en;
+  const contentUa = post.content_ua;
+  const contentEn = post.content_en;
+  const excerptUa = post.excerpt_ua;
+  const excerptEn = post.excerpt_en;
+  const metaDescUa = post.meta_description_ua;
+  const metaDescEn = post.meta_description_en;
+
+  // Для SEO та соцмереж - одна мова
+  const title = language === "ua" ? titleUa : titleEn;
+  const excerpt = language === "ua" ? excerptUa : excerptEn;
+  const metaDesc = language === "ua" ? metaDescUa : metaDescEn;
+
+  const hasContentUa = contentUa && contentUa.trim().length > 20;
+  const hasContentEn = contentEn && contentEn.trim().length > 20;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -161,15 +186,15 @@ export default function BlogPost() {
       <Header />
 
       <article className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto">
+        <div className={dualMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
-              Головна
+              {language === "ua" ? "Головна" : "Home"}
             </Link>{" "}
             {" > "}
             <Link to="/blog" className="hover:text-foreground">
-              Блог
+              {language === "ua" ? "Блог" : "Blog"}
             </Link>
             {post.category && (
               <>
@@ -188,62 +213,177 @@ export default function BlogPost() {
             </div>
           )}
 
-          {/* Header */}
-          <header className="mb-8">
-            {post.category && (
-              <Badge className="mb-4">{language === "ua" ? post.category.name_ua : post.category.name_en}</Badge>
-            )}
-            <h1 className="blog-title mb-4">{title}</h1>
+          {dualMode ? (
+            // DUAL MODE - Side by side
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Ukrainian Column */}
+              <div>
+                <header className="mb-8">
+                  {post.category && <Badge className="mb-4">{post.category.name_ua}</Badge>}
+                  <h1 className="blog-title mb-4">{titleUa}</h1>
 
-            <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>{new Date(post.published_at || post.created_at).toLocaleDateString("uk-UA")}</span>
-              </div>
+                  <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(post.published_at || post.created_at).toLocaleDateString("uk-UA")}</span>
+                    </div>
 
-              {post.read_time > 0 && (
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{post.read_time} хв читання</span>
+                    {post.read_time > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{post.read_time} хв читання</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      <span>{post.view_count || 0} переглядів</span>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground mb-4">Автор: {post.author_display_name}</div>
+
+                  <Button variant="outline" onClick={handleShare} className="mb-6">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Поділитися
+                  </Button>
+                </header>
+
+                <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+                  {hasContentUa ? (
+                    <TiptapRenderer content={contentUa} className="!max-w-none" />
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p className="text-lg">Контент українською ще не додано</p>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              <div className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                <span>{post.view_count || 0} переглядів</span>
               </div>
 
-              <div className="flex items-center gap-1">
-                <span>Автор: {post.author_display_name}</span>
+              {/* English Column */}
+              <div>
+                <header className="mb-8">
+                  {post.category && <Badge className="mb-4">{post.category.name_en}</Badge>}
+                  <h1 className="blog-title mb-4">{titleEn}</h1>
+
+                  <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>{new Date(post.published_at || post.created_at).toLocaleDateString("en-US")}</span>
+                    </div>
+
+                    {post.read_time > 0 && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        <span>{post.read_time} min read</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      <span>{post.view_count || 0} views</span>
+                    </div>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground mb-4">Author: {post.author_display_name}</div>
+
+                  <Button variant="outline" onClick={handleShare} className="mb-6">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                </header>
+
+                <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+                  {hasContentEn ? (
+                    <TiptapRenderer content={contentEn} className="!max-w-none" />
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p className="text-lg">English content not yet added</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+          ) : (
+            // SINGLE LANGUAGE MODE
+            <>
+              <header className="mb-8">
+                {post.category && (
+                  <Badge className="mb-4">{language === "ua" ? post.category.name_ua : post.category.name_en}</Badge>
+                )}
+                <h1 className="blog-title mb-4">{title}</h1>
 
-            <Button variant="outline" onClick={handleShare} className="mb-6">
-              <Share2 className="h-4 w-4 mr-2" />
-              Поділитися
-            </Button>
-          </header>
+                <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      {new Date(post.published_at || post.created_at).toLocaleDateString(
+                        language === "ua" ? "uk-UA" : "en-US",
+                      )}
+                    </span>
+                  </div>
 
-          {/* Content */}
-          <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
-            {hasContent ? (
-              <TiptapRenderer content={content} className="!max-w-none" />
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p className="text-lg">Контент поста ще не додано</p>
-                <p className="text-sm mt-2">Будь ласка, зверніться до адміністратора</p>
+                  {post.read_time > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>
+                        {post.read_time} {language === "ua" ? "хв читання" : "min read"}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    <span>
+                      {post.view_count || 0} {language === "ua" ? "переглядів" : "views"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <span>
+                      {language === "ua" ? "Автор" : "Author"}: {post.author_display_name}
+                    </span>
+                  </div>
+                </div>
+
+                <Button variant="outline" onClick={handleShare} className="mb-6">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  {language === "ua" ? "Поділитися" : "Share"}
+                </Button>
+              </header>
+
+              <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+                {language === "ua" ? (
+                  hasContentUa ? (
+                    <TiptapRenderer content={contentUa} className="!max-w-none" />
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p className="text-lg">Контент поста ще не додано</p>
+                      <p className="text-sm mt-2">Будь ласка, зверніться до адміністратора</p>
+                    </div>
+                  )
+                ) : hasContentEn ? (
+                  <TiptapRenderer content={contentEn} className="!max-w-none" />
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <p className="text-lg">Post content not yet added</p>
+                    <p className="text-sm mt-2">Please contact the administrator</p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
-          {/* Embeds */}
-          <div className="space-y-8 mb-8">
-            {post.video_url && <VideoEmbed url={post.video_url} />}
-            {post.audio_url && <AudioEmbed url={post.audio_url} />}
-            {post.instagram_embed_url && <InstagramEmbed url={post.instagram_embed_url} />}
-            {post.telegram_embed_url && <TelegramEmbed url={post.telegram_embed_url} />}
-            {post.substack_embed_url && <SubstackEmbed url={post.substack_embed_url} />}
-          </div>
+          {/* Embeds - показуємо один раз, не дублюємо в dual mode */}
+          {!dualMode && (
+            <div className="space-y-8 mb-8 mt-8">
+              {post.video_url && <VideoEmbed url={post.video_url} />}
+              {post.audio_url && <AudioEmbed url={post.audio_url} />}
+              {post.instagram_embed_url && <InstagramEmbed url={post.instagram_embed_url} />}
+              {post.telegram_embed_url && <TelegramEmbed url={post.telegram_embed_url} />}
+              {post.substack_embed_url && <SubstackEmbed url={post.substack_embed_url} />}
+            </div>
+          )}
         </div>
       </article>
 
