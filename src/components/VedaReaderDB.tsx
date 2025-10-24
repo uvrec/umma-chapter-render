@@ -18,7 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 
 export const VedaReaderDB = () => {
-  const { bookId, chapterId, cantoNumber, chapterNumber, verseNumber } = useParams();
+  const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const { isAdmin } = useAuth();
@@ -190,7 +190,20 @@ export const VedaReaderDB = () => {
       return data || [];
     },
   });
+  // Встановлюємо currentVerseIndex з URL параметра verseNumber
+  useEffect(() => {
+    if (verseNumber && verses.length > 0) {
+      // Функція getDisplayVerseNumber вже визначена вище в компоненті (рядок 116)
+      const index = verses.findIndex((v) => {
+        const displayNum = getDisplayVerseNumber(v.verse_number);
+        return displayNum === verseNumber || v.verse_number === verseNumber;
+      });
 
+      if (index !== -1) {
+        setCurrentVerseIndex(index);
+      }
+    }
+  }, [verseNumber, verses]);
   // ALL CHAPTERS (для навігації між главами)
   const { data: allChapters = [] } = useQuery({
     queryKey: isCantoMode ? ["all-chapters-canto", canto?.id] : ["all-chapters-book", book?.id],
