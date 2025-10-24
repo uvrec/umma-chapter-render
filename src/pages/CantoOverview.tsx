@@ -58,8 +58,7 @@ export const CantoOverview = () => {
       const { data, error } = await supabase
         .from("chapters")
         .select("*")
-        .eq("book_id", book?.id)
-        .like("chapter_number", `${cantoNumber}.%`)
+        .eq("canto_id", canto.id)
         .order("chapter_number");
       if (error) throw error;
       return data || [];
@@ -120,7 +119,7 @@ export const CantoOverview = () => {
             chapters.map((chapter) => {
               const chapterTitleUa = chapter.title_ua;
               const chapterTitleEn = chapter.title_en;
-              const chapterNum = chapter.chapter_number.split(".")[1]; // Отримуємо номер глави з "2.1" -> "1"
+              const chapterNum = chapter.chapter_number; // Це вже просто номер глави (1, 2, 3...)
 
               return dualMode ? (
                 // Side-by-side для chapters
