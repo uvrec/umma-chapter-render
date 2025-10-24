@@ -1,59 +1,9 @@
 import { Link } from "react-router-dom";
-import { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Headphones, Search, Users, ArrowRight } from "lucide-react";
-import { useAudio } from "@/components/GlobalAudioPlayer/GlobalAudioPlayer";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-
 export const Home = () => {
-  const { setQueue, playTrack } = useAudio();
-
-  // Завантаження плейлиста Шрімад-Бгаґаватам за замовченням
-  const { data: bhagavatamPlaylist } = useQuery({
-    queryKey: ["default-playlist"],
-    queryFn: async () => {
-      const { data: playlist, error: playlistError } = await supabase
-        .from("audio_playlists")
-        .select("id, title_ua, title_en")
-        .eq("id", "fc2a05f5-151b-482e-8040-341d8d247657")
-        .single();
-
-      if (playlistError) throw playlistError;
-
-      const { data: tracks, error: tracksError } = await supabase
-        .from("audio_tracks")
-        .select("id, title_ua, title_en, audio_url, duration, track_number")
-        .eq("playlist_id", playlist.id)
-        .order("track_number");
-
-      if (tracksError) throw tracksError;
-
-      return {
-        playlist,
-        tracks: tracks.map((track) => ({
-          id: track.id,
-          title: track.title_ua,
-          src: track.audio_url,
-          duration: track.duration || undefined,
-          metadata: {
-            playlistTitle: playlist.title_ua,
-          },
-        })),
-      };
-    },
-    staleTime: 10 * 60 * 1000, // 10 хвилин
-  });
-
-  // Автоматичне завантаження плейлиста при монтуванні
-  useEffect(() => {
-    if (bhagavatamPlaylist?.tracks && bhagavatamPlaylist.tracks.length > 0) {
-      setQueue(bhagavatamPlaylist.tracks);
-    }
-  }, [bhagavatamPlaylist, setQueue]);
-
   return <div className="min-h-screen bg-background">
       <Header />
       
@@ -92,18 +42,11 @@ export const Home = () => {
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                onClick={() => {
-                  if (bhagavatamPlaylist?.tracks && bhagavatamPlaylist.tracks.length > 0) {
-                    playTrack(bhagavatamPlaylist.tracks[0]);
-                  }
-                }}
-                disabled={!bhagavatamPlaylist?.tracks || bhagavatamPlaylist.tracks.length === 0}
-              >
-                <Headphones className="w-5 h-5 mr-2" />
-                Слухати Бгаґаватам
+              <Button variant="outline" size="lg" asChild>
+                <Link to="/audiobooks">
+                  <Headphones className="w-5 h-5 mr-2" />
+                  Аудіокниги
+                </Link>
               </Button>
             </div>
           </div>

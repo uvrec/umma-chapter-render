@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
@@ -14,20 +14,12 @@ export const Blog = () => {
   const { language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  // Simple preview toggle via querystring ?preview=1 to include drafts/future posts
-  const isPreview = useMemo(() => {
-    try {
-      return new URLSearchParams(window.location.search).get('preview') === '1';
-    } catch {
-      return false;
-    }
-  }, []);
 
   // Fetch blog posts
-  const { data: posts, isLoading: postsLoading, error: postsError } = useQuery({
+  const { data: posts, isLoading: postsLoading } = useQuery({
     queryKey: ['blog-posts', selectedCategory],
     queryFn: async () => {
-      let query: any = supabase
+      let query = supabase
         .from('blog_posts')
         .select(`
           id,
@@ -49,20 +41,14 @@ export const Blog = () => {
             name_en,
             slug
           )
-        `);
+        `)
+        .eq('is_published', true)
+        .lte('published_at', new Date().toISOString())
+        .order('published_at', { ascending: false });
 
-      // Apply publish filters only when not in preview mode
-      if (!isPreview) {
-        query = query.eq('is_published', true).lte('published_at', new Date().toISOString());
-      }
-
-      // Category filter
       if (selectedCategory !== 'all') {
         query = query.eq('category_id', selectedCategory);
       }
-
-      // Always order newest first
-      query = query.order('published_at', { ascending: false });
 
       const { data, error } = await query;
       if (error) throw error;
@@ -148,28 +134,12 @@ export const Blog = () => {
           ))}
         </div>
 
-        {/* Debug strip (only in preview) */}
-        {isPreview && (
-          <div className="mb-6 text-xs text-muted-foreground">
-            <div>Preview mode: showing drafts and future-dated posts</div>
-          </div>
-        )}
-
-        {/* Loading / Error State */}
+        {/* Loading State */}
         {postsLoading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
               {language === 'ua' ? 'Завантаження...' : 'Loading...'}
             </p>
-          </div>
-        ) : postsError ? (
-          <div className="text-center py-12">
-            <p className="text-red-500">
-              {language === 'ua' ? 'Помилка завантаження постів' : 'Failed to load posts'}
-            </p>
-            <pre className="mt-4 text-xs opacity-80 whitespace-pre-wrap break-words">
-              {String((postsError as any)?.message || postsError)}
-            </pre>
           </div>
         ) : filteredPosts && filteredPosts.length === 0 ? (
           <div className="text-center py-12">

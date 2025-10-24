@@ -166,9 +166,8 @@ export default function AddEditBlogPost() {
       title_ua: titleUa,
       title_en: titleEn,
       slug,
-      // ensure content saved as strings
-      content_ua: (contentUa || "").trim(),
-      content_en: (contentEn || "").trim(),
+      content_ua: contentUa,
+      content_en: contentEn,
       excerpt_ua: excerptUa,
       excerpt_en: excerptEn,
       category_id: categoryId || null,
@@ -184,8 +183,7 @@ export default function AddEditBlogPost() {
       meta_description_ua: metaDescUa,
       meta_description_en: metaDescEn,
       read_time: readTime,
-      // match DB column name (see types and migrations)
-      author_display_name: (authorName || "Аніруддга дас").trim(),
+      author_name: authorName || "Аніруддга дас",
     };
 
     try {

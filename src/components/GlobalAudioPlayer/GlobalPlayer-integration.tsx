@@ -34,14 +34,14 @@ export function LatestAudioTracks() {
       const { data, error } = await supabase
         .from("audio_tracks")
         .select(`
-          id,title_ua,title_en,audio_url,playlist_id,track_number,duration,
+          id,title_ua,title_en,file_url,playlist_id,track_number,duration,
           playlist:audio_playlists(id,title_ua,title_en,cover_image_url,author)
         `)
         .order("created_at", { ascending: false })
         .limit(5);
       if (error) throw error;
       return data as Array<{
-        id: string; title_ua: string|null; title_en: string|null; audio_url: string;
+        id: string; title_ua: string|null; title_en: string|null; file_url: string;
         playlist_id: string; track_number: number; duration: number|null;
         playlist: { id: string; title_ua: string; title_en: string; cover_image_url: string|null; author: string|null } | null;
       }>;
@@ -52,30 +52,20 @@ export function LatestAudioTracks() {
     playTrack({
       id: t.id,
       title: t.title_ua ?? t.title_en ?? "Без назви",
-      src: t.audio_url,
+      src: t.file_url,
+      url: t.file_url,
+      coverImage: t.playlist?.cover_image_url ?? undefined,
       verseNumber: `Трек ${t.track_number}`,
       duration: t.duration ?? undefined,
       metadata: {
         artist: t.playlist?.author || "Vedavoice",
         album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
-        coverUrl: t.playlist?.cover_image_url ?? undefined,
       },
     });
   };
 
   const handleAddToQueue = (t: NonNullable<typeof tracks>[number]) => {
-    addToQueue({
-      id: t.id,
-      title: t.title_ua ?? t.title_en ?? "Без назви",
-      src: t.audio_url,
-      verseNumber: `Трек ${t.track_number}`,
-      duration: t.duration ?? undefined,
-      metadata: {
-        artist: t.playlist?.author || "Vedavoice",
-        album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
-        coverUrl: t.playlist?.cover_image_url ?? undefined,
-      },
-    });
+    addToQueue({ id: t.id, title: t.title_ua ?? t.title_en ?? "Без назви", src: t.file_url, url: t.file_url });
   };
 
   return (
@@ -92,7 +82,7 @@ export function LatestAudioTracks() {
 }
 
 export function PlaylistCard({ playlistId }: { playlistId: string }) {
-  const { playTrack, playlist, setQueue } = useAudio();
+  const { playTrack, setQueue } = useAudio();
   const handlePlayPlaylist = async () => {
     const tracks = await loadPlaylistTracks(playlistId, "ua");
     if (!tracks.length) return;

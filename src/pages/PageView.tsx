@@ -289,12 +289,7 @@ export const PageView = () => {
                 label={`Контент (${language === "ua" ? "UA" : "EN"})`}
               />
             ) : (
-              content && (
-                <PageRenderer
-                  page={{ content_ua: page.content_ua, content_en: page.content_en }}
-                  language={language}
-                />
-              )
+              content && <PageRenderer page={{ content_ua: editedContentUa, content_en: editedContentEn }} language={language} />
             )}
           </div>
         </div>
@@ -302,7 +297,7 @@ export const PageView = () => {
       
       <Footer />
 
-      {isAdmin && (
+      {isAdmin && !isMobile && (
         <div className="fixed bottom-8 right-8 flex gap-2 z-50">
           {!isEditMode ? (
             <Button

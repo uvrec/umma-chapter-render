@@ -9,21 +9,25 @@ export interface Track {
   
   /** Опис або номер вірша (опціонально) */
   verseNumber?: string;
-
+  
   /** URL аудіо файлу */
+  url: string;
+  
+  /** URL аудіо файлу (дублікат для зворотньої сумісності) */
   src: string;
-
+  
+  /** URL зображення обкладинки (опціонально) */
+  coverImage?: string;
+  
   /** Тривалість у секундах (опціонально, визначається автоматично) */
   duration?: number;
-
+  
   /** Додаткові метадані (опціонально) */
   metadata?: {
     artist?: string;
     album?: string;
     year?: number;
     genre?: string;
-    coverUrl?: string;
-    playlistTitle?: string;
   };
 }
 
@@ -54,15 +58,12 @@ export interface AudioContextType {
   /** Режим повтору */
   repeatMode: RepeatMode;
   
-  /** Перемикає режим повтору */
-  toggleRepeat: () => void;
-  
   /**
    * Відтворити трек
    * Якщо трек вже є в плейлисті - перемикається на нього
    * Якщо ні - додає до плейлиста і починає відтворення
    */
-  playTrack: (track: Track) => void;
+  playTrack: (track: Omit<Track, 'url'> & { src: string }) => void;
   
   /**
    * Перемикає відтворення/паузу
@@ -97,26 +98,14 @@ export interface AudioContextType {
   nextTrack: () => void;
   
   /**
+   * Циклічно перемикає режим повтору: off → all → one → off
+   */
+  toggleRepeat: () => void;
+  
+  /**
    * Додає трек до плейлиста без відтворення
    */
-  addToPlaylist: (track: Track) => void;
-
-  /**
-   * Додає трек до черги (alias для addToPlaylist)
-   */
-  addToQueue: (track: {
-    id: string;
-    title: string;
-    src: string;
-    verseNumber?: string;
-    duration?: number;
-    metadata?: Track["metadata"];
-  }) => void;
-
-  /**
-   * Встановлює весь плейлист
-   */
-  setQueue: (tracks: Track[]) => void;
+  addToPlaylist: (track: Omit<Track, 'url'> & { src: string }) => void;
   
   /**
    * Видаляє трек з плейлиста за індексом

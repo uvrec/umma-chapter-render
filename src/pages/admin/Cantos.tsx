@@ -94,7 +94,7 @@ const Cantos = () => {
                   Назад до книг
                 </Link>
               </Button>
-              <h1 className="text-2xl font-bold">Пісні книги: {book?.title_ua || "Завантаження..."}</h1>
+              <h1 className="text-2xl font-bold">Пісні: {book?.title_ua || "Завантаження..."}</h1>
             </div>
             <Button asChild>
               <Link to={`/admin/cantos/${bookId}/new`}>
@@ -125,24 +125,6 @@ const Cantos = () => {
                     </Button>
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/chapters/canto/${canto.id}`}>Глави</Link>
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={canto.is_published ? "secondary" : "default"}
-                      onClick={async () => {
-                        const { error } = await supabase
-                          .from("cantos")
-                          .update({ is_published: !canto.is_published })
-                          .eq("id", canto.id);
-                        if (error) {
-                          toast.error(`Помилка: ${error.message}`);
-                        } else {
-                          queryClient.invalidateQueries({ queryKey: ["admin-cantos", bookId] });
-                          toast.success(canto.is_published ? "Пісню приховано" : "Пісню опубліковано");
-                        }
-                      }}
-                    >
-                      {canto.is_published ? "Приховати" : "Опублікувати"}
                     </Button>
                     <Button size="sm" variant="destructive" onClick={() => handleDeleteClick(canto)}>
                       <Trash2 className="w-4 h-4 mr-2" />

@@ -200,25 +200,6 @@ export default function BlogPostsInfinite() {
                 <TableCell>{post.view_count || 0}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={async () => {
-                        const { error } = await supabase
-                          .from("blog_posts")
-                          .update({ is_published: !post.is_published })
-                          .eq("id", post.id);
-                        if (!error) {
-                          qc.invalidateQueries({ queryKey });
-                          refetch();
-                          toast({ title: post.is_published ? "Пост приховано" : "Пост опубліковано" });
-                        } else {
-                          toast({ title: "Помилка", variant: "destructive" });
-                        }
-                      }}
-                    >
-                      {post.is_published ? "👁️" : "🔒"}
-                    </Button>
                     <Link to={`/blog/${post.slug}`} target="_blank">
                       <Button variant="ghost" size="icon">
                         <Eye className="h-4 w-4" />

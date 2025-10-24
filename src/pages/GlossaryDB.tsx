@@ -81,19 +81,18 @@ export default function GlossaryDB() {
           verseLink = `/books/${bookSlug}/chapter/${chapterNumber}/verse/${verse.verse_number}`;
         }
         
-          return {
-            ...verse,
-            book: language === 'ua' 
-              ? bookData?.title_ua 
-              : bookData?.title_en,
-            bookSlug,
-            cantoNumber,
-            chapterNumber,
-            verseLink,
-            // ✅ Фолбек для послівного перекладу: якщо UA відсутній — беремо EN (і навпаки)
-            synonyms: (language === 'ua' ? (verse.synonyms_ua || verse.synonyms_en) : (verse.synonyms_en || verse.synonyms_ua)),
-            verse_number: verse.verse_number
-          };
+        return {
+          ...verse,
+          book: language === 'ua' 
+            ? bookData?.title_ua 
+            : bookData?.title_en,
+          bookSlug,
+          cantoNumber,
+          chapterNumber,
+          verseLink,
+          synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+          verse_number: verse.verse_number
+        };
       });
     }
   });

@@ -12,7 +12,6 @@ import {
   FileText,
   User,
   Plus,
-  Type,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
@@ -72,7 +71,6 @@ export const Header = () => {
                 Блог
               </Link>
             </Button>
-
           </nav>
 
           {/* Desktop Controls */}
@@ -212,7 +210,6 @@ export const Header = () => {
                   <FileText className="h-5 w-5" />
                   <span>Блог</span>
                 </Link>
-
 
                 <Link
                   to="/contact"

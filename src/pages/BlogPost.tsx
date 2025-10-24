@@ -1,5 +1,4 @@
 import { useParams, Link } from "react-router-dom";
-import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
@@ -11,114 +10,25 @@ import { InstagramEmbed } from "@/components/blog/InstagramEmbed";
 import { TelegramEmbed } from "@/components/blog/TelegramEmbed";
 import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
-import VerseQuote from "@/components/blog/VerseQuote";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Eye, Share2, Save } from "lucide-react";
+import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { Helmet } from "react-helmet-async";
-import { useAuth } from "@/contexts/AuthContext";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
-import { toast } from "@/hooks/use-toast";
-
-// Inline content editor component for admins
-function AdminInlineEditor({
-  postId,
-  language,
-  contentUa,
-  contentEn,
-}: {
-  postId: string;
-  language: string;
-  contentUa: string | null;
-  contentEn: string | null;
-}) {
-  const [editingUa, setEditingUa] = useState(contentUa || "");
-  const [editingEn, setEditingEn] = useState(contentEn || "");
-  const [isSaving, setIsSaving] = useState(false);
-  const queryClient = useQueryClient();
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from("blog_posts")
-        .update({
-          content_ua: editingUa,
-          content_en: editingEn,
-        })
-        .eq("id", postId);
-
-      if (error) throw error;
-
-      toast({ title: "✅ Контент збережено" });
-      queryClient.invalidateQueries({ queryKey: ["blog-post"] });
-    } catch (error) {
-      console.error(error);
-      toast({ title: "Помилка збереження", variant: "destructive" });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="text-sm font-medium text-muted-foreground">Інлайн-редагування контенту</div>
-        <Button onClick={handleSave} disabled={isSaving} size="sm">
-          <Save className="h-4 w-4 mr-2" />
-          {isSaving ? "Збереження..." : "Зберегти"}
-        </Button>
-      </div>
-
-      <InlineTiptapEditor
-        content={language === "ua" ? editingUa : editingEn}
-        onChange={(html) => {
-          if (language === "ua") {
-            setEditingUa(html);
-          } else {
-            setEditingEn(html);
-          }
-        }}
-        label={language === "ua" ? "Контент (UA)" : "Content (EN)"}
-        editable={true}
-      />
-
-      {language !== "ua" && (
-        <details className="mt-4">
-          <summary className="cursor-pointer text-sm text-muted-foreground">Редагувати UA версію</summary>
-          <div className="mt-4">
-            <InlineTiptapEditor content={editingUa} onChange={setEditingUa} label="Контент (UA)" editable={true} />
-          </div>
-        </details>
-      )}
-    </div>
-  );
-}
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
-  const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-  const isPreview = useMemo(() => {
-    try {
-      return new URLSearchParams(window.location.search).get("preview") === "1";
-    } catch {
-      return false;
-    }
-  }, []);
 
   const {
     data: post,
     isLoading,
     isError,
-    error,
   } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: async () => {
-      // Cast to any to allow selecting recently added verse-like fields not yet present in generated types
-      let query: any = (supabase as any)
+      const { data, error } = await supabase
         .from("blog_posts")
         .select(
           `
@@ -134,13 +44,6 @@ export default function BlogPost() {
           featured_image,
           video_url,
           audio_url,
-          sanskrit,
-          transliteration,
-          synonyms_ua,
-          synonyms_en,
-          translation_ua,
-          translation_en,
-          display_blocks,
           instagram_embed_url,
           telegram_embed_url,
           substack_embed_url,
@@ -158,17 +61,13 @@ export default function BlogPost() {
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `,
         )
-        .eq("slug", slug);
-
-      if (!isPreview) {
-        query = query.eq("is_published", true).lte("published_at", new Date().toISOString());
-      }
-
-      const { data, error } = await query.maybeSingle();
+        .eq("slug", slug)
+        .eq("is_published", true)
+        .lte("published_at", new Date().toISOString())
+        .maybeSingle();
 
       if (error) throw error;
-      // Loosen type so consumers can access extended fields without TS errors until types are regenerated
-      return data as any;
+      return data;
     },
     enabled: !!slug,
   });
@@ -197,38 +96,6 @@ export default function BlogPost() {
     );
   });
 
-  // Prepare content data early (before any conditional returns)
-  const title = post ? (language === "ua" ? post.title_ua : post.title_en) : "";
-  const primaryContent = post ? (language === "ua" ? post.content_ua : post.content_en) : "";
-  const fallbackContentCandidates = post ? [
-    primaryContent,
-    (post as any)?.content_html,
-    (post as any)?.body_html,
-    (post as any)?.body,
-    (post as any)?.content,
-  ].filter(Boolean) as string[] : [];
-  const content = fallbackContentCandidates.find((c) => typeof c === "string" && c.trim().length > 0) || "";
-  const excerpt = post ? (language === "ua" ? post.excerpt_ua : post.excerpt_en) : "";
-  const metaDesc = post ? (language === "ua" ? post.meta_description_ua : post.meta_description_en) : "";
-  
-  // Consider content present if, after stripping HTML tags, there's any non-whitespace text
-  const hasContent = useMemo(() => {
-    if (!content) return false;
-    const plain = content
-      .replace(/<[^>]*>/g, "")
-      .replace(/&nbsp;/g, " ")
-      .trim();
-    return plain.length > 0;
-  }, [content]);
-
-  const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ title, text: excerpt, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -255,11 +122,6 @@ export default function BlogPost() {
           <p className="text-muted-foreground mb-6">
             {isError ? "Виникла помилка при завантаженні поста" : "Такого поста не існує або він ще не опублікований"}
           </p>
-          {error && (
-            <pre className="text-xs opacity-80 whitespace-pre-wrap break-words mb-4">
-              {String((error as any)?.message || error)}
-            </pre>
-          )}
           <Link to="/blog">
             <Button>Повернутися до блогу</Button>
           </Link>
@@ -268,6 +130,20 @@ export default function BlogPost() {
       </div>
     );
   }
+
+  const title = language === "ua" ? post.title_ua : post.title_en;
+  const content = language === "ua" ? post.content_ua : post.content_en;
+  const excerpt = language === "ua" ? post.excerpt_ua : post.excerpt_en;
+  const metaDesc = language === "ua" ? post.meta_description_ua : post.meta_description_en;
+  const hasContent = content && content.trim().length > 20;
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      await navigator.share({ title, text: excerpt, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -285,7 +161,7 @@ export default function BlogPost() {
       <Header />
 
       <article className="container mx-auto py-8">
-        <div className="max-w-4xl mx-auto prose-reader" data-reader-root="true">
+        <div className="max-w-4xl mx-auto">
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
@@ -348,98 +224,25 @@ export default function BlogPost() {
             </Button>
           </header>
 
-          {/* Verse quote block if present */}
-          {(post.sanskrit ||
-            post.transliteration ||
-            post.synonyms_ua ||
-            post.synonyms_en ||
-            post.translation_ua ||
-            post.translation_en) && (
-            <VerseQuote
-              language={language === "ua" ? "ua" : "en"}
-              verse={{
-                sanskrit: post.sanskrit,
-                transliteration: post.transliteration,
-                synonyms_ua: post.synonyms_ua,
-                synonyms_en: post.synonyms_en,
-                translation_ua: post.translation_ua,
-                translation_en: post.translation_en,
-                display_blocks: post.display_blocks,
-              }}
-              title={language === "ua" ? "Цитата з писань" : "Scripture Quote"}
-              className="mb-10"
-              editable={!!isAdmin}
-              onBlockToggle={async (block, visible) => {
-                try {
-                  const next = { ...(post.display_blocks || {}), [block]: visible } as any;
-                  const { data, error } = await (supabase as any)
-                    .from("blog_posts")
-                    .update({ display_blocks: next })
-                    .eq("id", post.id)
-                    .select("display_blocks")
-                    .maybeSingle();
-                  if (error) throw error;
-                  // optimistic UI: mutate cache locally
-                  // Note: react-query is available; quick local set to keep it minimal here
-                  Object.assign(post, { display_blocks: data?.display_blocks || next });
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-            />
-          )}
-
           {/* Content */}
-          <div className="verse-surface mb-8 rounded-lg p-6 sm:p-8">
-            {isAdmin ? (
-              <AdminInlineEditor postId={post.id} language={language} contentUa={post.content_ua} contentEn={post.content_en} />
-            ) : hasContent ? (
-              <div className="commentary-text">
-                <TiptapRenderer content={content} className="!max-w-none" />
-              </div>
+          <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
+            {hasContent ? (
+              <TiptapRenderer content={content} className="!max-w-none" />
             ) : (
               <div className="text-center py-12 text-muted-foreground">
                 <p className="text-lg">Контент поста ще не додано</p>
                 <p className="text-sm mt-2">Будь ласка, зверніться до адміністратора</p>
-                {isPreview && (
-                  <div className="mt-4 text-xs">
-                    <div className="mb-1">Debug:</div>
-                    <pre className="opacity-80 whitespace-pre-wrap break-words">
-                      {JSON.stringify({ hasContent, contentLen: content?.length, lang: language, slug }, null, 2)}
-                    </pre>
-                  </div>
-                )}
               </div>
             )}
           </div>
 
           {/* Embeds */}
-          <div className="space-y-6 mb-8">
-            {post.video_url && (
-              <div className="verse-surface rounded-lg overflow-hidden">
-                <VideoEmbed url={post.video_url} />
-              </div>
-            )}
-            {post.audio_url && (
-              <div className="verse-surface rounded-lg p-4">
-                <AudioEmbed url={post.audio_url} />
-              </div>
-            )}
-            {post.instagram_embed_url && (
-              <div className="verse-surface rounded-lg p-4">
-                <InstagramEmbed url={post.instagram_embed_url} />
-              </div>
-            )}
-            {post.telegram_embed_url && (
-              <div className="verse-surface rounded-lg p-4">
-                <TelegramEmbed url={post.telegram_embed_url} />
-              </div>
-            )}
-            {post.substack_embed_url && (
-              <div className="verse-surface rounded-lg p-4">
-                <SubstackEmbed url={post.substack_embed_url} />
-              </div>
-            )}
+          <div className="space-y-8 mb-8">
+            {post.video_url && <VideoEmbed url={post.video_url} />}
+            {post.audio_url && <AudioEmbed url={post.audio_url} />}
+            {post.instagram_embed_url && <InstagramEmbed url={post.instagram_embed_url} />}
+            {post.telegram_embed_url && <TelegramEmbed url={post.telegram_embed_url} />}
+            {post.substack_embed_url && <SubstackEmbed url={post.substack_embed_url} />}
           </div>
         </div>
       </article>

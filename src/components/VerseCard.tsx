@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/components/GlobalAudioPlayer";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
-import { parseSynonyms, openGlossary } from "@/utils/synonyms";
 
 /* =========================
    Типи пропсів
@@ -32,18 +31,13 @@ interface VerseCardProps {
   audioCommentary?: string; // окреме аудіо для пояснення
 
   textDisplaySettings?: {
-    showSanskritUa?: boolean;
-    showSanskritEn?: boolean;
-    showSanskrit?: boolean;
-    showTransliterationUa?: boolean;
-    showTransliterationEn?: boolean;
-    showTransliteration?: boolean;
+    showSanskrit: boolean;
+    showTransliteration: boolean;
     showSynonyms: boolean;
     showTranslation: boolean;
     showCommentary: boolean;
   };
 
-  showNumberBadge?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (
     verseId: string,
@@ -57,6 +51,45 @@ interface VerseCardProps {
   ) => void;
 }
 
+/* =========================
+   Допоміжні функції
+   ========================= */
+
+function parseSynonyms(raw: string): Array<{ term: string; meaning: string }> {
+  if (!raw) return [];
+  const parts = raw
+    .split(/[;]+/g)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const dashVariants = [" — ", " – ", " - ", "—", "–", "-", " —\n", " –\n", " -\n", "—\n", "–\n", "-\n"];
+  const pairs: Array<{ term: string; meaning: string }> = [];
+
+  for (const part of parts) {
+    let idx = -1;
+    let used = "";
+    for (const d of dashVariants) {
+      idx = part.indexOf(d);
+      if (idx !== -1) {
+        used = d;
+        break;
+      }
+    }
+    if (idx === -1) {
+      pairs.push({ term: part, meaning: "" });
+      continue;
+    }
+    const term = part.slice(0, idx).trim();
+    const meaning = part.slice(idx + used.length).trim();
+    if (term) pairs.push({ term, meaning });
+  }
+  return pairs;
+}
+
+function openGlossary(term: string) {
+  const url = `/glossary?search=${encodeURIComponent(term)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
 
 /* =========================
    Компонент
@@ -76,17 +109,12 @@ export const VerseCard = ({
   audioTranslation,
   audioCommentary,
   textDisplaySettings = {
-    showSanskritUa: true,
-    showSanskritEn: true,
     showSanskrit: true,
-    showTransliterationUa: true,
-    showTransliterationEn: true,
     showTransliteration: true,
     showSynonyms: true,
     showTranslation: true,
     showCommentary: true,
   },
-  showNumberBadge = true,
   isAdmin = false,
   onVerseUpdate,
 }: VerseCardProps) => {
@@ -161,11 +189,9 @@ export const VerseCard = ({
         {/* Верхня панель: номер/книга + кнопка редагування */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex flex-wrap items-center gap-3">
-            {showNumberBadge && (
-              <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-                <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-              </div>
-            )}
+            <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+              <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+            </div>
 
             {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
           </div>
@@ -194,7 +220,7 @@ export const VerseCard = ({
         </div>
 
         {/* Деванагарі з окремою кнопкою Volume2 */}
-        {(textDisplaySettings.showSanskritUa || textDisplaySettings.showSanskritEn || textDisplaySettings.showSanskrit) && (isEditing || sanskritText) && (
+        {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
           <div className="mb-10">
             {/* Кнопка Volume2 для Санскриту */}
             <div className="mb-4 flex justify-center">
@@ -223,7 +249,7 @@ export const VerseCard = ({
         )}
 
         {/* Транслітерація */}
-        {(textDisplaySettings.showTransliterationUa || textDisplaySettings.showTransliterationEn || textDisplaySettings.showTransliteration) && (isEditing || transliteration) && (
+        {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
           <div className="mb-8">
             {isEditing ? (
               <Textarea

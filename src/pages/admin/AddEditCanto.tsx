@@ -95,7 +95,7 @@ const AddEditCanto = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-cantos"] });
       if (id) queryClient.invalidateQueries({ queryKey: ["admin-canto", id] });
 
-      toast({ title: id ? "Пісню оновлено" : "Пісню створено" });
+      toast({ title: id ? "Canto оновлено" : "Canto створено" });
       navigate(`/admin/cantos/${bookId}`);
     },
     onError: (error: any) => {
@@ -158,7 +158,7 @@ const AddEditCanto = () => {
                 Назад
               </Link>
             </Button>
-            <h1 className="text-2xl font-bold">{id ? "Редагувати пісню" : "Додати пісню"}</h1>
+            <h1 className="text-2xl font-bold">{id ? "Редагувати Canto" : "Додати Canto"}</h1>
           </div>
         </div>
       </header>
@@ -166,12 +166,12 @@ const AddEditCanto = () => {
       <div className="container mx-auto px-4 py-8">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>{id ? "Редагувати пісню" : "Нова пісня"}</CardTitle>
+            <CardTitle>{id ? "Редагувати Canto" : "Новий Canto"}</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="cantoNumber">Номер пісні *</Label>
+                <Label htmlFor="cantoNumber">Номер Canto *</Label>
                 <Input
                   id="cantoNumber"
                   type="number"
@@ -190,7 +190,7 @@ const AddEditCanto = () => {
 
                 {coverImageUrl && (
                   <div className="relative w-48 h-64 bg-muted rounded-lg overflow-hidden">
-                    <img src={coverImageUrl} alt="Обкладинка пісні" className="w-full h-full object-cover" />
+                    <img src={coverImageUrl} alt="Canto cover preview" className="w-full h-full object-cover" />
                     <Button
                       type="button"
                       variant="destructive"
@@ -259,7 +259,7 @@ const AddEditCanto = () => {
                       id="descriptionUa"
                       value={descriptionUa}
                       onChange={(e) => setDescriptionUa(e.target.value)}
-                      placeholder="Опис пісні українською"
+                      placeholder="Опис canto українською"
                       rows={4}
                     />
                   </div>
@@ -282,7 +282,7 @@ const AddEditCanto = () => {
                       id="descriptionEn"
                       value={descriptionEn}
                       onChange={(e) => setDescriptionEn(e.target.value)}
-                      placeholder="Canto/Song description in English"
+                      placeholder="Canto description in English"
                       rows={4}
                     />
                   </div>

@@ -29,6 +29,22 @@ export {
   fileToTrack,
 } from './GlobalAudioPlayer.utils';
 
+// Кастомні хуки
+export {
+  usePlaybackProgress,
+  useVolumeControl,
+  useRepeatMode,
+  usePlaylistNavigation,
+  usePlaylistPersistence,
+  usePlaybackHistory,
+  useLoadingState,
+  usePlayerKeyboardShortcuts,
+  usePlaybackRate,
+  useShufflePlaylist,
+  usePlaylistFilter,
+  useSleepTimer,
+} from './GlobalAudioPlayer.hooks';
+
 // Supabase адаптер
 export {
   convertSupabaseTrackToPlayerTrack,

@@ -11,7 +11,6 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
-import TextAlign from "@tiptap/extension-text-align";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,10 +23,6 @@ import {
   Link as LinkIcon,
   Image as ImageIcon,
   Youtube as YoutubeIcon,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
 } from "lucide-react";
 
 interface InlineTiptapEditorProps {
@@ -56,7 +51,6 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
         TableCell,
         Color,
         TextStyle,
-        TextAlign.configure({ types: ["heading", "paragraph"] }),
         Placeholder.configure({ placeholder: "Редагуйте контент..." }),
       ],
       content,
@@ -163,43 +157,6 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
             </Button>
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={addYoutubeVideo}>
               <YoutubeIcon className="h-3 w-3" />
-            </Button>
-            <div className="w-px h-6 bg-border mx-1" />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            >
-              <AlignLeft className="h-3 w-3" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            >
-              <AlignCenter className="h-3 w-3" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            >
-              <AlignRight className="h-3 w-3" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            >
-              <AlignJustify className="h-3 w-3" />
             </Button>
           </div>
         )}

@@ -263,8 +263,7 @@ body {
 }
 
 /* Бенгалі */
-.bengali-text,
-.font-bengali {
+.bengali-text {
   font-family: var(--font-bengali);
   font-size: var(--sanskrit-font-size);
   line-height: var(--sanskrit-line-height);

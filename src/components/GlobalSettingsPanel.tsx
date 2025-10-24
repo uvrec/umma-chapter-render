@@ -19,83 +19,30 @@ const LS_KEYS = {
   lineHeight: "vv_reader_lineHeight",
   dual: "vv_reader_dualMode",
   blocks: "vv_reader_blocks",
-  continuous: "vv_reader_continuous",
 };
 
 type BlocksState = {
-  showSanskrit: boolean;
-  showTransliteration: boolean;
-  showSynonyms: boolean;
-  showTranslation: boolean;
-  showCommentary: boolean;
-};
-
-type ContinuousState = {
-  enabled: boolean;
-  showVerseNumbers: boolean;
-  showSanskrit: boolean;
-  showTransliteration: boolean;
-  showTranslation: boolean;
-  showCommentary: boolean;
+  sanskrit: boolean;
+  translit: boolean;
+  synonyms: boolean;
+  translation: boolean;
+  commentary: boolean;
 };
 
 function readBlocks(): BlocksState {
   try {
     const raw = localStorage.getItem(LS_KEYS.blocks);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      // Підтримка старого формату
-      if (parsed.sanskrit !== undefined) {
-        return {
-          showSanskrit: parsed.sanskrit ?? true,
-          showTransliteration: parsed.translit ?? true,
-          showSynonyms: parsed.synonyms ?? true,
-          showTranslation: parsed.translation ?? true,
-          showCommentary: parsed.commentary ?? true,
-        };
-      }
+    if (raw)
       return {
-        showSanskrit: true,
-        showTransliteration: true,
-        showSynonyms: true,
-        showTranslation: true,
-        showCommentary: true,
-        ...parsed,
-      };
-    }
-  } catch {}
-  return {
-    showSanskrit: true,
-    showTransliteration: true,
-    showSynonyms: true,
-    showTranslation: true,
-    showCommentary: true,
-  };
-}
-
-function readContinuous(): ContinuousState {
-  try {
-    const raw = localStorage.getItem(LS_KEYS.continuous);
-    if (raw) {
-      return {
-        enabled: false,
-        showVerseNumbers: true,
-        showSanskrit: false,
-        showTransliteration: false,
-        showTranslation: true,
-        showCommentary: false,
+        sanskrit: true,
+        translit: true,
+        synonyms: true,
+        translation: true,
+        commentary: true,
         ...JSON.parse(raw),
       };
-    }
   } catch {}
-  return {
-    enabled: false,
-    showVerseNumbers: true,
-    showSanskrit: false,
-    showTransliteration: false,
-    showTranslation: true,
-    showCommentary: false,
-  };
+  return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
 }
 
 export const GlobalSettingsPanel = () => {
@@ -113,42 +60,30 @@ export const GlobalSettingsPanel = () => {
   });
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
-  const [continuous, setContinuous] = useState<ContinuousState>(() => readContinuous());
 
   const bumpReader = () => {
-    console.log('🔧 [GlobalSettingsPanel] Dispatching vv-reader-prefs-changed event');
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
 
   useEffect(() => {
-    console.log('🔧 [GlobalSettingsPanel] fontSize changed:', fontSize);
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
-    setTimeout(() => bumpReader(), 10);
+    bumpReader();
   }, [fontSize]);
 
   useEffect(() => {
-    console.log('🔧 [GlobalSettingsPanel] lineHeight changed:', lineHeight);
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
-    setTimeout(() => bumpReader(), 10);
+    bumpReader();
   }, [lineHeight]);
 
   useEffect(() => {
-    console.log('🔧 [GlobalSettingsPanel] dualMode changed:', dualMode);
     localStorage.setItem(LS_KEYS.dual, String(dualMode));
-    setTimeout(() => bumpReader(), 10);
+    bumpReader();
   }, [dualMode]);
 
   useEffect(() => {
-    console.log('🔧 [GlobalSettingsPanel] blocks changed:', blocks);
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
-    setTimeout(() => bumpReader(), 10);
+    bumpReader();
   }, [blocks]);
-
-  useEffect(() => {
-    console.log('🔧 [GlobalSettingsPanel] continuous changed:', continuous);
-    localStorage.setItem(LS_KEYS.continuous, JSON.stringify(continuous));
-    setTimeout(() => bumpReader(), 10);
-  }, [continuous]);
 
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
   const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
@@ -284,78 +219,33 @@ export const GlobalSettingsPanel = () => {
               </div>
             </div>
 
-            <Separator />
-
-            {/* Безперервний режим читання */}
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Режим читання</h3>
-              <div className="space-y-3">
-                <RowToggle
-                  label="Неперервний текст"
-                  checked={continuous.enabled}
-                  onChange={(v) => setContinuous({ ...continuous, enabled: v })}
-                />
-                {continuous.enabled && (
-                  <div className="ml-4 space-y-2 border-l-2 border-muted pl-4">
-                    <RowToggle
-                      label="Номери віршів"
-                      checked={continuous.showVerseNumbers}
-                      onChange={(v) => setContinuous({ ...continuous, showVerseNumbers: v })}
-                    />
-                    <RowToggle
-                      label="Санскрит"
-                      checked={continuous.showSanskrit}
-                      onChange={(v) => setContinuous({ ...continuous, showSanskrit: v })}
-                    />
-                    <RowToggle
-                      label="Транслітерація"
-                      checked={continuous.showTransliteration}
-                      onChange={(v) => setContinuous({ ...continuous, showTransliteration: v })}
-                    />
-                    <RowToggle
-                      label="Переклад"
-                      checked={continuous.showTranslation}
-                      onChange={(v) => setContinuous({ ...continuous, showTranslation: v })}
-                    />
-                    <RowToggle
-                      label="Пояснення"
-                      checked={continuous.showCommentary}
-                      onChange={(v) => setContinuous({ ...continuous, showCommentary: v })}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
             <div>
               <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
               <div className="space-y-3">
                 <RowToggle
                   label="Санскрит / Деванагарі"
-                  checked={blocks.showSanskrit}
-                  onChange={(v) => setBlocks({ ...blocks, showSanskrit: v })}
+                  checked={blocks.sanskrit}
+                  onChange={(v) => setBlocks({ ...blocks, sanskrit: v })}
                 />
                 <RowToggle
                   label="Транслітерація"
-                  checked={blocks.showTransliteration}
-                  onChange={(v) => setBlocks({ ...blocks, showTransliteration: v })}
+                  checked={blocks.translit}
+                  onChange={(v) => setBlocks({ ...blocks, translit: v })}
                 />
                 <RowToggle
                   label="Послівний переклад"
-                  checked={blocks.showSynonyms}
-                  onChange={(v) => setBlocks({ ...blocks, showSynonyms: v })}
+                  checked={blocks.synonyms}
+                  onChange={(v) => setBlocks({ ...blocks, synonyms: v })}
                 />
                 <RowToggle
                   label="Переклад"
-                  checked={blocks.showTranslation}
-                  onChange={(v) => setBlocks({ ...blocks, showTranslation: v })}
+                  checked={blocks.translation}
+                  onChange={(v) => setBlocks({ ...blocks, translation: v })}
                 />
                 <RowToggle
                   label="Пояснення"
-                  checked={blocks.showCommentary}
-                  onChange={(v) => setBlocks({ ...blocks, showCommentary: v })}
+                  checked={blocks.commentary}
+                  onChange={(v) => setBlocks({ ...blocks, commentary: v })}
                 />
               </div>
             </div>

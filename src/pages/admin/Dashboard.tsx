@@ -17,7 +17,6 @@ import {
   Music,
   WrapText,
   FileEdit,
-  Download,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
@@ -237,33 +236,15 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button asChild className="w-full">
-                <Link to="/admin/vedabase-import-v2">
+                <Link to="/admin/import-wizard">
                   <Upload className="w-4 h-4 mr-2" />
-                  Vedabase Import v2 (Рекомендовано)
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/web-import">Веб-імпорт (Playwright)</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/import-wizard">Імпорт з файлу</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/admin/import-v3">
-                  <Download className="w-4 h-4 mr-2" />
-                  Імпорт V3 (Повна версія)
+                  Новий імпорт глави
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/fix-verse-linebreaks">
                   <WrapText className="w-4 h-4 mr-2" />
                   Виправити розриви рядків
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/clean-bengali">
-                  <FileEdit className="w-4 h-4 mr-2" />
-                  Очистити бенгалі
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">

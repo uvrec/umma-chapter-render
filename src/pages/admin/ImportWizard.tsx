@@ -13,16 +13,12 @@ import { PreviewStep } from "@/components/admin/import/PreviewStep";
 
 import { ParsedChapter, ImportTemplate } from "@/types/book-import";
 import { useAuth } from "@/contexts/AuthContext";
-import { ParserStatus } from "@/components/admin/ParserStatus";
-import { useParserHealth } from "@/hooks/useParserHealth";
-import { ImportIds } from "@/config/importIds";
 
 type Step = "upload" | "mapping" | "chapters" | "preview";
 
 export default function ImportWizard() {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
-  const { status: parserStatus } = useParserHealth();
 
   // редірект, якщо не адмін
   useEffect(() => {
@@ -68,8 +64,6 @@ export default function ImportWizard() {
       </header>
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">
-        <ParserStatus className="mb-6" />
-        
         {/* Індикатор кроків */}
         <div className="mb-8">
           <div className="flex items-center justify-between">

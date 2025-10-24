@@ -64,10 +64,10 @@ export const updateMediaSession = (track: Track): void => {
     album: track.metadata?.album,
   };
   
-  if (track.metadata?.coverUrl) {
+  if (track.coverImage) {
     metadata.artwork = [
       {
-        src: track.metadata.coverUrl,
+        src: track.coverImage,
         sizes: '512x512',
         type: 'image/jpeg'
       }
@@ -196,6 +196,7 @@ export const fileToTrack = (file: File): Promise<Track> => {
         id: generateTrackId(url, file.name),
         title: file.name.replace(/\.[^/.]+$/, ''), // Видаляє розширення
         src: url,
+        url: url,
         duration: audio.duration,
       };
       

@@ -2,11 +2,9 @@
 // Оновлена домашня сторінка з Hero + "Продовжити прослуховування", SearchStrip, Latest, Playlists, Support
 // Інтегровано з GlobalAudioPlayer (useAudio) і динамічним Hero з БД (site_settings.home_hero)
 
-import React, { useMemo, useRef, useState, useEffect } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { InlineBannerEditor } from "@/components/InlineBannerEditor";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -14,13 +12,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, Search, ChevronDown, ExternalLink } from "lucide-react";
+import {
+  Headphones,
+  BookOpen,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Clock,
+  ArrowRight,
+  Music4,
+  Search,
+  ChevronDown,
+  ExternalLink,
+} from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/components/GlobalAudioPlayer";
-import { loadPlaylistTracks } from "@/components/GlobalAudioPlayer/GlobalAudioPlayer.supabase-adapter";
-
-// Шрімад-Бгаґаватам playlist ID
-const BHAGAVATAM_PLAYLIST_ID = "fc2a05f5-151b-482e-8040-341d8d247657";
 
 // --- Types ---
 type ContentItem = {
@@ -32,6 +39,7 @@ type ContentItem = {
   duration?: string;
   created_at: string;
 };
+
 type AudioTrack = {
   id: string;
   title: string;
@@ -41,23 +49,74 @@ type AudioTrack = {
   verseNumber?: string | number;
 };
 
+// --- Mini Player (внизу сторінки) ---
+// ЗАЛИШЕНО для сумісності, але GlobalAudioPlayer з App.tsx має вищий пріоритет
+function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const current = useMemo(() => queue[index], [queue, index]);
+
+  const playPause = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+    } else {
+      el.play();
+    }
+  };
+
+  const next = () => setIndex((i) => (i + 1) % queue.length);
+  const prev = () => setIndex((i) => (i - 1 + queue.length) % queue.length);
+
+  if (!current) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
+        <Music4 className="h-5 w-5" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium">{current.title}</div>
+          <div className="truncate text-xs text-muted-foreground">{current.playlist_title || "Vedavoice · Аудіо"}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={prev} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipBack className="h-5 w-5" />
+          </Button>
+          <Button size="icon" onClick={playPause} className="h-9 w-9">
+            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={next} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipForward className="h-5 w-5" />
+          </Button>
+        </div>
+        <audio
+          ref={audioRef}
+          src={current.src}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={next}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
 // --- Hero Section (динамічний, з карткою "Продовжити") ---
 function Hero() {
   const { currentTrack, isPlaying, togglePlay, currentTime, duration } = useAudio();
   const { language } = useLanguage();
-  const { isAdmin } = useAuth();
 
   // Завантаження налаштувань з БД
-  const { data: settingsData, refetch } = useQuery({
+  const { data: settingsData } = useQuery({
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("site_settings" as any)
-        .select("value")
-        .eq("key", "home_hero")
-        .single();
+      const { data, error } = await supabase.from("site_settings").select("value").eq("key", "home_hero").single();
       if (error) throw error;
-      return (data as any)?.value as {
+      return data?.value as {
         background_image: string;
         logo_image: string;
         subtitle_ua: string;
@@ -91,9 +150,11 @@ function Hero() {
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
+
   const subtitle = language === "ua" ? settings.subtitle_ua : settings.subtitle_en;
   const quote = language === "ua" ? settings.quote_ua : settings.quote_en;
   const author = language === "ua" ? settings.quote_author_ua : settings.quote_author_en;
+
   return (
     <section
       className="relative min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
@@ -101,9 +162,6 @@ function Hero() {
         backgroundImage: `linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url(${settings.background_image})`,
       }}
     >
-      {/* Інлайн-редактор (тільки для адмінів) */}
-      {isAdmin && <InlineBannerEditor settings={settings} onUpdate={() => refetch()} />}
-
       <div className="container mx-auto px-4 text-center text-white">
         <div className="mx-auto max-w-4xl">
           {/* Logo */}
@@ -114,7 +172,7 @@ function Hero() {
           </div>
 
           {/* Subtitle */}
-          <p className="mb-8 text-xl -bottom-0 font-medium md:-bottom-0 ">{subtitle}</p>
+          <p className="mb-8 text-xl font-medium text-white/90 md:text-2xl">{subtitle}</p>
 
           {/* Quote */}
           <div className="mb-8 rounded-lg border border-white/20 bg-black/20 p-6 backdrop-blur-sm">
@@ -136,7 +194,7 @@ function Hero() {
                     <div className="min-w-0 flex-1 text-left">
                       <div className="mb-1 truncate text-base font-semibold text-foreground">{currentTrack.title}</div>
                       <div className="truncate text-sm text-muted-foreground">
-                        {currentTrack.metadata?.album || "Vedavoice · Аудіо"}
+                        {currentTrack.album || "Vedavoice · Аудіо"}
                       </div>
                       <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
@@ -168,11 +226,13 @@ function Hero() {
 function SearchStrip() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+
   const handleSearch = () => {
     if (searchQuery.trim()) {
       navigate(`/glossary?search=${encodeURIComponent(searchQuery)}`);
     }
   };
+
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-8">
       <Card>
@@ -198,6 +258,7 @@ function SearchStrip() {
 
 // --- Latest Content ---
 function LatestContent() {
+  // Останні треки
   const { data: audioTracks } = useQuery({
     queryKey: ["latest-audio"],
     queryFn: async () => {
@@ -222,14 +283,14 @@ function LatestContent() {
         `,
         )
         .eq("audio_playlists.is_published", true)
-        .order("created_at", {
-          ascending: false,
-        })
+        .order("created_at", { ascending: false })
         .limit(3);
       if (error) throw error;
       return data as any[];
     },
   });
+
+  // Останні пости блогу
   const { data: blogPosts } = useQuery({
     queryKey: ["latest-blog"],
     queryFn: async () => {
@@ -237,14 +298,13 @@ function LatestContent() {
         .from("blog_posts")
         .select("id, title_ua, excerpt_ua, slug, created_at, read_time")
         .eq("is_published", true)
-        .order("published_at", {
-          ascending: false,
-        })
+        .order("published_at", { ascending: false })
         .limit(3);
       if (error) throw error;
       return data as any[];
     },
   });
+
   const latestContent: ContentItem[] = [
     ...(audioTracks?.map((track: any) => ({
       id: track.id,
@@ -269,6 +329,7 @@ function LatestContent() {
   ]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 6);
+
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
@@ -277,13 +338,13 @@ function LatestContent() {
           <Button variant="outline" size="sm" asChild>
             <a href="/audiobooks">
               <Headphones className="mr-2 h-4 w-4" />
-              Слухати
+              Усе аудіо
             </a>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <a href="/library">
               <BookOpen className="mr-2 h-4 w-4" />
-              Читати
+              Усі тексти
             </a>
           </Button>
         </div>
@@ -338,23 +399,12 @@ function LatestContent() {
 // --- Quick Access Playlists ---
 function Playlists() {
   const featuredPlaylists = [
-    {
-      title: "Популярне",
-      href: "/audiobooks?sort=popular",
-    },
-    {
-      title: "Останні",
-      href: "/audiobooks?sort=latest",
-    },
-    {
-      title: "Бгаґаватам",
-      href: "/audiobooks?tag=sb",
-    },
-    {
-      title: "Бгаґавад-ґіта",
-      href: "/audiobooks?tag=bg",
-    },
+    { title: "Популярне", href: "/audiobooks?sort=popular" },
+    { title: "Останні", href: "/audiobooks?sort=latest" },
+    { title: "Бгаґаватам", href: "/audiobooks?tag=sb" },
+    { title: "Бгаґавад-ґіта", href: "/audiobooks?tag=bg" },
   ];
+
   return (
     <section className="mx-auto w-full max-w-6xl px-4 pb-8">
       <h3 className="mb-4 font-serif text-xl font-semibold">Швидкий доступ</h3>
@@ -375,9 +425,10 @@ function SupportSection() {
     <section className="bg-gradient-to-r from-primary/5 to-primary/10 py-16">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl">
-          <h2 className="mb-6 text-center text-3xl font-bold md:text-3xl">Підтримати проєкт</h2>
+          <h2 className="mb-6 text-center text-3xl font-bold md:text-4xl">Підтримати проєкт</h2>
           <p className="mb-8 text-center text-lg text-muted-foreground">
-            Можна допомогти з перевіркою вже записаного матеріалу,   або просто пожертвувати щось на утримання сайту.
+            Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням
+            аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
           </p>
           <div className="flex justify-center gap-4">
             <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2">
@@ -397,33 +448,18 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const { setQueue, playTrack, playlist } = useAudio();
-  const { language } = useLanguage();
+  // Мок-черга (можна прибрати коли буде джерело "продовжити")
+  const queue: AudioTrack[] = [
+    {
+      id: "a1",
+      title: "ШБ 3.26.19 — Бомбей, 1974",
+      src: "/media/sb-32619.mp3",
+      playlist_title: "Шрімад-Бгаґаватам",
+    },
+  ];
 
-  // Автозавантаження плейлиста Шрімад-Бгаґаватам БЕЗ автоплею
-  useEffect(() => {
-    let cancelled = false;
-    const loadBhagavatam = async () => {
-      try {
-        const tracks = await loadPlaylistTracks(BHAGAVATAM_PLAYLIST_ID, language);
-        if (!cancelled && tracks.length > 0) {
-          setQueue(tracks);
-        }
-      } catch (error) {
-        console.error("Failed to load Bhagavatam playlist:", error);
-      }
-    };
-
-    // Завантажуємо тільки якщо плейлист порожній
-    if (playlist.length === 0) {
-      loadBhagavatam();
-    }
-    return () => {
-      cancelled = true;
-    };
-  }, [language, playlist.length, setQueue]);
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main>
         <Hero />
@@ -433,6 +469,7 @@ export const NewHome = () => {
         <SupportSection />
       </main>
       <Footer />
+      <MiniPlayer queue={queue} />
     </div>
   );
 };

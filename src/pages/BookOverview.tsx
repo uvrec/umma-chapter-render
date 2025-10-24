@@ -113,7 +113,7 @@ export const BookOverview = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Book info */}
             <div className="flex-1">
-              <h1 className="text-6xl md:text-7xl font-bold mb-4">{bookTitle}</h1>
+              <h1 className="text-4xl font-bold mb-4">{bookTitle}</h1>
               {bookDescription && (
                 <p className="text-lg text-muted-foreground mb-6">
                   {bookDescription}

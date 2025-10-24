@@ -392,24 +392,6 @@ export default function Chapters() {
                         <Edit className="w-4 h-4 mr-2" />
                         Редагувати
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant={chapter.is_published ? "secondary" : "default"}
-                        onClick={async () => {
-                          const { error } = await supabase
-                            .from("chapters")
-                            .update({ is_published: !chapter.is_published })
-                            .eq("id", chapter.id);
-                          if (error) {
-                            toast({ title: "Помилка", description: error.message, variant: "destructive" });
-                          } else {
-                            queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
-                            toast({ title: chapter.is_published ? "Главу приховано" : "Главу опубліковано" });
-                          }
-                        }}
-                      >
-                        {chapter.is_published ? "Приховати" : "Опублікувати"}
-                      </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="destructive">

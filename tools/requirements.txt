@@ -1,6 +1,0 @@
-requests
-beautifulsoup4
-lxml
-playwright
-Flask
-flask-cors

@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -10,56 +9,8 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
-import TextAlign from "@tiptap/extension-text-align";
 import { Placeholder } from "@tiptap/extension-placeholder";
-import FontFamily from "@tiptap/extension-font-family";
-import { Extension } from "@tiptap/core";
 import { Button } from "@/components/ui/button";
-
-// FontSize extension
-const FontSize = Extension.create({
-  name: "fontSize",
-  addOptions() {
-    return {
-      types: ["textStyle"],
-    };
-  },
-  addGlobalAttributes() {
-    return [
-      {
-        types: this.options.types,
-        attributes: {
-          fontSize: {
-            default: null,
-            parseHTML: (element) => element.style.fontSize?.replace(/['"]+/g, ""),
-            renderHTML: (attributes) => {
-              if (!attributes.fontSize) {
-                return {};
-              }
-              return {
-                style: `font-size: ${attributes.fontSize}`,
-              };
-            },
-          },
-        },
-      },
-    ];
-  },
-  addCommands() {
-    return {
-      setFontSize:
-        (fontSize: string) =>
-        ({ chain }) => {
-          return chain().setMark("textStyle", { fontSize }).run();
-        },
-      unsetFontSize:
-        () =>
-        ({ chain }) => {
-          return chain().setMark("textStyle", { fontSize: null }).removeEmptyTextStyle().run();
-        },
-    };
-  },
-});
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,10 +36,6 @@ import {
   Redo,
   Palette,
   Type,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  AlignJustify,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -100,10 +47,7 @@ interface TiptapEditorProps {
 export const TiptapEditor = ({ content, onChange, placeholder = "Почніть писати..." }: TiptapEditorProps) => {
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ 
-        gapcursor: false,
-        link: false, // Disable default link from StarterKit
-      }),
+      StarterKit.configure({ gapcursor: false }),
       Image,
       Link.configure({
         openOnClick: false,
@@ -116,33 +60,16 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       TableCell,
       Color,
       TextStyle,
-      FontFamily,
-      FontSize,
-      TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder }),
     ],
     content,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     editorProps: {
       attributes: {
-        class: "verse-surface commentary-text p-4 min-h-[400px] focus:outline-none rounded-lg",
+        class: "prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none",
       },
     },
   });
-
-  // Sync external content prop into editor after load
-  useEffect(() => {
-    if (!editor) return;
-    // TipTap doesn't sync props automatically after init
-    const current = editor.getHTML();
-    const next = content || '';
-    if (next && next !== current) {
-      editor.commands.setContent(next);
-    }
-    if (!next && current !== '') {
-      editor.commands.clearContent();
-    }
-  }, [content, editor]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");
@@ -189,7 +116,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
   };
 
   const setFontSize = (size: string) => {
-    editor?.chain().focus().setFontSize(size).run();
+    editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
   };
 
   if (!editor) return null;
@@ -235,44 +162,6 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
 
         <div className="w-px h-6 bg-border mx-1" />
 
-        {/* Text Align */}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          className={editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}
-        >
-          <AlignLeft className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          className={editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""}
-        >
-          <AlignCenter className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          className={editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}
-        >
-          <AlignRight className="h-4 w-4" />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-          className={editor.isActive({ textAlign: "justify" }) ? "bg-accent" : ""}
-        >
-          <AlignJustify className="h-4 w-4" />
-        </Button>
-
         {/* Headings */}
         {[1, 2, 3].map((lvl) => (
           <Button
@@ -280,13 +169,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() =>
-              editor
-                .chain()
-                .focus()
-                .toggleHeading({ level: lvl as 1 | 2 | 3 | 4 | 5 | 6 })
-                .run()
-            }
+            onClick={() => editor.chain().focus().toggleHeading({ level: lvl as 1 | 2 | 3 | 4 | 5 | 6 }).run()}
             className={editor.isActive("heading", { level: lvl }) ? "bg-accent" : ""}
           >
             {lvl === 1 ? (

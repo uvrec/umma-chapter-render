@@ -5,12 +5,12 @@ export interface ParsedVerse {
   verse_number: string;
   sanskrit?: string;
   transliteration?: string;
-  synonyms_en?: string;
   synonyms_ua?: string;
-  translation_en?: string;
+  synonyms_en?: string;
   translation_ua?: string;
-  commentary_en?: string;
+  translation_en?: string;
   commentary_ua?: string;
+  commentary_en?: string;
   /** клієнтські дані часто приходять як audioUrl */
   audioUrl?: string;
   /** у БД поле під змійкою */
@@ -19,19 +19,12 @@ export interface ParsedVerse {
 
 export interface ParsedChapter {
   chapter_number: number;
-  chapter_type: "verses" | "text";
+  chapter_type: ChapterType;
   title_ua: string;
-  title_en: string;
+  title_en?: string;
   verses: ParsedVerse[];
   content_ua?: string;
   content_en?: string;
-  // ✅ ДОДАЙ ЦЕ:
-  metadata?: {
-    date?: string;
-    location?: string;
-    audio_url?: string;
-    type?: string;
-  };
 }
 
 export interface ParsedBook {

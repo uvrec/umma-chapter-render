@@ -208,29 +208,12 @@ const Verses = () => {
                             </span>
                           )}
                         </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant={verse.is_published ? "secondary" : "default"}
-                            onClick={async () => {
-                              const { error } = await supabase
-                                .from("verses")
-                                .update({ is_published: !verse.is_published })
-                                .eq("id", verse.id);
-                              if (!error) {
-                                window.location.reload();
-                              }
-                            }}
-                          >
-                            {verse.is_published ? "Приховати" : "Опублікувати"}
-                          </Button>
-                          <Button size="sm" variant="outline" asChild>
-                            <Link to={`/admin/verses/${verse.id}/edit`}>
-                              <Edit className="w-4 h-4 mr-2" />
-                              Редагувати
-                            </Link>
-                          </Button>
-                        </div>
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to={`/admin/verses/${verse.id}/edit`}>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Редагувати
+                          </Link>
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
