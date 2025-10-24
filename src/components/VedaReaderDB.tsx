@@ -588,7 +588,7 @@ export const VedaReaderDB = () => {
         dualLanguageMode={dualLanguageMode}
         onDualLanguageModeChange={setDualLanguageMode}
         originalLanguage={originalLanguage}
-        onOriginalLanguageChange={setOriginalLanguage}
+        onOriginalLanguageChange={(lang: string) => setOriginalLanguage(lang as "sanskrit" | "ua" | "en")}
         textDisplaySettings={textDisplaySettings}
         onTextDisplaySettingsChange={setTextDisplaySettings}
         continuousReadingSettings={continuousReadingSettings}
