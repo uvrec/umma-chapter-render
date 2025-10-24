@@ -1,4 +1,4 @@
-// InlineTiptapEditor.tsx — додано пропси editable, hot-reinit по ключу, виправлено link styling
+// InlineTiptapEditor.tsx — з sticky toolbar
 import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -29,7 +29,7 @@ interface InlineTiptapEditorProps {
   content: string;
   onChange: (content: string) => void;
   label: string;
-  editable?: boolean; // NEW
+  editable?: boolean;
 }
 
 export const InlineTiptapEditor = ({ content, onChange, label, editable = true }: InlineTiptapEditorProps) => {
@@ -54,16 +54,15 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
         Placeholder.configure({ placeholder: "Редагуйте контент..." }),
       ],
       content,
-      editable, // NEW
+      editable,
       onUpdate: ({ editor }) => onChange(editor.getHTML()),
       editorProps: {
-        attributes: { class: "prose prose-sm max-w-none min-h-[200px] focus:outline-none" },
+        attributes: { class: "prose prose-sm max-w-none min-h-[200px] focus:outline-none p-4" },
       },
     },
     [editable],
-  ); // ensure reconfig on editable changes
+  );
 
-  // keep editable in sync if prop changes after mount
   useEffect(() => {
     if (editor) editor.setEditable(editable);
   }, [editor, editable]);
@@ -77,17 +76,15 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
       if (!file) return;
       try {
         const ext = file.name.split(".").pop();
-        const fileName = `${crypto.randomUUID()}.${ext}`;
-        const { error } = await supabase.storage.from("page-media").upload(fileName, file);
-        if (error) throw error;
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("page-media").getPublicUrl(fileName);
-        editor?.chain().focus().setImage({ src: publicUrl }).run();
-        toast({ title: "Зображення додано" });
-      } catch (err) {
-        console.error(err);
-        toast({ title: "Помилка завантаження", variant: "destructive" });
+        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("blog-media").upload(fileName, file);
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage.from("blog-media").getPublicUrl(fileName);
+        editor?.chain().focus().setImage({ src: data.publicUrl }).run();
+        toast({ title: "✅ Зображення завантажено" });
+      } catch (error) {
+        console.error(error);
+        toast({ title: "Помилка завантаження зображення", variant: "destructive" });
       }
     };
     input.click();
@@ -107,11 +104,12 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
 
   return (
     <div
-      className={`space-y-2 rounded-lg border-2 border-dashed ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} p-4 transition-colors`}
+      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative`}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium text-muted-foreground">{label}</span>
-        {editable && (
+      {/* STICKY TOOLBAR */}
+      {editable && (
+        <div className="sticky top-16 z-40 flex items-center justify-between gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2">
+          <span className="text-sm font-medium text-muted-foreground">{label}</span>
           <div className="flex gap-1">
             <Button
               type="button"
@@ -119,6 +117,7 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
               size="icon"
               className="h-8 w-8"
               onClick={() => editor.chain().focus().toggleBold().run()}
+              title="Bold"
             >
               <Bold className="h-3 w-3" />
             </Button>
@@ -128,6 +127,7 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
               size="icon"
               className="h-8 w-8"
               onClick={() => editor.chain().focus().toggleItalic().run()}
+              title="Italic"
             >
               <Italic className="h-3 w-3" />
             </Button>
@@ -137,6 +137,7 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
               size="icon"
               className="h-8 w-8"
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+              title="Heading"
             >
               <Heading2 className="h-3 w-3" />
             </Button>
@@ -146,21 +147,38 @@ export const InlineTiptapEditor = ({ content, onChange, label, editable = true }
               size="icon"
               className="h-8 w-8"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
+              title="List"
             >
               <List className="h-3 w-3" />
             </Button>
-            <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={addLink}>
+            <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={addLink} title="Link">
               <LinkIcon className="h-3 w-3" />
             </Button>
-            <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={handleImageUpload}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={handleImageUpload}
+              title="Image"
+            >
               <ImageIcon className="h-3 w-3" />
             </Button>
-            <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={addYoutubeVideo}>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={addYoutubeVideo}
+              title="YouTube"
+            >
               <YoutubeIcon className="h-3 w-3" />
             </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* EDITOR CONTENT */}
       <EditorContent editor={editor} />
     </div>
   );
