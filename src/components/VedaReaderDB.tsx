@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home }
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
-import { SettingsPanel } from "@/components/SettingsPanel";
+import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
