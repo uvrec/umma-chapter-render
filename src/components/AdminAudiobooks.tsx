@@ -46,7 +46,7 @@ export default function AdminAudiobooks() {
 
   const checkAuth = async () => {
     if (!user) {
-      navigate("/login");
+      navigate("/auth");
       return;
     }
 
@@ -328,7 +328,7 @@ export default function AdminAudiobooks() {
 
         {/* Кнопки дій */}
         <div className="flex gap-4 justify-end">
-          <Button variant="outline" onClick={() => navigate("/admin")}>
+          <Button variant="outline" onClick={() => navigate("/admin/dashboard")}>
             Скасувати
           </Button>
           <Button onClick={handleSave} disabled={saving}>

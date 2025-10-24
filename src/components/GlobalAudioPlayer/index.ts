@@ -1,7 +1,7 @@
 // index.ts - Центральний файл експортів для GlobalAudioPlayer
 
 // Основні компоненти та хуки
-export { AudioProvider, GlobalAudioPlayer, useAudio } from "./GlobalAudioPlayer";
+export { AudioProvider, GlobalAudioPlayer, useAudio } from './GlobalAudioPlayer';
 
 // TypeScript типи
 export type {
@@ -10,7 +10,7 @@ export type {
   AudioContextType,
   GlobalAudioPlayerProps,
   AudioProviderProps,
-} from "./GlobalAudioPlayer.types";
+} from './GlobalAudioPlayer.types';
 
 // Утиліти
 export {
@@ -27,9 +27,23 @@ export {
   generateTrackId,
   getFileNameFromUrl,
   fileToTrack,
-} from "./GlobalAudioPlayer.utils";
+} from './GlobalAudioPlayer.utils';
 
 // Кастомні хуки
+export {
+  usePlaybackProgress,
+  useVolumeControl,
+  useRepeatMode,
+  usePlaylistNavigation,
+  usePlaylistPersistence,
+  usePlaybackHistory,
+  useLoadingState,
+  usePlayerKeyboardShortcuts,
+  usePlaybackRate,
+  useShufflePlaylist,
+  usePlaylistFilter,
+  useSleepTimer,
+} from './GlobalAudioPlayer.hooks';
 
 // Supabase адаптер
 export {
@@ -40,7 +54,7 @@ export {
   trackPlayEvent,
   useSupabasePlaylist,
   useAudioTracking,
-} from "./GlobalAudioPlayer.supabase-adapter";
+} from './GlobalAudioPlayer.supabase-adapter';
 
 // CSS стилі (імпортуйте окремо там де потрібно)
 // import '@/components/GlobalAudioPlayer/GlobalAudioPlayer.css';

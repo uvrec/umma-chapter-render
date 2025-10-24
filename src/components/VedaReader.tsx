@@ -4,7 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { VerseCard } from "./VerseCard";
 import { Header } from "./Header";
 import { Breadcrumb } from "./Breadcrumb";
-import { GlobalSettingsPanel, type ContinuousReadingSettings } from "@/components/GlobalSettingsPanel";
+import { SettingsPanel, type ContinuousReadingSettings } from "./SettingsPanel";
 import { Button } from "@/components/ui/button";
 import { Settings, ArrowLeft } from "lucide-react";
 import { verses as ALL_VERSES } from "@/data/verses";
@@ -300,7 +300,7 @@ export const VedaReader = () => {
         </div>
       </main>
 
-      <GlobalSettingsPanel
+      <SettingsPanel
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         fontSize={fontSize}

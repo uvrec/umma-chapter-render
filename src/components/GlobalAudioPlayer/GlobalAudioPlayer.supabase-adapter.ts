@@ -14,7 +14,6 @@ type AudioTrack = {
   lyrics_ua: string | null;
   lyrics_en: string | null;
 };
-
 type AudioPlaylist = {
   id: string;
   title_ua: string;
@@ -35,6 +34,7 @@ export function convertSupabaseTrackToPlayerTrack(
     id: track.id,
     title: title(language, track.title_ua, track.title_en),
     src: track.file_url,
+    url: track.file_url,
     verseNumber: `Трек ${track.track_number}`,
     coverImage: playlist?.cover_image_url || undefined,
     duration: track.duration ?? undefined,
@@ -47,15 +47,14 @@ export function convertSupabaseTrackToPlayerTrack(
 
 export async function loadTrackFromSupabase(id: string, language: "ua" | "en" = "ua"): Promise<Track | null> {
   const { data: track, error: te } = await supabase
-    .from<any, AudioTrack>("audio_tracks")
+    .from("audio_tracks")
     .select("id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en")
     .eq("id", id)
     .single();
-
   if (te || !track) return null;
 
   const { data: playlist } = await supabase
-    .from<any, AudioPlaylist>("audio_playlists")
+    .from("audio_playlists")
     .select("id,title_ua,title_en,cover_image_url,author")
     .eq("id", track.playlist_id)
     .maybeSingle();
@@ -66,17 +65,16 @@ export async function loadTrackFromSupabase(id: string, language: "ua" | "en" = 
 export async function loadPlaylistTracks(playlistId: string, language: "ua" | "en" = "ua"): Promise<Track[]> {
   const [{ data: playlist, error: pe }, { data: tracks, error: te }] = await Promise.all([
     supabase
-      .from<any, AudioPlaylist>("audio_playlists")
+      .from("audio_playlists")
       .select("id,title_ua,title_en,cover_image_url,author")
       .eq("id", playlistId)
       .single(),
     supabase
-      .from<any, AudioTrack>("audio_tracks")
+      .from("audio_tracks")
       .select("id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en")
       .eq("playlist_id", playlistId)
       .order("track_number", { ascending: true }),
   ]);
-
   if (pe || !playlist || te || !tracks?.length) return [];
   return (tracks as AudioTrack[]).map((t) => convertSupabaseTrackToPlayerTrack(t, playlist as AudioPlaylist, language));
 }
@@ -88,18 +86,16 @@ export async function loadRecentTracks(
 ): Promise<Track[]> {
   if (!userId) return [];
   const { data: events } = await supabase
-    .from<any, { track_id: string }>("audio_events")
+    .from("audio_events")
     .select("track_id")
     .eq("user_id", userId)
     .eq("event_type", "play")
     .order("created_at", { ascending: false })
     .limit(limit);
-
   if (!events?.length) return [];
   const ids = Array.from(new Set(events.map((e) => e.track_id)));
-
   const { data: tracks } = await supabase
-    .from<any, any>("audio_tracks")
+    .from("audio_tracks")
     .select(
       `
       id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en,
@@ -107,9 +103,7 @@ export async function loadRecentTracks(
     `,
     )
     .in("id", ids);
-
   if (!tracks?.length) return [];
-
   const map = new Map(
     tracks.map((t: any) => [
       t.id,
@@ -125,7 +119,7 @@ export async function trackPlayEvent(
   positionMs = 0,
   durationMs: number | null = null,
 ) {
-  const { error } = await supabase.from<any, any>("audio_events").insert({
+  const { error } = await supabase.from("audio_events").insert({
     track_id: trackId,
     user_id: userId,
     event_type: "play",
@@ -136,11 +130,10 @@ export async function trackPlayEvent(
 }
 
 export function useSupabasePlaylist(playlistId: string | null, language: "ua" | "en" = "ua") {
-  const audio = useAudio();
-  const setQueue = (audio as any)?.setQueue;
+  const { setQueue } = useAudio();
   useEffect(() => {
     let off = false;
-    if (!playlistId || !setQueue) return;
+    if (!playlistId) return;
     (async () => {
       const t = await loadPlaylistTracks(playlistId, language);
       if (!off && t.length) setQueue(t);
@@ -153,7 +146,7 @@ export function useSupabasePlaylist(playlistId: string | null, language: "ua" | 
 }
 
 export function useAudioTracking(userId: string | null) {
-  const { currentTrack, isPlaying, currentTime, duration } = useAudio() as any;
+  const { currentTrack, isPlaying, currentTime, duration } = useAudio();
   const last = useRef<number>(-10000);
   useEffect(() => {
     if (!currentTrack || !isPlaying) return;
