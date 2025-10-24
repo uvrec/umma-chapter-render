@@ -8,6 +8,27 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/components/ThemeProvider";
+export type { ContinuousReadingSettings } from "./GlobalSettingsPanel";
+
+interface GlobalSettingsPanelProps {
+  isOpen: boolean;
+  onClose: () => void;
+  fontSize: number;
+  onFontSizeChange: (v: number) => void;
+  craftPaperMode: boolean;
+  onCraftPaperToggle: (v: boolean) => void;
+  verses: any[];
+  currentVerse: string;
+  onVerseSelect: (v: string) => void;
+  dualLanguageMode: boolean;
+  onDualLanguageModeToggle: (v: boolean) => void;
+  textDisplaySettings: any;
+  onTextDisplaySettingsChange: (v: any) => void;
+  originalLanguage: string;
+  onOriginalLanguageChange: (v: string) => void;
+  continuousReadingSettings: ContinuousReadingSettings;
+  onContinuousReadingSettingsChange: (v: ContinuousReadingSettings) => void;
+}
 
 const MIN_FONT = 12;
 const MAX_FONT = 24;
@@ -79,7 +100,7 @@ function readContinuous(): ContinuousReadingSettings {
   };
 }
 
-export const GlobalSettingsPanel = () => {
+export const GlobalSettingsPanel = (props: GlobalSettingsPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
