@@ -95,6 +95,10 @@ const App = () => (
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                   <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
+                  <Route
+                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
+                    element={<VedaReaderDB />}
+                  />
                   <Route path="/veda-reader/:bookId/:chapterId" element={<ChapterVersesList />} />
                   <Route path="/veda-reader/:bookId/:chapterId/:verseNumber" element={<VedaReaderDB />} />
                   <Route
@@ -183,7 +187,32 @@ const App = () => (
 
                 {/* Глобальний плеєр і єдина панель налаштувань */}
                 <GlobalAudioPlayer />
-                <GlobalSettingsPanel />
+                <GlobalSettingsPanel
+                  isOpen={false}
+                  onClose={() => {}}
+                  fontSize={16}
+                  onFontSizeChange={() => {}}
+                  craftPaperMode={false}
+                  onCraftPaperToggle={() => {}}
+                  verses={[]}
+                  currentVerse=""
+                  onVerseSelect={() => {}}
+                  dualLanguageMode={false}
+                  onDualLanguageModeToggle={() => {}}
+                  textDisplaySettings={{}}
+                  onTextDisplaySettingsChange={() => {}}
+                  originalLanguage="ua"
+                  onOriginalLanguageChange={() => {}}
+                  continuousReadingSettings={{
+                    enabled: false,
+                    showVerseNumbers: true,
+                    showSanskrit: true,
+                    showTransliteration: true,
+                    showTranslation: true,
+                    showCommentary: true,
+                  }}
+                  onContinuousReadingSettingsChange={() => {}}
+                />
               </BrowserRouter>
             </AudioProvider>
           </TooltipProvider>
