@@ -154,12 +154,16 @@ export const BookOverview = () => {
                       className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
                       <div className="grid gap-8 md:grid-cols-2">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-semibold text-primary">Пісня {canto.canto_number}</span>
+                        <div className="flex items-start gap-3">
+                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                            Пісня {canto.canto_number}
+                          </span>
                           <span className="text-base text-foreground">{cantoTitleUa}</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-semibold text-primary">Canto {canto.canto_number}</span>
+                        <div className="flex items-start gap-3">
+                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                            Canto {canto.canto_number}
+                          </span>
                           <span className="text-base text-foreground">{cantoTitleEn}</span>
                         </div>
                       </div>
@@ -195,12 +199,16 @@ export const BookOverview = () => {
                       className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
                       <div className="grid gap-8 md:grid-cols-2">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-semibold text-primary">Глава {chapter.chapter_number}</span>
+                        <div className="flex items-start gap-3">
+                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                            Глава {chapter.chapter_number}
+                          </span>
                           <span className="text-base text-foreground">{chapterTitleUa}</span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-semibold text-primary">Chapter {chapter.chapter_number}</span>
+                        <div className="flex items-start gap-3">
+                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                            Chapter {chapter.chapter_number}
+                          </span>
                           <span className="text-base text-foreground">{chapterTitleEn}</span>
                         </div>
                       </div>
