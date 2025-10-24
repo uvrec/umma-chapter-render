@@ -576,7 +576,7 @@ export const VedaReaderDB = () => {
         )}
       </div>
 
-      <SettingsPanel
+      <GlobalSettingsPanel
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         fontSize={fontSize}
