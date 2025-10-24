@@ -301,13 +301,13 @@ export function VedaReaderDB() {
         queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam]
       });
       toast({
-        title: language === "ua" ? "Ð—Ð±ÐµÑ€ÐµÐ¶ÐµÐ½Ð¾" : "Saved"
+        title: language === "ua" ? "Збережено" : "Saved"
       });
     },
     onError: (err: any) => {
       console.error(err);
       toast({
-        title: language === "ua" ? "ÐŸÐ¾Ð¼Ð¸Ð»ÐºÐ°" : "Error",
+        title: language === "ua" ? "Помилка" : "Error",
         variant: "destructive"
       });
     }
@@ -317,10 +317,10 @@ export function VedaReaderDB() {
       label: string;
       href: string;
     }> = [{
-      label: t("Ð“Ð¾Ð»Ð¾Ð²Ð½Ð°", "Home"),
+      label: t("Головна", "Home"),
       href: "/"
     }, {
-      label: t("Ð‘Ñ–Ð±Ð»Ñ–Ð¾Ñ‚ÐµÐºÐ°", "Library"),
+      label: t("Бібліотека", "Library"),
       href: "/library"
     }];
     if (book) {
@@ -338,12 +338,13 @@ export function VedaReaderDB() {
     if (chapter) {
       const chTitle = language === "ua" ? chapter.title_ua : chapter.title_en;
       items.push({
-        label: `${t("Ð“Ð»Ð°Ð²Ð°", "Chapter")} ${chapter.chapter_number}: ${chTitle}`,
+        label: `${t("Глава", "Chapter")} ${chapter.chapter_number}: ${chTitle}`,
         href: isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}` : `/veda-reader/${bookId}/${chapter.id}`
       });
     }
     return items;
   }, [book, canto, chapter, bookId, cantoNumber, language, t, isCantoMode]);
+  
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -351,11 +352,11 @@ export function VedaReaderDB() {
       fontSize: `${fontSize}px`
     }}>
         {!bookId ? <div className="text-center">
-            <p className="text-muted-foreground">{t("Ð’Ð¸Ð±ÐµÑ€Ñ–Ñ‚ÑŒ ÐºÐ½Ð¸Ð³Ñƒ", "Select a book")}</p>
+            <p className="text-muted-foreground">{t("Виберіть книгу", "Select a book")}</p>
           </div> : chapterLoading || versesLoading ? <div className="text-center">
-            <p className="text-muted-foreground">{t("Ð—Ð°Ð²Ð°Ð½Ñ‚Ð°Ð¶ÐµÐ½Ð½Ñ...", "Loading...")}</p>
+            <p className="text-muted-foreground">{t("Завантаження...", "Loading...")}</p>
           </div> : !chapter ? <div className="text-center">
-            <p className="text-muted-foreground">{t("Ð“Ð»Ð°Ð²Ð° Ð½Ðµ Ð·Ð½Ð°Ð¹Ð´ÐµÐ½Ð°", "Chapter not found")}</p>
+            <p className="text-muted-foreground">{t("Глава не знайдена", "Chapter not found")}</p>
           </div> : <>
             <Breadcrumb items={breadcrumbs} />
 
@@ -364,19 +365,19 @@ export function VedaReaderDB() {
                 {language === "ua" ? chapter.title_ua : chapter.title_en}
               </h1>
               <p className="text-lg text-muted-foreground">
-                {t("Ð“Ð»Ð°Ð²Ð°", "Chapter")} {chapter.chapter_number}
+                {t("Глава", "Chapter")} {chapter.chapter_number}
               </p>
             </div>
 
             {verses.length === 0 ? <div className="text-center">
-                <p className="text-muted-foreground">{t("ÐÐµÐ¼Ð°Ñ” Ð²Ñ–Ñ€ÑˆÑ–Ð²", "No verses found")}</p>
+                <p className="text-muted-foreground">{t("Немає віршів", "No verses found")}</p>
               </div> : (() => {
           if (continuousReadingSettings.enabled) {
             return <div className="space-y-6">
                       {verses.map(v => <div key={v.id} className="pb-6 border-b border-border last:border-0">
                           {continuousReadingSettings.showVerseNumbers && <div className="mb-4 text-center">
                               <span className="inline-block rounded bg-muted px-3 py-1 text-sm font-medium text-muted-foreground">
-                                {t("Ð¢ÐµÐºÑÑ‚", "Text")} {getDisplayVerseNumber(v.verse_number)}
+                                {t("Текст", "Text")} {getDisplayVerseNumber(v.verse_number)}
                               </span>
                             </div>}
 
@@ -397,15 +398,15 @@ export function VedaReaderDB() {
                           {continuousReadingSettings.showTranslation && <div className="mb-6">
                               {dualLanguageMode ? <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                      {v.translation_ua || "â€”"}
+                                      {v.translation_ua || "—"}
                                     </p>
                                   </div>
                                   <div className="pl-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                      {v.translation_en || "â€”"}
+                                      {v.translation_en || "—"}
                                     </p>
                                   </div>
                                 </div> : <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
@@ -416,7 +417,7 @@ export function VedaReaderDB() {
                           {continuousReadingSettings.showCommentary && (v.commentary_ua || v.commentary_en) && <div className="border-t border-border pt-6">
                               {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
                                     <TiptapRenderer content={v.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
                                   </div>
                                   <div className="pl-4">
@@ -431,15 +432,15 @@ export function VedaReaderDB() {
                         <div className="flex items-center justify-between">
                           <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === -1 || currentChapterIndex === 0}>
                             <ChevronLeft className="mr-2 h-4 w-4" />
-                            {t("ÐŸÐ¾Ð¿ÐµÑ€ÐµÐ´Ð½Ñ Ð³Ð»Ð°Ð²Ð°", "Previous Chapter")}
+                            {t("Попередня глава", "Previous Chapter")}
                           </Button>
 
                           <span className="text-sm text-muted-foreground">
-                            {t("Ð“Ð»Ð°Ð²Ð°", "Chapter")} {currentChapterIndex + 1} {t("Ð·", "of")} {allChapters.length}
+                            {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
                           </span>
 
                           <Button variant="secondary" onClick={handleNextChapter} disabled={currentChapterIndex === -1 || currentChapterIndex === allChapters.length - 1}>
-                            {t("ÐÐ°ÑÑ‚ÑƒÐ¿Ð½Ð° Ð³Ð»Ð°Ð²Ð°", "Next Chapter")}
+                            {t("Наступна глава", "Next Chapter")}
                             <ChevronRight className="ml-2 h-4 w-4" />
                           </Button>
                         </div>
@@ -451,7 +452,7 @@ export function VedaReaderDB() {
                       <div>
                         <div className="mb-8 text-center">
                           <span className="inline-block rounded bg-muted px-4 py-2 text-lg font-bold text-muted-foreground">
-                            {t("Ð¢ÐµÐºÑÑ‚", "Text")} {getDisplayVerseNumber(currentVerse.verse_number)}
+                            {t("Текст", "Text")} {getDisplayVerseNumber(currentVerse.verse_number)}
                           </span>
                         </div>
 
@@ -471,12 +472,11 @@ export function VedaReaderDB() {
 
                         {textDisplaySettings.showSynonyms && (currentVerse.synonyms_ua || currentVerse.synonyms_en) && <div className="mb-6 border-t border-border pt-6">
                             <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
-                              {t("ÐŸÐ¾ÑÐ»Ñ–Ð²Ð½Ð¸Ð¹ Ð¿ÐµÑ€ÐµÐºÐ»Ð°Ð´", "Word-for-word")}
+                              {t("Послівний переклад", "Word-for-word")}
                             </h4>
-                            {dualLanguageMode ? (
-                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 <div className="border-r border-border pr-4">
-                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
+                                  <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
                                   <div className="text-[1.17em] leading-relaxed text-foreground">
                                     {parseSynonyms(currentVerse.synonyms_ua || '').map((pair, i) => (
                                       <span key={i} className="whitespace-pre-wrap">
@@ -488,14 +488,14 @@ export function VedaReaderDB() {
                                               onClick={() => openGlossary(w)}
                                               onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openGlossary(w)}
                                               className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                              title="Ð’Ñ–Ð´ÐºÑ€Ð¸Ñ‚Ð¸ Ñƒ Ð³Ð»Ð¾ÑÐ°Ñ€Ñ–Ñ—"
+                                              title="Відкрити у глосарії"
                                             >
                                               {w}
                                             </span>
                                             {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
                                           </span>
                                         ))}
-                                        {pair.meaning && <span> â€” {pair.meaning}</span>}
+                                        {pair.meaning && <span> — {pair.meaning}</span>}
                                         {i < parseSynonyms(currentVerse.synonyms_ua || '').length - 1 && <span>; </span>}
                                       </span>
                                     ))}
@@ -521,14 +521,13 @@ export function VedaReaderDB() {
                                             {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
                                           </span>
                                         ))}
-                                        {pair.meaning && <span> â€” {pair.meaning}</span>}
+                                        {pair.meaning && <span> — {pair.meaning}</span>}
                                         {i < parseSynonyms(currentVerse.synonyms_en || '').length - 1 && <span>; </span>}
                                       </span>
                                     ))}
                                   </div>
                                 </div>
-                              </div>
-                            ) : (
+                              </div> : <div className="text-[1.17em] leading-relaxed text-foreground">
                                 {parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').map((pair, i) => (
                                   <span key={i} className="whitespace-pre-wrap">
                                     {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
@@ -539,14 +538,14 @@ export function VedaReaderDB() {
                                           onClick={() => openGlossary(w)}
                                           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openGlossary(w)}
                                           className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
-                                          title={language === 'ua' ? 'Ð’Ñ–Ð´ÐºÑ€Ð¸Ñ‚Ð¸ Ñƒ Ð³Ð»Ð¾ÑÐ°Ñ€Ñ–Ñ—' : 'Open in glossary'}
+                                          title={language === 'ua' ? 'Відкрити у глосарії' : 'Open in glossary'}
                                         >
                                           {w}
                                         </span>
                                         {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
                                       </span>
                                     ))}
-                                    {pair.meaning && <span> â€” {pair.meaning}</span>}
+                                    {pair.meaning && <span> — {pair.meaning}</span>}
                                     {i < parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').length - 1 && <span>; </span>}
                                   </span>
                                 ))}
@@ -555,19 +554,19 @@ export function VedaReaderDB() {
 
                         {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && <div className="mb-6 border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
-                                {t("Ð›Ñ–Ñ‚ÐµÑ€Ð°Ñ‚ÑƒÑ€Ð½Ð¸Ð¹ Ð¿ÐµÑ€ÐµÐºÐ»Ð°Ð´", "Translation")}
+                                {t("Літературний переклад", "Translation")}
                               </h4>
                               {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                      {currentVerse.translation_ua || "â€”"}
+                                      {currentVerse.translation_ua || "—"}
                                     </p>
                                   </div>
                                   <div className="pl-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
                                     <p className="text-[1.28em] font-medium leading-relaxed text-foreground whitespace-pre-line">
-                                      {currentVerse.translation_en || "â€”"}
+                                      {currentVerse.translation_en || "—"}
                                     </p>
                                   </div>
                                 </div> : <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-[1.28em]">
@@ -577,11 +576,11 @@ export function VedaReaderDB() {
 
                         {textDisplaySettings.showCommentary && (currentVerse.commentary_ua || currentVerse.commentary_en) && <div className="border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
-                                {t("ÐŸÐ¾ÑÑÐ½ÐµÐ½Ð½Ñ", "Purport")}
+                                {t("Пояснення", "Purport")}
                               </h4>
                               {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
-                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Ð£ÐºÑ€Ð°Ñ—Ð½ÑÑŒÐºÐ°</div>
+                                    <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
                                     <TiptapRenderer content={currentVerse.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
                                   </div>
                                   <div className="pl-4">
@@ -600,7 +599,7 @@ export function VedaReaderDB() {
                           recordId={currentVerse.id}
                           field="commentary_ua"
                           initialValue={currentVerse.commentary_ua || ""}
-                          label={t("ÐŸÐ¾ÑÑÐ½ÐµÐ½Ð½Ñ", "Purport")}
+                          label={t("Пояснення", "Purport")}
                           language="ua"
                         />
                         <UniversalInlineEditor
@@ -608,7 +607,7 @@ export function VedaReaderDB() {
                           recordId={currentVerse.id}
                           field="commentary_en"
                           initialValue={currentVerse.commentary_en || ""}
-                          label={t("ÐŸÐ¾ÑÑÐ½ÐµÐ½Ð½Ñ", "Purport")}
+                          label={t("Пояснення", "Purport")}
                           language="en"
                         />
                       </div>
@@ -617,15 +616,15 @@ export function VedaReaderDB() {
                     <div className="flex items-center justify-between">
                       <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0}>
                         <ChevronLeft className="mr-2 h-4 w-4" />
-                        {t("ÐŸÐ¾Ð¿ÐµÑ€ÐµÐ´Ð½Ñ–Ð¹", "Previous")}
+                        {t("Попередній", "Previous")}
                       </Button>
 
                       <span className="text-sm text-muted-foreground">
-                        {currentVerseIndex + 1} {t("Ð·", "of")} {verses.length}
+                        {currentVerseIndex + 1} {t("з", "of")} {verses.length}
                       </span>
 
                       <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1}>
-                        {t("ÐÐ°ÑÑ‚ÑƒÐ¿Ð½Ð¸Ð¹", "Next")}
+                        {t("Наступний", "Next")}
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -634,15 +633,15 @@ export function VedaReaderDB() {
                       <div className="flex items-center justify-between">
                         <Button variant="secondary" onClick={handlePrevChapter} disabled={currentChapterIndex === -1 || currentChapterIndex === 0}>
                           <ChevronLeft className="mr-2 h-4 w-4" />
-                          {t("ÐŸÐ¾Ð¿ÐµÑ€ÐµÐ´Ð½Ñ Ð³Ð»Ð°Ð²Ð°", "Previous Chapter")}
+                          {t("Попередня глава", "Previous Chapter")}
                         </Button>
 
                         <span className="text-sm text-muted-foreground">
-                          {t("Ð“Ð»Ð°Ð²Ð°", "Chapter")} {currentChapterIndex + 1} {t("Ð·", "of")} {allChapters.length}
+                          {t("Глава", "Chapter")} {currentChapterIndex + 1} {t("з", "of")} {allChapters.length}
                         </span>
 
                         <Button variant="secondary" onClick={handleNextChapter} disabled={currentChapterIndex === -1 || currentChapterIndex === allChapters.length - 1}>
-                          {t("ÐÐ°ÑÑ‚ÑƒÐ¿Ð½Ð° Ð³Ð»Ð°Ð²Ð°", "Next Chapter")}
+                          {t("Наступна глава", "Next Chapter")}
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </div>
