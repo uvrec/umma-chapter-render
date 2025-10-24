@@ -125,7 +125,7 @@ export const BookOverview = () => {
             {book?.has_cantos ? t("Пісні", "Cantos") : t("Глави", "Chapters")}
           </h2>
 
-          <div className="space-y-3">
+          <div className="space-y-1">
             {book?.has_cantos
               ? // Cantos як список
                 cantos.map((canto) => {
@@ -134,13 +134,15 @@ export const BookOverview = () => {
                     <Link
                       key={canto.id}
                       to={`/veda-reader/${bookSlug}/canto/${canto.canto_number}`}
-                      className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary hover:bg-accent"
+                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                        <span className="text-sm font-semibold text-primary">
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
-                        <span className="text-base font-medium text-foreground">{cantoTitle}</span>
+                        <span className="text-base text-foreground hover:text-primary transition-colors">
+                          {cantoTitle}
+                        </span>
                       </div>
                     </Link>
                   );
@@ -152,13 +154,15 @@ export const BookOverview = () => {
                     <Link
                       key={chapter.id}
                       to={`/veda-reader/${bookSlug}/${chapter.chapter_number}`}
-                      className="block rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary hover:bg-accent"
+                      className="block py-3 px-2 transition-colors hover:bg-accent rounded"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                        <span className="text-sm font-semibold text-primary">
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
-                        <span className="text-base font-medium text-foreground">{chapterTitle}</span>
+                        <span className="text-base text-foreground hover:text-primary transition-colors">
+                          {chapterTitle}
+                        </span>
                       </div>
                     </Link>
                   );
