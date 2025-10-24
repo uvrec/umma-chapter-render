@@ -62,9 +62,7 @@ export const ChapterVersesList = () => {
         .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
         .eq("chapter_number", parseInt(effectiveChapterParam));
 
-      const query = isCantoMode && canto?.id 
-        ? base.eq("canto_id", canto.id) 
-        : base.eq("book_id", book.id);
+      const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
 
       const { data, error } = await query.maybeSingle();
       if (error) throw error;
@@ -157,9 +155,7 @@ export const ChapterVersesList = () => {
                 </>
               )}
             </div>
-            <h1 className="text-3xl font-bold text-foreground">
-              {chapterTitle || `Глава ${chapter?.chapter_number}`}
-            </h1>
+            <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
             <p className="mt-2 text-muted-foreground">
               {verses.length} {verses.length === 1 ? "вірш" : verses.length < 5 ? "вірші" : "віршів"}
             </p>
