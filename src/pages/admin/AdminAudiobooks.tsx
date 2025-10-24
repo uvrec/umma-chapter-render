@@ -69,9 +69,8 @@ export default function AdminAudiobooks() {
     try {
       setLoading(true);
 
-      // Завантажуємо налаштування з site_settings
       const { data, error } = await supabase
-        .from("site_settings")
+        .from<any>("site_settings")
         .select("value")
         .eq("key", "audiobooks_page")
         .single();
@@ -97,17 +96,15 @@ export default function AdminAudiobooks() {
     try {
       setSaving(true);
 
-      // Перевіряємо чи існує запис
       const { data: existing } = await supabase
-        .from("site_settings")
+        .from<any>("site_settings")
         .select("id")
         .eq("key", "audiobooks_page")
         .single();
 
       if (existing) {
-        // Оновлюємо існуючий запис
         const { error } = await supabase
-          .from("site_settings")
+          .from<any>("site_settings")
           .update({
             value: settings,
             description: "Налаштування сторінки Аудіокниги",
@@ -116,8 +113,7 @@ export default function AdminAudiobooks() {
 
         if (error) throw error;
       } else {
-        // Створюємо новий запис
-        const { error } = await supabase.from("site_settings").insert({
+        const { error } = await supabase.from<any>("site_settings").insert({
           key: "audiobooks_page",
           value: settings,
           description: "Налаштування сторінки Аудіокниги",
@@ -151,7 +147,6 @@ export default function AdminAudiobooks() {
       const filePath = `banners/${fileName}`;
 
       const { error: uploadError } = await supabase.storage.from("page-media").upload(filePath, file, { upsert: true });
-
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage.from("page-media").getPublicUrl(filePath);
@@ -201,7 +196,6 @@ export default function AdminAudiobooks() {
       </div>
 
       <div className="space-y-6">
-        {/* Hero зображення */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Hero зображення</h2>
 
@@ -250,7 +244,6 @@ export default function AdminAudiobooks() {
           </div>
         </Card>
 
-        {/* Заголовки */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Заголовки та підзаголовки</h2>
 
@@ -297,7 +290,6 @@ export default function AdminAudiobooks() {
           </div>
         </Card>
 
-        {/* Описи */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">Описи (SEO)</h2>
 
@@ -326,7 +318,6 @@ export default function AdminAudiobooks() {
           </div>
         </Card>
 
-        {/* Кнопки дій */}
         <div className="flex gap-4 justify-end">
           <Button variant="outline" onClick={() => navigate("/admin")}>
             Скасувати
