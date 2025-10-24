@@ -21,6 +21,7 @@ import {
   ArrowRight,
   Music4,
   Search,
+  ChevronDown,
   ExternalLink,
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
@@ -31,8 +32,6 @@ type ContentItem = {
   title: string;
   subtitle?: string;
   href: string;
-  audioUrl?: string;
-  coverImage?: string;
   duration?: string;
   created_at: string;
 };
@@ -45,6 +44,60 @@ type AudioTrack = {
   album?: string;
   verseNumber?: string | number;
 };
+
+function MiniPlayer({ queue }: { queue: AudioTrack[] }) {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const current = useMemo(() => queue[index], [queue, index]);
+
+  const playPause = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (playing) {
+      el.pause();
+    } else {
+      el.play();
+    }
+  };
+
+  const next = () => setIndex((i) => (i + 1) % queue.length);
+  const prev = () => setIndex((i) => (i - 1 + queue.length) % queue.length);
+
+  if (!current) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-card/95 backdrop-blur">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
+        <Music4 className="h-5 w-5" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium">{current.title}</div>
+          <div className="truncate text-xs text-muted-foreground">{current.playlist_title || "Vedavoice · Аудіо"}</div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={prev} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipBack className="h-5 w-5" />
+          </Button>
+          <Button size="icon" onClick={playPause} className="h-9 w-9">
+            {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" onClick={next} disabled={queue.length <= 1} className="h-9 w-9">
+            <SkipForward className="h-5 w-5" />
+          </Button>
+        </div>
+        <audio
+          ref={audioRef}
+          src={current.src}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onEnded={next}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
 
 function Hero() {
   const { currentTrack, isPlaying, togglePlay, currentTime, duration } = useAudio();
@@ -73,8 +126,10 @@ function Hero() {
     logo_image: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png",
     subtitle_ua: "Бібліотека ведичних аудіокниг",
     subtitle_en: "Library of Vedic audiobooks",
-    quote_ua: "За моєї відсутності читайте книжки...",
-    quote_en: "In my absence, read the books...",
+    quote_ua:
+      "За моєї відсутності читайте книжки. Все, про що я говорю, я написав у книжках. Ви можете підтримувати зв'язок зі мною через мої книги.",
+    quote_en:
+      "In my absence, read the books. Everything I speak is written in the books. You can associate with me through my books.",
     quote_author_ua: "Шріла Прабгупада",
     quote_author_en: "Srila Prabhupada",
   };
@@ -197,7 +252,6 @@ function LatestContent() {
         title: a.title_ua || "Без назви",
         subtitle: a.description_ua,
         href: `/audiobooks/${a.id}`,
-        coverImage: a.cover_image_url,
         created_at: a.created_at,
       }));
 
@@ -234,29 +288,18 @@ function LatestContent() {
   }
 
   const handlePlayAudio = async (item: ContentItem) => {
-    if (!item.audioUrl) {
-      // Якщо немає прямого аудіо, завантажимо перший трек плейлиста
-      const { data: tracks } = await supabase
-        .from("audio_tracks")
-        .select("id, title_ua, file_url")
-        .eq("playlist_id", item.id)
-        .order("track_number", { ascending: true })
-        .limit(1);
+    const { data: tracks } = await supabase
+      .from("audio_tracks")
+      .select("id, title_ua, file_url")
+      .eq("playlist_id", item.id)
+      .order("track_number", { ascending: true })
+      .limit(1);
 
-      if (tracks && tracks[0]) {
-        playTrack({
-          id: tracks[0].id,
-          title: tracks[0].title_ua || item.title,
-          src: tracks[0].file_url,
-          coverImage: item.coverImage,
-        });
-      }
-    } else {
+    if (tracks && tracks[0]) {
       playTrack({
-        id: item.id,
-        title: item.title,
-        src: item.audioUrl,
-        coverImage: item.coverImage,
+        id: tracks[0].id,
+        title: tracks[0].title_ua || item.title,
+        src: tracks[0].file_url,
       });
     }
   };
@@ -266,18 +309,8 @@ function LatestContent() {
       <h3 className="mb-6 font-serif text-2xl font-semibold">Останнє</h3>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.map((item) => (
-          <Card key={item.id} className="group overflow-hidden hover:shadow-lg transition-all">
+          <Card key={item.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
             <CardContent className="p-4">
-              {item.coverImage && (
-                <div className="mb-3 aspect-square w-full overflow-hidden rounded-md bg-muted">
-                  <img
-                    src={item.coverImage}
-                    alt={item.title}
-                    className="h-full w-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                </div>
-              )}
-
               <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                 {item.type === "audio" ? (
                   <Headphones className="h-4 w-4 flex-shrink-0" />
@@ -354,8 +387,8 @@ function SupportSection() {
         <div className="mx-auto max-w-3xl">
           <h2 className="mb-6 text-center text-3xl font-bold md:text-4xl">Підтримати проєкт</h2>
           <p className="mb-8 text-center text-lg text-muted-foreground">
-            Можна перевіряти вже записаний аудіоматеріал, або просто щось пожертвувати. Всі пожертви йдуть на розвиток
-            проєкту.
+            Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням
+            аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
           </p>
           <div className="flex justify-center gap-4">
             <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2">
@@ -374,8 +407,17 @@ function SupportSection() {
 }
 
 export const NewHome = () => {
+  const queue: AudioTrack[] = [
+    {
+      id: "a1",
+      title: "ШБ 3.26.19 — Бомбей, 1974",
+      src: "/media/sb-32619.mp3",
+      playlist_title: "Шрімад-Бгаґаватам",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20">
       <Header />
       <main>
         <Hero />
@@ -385,6 +427,7 @@ export const NewHome = () => {
         <SupportSection />
       </main>
       <Footer />
+      <MiniPlayer queue={queue} />
     </div>
   );
 };
