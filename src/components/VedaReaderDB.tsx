@@ -18,7 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 
 export const VedaReaderDB = () => {
-  const { bookId, chapterId, cantoNumber, chapterNumber, verseNumber } = useParams();
+  const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const navigate = useNavigate();
   const { language, t } = useLanguage();
   const { isAdmin } = useAuth();
@@ -524,7 +524,7 @@ export const VedaReaderDB = () => {
                           commentary={currentVerse.commentary_en || ""}
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
-                          isAdmin={false}
+                          isAdmin={isAdmin}
                           onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                         />
                       </div>
