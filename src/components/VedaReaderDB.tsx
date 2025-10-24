@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { UniversalInlineEditor } from "@/components/UniversalInlineEditor";
+import { parseSynonyms, openGlossary } from "@/utils/synonyms";
 export function VedaReaderDB() {
   const {
     bookId,
@@ -378,15 +379,15 @@ export function VedaReaderDB() {
                               </span>
                             </div>}
 
-                          {continuousReadingSettings.showSanskrit && v.sanskrit && <div className="mb-6">
+                          {continuousReadingSettings.showSanskrit && ( (language === 'ua' ? v.sanskrit_ua : v.sanskrit_en) ?? v.sanskrit ) && <div className="mb-6">
                               <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
-                                {v.sanskrit}
+                                {(language === 'ua' ? v.sanskrit_ua : v.sanskrit_en) ?? v.sanskrit}
                               </p>
                             </div>}
 
-                          {continuousReadingSettings.showTransliteration && v.transliteration && <div className="mb-6">
+                          {continuousReadingSettings.showTransliteration && ( (language === 'ua' ? v.transliteration_ua : v.transliteration_en) ?? v.transliteration ) && <div className="mb-6">
                               <div className="space-y-1 text-center">
-                                {v.transliteration.split("\n").map((line, i) => <p key={i} className="font-sanskrit-italic italic text-[1.22em] leading-relaxed text-gray-500 dark:text-muted-foreground">
+                                {(((language === 'ua' ? v.transliteration_ua : v.transliteration_en) ?? v.transliteration) || '').split("\n").map((line, i) => <p key={i} className="font-sanskrit-italic italic text-[1.22em] leading-relaxed text-gray-500 dark:text-muted-foreground">
                                     {line}
                                   </p>)}
                               </div>
@@ -453,15 +454,15 @@ export function VedaReaderDB() {
                           </span>
                         </div>
 
-                        {(language === 'ua' ? textDisplaySettings.showSanskritUa : textDisplaySettings.showSanskritEn) && currentVerse.sanskrit && <div className="mb-10">
+                        {(language === 'ua' ? textDisplaySettings.showSanskritUa : textDisplaySettings.showSanskritEn) && (((language === 'ua' ? currentVerse.sanskrit_ua : currentVerse.sanskrit_en) ?? currentVerse.sanskrit)) && <div className="mb-10">
                             <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
-                              {currentVerse.sanskrit}
+                              {(language === 'ua' ? currentVerse.sanskrit_ua : currentVerse.sanskrit_en) ?? currentVerse.sanskrit}
                             </p>
                           </div>}
 
-                        {(language === 'ua' ? textDisplaySettings.showTransliterationUa : textDisplaySettings.showTransliterationEn) && currentVerse.transliteration && <div className="mb-8">
+                        {(language === 'ua' ? textDisplaySettings.showTransliterationUa : textDisplaySettings.showTransliterationEn) && (((language === 'ua' ? currentVerse.transliteration_ua : currentVerse.transliteration_en) ?? currentVerse.transliteration)) && <div className="mb-8">
                             <div className="space-y-1 text-center">
-                              {currentVerse.transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground font-extralight text-3xl">
+                              {((((language === 'ua' ? currentVerse.transliteration_ua : currentVerse.transliteration_en) ?? currentVerse.transliteration) || '').split("\n")).map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground text-[1.22em]">
                                   {line}
                                 </p>)}
                             </div>
@@ -474,19 +475,79 @@ export function VedaReaderDB() {
                             {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                 <div className="border-r border-border pr-4">
                                   <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
-                                  <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
-                                    {currentVerse.synonyms_ua || "—"}
-                                  </p>
+                                  <div className="text-[1.17em] leading-relaxed text-foreground">
+                                    {parseSynonyms(currentVerse.synonyms_ua || '').map((pair, i) => (
+                                      <span key={i} className="whitespace-pre-wrap">
+                                        {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
+                                          <span key={j}>
+                                            <span
+                                              role="link"
+                                              tabIndex={0}
+                                              onClick={() => openGlossary(w)}
+                                              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openGlossary(w)}
+                                              className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                              title="Відкрити у глосарії"
+                                            >
+                                              {w}
+                                            </span>
+                                            {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
+                                          </span>
+                                        ))}
+                                        {pair.meaning && <span> — {pair.meaning}</span>}
+                                        {i < parseSynonyms(currentVerse.synonyms_ua || '').length - 1 && <span>; </span>}
+                                      </span>
+                                    ))}
+                                  </div>
                                 </div>
                                 <div className="pl-4">
                                   <div className="mb-2 text-sm font-semibold text-muted-foreground">English</div>
-                                  <p className="text-[1.17em] leading-relaxed text-foreground whitespace-pre-line">
-                                    {currentVerse.synonyms_en || "—"}
-                                  </p>
+                                  <div className="text-[1.17em] leading-relaxed text-foreground">
+                                    {parseSynonyms(currentVerse.synonyms_en || '').map((pair, i) => (
+                                      <span key={i} className="whitespace-pre-wrap">
+                                        {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
+                                          <span key={j}>
+                                            <span
+                                              role="link"
+                                              tabIndex={0}
+                                              onClick={() => openGlossary(w)}
+                                              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openGlossary(w)}
+                                              className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                              title="Open in glossary"
+                                            >
+                                              {w}
+                                            </span>
+                                            {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
+                                          </span>
+                                        ))}
+                                        {pair.meaning && <span> — {pair.meaning}</span>}
+                                        {i < parseSynonyms(currentVerse.synonyms_en || '').length - 1 && <span>; </span>}
+                                      </span>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div> : <p className="leading-relaxed text-foreground whitespace-pre-line text-3xl">
-                                {language === "ua" ? currentVerse.synonyms_ua : currentVerse.synonyms_en}
-                              </p>}
+                              </div> : <div className="text-[1.17em] leading-relaxed text-foreground">
+                                {parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').map((pair, i) => (
+                                  <span key={i} className="whitespace-pre-wrap">
+                                    {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
+                                      <span key={j}>
+                                        <span
+                                          role="link"
+                                          tabIndex={0}
+                                          onClick={() => openGlossary(w)}
+                                          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openGlossary(w)}
+                                          className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                          title={language === 'ua' ? 'Відкрити у глосарії' : 'Open in glossary'}
+                                        >
+                                          {w}
+                                        </span>
+                                        {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
+                                      </span>
+                                    ))}
+                                    {pair.meaning && <span> — {pair.meaning}</span>}
+                                    {i < parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').length - 1 && <span>; </span>}
+                                  </span>
+                                ))}
+                              </div>
                           </div>}
 
                         {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && <div className="mb-6 border-t border-border pt-6">
@@ -506,7 +567,7 @@ export function VedaReaderDB() {
                                       {currentVerse.translation_en || "—"}
                                     </p>
                                   </div>
-                                </div> : <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-3xl">
+                                </div> : <p className="font-medium leading-relaxed text-foreground whitespace-pre-line text-[1.28em]">
                                   {language === "ua" ? currentVerse.translation_ua : currentVerse.translation_en}
                                 </p>}
                             </div>}
@@ -528,6 +589,27 @@ export function VedaReaderDB() {
                             </div>}
                       </div>
                     </Card>
+
+                    {isAdmin && currentVerse && (
+                      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                        <UniversalInlineEditor
+                          table="verses"
+                          recordId={currentVerse.id}
+                          field="commentary_ua"
+                          initialValue={currentVerse.commentary_ua || ""}
+                          label={t("Пояснення", "Purport")}
+                          language="ua"
+                        />
+                        <UniversalInlineEditor
+                          table="verses"
+                          recordId={currentVerse.id}
+                          field="commentary_en"
+                          initialValue={currentVerse.commentary_en || ""}
+                          label={t("Пояснення", "Purport")}
+                          language="en"
+                        />
+                      </div>
+                    )}
 
                     <div className="flex items-center justify-between">
                       <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0}>

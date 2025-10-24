@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { getBlockLabel } from "@/utils/blockLabels";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { parseSynonyms, openGlossary } from "@/utils/synonyms";
 import type { DisplayBlocks, VerseData } from "@/types/verse-display";
 
 export type { DisplayBlocks, VerseData };
@@ -43,8 +44,15 @@ export function VersesDisplay({
   const translation = language === 'ua' ? verse.translation_ua : verse.translation_en;
   const commentary = language === 'ua' ? verse.commentary_ua : verse.commentary_en;
 
+  const sanskritText = language === 'ua' 
+    ? (verse.sanskrit_ua ?? verse.sanskrit ?? null)
+    : (verse.sanskrit_en ?? verse.sanskrit ?? null);
+  const transliterationText = language === 'ua'
+    ? (verse.transliteration_ua ?? verse.transliteration ?? null)
+    : (verse.transliteration_en ?? verse.transliteration ?? null);
+
   const hasContent = (content?: string | null): boolean => {
-    return content !== null && content !== undefined && content.trim() !== '';
+    return content !== null && content !== undefined && String(content).trim() !== '';
   };
 
   const shouldShow = (block: keyof DisplayBlocks, content?: string | null): boolean => {
@@ -61,19 +69,19 @@ export function VersesDisplay({
     <div className={`verse-display space-y-6 ${className}`}>
       
       {/* САНСКРИТ */}
-      {shouldShow(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', verse.sanskrit) && (
+      {shouldShow(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', sanskritText) && (
         <div className="sanskrit-block">
           <div className="text-center font-sanskrit text-2xl leading-relaxed text-primary">
-            {verse.sanskrit}
+            {sanskritText}
           </div>
         </div>
       )}
 
       {/* ТРАНСЛІТЕРАЦІЯ */}
-      {shouldShow(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', verse.transliteration) && (
+      {shouldShow(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', transliterationText) && (
         <div className="transliteration-block">
           <div className="text-center italic text-lg text-muted-foreground leading-relaxed">
-            {verse.transliteration}
+            {transliterationText}
           </div>
         </div>
       )}
@@ -84,8 +92,28 @@ export function VersesDisplay({
           <h4 className="font-semibold mb-2 text-sm uppercase tracking-wide text-primary">
             {getBlockLabel('synonyms', language)}:
           </h4>
-          <div className="text-sm leading-relaxed whitespace-pre-wrap">
-            {synonyms}
+          <div className="text-sm leading-relaxed">
+            {parseSynonyms(synonyms || '').map((pair, i) => (
+              <span key={i} className="whitespace-pre-wrap">
+                {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
+                  <span key={j}>
+                    <span
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => openGlossary(w)}
+                      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openGlossary(w)}
+                      className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      title="Відкрити у глосарії"
+                    >
+                      {w}
+                    </span>
+                    {j < pair.term.split(/\s+/).filter(Boolean).length - 1 && <span> </span>}
+                  </span>
+                ))}
+                {pair.meaning && <span> — {pair.meaning}</span>}
+                {i < parseSynonyms(synonyms || '').length - 1 && <span>; </span>}
+              </span>
+            ))}
           </div>
         </div>
       )}
@@ -117,7 +145,7 @@ export function VersesDisplay({
           </h5>
           <div className="flex gap-2 flex-wrap">
             
-            {hasContent(verse.sanskrit) && (
+            {hasContent(sanskritText) && (
               <Button
                 variant={displayBlocks[language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en'] ? "default" : "outline"}
                 size="sm"
@@ -128,7 +156,7 @@ export function VersesDisplay({
               </Button>
             )}
 
-            {hasContent(verse.transliteration) && (
+            {hasContent(transliterationText) && (
               <Button
                 variant={displayBlocks[language === 'ua' ? 'transliteration_ua' : 'transliteration_en'] ? "default" : "outline"}
                 size="sm"
@@ -176,8 +204,8 @@ export function VersesDisplay({
       )}
 
       {/* Повідомлення якщо всі блоки порожні */}
-      {!shouldShow(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', verse.sanskrit) &&
-       !shouldShow(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', verse.transliteration) &&
+      {!shouldShow(language === 'ua' ? 'sanskrit_ua' : 'sanskrit_en', sanskritText) &&
+       !shouldShow(language === 'ua' ? 'transliteration_ua' : 'transliteration_en', transliterationText) &&
        !shouldShow('synonyms', synonyms) &&
        !shouldShow('translation', translation) &&
        !shouldShow('commentary', commentary) && (

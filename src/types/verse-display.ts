@@ -15,8 +15,15 @@ export interface DisplayBlocks {
 export interface VerseData {
   id?: string;
   verse_number?: string;
+  // Legacy combined fields (kept for backward compatibility)
   sanskrit?: string | null;
   transliteration?: string | null;
+  // Language-specific fields
+  sanskrit_ua?: string | null;
+  sanskrit_en?: string | null;
+  transliteration_ua?: string | null;
+  transliteration_en?: string | null;
+  
   synonyms_ua?: string | null;
   synonyms_en?: string | null;
   translation_ua?: string | null;
