@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { VideoEmbed } from "@/components/blog/VideoEmbed";
 import { AudioEmbed } from "@/components/blog/AudioEmbed";
 import { InstagramEmbed } from "@/components/blog/InstagramEmbed";
@@ -15,13 +16,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
+  const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   // Читаємо dualMode з localStorage
@@ -35,6 +39,28 @@ export default function BlogPost() {
     window.addEventListener("vv-reader-prefs-changed", handler);
     return () => window.removeEventListener("vv-reader-prefs-changed", handler);
   }, []);
+
+  // Функція для збереження змін контенту
+  const handleContentUpdate = async (field: "content_ua" | "content_en", value: string) => {
+    if (!post?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from("blog_posts")
+        .update({ [field]: value })
+        .eq("id", post.id);
+
+      if (error) throw error;
+
+      // Оновлюємо кеш
+      queryClient.setQueryData(["blog-post", slug], (old: any) => (old ? { ...old, [field]: value } : old));
+
+      toast({ title: "✅ Збережено" });
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Помилка збереження", variant: "destructive" });
+    }
+  };
 
   const {
     data: post,
@@ -251,7 +277,15 @@ export default function BlogPost() {
 
                 <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                   {hasContentUa ? (
-                    <TiptapRenderer content={contentUa} className="!max-w-none" />
+                    isAdmin ? (
+                      <InlineTiptapEditor
+                        content={contentUa}
+                        onChange={(value) => handleContentUpdate("content_ua", value)}
+                        label="Контент (UA)"
+                      />
+                    ) : (
+                      <TiptapRenderer content={contentUa} className="!max-w-none" />
+                    )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
                       <p className="text-lg">Контент українською ще не додано</p>
@@ -295,7 +329,15 @@ export default function BlogPost() {
 
                 <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                   {hasContentEn ? (
-                    <TiptapRenderer content={contentEn} className="!max-w-none" />
+                    isAdmin ? (
+                      <InlineTiptapEditor
+                        content={contentEn}
+                        onChange={(value) => handleContentUpdate("content_en", value)}
+                        label="Content (EN)"
+                      />
+                    ) : (
+                      <TiptapRenderer content={contentEn} className="!max-w-none" />
+                    )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
                       <p className="text-lg">English content not yet added</p>
@@ -355,7 +397,15 @@ export default function BlogPost() {
               <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                 {language === "ua" ? (
                   hasContentUa ? (
-                    <TiptapRenderer content={contentUa} className="!max-w-none" />
+                    isAdmin ? (
+                      <InlineTiptapEditor
+                        content={contentUa}
+                        onChange={(value) => handleContentUpdate("content_ua", value)}
+                        label="Контент (UA)"
+                      />
+                    ) : (
+                      <TiptapRenderer content={contentUa} className="!max-w-none" />
+                    )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
                       <p className="text-lg">Контент поста ще не додано</p>
@@ -363,7 +413,15 @@ export default function BlogPost() {
                     </div>
                   )
                 ) : hasContentEn ? (
-                  <TiptapRenderer content={contentEn} className="!max-w-none" />
+                  isAdmin ? (
+                    <InlineTiptapEditor
+                      content={contentEn}
+                      onChange={(value) => handleContentUpdate("content_en", value)}
+                      label="Content (EN)"
+                    />
+                  ) : (
+                    <TiptapRenderer content={contentEn} className="!max-w-none" />
+                  )
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
                     <p className="text-lg">Post content not yet added</p>
