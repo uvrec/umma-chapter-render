@@ -474,7 +474,7 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const { setPlaylist } = useAudio();
+  const { setPlaylist, playTrack } = useAudio();
   const { language } = useLanguage();
 
   // Завантажуємо плейліст Шрімад-Бгаватам при загрузці сторінки
