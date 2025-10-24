@@ -1,5 +1,4 @@
-// ChapterVersesList.tsx — Список всіх віршів глави з посиланнями
-// Відповідає Vedabase side-by-side списку віршів
+// ChapterVersesList.tsx — Список віршів з підтримкою dualMode
 
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -10,23 +9,34 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BookOpen } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export const ChapterVersesList = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // Визначаємо режим: canto або звичайна книга
+  // Читаємо dualMode з localStorage
+  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+
+  // Слухаємо зміни з GlobalSettingsPanel
+  useEffect(() => {
+    const handler = () => {
+      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+    };
+    window.addEventListener("vv-reader-prefs-changed", handler);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
+  }, []);
+
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
 
-  // Завантажуємо книгу
   const { data: book } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("id, slug, title_ua, title_en, has_cantos")
+        .select("id, slug, title_ua, title_en")
         .eq("slug", bookId)
         .maybeSingle();
       if (error) throw error;
@@ -34,7 +44,6 @@ export const ChapterVersesList = () => {
     },
   });
 
-  // Завантажуємо canto (якщо є)
   const { data: canto } = useQuery({
     queryKey: ["canto", book?.id, cantoNumber],
     queryFn: async () => {
@@ -51,7 +60,6 @@ export const ChapterVersesList = () => {
     enabled: isCantoMode && !!book?.id && !!cantoNumber,
   });
 
-  // Завантажуємо главу
   const { data: chapter, isLoading: isLoadingChapter } = useQuery({
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     queryFn: async () => {
@@ -59,7 +67,7 @@ export const ChapterVersesList = () => {
 
       const base = supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
+        .select("id, chapter_number, title_ua, title_en")
         .eq("chapter_number", parseInt(effectiveChapterParam));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
@@ -71,14 +79,13 @@ export const ChapterVersesList = () => {
     enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id),
   });
 
-  // Завантажуємо список віршів
   const { data: verses = [], isLoading: isLoadingVerses } = useQuery({
     queryKey: ["chapter-verses-list", chapter?.id],
     queryFn: async () => {
       if (!chapter?.id) return [];
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, translation_ua, translation_en")
+        .select("id, verse_number, sanskrit, transliteration, translation_ua, translation_en")
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -89,7 +96,6 @@ export const ChapterVersesList = () => {
 
   const isLoading = isLoadingChapter || isLoadingVerses;
 
-  // Формуємо URL для конкретного вірша
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
       return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
@@ -97,7 +103,6 @@ export const ChapterVersesList = () => {
     return `/veda-reader/${bookId}/${chapterId}/${verseNumber}`;
   };
 
-  // Назад до глави (або до списку глав)
   const handleBack = () => {
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}`);
@@ -118,9 +123,9 @@ export const ChapterVersesList = () => {
           <div className="container mx-auto max-w-5xl px-4">
             <Skeleton className="mb-4 h-8 w-48" />
             <Skeleton className="mb-8 h-12 w-96" />
-            <div className="space-y-2">
-              {[...Array(20)].map((_, i) => (
-                <Skeleton key={i} className="h-16 w-full" />
+            <div className="space-y-4">
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-32 w-full" />
               ))}
             </div>
           </div>
@@ -134,8 +139,8 @@ export const ChapterVersesList = () => {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-background py-8">
-        <div className="container mx-auto max-w-5xl px-4">
-          {/* Хлібні крихти + кнопка назад */}
+        <div className="container mx-auto max-w-6xl px-4">
+          {/* Навігація */}
           <div className="mb-6 flex items-center justify-between">
             <Button variant="ghost" onClick={handleBack} className="gap-2">
               <ArrowLeft className="h-4 w-4" />
@@ -156,49 +161,91 @@ export const ChapterVersesList = () => {
               )}
             </div>
             <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
-            <p className="mt-2 text-muted-foreground">
-              {verses.length} {verses.length === 1 ? "вірш" : verses.length < 5 ? "вірші" : "віршів"}
-            </p>
           </div>
 
-          {/* Side-by-side список віршів */}
-          <div className="space-y-1">
+          {/* Список віршів */}
+          <div className="space-y-6">
             {verses.map((verse) => {
               const translationUa = verse.translation_ua || "";
               const translationEn = verse.translation_en || "";
+              const sanskrit = verse.sanskrit || "";
+              const transliteration = verse.transliteration || "";
 
               return (
-                <Link
-                  key={verse.id}
-                  to={getVerseUrl(verse.verse_number)}
-                  className="block rounded-lg border border-border bg-card p-4 transition-all hover:border-primary hover:bg-accent"
-                >
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {/* Українська колонка */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                <div key={verse.id} className="space-y-3">
+                  {/* Side-by-side якщо dualMode */}
+                  {dualMode ? (
+                    <div className="grid gap-6 md:grid-cols-2">
+                      {/* Українська */}
+                      <div className="space-y-3">
+                        <Link
+                          to={getVerseUrl(verse.verse_number)}
+                          className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                        >
                           ВІРШ {verse.verse_number}
-                        </span>
+                        </Link>
+                        {sanskrit && (
+                          <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
+                            {sanskrit}
+                          </p>
+                        )}
+                        {transliteration && (
+                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliteration}</p>
+                        )}
+                        <p className="text-base leading-relaxed text-foreground">
+                          {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                        </p>
                       </div>
-                      <p className="line-clamp-2 text-sm text-foreground">
-                        {translationUa || <span className="text-muted-foreground italic">Немає перекладу</span>}
-                      </p>
-                    </div>
 
-                    {/* Англійська колонка */}
-                    <div className="space-y-2 border-l border-border pl-4 md:pl-4">
-                      <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                      {/* Англійська */}
+                      <div className="space-y-3 border-l border-border pl-6">
+                        <Link
+                          to={getVerseUrl(verse.verse_number)}
+                          className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                        >
                           TEXT {verse.verse_number}
-                        </span>
+                        </Link>
+                        {sanskrit && (
+                          <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
+                            {sanskrit}
+                          </p>
+                        )}
+                        {transliteration && (
+                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliteration}</p>
+                        )}
+                        <p className="text-base leading-relaxed text-foreground">
+                          {translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                        </p>
                       </div>
-                      <p className="line-clamp-2 text-sm text-foreground">
-                        {translationEn || <span className="text-muted-foreground italic">No translation</span>}
+                    </div>
+                  ) : (
+                    /* Одна мова */
+                    <div className="space-y-3">
+                      <Link
+                        to={getVerseUrl(verse.verse_number)}
+                        className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                      >
+                        {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
+                      </Link>
+                      {sanskrit && (
+                        <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
+                          {sanskrit}
+                        </p>
+                      )}
+                      {transliteration && (
+                        <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliteration}</p>
+                      )}
+                      <p className="text-base leading-relaxed text-foreground">
+                        {language === "ua"
+                          ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
+                          : translationEn || <span className="italic text-muted-foreground">No translation</span>}
                       </p>
                     </div>
-                  </div>
-                </Link>
+                  )}
+
+                  {/* Розділювач */}
+                  <div className="border-b border-border" />
+                </div>
               );
             })}
           </div>
