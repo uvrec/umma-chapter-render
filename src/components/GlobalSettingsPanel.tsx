@@ -30,7 +30,7 @@ type BlocksState = {
   commentary: boolean;
 };
 
-type ContinuousReadingSettings = {
+export type ContinuousReadingSettings = {
   enabled: boolean;
   showVerseNumbers: boolean;
   showSanskrit: boolean;
