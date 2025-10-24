@@ -334,7 +334,7 @@ function LatestContent() {
 
 // --- Quick Access Playlists ---
 function Playlists() {
-  const { setPlaylist } = useAudio();
+  const { setPlaylist, playTrack } = useAudio();
   const { language } = useLanguage();
 
   // Завантажуємо всі опубліковані плейлісти
@@ -387,7 +387,13 @@ function Playlists() {
       },
     }));
 
+    // Спочатку завантажуємо весь плейліст
     setPlaylist(formattedTracks);
+
+    // Потім запускаємо перший трек
+    if (formattedTracks.length > 0) {
+      playTrack(formattedTracks[0]);
+    }
   };
 
   return (
