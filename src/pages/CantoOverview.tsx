@@ -1,72 +1,82 @@
-import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Header } from '@/components/Header';
-import { Breadcrumb } from '@/components/Breadcrumb';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { Link } from 'react-router-dom';
+// CantoOverview.tsx - список глав канту з підтримкою dualMode
 
-const CantoOverview = () => {
+import { useParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardHeader, CardDescription } from "@/components/ui/card";
+import { Header } from "@/components/Header";
+import { Breadcrumb } from "@/components/Breadcrumb";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useEffect, useState } from "react";
+
+export const CantoOverview = () => {
   const { bookId, cantoNumber } = useParams();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+
+  // Читаємо dualMode з localStorage
+  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+
+  // Слухаємо зміни з GlobalSettingsPanel
+  useEffect(() => {
+    const handler = () => {
+      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+    };
+    window.addEventListener("vv-reader-prefs-changed", handler);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
+  }, []);
 
   const { data: book } = useQuery({
-    queryKey: ['book', bookId],
+    queryKey: ["book", bookId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('books')
-        .select('*')
-        .eq('slug', bookId)
-        .maybeSingle();
-      
+      const { data, error } = await supabase.from("books").select("*").eq("slug", bookId).single();
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId
+    enabled: !!bookId,
   });
 
   const { data: canto, isLoading: cantoLoading } = useQuery({
-    queryKey: ['canto', book?.id, cantoNumber],
+    queryKey: ["canto", book?.id, cantoNumber],
     queryFn: async () => {
+      if (!book?.id || !cantoNumber) return null;
       const { data, error } = await supabase
-        .from('cantos')
-        .select('*')
-        .eq('book_id', book!.id)
-        .eq('canto_number', parseInt(cantoNumber!))
+        .from("cantos")
+        .select("*")
+        .eq("book_id", book.id)
+        .eq("canto_number", parseInt(cantoNumber))
         .maybeSingle();
-      
       if (error) throw error;
       return data;
     },
-    enabled: !!book?.id && !!cantoNumber
+    enabled: !!book?.id && !!cantoNumber,
   });
 
-  const { data: chapters, isLoading: chaptersLoading } = useQuery({
-    queryKey: ['canto-chapters', canto?.id],
+  const { data: chapters = [], isLoading: chaptersLoading } = useQuery({
+    queryKey: ["chapters", canto?.id],
     queryFn: async () => {
+      if (!canto?.id) return [];
       const { data, error } = await supabase
-        .from('chapters')
-        .select('*')
-        .eq('canto_id', canto!.id)
-        .order('chapter_number', { ascending: true });
-      
+        .from("chapters")
+        .select("*")
+        .eq("book_id", book?.id)
+        .like("chapter_number", `${cantoNumber}.%`)
+        .order("chapter_number");
       if (error) throw error;
-      return data;
+      return data || [];
     },
-    enabled: !!canto?.id
+    enabled: !!canto?.id,
   });
 
-  const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
-  const cantoTitle = language === 'ua' ? canto?.title_ua : canto?.title_en;
-  const cantoDescription = language === 'ua' ? canto?.description_ua : canto?.description_en;
+  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
+  const cantoTitle = language === "ua" ? canto?.title_ua : canto?.title_en;
+  const cantoDescription = language === "ua" ? canto?.description_ua : canto?.description_en;
 
   if (cantoLoading || chaptersLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
-          <p>Завантаження...</p>
+          <p>{t("Завантаження...", "Loading...")}</p>
         </main>
       </div>
     );
@@ -77,9 +87,7 @@ const CantoOverview = () => {
       <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
-          <p className="text-center text-muted-foreground">
-            Пісню не знайдено
-          </p>
+          <p className="text-center text-muted-foreground">{t("Пісню не знайдено", "Canto not found")}</p>
         </main>
       </div>
     );
@@ -88,51 +96,70 @@ const CantoOverview = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         <Breadcrumb
           items={[
-            { label: 'Бібліотека', href: '/library' },
-            { label: bookTitle || '', href: `/veda-reader/${bookId}` },
-            { label: `Пісня ${cantoNumber}: ${cantoTitle}` },
+            { label: t("Бібліотека", "Library"), href: "/library" },
+            { label: bookTitle || "", href: `/veda-reader/${bookId}` },
+            {
+              label: `${t("Пісня", "Canto")} ${cantoNumber}: ${cantoTitle}`,
+            },
           ]}
         />
 
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
-            Пісня {cantoNumber}: {cantoTitle}
+            {t("Пісня", "Canto")} {cantoNumber}: {cantoTitle}
           </h1>
-          {cantoDescription && (
-            <p className="text-lg text-muted-foreground">{cantoDescription}</p>
-          )}
+          {cantoDescription && <p className="text-lg text-muted-foreground">{cantoDescription}</p>}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-1">
           {chapters && chapters.length > 0 ? (
-            chapters.map((chapter) => (
-              <Link
-                key={chapter.id}
-                to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}`}
-                className="block"
-              >
-                <Card className="hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer">
-                  <CardHeader className="py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="text-primary font-semibold min-w-[80px]">
-                        Глава {chapter.chapter_number}
-                      </div>
-                      <CardDescription className="text-base">
-                        {language === 'ua' ? chapter.title_ua : chapter.title_en}
-                      </CardDescription>
+            chapters.map((chapter) => {
+              const chapterTitleUa = chapter.title_ua;
+              const chapterTitleEn = chapter.title_en;
+              const chapterNum = chapter.chapter_number.split(".")[1]; // Отримуємо номер глави з "2.1" -> "1"
+
+              return dualMode ? (
+                // Side-by-side для chapters
+                <Link
+                  key={chapter.id}
+                  to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`}
+                  className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
+                >
+                  <div className="grid gap-8 md:grid-cols-2">
+                    <div className="flex items-start gap-3">
+                      <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
+                      <span className="text-lg text-foreground">{chapterTitleUa}</span>
                     </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))
+                    <div className="flex items-start gap-3">
+                      <span className="text-lg font-bold text-primary whitespace-nowrap">Chapter {chapterNum}</span>
+                      <span className="text-lg text-foreground">{chapterTitleEn}</span>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                // Одна мова для chapters
+                <Link
+                  key={chapter.id}
+                  to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`}
+                  className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-primary">
+                      {t("Глава", "Chapter")} {chapterNum}
+                    </span>
+                    <span className="text-lg text-foreground">
+                      {language === "ua" ? chapterTitleUa : chapterTitleEn}
+                    </span>
+                  </div>
+                </Link>
+              );
+            })
           ) : (
-            <p className="col-span-full text-center text-muted-foreground">
-              Ще немає глав
-            </p>
+            <p className="text-center text-muted-foreground">{t("Ще немає глав", "No chapters yet")}</p>
           )}
         </div>
       </main>
