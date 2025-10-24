@@ -344,9 +344,7 @@ export function VedaReaderDB() {
     }
     return items;
   }, [book, canto, chapter, bookId, cantoNumber, language, t, isCantoMode]);
-  
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8" data-reader-root="true" style={{
       fontSize: `${fontSize}px`
@@ -415,8 +413,7 @@ export function VedaReaderDB() {
                             </div>}
 
                           {continuousReadingSettings.showCommentary && (v.commentary_ua || v.commentary_en) && <div className="border-t border-border pt-6">
-                              {dualLanguageMode ? (
-                              <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                              {dualLanguageMode ? <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                                   <div className="border-r border-border pr-4">
                                     <div className="mb-2 text-sm font-semibold text-muted-foreground">Українська</div>
                                     <TiptapRenderer content={v.commentary_ua || ""} className="text-[1.22em] leading-relaxed" />
@@ -528,9 +525,7 @@ export function VedaReaderDB() {
                                     ))}
                                   </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <div className="text-[1.17em] leading-relaxed text-foreground">
+                              </div> : <div className="text-[1.17em] leading-relaxed text-foreground">
                                 {parseSynonyms((language === 'ua' ? currentVerse.synonyms_ua : currentVerse.synonyms_en) || '').map((pair, i) => (
                                   <span key={i} className="whitespace-pre-wrap">
                                     {pair.term.split(/\s+/).filter(Boolean).map((w, j) => (
@@ -553,10 +548,7 @@ export function VedaReaderDB() {
                                   </span>
                                 ))}
                               </div>
-                          </div>
-                            )}
-                          </div>
-                        )}
+                          </div>}
 
                         {textDisplaySettings.showTranslation && (currentVerse.translation_ua || currentVerse.translation_en) && <div className="mb-6 border-t border-border pt-6">
                               <h4 className="mb-4 text-center text-[1.17em] font-bold text-foreground">
@@ -656,8 +648,7 @@ export function VedaReaderDB() {
         })()}
           </>}
       </div>
-    </div>
-  );
+    </div>;
 }
-
 export default VedaReaderDB;
+}
