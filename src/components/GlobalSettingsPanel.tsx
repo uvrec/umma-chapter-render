@@ -19,6 +19,7 @@ const LS_KEYS = {
   lineHeight: "vv_reader_lineHeight",
   dual: "vv_reader_dualMode",
   blocks: "vv_reader_blocks",
+  continuous: "vv_reader_continuous", // 🆕
 };
 
 type BlocksState = {
@@ -27,6 +28,15 @@ type BlocksState = {
   synonyms: boolean;
   translation: boolean;
   commentary: boolean;
+};
+
+type ContinuousReadingSettings = {
+  enabled: boolean;
+  showVerseNumbers: boolean;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showTranslation: boolean;
+  showCommentary: boolean;
 };
 
 function readBlocks(): BlocksState {
@@ -45,6 +55,30 @@ function readBlocks(): BlocksState {
   return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
 }
 
+function readContinuous(): ContinuousReadingSettings {
+  try {
+    const raw = localStorage.getItem(LS_KEYS.continuous);
+    if (raw)
+      return {
+        enabled: false,
+        showVerseNumbers: true,
+        showSanskrit: true,
+        showTransliteration: true,
+        showTranslation: true,
+        showCommentary: true,
+        ...JSON.parse(raw),
+      };
+  } catch {}
+  return {
+    enabled: false,
+    showVerseNumbers: true,
+    showSanskrit: true,
+    showTransliteration: true,
+    showTranslation: true,
+    showCommentary: true,
+  };
+}
+
 export const GlobalSettingsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
@@ -60,6 +94,7 @@ export const GlobalSettingsPanel = () => {
   });
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
+  const [continuous, setContinuous] = useState<ContinuousReadingSettings>(() => readContinuous());
 
   const bumpReader = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
@@ -85,6 +120,11 @@ export const GlobalSettingsPanel = () => {
     bumpReader();
   }, [blocks]);
 
+  useEffect(() => {
+    localStorage.setItem(LS_KEYS.continuous, JSON.stringify(continuous));
+    bumpReader();
+  }, [continuous]);
+
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
   const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
   const decreaseLH = () => setLineHeight((v) => Math.max(MIN_LH, Math.round((v - 0.05) * 100) / 100));
@@ -94,7 +134,6 @@ export const GlobalSettingsPanel = () => {
 
   return (
     <>
-      {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
@@ -104,7 +143,6 @@ export const GlobalSettingsPanel = () => {
         <Settings className="h-6 w-6" />
       </Button>
 
-      {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right" className="w-96">
           <SheetHeader className="pb-4">
@@ -162,63 +200,71 @@ export const GlobalSettingsPanel = () => {
             <div>
               <h3 className="text-lg font-semibold mb-2">Відображення тексту</h3>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>Розмір шрифта</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={decreaseFont}
-                      disabled={fontSize <= MIN_FONT}
-                      aria-label="Зменшити"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-10 text-center text-sm tabular-nums">{fontSize}px</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={increaseFont}
-                      disabled={fontSize >= MAX_FONT}
-                      aria-label="Збільшити"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label>Міжряддя</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={decreaseLH}
-                      disabled={lineHeight <= MIN_LH}
-                      aria-label="Зменшити"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-12 text-center text-sm tabular-nums">{lineHeight.toFixed(2)}</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={increaseLH}
-                      disabled={lineHeight >= MAX_LH}
-                      aria-label="Збільшити"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="dual-language">Двомовний режим</Label>
-                  <Switch id="dual-language" checked={dualMode} onCheckedChange={(v) => setDualMode(v)} />
-                </div>
+                <RowFontControl
+                  label="Розмір шрифта"
+                  value={fontSize}
+                  min={MIN_FONT}
+                  max={MAX_FONT}
+                  onDecrease={decreaseFont}
+                  onIncrease={increaseFont}
+                />
+                <RowFontControl
+                  label="Міжряддя"
+                  value={lineHeight}
+                  min={MIN_LH}
+                  max={MAX_LH}
+                  step={0.05}
+                  onDecrease={decreaseLH}
+                  onIncrease={increaseLH}
+                />
+                <RowToggle label="Двомовний режим" checked={dualMode} onChange={(v) => setDualMode(v)} />
               </div>
             </div>
 
+            {/* 🆕 Режим читання */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Режим читання</h3>
+              <div className="space-y-3">
+                <RowToggle
+                  label="Неперервний текст"
+                  checked={continuous.enabled}
+                  onChange={(v) => setContinuous({ ...continuous, enabled: v })}
+                />
+                {continuous.enabled && (
+                  <div className="ml-4 border-l border-border pl-4 space-y-2">
+                    <RowToggle
+                      label="Номери віршів"
+                      checked={continuous.showVerseNumbers}
+                      onChange={(v) => setContinuous({ ...continuous, showVerseNumbers: v })}
+                    />
+                    <RowToggle
+                      label="Санскрит"
+                      checked={continuous.showSanskrit}
+                      onChange={(v) => setContinuous({ ...continuous, showSanskrit: v })}
+                    />
+                    <RowToggle
+                      label="Транслітерація"
+                      checked={continuous.showTransliteration}
+                      onChange={(v) => setContinuous({ ...continuous, showTransliteration: v })}
+                    />
+                    <RowToggle
+                      label="Переклад"
+                      checked={continuous.showTranslation}
+                      onChange={(v) => setContinuous({ ...continuous, showTranslation: v })}
+                    />
+                    <RowToggle
+                      label="Пояснення"
+                      checked={continuous.showCommentary}
+                      onChange={(v) => setContinuous({ ...continuous, showCommentary: v })}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Елементи тексту */}
             <div>
               <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
               <div className="space-y-3">
@@ -261,6 +307,41 @@ function RowToggle({ label, checked, onChange }: { label: string; checked: boole
     <div className="flex items-center justify-between">
       <Label>{label}</Label>
       <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  );
+}
+
+function RowFontControl({
+  label,
+  value,
+  min,
+  max,
+  onDecrease,
+  onIncrease,
+  step,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  onDecrease: () => void;
+  onIncrease: () => void;
+  step?: number;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <Label>{label}</Label>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={onDecrease} disabled={value <= min}>
+          <Minus className="w-4 h-4" />
+        </Button>
+        <span className="w-12 text-center text-sm tabular-nums">
+          {step ? value.toFixed(2) : `${value}px`}
+        </span>
+        <Button variant="outline" size="sm" onClick={onIncrease} disabled={value >= max}>
+          <Plus className="w-4 h-4" />
+        </Button>
+      </div>
     </div>
   );
 }
