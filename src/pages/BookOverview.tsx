@@ -155,16 +155,16 @@ export const BookOverview = () => {
                     >
                       <div className="grid gap-8 md:grid-cols-2">
                         <div className="flex items-start gap-3">
-                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                          <span className="text-lg font-bold text-primary whitespace-nowrap">
                             Пісня {canto.canto_number}
                           </span>
-                          <span className="text-base text-foreground">{cantoTitleUa}</span>
+                          <span className="text-lg text-foreground">{cantoTitleUa}</span>
                         </div>
                         <div className="flex items-start gap-3">
-                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                          <span className="text-lg font-bold text-primary whitespace-nowrap">
                             Canto {canto.canto_number}
                           </span>
-                          <span className="text-base text-foreground">{cantoTitleEn}</span>
+                          <span className="text-lg text-foreground">{cantoTitleEn}</span>
                         </div>
                       </div>
                     </Link>
@@ -176,10 +176,10 @@ export const BookOverview = () => {
                       className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-semibold text-primary">
+                        <span className="text-lg font-bold text-primary">
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
-                        <span className="text-base text-foreground">
+                        <span className="text-lg text-foreground">
                           {language === "ua" ? cantoTitleUa : cantoTitleEn}
                         </span>
                       </div>
@@ -200,16 +200,16 @@ export const BookOverview = () => {
                     >
                       <div className="grid gap-8 md:grid-cols-2">
                         <div className="flex items-start gap-3">
-                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                          <span className="text-lg font-bold text-primary whitespace-nowrap">
                             Глава {chapter.chapter_number}
                           </span>
-                          <span className="text-base text-foreground">{chapterTitleUa}</span>
+                          <span className="text-lg text-foreground">{chapterTitleUa}</span>
                         </div>
                         <div className="flex items-start gap-3">
-                          <span className="text-base font-bold text-primary whitespace-nowrap">
+                          <span className="text-lg font-bold text-primary whitespace-nowrap">
                             Chapter {chapter.chapter_number}
                           </span>
-                          <span className="text-base text-foreground">{chapterTitleEn}</span>
+                          <span className="text-lg text-foreground">{chapterTitleEn}</span>
                         </div>
                       </div>
                     </Link>
@@ -221,10 +221,10 @@ export const BookOverview = () => {
                       className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-semibold text-primary">
+                        <span className="text-lg font-bold text-primary">
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
-                        <span className="text-base text-foreground">
+                        <span className="text-lg text-foreground">
                           {language === "ua" ? chapterTitleUa : chapterTitleEn}
                         </span>
                       </div>
