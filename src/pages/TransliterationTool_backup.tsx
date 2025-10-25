@@ -1,103 +1,51 @@
 // src/pages/TransliterationTool.tsx
 // ✅ НОВИЙ транслітератор з Sanscript.js підтримкою
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Copy, Download, Trash2, BookOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { processText } from "@/utils/text/transliteration";
-import { devanagariToIAST, bengaliToIAST, convertIASTtoUkrainian } from "@/utils/textNormalizer";
+import { devanagariToIAST, bengaliToIAST } from "@/utils/textNormalizer";
 
 type Mode = "iast" | "devanagari" | "bengali";
-type TextType = "shloka" | "purport";
-
-const TEST_EXAMPLES: Record<Mode, { shloka: string[]; purport: string }> = {
-  iast: {
-    shloka: [
-      "dharma-kṣetre kuru-kṣetre samavetā yuyutsavaḥ",
-      "māmakāḥ pāṇḍavāś caiva kim akurvata sañjaya"
-    ],
-    purport: "Bhagavad-gītā is universally renowned as the jewel of India's spiritual wisdom. Spoken by Lord Kṛṣṇa, the Supreme Personality of Godhead to His intimate disciple Arjuna, the Gītā's seven hundred concise verses provide a definitive guide to the science of self realization."
-  },
-  devanagari: {
-    shloka: [
-      "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः",
-      "मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय"
-    ],
-    purport: "भगवद्गीता भारत की आध्यात्मिक बुद्धि का मणि है। भगवान् कृष्ण द्वारा अपने प्रिय शिष्य अर्जुन से कहा गया।"
-  },
-  bengali: {
-    shloka: [
-      "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্",
-      "তৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্"
-    ],
-    purport: "শ্রী চৈতন্য চরিতামৃত বাংলা ভাষায় রচিত একটি অমূল্য গ্রন্থ। এই গ্রন্থে শ্রী কৃষ্ণ চৈতন্যের জীবন ও শিক্ষার বিস্তৃত বিবরণ রয়েছে।"
-  }
-};
 
 export default function TransliterationTool() {
   const [mode, setMode] = useState<Mode>("devanagari");
-  const [textType, setTextType] = useState<TextType>("shloka");
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [inputText, setInputText] = useState("");
+  const [outputText, setOutputText] = useState("");
   const [showRules, setShowRules] = useState(false);
-
-  // Функція транслітерації з використанням Sanscript
-  const translateText = useCallback(async (text: string, sourceMode: Mode): Promise<string> => {
-    if (!text.trim()) return "";
-    
-    setIsProcessing(true);
-    try {
-      let result = "";
-      
-      switch (sourceMode) {
-        case "devanagari":
-          // Деванагарі → IAST → Українська
-          const devanagariIAST = devanagariToIAST(text);
-          result = convertIASTtoUkrainian(devanagariIAST);
-          break;
-        case "bengali":
-          // Бенгалі → IAST → Українська
-          const bengaliIAST = bengaliToIAST(text);
-          result = convertIASTtoUkrainian(bengaliIAST);
-          break;
-        case "iast":
-          // IAST → Українська
-          result = convertIASTtoUkrainian(text);
-          break;
-        default:
-          result = text;
-      }
-      
-      return result;
-    } catch (error) {
-      console.error("Помилка транслітерації:", error);
-      toast.error("Помилка при транслітерації");
-      return text;
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [mode, textType]);
 
   // Автоматична транслітерація з debounce
   useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (inputText.trim()) {
-        const result = await translateText(inputText, mode);
+    const timer = setTimeout(() => {
+      if (inputText) {
+        const result = processText(inputText, mode, textType, {
+          addHyphens: true,
+          convertNums: true,
+          preservePunct: true,
+        });
         setOutputText(result);
+
+        // Валідація
+        const validation = validateOutput(result);
+        if (!validation.valid) {
+          console.warn("Знайдено помилки валідації:", validation.errors);
+        }
       } else {
         setOutputText("");
       }
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [inputText, mode, textType, translateText]);
+  }, [inputText, mode, textType]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(outputText);
@@ -165,8 +113,8 @@ export default function TransliterationTool() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="shloka">Шлока (нумерація віршів)</SelectItem>
-                  <SelectItem value="purport">Пояснення (звичайний текст)</SelectItem>
+                  <SelectItem value="shloka">Шлока (перша літера рядка велика)</SelectItem>
+                  <SelectItem value="purport">Пояснення (велика після крапки)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -217,9 +165,7 @@ export default function TransliterationTool() {
           {/* Вихід */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-lg font-semibold">
-                Результат {isProcessing && <RefreshCw className="w-4 h-4 inline ml-2 animate-spin" />}
-              </Label>
+              <Label className="text-lg font-semibold">Результат</Label>
               <div className="text-sm text-muted-foreground">{outputText.length} символів</div>
             </div>
 
@@ -260,9 +206,15 @@ export default function TransliterationTool() {
               <div>
                 <h3 className="font-semibold text-lg mb-3">Голосні</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-sm">
-                  <div>a → а | ā → а̄</div>
-                  <div>i → і | ī → ī</div>
-                  <div>u → у | ū → ӯ</div>
+                  <div>
+                    a → а | ā → а̄
+                  </div>
+                  <div>
+                    i → і | ī → ī
+                  </div>
+                  <div>
+                    u → у | ū → ӯ
+                  </div>
                   <div>e → е | o → о</div>
                 </div>
               </div>
@@ -302,13 +254,11 @@ export default function TransliterationTool() {
               <div>
                 <h3 className="font-semibold text-lg mb-3">Спеціальні можливості</h3>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                  <li>✅ Автоматична конвертація з деванагарі</li>
-                  <li>✅ Автоматична конвертація з бенгалі</li>
                   <li>Автоматична конвертація індійських цифр (१२३ → 123)</li>
                   <li>Обробка пунктуації (। → .)</li>
-                  <li>Додавання дефісів у композитах (маха̄пурушах̣ → маха̄-пурушах̣)</li>
+                  <li>Додавання дефісів у композитах (маха̄пурушах̣ → маха̄-пурушах̣, ш́рīкр̣шн̣а → ш́рī-кр̣шн̣а)</li>
                   <li>Збереження подвійної данди (॥) для нумерації віршів</li>
-                  <li>Розпізнавання типу тексту: шлоки vs звичайний текст</li>
+                  <li>Правильна капіталізація: для шлок (перша літера кожного рядка), для пояснень (після крапки)</li>
                 </ul>
               </div>
 
@@ -319,61 +269,57 @@ export default function TransliterationTool() {
                     onClick={() => {
                       setMode("devanagari");
                       setTextType("shloka");
-                      setInputText("धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः ।\nमामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ।। १ ।।");
+                      setInputText(
+                        "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः । मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ।। १ ।।"
+                      );
                     }}
                     variant="outline"
                     size="sm"
                     className="justify-start"
                   >
-                    Бгаґавад-Ґīта̄ 1.1 (деванагарі)
+                    Бгаґавад-Ґīта̄ 1.1
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("devanagari");
+                      setTextType("shloka");
+                      setInputText(
+                        "सञ्जय उवाच दृष्ट्वा तु पाण्डवानीकं व्यूढं दुर्योधनस्तदा । आचार्यमुपसङ्गम्य राजा वचनमब्रवीत् ॥ २ ॥"
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Бгаґавад-Ґīта̄ 1.2
                   </Button>
                   <Button
                     onClick={() => {
                       setMode("bengali");
                       setTextType("shloka");
-                      setInputText("বন্দে গুরূনীশভক্তানীশমীশাবতারকান্ ।\nতৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্ ॥ १ ॥");
+                      setInputText(
+                        "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্ । তৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্ ॥ १ ॥"
+                      );
                     }}
                     variant="outline"
                     size="sm"
                     className="justify-start"
                   >
-                    Чаітанйа-чаріта̄мр̣та 1.1 (бенгалі)
+                    Чаітанйа-чаріта̄мр̣та 1.1
                   </Button>
                   <Button
                     onClick={() => {
                       setMode("bengali");
                       setTextType("shloka");
-                      setInputText("যস্যাংশাংশঃ শ্রীল–গর্ভোদশায়ী\nযন্নাভ্যব্জং লোকসংঘাতনালম্‌ ।\nলোকস্রষ্টুঃ সূতিকাধামধাতু–\nস্তং শ্রীনিত্যানন্দরামং প্রপদ্যে ॥ ১০ ॥");
+                      setInputText(
+                        "বন্দে শ্রীকৃষ্ণচৈতন্যনিত্যানন্দৌ সহোদিতৌ । গৌড়োদয়ে পুষ্পবন্তৌ চিত্রৌ শন্দৌ তমোনুদৌ ॥ २ ॥"
+                      );
                     }}
                     variant="outline"
                     size="sm"
                     className="justify-start"
                   >
-                    Чаітанйа-чаріта̄мр̣та 1.10 (ваш текст)
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setMode("iast");
-                      setTextType("shloka");
-                      setInputText("dharma-kṣetre kuru-kṣetre\nsamavetā yuyutsavaḥ\nmāmakāḥ pāṇḍavāś caiva\nkim akurvata sañjaya");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="justify-start"
-                  >
-                    Бгаґавад-Ґīта̄ 1.1 (IAST)
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setMode("iast");
-                      setTextType("purport");
-                      setInputText("Bhagavad-gītā is universally renowned as the jewel of India's spiritual wisdom. Spoken by Lord Kṛṣṇa, the Supreme Personality of Godhead to His intimate disciple Arjuna.");
-                    }}
-                    variant="outline"
-                    size="sm"
-                    className="justify-start"
-                  >
-                    Пояснення (IAST)
+                    Чаітанйа-чаріта̄мр̣та 1.2
                   </Button>
                 </div>
               </div>
@@ -382,14 +328,6 @@ export default function TransliterationTool() {
                 <h4 className="font-semibold text-sm mb-2">⚠️ Заборонені літери</h4>
                 <p className="text-sm text-muted-foreground">
                   Не використовуйте: <span className="font-mono">є и ь ю я ы э</span>
-                </p>
-              </div>
-
-              <div className="bg-info/10 border border-info/30 rounded-lg p-4">
-                <h4 className="font-semibold text-sm mb-2">🔬 Технічні деталі</h4>
-                <p className="text-sm text-muted-foreground">
-                  Цей транслітератор використовує академічні стандарти для точної конвертації з різних писемностей 
-                  в українську кирилицю з повним набором діакритичних знаків для санскриту.
                 </p>
               </div>
 

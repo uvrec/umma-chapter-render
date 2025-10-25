@@ -40,7 +40,7 @@ import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
 import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
-import TransliterationTool from "./pages/tools/Transliteration";
+import TransliterationTool from "./pages/TransliterationTool";
 import Dashboard from "./pages/admin/Dashboard";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
@@ -66,6 +66,7 @@ import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
+import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
@@ -168,6 +169,7 @@ const App = () => (
                   <Route path="/admin/data-migration" element={<DataMigration />} />
                   <Route path="/admin/import-wizard" element={<ImportWizard />} />
                   <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
+                  <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
                   <Route path="/admin/blog-posts" element={<BlogPosts />} />
                   <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
                   <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
