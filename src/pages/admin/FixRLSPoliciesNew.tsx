@@ -154,7 +154,7 @@ export const FixRLSPolicies = () => {
           .insert({
             playlist_id: playlists[0].id,
             title_ua: 'RLS_TEST_RECORD',
-            title_en: 'RLS_TEST_RECORD',
+            title_en: 'RLS_TEST_RECORD', 
             audio_url: 'test://access-check',
             duration: 1,
             track_number: 9999

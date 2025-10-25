@@ -114,20 +114,13 @@ export const useAudioMetadata = () => {
       }
 
       const insertData = {
-        title_ua: title,
-        title_en: title,
         playlist_id: playlistId,
+        title_ua: md?.title || file.name.replace(/\.[^/.]+$/, ""),
+        title_en: md?.title || file.name.replace(/\.[^/.]+$/, ""),
         audio_url: audioUrl,
         track_number,
         duration: md?.duration ? Math.round(md.duration) : null,
-        file_format: ext,
-        // Додаємо обов'язкові поля для політики
-        is_published: false,
-        description_ua: '',
-        description_en: '',
-      };
-
-      console.log('Inserting track data:', insertData);
+      };      console.log('Inserting track data:', insertData);
 
       const { data: inserted, error: insErr } = await supabase
         .from('audio_tracks')
