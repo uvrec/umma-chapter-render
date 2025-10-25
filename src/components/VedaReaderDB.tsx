@@ -210,7 +210,12 @@ export const VedaReaderDB = () => {
   // Мутація для оновлення вірша
   const updateVerseMutation = useMutation({
     mutationFn: async ({ verseId, updates }: { verseId: string; updates: any }) => {
-      const payload: any = { sanskrit: updates.sanskrit, transliteration: updates.transliteration };
+      const payload: any = {
+        sanskrit: updates.sanskrit,
+        transliteration: updates.transliteration,
+        transliteration_ua: updates.transliteration_ua || updates.transliteration,
+        transliteration_en: updates.transliteration_en || updates.transliteration,
+      };
       if (language === "ua") {
         payload.synonyms_ua = updates.synonyms;
         payload.translation_ua = updates.translation;
@@ -472,7 +477,11 @@ export const VedaReaderDB = () => {
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
                   sanskritText={verse.sanskrit || ""}
-                  transliteration={verse.transliteration || ""}
+                  transliteration={
+                    language === "ua"
+                      ? verse.transliteration_ua || verse.transliteration || ""
+                      : verse.transliteration_en || verse.transliteration || ""
+                  }
                   synonyms={language === "ua" ? verse.synonyms_ua || "" : verse.synonyms_en || ""}
                   translation={language === "ua" ? verse.translation_ua || "" : verse.translation_en || ""}
                   commentary={language === "ua" ? verse.commentary_ua || "" : verse.commentary_en || ""}
@@ -503,7 +512,7 @@ export const VedaReaderDB = () => {
                           verseNumber={fullVerseNumber}
                           bookName={chapterTitle}
                           sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration || ""}
+                          transliteration={currentVerse.transliteration_ua || currentVerse.transliteration || ""}
                           synonyms={currentVerse.synonyms_ua || ""}
                           translation={currentVerse.translation_ua || ""}
                           commentary={currentVerse.commentary_ua || ""}
@@ -518,7 +527,7 @@ export const VedaReaderDB = () => {
                           verseNumber={fullVerseNumber}
                           bookName={chapterTitle}
                           sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration || ""}
+                          transliteration={currentVerse.transliteration_en || currentVerse.transliteration || ""}
                           synonyms={currentVerse.synonyms_en || ""}
                           translation={currentVerse.translation_en || ""}
                           commentary={currentVerse.commentary_en || ""}
@@ -535,7 +544,11 @@ export const VedaReaderDB = () => {
                         verseNumber={fullVerseNumber}
                         bookName={chapterTitle}
                         sanskritText={currentVerse.sanskrit || ""}
-                        transliteration={currentVerse.transliteration || ""}
+                        transliteration={
+                          language === "ua"
+                            ? currentVerse.transliteration_ua || currentVerse.transliteration || ""
+                            : currentVerse.transliteration_en || currentVerse.transliteration || ""
+                        }
                         synonyms={language === "ua" ? currentVerse.synonyms_ua || "" : currentVerse.synonyms_en || ""}
                         translation={
                           language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""
