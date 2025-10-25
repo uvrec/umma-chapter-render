@@ -1,16 +1,63 @@
-/* src/styles/fonts.css */
+/* ==========================================
+   src/styles/fonts.css
+   ========================================== */
+
+/* -------- Gaura Times (основний вайшнавський шрифт) -------- */
 @font-face {
   font-family: "Gaura Times";
-  src: url("/fonts/GauraTimes.woff2") format("woff2"),
-       url("/fonts/GauraTimes.woff") format("woff");
+  src:
+    url("/fonts/GauraTimes.woff2") format("woff2"),
+    url("/fonts/GauraTimes.woff") format("woff");
   font-display: swap;
-  /* Якщо у вашому файлі є потрібні OpenType правила — увімкнемо всі лігатури */
-  font-feature-settings: "liga" 1, "dlig" 1, "calt" 1, "ccmp" 1;
+  font-feature-settings:
+    "liga" 1,
+    "dlig" 1,
+    "calt" 1,
+    "ccmp" 1;
 }
 
-/* Блок для трансліту */
-.translit {
-  font-family: "Gaura Times", "Noto Serif", "Times New Roman", serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+/* -------- Gentium Plus Cyr (для української кирилиці з діакритикою) -------- */
+@font-face {
+  font-family: "Gentium Plus Cyr";
+  src:
+    url("/fonts/Gentium-Regular.woff2") format("woff2"),
+    url("/fonts/Gentium-Italic.woff2") format("woff");
+  font-display: swap;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "ccmp" 1,
+    "mark" 1,
+    "mkmk" 1;
+  /* Діапазони Unicode: кирилиця, діакритики, розширення */
+  unicode-range: U+0300-036F, U+1E00-1EFF, U+0400-04FF, U+0500-052F;
 }
+
+/* -------- Блок для трансліту -------- */
+.translit,
+.prose-reader .translit,
+.result-text,
+[data-result] {
+  font-family: "Gaura Times", "Gentium Plus Cyr", "Noto Serif", serif;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "calt" 1,
+    "ccmp" 1,
+    "mark" 1,
+    "mkmk" 1;
+  font-style: italic;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  white-space: pre-wrap;
+  word-break: break-word;
+  unicode-bidi: isolate;
+  font-variant-position: normal;
+}
+
+/* -------- Tailwind базові директиви -------- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
