@@ -128,18 +128,18 @@ export async function trackPlayEvent(
 }
 
 export function useSupabasePlaylist(playlistId: string | null, language: "ua" | "en" = "ua") {
-  const { setQueue } = useAudio();
+  const audio = useAudio();
   useEffect(() => {
     let off = false;
     if (!playlistId) return;
     (async () => {
       const t = await loadPlaylistTracks(playlistId, language);
-      if (!off && t.length) setQueue(t);
+      if (!off && t.length && (audio as any).setQueue) (audio as any).setQueue(t);
     })();
     return () => {
       off = true;
     };
-  }, [playlistId, language, setQueue]);
+  }, [playlistId, language, audio]);
   return {};
 }
 

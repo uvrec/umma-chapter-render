@@ -187,7 +187,7 @@ export const VedaReaderDB = () => {
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
-      return data || [];
+      return (data || []) as any[];
     },
   });
 
@@ -492,12 +492,12 @@ export const VedaReaderDB = () => {
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
-                  sanskritText={verse.sanskrit || ""}
+                  sanskritText={(verse as any).sanskrit || ""}
                   transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""}
-                  synonyms={language === "ua" ? verse.synonyms_ua || "" : verse.synonyms_en || ""}
-                  translation={language === "ua" ? verse.translation_ua || "" : verse.translation_en || ""}
-                  commentary={language === "ua" ? verse.commentary_ua || "" : verse.commentary_en || ""}
-                  audioUrl={verse.audio_url || ""}
+                  synonyms={language === "ua" ? (verse as any).synonyms_ua || "" : (verse as any).synonyms_en || ""}
+                  translation={language === "ua" ? (verse as any).translation_ua || "" : (verse as any).translation_en || ""}
+                  commentary={language === "ua" ? (verse as any).commentary_ua || "" : (verse as any).commentary_en || ""}
+                  audioUrl={(verse as any).audio_url || ""}
                   textDisplaySettings={textDisplaySettings}
                   isAdmin={isAdmin}
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
@@ -523,11 +523,11 @@ export const VedaReaderDB = () => {
                           verseId={currentVerse.id}
                           verseNumber={fullVerseNumber}
                           bookName={chapterTitle}
-                          sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration_ua || ""}
-                          synonyms={currentVerse.synonyms_ua || ""}
-                          translation={currentVerse.translation_ua || ""}
-                          commentary={currentVerse.commentary_ua || ""}
+                          sanskritText={(currentVerse as any).sanskrit || ""}
+                          transliteration={(currentVerse as any).transliteration_ua || ""}
+                          synonyms={(currentVerse as any).synonyms_ua || ""}
+                          translation={(currentVerse as any).translation_ua || ""}
+                          commentary={(currentVerse as any).commentary_ua || ""}
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
                           isAdmin={isAdmin}
@@ -549,11 +549,11 @@ export const VedaReaderDB = () => {
                           verseId={currentVerse.id}
                           verseNumber={fullVerseNumber}
                           bookName={chapterTitle}
-                          sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration_en || ""}
-                          synonyms={currentVerse.synonyms_en || ""}
-                          translation={currentVerse.translation_en || ""}
-                          commentary={currentVerse.commentary_en || ""}
+                          sanskritText={(currentVerse as any).sanskrit || ""}
+                          transliteration={(currentVerse as any).transliteration_en || ""}
+                          synonyms={(currentVerse as any).synonyms_en || ""}
+                          translation={(currentVerse as any).translation_en || ""}
+                          commentary={(currentVerse as any).commentary_en || ""}
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
                           isAdmin={isAdmin}
@@ -577,11 +577,11 @@ export const VedaReaderDB = () => {
                         verseId={currentVerse.id}
                         verseNumber={fullVerseNumber}
                         bookName={chapterTitle}
-                        sanskritText={currentVerse.sanskrit || ""}
-                        transliteration={language === "ua" ? currentVerse.transliteration_ua || "" : currentVerse.transliteration_en || ""}
-                        synonyms={language === "ua" ? currentVerse.synonyms_ua || "" : currentVerse.synonyms_en || ""}
-                        translation={language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""}
-                        commentary={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""}
+                        sanskritText={(currentVerse as any).sanskrit || ""}
+                        transliteration={language === "ua" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""}
+                        synonyms={language === "ua" ? (currentVerse as any).synonyms_ua || "" : (currentVerse as any).synonyms_en || ""}
+                        translation={language === "ua" ? (currentVerse as any).translation_ua || "" : (currentVerse as any).translation_en || ""}
+                        commentary={language === "ua" ? (currentVerse as any).commentary_ua || "" : (currentVerse as any).commentary_en || ""}
                         audioUrl={currentVerse.audio_url || ""}
                         textDisplaySettings={textDisplaySettings}
                         isAdmin={isAdmin}

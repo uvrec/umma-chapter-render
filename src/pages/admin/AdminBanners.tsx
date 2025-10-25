@@ -80,7 +80,7 @@ export default function AdminBanners() {
   const loadBanners = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("site_settings")
         .select("*")
         .in(
@@ -91,7 +91,7 @@ export default function AdminBanners() {
       if (error) throw error;
 
       const bannersMap: Record<string, BannerSetting> = {};
-      data?.forEach((setting) => {
+      data?.forEach((setting: any) => {
         bannersMap[setting.key] = {
           key: setting.key,
           value: setting.value as { url: string | null; enabled: boolean },
@@ -131,7 +131,7 @@ export default function AdminBanners() {
         enabled: banners[key]?.value?.enabled ?? true,
       };
 
-      const { error: updateError } = await supabase.from("site_settings").update({ value: newValue }).eq("key", key);
+      const { error: updateError } = await (supabase as any).from("site_settings").update({ value: newValue }).eq("key", key);
 
       if (updateError) throw updateError;
 
@@ -166,7 +166,7 @@ export default function AdminBanners() {
         enabled,
       };
 
-      const { error } = await supabase.from("site_settings").update({ value: newValue }).eq("key", key);
+      const { error } = await (supabase as any).from("site_settings").update({ value: newValue }).eq("key", key);
 
       if (error) throw error;
 
@@ -201,7 +201,7 @@ export default function AdminBanners() {
         enabled: false,
       };
 
-      const { error } = await supabase.from("site_settings").update({ value: newValue }).eq("key", key);
+      const { error } = await (supabase as any).from("site_settings").update({ value: newValue }).eq("key", key);
 
       if (error) throw error;
 

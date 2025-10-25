@@ -114,9 +114,9 @@ function Hero() {
   const { data: settingsData } = useQuery({
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("site_settings").select("value").eq("key", "home_hero").single();
+      const { data, error } = await (supabase as any).from("site_settings").select("value").eq("key", "home_hero").single();
       if (error) throw error;
-      return data?.value as {
+      return (data as any)?.value as {
         background_image: string;
         logo_image: string;
         subtitle_ua: string;
@@ -191,16 +191,16 @@ function Hero() {
                   </div>
 
                   <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0 flex-1 text-left">
-                      <div className="mb-1 truncate text-base font-semibold text-foreground">{currentTrack.title}</div>
-                      <div className="truncate text-sm text-muted-foreground">
-                        {currentTrack.album || "Vedavoice · Аудіо"}
+                      <div className="min-w-0 flex-1 text-left">
+                        <div className="mb-1 truncate text-base font-semibold text-foreground">{currentTrack.title}</div>
+                        <div className="truncate text-sm text-muted-foreground">
+                          {(currentTrack as any).metadata?.album || "Vedavoice · Аудіо"}
+                        </div>
+                        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}
+                        </div>
                       </div>
-                      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        {isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}
-                      </div>
-                    </div>
 
                     <Button size="sm" onClick={togglePlay} className="gap-2">
                       {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}

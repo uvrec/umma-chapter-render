@@ -49,7 +49,7 @@ export default function SiteBanners() {
 
   const loadSettings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("site_settings")
         .select("value")
         .eq("key", "home_hero")
@@ -75,7 +75,7 @@ export default function SiteBanners() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("site_settings")
         .update({ value: settings })
         .eq("key", "home_hero");
