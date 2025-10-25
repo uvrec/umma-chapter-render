@@ -212,10 +212,25 @@ export const VedaReaderDB = () => {
     mutationFn: async ({ verseId, updates }: { verseId: string; updates: any }) => {
       const payload: any = {
         sanskrit: updates.sanskrit,
-        transliteration: updates.transliteration,
-        transliteration_ua: updates.transliteration_ua || updates.transliteration,
-        transliteration_en: updates.transliteration_en || updates.transliteration,
       };
+
+      // Transliteration - зберігати в правильне поле
+      if (updates.transliteration_ua) {
+        payload.transliteration_ua = updates.transliteration_ua;
+      }
+      if (updates.transliteration_en) {
+        payload.transliteration_en = updates.transliteration_en;
+      }
+      // Fallback для single mode
+      if (updates.transliteration && !updates.transliteration_ua && !updates.transliteration_en) {
+        if (language === "ua") {
+          payload.transliteration_ua = updates.transliteration;
+        } else {
+          payload.transliteration_en = updates.transliteration;
+        }
+      }
+
+      // Інші поля залежать від мови
       if (language === "ua") {
         payload.synonyms_ua = updates.synonyms;
         payload.translation_ua = updates.translation;
@@ -225,6 +240,7 @@ export const VedaReaderDB = () => {
         payload.translation_en = updates.translation;
         payload.commentary_en = updates.commentary;
       }
+
       const { error } = await supabase.from("verses").update(payload).eq("id", verseId);
       if (error) throw error;
     },
@@ -519,7 +535,18 @@ export const VedaReaderDB = () => {
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
                           isAdmin={isAdmin}
-                          onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
+                          onVerseUpdate={(verseId, updates) =>
+                            updateVerseMutation.mutate({
+                              verseId,
+                              updates: {
+                                sanskrit: updates.sanskrit,
+                                transliteration_ua: updates.transliteration,
+                                synonyms: updates.synonyms,
+                                translation: updates.translation,
+                                commentary: updates.commentary,
+                              },
+                            })
+                          }
                         />
                         <VerseCard
                           key={`${currentVerse.id}-en`}
@@ -534,7 +561,18 @@ export const VedaReaderDB = () => {
                           audioUrl={currentVerse.audio_url || ""}
                           textDisplaySettings={textDisplaySettings}
                           isAdmin={isAdmin}
-                          onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
+                          onVerseUpdate={(verseId, updates) =>
+                            updateVerseMutation.mutate({
+                              verseId,
+                              updates: {
+                                sanskrit: updates.sanskrit,
+                                transliteration_en: updates.transliteration,
+                                synonyms: updates.synonyms,
+                                translation: updates.translation,
+                                commentary: updates.commentary,
+                              },
+                            })
+                          }
                         />
                       </div>
                     ) : (
