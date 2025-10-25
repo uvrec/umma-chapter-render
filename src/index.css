@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "./styles/fonts.css";
 
 /* ==========================================
    VEDAVOICE.ORG — Духовна практика в цифровому форматі
@@ -12,19 +13,19 @@
    ========================= */
 :root {
   /* Основний текст (кирилиця + латиниця) */
-  --font-primary: 'Crimson Text', 'Gaura Times', 'Noto Serif', Georgia, serif;
-  
+  --font-primary: "Crimson Text", "Gaura Times", "Noto Serif", Georgia, serif;
+
   /* Трансліт (діакритика) */
-  --font-translit: 'Gaura Times', 'Crimson Text', 'Noto Serif', serif;
-  
+  --font-translit: "Gaura Times", "Crimson Text", "Noto Serif", serif;
+
   /* Деванагарі */
-  --font-devanagari: 'Noto Sans Devanagari', 'Noto Serif Devanagari', serif;
-  
+  --font-devanagari: "Noto Sans Devanagari", "Noto Serif Devanagari", serif;
+
   /* Бенгалі */
-  --font-bengali: 'Noto Sans Bengali', 'Noto Serif Bengali', serif;
-  
+  --font-bengali: "Noto Sans Bengali", "Noto Serif Bengali", serif;
+
   /* UI (інтерфейс) */
-  --font-ui: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-ui: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* =========================
@@ -35,23 +36,23 @@
   --vv-reader-font-size: 19px;
   --vv-reader-line-height: 1.75;
   --vv-reader-max-width: 45rem;
-  
+
   /* Санскрит/Бенгалі */
   --sanskrit-font-size: 30px;
   --sanskrit-line-height: 1.5;
-  
+
   /* Трансліт */
   --translit-font-size: 17px;
   --translit-line-height: 1.6;
-  
+
   /* Послівний */
   --synonyms-font-size: 16px;
   --synonyms-line-height: 1.65;
-  
+
   /* Пояснення */
   --commentary-font-size: 18px;
   --commentary-line-height: 1.8;
-  
+
   /* Радіуси */
   --radius: 0.75rem;
 }
@@ -171,7 +172,7 @@ html.craft {
   --primary: 33 76% 42%;
   --primary-foreground: 48 100% 98%;
   --primary-hover: 33 76% 38%;
-  
+
   --accent: 31 70% 40%;
   --accent-foreground: 48 100% 98%;
 
@@ -436,7 +437,7 @@ body {
     --vv-reader-font-size: 20px;
     --vv-reader-max-width: 48rem;
   }
-  
+
   .verse-surface {
     padding: 3rem 2.5rem;
   }
@@ -448,7 +449,7 @@ body {
     --vv-reader-font-size: 18px;
     --sanskrit-font-size: 28px;
   }
-  
+
   .verse-surface {
     padding: 2rem 1.5rem;
   }
@@ -461,15 +462,15 @@ body {
     --sanskrit-font-size: 26px;
     --translit-font-size: 16px;
   }
-  
+
   .verse-surface {
     padding: 1.5rem 1rem;
   }
-  
+
   .sanskrit-block {
     padding: 2rem 1rem;
   }
-  
+
   /* Touch targets */
   button,
   a {
@@ -517,9 +518,7 @@ body {
    ========================= */
 
 .brand-gradient {
-  background: linear-gradient(135deg, 
-    hsl(33, 76%, 42%) 0%, 
-    hsl(38, 80%, 55%) 100%);
+  background: linear-gradient(135deg, hsl(33, 76%, 42%) 0%, hsl(38, 80%, 55%) 100%);
 }
 
 .text-balance {
@@ -539,6 +538,10 @@ body {
 }
 
 @keyframes logo-spin {
-  from { transform: none; }
-  to { transform: none; }
+  from {
+    transform: none;
+  }
+  to {
+    transform: none;
+  }
 }
