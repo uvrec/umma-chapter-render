@@ -1,6 +1,7 @@
 // VerseCard.tsx — оновлена версія з окремими Volume2 кнопками для кожної секції
 // Відповідає PDF шаблону: кожен блок (Санскрит, Послівний, Переклад, Пояснення) має свою кнопку Volume2
 // + VerseNumberEditor для мануального редагування номерів віршів адміністратором
+// + STICKY HEADER для верхньої панелі
 
 import { useState } from "react";
 import { Play, Pause, Edit, Save, X, Volume2 } from "lucide-react";
@@ -190,42 +191,44 @@ export const VerseCard = ({
   return (
     <Card className="verse-surface w-full animate-fade-in border-gray-100 bg-card shadow-sm dark:border-border">
       <div className="p-6">
-        {/* Верхня панель: номер/книга + кнопка редагування */}
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Якщо адмін — показуємо VerseNumberEditor */}
-            {isAdmin && verseId ? (
-              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
-            ) : (
-              <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-                <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+        {/* 🆕 STICKY HEADER - Верхня панель: номер/книга + кнопка редагування */}
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Якщо адмін — показуємо VerseNumberEditor */}
+              {isAdmin && verseId ? (
+                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+              ) : (
+                <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+                  <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+                </div>
+              )}
+
+              {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
+            </div>
+
+            {isAdmin && (
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button variant="default" size="sm" onClick={saveEdit}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Зберегти
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={cancelEdit}>
+                      <X className="mr-2 h-4 w-4" />
+                      Скасувати
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={startEdit}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Редагувати
+                  </Button>
+                )}
               </div>
             )}
-
-            {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
           </div>
-
-          {isAdmin && (
-            <div className="flex gap-2">
-              {isEditing ? (
-                <>
-                  <Button variant="default" size="sm" onClick={saveEdit}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Зберегти
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={cancelEdit}>
-                    <X className="mr-2 h-4 w-4" />
-                    Скасувати
-                  </Button>
-                </>
-              ) : (
-                <Button variant="ghost" size="sm" onClick={startEdit}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Редагувати
-                </Button>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Деванагарі з окремою кнопкою Volume2 */}
