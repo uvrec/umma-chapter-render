@@ -295,7 +295,7 @@ export const VerseCard = ({
         {textDisplaySettings.showCommentary && (isEditing || commentary) && <div className="border-t border-border pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] text-foreground font-extrabold">Purport</h4>
+              <h4 className="text-[1.17em] text-foreground font-extrabold">Пояснення</h4>
               <button onClick={() => playSection("Пояснення", audioCommentary)} disabled={!audioCommentary && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати пояснення">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
