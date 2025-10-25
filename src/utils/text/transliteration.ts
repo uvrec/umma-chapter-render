@@ -1,7 +1,7 @@
 // src/utils/text/transliteration.ts
 /**
  * Правила транслітерації санскриту та бенгалі на українську кирилицю
- * Документація: https://www.prabhupada.website/transliteration/rules
+ * Документація: 
  */
 
 // Маппінг для латиниці IAST → українська кирилиця
@@ -20,6 +20,7 @@ export const IAST_TO_CYRILLIC: Record<string, string> = {
   ai: "аі",
   aya: "айа",
   āye: "а̄йе",
+  āya: "а̄йа",
 
   // Сполучення приголосних (спочатку довші)
   kṣ: "кш",
