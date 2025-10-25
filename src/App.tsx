@@ -13,6 +13,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
 import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
+import { AudioProvider as ModernAudioProvider } from "@/contexts/ModernAudioContext";
+import { ModernGlobalPlayer } from "@/components/ModernGlobalPlayer";
 
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
@@ -82,9 +84,10 @@ const App = () => (
         <AuthProvider>
           <TooltipProvider>
             <AudioProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
+              <ModernAudioProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<NewHome />} />
 
@@ -191,8 +194,10 @@ const App = () => (
 
                 {/* Глобальний плеєр і єдина панель налаштувань */}
                 <GlobalAudioPlayer />
+                <ModernGlobalPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>
+              </ModernAudioProvider>
             </AudioProvider>
           </TooltipProvider>
         </AuthProvider>
