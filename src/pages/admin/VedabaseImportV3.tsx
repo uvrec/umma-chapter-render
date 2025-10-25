@@ -475,6 +475,11 @@ export default function VedabaseImportV3() {
             translationEN = data.translation;
             purportEN = data.purport;
 
+            // ✅ Нормалізуємо EN транслітерацію (IAST → UA кирилиця)
+            if (transliterationEN) {
+              transliterationEN = normalizeVerseField(transliterationEN, "transliteration_en");
+            }
+
             await new Promise((r) => setTimeout(r, 500));
           } catch (e) {
             console.error(`Помилка Vedabase ${verseNum}:`, e);
@@ -541,7 +546,9 @@ export default function VedabaseImportV3() {
             chapter_id: chapterId,
             verse_number: verseNum,
             sanskrit,
-            transliteration: transliterationUA || transliterationEN, // пріоритет UA
+            transliteration: transliterationUA || transliterationEN, // fallback для старих даних
+            transliteration_ua: transliterationUA, // ✅ UA транслітерація
+            transliteration_en: transliterationEN, // ✅ EN транслітерація
             synonyms_en: synonymsEN,
             translation_en: translationEN,
             commentary_en: purportEN,
