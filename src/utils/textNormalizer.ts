@@ -1,8 +1,8 @@
 /**
- * Нормалізатор тексту для vedavoice.org
- * Виправляє помилки з Gitabase та конвертує англійську транслітерацію в українську
- *
- * ✅ ВИПРАВЛЕНО: використовує combining characters для українських літер
+ * ✅ ВИПРАВЛЕНИЙ textNormalizer.ts
+ * - Правильний ı̄ (dotless i + macron) замість ӣ
+ * - Повна підтримка IAST конвертації
+ * - Додано функції для Деванагарі та Бенгалі (для UI транслітератора)
  */
 
 // ============================================================================
@@ -25,21 +25,33 @@ const MOJIBAKE_REPLACEMENTS: Record<string, string> = {
   Ãº: "ú",
   "": "",
   "\ufeff": "",
-  "\uF0A0": "",
 };
 
 // ============================================================================
-// 2. Діакритичні символи
+// 2. Діакритичні символи - ✅ ВИПРАВЛЕНО
 // ============================================================================
 
 const DIACRITIC_FIXES: Record<string, string> = {
-  // Залишаємо як є - combining characters
+  ā: "а̄", // а + combining macron
+  ī: "\u0131\u0304", // ✅ dotless i + combining macron (НЕ кирилиця!)
+  ū: "ӯ", // у з макроном (готовий символ)
+  ṝ: "р̣̄",
+  ṭ: "т̣",
+  ḍ: "д̣",
+  ṇ: "н̣",
+  ṣ: "ш",
+  ṛ: "р̣",
+  ś: "ш́",
+  ñ: "н̃",
+  ṅ: "н̇",
+  ṁ: "м̇",
+  ḥ: "х̣",
   а̣: "а",
   і̣: "і",
 };
 
 // ============================================================================
-// 3. Словникові заміни (тільки для перекладів/коментарів)
+// 3. Словникові заміни
 // ============================================================================
 
 const WORD_REPLACEMENTS: Record<string, string> = {
@@ -52,7 +64,7 @@ const WORD_REPLACEMENTS: Record<string, string> = {
 };
 
 // ============================================================================
-// 4. Виправлення приголосних сполучень (для транслітерації)
+// 4. Виправлення приголосних сполучень
 // ============================================================================
 
 const CONSONANT_CLUSTERS: Record<string, string> = {
@@ -67,26 +79,25 @@ const CONSONANT_CLUSTERS: Record<string, string> = {
 };
 
 // ============================================================================
-// 5. IAST латиниця → українська кирилиця (ВИПРАВЛЕНО!)
+// 5. IAST латиниця → українська кирилиця - ✅ ВИПРАВЛЕНО
 // ============================================================================
 
 /**
- * Конвертує англійську транслітерацію (IAST) в українську
- * ✅ ВИПРАВЛЕНО: використовує combining characters
- * Приклад: "vande gurūn" → "ванде ґурӯн"
+ * Конвертує IAST латиницю в українську кирилицю
+ * ✅ ПРАВИЛЬНО конвертує ī → ı̄ (dotless i)
  */
 export function convertIASTtoUkrainian(text: string): string {
   if (!text) return text;
 
   const patterns: Record<string, string> = {
-    // 3 символи (найдовші першими!)
+    // ✅ 3 символи (найдовші першими!)
     nya: "нйа",
     nye: "нйе",
     nyi: "нйі",
     nyo: "нйо",
     nyu: "нйу",
 
-    // 2 символи (діграфи)
+    // ✅ 2 символи (діграфи)
     bh: "бг",
     gh: "ґг",
     dh: "дг",
@@ -101,31 +112,31 @@ export function convertIASTtoUkrainian(text: string): string {
     ai: "аі",
     au: "ау",
 
-    // 1 символ з діакритикою
+    // ✅ 1 символ з діакритикою
     ṣ: "ш",
     ś: "ш́",
     ṭ: "т̣",
     ḍ: "д̣",
     ṇ: "н̣",
-    ӣ: "ī",
     ṛ: "р̣",
     ñ: "н̃",
     ṅ: "н̇",
     ṁ: "м̇",
     ḥ: "х̣",
 
-    // ✅ ВИПРАВЛЕНО: Довгі голосні з combining characters
-    ā: "а\u0304", // а + combining macron
-    ī: "\u0131\u0304", // dotless i + combining macron (для правильного рендерингу)
-    ū: "у\u0304", // у + combining macron
-    ṝ: "р̣\u0304", // р̣ + combining macron
+    // ✅ Довгі голосні - ВИПРАВЛЕНО!
+    ā: "а̄", // а + combining macron
+    ī: "\u0131\u0304", // ✅ dotless i + combining macron (правильно!)
+    ū: "ӯ", // у з макроном
+    ṝ: "р̣̄",
+    Ā: "А̄",
+    Ī: "\u0131\u0304", // ✅ Велике також dotless i
+    Ū: "Ӯ",
 
-    // Великі літери
-    Ā: "А\u0304",
-    Ī: "\u0131\u0304", // dotless i + macron
-    Ū: "У\u0304",
+    // ✅ Візарга як двокрапка
+    ":": "х̣",
 
-    // Прості приголосні
+    // ✅ Прості приголосні
     k: "к",
     g: "ґ",
     c: "ч",
@@ -162,7 +173,7 @@ export function convertIASTtoUkrainian(text: string): string {
     N: "Н",
     S: "С",
 
-    // Прості голосні
+    // ✅ Прості голосні
     a: "а",
     i: "і",
     u: "у",
@@ -205,7 +216,289 @@ export function convertIASTtoUkrainian(text: string): string {
 }
 
 // ============================================================================
-// ОСНОВНІ ФУНКЦІЇ НОРМАЛІЗАЦІЇ
+// 6. Деванагарі → IAST (для UI транслітератора)
+// ============================================================================
+
+/**
+ * Конвертує Деванагарі в IAST
+ */
+export function devanagariToIAST(text: string): string {
+  const vowels: Record<string, string> = {
+    अ: "a",
+    आ: "ā",
+    इ: "i",
+    ई: "ī",
+    उ: "u",
+    ऊ: "ū",
+    ऋ: "ṛ",
+    ॠ: "ṝ",
+    ऌ: "ḷ",
+    ॡ: "ḹ",
+    ए: "e",
+    ऐ: "ai",
+    ओ: "o",
+    औ: "au",
+  };
+
+  const consonants: Record<string, string> = {
+    क: "ka",
+    ख: "kha",
+    ग: "ga",
+    घ: "gha",
+    ङ: "ṅa",
+    च: "ca",
+    छ: "cha",
+    ज: "ja",
+    झ: "jha",
+    ञ: "ña",
+    ट: "ṭa",
+    ठ: "ṭha",
+    ड: "ḍa",
+    ढ: "ḍha",
+    ण: "ṇa",
+    त: "ta",
+    थ: "tha",
+    द: "da",
+    ध: "dha",
+    न: "na",
+    प: "pa",
+    फ: "pha",
+    ब: "ba",
+    भ: "bha",
+    म: "ma",
+    य: "ya",
+    र: "ra",
+    ल: "la",
+    व: "va",
+    श: "śa",
+    ष: "ṣa",
+    स: "sa",
+    ह: "ha",
+  };
+
+  const matras: Record<string, string> = {
+    "ा": "ā",
+    "ि": "i",
+    "ी": "ī",
+    "ु": "u",
+    "ू": "ū",
+    "ृ": "ṛ",
+    "ॄ": "ṝ",
+    "ॢ": "ḷ",
+    "ॣ": "ḹ",
+    "े": "e",
+    "ै": "ai",
+    "ो": "o",
+    "ौ": "au",
+  };
+
+  const other: Record<string, string> = {
+    "्": "",
+    "ं": "ṁ",
+    "ः": "ḥ",
+    "ँ": "ṁ",
+    "।": ".",
+    "॥": "||",
+    ॐ: "oṁ", // OM
+    ऽ: "", // аваграха (видаляємо)
+    "०": "0",
+    "१": "1",
+    "२": "2",
+    "३": "3",
+    "४": "4",
+    "५": "5",
+    "६": "6",
+    "७": "7",
+    "८": "8",
+    "९": "9",
+  };
+
+  let result = "";
+  let i = 0;
+
+  while (i < text.length) {
+    const char = text[i];
+
+    // ✅ ЗБЕРІГАЄМО ПРОБІЛИ
+    if (char === " " || char === "\n" || char === "\t") {
+      result += char;
+      i++;
+      continue;
+    }
+
+    if (vowels[char]) {
+      result += vowels[char];
+      i++;
+    } else if (consonants[char]) {
+      result += consonants[char];
+      i++;
+
+      // Перевірка вірами (видаляє 'a')
+      if (i < text.length && text[i] === "्") {
+        result = result.slice(0, -1);
+        i++;
+      }
+      // Перевірка матри
+      else if (i < text.length && matras[text[i]]) {
+        result = result.slice(0, -1) + matras[text[i]];
+        i++;
+      }
+    } else if (other[char]) {
+      result += other[char];
+      i++;
+    } else {
+      result += char;
+      i++;
+    }
+  }
+
+  return result;
+}
+
+// ============================================================================
+// 7. Бенгалі → IAST (для UI транслітератора)
+// ============================================================================
+
+/**
+ * Конвертує Бенгалі в IAST
+ */
+export function bengaliToIAST(text: string): string {
+  const vowels: Record<string, string> = {
+    অ: "a",
+    আ: "ā",
+    ই: "i",
+    ঈ: "ī",
+    উ: "u",
+    ঊ: "ū",
+    ঋ: "ṛ",
+    ৠ: "ṝ",
+    ঌ: "ḷ",
+    ৡ: "ḹ",
+    এ: "e",
+    ঐ: "ai",
+    ও: "o",
+    ঔ: "au",
+  };
+
+  const consonants: Record<string, string> = {
+    ক: "ka",
+    খ: "kha",
+    গ: "ga",
+    ঘ: "gha",
+    ঙ: "ṅa",
+    চ: "ca",
+    ছ: "cha",
+    জ: "ja",
+    ঝ: "jha",
+    ঞ: "ña",
+    ট: "ṭa",
+    ঠ: "ṭha",
+    ড: "ḍa",
+    ঢ: "ḍha",
+    ণ: "ṇa",
+    ত: "ta",
+    থ: "tha",
+    দ: "da",
+    ধ: "dha",
+    ন: "na",
+    প: "pa",
+    ফ: "pha",
+    ব: "va",
+    ভ: "bha",
+    ম: "ma", // ✅ ব = va (санскрит!)
+    য: "ya",
+    র: "ra",
+    ল: "la",
+    ৱ: "va",
+    ব়: "va",
+    শ: "śa",
+    ষ: "ṣa",
+    স: "sa",
+    হ: "ha",
+  };
+
+  const matras: Record<string, string> = {
+    "া": "ā",
+    "ি": "i",
+    "ী": "ī",
+    "ু": "u",
+    "ূ": "ū",
+    "ৃ": "ṛ",
+    "ৄ": "ṝ",
+    "ৢ": "ḷ",
+    "ৣ": "ḹ",
+    "ে": "e",
+    "ৈ": "ai",
+    "ো": "o",
+    "ৌ": "au",
+  };
+
+  const other: Record<string, string> = {
+    "্": "",
+    "ং": "ṁ",
+    "ঃ": "ḥ",
+    "ঁ": "ṁ",
+    "।": ".",
+    "॥": "||",
+    ঽ: "'", // аваграха
+    ৎ: "t", // кхондо то
+    "়": "", // нукта (видаляємо)
+    "০": "0",
+    "১": "1",
+    "২": "2",
+    "৩": "3",
+    "৪": "4",
+    "৫": "5",
+    "৬": "6",
+    "৭": "7",
+    "৮": "8",
+    "৯": "9",
+  };
+
+  let result = "";
+  let i = 0;
+
+  while (i < text.length) {
+    const char = text[i];
+
+    // ✅ ЗБЕРІГАЄМО ПРОБІЛИ
+    if (char === " " || char === "\n" || char === "\t") {
+      result += char;
+      i++;
+      continue;
+    }
+
+    if (vowels[char]) {
+      result += vowels[char];
+      i++;
+    } else if (consonants[char]) {
+      result += consonants[char];
+      i++;
+
+      // Перевірка хосонто (видаляє 'a')
+      if (i < text.length && text[i] === "্") {
+        result = result.slice(0, -1);
+        i++;
+      }
+      // Перевірка матри
+      else if (i < text.length && matras[text[i]]) {
+        result = result.slice(0, -1) + matras[text[i]];
+        i++;
+      }
+    } else if (other[char]) {
+      result += other[char];
+      i++;
+    } else {
+      result += char;
+      i++;
+    }
+  }
+
+  return result;
+}
+
+// ============================================================================
+// ДОПОМІЖНІ ФУНКЦІЇ
 // ============================================================================
 
 function normalizeMojibake(text: string): string {
@@ -247,14 +540,9 @@ function normalizeConsonantClusters(text: string): string {
 function removeGitabaseArtifacts(text: string): string {
   if (!text) return text;
 
-  // Видаляємо "Текст 1:", "18:" на початку
   let result = text.replace(/^\s*\d+\s*:\s*/, "");
   result = result.replace(/^\s*Текст\s+\d+\s*:\s*/i, "");
-
-  // Множинні пробіли → один пробіл
   result = result.replace(/\s+/g, " ");
-
-  // Видаляємо зайві пробіли навколо знаків пунктуації
   result = result.replace(/\s+([,.;:!?])/g, "$1");
 
   return result.trim();
@@ -266,35 +554,25 @@ function removeGitabaseArtifacts(text: string): string {
 
 /**
  * Нормалізує одне поле віршу
- * @param text - Текст для нормалізації
- * @param fieldType - Тип поля: 'sanskrit' | 'transliteration' | 'transliteration_en' | 'synonyms' | 'translation' | 'commentary'
  */
 export function normalizeVerseField(text: string, fieldType: string): string {
   if (!text) return text;
 
-  // 1. Видаляємо mojibake
   let result = normalizeMojibake(text);
-
-  // 2. Видаляємо артефакти Gitabase
   result = removeGitabaseArtifacts(result);
 
-  // 3. Залежно від типу поля
   switch (fieldType) {
     case "sanskrit":
-      // Санскрит - тільки діакритика
       result = normalizeDiacritics(result);
       break;
 
     case "transliteration_en":
-      // Англійська транслітерація з Vedabase → українська
       result = convertIASTtoUkrainian(result);
       result = normalizeDiacritics(result);
       result = normalizeWordReplacements(result);
       break;
 
     case "transliteration":
-      // Українська транслітерація - НЕ застосовуємо словникові заміни!
-      // Залишаємо "чайтанйа" як є (не "чайтанья")
       result = normalizeDiacritics(result);
       result = normalizeConsonantClusters(result);
       break;
@@ -302,10 +580,8 @@ export function normalizeVerseField(text: string, fieldType: string): string {
     case "synonyms":
     case "translation":
     case "commentary":
-      // Українські тексти - всі правила
       result = normalizeDiacritics(result);
       result = normalizeWordReplacements(result);
-      // Виправляємо тільки неправильні поєднання (тг→тх, але не нйа→нья!)
       for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
         if (["тг", "пг", "кг", "чг", "Тг", "Пг", "Кг", "Чг"].includes(old)) {
           result = result.replaceAll(old, newVal);
@@ -325,8 +601,6 @@ export function normalizeVerse(verse: any): any {
     ...verse,
     sanskrit: normalizeVerseField(verse.sanskrit || "", "sanskrit"),
     transliteration: normalizeVerseField(verse.transliteration || "", "transliteration"),
-    transliteration_ua: normalizeVerseField(verse.transliteration_ua || "", "transliteration"),
-    transliteration_en: normalizeVerseField(verse.transliteration_en || "", "transliteration_en"),
     synonyms_en: normalizeVerseField(verse.synonyms_en || "", "synonyms"),
     synonyms_ua: normalizeVerseField(verse.synonyms_ua || "", "synonyms"),
     translation_en: normalizeVerseField(verse.translation_en || "", "translation"),
