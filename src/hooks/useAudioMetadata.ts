@@ -42,11 +42,24 @@ export const useAudioMetadata = () => {
       setIsProcessing(true);
       setProgress(5);
 
+      console.log('Starting upload for file:', file.name, 'to playlist:', playlistId);
+
+      // Перевіряємо доступ до storage
+      const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+      console.log('Available buckets:', buckets);
+      if (bucketError) console.error('Bucket error:', bucketError);
+
       // 1) Завантажуємо файл у storage
       const ext = file.name.split('.').pop()?.toLowerCase() || 'mp3';
       const path = `uploads/${playlistId}/${Date.now()}-${file.name}`;
+      
+      console.log('Uploading to storage path:', path);
       const { error: upErr } = await supabase.storage.from('audio-files').upload(path, file, { upsert: true });
-      if (upErr) throw upErr;
+      if (upErr) {
+        console.error('Storage upload error:', upErr);
+        throw upErr;
+      }
+      console.log('Storage upload successful');
       setProgress(50);
 
       const { data: publicUrlData } = supabase.storage.from('audio-files').getPublicUrl(path);
@@ -70,21 +83,42 @@ export const useAudioMetadata = () => {
 
       // 4) Створюємо запис у audio_tracks
       const title = md?.title || file.name.replace(/\.[^/.]+$/, '');
+      
+      // Перевіряємо автентифікацію користувача
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Користувач не автентифікований. Увійдіть в систему для завантаження файлів.');
+      }
+
+      const insertData = {
+        title_ua: title,
+        title_en: title,
+        playlist_id: playlistId,
+        audio_url: audioUrl,
+        track_number,
+        duration: md?.duration ? Math.round(md.duration) : null,
+        file_format: ext,
+        // Додаємо обов'язкові поля для політики
+        is_published: false,
+        description_ua: '',
+        description_en: '',
+      };
+
+      console.log('Inserting track data:', insertData);
+
       const { data: inserted, error: insErr } = await supabase
         .from('audio_tracks')
-        .insert({
-          title_ua: title,
-          title_en: title,
-          playlist_id: playlistId,
-          audio_url: audioUrl,
-          track_number,
-          duration: md?.duration ? Math.round(md.duration) : null,
-          file_format: ext,
-        })
+        .insert(insertData)
         .select('id')
         .single();
 
-      if (insErr) throw insErr;
+      if (insErr) {
+        console.error('Insert error:', insErr);
+        if (insErr.message.includes('row-level security policy')) {
+          throw new Error('Недостатньо прав для додавання треків. Зверніться до адміністратора.');
+        }
+        throw insErr;
+      }
 
       setProgress(100);
       return { success: true, track_id: (inserted as any).id as string };
