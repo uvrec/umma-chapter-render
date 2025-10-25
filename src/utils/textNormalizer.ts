@@ -107,6 +107,7 @@ export function convertIASTtoUkrainian(text: string): string {
     ṭ: "т̣",
     ḍ: "д̣",
     ṇ: "н̣",
+    ӣ: "ī",
     ṛ: "р̣",
     ñ: "н̃",
     ṅ: "н̇",
