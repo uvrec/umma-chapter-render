@@ -7,12 +7,10 @@ type AudioTrack = {
   id: string;
   title_ua: string | null;
   title_en: string | null;
-  file_url: string;
+  audio_url: string;
   playlist_id: string;
   track_number: number;
   duration: number | null;
-  lyrics_ua: string | null;
-  lyrics_en: string | null;
 };
 type AudioPlaylist = {
   id: string;
@@ -28,19 +26,19 @@ const title = (lang: "ua" | "en", ua?: string | null, en?: string | null) =>
 export function convertSupabaseTrackToPlayerTrack(
   track: AudioTrack,
   playlist?: AudioPlaylist,
-  language: "ua" | "en" = "ua",
+  language: "ua" | "en" = "ua"
 ): Track {
   return {
     id: track.id,
     title: title(language, track.title_ua, track.title_en),
-    src: track.file_url,
-    url: track.file_url,
+    url: track.audio_url,
+    src: track.audio_url,
     verseNumber: `Трек ${track.track_number}`,
-    coverImage: playlist?.cover_image_url || undefined,
+    coverImage: playlist?.cover_image_url ?? undefined,
     duration: track.duration ?? undefined,
     metadata: {
       artist: playlist?.author || "Vedavoice",
-      album: title(language, playlist?.title_ua, playlist?.title_en),
+      album: playlist ? title(language, playlist.title_ua, playlist.title_en) : undefined,
     },
   };
 }
@@ -48,7 +46,7 @@ export function convertSupabaseTrackToPlayerTrack(
 export async function loadTrackFromSupabase(id: string, language: "ua" | "en" = "ua"): Promise<Track | null> {
   const { data: track, error: te } = await supabase
     .from("audio_tracks")
-    .select("id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en")
+    .select("id,title_ua,title_en,audio_url,playlist_id,track_number,duration")
     .eq("id", id)
     .single();
   if (te || !track) return null;
@@ -71,7 +69,7 @@ export async function loadPlaylistTracks(playlistId: string, language: "ua" | "e
       .single(),
     supabase
       .from("audio_tracks")
-      .select("id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en")
+      .select("id,title_ua,title_en,audio_url,playlist_id,track_number,duration")
       .eq("playlist_id", playlistId)
       .order("track_number", { ascending: true }),
   ]);
@@ -98,7 +96,7 @@ export async function loadRecentTracks(
     .from("audio_tracks")
     .select(
       `
-      id,title_ua,title_en,file_url,playlist_id,track_number,duration,lyrics_ua,lyrics_en,
+      id,title_ua,title_en,audio_url,playlist_id,track_number,duration,
       playlist:audio_playlists ( id,title_ua,title_en,cover_image_url,author )
     `,
     )

@@ -6,39 +6,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
-
-interface Track {
-  id: string;
-  title: string;
-  verseNumber?: string;
-  url: string;
-  src: string;
-  coverImage?: string;
-}
-
-type RepeatMode = 'off' | 'all' | 'one';
-
-interface AudioContextType {
-  playlist: Track[];
-  currentIndex: number | null;
-  currentTrack: Track | null;
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  volume: number;
-  repeatMode: RepeatMode;
-  playTrack: (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => void;
-  togglePlay: () => void;
-  stop: () => void;
-  seek: (time: number) => void;
-  setVolume: (v: number) => void;
-  prevTrack: () => void;
-  nextTrack: () => void;
-  toggleRepeat: () => void;
-  addToPlaylist: (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => void;
-  removeFromPlaylist: (index: number) => void;
-  clearPlaylist: () => void;
-}
+import type { Track, AudioContextType, RepeatMode } from "./GlobalAudioPlayer/GlobalAudioPlayer.types";
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
@@ -263,6 +231,15 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setPlaylist([]);
   };
 
+  const setQueue = (tracks: Track[]) => {
+    setPlaylist(tracks);
+    setCurrentIndex(null);
+  };
+
+  const addToQueue = (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => {
+    addToPlaylist(track);
+  };
+
   const togglePlay = () => {
     if (!audioRef.current || !audioRef.current.src) return;
     if (isPlaying) {
@@ -344,6 +321,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     addToPlaylist,
     removeFromPlaylist,
     clearPlaylist,
+    setQueue,
+    addToQueue,
   };
 
   return (

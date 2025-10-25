@@ -116,6 +116,16 @@ export interface AudioContextType {
    * Очищає весь плейлист та зупиняє відтворення
    */
   clearPlaylist: () => void;
+  
+  /**
+   * Встановлює черговий список треків
+   */
+  setQueue: (tracks: Track[]) => void;
+  
+  /**
+   * Додає трек до черги
+   */
+  addToQueue: (track: Omit<Track, 'url'> & { src: string }) => void;
 }
 
 export interface GlobalAudioPlayerProps {
