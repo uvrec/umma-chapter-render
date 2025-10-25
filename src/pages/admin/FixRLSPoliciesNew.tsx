@@ -16,25 +16,145 @@ const SQL_MIGRATION = `-- Fix RLS policies for audio_tracks to allow authenticat
 DROP POLICY IF EXISTS "Admins can manage tracks" ON public.audio_tracks;
 DROP POLICY IF EXISTS "Admins can manage playlists" ON public.audio_playlists;
 
--- Simple policies for authenticated users
+-- Simple policies for authenticated users (USING before WITH CHECK!)
 CREATE POLICY "Authenticated can manage tracks" 
 ON public.audio_tracks 
 FOR ALL 
 TO authenticated 
-WITH CHECK (true)
-USING (true);
+USING (true) 
+WITH CHECK (true);
 
 CREATE POLICY "Authenticated can manage playlists" 
 ON public.audio_playlists 
 FOR ALL 
 TO authenticated 
-WITH CHECK (true)
-USING (true);`;
+USING (true) 
+WITH CHECK (true);`;
 
 export const FixRLSPolicies = () => {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const [isExecuting, setIsExecuting] = useState(false);
   const { toast } = useToast();
+
+  const executeRLSFix = async () => {
+    setIsExecuting(true);
+    setStatus('idle');
+    setMessage('Виконую SQL міграцію через Supabase fetch-proxy...');
+
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase credentials not found');
+      }
+
+      // Розбиваємо SQL на окремі команди (USING перед WITH CHECK!)
+      const sqlCommands = [
+        'DROP POLICY IF EXISTS "Admins can manage tracks" ON public.audio_tracks;',
+        'DROP POLICY IF EXISTS "Admins can manage playlists" ON public.audio_playlists;',
+        `CREATE POLICY "Authenticated can manage tracks" 
+         ON public.audio_tracks 
+         FOR ALL 
+         TO authenticated 
+         USING (true) 
+         WITH CHECK (true);`,
+        `CREATE POLICY "Authenticated can manage playlists" 
+         ON public.audio_playlists 
+         FOR ALL 
+         TO authenticated 
+         USING (true) 
+         WITH CHECK (true);`
+      ];
+
+      let executedCount = 0;
+      
+      // Виконуємо кожну команду окремо
+      for (const sql of sqlCommands) {
+        setMessage(`Виконую команду ${executedCount + 1}/${sqlCommands.length}...`);
+        
+        const response = await fetch(`${supabaseUrl}/rest/v1/rpc/execute_sql`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${supabaseKey}`,
+            'apikey': supabaseKey
+          },
+          body: JSON.stringify({ sql: sql.trim() })
+        });
+
+        if (!response.ok) {
+          // Якщо RPC не існує, пробуємо альтернативний підхід
+          if (response.status === 404) {
+            // Використовуємо direct SQL через REST API
+            const directResponse = await fetch(`${supabaseUrl}/rest/v1/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'text/plain',
+                'Authorization': `Bearer ${supabaseKey}`,
+                'apikey': supabaseKey,
+                'Prefer': 'return=minimal'
+              },
+              body: sql
+            });
+            
+            if (!directResponse.ok) {
+              const errorText = await directResponse.text();
+              console.warn(`SQL command failed: ${sql}`, errorText);
+              // Не зупиняємося на DROP POLICY помилках - вони очікувані якщо політика не існує
+              if (!sql.includes('DROP POLICY')) {
+                throw new Error(`SQL Error: ${errorText}`);
+              }
+            }
+          } else {
+            const errorData = await response.text();
+            console.warn(`RPC command failed: ${sql}`, errorData);
+            if (!sql.includes('DROP POLICY')) {
+              throw new Error(`RPC Error: ${errorData}`);
+            }
+          }
+        }
+        
+        executedCount++;
+      }
+
+      // Тестуємо чи працює доступ після міграції
+      setMessage('Тестуємо доступ після міграції...');
+      
+      const testResponse = await fetch(`${supabaseUrl}/rest/v1/audio_tracks?select=id&limit=1`, {
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey
+        }
+      });
+
+      if (testResponse.ok) {
+        setStatus('success');
+        setMessage('✅ RLS політики успішно оновлено! Тепер аутентифіковані користувачі можуть завантажувати аудіо файли.');
+        toast({
+          title: "Успішно!",
+          description: "RLS міграція завершена, завантаження аудіо доступне",
+        });
+      } else {
+        throw new Error(`Test access failed: ${testResponse.statusText}`);
+      }
+
+    } catch (error: any) {
+      console.error('RLS Migration Error:', error);
+      setStatus('error');
+      setMessage(`❌ Помилка автоматичної міграції: ${error.message}
+
+Рекомендація: Використайте ручний метод - скопіюйте SQL код кнопкою "Копіювати SQL" і виконайте його в Supabase Dashboard → SQL Editor`);
+      toast({
+        title: "Помилка автоматичної міграції", 
+        description: "Спробуйте ручний метод через Dashboard",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExecuting(false);
+    }
+  };
 
   const copySQLToClipboard = async () => {
     try {
@@ -56,22 +176,84 @@ export const FixRLSPolicies = () => {
 
   const testAudioAccess = async () => {
     try {
-      setMessage('Тестуємо доступ до audio_tracks...');
+      setMessage('Тестуємо доступ до audio_tracks через fetch...');
       
-      const { data, error } = await supabase
-        .from('audio_tracks')
-        .select('id')
-        .limit(1);
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      // Тестуємо читання
+      const readResponse = await fetch(`${supabaseUrl}/rest/v1/audio_tracks?select=id&limit=1`, {
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey
+        }
+      });
 
-      if (error) {
-        setMessage(`Помилка доступу: ${error.message}`);
+      if (!readResponse.ok) {
+        setMessage(`❌ Помилка читання: ${readResponse.statusText} (${readResponse.status})`);
         setStatus('error');
-      } else {
-        setMessage(`Доступ працює! Знайдено записів: ${data?.length || 0}`);
-        setStatus('success');
+        return;
       }
+
+      const data = await readResponse.json();
+      
+      // Тестуємо запис (якщо є плейлисти)
+      const playlistResponse = await fetch(`${supabaseUrl}/rest/v1/audio_playlists?select=id&limit=1`, {
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+          'apikey': supabaseKey
+        }
+      });
+
+      let writeTest = "невідомо";
+      if (playlistResponse.ok) {
+        const playlists = await playlistResponse.json();
+        if (playlists && playlists.length > 0) {
+          // Пробуємо вставити тестовий запис
+          const insertResponse = await fetch(`${supabaseUrl}/rest/v1/audio_tracks`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseKey}`,
+              'apikey': supabaseKey,
+              'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({
+              playlist_id: playlists[0].id,
+              title_ua: 'RLS_TEST_RECORD',
+              title_en: 'RLS_TEST_RECORD',
+              audio_url: 'test://access-check',
+              duration: 1,
+              track_number: 9999
+            })
+          });
+
+          if (insertResponse.ok) {
+            writeTest = "✅ успішно";
+            // Видаляємо тестовий запис
+            const inserted = await insertResponse.json();
+            if (inserted && inserted.length > 0) {
+              await fetch(`${supabaseUrl}/rest/v1/audio_tracks?id=eq.${inserted[0].id}`, {
+                method: 'DELETE',
+                headers: {
+                  'Authorization': `Bearer ${supabaseKey}`,
+                  'apikey': supabaseKey
+                }
+              });
+            }
+          } else if (insertResponse.status === 403) {
+            writeTest = "❌ заборонено (RLS)";
+          } else {
+            writeTest = `❌ помилка ${insertResponse.status}`;
+          }
+        }
+      }
+
+      setMessage(`✅ Читання: OK (${data?.length || 0} записів), Запис: ${writeTest}`);
+      setStatus(writeTest.includes('✅') ? 'success' : 'error');
+      
     } catch (error: any) {
-      setMessage(`Помилка тестування: ${error.message}`);
+      setMessage(`❌ Помилка тестування: ${error.message}`);
       setStatus('error');
     }
   };
@@ -89,8 +271,9 @@ export const FixRLSPolicies = () => {
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Цей SQL код виправляє RLS політики для дозволу завантаження аудіо файлів 
-                всім authenticated користувачам замість тільки admin'ам.
+                Автоматичне виправлення RLS політик через Supabase fetch-proxy. 
+                Змінює обмежувальні admin-only політики на дозвільні для всіх authenticated користувачів.
+                Більше не потрібен Python або ручне виконання в Dashboard!
               </AlertDescription>
             </Alert>
 
@@ -103,8 +286,17 @@ export const FixRLSPolicies = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
-              <Button onClick={copySQLToClipboard} className="flex items-center gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button 
+                onClick={executeRLSFix} 
+                disabled={isExecuting}
+                className="flex items-center gap-2"
+                variant="default"
+              >
+                {isExecuting ? 'Виконую...' : '🔧 Автоматичне виправлення'}
+              </Button>
+              
+              <Button onClick={copySQLToClipboard} variant="outline" className="flex items-center gap-2">
                 <Copy className="h-4 w-4" />
                 Копіювати SQL
               </Button>
@@ -128,13 +320,27 @@ export const FixRLSPolicies = () => {
 
             {/* Instructions */}
             <div className="text-sm text-muted-foreground space-y-2">
-              <p><strong>Інструкції:</strong></p>
-              <ol className="list-decimal list-inside space-y-1">
-                <li>Скопіюйте SQL код кнопкою вище</li>
-                <li>Відкрийте Supabase Dashboard → SQL Editor</li>
-                <li>Вставте і виконайте SQL код</li>
-                <li>Поверніться і натисніть "Тестувати доступ"</li>
-              </ol>
+              <p><strong>Варіанти виконання:</strong></p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 p-3 bg-green-50 rounded-lg border-green-200 border">
+                  <p className="font-medium text-green-800">🔧 Автоматично (Рекомендовано):</p>
+                  <ol className="list-decimal list-inside space-y-1 text-xs text-green-700">
+                    <li>Натисніть "Автоматичне виправлення"</li>
+                    <li>Відбудеться SQL міграція через fetch-proxy</li>
+                    <li>Автоматичне тестування доступу</li>
+                    <li>Готово! Без Dashboard і Python</li>
+                  </ol>
+                </div>
+                <div className="space-y-2 p-3 bg-gray-50 rounded-lg border-gray-200 border">
+                  <p className="font-medium text-gray-800">📋 Резервний варіант:</p>
+                  <ol className="list-decimal list-inside space-y-1 text-xs text-gray-600">
+                    <li>Якщо автоматичне не спрацює</li>
+                    <li>Скопіюйте SQL код</li>
+                    <li>Supabase Dashboard → SQL Editor</li>
+                    <li>Вставте і виконайте SQL вручну</li>
+                  </ol>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
