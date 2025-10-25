@@ -1,6 +1,6 @@
 // src/pages/admin/FixRLSPolicies.tsx
 // Простий компонент для показу SQL міграції RLS политик
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -35,7 +35,17 @@ export const FixRLSPolicies = () => {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
   const [isExecuting, setIsExecuting] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const { toast } = useToast();
+
+  // Перевіряємо авторизацію при завантаженні
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    checkAuth();
+  }, []);
 
   const executeRLSFix = async () => {
     setIsExecuting(true);
@@ -176,80 +186,70 @@ export const FixRLSPolicies = () => {
 
   const testAudioAccess = async () => {
     try {
-      setMessage('Тестуємо доступ до audio_tracks через fetch...');
+      setMessage('Тестуємо доступ до audio_tracks через Supabase клієнт...');
       
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      // Перевіряємо чи користувач авторизований
+      const { data: { user } } = await supabase.auth.getUser();
       
-      // Тестуємо читання
-      const readResponse = await fetch(`${supabaseUrl}/rest/v1/audio_tracks?select=id&limit=1`, {
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'apikey': supabaseKey
-        }
-      });
-
-      if (!readResponse.ok) {
-        setMessage(`❌ Помилка читання: ${readResponse.statusText} (${readResponse.status})`);
+      if (!user) {
+        setMessage('❌ Користувач не авторизований. Увійдіть в систему для тестування RLS політик.');
         setStatus('error');
         return;
       }
 
-      const data = await readResponse.json();
-      
-      // Тестуємо запис (якщо є плейлисти)
-      const playlistResponse = await fetch(`${supabaseUrl}/rest/v1/audio_playlists?select=id&limit=1`, {
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'apikey': supabaseKey
-        }
-      });
+      // Тестуємо читання через Supabase клієнт (з токеном користувача)
+      const { data: readData, error: readError } = await supabase
+        .from('audio_tracks')
+        .select('id')
+        .limit(1);
 
-      let writeTest = "невідомо";
-      if (playlistResponse.ok) {
-        const playlists = await playlistResponse.json();
-        if (playlists && playlists.length > 0) {
-          // Пробуємо вставити тестовий запис
-          const insertResponse = await fetch(`${supabaseUrl}/rest/v1/audio_tracks`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseKey}`,
-              'apikey': supabaseKey,
-              'Prefer': 'return=representation'
-            },
-            body: JSON.stringify({
-              playlist_id: playlists[0].id,
-              title_ua: 'RLS_TEST_RECORD',
-              title_en: 'RLS_TEST_RECORD',
-              audio_url: 'test://access-check',
-              duration: 1,
-              track_number: 9999
-            })
-          });
-
-          if (insertResponse.ok) {
-            writeTest = "✅ успішно";
-            // Видаляємо тестовий запис
-            const inserted = await insertResponse.json();
-            if (inserted && inserted.length > 0) {
-              await fetch(`${supabaseUrl}/rest/v1/audio_tracks?id=eq.${inserted[0].id}`, {
-                method: 'DELETE',
-                headers: {
-                  'Authorization': `Bearer ${supabaseKey}`,
-                  'apikey': supabaseKey
-                }
-              });
-            }
-          } else if (insertResponse.status === 403) {
-            writeTest = "❌ заборонено (RLS)";
-          } else {
-            writeTest = `❌ помилка ${insertResponse.status}`;
-          }
-        }
+      if (readError) {
+        setMessage(`❌ Помилка читання: ${readError.message}`);
+        setStatus('error');
+        return;
       }
 
-      setMessage(`✅ Читання: OK (${data?.length || 0} записів), Запис: ${writeTest}`);
+      // Тестуємо запис (якщо є плейлисти)
+      const { data: playlists } = await supabase
+        .from('audio_playlists')
+        .select('id')
+        .limit(1);
+
+      let writeTest = "невідомо";
+      if (playlists && playlists.length > 0) {
+        // Пробуємо вставити тестовий запис
+        const { data: insertData, error: insertError } = await supabase
+          .from('audio_tracks')
+          .insert({
+            playlist_id: playlists[0].id,
+            title_ua: 'RLS_TEST_RECORD',
+            title_en: 'RLS_TEST_RECORD',
+            audio_url: 'test://access-check',
+            duration: 1,
+            track_number: 9999
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          if (insertError.message.includes('row-level security') || insertError.message.includes('policy')) {
+            writeTest = "❌ заборонено (RLS політика)";
+          } else {
+            writeTest = `❌ помилка: ${insertError.message}`;
+          }
+        } else if (insertData) {
+          writeTest = "✅ успішно";
+          // Видаляємо тестовий запис
+          await supabase
+            .from('audio_tracks')
+            .delete()
+            .eq('id', insertData.id);
+        }
+      } else {
+        writeTest = "❌ немає плейлистів для тесту";
+      }
+
+      setMessage(`✅ Читання: OK (${readData?.length || 0} записів), Запис: ${writeTest}`);
       setStatus(writeTest.includes('✅') ? 'success' : 'error');
       
     } catch (error: any) {
@@ -274,6 +274,22 @@ export const FixRLSPolicies = () => {
                 Автоматичне виправлення RLS політик через Supabase fetch-proxy. 
                 Змінює обмежувальні admin-only політики на дозвільні для всіх authenticated користувачів.
                 Більше не потрібен Python або ручне виконання в Dashboard!
+              </AlertDescription>
+            </Alert>
+
+            {/* Auth Status */}
+            <Alert className={user ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'}>
+              {user ? (
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              ) : (
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              )}
+              <AlertDescription>
+                {user ? (
+                  `✅ Авторизовано як: ${user.email}`
+                ) : (
+                  '⚠️ Не авторизовано. Для тестування RLS політик потрібна авторизація.'
+                )}
               </AlertDescription>
             </Alert>
 
@@ -303,6 +319,14 @@ export const FixRLSPolicies = () => {
               
               <Button onClick={testAudioAccess} variant="outline">
                 Тестувати доступ
+              </Button>
+
+              <Button 
+                onClick={() => window.location.href = '/auth'}
+                variant="secondary"
+                className="text-xs"
+              >
+                Авторизація
               </Button>
             </div>
 
