@@ -1,279 +1,117 @@
-import { useState } from "react";
+// src/pages/TransliterationTool.tsx
+import { useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { convertIASTtoUkrainian } from "@/utils/textNormalizer";
-import { normalizeTransliteration } from "@/utils/text/translitNormalize";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Copy, Download, Trash2, BookOpen } from "lucide-react";
+import { toast } from "sonner";
+import { processText, TEST_EXAMPLES, validateOutput } from "@/utils/text/transliteration";
 
-type TranslitMode = "iast" | "devanagari" | "bengali";
+type Mode = "iast" | "devanagari" | "bengali";
 type TextType = "shloka" | "purport";
 
-/**
- * Транслітератор санскриту
- * - IAST латиниця → українська кирилиця з діакритикою
- * - Деванагарі → IAST → українська (через проміжний крок)
- * - Бенгалі → IAST → українська (через проміжний крок)
- */
 export default function TransliterationTool() {
-  const { language, t } = useLanguage();
-
-  // Стан
+  const [mode, setMode] = useState<Mode>("iast");
+  const [textType, setTextType] = useState<TextType>("shloka");
   const [inputText, setInputText] = useState("");
   const [outputText, setOutputText] = useState("");
-  const [mode, setMode] = useState<TranslitMode>("iast");
-  const [textType, setTextType] = useState<TextType>("shloka");
+  const [showRules, setShowRules] = useState(false);
 
-  /**
-   * Деванагарі → IAST (спрощена конвертація)
-   * Для точної конвертації використовуйте спеціалізовану бібліотеку
-   */
-  const devanagariToIAST = (text: string): string => {
-    // Базова мапа (можна розширити)
-    const map: Record<string, string> = {
-      अ: "a",
-      आ: "ā",
-      इ: "i",
-      ई: "ī",
-      उ: "u",
-      ऊ: "ū",
-      ऋ: "ṛ",
-      ॠ: "ṝ",
-      ए: "e",
-      ओ: "o",
-      ऐ: "ai",
-      औ: "au",
-      क: "k",
-      ख: "kh",
-      ग: "g",
-      घ: "gh",
-      ङ: "ṅ",
-      च: "c",
-      छ: "ch",
-      ज: "j",
-      झ: "jh",
-      ञ: "ñ",
-      ट: "ṭ",
-      ठ: "ṭh",
-      ड: "ḍ",
-      ढ: "ḍh",
-      ण: "ṇ",
-      त: "t",
-      थ: "th",
-      द: "d",
-      ध: "dh",
-      न: "n",
-      प: "p",
-      फ: "ph",
-      ब: "b",
-      भ: "bh",
-      म: "m",
-      य: "y",
-      र: "r",
-      ल: "l",
-      व: "v",
-      श: "ś",
-      ष: "ṣ",
-      स: "s",
-      ह: "h",
-      "ं": "ṁ",
-      "ः": "ḥ",
-      "्": "",
-      // Матри
-      "ा": "ā",
-      "ि": "i",
-      "ी": "ī",
-      "ु": "u",
-      "ू": "ū",
-      "ृ": "ṛ",
-      "े": "e",
-      "ो": "o",
-      "ै": "ai",
-      "ौ": "au",
-    };
+  // Автоматична транслітерація з debounce
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (inputText) {
+        const result = processText(inputText, mode, textType, {
+          addHyphens: true,
+          convertNums: true,
+          preservePunct: true,
+          preserveCase: false, // Застосовувати правила капіталізації
+        });
+        setOutputText(result);
 
-    let result = "";
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      result += map[char] || char;
-    }
-    return result;
+        // Валідація
+        const validation = validateOutput(result);
+        if (!validation.valid) {
+          console.warn("Знайдено помилки валідації:", validation.errors);
+        }
+      } else {
+        setOutputText("");
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [inputText, mode, textType]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(outputText);
+    toast.success("Скопійовано в буфер обміну!");
   };
 
-  /**
-   * Бенгалі → IAST (спрощена конвертація)
-   */
-  const bengaliToIAST = (text: string): string => {
-    const map: Record<string, string> = {
-      অ: "a",
-      আ: "ā",
-      ই: "i",
-      ঈ: "ī",
-      উ: "u",
-      ঊ: "ū",
-      ঋ: "ṛ",
-      এ: "e",
-      ও: "o",
-      ঐ: "ai",
-      ঔ: "au",
-      ক: "k",
-      খ: "kh",
-      গ: "g",
-      ঘ: "gh",
-      ঙ: "ṅ",
-      চ: "c",
-      ছ: "ch",
-      জ: "j",
-      ঝ: "jh",
-      ঞ: "ñ",
-      ট: "ṭ",
-      ঠ: "ṭh",
-      ড: "ḍ",
-      ঢ: "ḍh",
-      ণ: "ṇ",
-      ত: "t",
-      থ: "th",
-      দ: "d",
-      ধ: "dh",
-      ন: "n",
-      প: "p",
-      ফ: "ph",
-      ব: "b",
-      ভ: "bh",
-      ম: "m",
-      য: "y",
-      র: "r",
-      ল: "l",
-      ব: "v",
-      শ: "ś",
-      ষ: "ṣ",
-      স: "s",
-      হ: "h",
-      "ং": "ṁ",
-      "ঃ": "ḥ",
-      "্": "",
-      // Матри
-      "া": "ā",
-      "ি": "i",
-      "ী": "ī",
-      "ু": "u",
-      "ূ": "ū",
-      "ৃ": "ṛ",
-      "ে": "e",
-      "ো": "o",
-      "ৈ": "ai",
-      "ৌ": "au",
-    };
-
-    let result = "";
-    for (let i = 0; i < text.length; i++) {
-      const char = text[i];
-      result += map[char] || char;
-    }
-    return result;
+  const handleDownload = () => {
+    const blob = new Blob([outputText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "transliteration.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Файл завантажено!");
   };
 
-  /**
-   * Обробка капіталізації згідно типу тексту
-   */
-  const applyCapitalization = (text: string, type: TextType): string => {
-    if (type === "shloka") {
-      // У шлоках НЕМАЄ великих літер взагалі!
-      return text.toLowerCase();
-    } else {
-      // У поясненні: велика після крапки
-      let result = text.charAt(0).toUpperCase() + text.slice(1);
-      result = result.replace(/\.\s+([а-яґєіїa-zа̄ӯ])/g, (match, letter) => {
-        return ". " + letter.toUpperCase();
-      });
-      return result;
-    }
+  const handleClear = () => {
+    setInputText("");
+    setOutputText("");
   };
 
-  /**
-   * Головна функція транслітерації
-   */
-  const handleTransliterate = () => {
-    if (!inputText.trim()) {
-      setOutputText("");
-      return;
-    }
-
-    let intermediate = inputText;
-
-    // Крок 1: Конвертація в IAST (якщо потрібно)
-    if (mode === "devanagari") {
-      intermediate = devanagariToIAST(inputText);
-    } else if (mode === "bengali") {
-      intermediate = bengaliToIAST(inputText);
-    }
-
-    // Крок 2: IAST → українська
-    let result = convertIASTtoUkrainian(intermediate);
-
-    // Крок 3: Нормалізація діакритики
-    result = normalizeTransliteration(result);
-
-    // Крок 4: Капіталізація
-    result = applyCapitalization(result, textType);
-
-    setOutputText(result);
-  };
-
-  // Копіювання в буфер
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error("Не вдалося скопіювати", err);
-    }
+  const loadExample = () => {
+    const examples = TEST_EXAMPLES[mode];
+    const exampleText = textType === "shloka" ? examples.shloka.join("\n") : examples.purport;
+    setInputText(exampleText);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">
-            {t("Транслітератор санскриту", "Sanskrit Transliterator")}
+
+      <main className="flex-1 container mx-auto px-4 py-12 max-w-6xl">
+        {/* Заголовок */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Транслітератор санскриту
           </h1>
-          <p className="text-muted-foreground">
-            {t("Конвертація в українську кирилицю з діакритикою", "Convert to Ukrainian Cyrillic with diacritics")}
-          </p>
+          <p className="text-lg text-muted-foreground">Конвертація в українську кирилицю з діакритикою</p>
         </div>
 
-        {/* Налаштування */}
-        <Card className="p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Контролі */}
+        <Card className="p-6 mb-8">
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="mode">{t("Режим транслітерації", "Transliteration mode")}</Label>
-              <Select value={mode} onValueChange={(v) => setMode(v as TranslitMode)}>
-                <SelectTrigger id="mode">
+              <Label>Режим транслітерації</Label>
+              <Select value={mode} onValueChange={(v) => setMode(v as Mode)}>
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="iast">{t("Латиниця (IAST) → Кирилиця", "Latin (IAST) → Cyrillic")}</SelectItem>
-                  <SelectItem value="devanagari">{t("Деванагарі → Кирилиця", "Devanagari → Cyrillic")}</SelectItem>
-                  <SelectItem value="bengali">{t("Бенгалі → Кирилиця", "Bengali → Cyrillic")}</SelectItem>
+                  <SelectItem value="iast">Латиниця (IAST) → Кирилиця</SelectItem>
+                  <SelectItem value="devanagari">Деванагарі → Кирилиця</SelectItem>
+                  <SelectItem value="bengali">Бенгалі → Кирилиця</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="textType">{t("Тип тексту", "Text type")}</Label>
+              <Label>Тип тексту</Label>
               <Select value={textType} onValueChange={(v) => setTextType(v as TextType)}>
-                <SelectTrigger id="textType">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="shloka">{t("Шлока (без великих літер)", "Shloka (no capitals)")}</SelectItem>
-                  <SelectItem value="purport">
-                    {t("Пояснення (велика після крапки)", "Purport (capitals after period)")}
-                  </SelectItem>
+                  <SelectItem value="shloka">Шлока (перша літера рядка велика)</SelectItem>
+                  <SelectItem value="purport">Пояснення (велика після крапки)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -281,92 +119,230 @@ export default function TransliterationTool() {
         </Card>
 
         {/* Текстові поля */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Вхідний текст */}
-          <Card className="p-4 space-y-3">
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
+          {/* Вхід */}
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">{t("Вхідний текст", "Input text")}</h2>
-              <div className="text-sm text-muted-foreground">
-                {inputText.length} {t("символів", "characters")}
-              </div>
+              <Label className="text-lg font-semibold">Вхідний текст</Label>
+              <div className="text-sm text-muted-foreground">{inputText.length} символів</div>
             </div>
+
             <Textarea
-              rows={16}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={
                 mode === "iast"
-                  ? t(
-                      "Введіть текст латиницею з IAST діакритикою...\nНаприклад: kṛṣṇa mahāprabhu",
-                      "Enter text in Latin with IAST diacritics...\nExample: kṛṣṇa mahāprabhu",
-                    )
+                  ? "Введіть текст латиницею з IAST діакритикою...\nНаприклад: kṛṣṇa mahāprabhu"
                   : mode === "devanagari"
-                    ? t(
-                        "Введіть текст деванагарі...\nНаприклад: धर्मक्षेत्रे कुरुक्षेत्रे",
-                        "Enter Devanagari text...\nExample: धर्मक्षेत्रे कुरुक्षेत्रे",
-                      )
-                    : t(
-                        "Введіть текст бенгалі...\nНаприклад: বন্দে গুরূন্",
-                        "Enter Bengali text...\nExample: বন্দে গুরূন্",
-                      )
+                    ? "Введіть текст на деванагарі...\nНаприклад: कृष्ण महाप्रभु"
+                    : "Введіть текст бенгалі...\nНаприклад: কৃষ্ণ মহাপ্রভু"
               }
-              className="font-mono"
+              className={`min-h-[300px] font-mono text-base ${
+                mode === "devanagari" ? "font-devanagari" : mode === "bengali" ? "font-bengali" : ""
+              }`}
+              style={{
+                fontFamily:
+                  mode === "devanagari"
+                    ? "var(--font-devanagari)"
+                    : mode === "bengali"
+                      ? "var(--font-bengali)"
+                      : "monospace",
+              }}
             />
-          </Card>
 
-          {/* Результат */}
-          <Card className="p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">{t("Результат", "Result")}</h2>
-              <div className="flex gap-2">
-                <div className="text-sm text-muted-foreground">
-                  {outputText.length} {t("символів", "characters")}
-                </div>
-                <Button variant="outline" size="sm" onClick={() => copyToClipboard(outputText)} disabled={!outputText}>
-                  {t("Копіювати", "Copy")}
-                </Button>
-              </div>
-            </div>
-            <Textarea
-              rows={16}
-              value={outputText}
-              readOnly
-              placeholder={t("Результат з'явиться тут...", "Result will appear here...")}
-              className="font-sans"
-            />
-          </Card>
-        </div>
-
-        {/* Кнопка транслітерації */}
-        <div className="mt-6 flex justify-center">
-          <Button onClick={handleTransliterate} size="lg" disabled={!inputText.trim()}>
-            {t("Транслітерувати", "Transliterate")}
-          </Button>
-        </div>
-
-        {/* Приклади */}
-        <Card className="mt-8 p-6 bg-muted/50">
-          <h3 className="font-semibold mb-3">{t("Приклади:", "Examples:")}</h3>
-          <div className="space-y-2 text-sm">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <strong>IAST:</strong> kṛṣṇa mahāprabhu
-              </div>
-              <div>
-                <strong>{t("Результат:", "Result:")}</strong> кр̣шн̣а маха̄прабгу
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <strong>IAST:</strong> bhagavad-gītā
-              </div>
-              <div>
-                <strong>{t("Результат:", "Result:")}</strong> бгаґавад-ґӣта̄
-              </div>
+            <div className="flex gap-2">
+              <Button onClick={handleClear} variant="outline" size="sm">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Очистити
+              </Button>
+              <Button onClick={loadExample} variant="outline" size="sm">
+                <BookOpen className="w-4 h-4 mr-2" />
+                Приклад
+              </Button>
             </div>
           </div>
+
+          {/* Вихід */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-lg font-semibold">Результат</Label>
+              <div className="text-sm text-muted-foreground">{outputText.length} символів</div>
+            </div>
+
+            <Textarea
+              value={outputText}
+              readOnly
+              placeholder="Результат з'явиться тут..."
+              className="min-h-[300px] bg-muted/50 font-translit text-base"
+              style={{
+                fontFamily: "var(--font-translit)",
+              }}
+            />
+
+            <div className="flex gap-2">
+              <Button onClick={handleCopy} variant="outline" size="sm" disabled={!outputText}>
+                <Copy className="w-4 h-4 mr-2" />
+                Копіювати
+              </Button>
+              <Button onClick={handleDownload} variant="outline" size="sm" disabled={!outputText}>
+                <Download className="w-4 h-4 mr-2" />
+                Завантажити
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Правила транслітерації */}
+        <Card className="p-6">
+          <Button
+            onClick={() => setShowRules(!showRules)}
+            variant="ghost"
+            className="w-full justify-between text-lg font-semibold"
+          >
+            📖 Правила транслітерації
+            <span className="text-muted-foreground">{showRules ? "▲" : "▼"}</span>
+          </Button>
+
+          {showRules && (
+            <div className="mt-6 space-y-6 prose prose-sm max-w-none dark:prose-invert">
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Голосні</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-sm">
+                  <div>a → а | ā → а̄</div>
+                  <div>i → і | ī → ī</div>
+                  <div>u → у | ū → ӯ</div>
+                  <div>e → е | o → о</div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Приголосні з діакритикою</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 font-mono text-sm">
+                  <div>ś → ш́ (з акутом)</div>
+                  <div>ṣ → ш</div>
+                  <div>ṭ → т̣</div>
+                  <div>ḍ → д̣</div>
+                  <div>ṛ → р̣</div>
+                  <div>ṇ → н̣</div>
+                  <div>ñ → н̃</div>
+                  <div>ṅ → н̇</div>
+                  <div>ṁ → м̇</div>
+                  <div>ḥ → х̣</div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Сполучення</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 font-mono text-sm">
+                  <div>bh → бг</div>
+                  <div>gh → ґг</div>
+                  <div>dh → дг</div>
+                  <div>ḍh → д̣г</div>
+                  <div>th → тх</div>
+                  <div>kh → кх</div>
+                  <div>ch → чх</div>
+                  <div>jh → джх</div>
+                  <div>kṣ → кш</div>
+                  <div>jñ → джн̃</div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Спеціальні можливості</h3>
+                <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                  <li>Автоматична конвертація індійських цифр (१२३ → 123)</li>
+                  <li>Обробка пунктуації (। → .)</li>
+                  <li>Додавання дефісів у композитах (маха̄пурушах̣ → маха̄-пурушах̣, ш́рīкр̣шн̣а → ш́рī-кр̣шн̣а)</li>
+                  <li>Збереження подвійної данди (॥) для нумерації віршів</li>
+                  <li>Правильна капіталізація: для шлок (перша літера кожного рядка), для пояснень (після крапки)</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-3">Тестові приклади</h3>
+                <div className="grid md:grid-cols-2 gap-2">
+                  <Button
+                    onClick={() => {
+                      setMode("devanagari");
+                      setTextType("shloka");
+                      setInputText(
+                        "धर्मक्षेत्रे कुरुक्षेत्रे समवेता युयुत्सवः । मामकाः पाण्डवाश्चैव किमकुर्वत सञ्जय ।। १ ।।",
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Бгаґавад-Ґīта̄ 1.1
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("devanagari");
+                      setTextType("shloka");
+                      setInputText(
+                        "सञ्जय उवाच दृष्ट्वा तु पाण्डवानीकं व्यूढं दुर्योधनस्तदा । आचार्यमुपसङ्गम्य राजा वचनमब्रवीत् ॥ २ ॥",
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Бгаґавад-Ґīта̄ 1.2
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("bengali");
+                      setTextType("shloka");
+                      setInputText(
+                        "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্ । তৎপ্রকাশাংশ্চ তচ্ছক্তীঃ কৃষ্ণচৈতন্যসংজ্ঞকম্ ॥ १ ॥",
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Чаітанйа-чаріта̄мр̣та 1.1
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setMode("bengali");
+                      setTextType("shloka");
+                      setInputText(
+                        "বন্দে শ্রীকৃষ্ণচৈতন্যনিত্যানন্দৌ সহোদিতৌ । গৌড়োদয়ে পুষ্পবন্তৌ চিত্রৌ শন্দৌ তমোনুদৌ ॥ २ ॥",
+                      );
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="justify-start"
+                  >
+                    Чаітанйа-чаріта̄мр̣та 1.2
+                  </Button>
+                </div>
+              </div>
+
+              <div className="bg-warning/10 border border-warning/30 rounded-lg p-4">
+                <h4 className="font-semibold text-sm mb-2">⚠️ Заборонені літери</h4>
+                <p className="text-sm text-muted-foreground">
+                  Не використовуйте: <span className="font-mono">є и ь ю я ы э</span>
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-sm mb-2">📚 Більше інформації</h4>
+                <a
+                  href="https://www.prabhupada.website/transliteration/rules"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline text-sm"
+                >
+                  Повні правила транслітерації →
+                </a>
+              </div>
+            </div>
+          )}
         </Card>
       </main>
+
       <Footer />
     </div>
   );
