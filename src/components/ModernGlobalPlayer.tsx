@@ -66,7 +66,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
       {/* Backdrop overlay коли розгорнуто */}
       {isExpanded && (
         <div 
-          className="fixed inset-0 bg-black/80 backdrop-blur-xl z-40 transition-opacity"
+          className="fixed inset-0 bg-background/80 backdrop-blur-xl z-40 transition-opacity"
           onClick={() => setIsExpanded(false)}
         />
       )}
@@ -82,11 +82,11 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
       >
         {/* Expanded View */}
         {isExpanded && (
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-purple-900/30 to-black p-6 overflow-y-auto">
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/20 via-accent/30 to-background p-6 overflow-y-auto">
             {/* Close button */}
             <button
               onClick={() => setIsExpanded(false)}
-              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition z-10"
+              className="absolute top-4 right-4 p-2 rounded-full bg-foreground/10 hover:bg-foreground/20 transition z-10 text-foreground"
             >
               <ChevronDown className="w-6 h-6 text-white" />
             </button>
@@ -101,8 +101,8 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
-                    <Music className="w-32 h-32 text-white/30" />
+                                    <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
+                    <Music className="w-20 h-20 text-primary-foreground" />
                   </div>
                 )}
               </div>
@@ -110,11 +110,16 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
             {/* Track Info */}
             <div className="max-w-md mx-auto text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2 line-clamp-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2 line-clamp-2">
                 {currentTrack.title_ua || currentTrack.title}
               </h2>
+              {currentTrack.artist && (
+                <p className="text-muted-foreground text-lg mb-1">
+                  {currentTrack.artist}
+                </p>
+              )}
               {(currentTrack.subtitle || currentTrack.title_en) && (
-                <p className="text-gray-300 text-sm">
+                <p className="text-muted-foreground text-sm">
                   {currentTrack.subtitle || currentTrack.title_en}
                 </p>
               )}
@@ -124,17 +129,17 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
             <div className="max-w-md mx-auto mb-4">
               <div 
                 onClick={handleProgressClick}
-                className="h-2 bg-white/20 rounded-full cursor-pointer group relative"
+                className="h-2 bg-foreground/20 rounded-full cursor-pointer group relative"
               >
                 <div 
-                  className="absolute h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all"
+                  className="absolute h-full bg-primary rounded-full transition-all"
                   style={{ width: `${progressPercent}%` }}
                 >
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition" />
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary-foreground rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition" />
                 </div>
               </div>
               
-              <div className="flex justify-between text-sm text-gray-400 mt-2">
+              <div className="flex justify-between text-sm text-muted-foreground mt-2">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
               </div>
@@ -146,8 +151,8 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 onClick={toggleShuffle}
                 className={`p-3 rounded-full transition ${
                   isShuffled 
-                    ? 'text-blue-400 bg-blue-400/20' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                    ? 'text-primary bg-primary/20' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
                 }`}
               >
                 <Shuffle className="w-5 h-5" />
@@ -155,35 +160,35 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
               <button 
                 onClick={prevTrack}
-                className="p-3 rounded-full hover:bg-white/10 transition"
+                className="p-3 rounded-full hover:bg-foreground/10 transition text-foreground"
               >
-                <SkipBack className="w-7 h-7 text-white fill-white" />
+                <SkipBack className="w-7 h-7" />
               </button>
 
               <button 
                 onClick={togglePlay}
-                className="p-5 rounded-full bg-white text-black hover:scale-105 transition shadow-xl"
+                className="p-5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition shadow-xl"
               >
                 {isPlaying ? (
-                  <Pause className="w-8 h-8 fill-black" />
+                  <Pause className="w-8 h-8" />
                 ) : (
-                  <Play className="w-8 h-8 fill-black ml-1" />
+                  <Play className="w-8 h-8 ml-1" />
                 )}
               </button>
 
               <button 
                 onClick={nextTrack}
-                className="p-3 rounded-full hover:bg-white/10 transition"
+                className="p-3 rounded-full hover:bg-foreground/10 transition text-foreground"
               >
-                <SkipForward className="w-7 h-7 text-white fill-white" />
+                <SkipForward className="w-7 h-7" />
               </button>
 
               <button 
                 onClick={toggleRepeat}
                 className={`p-3 rounded-full transition ${
                   repeatMode !== 'off' 
-                    ? 'text-blue-400 bg-blue-400/20' 
-                    : 'text-gray-400 hover:text-white hover:bg-white/10'
+                    ? 'text-primary bg-primary/20' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
                 }`}
               >
                 {repeatMode === 'one' ? 
@@ -203,7 +208,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
               <div className="flex items-center gap-3">
                 <button 
                   onClick={toggleMute} 
-                  className="text-gray-400 hover:text-white transition"
+                  className="text-muted-foreground hover:text-foreground transition"
                 >
                   {isMuted || volume === 0 ? 
                     <VolumeX className="w-5 h-5" /> : 
@@ -215,8 +220,8 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   min="0"
                   max="100"
                   value={volume}
-                  onChange={(e) => changeVolume(Number(e.target.value))}
-                  className="w-24 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  onChange={(e) => setVolume(Number(e.target.value))}
+                  className="w-24 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
 
@@ -229,15 +234,15 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
         {/* Mini Player (Compact) */}
         {!isExpanded && (
-          <div className="bg-gray-900/95 backdrop-blur border-t border-gray-800 px-4 py-3">
+          <div className="bg-card/95 backdrop-blur border-t border-border px-4 py-3">
             <div className="max-w-6xl mx-auto">
               {/* Progress bar (thin) */}
               <div 
                 onClick={handleProgressClick}
-                className="h-1 bg-gray-700 rounded-full cursor-pointer mb-3 group relative"
+                className="h-1 bg-muted rounded-full cursor-pointer mb-3 group relative"
               >
                 <div 
-                  className="absolute h-full bg-blue-500 rounded-full transition-all"
+                  className="absolute h-full bg-primary rounded-full transition-all"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -256,22 +261,22 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                        <Music className="w-6 h-6 text-white/50" />
+                      <div className="w-full h-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
+                        <Music className="w-6 h-6 text-primary-foreground/50" />
                       </div>
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white truncate text-sm">
+                    <p className="font-medium text-card-foreground truncate text-sm">
                       {currentTrack.title_ua || currentTrack.title}
                     </p>
-                    <p className="text-xs text-gray-400 truncate">
-                      {currentTrack.subtitle || currentTrack.title_en || 'VedaVoice'}
+                    <p className="text-xs text-muted-foreground truncate">
+                      {currentTrack.artist || currentTrack.subtitle || currentTrack.title_en || 'VedaVoice'}
                     </p>
                   </div>
 
-                  <button className="md:hidden text-gray-400">
+                  <button className="md:hidden text-muted-foreground">
                     <ChevronUp className="w-5 h-5" />
                   </button>
                 </div>
@@ -280,27 +285,27 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 <div className="hidden md:flex items-center gap-2">
                   <button 
                     onClick={prevTrack}
-                    className="p-2 rounded-full hover:bg-gray-800 transition"
+                    className="p-2 rounded-full hover:bg-muted transition"
                   >
-                    <SkipBack className="w-5 h-5 text-gray-300" />
+                    <SkipBack className="w-5 h-5 text-card-foreground" />
                   </button>
 
                   <button 
                     onClick={togglePlay}
-                    className="p-2.5 rounded-full bg-white text-black hover:scale-105 transition"
+                    className="p-2.5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
                   >
                     {isPlaying ? (
-                      <Pause className="w-5 h-5 fill-black" />
+                      <Pause className="w-5 h-5" />
                     ) : (
-                      <Play className="w-5 h-5 fill-black ml-0.5" />
+                      <Play className="w-5 h-5 ml-0.5" />
                     )}
                   </button>
 
                   <button 
                     onClick={nextTrack}
-                    className="p-2 rounded-full hover:bg-gray-800 transition"
+                    className="p-2 rounded-full hover:bg-muted transition"
                   >
-                    <SkipForward className="w-5 h-5 text-gray-300" />
+                    <SkipForward className="w-5 h-5 text-card-foreground" />
                   </button>
                 </div>
 

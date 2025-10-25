@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/components/GlobalAudioPlayer";
+import { useAudio as useModernAudio } from "@/contexts/ModernAudioContext";
 
 // --- Types ---
 type ContentItem = {
@@ -38,6 +39,15 @@ type ContentItem = {
   href: string;
   duration?: string;
   created_at: string;
+  // Додаткові дані для аудіо
+  audioData?: {
+    id: string;
+    title: string;
+    subtitle?: string;
+    src: string;
+    coverImage?: string;
+    duration?: number;
+  };
 };
 
 type AudioTrack = {
@@ -204,6 +214,14 @@ function SearchStrip() {
 
 // --- Latest Content ---
 function LatestContent() {
+  const { playTrack } = useModernAudio();
+  
+  const handlePlayTrack = (item: ContentItem) => {
+    if (item.type === "audio" && item.audioData) {
+      playTrack(item.audioData);
+    }
+  };
+  
   // Останні треки
   const { data: audioTracks } = useQuery({
     queryKey: ["latest-audio"],
@@ -214,6 +232,7 @@ function LatestContent() {
           `
           id,
           title_ua,
+          audio_url,
           duration,
           created_at,
           playlist_id,
@@ -262,6 +281,15 @@ function LatestContent() {
         ? `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, "0")}`
         : undefined,
       created_at: track.created_at,
+      audioData: {
+        id: track.id,
+        title: track.title_ua,
+        subtitle: track.audio_playlists?.title_ua,
+        artist: 'Шріла Прабгупада', // За замовчанням автор
+        src: track.audio_url || '',
+        duration: track.duration,
+        coverImage: '/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png', // Логотип як обкладинка за замовчанням
+      },
     })) || []),
     ...(blogPosts?.map((post: any) => ({
       id: post.id,
@@ -312,21 +340,19 @@ function LatestContent() {
               {item.subtitle && <div className="mb-3 line-clamp-2 text-sm text-muted-foreground">{item.subtitle}</div>}
 
               <div className="flex items-center justify-between">
-                <Button variant="secondary" size="sm" asChild>
-                  <a href={item.href}>
-                    {item.type === "audio" ? (
-                      <>
-                        <Play className="mr-2 h-3 w-3" />
-                        Слухати
-                      </>
-                    ) : (
-                      <>
-                        <ArrowRight className="mr-2 h-3 w-3" />
-                        Читати
-                      </>
-                    )}
-                  </a>
-                </Button>
+                {item.type === "audio" ? (
+                  <Button variant="secondary" size="sm" onClick={() => handlePlayTrack(item)}>
+                    <Play className="mr-2 h-3 w-3" />
+                    Слухати
+                  </Button>
+                ) : (
+                  <Button variant="secondary" size="sm" asChild>
+                    <a href={item.href}>
+                      <ArrowRight className="mr-2 h-3 w-3" />
+                      Читати
+                    </a>
+                  </Button>
+                )}
                 {item.duration && (
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
