@@ -40,6 +40,7 @@ import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
 import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
+import TransliterationTool from "./pages/tools/Transliteration";
 import Dashboard from "./pages/admin/Dashboard";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
@@ -136,6 +137,7 @@ const App = () => (
                   <Route path="/audio/podcasts" element={<Podcasts />} />
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
+                  <Route path="/tools/transliteration" element={<TransliterationTool />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}

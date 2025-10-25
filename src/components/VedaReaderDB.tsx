@@ -493,7 +493,7 @@ export const VedaReaderDB = () => {
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
                   sanskritText={verse.sanskrit || ""}
-                  transliteration={verse.transliteration || ""}
+                  transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""}
                   synonyms={language === "ua" ? verse.synonyms_ua || "" : verse.synonyms_en || ""}
                   translation={language === "ua" ? verse.translation_ua || "" : verse.translation_en || ""}
                   commentary={language === "ua" ? verse.commentary_ua || "" : verse.commentary_en || ""}
@@ -524,7 +524,7 @@ export const VedaReaderDB = () => {
                           verseNumber={fullVerseNumber}
                           bookName={chapterTitle}
                           sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration || ""}
+                          transliteration={currentVerse.transliteration_ua || ""}
                           synonyms={currentVerse.synonyms_ua || ""}
                           translation={currentVerse.translation_ua || ""}
                           commentary={currentVerse.commentary_ua || ""}
@@ -536,7 +536,7 @@ export const VedaReaderDB = () => {
                               verseId,
                               updates: {
                                 sanskrit: updates.sanskrit,
-                                transliteration: updates.transliteration,
+                                transliteration_ua: updates.transliteration,
                                 synonyms: updates.synonyms,
                                 translation: updates.translation,
                                 commentary: updates.commentary,
@@ -550,7 +550,7 @@ export const VedaReaderDB = () => {
                           verseNumber={fullVerseNumber}
                           bookName={chapterTitle}
                           sanskritText={currentVerse.sanskrit || ""}
-                          transliteration={currentVerse.transliteration || ""}
+                          transliteration={currentVerse.transliteration_en || ""}
                           synonyms={currentVerse.synonyms_en || ""}
                           translation={currentVerse.translation_en || ""}
                           commentary={currentVerse.commentary_en || ""}
@@ -562,7 +562,7 @@ export const VedaReaderDB = () => {
                               verseId,
                               updates: {
                                 sanskrit: updates.sanskrit,
-                                transliteration: updates.transliteration,
+                                transliteration_en: updates.transliteration,
                                 synonyms: updates.synonyms,
                                 translation: updates.translation,
                                 commentary: updates.commentary,
@@ -578,14 +578,10 @@ export const VedaReaderDB = () => {
                         verseNumber={fullVerseNumber}
                         bookName={chapterTitle}
                         sanskritText={currentVerse.sanskrit || ""}
-                        transliteration={currentVerse.transliteration || ""}
+                        transliteration={language === "ua" ? currentVerse.transliteration_ua || "" : currentVerse.transliteration_en || ""}
                         synonyms={language === "ua" ? currentVerse.synonyms_ua || "" : currentVerse.synonyms_en || ""}
-                        translation={
-                          language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""
-                        }
-                        commentary={
-                          language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""
-                        }
+                        translation={language === "ua" ? currentVerse.translation_ua || "" : currentVerse.translation_en || ""}
+                        commentary={language === "ua" ? currentVerse.commentary_ua || "" : currentVerse.commentary_en || ""}
                         audioUrl={currentVerse.audio_url || ""}
                         textDisplaySettings={textDisplaySettings}
                         isAdmin={isAdmin}

@@ -395,7 +395,7 @@ export const usePlaylistFilter = () => {
       case 'title':
         return a.title.localeCompare(b.title);
       case 'duration':
-        return (a.duration || 0) - (b.duration || 0);
+        return ((a as any).duration || 0) - ((b as any).duration || 0);
       case 'dateAdded':
       default:
         return 0; // Зберігаємо оригінальний порядок
