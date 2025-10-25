@@ -38,6 +38,9 @@ interface AudioContextType {
   addToPlaylist: (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => void;
   removeFromPlaylist: (index: number) => void;
   clearPlaylist: () => void;
+  // Queue helpers for integrations
+  setQueue: (tracks: Track[]) => void;
+  addToQueue: (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -242,7 +245,26 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     setPlaylist(prev => [...prev, newTrack]);
   };
+  
+  // Queue helpers for integrations
+  const addToQueue = (track: { id: string; title: string; src: string; verseNumber?: string; coverImage?: string }) => {
+    addToPlaylist(track);
+  };
 
+  const setQueue = (tracks: Track[]) => {
+    setPlaylist(tracks);
+    if (tracks.length) {
+      setCurrentIndex(0);
+      if (audioRef.current) {
+        audioRef.current.src = tracks[0].src;
+        audioRef.current.load();
+      }
+      setIsPlaying(false);
+    } else {
+      stop();
+    }
+  };
+  
   const removeFromPlaylist = (index: number) => {
     setPlaylist(prev => {
       const newPlaylist = [...prev];
@@ -344,6 +366,8 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     addToPlaylist,
     removeFromPlaylist,
     clearPlaylist,
+    setQueue,
+    addToQueue,
   };
 
   return (
