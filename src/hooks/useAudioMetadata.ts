@@ -54,16 +54,39 @@ export const useAudioMetadata = () => {
       const path = `uploads/${playlistId}/${Date.now()}-${file.name}`;
       
       console.log('Uploading to storage path:', path);
-      const { error: upErr } = await supabase.storage.from('audio-files').upload(path, file, { upsert: true });
-      if (upErr) {
-        console.error('Storage upload error:', upErr);
-        throw upErr;
+      // Спочатку спробуємо audio-files, якщо не вийде - verse-audio
+      let uploadError = null;
+      let audioUrl = '';
+      
+      try {
+        const { error: upErr } = await supabase.storage.from('audio-files').upload(path, file, { upsert: true });
+        if (upErr) {
+          console.warn('audio-files bucket failed:', upErr.message);
+          uploadError = upErr;
+        } else {
+          console.log('Storage upload to audio-files successful');
+          const { data: publicUrlData } = supabase.storage.from('audio-files').getPublicUrl(path);
+          audioUrl = publicUrlData.publicUrl;
+        }
+      } catch (err) {
+        console.warn('audio-files bucket not accessible, trying verse-audio');
+        uploadError = err;
       }
-      console.log('Storage upload successful');
-      setProgress(50);
 
-      const { data: publicUrlData } = supabase.storage.from('audio-files').getPublicUrl(path);
-      const audioUrl = publicUrlData.publicUrl;
+      // Fallback до verse-audio bucket
+      if (uploadError) {
+        console.log('Trying verse-audio bucket as fallback');
+        const { error: upErr2 } = await supabase.storage.from('verse-audio').upload(path, file, { upsert: true });
+        if (upErr2) {
+          console.error('Storage upload to verse-audio failed:', upErr2);
+          throw upErr2;
+        }
+        console.log('Storage upload to verse-audio successful');
+        const { data: publicUrlData } = supabase.storage.from('verse-audio').getPublicUrl(path);
+        audioUrl = publicUrlData.publicUrl;
+      }
+
+      setProgress(50);
 
       // 2) Метадані
       const md = await extractMetadata(file);

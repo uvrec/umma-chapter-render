@@ -29,7 +29,25 @@ ON public.audio_playlists
 FOR ALL 
 TO authenticated 
 USING (true) 
-WITH CHECK (true);`;
+WITH CHECK (true);
+
+-- Storage bucket policies for audio files
+-- Allow authenticated users to upload/read audio files
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('audio-files', 'audio-files', true) 
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+CREATE POLICY "Authenticated can upload audio" 
+ON storage.objects 
+FOR INSERT 
+TO authenticated 
+WITH CHECK (bucket_id = 'audio-files');
+
+CREATE POLICY "Anyone can view audio" 
+ON storage.objects 
+FOR SELECT 
+TO public 
+USING (bucket_id = 'audio-files');`;
 
 export const FixRLSPolicies = () => {
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
@@ -48,121 +66,34 @@ export const FixRLSPolicies = () => {
   }, []);
 
   const executeRLSFix = async () => {
-    setIsExecuting(true);
-    setStatus('idle');
-    setMessage('Виконую SQL міграцію через Supabase fetch-proxy...');
-
+    // Автоматично копіює SQL і показує інструкції
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      await navigator.clipboard.writeText(SQL_MIGRATION);
+      setStatus('success');
+      setMessage(`📋 SQL код автоматично скопійовано в буфер обміну!
+
+🔧 Тепер виконайте наступні кроки:
+1. Відкрийте Supabase Dashboard: https://supabase.com/dashboard
+2. Перейдіть до вашого проекту 
+3. Відкрийте SQL Editor (ліва панель)
+4. Вставте скопійований SQL код (Ctrl+V / Cmd+V)
+5. Натисніть RUN для виконання
+6. Поверніться сюди і натисніть "Тестувати доступ"
+
+✅ Це створить всі потрібні RLS політики для таблиць і storage buckets!`);
       
-      if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Supabase credentials not found');
-      }
-
-      // Розбиваємо SQL на окремі команди (USING перед WITH CHECK!)
-      const sqlCommands = [
-        'DROP POLICY IF EXISTS "Admins can manage tracks" ON public.audio_tracks;',
-        'DROP POLICY IF EXISTS "Admins can manage playlists" ON public.audio_playlists;',
-        `CREATE POLICY "Authenticated can manage tracks" 
-         ON public.audio_tracks 
-         FOR ALL 
-         TO authenticated 
-         USING (true) 
-         WITH CHECK (true);`,
-        `CREATE POLICY "Authenticated can manage playlists" 
-         ON public.audio_playlists 
-         FOR ALL 
-         TO authenticated 
-         USING (true) 
-         WITH CHECK (true);`
-      ];
-
-      let executedCount = 0;
-      
-      // Виконуємо кожну команду окремо
-      for (const sql of sqlCommands) {
-        setMessage(`Виконую команду ${executedCount + 1}/${sqlCommands.length}...`);
-        
-        const response = await fetch(`${supabaseUrl}/rest/v1/rpc/execute_sql`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseKey}`,
-            'apikey': supabaseKey
-          },
-          body: JSON.stringify({ sql: sql.trim() })
-        });
-
-        if (!response.ok) {
-          // Якщо RPC не існує, пробуємо альтернативний підхід
-          if (response.status === 404) {
-            // Використовуємо direct SQL через REST API
-            const directResponse = await fetch(`${supabaseUrl}/rest/v1/`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'text/plain',
-                'Authorization': `Bearer ${supabaseKey}`,
-                'apikey': supabaseKey,
-                'Prefer': 'return=minimal'
-              },
-              body: sql
-            });
-            
-            if (!directResponse.ok) {
-              const errorText = await directResponse.text();
-              console.warn(`SQL command failed: ${sql}`, errorText);
-              // Не зупиняємося на DROP POLICY помилках - вони очікувані якщо політика не існує
-              if (!sql.includes('DROP POLICY')) {
-                throw new Error(`SQL Error: ${errorText}`);
-              }
-            }
-          } else {
-            const errorData = await response.text();
-            console.warn(`RPC command failed: ${sql}`, errorData);
-            if (!sql.includes('DROP POLICY')) {
-              throw new Error(`RPC Error: ${errorData}`);
-            }
-          }
-        }
-        
-        executedCount++;
-      }
-
-      // Тестуємо чи працює доступ після міграції
-      setMessage('Тестуємо доступ після міграції...');
-      
-      const testResponse = await fetch(`${supabaseUrl}/rest/v1/audio_tracks?select=id&limit=1`, {
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'apikey': supabaseKey
-        }
-      });
-
-      if (testResponse.ok) {
-        setStatus('success');
-        setMessage('✅ RLS політики успішно оновлено! Тепер аутентифіковані користувачі можуть завантажувати аудіо файли.');
-        toast({
-          title: "Успішно!",
-          description: "RLS міграція завершена, завантаження аудіо доступне",
-        });
-      } else {
-        throw new Error(`Test access failed: ${testResponse.statusText}`);
-      }
-
-    } catch (error: any) {
-      console.error('RLS Migration Error:', error);
-      setStatus('error');
-      setMessage(`❌ Помилка автоматичної міграції: ${error.message}
-
-Рекомендація: Використайте ручний метод - скопіюйте SQL код кнопкою "Копіювати SQL" і виконайте його в Supabase Dashboard → SQL Editor`);
       toast({
-        title: "Помилка автоматичної міграції", 
-        description: "Спробуйте ручний метод через Dashboard",
+        title: "SQL скопійовано!",
+        description: "Виконайте код в Supabase Dashboard → SQL Editor",
+      });
+    } catch (error) {
+      setStatus('error');
+      setMessage('❌ Не вдалося скопіювати SQL. Використайте кнопку "Копіювати SQL" вручну.');
+      toast({
+        title: "Помилка копіювання",
+        description: "Спробуйте кнопку 'Копіювати SQL'",
         variant: "destructive",
       });
-    } finally {
-      setIsExecuting(false);
     }
   };
 
@@ -305,11 +236,10 @@ export const FixRLSPolicies = () => {
             <div className="flex gap-2 flex-wrap">
               <Button 
                 onClick={executeRLSFix} 
-                disabled={isExecuting}
                 className="flex items-center gap-2"
                 variant="default"
               >
-                {isExecuting ? 'Виконую...' : '🔧 Автоматичне виправлення'}
+                📋 Копіювати SQL + Інструкції
               </Button>
               
               <Button onClick={copySQLToClipboard} variant="outline" className="flex items-center gap-2">
@@ -346,13 +276,13 @@ export const FixRLSPolicies = () => {
             <div className="text-sm text-muted-foreground space-y-2">
               <p><strong>Варіанти виконання:</strong></p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 p-3 bg-green-50 rounded-lg border-green-200 border">
-                  <p className="font-medium text-green-800">🔧 Автоматично (Рекомендовано):</p>
-                  <ol className="list-decimal list-inside space-y-1 text-xs text-green-700">
-                    <li>Натисніть "Автоматичне виправлення"</li>
-                    <li>Відбудеться SQL міграція через fetch-proxy</li>
-                    <li>Автоматичне тестування доступу</li>
-                    <li>Готово! Без Dashboard і Python</li>
+                <div className="space-y-2 p-3 bg-blue-50 rounded-lg border-blue-200 border">
+                  <p className="font-medium text-blue-800">� Швидкий метод (Рекомендовано):</p>
+                  <ol className="list-decimal list-inside space-y-1 text-xs text-blue-700">
+                    <li>Натисніть "Копіювати SQL + Інструкції"</li>
+                    <li>SQL автоматично скопіюється в буфер</li>
+                    <li>Відкрийте Supabase Dashboard → SQL Editor</li>
+                    <li>Вставте і виконайте SQL код</li>
                   </ol>
                 </div>
                 <div className="space-y-2 p-3 bg-gray-50 rounded-lg border-gray-200 border">
