@@ -7,18 +7,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { convertIASTtoUkrainian } from "@/utils/textNormalizer";
+import { convertIASTtoUkrainian, devanagariToIAST, bengaliToIAST } from "@/utils/textNormalizer";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { toast } from "sonner";
-import { Trash2, Download, Info } from "lucide-react";
+import { Trash2, Download } from "lucide-react";
 
 type TranslitMode = "iast" | "devanagari" | "bengali";
 type TextType = "shloka" | "purport";
 
 /**
- * 🎨 ULTIMATE ТРАНСЛІТЕРАТОР
- * ✨ З усіма UX покращеннями
- * ✅ ВИПРАВЛЕНО: використовує ı̄ (dotless i) замість ӣ (кирилиця)
+ * ✅ ЧИСТИЙ ТРАНСЛІТЕРАТОР (без зайвих блоків)
+ * - Виправлено: ı̄ замість ӣ
+ * - Live Preview
+ * - LocalStorage
+ * - Без блоку "Як користуватися"
  */
 export default function TransliterationTool() {
   const { language, t } = useLanguage();
@@ -27,147 +29,6 @@ export default function TransliterationTool() {
   const [outputText, setOutputText] = useState("");
   const [mode, setMode] = useState<TranslitMode>("iast");
   const [textType, setTextType] = useState<TextType>("shloka");
-
-  /**
-   * Деванагарі → IAST
-   */
-  const devanagariToIAST = (text: string): string => {
-    const map: Record<string, string> = {
-      अ: "a",
-      आ: "ā",
-      इ: "i",
-      ई: "ī",
-      उ: "u",
-      ऊ: "ū",
-      ऋ: "ṛ",
-      ॠ: "ṝ",
-      ए: "e",
-      ओ: "o",
-      ऐ: "ai",
-      औ: "au",
-      क: "k",
-      ख: "kh",
-      ग: "g",
-      घ: "gh",
-      ङ: "ṅ",
-      च: "c",
-      छ: "ch",
-      ज: "j",
-      झ: "jh",
-      ञ: "ñ",
-      ट: "ṭ",
-      ठ: "ṭh",
-      ड: "ḍ",
-      ढ: "ḍh",
-      ण: "ṇ",
-      त: "t",
-      थ: "th",
-      द: "d",
-      ध: "dh",
-      न: "n",
-      प: "p",
-      फ: "ph",
-      ब: "b",
-      भ: "bh",
-      म: "m",
-      य: "y",
-      र: "r",
-      ल: "l",
-      व: "v",
-      श: "ś",
-      ष: "ṣ",
-      स: "s",
-      ह: "h",
-      "ं": "ṁ",
-      "ः": "ḥ",
-      "्": "",
-      "ा": "ā",
-      "ि": "i",
-      "ी": "ī",
-      "ु": "u",
-      "ू": "ū",
-      "ृ": "ṛ",
-      "े": "e",
-      "ो": "o",
-      "ै": "ai",
-      "ौ": "au",
-    };
-    let result = "";
-    for (let i = 0; i < text.length; i++) {
-      result += map[text[i]] || text[i];
-    }
-    return result;
-  };
-
-  /**
-   * Бенгалі → IAST
-   */
-  const bengaliToIAST = (text: string): string => {
-    const map: Record<string, string> = {
-      অ: "a",
-      আ: "ā",
-      ই: "i",
-      ঈ: "ī",
-      উ: "u",
-      ঊ: "ū",
-      ঋ: "ṛ",
-      এ: "e",
-      ও: "o",
-      ঐ: "ai",
-      ঔ: "au",
-      ক: "k",
-      খ: "kh",
-      গ: "g",
-      ঘ: "gh",
-      ঙ: "ṅ",
-      চ: "c",
-      ছ: "ch",
-      জ: "j",
-      ঝ: "jh",
-      ঞ: "ñ",
-      ট: "ṭ",
-      ঠ: "ṭh",
-      ড: "ḍ",
-      ঢ: "ḍh",
-      ণ: "ṇ",
-      ত: "t",
-      থ: "th",
-      দ: "d",
-      ধ: "dh",
-      ন: "n",
-      প: "p",
-      ফ: "ph",
-      ব: "b",
-      ভ: "bh",
-      ম: "m",
-      য: "y",
-      র: "r",
-      ল: "l",
-      ব: "v",
-      শ: "ś",
-      ষ: "ṣ",
-      স: "s",
-      হ: "h",
-      "ং": "ṁ",
-      "ঃ": "ḥ",
-      "্": "",
-      "া": "ā",
-      "ি": "i",
-      "ী": "ī",
-      "ু": "u",
-      "ূ": "ū",
-      "ৃ": "ṛ",
-      "ে": "e",
-      "ো": "o",
-      "ৈ": "ai",
-      "ৌ": "au",
-    };
-    let result = "";
-    for (let i = 0; i < text.length; i++) {
-      result += map[text[i]] || text[i];
-    }
-    return result;
-  };
 
   /**
    * Капіталізація
@@ -218,7 +79,7 @@ export default function TransliterationTool() {
   }, [inputText, mode, textType]);
 
   /**
-   * 💾 ЗБЕРЕЖЕННЯ В LOCALSTORAGE
+   * 💾 ЗБЕРЕЖЕННЯ
    */
   useEffect(() => {
     localStorage.setItem("translit_input", inputText);
@@ -227,7 +88,7 @@ export default function TransliterationTool() {
   }, [inputText, mode, textType]);
 
   /**
-   * 🔄 ВІДНОВЛЕННЯ З LOCALSTORAGE
+   * 🔄 ВІДНОВЛЕННЯ
    */
   useEffect(() => {
     const savedInput = localStorage.getItem("translit_input");
@@ -262,7 +123,7 @@ export default function TransliterationTool() {
   };
 
   /**
-   * 📥 ЕКСПОРТ У .TXT
+   * 📥 ЕКСПОРТ
    */
   const exportToFile = () => {
     if (!outputText) {
@@ -293,6 +154,7 @@ export default function TransliterationTool() {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Заголовок */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
             {t("Транслітератор санскриту", "Sanskrit Transliterator")}
@@ -301,24 +163,6 @@ export default function TransliterationTool() {
             {t("Конвертація в українську кирилицю з діакритикою", "Convert to Ukrainian Cyrillic with diacritics")}
           </p>
         </div>
-
-        {/* Інструкції */}
-        <Card className="bg-blue-50 dark:bg-blue-950 p-4 mb-6 border-blue-200 dark:border-blue-800">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">
-                {t("Як користуватися:", "How to use:")}
-              </h3>
-              <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800 dark:text-blue-200">
-                <li>{t("Оберіть режим та тип тексту", "Select mode and text type")}</li>
-                <li>{t("Введіть текст ліворуч", "Enter text on the left")}</li>
-                <li>{t("Результат з'явиться автоматично", "Result appears automatically")}</li>
-                <li>{t("Скопіюйте або експортуйте результат", "Copy or export the result")}</li>
-              </ol>
-            </div>
-          </div>
-        </Card>
 
         {/* Налаштування */}
         <Card className="p-6 mb-6">
@@ -394,8 +238,8 @@ export default function TransliterationTool() {
                 mode === "iast"
                   ? "kṛṣṇa mahāprabhu\nbhagavad-gītā"
                   : mode === "devanagari"
-                    ? "धर्मक्षेत्रे कुरुक्षेत्रे"
-                    : "বন্দে গুরূন্"
+                    ? "ॐ नमो भगवते वासुदेवाय"
+                    : "বন্দে গুরূন্ ঈশভক্তান্"
               }
               className="font-mono resize-none"
             />
@@ -418,13 +262,13 @@ export default function TransliterationTool() {
               rows={18}
               value={outputText}
               readOnly
-              placeholder={t("Автоматичний результат...", "Auto result...")}
+              placeholder={t("Результат з'явиться автоматично...", "Result appears automatically...")}
               className="font-sans resize-none bg-muted/30"
             />
           </Card>
         </div>
 
-        {/* ✅ ВИПРАВЛЕНІ ПРИКЛАДИ (з ı̄ замість ӣ) */}
+        {/* Приклади */}
         <Card className="mt-8 p-6 bg-muted/50">
           <h3 className="font-semibold mb-4">{t("Приклади:", "Examples:")}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
