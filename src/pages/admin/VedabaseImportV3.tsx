@@ -240,7 +240,8 @@ export default function VedabaseImportV3() {
       setCurrentStep("Створення книги...");
 
       // 1. Книга
-      let { data: book } = await supabase.from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+      const bookQuery: any = await (supabase as any).from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+      let book = bookQuery.data;
 
       if (!book) {
         const { data: newBook, error } = await supabase
@@ -333,7 +334,8 @@ export default function VedabaseImportV3() {
       }
 
       // 1. Книга
-      let { data: book } = await supabase.from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+      const bookQuery2: any = await (supabase as any).from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+      let book = bookQuery2.data;
 
       if (!book) {
         const { data: newBook, error } = await supabase
@@ -462,8 +464,8 @@ export default function VedabaseImportV3() {
         if (importEN && bookConfig) {
           try {
             const vedabaseUrl = buildVedabaseUrl(bookConfig, {
-              canto: cantoNumber,
-              chapter: chapterNumber,
+              canto: parseInt(cantoNumber),
+              chapter: parseInt(chapterNumber),
               verse: verseNum,
             });
             const html = await fetchHTML(vedabaseUrl);
@@ -490,8 +492,7 @@ export default function VedabaseImportV3() {
         if (importUA && useGitabase && bookConfig?.gitabase_available) {
           try {
             const gitabaseUrl = buildGitabaseUrl(bookConfig, {
-              canto: cantoNumber,
-              chapter: chapterNumber,
+              chapter: parseInt(chapterNumber),
               verse: verseNum,
             });
             const html = await fetchHTML(gitabaseUrl!);

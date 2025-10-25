@@ -11,7 +11,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
-import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css"; // ← Додати цей рядок
+import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 
 import AdminBanners from "@/pages/admin/AdminBanners";

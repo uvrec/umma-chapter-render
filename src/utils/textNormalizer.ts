@@ -1,3 +1,5 @@
+import Sanscript from "sanscript";
+
 /**
  * ✅ ВИПРАВЛЕНИЙ textNormalizer.ts
  * - Правильний ı̄ (dotless i + macron) замість ӣ
@@ -15,7 +17,7 @@ const MOJIBAKE_REPLACEMENTS: Record<string, string> = {
   "â€œ": '"',
   "â€": '"',
   'â€"': "—",
-  'â€"': "–",
+  'â€•': "–",
   "''": "'",
   "``": '"',
   "Ã¡": "á",
@@ -32,20 +34,20 @@ const MOJIBAKE_REPLACEMENTS: Record<string, string> = {
 // ============================================================================
 
 const DIACRITIC_FIXES: Record<string, string> = {
-  ā: "а̄", // а + combining macron
-  ī: "\u0131\u0304", // ✅ dotless i + combining macron (НЕ кирилиця!)
-  ū: "ӯ", // у з макроном (готовий символ)
-  ṝ: "р̣̄",
-  ṭ: "т̣",
-  ḍ: "д̣",
-  ṇ: "н̣",
-  ṣ: "ш",
-  ṛ: "р̣",
-  ś: "ш́",
-  ñ: "н̃",
-  ṅ: "н̇",
-  ṁ: "м̇",
-  ḥ: "х̣",
+  ā: "ā", // precomposed a with macron (U+0101 -> keep as is)
+  ī: "ī", // precomposed i with macron (U+012B -> keep as is) 
+  ū: "ū", // precomposed u with macron (U+016B -> keep as is)
+  ṝ: "ṝ", // precomposed r with dot below and macron
+  ṭ: "ṭ", // precomposed t with dot below
+  ḍ: "ḍ", // precomposed d with dot below
+  ṇ: "ṇ", // precomposed n with dot below
+  ṣ: "ṣ", // precomposed s with dot below -> ш
+  ṛ: "ṛ", // precomposed r with dot below
+  ś: "ś", // precomposed s with acute -> ш́
+  ñ: "ñ", // precomposed n with tilde
+  ṅ: "ṅ", // precomposed n with dot above
+  ṁ: "ṁ", // precomposed m with dot above
+  ḥ: "ḥ", // precomposed h with dot below
   а̣: "а",
   і̣: "і",
 };
@@ -124,14 +126,14 @@ export function convertIASTtoUkrainian(text: string): string {
     ṁ: "м̇",
     ḥ: "х̣",
 
-    // ✅ Довгі голосні - ВИПРАВЛЕНО!
-    ā: "а̄", // а + combining macron
-    ī: "\u0131\u0304", // ✅ dotless i + combining macron (правильно!)
-    ū: "ӯ", // у з макроном
-    ṝ: "р̣̄",
-    Ā: "А̄",
-    Ī: "\u0131\u0304", // ✅ Велике також dotless i
-    Ū: "Ӯ",
+    // ✅ Довгі голосні - використовуємо precomposed символи
+    ā: "ā", // precomposed a with macron
+    ī: "ī", // precomposed i with macron  
+    ū: "ū", // precomposed u with macron
+    ṝ: "ṝ", // precomposed r with dot below and macron
+    Ā: "Ā", // precomposed capital A with macron
+    Ī: "Ī", // precomposed capital I with macron
+    Ū: "Ū", // precomposed capital U with macron
 
     // ✅ Візарга як двокрапка
     ":": "х̣",
@@ -223,136 +225,7 @@ export function convertIASTtoUkrainian(text: string): string {
  * Конвертує Деванагарі в IAST
  */
 export function devanagariToIAST(text: string): string {
-  const vowels: Record<string, string> = {
-    अ: "a",
-    आ: "ā",
-    इ: "i",
-    ई: "ī",
-    उ: "u",
-    ऊ: "ū",
-    ऋ: "ṛ",
-    ॠ: "ṝ",
-    ऌ: "ḷ",
-    ॡ: "ḹ",
-    ए: "e",
-    ऐ: "ai",
-    ओ: "o",
-    औ: "au",
-  };
-
-  const consonants: Record<string, string> = {
-    क: "ka",
-    ख: "kha",
-    ग: "ga",
-    घ: "gha",
-    ङ: "ṅa",
-    च: "ca",
-    छ: "cha",
-    ज: "ja",
-    झ: "jha",
-    ञ: "ña",
-    ट: "ṭa",
-    ठ: "ṭha",
-    ड: "ḍa",
-    ढ: "ḍha",
-    ण: "ṇa",
-    त: "ta",
-    थ: "tha",
-    द: "da",
-    ध: "dha",
-    न: "na",
-    प: "pa",
-    फ: "pha",
-    ब: "ba",
-    भ: "bha",
-    म: "ma",
-    य: "ya",
-    र: "ra",
-    ल: "la",
-    व: "va",
-    श: "śa",
-    ष: "ṣa",
-    स: "sa",
-    ह: "ha",
-  };
-
-  const matras: Record<string, string> = {
-    "ा": "ā",
-    "ि": "i",
-    "ी": "ī",
-    "ु": "u",
-    "ू": "ū",
-    "ृ": "ṛ",
-    "ॄ": "ṝ",
-    "ॢ": "ḷ",
-    "ॣ": "ḹ",
-    "े": "e",
-    "ै": "ai",
-    "ो": "o",
-    "ौ": "au",
-  };
-
-  const other: Record<string, string> = {
-    "्": "",
-    "ं": "ṁ",
-    "ः": "ḥ",
-    "ँ": "ṁ",
-    "।": ".",
-    "॥": "||",
-    ॐ: "oṁ", // OM
-    ऽ: "", // аваграха (видаляємо)
-    "०": "0",
-    "१": "1",
-    "२": "2",
-    "३": "3",
-    "४": "4",
-    "५": "5",
-    "६": "6",
-    "७": "7",
-    "८": "8",
-    "९": "9",
-  };
-
-  let result = "";
-  let i = 0;
-
-  while (i < text.length) {
-    const char = text[i];
-
-    // ✅ ЗБЕРІГАЄМО ПРОБІЛИ
-    if (char === " " || char === "\n" || char === "\t") {
-      result += char;
-      i++;
-      continue;
-    }
-
-    if (vowels[char]) {
-      result += vowels[char];
-      i++;
-    } else if (consonants[char]) {
-      result += consonants[char];
-      i++;
-
-      // Перевірка вірами (видаляє 'a')
-      if (i < text.length && text[i] === "्") {
-        result = result.slice(0, -1);
-        i++;
-      }
-      // Перевірка матри
-      else if (i < text.length && matras[text[i]]) {
-        result = result.slice(0, -1) + matras[text[i]];
-        i++;
-      }
-    } else if (other[char]) {
-      result += other[char];
-      i++;
-    } else {
-      result += char;
-      i++;
-    }
-  }
-
-  return result;
+  return Sanscript.t(text, "devanagari", "iast");
 }
 
 // ============================================================================
@@ -363,138 +236,7 @@ export function devanagariToIAST(text: string): string {
  * Конвертує Бенгалі в IAST
  */
 export function bengaliToIAST(text: string): string {
-  const vowels: Record<string, string> = {
-    অ: "a",
-    আ: "ā",
-    ই: "i",
-    ঈ: "ī",
-    উ: "u",
-    ঊ: "ū",
-    ঋ: "ṛ",
-    ৠ: "ṝ",
-    ঌ: "ḷ",
-    ৡ: "ḹ",
-    এ: "e",
-    ঐ: "ai",
-    ও: "o",
-    ঔ: "au",
-  };
-
-  const consonants: Record<string, string> = {
-    ক: "ka",
-    খ: "kha",
-    গ: "ga",
-    ঘ: "gha",
-    ঙ: "ṅa",
-    চ: "ca",
-    ছ: "cha",
-    জ: "ja",
-    ঝ: "jha",
-    ঞ: "ña",
-    ট: "ṭa",
-    ঠ: "ṭha",
-    ড: "ḍa",
-    ঢ: "ḍha",
-    ণ: "ṇa",
-    ত: "ta",
-    থ: "tha",
-    দ: "da",
-    ধ: "dha",
-    ন: "na",
-    প: "pa",
-    ফ: "pha",
-    ব: "va",
-    ভ: "bha",
-    ম: "ma", // ✅ ব = va (санскрит!)
-    য: "ya",
-    র: "ra",
-    ল: "la",
-    ৱ: "va",
-    ব়: "va",
-    শ: "śa",
-    ষ: "ṣa",
-    স: "sa",
-    হ: "ha",
-  };
-
-  const matras: Record<string, string> = {
-    "া": "ā",
-    "ি": "i",
-    "ী": "ī",
-    "ু": "u",
-    "ূ": "ū",
-    "ৃ": "ṛ",
-    "ৄ": "ṝ",
-    "ৢ": "ḷ",
-    "ৣ": "ḹ",
-    "ে": "e",
-    "ৈ": "ai",
-    "ো": "o",
-    "ৌ": "au",
-  };
-
-  const other: Record<string, string> = {
-    "্": "",
-    "ং": "ṁ",
-    "ঃ": "ḥ",
-    "ঁ": "ṁ",
-    "।": ".",
-    "॥": "||",
-    ঽ: "'", // аваграха
-    ৎ: "t", // кхондо то
-    "়": "", // нукта (видаляємо)
-    "০": "0",
-    "১": "1",
-    "২": "2",
-    "৩": "3",
-    "৪": "4",
-    "৫": "5",
-    "৬": "6",
-    "৭": "7",
-    "৮": "8",
-    "৯": "9",
-  };
-
-  let result = "";
-  let i = 0;
-
-  while (i < text.length) {
-    const char = text[i];
-
-    // ✅ ЗБЕРІГАЄМО ПРОБІЛИ
-    if (char === " " || char === "\n" || char === "\t") {
-      result += char;
-      i++;
-      continue;
-    }
-
-    if (vowels[char]) {
-      result += vowels[char];
-      i++;
-    } else if (consonants[char]) {
-      result += consonants[char];
-      i++;
-
-      // Перевірка хосонто (видаляє 'a')
-      if (i < text.length && text[i] === "্") {
-        result = result.slice(0, -1);
-        i++;
-      }
-      // Перевірка матри
-      else if (i < text.length && matras[text[i]]) {
-        result = result.slice(0, -1) + matras[text[i]];
-        i++;
-      }
-    } else if (other[char]) {
-      result += other[char];
-      i++;
-    } else {
-      result += char;
-      i++;
-    }
-  }
-
-  return result;
+  return Sanscript.t(text, "bengali", "iast");
 }
 
 // ============================================================================
@@ -505,7 +247,7 @@ function normalizeMojibake(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(MOJIBAKE_REPLACEMENTS)) {
-    result = result.replaceAll(old, newVal);
+    result = result.split(old).join(newVal);
   }
   return result;
 }
@@ -514,7 +256,7 @@ function normalizeDiacritics(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(DIACRITIC_FIXES)) {
-    result = result.replaceAll(old, newVal);
+    result = result.split(old).join(newVal);
   }
   return result;
 }
@@ -523,7 +265,7 @@ function normalizeWordReplacements(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(WORD_REPLACEMENTS)) {
-    result = result.replaceAll(old, newVal);
+    result = result.split(old).join(newVal);
   }
   return result;
 }
@@ -532,7 +274,7 @@ function normalizeConsonantClusters(text: string): string {
   if (!text) return text;
   let result = text;
   for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
-    result = result.replaceAll(old, newVal);
+    result = result.split(old).join(newVal);
   }
   return result;
 }
@@ -584,7 +326,7 @@ export function normalizeVerseField(text: string, fieldType: string): string {
       result = normalizeWordReplacements(result);
       for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
         if (["тг", "пг", "кг", "чг", "Тг", "Пг", "Кг", "Чг"].includes(old)) {
-          result = result.replaceAll(old, newVal);
+          result = result.split(old).join(newVal);
         }
       }
       break;

@@ -4,6 +4,8 @@
  * Документація: 
  */
 
+import { devanagariToIAST, bengaliToIAST, convertIASTtoUkrainian } from "@/utils/textNormalizer";
+
 // Маппінг для латиниці IAST → українська кирилиця
 export const IAST_TO_CYRILLIC: Record<string, string> = {
   // Голосні
@@ -260,62 +262,20 @@ export function transliterateIAST(text: string): string {
  * Транслітерація Деванагарі → українська кирилиця
  */
 export function transliterateDevanagari(text: string): string {
-  let result = "";
-
-  // Обробка по символам
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const nextChar = text[i + 1];
-
-    // Обробка приголосна + матра
-    if (DEVANAGARI_TO_CYRILLIC[char]) {
-      result += DEVANAGARI_TO_CYRILLIC[char];
-
-      // Перевірка матри
-      if (nextChar && DEVANAGARI_TO_CYRILLIC[nextChar]) {
-        const nextMapping = DEVANAGARI_TO_CYRILLIC[nextChar];
-        // Якщо наступний символ - матра (голосний знак)
-        if (nextMapping && nextChar.match(/[\u093E-\u094F\u0955-\u0957]/)) {
-          result += nextMapping;
-          i++; // Пропускаємо матру
-        }
-      }
-    } else {
-      result += char; // Зберігаємо невідомі символи
-    }
-  }
-
-  return result;
+  // Крок 1: Деванагарі → IAST (через Sanscript для точності)
+  const iastText = devanagariToIAST(text);
+  // Крок 2: IAST → українська кирилиця (наша власна функція зі всіма правилами)
+  return convertIASTtoUkrainian(iastText);
 }
 
 /**
  * Транслітерація Бенгалі → українська кирилиця
  */
 export function transliterateBengali(text: string): string {
-  let result = "";
-
-  for (let i = 0; i < text.length; i++) {
-    const char = text[i];
-    const nextChar = text[i + 1];
-
-    if (BENGALI_TO_CYRILLIC[char]) {
-      result += BENGALI_TO_CYRILLIC[char];
-
-      // Перевірка матри (голосні знаки)
-      if (nextChar && BENGALI_TO_CYRILLIC[nextChar]) {
-        const nextMapping = BENGALI_TO_CYRILLIC[nextChar];
-        // Якщо наступний символ - матра
-        if (nextMapping && nextChar.match(/[\u09BE-\u09CC]/)) {
-          result += nextMapping;
-          i++;
-        }
-      }
-    } else {
-      result += char;
-    }
-  }
-
-  return result;
+  // Крок 1: Бенгалі → IAST (через Sanscript для точності)
+  const iastText = bengaliToIAST(text);
+  // Крок 2: IAST → українська кирилиця (наша власна функція зі всіма правилами)
+  return convertIASTtoUkrainian(iastText);
 }
 
 /**

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Copy, Download, Trash2, BookOpen } from "lucide-react";
+import "@/styles/transliteration.css";
 import { toast } from "sonner";
 import { processText, TEST_EXAMPLES, validateOutput } from "@/utils/text/transliteration";
 
@@ -29,7 +30,6 @@ export default function TransliterationTool() {
           addHyphens: true,
           convertNums: true,
           preservePunct: true,
-          preserveCase: false, // Застосовувати правила капіталізації
         });
         setOutputText(result);
 
@@ -139,21 +139,14 @@ export default function TransliterationTool() {
                     ? "Введіть текст на деванагарі...\nНаприклад: कृष्ण महाप्रभु"
                     : "Введіть текст бенгалі...\nНаприклад: কৃষ্ণ মহাপ্রভু"
               }
-              className={`min-h-[300px] font-mono text-base ${
+              className={`min-h-[300px] text-base ${
                 mode === "devanagari"
-                  ? "font-devanagari"
+                  ? "devanagari-text"
                   : mode === "bengali"
-                    ? "font-bengali"
-                    : ""
+                    ? "bengali-text" 
+                    : "sanskrit-text"
               }`}
-              style={{
-                fontFamily:
-                  mode === "devanagari"
-                    ? "var(--font-devanagari)"
-                    : mode === "bengali"
-                      ? "var(--font-bengali)"
-                      : "monospace",
-              }}
+              data-script={mode}
             />
 
             <div className="flex gap-2">
@@ -179,10 +172,8 @@ export default function TransliterationTool() {
               value={outputText}
               readOnly
               placeholder="Результат з'явиться тут..."
-              className="min-h-[300px] bg-muted/50 font-translit text-base"
-              style={{
-                fontFamily: "var(--font-translit)",
-              }}
+              className="min-h-[300px] bg-muted/50 text-base transliteration-output translit"
+              data-script={mode}
             />
 
             <div className="flex gap-2">

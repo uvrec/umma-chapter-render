@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Save, Plus, Trash2, GripVertical, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AudioUploadWithMetadata } from "@/components/admin/AudioUploadWithMetadata";
 
 type Category = {
   id: string;
@@ -47,6 +49,7 @@ export default function AudioPlaylistEdit() {
     duration: 0,
     track_number: 1,
   });
+  const [activeTab, setActiveTab] = useState("upload");
 
   // ---- Queries
   const { data: categories } = useQuery({
@@ -235,6 +238,13 @@ export default function AudioPlaylistEdit() {
     }
   };
 
+  // Обробник успішного завантаження файлів
+  const handleUploadComplete = (trackId: string) => {
+    // Оновлюємо список треків після успішного завантаження
+    queryClient.invalidateQueries({ queryKey: ["audio-tracks", id] });
+    toast.success("Трек успішно додано до плейлиста!");
+  };
+
   // ---- UI
   return (
     <div className="container mx-auto px-4 py-8">
@@ -392,15 +402,29 @@ export default function AudioPlaylistEdit() {
         {!isNew && (
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Треки ({tracks?.length || 0})</CardTitle>
-                <Dialog open={trackDialog} onOpenChange={setTrackDialog}>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Додати трек
-                    </Button>
-                  </DialogTrigger>
+              <CardTitle>Треки ({tracks?.length || 0})</CardTitle>
+              
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="upload">Завантажити файли</TabsTrigger>
+                  <TabsTrigger value="manual">Ручне додавання</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="upload" className="mt-4">
+                  <AudioUploadWithMetadata 
+                    playlistId={id!}
+                    onUploadComplete={handleUploadComplete}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="manual" className="mt-4">
+                  <Dialog open={trackDialog} onOpenChange={setTrackDialog}>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Додати трек вручну
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Новий трек</DialogTitle>
@@ -458,9 +482,13 @@ export default function AudioPlaylistEdit() {
                     </form>
                   </DialogContent>
                 </Dialog>
-              </div>
+                </TabsContent>
+              </Tabs>
             </CardHeader>
+            
+            {/* Список треків (зовні табів) */}
             <CardContent>
+              <h4 className="font-semibold mb-4">Поточні треки</h4>
               <div className="space-y-2">
                 {tracks?.map((track: any) => (
                   <div key={track.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -487,7 +515,7 @@ export default function AudioPlaylistEdit() {
                       }}
                       aria-label={`Видалити трек ${track.title_ua}`}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 w-4" />
                     </Button>
                   </div>
                 ))}
