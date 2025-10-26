@@ -10,8 +10,7 @@ import { ChapterVersesList } from "@/pages/ChapterVersesList";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { AudioProvider, GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
-import "@/components/GlobalAudioPlayer/GlobalAudioPlayer.css";
+
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { AudioProvider as ModernAudioProvider } from "@/contexts/ModernAudioContext";
 import { ModernGlobalPlayer } from "@/components/ModernGlobalPlayer";
@@ -83,8 +82,7 @@ const App = () => (
       <LanguageProvider>
         <AuthProvider>
           <TooltipProvider>
-            <AudioProvider>
-              <ModernAudioProvider>
+            <ModernAudioProvider>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -192,13 +190,11 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
 
-                {/* Глобальний плеєр і єдина панель налаштувань */}
-                <GlobalAudioPlayer />
+                {/* Сучасний глобальний плеєр і панель налаштувань */}
                 <ModernGlobalPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>
-              </ModernAudioProvider>
-            </AudioProvider>
+            </ModernAudioProvider>
           </TooltipProvider>
         </AuthProvider>
       </LanguageProvider>

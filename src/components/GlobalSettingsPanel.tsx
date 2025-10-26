@@ -106,8 +106,8 @@ export const GlobalSettingsPanel = () => {
 
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right" className="w-96">
-          <SheetHeader className="pb-4">
+        <SheetContent side="right" className="w-96 overflow-y-auto">
+          <SheetHeader className="pb-4 sticky top-0 bg-background z-10">
             <div className="flex items-center justify-between">
               <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
               <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} aria-label={t("Закрити", "Close")}>
@@ -116,7 +116,7 @@ export const GlobalSettingsPanel = () => {
             </div>
           </SheetHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-6 pb-6">
             {/* Тема */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Тема оформлення", "Theme")}</Label>
