@@ -1,4 +1,4 @@
-import { useAudio } from "@/components/GlobalAudioPlayer";
+import { useAudio } from "@/contexts/ModernAudioContext";
 import { loadTrackFromSupabase, loadPlaylistTracks, trackPlayEvent } from "@/components/GlobalAudioPlayer/GlobalAudioPlayer.supabase-adapter";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +26,7 @@ export function Hero() {
 }
 
 export function LatestAudioTracks() {
-  const { playTrack, addToQueue } = useAudio();
+  const { playTrack, addToPlaylist } = useAudio();
 
   const { data: tracks } = useQuery({
     queryKey: ["audio-tracks"],
@@ -54,16 +54,14 @@ export function LatestAudioTracks() {
       title: t.title_ua ?? t.title_en ?? "Без назви",
       src: t.audio_url,
       coverImage: t.playlist?.cover_image_url ?? undefined,
-      verseNumber: `Трек ${t.track_number}`,
-      metadata: {
-        artist: t.playlist?.author || "Vedavoice",
-        album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
-      },
+      subtitle: `Трек ${t.track_number}`,
+      artist: t.playlist?.author || "Vedavoice",
+      album: t.playlist ? t.playlist.title_ua ?? t.playlist.title_en ?? undefined : undefined,
     });
   };
 
   const handleAddToQueue = (t: NonNullable<typeof tracks>[number]) => {
-    addToQueue({ id: t.id, title: t.title_ua ?? t.title_en ?? "Без назви", src: t.audio_url });
+    addToPlaylist({ id: t.id, title: t.title_ua ?? t.title_en ?? "Без назви", src: t.audio_url });
   };
 
   return (
@@ -80,12 +78,11 @@ export function LatestAudioTracks() {
 }
 
 export function PlaylistCard({ playlistId }: { playlistId: string }) {
-  const { playTrack, setQueue } = useAudio();
+  const { playPlaylist } = useAudio();
   const handlePlayPlaylist = async () => {
     const tracks = await loadPlaylistTracks(playlistId, "ua");
     if (!tracks.length) return;
-    setQueue(tracks);
-    playTrack(tracks[0]);
+    playPlaylist(tracks, 0);
   };
   return <button onClick={handlePlayPlaylist}>Грати плейлист</button>;
 }

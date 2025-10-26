@@ -8,7 +8,7 @@ import { Play, Pause, Edit, Save, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { useAudio } from "@/components/GlobalAudioPlayer";
+import { useAudio } from "@/contexts/ModernAudioContext";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
@@ -154,7 +154,6 @@ export const VerseCard = ({
       id: trackId,
       title: `${verseNumber} — ${section}`,
       src,
-      verseNumber
     });
   };
   const startEdit = () => {

@@ -20,7 +20,7 @@ export const FixRLSPolicies = () => {
     try {
       // 1. Drop existing restrictive policies
       const dropQuery1 = `DROP POLICY IF EXISTS "Admins can manage tracks" ON public.audio_tracks`;
-      const { error: drop1Error } = await supabase.rpc('execute_sql', { query: dropQuery1 });
+      const { error: drop1Error } = await (supabase.rpc as any)('execute_sql', { query: dropQuery1 });
       
       if (drop1Error) {
         // Якщо rpc не працює, спробуємо через прямий SQL
@@ -28,7 +28,7 @@ export const FixRLSPolicies = () => {
       }
 
       const dropQuery2 = `DROP POLICY IF EXISTS "Admins can manage playlists" ON public.audio_playlists`;
-      const { error: drop2Error } = await supabase.rpc('execute_sql', { query: dropQuery2 });
+      const { error: drop2Error } = await (supabase.rpc as any)('execute_sql', { query: dropQuery2 });
 
       // 2. Create new policies for authenticated users
       const createQuery1 = `
@@ -39,7 +39,7 @@ export const FixRLSPolicies = () => {
         WITH CHECK (true)
         USING (true)
       `;
-      const { error: create1Error } = await supabase.rpc('execute_sql', { query: createQuery1 });
+      const { error: create1Error } = await (supabase.rpc as any)('execute_sql', { query: createQuery1 });
 
       const createQuery2 = `
         CREATE POLICY "Authenticated can manage playlists" 
@@ -49,7 +49,7 @@ export const FixRLSPolicies = () => {
         WITH CHECK (true)
         USING (true)
       `;
-      const { error: create2Error } = await supabase.rpc('execute_sql', { query: createQuery2 });
+      const { error: create2Error } = await (supabase.rpc as any)('execute_sql', { query: createQuery2 });
 
       if (create1Error || create2Error) {
         throw new Error(`Помилка створення політик: ${create1Error?.message || create2Error?.message}`);

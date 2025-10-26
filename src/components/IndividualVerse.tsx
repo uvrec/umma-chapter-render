@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { verses } from "@/data/verses";
 import { useAuth } from "@/contexts/AuthContext";
-import { useAudio } from "@/components/GlobalAudioPlayer";
+import { useAudio } from "@/contexts/ModernAudioContext";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 
@@ -142,7 +142,6 @@ export const IndividualVerse = () => {
       id: `${verseNumber}-${section}`,
       title: `${verseNumber} — ${section}`,
       src: currentVerse.audioUrl,
-      verseNumber,
     });
   };
 

@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Volume2, List, Shuffle, Repeat } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useAudio } from "@/components/GlobalAudioPlayer";
+import { useAudio } from "@/contexts/ModernAudioContext";
 
 interface Track {
   id: string;
