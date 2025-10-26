@@ -27,8 +27,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
-import { useAudio } from "@/components/GlobalAudioPlayer";
-import { useAudio as useModernAudio } from "@/contexts/ModernAudioContext";
+import { useAudio } from "@/contexts/ModernAudioContext";
 
 // --- Types ---
 type ContentItem = {
@@ -148,9 +147,11 @@ function Hero() {
 
                   <div className="flex items-center justify-between gap-4">
                       <div className="min-w-0 flex-1 text-left">
-                        <div className="mb-1 truncate text-base font-semibold text-foreground">{currentTrack.title}</div>
+                        <div className="mb-1 truncate text-base font-semibold text-foreground">
+                          {currentTrack.title_ua || currentTrack.title}
+                        </div>
                         <div className="truncate text-sm text-muted-foreground">
-                          {(currentTrack as any).metadata?.album || "Vedavoice · Аудіо"}
+                          {currentTrack.artist || currentTrack.album || "Vedavoice · Аудіо"}
                         </div>
                         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
@@ -214,7 +215,7 @@ function SearchStrip() {
 
 // --- Latest Content ---
 function LatestContent() {
-  const { playTrack } = useModernAudio();
+  const { playTrack } = useAudio();
   
   const handlePlayTrack = (item: ContentItem) => {
     if (item.type === "audio" && item.audioData) {
@@ -232,6 +233,7 @@ function LatestContent() {
           `
           id,
           title_ua,
+          title_en,
           audio_url,
           duration,
           created_at,
@@ -284,6 +286,8 @@ function LatestContent() {
       audioData: {
         id: track.id,
         title: track.title_ua,
+        title_ua: track.title_ua,
+        title_en: track.title_en,
         subtitle: track.audio_playlists?.title_ua,
         artist: 'Шріла Прабгупада', // За замовчанням автор
         src: track.audio_url || '',
