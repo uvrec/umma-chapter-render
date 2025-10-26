@@ -153,7 +153,7 @@ export const VerseCard = ({
     playTrack({
       id: trackId,
       title: `${verseNumber} — ${section}`,
-      src,
+      src
     });
   };
   const startEdit = () => {
