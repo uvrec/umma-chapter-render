@@ -262,7 +262,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.synonyms} onChange={e => setEdited(p => ({
           ...p,
           synonyms: e.target.value
-        }))} className="min-h-[120px] text-[1.22em]" /> : 
+        }))} className="min-h-[120px] text-[1.22em]" /> :
             
             {/* ✅ ВИПРАВЛЕНО: text-3xl замінено на text-[1.22em] */}
             <p className="leading-relaxed text-foreground text-[1.22em]">
@@ -296,7 +296,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] text-[1.22em] font-medium" /> : 
+        }))} className="min-h-[100px] text-[1.22em] font-medium" /> :
           
             {/* ✅ ВИПРАВЛЕНО: text-3xl замінено на text-[1.22em] */}
             <p className="font-medium leading-relaxed text-foreground text-[1.22em]">{translation}</p>}
@@ -320,3 +320,4 @@ export const VerseCard = ({
       </div>
     </Card>;
 };
+
