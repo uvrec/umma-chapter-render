@@ -269,23 +269,74 @@ export default function UniversalImportFixed() {
         bookId = created.id;
       }
 
-      const chapters = importData.chapters.map((ch) => ({
-        book_id: bookId,
-        chapter_number: ch.chapter_number,
-        title_ua: ch.title_ua,
-        title_en: ch.title_en || ch.title_ua,
-        chapter_type: "verses" as const,
-      }));
+      // Resolve canto (volume) if provided to link chapters correctly
+      let cantoId: string | null = null;
+      if (importData.metadata.canto) {
+        const cantoNum = parseInt(importData.metadata.canto, 10);
+        const { data: canto } = await supabase
+          .from("cantos")
+          .select("id")
+          .eq("book_id", bookId)
+          .eq("canto_number", cantoNum)
+          .maybeSingle();
+        cantoId = canto?.id || null;
+      }
 
-      const { data: chaptersData } = await supabase
-        .from("chapters")
-        .upsert(chapters, { onConflict: "book_id,chapter_number" })
-        .select("id, chapter_number");
+      // Ensure we attach verses to the chapter used by the reader (canto_id + chapter_number)
+      const chapterIdMap = new Map<number, string>();
+      for (const ch of importData.chapters) {
+        let existingId: string | undefined;
 
-      const idMap = new Map(chaptersData.map((ch) => [ch.chapter_number, ch.id]));
+        if (cantoId) {
+          const { data: existing } = await supabase
+            .from("chapters")
+            .select("id")
+            .eq("canto_id", cantoId)
+            .eq("chapter_number", ch.chapter_number)
+            .maybeSingle();
+          existingId = existing?.id;
+        } else {
+          const { data: existing } = await supabase
+            .from("chapters")
+            .select("id")
+            .eq("book_id", bookId)
+            .eq("chapter_number", ch.chapter_number)
+            .maybeSingle();
+          existingId = existing?.id;
+        }
+
+        if (existingId) {
+          // Update basic titles if needed but keep structure
+          await supabase
+            .from("chapters")
+            .update({
+              title_ua: ch.title_ua,
+              title_en: ch.title_en || ch.title_ua,
+              chapter_type: "verses",
+            })
+            .eq("id", existingId);
+          chapterIdMap.set(ch.chapter_number, existingId);
+        } else {
+          const { data: inserted, error: insertErr } = await supabase
+            .from("chapters")
+            .insert({
+              book_id: bookId,
+              canto_id: cantoId,
+              chapter_number: ch.chapter_number,
+              title_ua: ch.title_ua,
+              title_en: ch.title_en || ch.title_ua,
+              chapter_type: "verses",
+              is_published: true,
+            })
+            .select("id")
+            .single();
+          if (insertErr) throw insertErr;
+          chapterIdMap.set(ch.chapter_number, inserted!.id);
+        }
+      }
       const verses = importData.chapters.flatMap((ch) =>
         ch.verses.map((v: any) => ({
-          chapter_id: idMap.get(ch.chapter_number),
+          chapter_id: chapterIdMap.get(ch.chapter_number),
           verse_number: v.verse_number,
           sanskrit: v.sanskrit || "",
           sanskrit_ua: v.sanskrit_ua || v.sanskrit || "",
