@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
 
@@ -97,6 +98,7 @@ export default function UniversalImportFixed() {
       author: "Шріла Прабгупада",
     },
   });
+  const [overwriteTitles, setOverwriteTitles] = useState(false);
 
   // Vedabase
   const [vedabaseBook, setVedabaseBook] = useState("cc");
@@ -205,8 +207,8 @@ export default function UniversalImportFixed() {
         chapters: [
           {
             chapter_number: chapterNum,
-            title_ua: importData.metadata.title_ua || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
-            title_en: importData.metadata.title_en || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
+            title_ua: prev.metadata.title_ua || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
+            title_en: prev.metadata.title_en || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
             chapter_type: "verses",
             verses: result.verses,
           },
@@ -301,10 +303,10 @@ export default function UniversalImportFixed() {
         }
 
         if (existingId) {
-          // Не перезаписуємо назви, якщо користувач нічого не ввів
+          // Не перезаписуємо назви, якщо користувач нічого не ввів або не дозволив
           const updates: any = { chapter_type: "verses" };
-          if (importData.metadata.title_ua?.trim()) updates.title_ua = importData.metadata.title_ua.trim();
-          if (importData.metadata.title_en?.trim()) updates.title_en = importData.metadata.title_en.trim();
+          if (overwriteTitles && importData.metadata.title_ua?.trim()) updates.title_ua = importData.metadata.title_ua.trim();
+          if (overwriteTitles && importData.metadata.title_en?.trim()) updates.title_en = importData.metadata.title_en.trim();
           // Запишемо intro якщо є
           const introUa = ch.intro_ua?.trim();
           const introEn = ch.intro_en?.trim();
@@ -374,7 +376,7 @@ export default function UniversalImportFixed() {
       setIsProcessing(false);
       setProgress(0);
     }
-  }, [importData]);
+  }, [importData, overwriteTitles]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -563,7 +565,11 @@ export default function UniversalImportFixed() {
                 </CardContent>
               </Card>
 
-              <div className="flex justify-between">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="overwriteTitles" checked={overwriteTitles} onCheckedChange={(c)=>setOverwriteTitles(Boolean(c))} />
+                  <Label htmlFor="overwriteTitles">Перезаписувати існуючі назви глав</Label>
+                </div>
                 <Button onClick={saveToDatabase}>
                   <Download className="w-4 h-4 mr-2" />
                   Зберегти в базу

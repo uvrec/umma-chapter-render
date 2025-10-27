@@ -37,64 +37,57 @@ function extractVedabaseContent(html: string) {
   };
 
   try {
-    // САНСКРИТ (спільний для обох мов)
-    const devanagariMatch = html.match(/[\u0900-\u097F।॥\s]+/g);
-    const bengaliMatch = html.match(/[\u0980-\u09FF।॥\s]+/g);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
 
-    const allMatches = [...(devanagariMatch || []), ...(bengaliMatch || [])];
-    const longest = allMatches
-      .map((s) => s.trim())
-      .filter((s) => s.length > 10)
-      .sort((a, b) => b.length - a.length)[0];
+    // Sanskrit (Bengali/Devanagari) – take the longest script block
+    const mainText = doc.querySelector("main")?.innerText || doc.body.innerText || html;
+    const devanagariMatch = mainText.match(/[\u0900-\u097F।॥\s\S]{20,}/g) || [];
+    const bengaliMatch = mainText.match(/[\u0980-\u09FF।॥\s\S]{20,}/g) || [];
+    const allMatches = [...devanagariMatch, ...bengaliMatch].map(s => s.trim());
+    const longest = allMatches.sort((a, b) => b.length - a.length)[0];
+    if (longest) result.sanskrit = longest;
 
-    if (longest) {
-      result.sanskrit = longest;
-    }
+    // Transliteration – first paragraph-looking Latin with diacritics
+    const paras = Array.from(doc.querySelectorAll("p"));
+    const iast = paras.map(p => p.textContent?.trim() || "").find(t => /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(t || "") && (t || "").split(/\s+/).length > 3);
+    if (iast) result.transliteration = iast;
 
-    // ТРАНСЛІТЕРАЦІЯ (IAST)
-    const iastPattern = /\b[a-zA-Zāīūṛṝḷḹēōṃḥśṣṇṭḍñṅ\s\-']+\b/g;
-    const iastMatches = html.match(iastPattern);
-
-    if (iastMatches) {
-      const withDiacritics = iastMatches.filter(
-        (text) => /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
-      );
-
-      if (withDiacritics.length > 0) {
-        result.transliteration = withDiacritics.sort((a, b) => b.length - a.length)[0].trim();
+    // Helper: extract section by heading label
+    const extractByHeading = (labels: string[]): string => {
+      const heads = Array.from(doc.querySelectorAll("h1,h2,h3,h4,strong,b")) as HTMLElement[];
+      const target = heads.find(h => labels.some(l => (h.textContent || "").trim().toLowerCase().includes(l)));
+      if (!target) return "";
+      const out: string[] = [];
+      let el: HTMLElement | null = target.nextElementSibling as HTMLElement;
+      while (el) {
+        const tag = el.tagName.toLowerCase();
+        if (["h1","h2","h3","h4","strong","b"].includes(tag)) break;
+        if (["p","div","ul","ol","table"].includes(tag)) {
+          const t = el.textContent?.trim();
+          if (t) out.push(t);
+        }
+        el = el.nextElementSibling as HTMLElement;
       }
-    }
+      return out.join("\n\n");
+    };
 
-    // СИНОНІМИ
-    const synonymsMatch = html.match(/(?:SYNONYMS|Word for word)[:\s]*(.*?)(?=TRANSLATION|$)/is);
-    if (synonymsMatch) {
-      result.synonyms = synonymsMatch[1]
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .substring(0, 2000);
-    }
+    result.synonyms = extractByHeading(["synonyms","word for word"]) || result.synonyms;
+    result.translation = extractByHeading(["translation"]) || result.translation;
+    result.purport = extractByHeading(["purport","commentary"]) || result.purport;
 
-    // ПЕРЕКЛАД
-    const translationMatch = html.match(/TRANSLATION[:\s]*(.*?)(?=PURPORT|COMMENTARY|$)/is);
-    if (translationMatch) {
-      result.translation = translationMatch[1]
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .substring(0, 1000);
+    // Fallback with regex if still empty
+    if (!result.synonyms) {
+      const m = html.match(/(?:SYNONYMS|Word for word)[:\s]*(.*?)(?=TRANSLATION|$)/is);
+      if (m) result.synonyms = m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().substring(0, 2000);
     }
-
-    // ПОЯСНЕННЯ (Purport)
-    const purportMatch = html.match(/(?:PURPORT|COMMENTARY)[:\s]*(.*?)$/is);
-    if (purportMatch) {
-      result.purport = purportMatch[1]
-        .replace(/<script[^>]*>.*?<\/script>/gis, "")
-        .replace(/<style[^>]*>.*?<\/style>/gis, "")
-        .replace(/<[^>]+>/g, " ")
-        .replace(/\s+/g, " ")
-        .trim()
-        .substring(0, 10000);
+    if (!result.translation) {
+      const m = html.match(/TRANSLATION[:\s]*(.*?)(?=PURPORT|COMMENTARY|$)/is);
+      if (m) result.translation = m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().substring(0, 2000);
+    }
+    if (!result.purport) {
+      const m = html.match(/(?:PURPORT|COMMENTARY)[:\s]*(.*?)$/is);
+      if (m) result.purport = m[1].replace(/<script[^>]*>.*?<\/script>/gis, "").replace(/<style[^>]*>.*?<\/style>/gis, "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().substring(0, 10000);
     }
   } catch (error) {
     console.error("Parse error:", error);
