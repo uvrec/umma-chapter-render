@@ -307,12 +307,21 @@ export default function UniversalImportFixed() {
         }
 
         if (existingId) {
-          // Update basic titles if needed but keep structure
+          // Read current titles to avoid overwriting correct ones unless provided
+          const { data: current } = await supabase
+            .from("chapters")
+            .select("title_ua, title_en")
+            .eq("id", existingId)
+            .maybeSingle();
+
+          const newTitleUa = (importData.metadata.title_ua?.trim() || ch.title_ua || current?.title_ua) as string;
+          const newTitleEn = (importData.metadata.title_en?.trim() || ch.title_en || current?.title_en || newTitleUa) as string;
+
           await supabase
             .from("chapters")
             .update({
-              title_ua: ch.title_ua,
-              title_en: ch.title_en || ch.title_ua,
+              title_ua: newTitleUa,
+              title_en: newTitleEn,
               chapter_type: "verses",
             })
             .eq("id", existingId);
@@ -324,8 +333,8 @@ export default function UniversalImportFixed() {
               book_id: bookId,
               canto_id: cantoId,
               chapter_number: ch.chapter_number,
-              title_ua: ch.title_ua,
-              title_en: ch.title_en || ch.title_ua,
+              title_ua: (importData.metadata.title_ua?.trim() || ch.title_ua) as string,
+              title_en: (importData.metadata.title_en?.trim() || ch.title_en || importData.metadata.title_ua) as string,
               chapter_type: "verses",
               is_published: true,
             })
@@ -339,22 +348,22 @@ export default function UniversalImportFixed() {
         ch.verses.map((v: any) => ({
           chapter_id: chapterIdMap.get(ch.chapter_number),
           verse_number: v.verse_number,
-          // Bengali/Devanagari (same for both languages)
-          sanskrit: v.sanskrit || "",
-          sanskrit_ua: v.sanskrit || "",
-          sanskrit_en: v.sanskrit || "",
+          // Bengali/Devanagari (store for both languages)
+          sanskrit: v.sanskrit || v.sanskrit_ua || v.sanskrit_en || "",
+          sanskrit_ua: v.sanskrit_ua || v.sanskrit || "",
+          sanskrit_en: v.sanskrit_en || v.sanskrit || "",
           // Transliteration (separate UA and EN)
           transliteration_ua: v.transliteration_ua || v.transliteration || "",
           transliteration_en: v.transliteration_en || "",
           // Synonyms (word-by-word)
           synonyms_ua: v.synonyms_ua || "",
-          synonyms_en: v.synonyms_en || "",
+          synonyms_en: v.synonyms_en || v.synonyms || "",
           // Translation
           translation_ua: v.translation_ua || "",
-          translation_en: v.translation_en || "",
+          translation_en: v.translation_en || v.translation || "",
           // Commentary (purport)
           commentary_ua: v.commentary_ua || "",
-          commentary_en: v.commentary_en || "",
+          commentary_en: v.commentary_en || v.purport || v.commentary || "",
         }))
       );
 

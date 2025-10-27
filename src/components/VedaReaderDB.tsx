@@ -464,6 +464,15 @@ export const VedaReaderDB = () => {
           <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
         </div>
 
+        {/* Intro/preface block (render above verses if present) */}
+        {(language === "ua" ? chapter.content_ua : chapter.content_en) && !isTextChapter && (
+          <Card className="verse-surface p-8 mb-8">
+            <div className="prose prose-lg max-w-none dark:prose-invert">
+              <TiptapRenderer content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || ""} />
+            </div>
+          </Card>
+        )}
+
         {isTextChapter ? <Card className="verse-surface p-8">
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <TiptapRenderer content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || chapter.content_ua || ""} />
@@ -484,7 +493,7 @@ export const VedaReaderDB = () => {
             {verses.map(verse => {
           const verseIdx = getDisplayVerseNumber(verse.verse_number);
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
-          return <VerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={(verse as any).sanskrit || ""} transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""} synonyms={language === "ua" ? (verse as any).synonyms_ua || "" : (verse as any).synonyms_en || ""} translation={language === "ua" ? (verse as any).translation_ua || "" : (verse as any).translation_en || ""} commentary={language === "ua" ? (verse as any).commentary_ua || "" : (verse as any).commentary_en || ""} audioUrl={(verse as any).audio_url || ""} textDisplaySettings={textDisplaySettings} isAdmin={isAdmin} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+          return <VerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || ""} transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""} synonyms={language === "ua" ? (verse as any).synonyms_ua || "" : (verse as any).synonyms_en || ""} translation={language === "ua" ? (verse as any).translation_ua || "" : (verse as any).translation_en || ""} commentary={language === "ua" ? (verse as any).commentary_ua || "" : (verse as any).commentary_en || ""} audioUrl={(verse as any).audio_url || ""} textDisplaySettings={textDisplaySettings} isAdmin={isAdmin} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
             verseId,
             updates
           })} />;

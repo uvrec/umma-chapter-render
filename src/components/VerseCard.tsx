@@ -237,8 +237,8 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.transliteration} onChange={e => setEdited(p => ({
           ...p,
           transliteration: e.target.value
-        }))} className="min-h-[80px] text-center font-sanskrit-italic italic text-[1.22em] text-gray-500 dark:text-muted-foreground" /> : <div className="space-y-1 text-center">
-                {transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground text-4xl">
+        }))} className="min-h-[80px] text-center font-sanskrit-italic italic text-3xl text-gray-500 dark:text-muted-foreground" /> : <div className="space-y-1 text-center">
+                {transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground text-3xl">
                     {line}
                   </p>)}
               </div>}
@@ -257,7 +257,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.synonyms} onChange={e => setEdited(p => ({
           ...p,
           synonyms: e.target.value
-        }))} className="min-h-[120px] text-[21px]" /> : <p className="leading-relaxed text-foreground text-3xl">
+        }))} className="min-h-[120px] text-3xl" /> : <p className="leading-relaxed text-foreground text-3xl">
                 {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
             const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
             return <span key={i}>
@@ -287,7 +287,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] text-[23px] font-medium" /> : <p className="font-medium leading-relaxed text-foreground text-3xl">{translation}</p>}
+        }))} className="min-h-[100px] text-3xl font-medium" /> : <p className="font-medium leading-relaxed text-foreground text-3xl">{translation}</p>}
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
@@ -303,7 +303,7 @@ export const VerseCard = ({
             {isEditing ? <InlineTiptapEditor content={edited.commentary} onChange={html => setEdited(p => ({
           ...p,
           commentary: html
-        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="text-[1.22em] leading-relaxed" />}
+        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="text-3xl leading-relaxed" />}
           </div>}
       </div>
     </Card>;
