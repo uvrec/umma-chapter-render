@@ -288,9 +288,15 @@ export default function UniversalImportFixed() {
           chapter_id: idMap.get(ch.chapter_number),
           verse_number: v.verse_number,
           sanskrit: v.sanskrit || "",
-          transliteration_en: v.transliteration || "",
+          sanskrit_ua: v.sanskrit_ua || v.sanskrit || "",
+          sanskrit_en: v.sanskrit_en || v.sanskrit || "",
+          transliteration_ua: v.transliteration_ua || v.transliteration || "",
+          transliteration_en: v.transliteration_en || "",
+          synonyms_ua: v.synonyms_ua || "",
           synonyms_en: v.synonyms_en || "",
+          translation_ua: v.translation_ua || "",
           translation_en: v.translation_en || "",
+          commentary_ua: v.commentary_ua || "",
           commentary_en: v.commentary_en || "",
         }))
       );
