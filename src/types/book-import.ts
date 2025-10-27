@@ -3,7 +3,8 @@ export type ChapterType = "verses" | "text";
 
 export interface ParsedVerse {
   verse_number: string;
-  sanskrit?: string;
+  sanskrit_ua?: string;
+  sanskrit_en?: string;
   transliteration?: string;
   synonyms_ua?: string;
   synonyms_en?: string;
@@ -56,10 +57,10 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
   {
     id: "default",
     name: "За замовчуванням",
-    versePattern: /^(ТЕКСТ|TEXT)\s+(\d+(?:\.\d+)?)/i,
-    synonymsPattern: /^(ПОСЛОВНИЙ ПЕРЕКЛАД|WORD FOR WORD|СИНОНІМИ|SYNONYMS):/i,
+    versePattern: /^(ТЕКСТ|МАНТРА|ВІРШ|TEXT|MANTRA|VERSE)\s+(\d+(?:\.\d+)?)/i,
+    synonymsPattern: /^(ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|СИНОНІМИ|SYNONYMS):/i,
     translationPattern: /^(ПЕРЕКЛАД|TRANSLATION):/i,
-    commentaryPattern: /^(КОМЕНТАР|ПОЯСНЕННЯ|COMMENTARY|PURPORT):/i,
+    commentaryPattern: /^(КОМЕНТАР|ПОЯСНЕННЯ|КОММЕНТАРИЙ|COMMENTARY|PURPORT):/i,
     chapterPattern: /^(ГЛАВА|CHAPTER|РОЗДІЛ)\s+(\d+)/i,
   },
 ];
