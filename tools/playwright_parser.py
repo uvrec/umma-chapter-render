@@ -204,17 +204,19 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
                 continue
             candidates.append(el)
 
-    # PRIORITY: Try specific selector first (.av-bengali for Advanced View)
+    # PRIORITY 1: Try Advanced View selectors (most reliable)
     if not sanskrit:
         el = soup.select_one('.av-bengali')
         if el:
-            # Get text, preserve line breaks
-            text = el.get_text('\n', strip=True)
-            # Remove label "Bengali" if present
-            text = text.replace('Bengali', '').strip()
-            if text and len(text) > 30:
-                sanskrit = text
-                print(f"[Vedabase] Found Bengali with .av-bengali selector: {sanskrit[:80]}...")
+            # Get text from inner div, preserve line breaks
+            inner = el.select_one('div[id]')
+            if inner:
+                text = inner.get_text('\n', strip=True)
+                # Remove label "Bengali" if present
+                text = text.replace('Bengali', '').strip()
+                if text and len(text) > 30:
+                    sanskrit = text
+                    print(f"[Vedabase] Found Bengali with .av-bengali selector: {sanskrit[:80]}...")
     
     # Fallback: Use regex to find Bengali/Devanagari verse text from HTML
     # Bengali verses typically have 2-4 lines ending with ॥ verse_number ॥
@@ -282,9 +284,25 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
                 print(f"[Vedabase] Found sanskrit with fallback selector: {sel}")
                 break
 
-    # transliteration - FIXED: Use regex to find IAST text (English with diacritics)
-    # IAST has specific diacritics: ā ī ū ṛ ṇ ś ṣ ṁ ḥ ṅ ñ ṭ ḍ
-    # Vedabase shows transliteration in <em> tags with <br> separators
+    # transliteration - PRIORITY: Advanced View selector
+    if not transliteration:
+        el = soup.select_one('.av-verse_text')
+        if el:
+            inner = el.select_one('div[id]')
+            if inner:
+                # Get text from <em> tags inside, preserve line breaks
+                em_tags = inner.find_all('em')
+                if em_tags:
+                    parts = []
+                    for em in em_tags:
+                        text = em.get_text('\n', strip=True)
+                        if text:
+                            parts.append(text)
+                    if parts:
+                        transliteration = '\n'.join(parts)
+                        print(f"[Vedabase] Found transliteration with .av-verse_text: {transliteration[:80]}...")
+    
+    # FALLBACK: Use regex to find IAST text (English with diacritics)
     if not transliteration:
         # PATTERN: Match IAST text with <br> tags (HTML structure from Vedabase)
         # Example: <em>kṛpā-sudhā-sarid yasya<br>viśvam āplāvayanty api<br>...</em>
@@ -316,19 +334,105 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
             if transliteration:
                 break
 
-    # synonyms / word-by-word
-    syn = soup.select_one('.synonyms, .word-for-word, .wfw')
-    if syn:
-        synonyms_en = syn.get_text(' ', strip=True)
+    # synonyms / word-by-word - PRIORITY: Advanced View
+    if not synonyms_en:
+        el = soup.select_one('.av-synonyms')
+        if el:
+            inner = el.select_one('div[id]')
+            if inner:
+                # Extract all <span> items with word — meaning format
+                spans = inner.find_all('span', class_='inline')
+                if spans:
+                    parts = []
+                    for span in spans:
+                        # Get text, clean up extra spaces
+                        text = span.get_text(' ', strip=True)
+                        # Remove trailing semicolon/space
+                        text = text.rstrip('; ')
+                        if text:
+                            parts.append(text)
+                    if parts:
+                        synonyms_en = '; '.join(parts)
+                        print(f"[Vedabase] Found synonyms_en with .av-synonyms: {synonyms_en[:100]}...")
+    
+    # FALLBACK: Try multiple selectors
+    if not synonyms_en:
+        for sel in ['.r-synonyms', '.synonyms', '.word-for-word', '.wfw', '[class*="synonym"]']:
+            syn = soup.select_one(sel)
+            if syn:
+                # Get all synonym items with formatting
+                items = syn.select('.r-synonyms-item')
+                if items:
+                    parts = []
+                    for item in items:
+                        word = item.select_one('.r-synonym')
+                        meaning = item.select_one('.r-synonim-text, .r-synonym-text')
+                        if word and meaning:
+                            parts.append(f"{word.get_text(strip=True)} — {meaning.get_text(strip=True)}")
+                    if parts:
+                        synonyms_en = '; '.join(parts)
+                        print(f"[Vedabase] Found synonyms_en: {synonyms_en[:100]}...")
+                        break
+                else:
+                    # Fallback: get all text
+                    synonyms_en = syn.get_text(' ', strip=True)
+                    if synonyms_en:
+                        print(f"[Vedabase] Found synonyms_en (fallback): {synonyms_en[:100]}...")
+                        break
 
-    # translation and commentary (English blocks)
-    tr = soup.select_one('.translation, .eng, .english')
-    if tr:
-        translation_en = tr.get_text(' ', strip=True)
+    # translation - PRIORITY: Advanced View
+    if not translation_en:
+        el = soup.select_one('.av-translation')
+        if el:
+            inner = el.select_one('div[id]')
+            if inner:
+                # Get text, strip <strong> tags but keep content
+                text = inner.get_text(' ', strip=True)
+                if text and len(text) > 30:
+                    translation_en = text
+                    print(f"[Vedabase] Found translation_en with .av-translation: {translation_en[:100]}...")
+    
+    # FALLBACK: Try multiple selectors
+    if not translation_en:
+        for sel in ['.r-translation', '.translation', '.eng', '.english', '[class*="translation"]']:
+            tr = soup.select_one(sel)
+            if tr:
+                translation_en = tr.get_text(' ', strip=True)
+                if translation_en and len(translation_en) > 30:
+                    print(f"[Vedabase] Found translation_en: {translation_en[:100]}...")
+                    break
 
-    pur = soup.select_one('.purport, .commentary, .notes')
-    if pur:
-        commentary_en = pur.get_text('\n', strip=True)
+    # purport / commentary - PRIORITY: Advanced View
+    if not commentary_en:
+        el = soup.select_one('.av-purport')
+        if el:
+            inner = el.select_one('div[id]')
+            if inner:
+                # Collect all paragraphs
+                paragraphs = inner.select('p')
+                if paragraphs:
+                    parts = [p.get_text(' ', strip=True) for p in paragraphs if p.get_text(strip=True)]
+                    commentary_en = '\n\n'.join(parts)
+                else:
+                    commentary_en = inner.get_text('\n', strip=True)
+                if commentary_en and len(commentary_en) > 50:
+                    print(f"[Vedabase] Found commentary_en with .av-purport: {commentary_en[:100]}...")
+    
+    # FALLBACK: Try multiple selectors
+    if not commentary_en:
+        for sel in ['.r-purport', '.purport', '.commentary', '.notes', '[class*="purport"]']:
+            pur = soup.select_one(sel)
+            if pur:
+                # Collect all paragraphs
+                paragraphs = pur.select('p')
+                if paragraphs:
+                    parts = [p.get_text(' ', strip=True) for p in paragraphs if p.get_text(strip=True)]
+                    commentary_en = '\n\n'.join(parts)
+                else:
+                    commentary_en = pur.get_text('\n', strip=True)
+                if commentary_en and len(commentary_en) > 50:
+                    print(f"[Vedabase] Found commentary_en: {commentary_en[:100]}...")
+                    break
 
     return {
         'sanskrit': sanskrit,

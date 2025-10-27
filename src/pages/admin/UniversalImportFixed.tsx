@@ -204,7 +204,8 @@ export default function UniversalImportFixed() {
         chapters: [
           {
             chapter_number: chapterNum,
-            title_ua: `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
+            title_ua: importData.metadata.title_ua || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
+            title_en: importData.metadata.title_en || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
             chapter_type: "verses",
             verses: result.verses,
           },
@@ -338,15 +339,20 @@ export default function UniversalImportFixed() {
         ch.verses.map((v: any) => ({
           chapter_id: chapterIdMap.get(ch.chapter_number),
           verse_number: v.verse_number,
+          // Bengali/Devanagari (same for both languages)
           sanskrit: v.sanskrit || "",
-          sanskrit_ua: v.sanskrit_ua || v.sanskrit || "",
-          sanskrit_en: v.sanskrit_en || v.sanskrit || "",
+          sanskrit_ua: v.sanskrit || "",
+          sanskrit_en: v.sanskrit || "",
+          // Transliteration (separate UA and EN)
           transliteration_ua: v.transliteration_ua || v.transliteration || "",
           transliteration_en: v.transliteration_en || "",
+          // Synonyms (word-by-word)
           synonyms_ua: v.synonyms_ua || "",
           synonyms_en: v.synonyms_en || "",
+          // Translation
           translation_ua: v.translation_ua || "",
           translation_en: v.translation_en || "",
+          // Commentary (purport)
           commentary_ua: v.commentary_ua || "",
           commentary_en: v.commentary_en || "",
         }))
@@ -437,6 +443,31 @@ export default function UniversalImportFixed() {
                 <div>
                   <Label>Вірші (опціонально)</Label>
                   <Input value={vedabaseVerse} onChange={(e) => setVedabaseVerse(e.target.value)} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Назва глави (UA)</Label>
+                  <Input 
+                    value={importData.metadata.title_ua} 
+                    onChange={(e) => setImportData(prev => ({
+                      ...prev,
+                      metadata: { ...prev.metadata, title_ua: e.target.value }
+                    }))}
+                    placeholder={`${currentBookInfo.name} ${vedabaseCanto} ${vedabaseChapter}`}
+                  />
+                </div>
+                <div>
+                  <Label>Назва глави (EN)</Label>
+                  <Input 
+                    value={importData.metadata.title_en} 
+                    onChange={(e) => setImportData(prev => ({
+                      ...prev,
+                      metadata: { ...prev.metadata, title_en: e.target.value }
+                    }))}
+                    placeholder={`${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${vedabaseChapter}`}
+                  />
                 </div>
               </div>
 
