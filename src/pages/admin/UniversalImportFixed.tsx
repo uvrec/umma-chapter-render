@@ -431,11 +431,10 @@ export default function UniversalImportFixed() {
         chapter_type: ch.chapter_type || 'verses'
       }));
 
-      // ✅ Виправлено: правильний onConflict для canto_id + chapter_number
-      const conflictColumns = cantoId ? 'canto_id,chapter_number' : 'book_id,chapter_number';
+      // ✅ Використовуємо тільки book_id,chapter_number (це єдиний існуючий constraint)
       const { data: chaptersData, error: chaptersError } = await supabase
         .from('chapters')
-        .upsert(chapterInserts, { onConflict: conflictColumns })
+        .upsert(chapterInserts, { onConflict: 'book_id,chapter_number' })
         .select('id, chapter_number');
 
       if (chaptersError) throw chaptersError;
