@@ -236,9 +236,15 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button asChild className="w-full">
+                <Link to="/admin/universal-import">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Універсальний імпорт
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/import-wizard">
                   <Upload className="w-4 h-4 mr-2" />
-                  Новий імпорт глави
+                  Імпорт глави
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">

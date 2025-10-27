@@ -343,8 +343,6 @@ export default function UniversalImportFixed() {
             slug: targetBookSlug,
             title_ua: importData.metadata.title_ua || 'Імпортована книга',
             title_en: importData.metadata.title_en || 'Imported Book',
-            vedabase_slug: importData.metadata.vedabase_slug || null,
-            gitabase_slug: importData.metadata.gitabase_slug || null,
             is_published: true
           })
           .select('id')
