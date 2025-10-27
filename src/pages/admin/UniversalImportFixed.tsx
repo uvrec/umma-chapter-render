@@ -12,6 +12,7 @@ import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC } from "@/utils/vedabaseParser";
 import { supabase } from "@/integrations/supabase/client";
+import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 
 // Мапінг Vedabase slug → Vedavoice slug
 const VEDABASE_TO_SITE_SLUG: Record<string, string> = {
@@ -24,7 +25,7 @@ const VEDABASE_TO_SITE_SLUG: Record<string, string> = {
 
 // Типи станів
 type ImportSource = "file" | "vedabase" | "gitabase";
-type Step = "source" | "process" | "preview" | "save";
+type Step = "source" | "intro" | "normalize" | "process" | "preview" | "save";
 
 interface ImportData {
   source: ImportSource;
@@ -213,13 +214,6 @@ export default function UniversalImportFixed() {
         metadata: {
           ...prev.metadata,
           source_url: vedabase_base,
-          title_ua: bookInfo.name,
-          title_en:
-            vedabaseBook === "cc"
-              ? "Chaitanya-charitamrita"
-              : vedabaseBook === "sb"
-              ? "Srimad-Bhagavatam"
-              : "Bhagavad-gita As It Is",
           book_slug: siteSlug,
           vedabase_slug: vedabaseBook,
           canto: lilaNum.toString(),
@@ -307,24 +301,17 @@ export default function UniversalImportFixed() {
         }
 
         if (existingId) {
-          // Read current titles to avoid overwriting correct ones unless provided
-          const { data: current } = await supabase
-            .from("chapters")
-            .select("title_ua, title_en")
-            .eq("id", existingId)
-            .maybeSingle();
+          // Не перезаписуємо назви, якщо користувач нічого не ввів
+          const updates: any = { chapter_type: "verses" };
+          if (importData.metadata.title_ua?.trim()) updates.title_ua = importData.metadata.title_ua.trim();
+          if (importData.metadata.title_en?.trim()) updates.title_en = importData.metadata.title_en.trim();
+          // Запишемо intro якщо є
+          const introUa = ch.intro_ua?.trim();
+          const introEn = ch.intro_en?.trim();
+          if (introUa) updates.content_ua = introUa;
+          if (introEn) updates.content_en = introEn;
 
-          const newTitleUa = (importData.metadata.title_ua?.trim() || ch.title_ua || current?.title_ua) as string;
-          const newTitleEn = (importData.metadata.title_en?.trim() || ch.title_en || current?.title_en || newTitleUa) as string;
-
-          await supabase
-            .from("chapters")
-            .update({
-              title_ua: newTitleUa,
-              title_en: newTitleEn,
-              chapter_type: "verses",
-            })
-            .eq("id", existingId);
+          await supabase.from("chapters").update(updates).eq("id", existingId);
           chapterIdMap.set(ch.chapter_number, existingId);
         } else {
           const { data: inserted, error: insertErr } = await supabase
@@ -333,9 +320,11 @@ export default function UniversalImportFixed() {
               book_id: bookId,
               canto_id: cantoId,
               chapter_number: ch.chapter_number,
-              title_ua: (importData.metadata.title_ua?.trim() || ch.title_ua) as string,
-              title_en: (importData.metadata.title_en?.trim() || ch.title_en || importData.metadata.title_ua) as string,
+              title_ua: (importData.metadata.title_ua?.trim() || ch.title_ua || "") as string,
+              title_en: (importData.metadata.title_en?.trim() || ch.title_en || "") as string,
               chapter_type: "verses",
+              content_ua: ch.intro_ua || null,
+              content_en: ch.intro_en || null,
               is_published: true,
             })
             .select("id")
@@ -348,6 +337,11 @@ export default function UniversalImportFixed() {
         ch.verses.map((v: any) => ({
           chapter_id: chapterIdMap.get(ch.chapter_number),
           verse_number: v.verse_number,
+          verse_number_sort: (() => {
+            const parts = String(v.verse_number).split(/[^0-9]+/).filter(Boolean);
+            const last = parts.length ? parseInt(parts[parts.length - 1], 10) : NaN;
+            return Number.isFinite(last) ? last : null;
+          })(),
           // Bengali/Devanagari (store for both languages)
           sanskrit: v.sanskrit || v.sanskrit_ua || v.sanskrit_en || "",
           sanskrit_ua: v.sanskrit_ua || v.sanskrit || "",
@@ -402,8 +396,10 @@ export default function UniversalImportFixed() {
           )}
 
           <Tabs value={currentStep} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="source">Джерело</TabsTrigger>
+              <TabsTrigger value="intro">Intro</TabsTrigger>
+              <TabsTrigger value="normalize">Normalization</TabsTrigger>
               <TabsTrigger value="process">Обробка</TabsTrigger>
               <TabsTrigger value="preview">Перегляд</TabsTrigger>
               <TabsTrigger value="save">Збереження</TabsTrigger>
@@ -484,6 +480,76 @@ export default function UniversalImportFixed() {
                 <Globe className="w-4 h-4 mr-2" />
                 Імпортувати з Vedabase
               </Button>
+            </TabsContent>
+
+            <TabsContent value="intro" className="space-y-4">
+              <div className="space-y-3">
+                <Label>Intro (EN) — з Vedabase</Label>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={async () => {
+                    try {
+                      setIsProcessing(true);
+                      const chapterNum = parseInt(vedabaseChapter || "0", 10);
+                      const lila = vedabaseCanto || "adi";
+                      const vedabase_base = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
+                      const res = await fetch(vedabase_base);
+                      const html = await res.text();
+                      const parser = new DOMParser();
+                      const doc = parser.parseFromString(html, "text/html");
+                      // Грубий хак: беремо перші параграфи перед списком віршів
+                      const allP = Array.from(doc.querySelectorAll("main p, .entry-content p"));
+                      const introParas: string[] = [];
+                      for (const p of allP) {
+                        const txt = p.textContent?.trim() || "";
+                        if (!txt) continue;
+                        if (/[0-9]+\s*:\s*[0-9]+/.test(txt)) break; // зупиняємось, якщо схоже на посилання
+                        if (p.querySelector("a[href*='/cc/']")) break; // список віршів
+                        introParas.push(`<p>${txt}</p>`);
+                        if (introParas.length >= 6) break; // обмежимося
+                      }
+                      const introHtml = introParas.join("\n");
+                      setImportData(prev => {
+                        const chapters = prev.chapters.length ? [...prev.chapters] : [{ chapter_number: chapterNum, chapter_type: "verses", verses: [] }];
+                        chapters[0] = { ...chapters[0], intro_en: introHtml };
+                        return { ...prev, chapters };
+                      });
+                      toast({ title: "Intro додано", description: `${introParas.length} абзаців` });
+                    } catch (e: any) {
+                      toast({ title: "Intro помилка", description: e.message, variant: "destructive" });
+                    } finally {
+                      setIsProcessing(false);
+                    }
+                  }}>Завантажити Intro EN</Button>
+                </div>
+                <Label>Intro (UA)</Label>
+                <Textarea value={(importData.chapters[0]?.intro_ua)||""} onChange={(e)=>setImportData(prev=>{ const ch=[...prev.chapters]; if(!ch.length) ch.push({chapter_number: parseInt(vedabaseChapter||"0",10)||1, chapter_type:"verses", verses:[]}); ch[0]={...ch[0], intro_ua:e.target.value}; return {...prev, chapters: ch}; })} placeholder="Вставте український вступ (за потреби)" />
+                <Label>Intro (EN)</Label>
+                <Textarea value={(importData.chapters[0]?.intro_en)||""} onChange={(e)=>setImportData(prev=>{ const ch=[...prev.chapters]; if(!ch.length) ch.push({chapter_number: parseInt(vedabaseChapter||"0",10)||1, chapter_type:"verses", verses:[]}); ch[0]={...ch[0], intro_en:e.target.value}; return {...prev, chapters: ch}; })} placeholder="Відредагуйте англійський вступ" />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="normalize" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Нормалізація послівних термінів (UA)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-3">Застосувати технічну нормалізацію діакритики (ı̄ тощо) до поля "synonyms_ua" у поточних даних імпорту.</p>
+                  <Button variant="secondary" onClick={() => {
+                    setImportData(prev => {
+                      const chapters = prev.chapters.map(ch => ({
+                        ...ch,
+                        verses: ch.verses.map((v: any) => ({
+                          ...v,
+                          synonyms_ua: v.synonyms_ua ? normalizeTransliteration(v.synonyms_ua) : v.synonyms_ua,
+                        })),
+                      }));
+                      return { ...prev, chapters };
+                    });
+                    toast({ title: "Нормалізовано", description: "Символи в послівних виправлено у даних імпорту" });
+                  }}>Нормалізувати зараз</Button>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="preview" className="space-y-4">
