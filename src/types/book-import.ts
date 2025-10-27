@@ -3,6 +3,7 @@ export type ChapterType = "verses" | "text";
 
 export interface ParsedVerse {
   verse_number: string;
+  sanskrit?: string;
   sanskrit_ua?: string;
   sanskrit_en?: string;
   transliteration?: string;

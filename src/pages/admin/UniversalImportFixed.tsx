@@ -269,7 +269,8 @@ export default function UniversalImportFixed() {
         book_id: bookId,
         chapter_number: ch.chapter_number,
         title_ua: ch.title_ua,
-        chapter_type: "verses",
+        title_en: ch.title_en || ch.title_ua,
+        chapter_type: "verses" as const,
       }));
 
       const { data: chaptersData } = await supabase
