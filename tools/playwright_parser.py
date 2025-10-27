@@ -176,6 +176,7 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
     """Парсить вірш з Vedabase HTML (expects a per-verse page when possible)
     Falls back to heuristics if whole-chapter page is provided.
     """
+    print(f"[DEBUG parse_vedabase_verse] Called for verse {verse_num}, HTML length: {len(html)}")
     soup = BeautifulSoup(html, 'html.parser')
 
     # Debug classes
@@ -203,48 +204,117 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
                 continue
             candidates.append(el)
 
-    # If a candidate contains a clear Devanagari/Bengali range, take it
-    # ВАЖЛИВО: зберігаємо переноси рядків для структури віршу
-    for el in candidates:
-        t = el.get_text('\n', strip=True)  # Зберігаємо \n замість пробілів
-        if not t:
-            continue
-        if re.search(r"[\u0980-\u09FF]", t) or re.search(r"[\u0900-\u097F]", t):
-            sanskrit = t
-            break
-
-    # Fallback: look for specific selectors - PRIORITY: .r-bengali for pure Bengali text
+    # PRIORITY: Try specific selector first (.av-bengali for Advanced View)
     if not sanskrit:
-        # First try the specific .r-bengali selector (most accurate)
-        el = soup.select_one('.r-bengali')
+        el = soup.select_one('.av-bengali')
         if el:
-            sanskrit = el.get_text('\n', strip=True)
-            print(f"[Vedabase] Found sanskrit with selector: .r-bengali")
+            # Get text, preserve line breaks
+            text = el.get_text('\n', strip=True)
+            # Remove label "Bengali" if present
+            text = text.replace('Bengali', '').strip()
+            if text and len(text) > 30:
+                sanskrit = text
+                print(f"[Vedabase] Found Bengali with .av-bengali selector: {sanskrit[:80]}...")
+    
+    # Fallback: Use regex to find Bengali/Devanagari verse text from HTML
+    # Bengali verses typically have 2-4 lines ending with ॥ verse_number ॥
+    if not sanskrit:
+        # CRITICAL: Match FULL verse including all lines before ॥NUMBER॥
+        # Pattern should be greedy to capture all Bengali text up to and including verse number
+        # Format: কৃপাসুধা–সরিদ্যস্য<br/>বিশ্বমাপ্লাবয়ন্ত্যপি ।<br/>নীচগৈব সদা ভাতি<br/>তং চৈতন্যপ্রভুং ভজে ॥ ১ ॥
+        
+        # Bengali Unicode: U+0980-U+09FF, Devanagari numbers: ०-९ or Bengali: ০-৯
+        bengali_verse_pattern = r'([\u0980-\u09FF\s।–—\-]+(?:<br\s*/?>\s*[\u0980-\u09FF\s।–—\-]+)*॥\s*[\u09e6-\u09ef0-9]+\s*॥)'
+        
+        matches = re.findall(bengali_verse_pattern, html, re.DOTALL)
+        if matches:
+            # Find match that has verse number 1 (this verse)
+            # Filter by length: full verses are typically 80-600 chars with HTML (lowered from 150)
+            verse_candidates = [m for m in matches if len(m) > 80]
+            if verse_candidates:
+                # Take longest match (most complete verse)
+                full_verse = max(verse_candidates, key=len)
+                # Clean up HTML tags, preserve line breaks
+                clean = re.sub(r'<br\s*/?>', '\n', full_verse)
+                clean = re.sub(r'<[^>]+>', '', clean)
+                # Remove excessive whitespace but keep line breaks
+                clean = re.sub(r'[ \t]+', ' ', clean)
+                sanskrit = clean.strip()
+                print(f"[Vedabase] Found Bengali verse (with ॥N॥): {sanskrit[:80]}...")
+            else:
+                # Fallback: take first match even if short
+                if matches:
+                    full_verse = matches[0]
+                    clean = re.sub(r'<br\s*/?>', '\n', full_verse)
+                    clean = re.sub(r'<[^>]+>', '', clean)
+                    clean = re.sub(r'[ \t]+', ' ', clean)
+                    sanskrit = clean.strip()
+                    print(f"[Vedabase] Found Bengali verse (short): {sanskrit[:80]}...")
         else:
-            # Fallback to other selectors if .r-bengali not found
-            for sel in ['.devanagari', '.bengali', '.sanskrit', '[class*="verse"]']:
-                el = soup.select_one(sel)
-                if el:
-                    sanskrit = el.get_text('\n', strip=True)
-                    print(f"[Vedabase] Found sanskrit with fallback selector: {sel}")
-                    break
-
-    # transliteration - шукаємо англійську з Vedabase
-    # Може бути після мітки "Verse text" або в елементі з класом містить "verse"
-    # ВАЖЛИВО: зберігаємо оригінальні переноси рядків (\n), НЕ замінюємо на пробіли!
-    for sel in ['.verse-text', '[class*="verse-text"]', '[class*="verse"]']:
-        els = soup.select(sel)
-        for el in els:
-            # Використовуємо '\n' як separator щоб зберегти структуру віршу (4 рядки)
-            # strip=False зберігає \n всередині, потім .strip() тільки з країв
-            txt = el.get_text('\n', strip=False).strip()
-            # Англійська транслітерація містить латиницю + діакритику
-            if txt and re.search(r'[a-zA-Z]', txt) and re.search(r'[āīūṛṇśṣṁḥṅñṭḍ]', txt):
-                transliteration = txt
-                print(f"[Vedabase] Found transliteration with selector: {sel} (len={len(txt)})")
+            # Fallback: Bengali with single Danda । (if no double danda found)
+            bengali_fallback_pattern = r'([\u0980-\u09FF\s]+(?:<br\s*/?>\s*[\u0980-\u09FF\s]+)*।[^॥]{0,50})'
+            matches = re.findall(bengali_fallback_pattern, html)
+            verse_candidates = [m for m in matches if 80 < len(m) < 600]
+            if verse_candidates:
+                first_verse = verse_candidates[0]
+                clean = re.sub(r'<br\s*/?>', '\n', first_verse)
+                clean = re.sub(r'<[^>]+>', '', clean)
+                sanskrit = clean.strip()
+                print(f"[Vedabase] Found Bengali verse (with single ।): {sanskrit[:80]}...")
+    
+    # Devanagari fallback (for Bhagavad-gita, Bhagavatam)
+    if not sanskrit:
+        devanagari_verse_pattern = r'([\u0900-\u097F\s]+(?:<br\s*/?>\s*[\u0900-\u097F\s]+)*॥\s*[\u0966-\u096f0-9]+\s*॥)'
+        matches = re.findall(devanagari_verse_pattern, html)
+        if matches:
+            first_verse = matches[0]
+            clean = re.sub(r'<br\s*/?>', '\n', first_verse)
+            clean = re.sub(r'<[^>]+>', '', clean)
+            sanskrit = clean.strip()
+            print(f"[Vedabase] Found Devanagari verse (with ॥N॥): {sanskrit[:80]}...")
+    
+    # Final fallback: selector-based (least reliable)
+    if not sanskrit:
+        for sel in ['.r-bengali', '.devanagari', '.bengali', '.sanskrit']:
+            el = soup.select_one(sel)
+            if el:
+                sanskrit = el.get_text('\n', strip=True)
+                print(f"[Vedabase] Found sanskrit with fallback selector: {sel}")
                 break
-        if transliteration:
-            break
+
+    # transliteration - FIXED: Use regex to find IAST text (English with diacritics)
+    # IAST has specific diacritics: ā ī ū ṛ ṇ ś ṣ ṁ ḥ ṅ ñ ṭ ḍ
+    # Vedabase shows transliteration in <em> tags with <br> separators
+    if not transliteration:
+        # PATTERN: Match IAST text with <br> tags (HTML structure from Vedabase)
+        # Example: <em>kṛpā-sudhā-sarid yasya<br>viśvam āplāvayanty api<br>...</em>
+        iast_html_pattern = r'<em>([a-zA-Z\s\-āīūṛṇśṣṁḥṅñṭḍ]+(?:<br\s*/?>[ \t]*[a-zA-Z\s\-āīūṛṇśṣṁḥṅñṭḍ]+)*)</em>'
+        matches = re.findall(iast_html_pattern, html, re.IGNORECASE)
+        for match in matches:
+            # Verify it has IAST diacritics and reasonable length
+            if re.search(r'[āīūṛṇśṣṁḥṅñṭḍ]', match) and 50 < len(match) < 500:
+                # Clean up: convert <br> to \n, remove "Verse text" labels
+                clean = re.sub(r'<br\s*/?>', '\n', match)
+                clean = re.sub(r'<[^>]+>', '', clean)  # Remove any remaining tags
+                clean = clean.replace('Verse text', '').replace('Verse Text', '').strip()
+                if clean:
+                    transliteration = clean
+                    print(f"[Vedabase] Found transliteration via HTML regex: {transliteration[:80]}...")
+                    break
+    
+    # Fallback: selector-based search
+    if not transliteration:
+        for sel in ['.verse-text', '[class*="verse-text"]', '[class*="romanized"]', 'em']:
+            els = soup.select(sel)
+            for el in els:
+                txt = el.get_text('\n', strip=False).strip()
+                # English transliteration has Latin + diacritics
+                if txt and re.search(r'[a-zA-Z]', txt) and re.search(r'[āīūṛṇśṣṁḥṅñṭḍ]', txt):
+                    transliteration = txt.replace('Verse text', '').replace('Verse Text', '').strip()
+                    print(f"[Vedabase] Found transliteration with selector: {sel}")
+                    break
+            if transliteration:
+                break
 
     # synonyms / word-by-word
     syn = soup.select_one('.synonyms, .word-for-word, .wfw')
@@ -262,10 +332,11 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
 
     return {
         'sanskrit': sanskrit,
-        'transliteration': transliteration,
+        'transliteration_en': transliteration,  # АНГЛІЙСЬКА IAST з Vedabase
         'synonyms_en': synonyms_en,
         'translation_en': translation_en,
         'commentary_en': commentary_en,
+        '_debug_sanskrit_length': len(sanskrit),  # DEBUG
     }
 
 
@@ -312,14 +383,19 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             # Обрізаємо зайві пробіли ТІЛЬКИ з країв, БЕЗ видалення \n всередині
             transliteration = transliteration.strip()
 
-    # word-by-word (dia_text with many italics)
+    # word-by-word: Gitabase format is: <i>term</i> — translation; <i>term</i> — translation
+    # We need FULL text with both terms AND translations, not just <i> tags!
     dia_blocks = soup.select('.dia_text, .dia, .wfw')
     for db in dia_blocks:
         italics = db.find_all('i')
+        # Check if block contains word-by-word (many <i> tags with short words)
         if italics and len(italics) >= 4:
-            pieces = [i.get_text(strip=True) for i in italics if i.get_text(strip=True)]
-            if pieces:
-                word_by_word = ' ; '.join(pieces[:200])
+            # Get FULL block text instead of just italic tags
+            full_text = db.get_text(' ', strip=True)
+            # Verify it has word-by-word pattern (em-dashes and semicolons)
+            if '—' in full_text and len(full_text) > 50:
+                word_by_word = full_text
+                print(f"[Gitabase] Found word_by_word: {word_by_word[:150]}...")
                 break
 
     # translation and commentary: look for labelled blocks
@@ -646,50 +722,63 @@ async def parse_chapter_async(
             except StopIteration:
                 raise RuntimeError("No verse URLs constructed for validation")
             
-            # VEDABASE: fetch once per segment (group or single)
-            import requests
-            ved_html = None
-            ved_data_cache = {}
-            try:
-                # Take the first URL from ved_urls (for group, they are identical)
-                any_v = next(iter(ved_urls.keys()))
-                ved_url_any = ved_urls[any_v]
-                print(f"[Fetching/checked] {ved_url_any}")
-                ved_resp = requests.get(ved_url_any, timeout=30)
-                if ved_resp.status_code == 404:
-                    # If single verse 404s and segment is group-like (rare), just note it
-                    print(f"[WARN] Vedabase returned 404 for {ved_url_any}")
-                ved_resp.raise_for_status()
-                ved_html = ved_resp.text
-                print(f"[Success] HTML length: {len(ved_html)}")
-            except Exception as e:
-                print(f"[ERROR] Vedabase fetch failed for {label}: {e}")
-                ved_html = ''
-
-            # Parse Vedabase once, reuse for all verses in segment
-            seg_ved_data = parse_vedabase_verse(ved_html or '', start_v)
-
-            # For each verse in the segment, fetch Gitabase and build verse object
+            # For each verse in the segment, fetch BOTH Vedabase AND Gitabase individually
             for v in range(start_v, end_v + 1):
+                # VEDABASE: fetch EACH verse separately (required for parsing!)
+                # CRITICAL: Use Playwright for Vedabase (dynamic content!)
+                ved_url = join_ved(vedabase_base, v)
+                ved_html = ''
+                try:
+                    print(f"[Vedabase {v}] Fetching {ved_url}")
+                    ved_html = fetch_with_js(ved_url)
+                    print(f"[Vedabase {v}] Success, HTML length: {len(ved_html)}")
+                except Exception as e:
+                    print(f"[ERROR] Vedabase fetch failed for verse {v}: {e}")
+                
+                # Parse Vedabase for this specific verse
+                ved_data = parse_vedabase_verse(ved_html or '', v)
+                
+                # GITABASE: fetch this verse
                 git_url = join_git(gitabase_base, v)
-                git_html = fetch_with_js(git_url)
+                git_html = ''
+                try:
+                    print(f"[Gitabase {v}] Fetching {git_url}")
+                    git_html = fetch_with_js(git_url)
+                    print(f"[Gitabase {v}] Success, HTML length: {len(git_html)}")
+                except Exception as e:
+                    print(f"[ERROR] Gitabase fetch failed for verse {v}: {e}")
+                
                 git_data = parse_gitabase_verse(git_html, v)
+
+                # CRITICAL: Convert English IAST → Ukrainian transliteration
+                transliteration_en = ved_data.get('transliteration_en') or ''
+                transliteration_ua = ''
+                if transliteration_en and NORMALIZER_AVAILABLE:
+                    try:
+                        from pre_import_normalizer import convert_english_to_ukrainian_translit
+                        transliteration_ua = convert_english_to_ukrainian_translit(transliteration_en)
+                        print(f"[Converted] IAST → UA: {transliteration_en[:50]} → {transliteration_ua[:50]}")
+                    except Exception as e:
+                        print(f"[WARN] Transliteration conversion failed: {e}")
+                        transliteration_ua = transliteration_en
 
                 verse = {
                     'lila_num': lila_num,
                     'chapter': chapter_num,
                     'verse_number': str(v),
-                    'sanskrit': seg_ved_data.get('sanskrit') or '',
-                    'transliteration': seg_ved_data.get('transliteration') or '',
-                    'synonyms_en': seg_ved_data.get('synonyms_en') or '',
-                    'translation_en': seg_ved_data.get('translation_en') or '',
-                    'commentary_en': seg_ved_data.get('commentary_en') or '',
+                    'sanskrit': ved_data.get('sanskrit') or '',
+                    'transliteration': transliteration_ua,  # УКРАЇНСЬКА (для сумісності зі старим кодом)
+                    'transliteration_ua': transliteration_ua,  # УКРАЇНСЬКА
+                    'transliteration_en': transliteration_en,  # ENGLISH IAST
+                    'synonyms_en': ved_data.get('synonyms_en') or '',
+                    'translation_en': ved_data.get('translation_en') or '',
+                    'commentary_en': ved_data.get('commentary_en') or '',
                     'synonyms_ua': git_data.get('word_by_word') or '',
                     'translation_ua': git_data.get('translation_ua') or '',
                     'commentary_ua': git_data.get('commentary_ua') or '',
                     'missing': [],
                     'source': {
-                        'vedabase_url': ved_urls[v],
+                        'vedabase_url': ved_url,
                         'gitabase_url': git_url
                     }
                 }
