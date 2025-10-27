@@ -66,6 +66,8 @@ import AudioCategories from "./pages/admin/AudioCategories";
 import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
+import UniversalImport from "./pages/admin/UniversalImport";
+import UniversalImportFixed from "./pages/admin/UniversalImportFixed";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
@@ -83,9 +85,9 @@ const App = () => (
         <AuthProvider>
           <TooltipProvider>
             <ModernAudioProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<NewHome />} />
 
@@ -169,6 +171,7 @@ const App = () => (
                   <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
                   <Route path="/admin/data-migration" element={<DataMigration />} />
                   <Route path="/admin/import-wizard" element={<ImportWizard />} />
+                  <Route path="/admin/universal-import" element={<UniversalImportFixed />} />
                   <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
                   <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
                   <Route path="/admin/blog-posts" element={<BlogPosts />} />
