@@ -14,6 +14,7 @@ import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } from "@/utils/Vedabase-books";
 import { normalizeVerseField } from "@/utils/textNormalizer";
 import { Badge } from "@/components/ui/badge";
+import { ParserStatus } from "@/components/admin/ParserStatus";
 
 interface ImportStats {
   total: number;
@@ -611,6 +612,7 @@ export default function VedabaseImportV3() {
               <CardHeader>
                 <CardTitle>Імпорт віршів</CardTitle>
                 <CardDescription>Двомовний режим: EN (Vedabase) + UA (Gitabase)</CardDescription>
+                <ParserStatus className="mt-4" />
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>

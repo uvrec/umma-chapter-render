@@ -13,6 +13,8 @@ import {
   Upload, FileText, Globe, BookOpen, Eye, 
   CheckCircle, AlertTriangle, Download 
 } from "lucide-react";
+import { ParserStatus } from "@/components/admin/ParserStatus";
+import { parseVedabaseCC } from "@/utils/vedabaseParser";
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,6 +50,7 @@ export default function UniversalImportFixed() {
   const [currentStep, setCurrentStep] = useState<Step>('source');
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [parserOnline, setParserOnline] = useState<boolean | null>(null);
   const [importData, setImportData] = useState<ImportData>({
     source: 'file',
     rawText: '',
@@ -147,7 +150,7 @@ export default function UniversalImportFixed() {
     }
   }, []);
 
-  // Імпорт з Vedabase - використовуємо РОБОЧИЙ Python parser
+  // Імпорт з Vedabase - з автоматичним fallback на клієнтський парсер
   const handleVedabaseImport = useCallback(async () => {
     if (!vedabaseChapter) {
       toast({ 
@@ -167,38 +170,77 @@ export default function UniversalImportFixed() {
       
       if (vedabaseBook === 'cc') {
         // Chaitanya-charitamrita
-        // ✅ ПРАВИЛЬНИЙ МАПІНГ: cc → scc
         const siteSlug = VEDABASE_TO_SITE_SLUG[vedabaseBook] || vedabaseBook;
-        
-        // Мапінг ліла назви → номер (1=Adi, 2=Madhya, 3=Antya)
         const lilaMap: Record<string, number> = { 'adi': 1, 'madhya': 2, 'antya': 3 };
         const lilaNum = lilaMap[lila.toLowerCase()] || 1;
         
         setProgress(25);
-        toast({ title: "Використовую Python parser", description: "Завантаження..." });
         
-        // Викликаємо Python parse_server
-        const response = await fetch('http://127.0.0.1:5003/admin/parse-web-chapter', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            lila: lilaNum,
-            chapter: parseInt(vedabaseChapter),
-            verse_ranges: vedabaseVerse || '1-100', // Якщо не вказано - всі вірші
-            vedabase_base: `https://vedabase.io/en/library/cc/${lila}/${vedabaseChapter}/`,
-            gitabase_base: `https://gitabase.com/ukr/CC/${lilaNum}/${vedabaseChapter}`
-          })
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Parse server error: ${response.status}`);
+        let result: any = null;
+        let usedClientParser = false;
+
+        // ✅ СПРОБА 1: Python parser server
+        try {
+          toast({ title: "Пробую Python parser", description: "Завантаження..." });
+          const response = await fetch('http://127.0.0.1:5003/admin/parse-web-chapter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              lila: lilaNum,
+              chapter: parseInt(vedabaseChapter),
+              verse_ranges: vedabaseVerse || '1-100',
+              vedabase_base: `https://vedabase.io/en/library/cc/${lila}/${vedabaseChapter}/`,
+              gitabase_base: `https://gitabase.com/ukr/CC/${lilaNum}/${vedabaseChapter}`
+            })
+          });
+          
+          if (response.ok) {
+            result = await response.json();
+            setParserOnline(true);
+            toast({ title: "✅ Python parser", description: "Успішно підключено" });
+          } else {
+            throw new Error('Server returned error');
+          }
+        } catch (serverError) {
+          // ✅ FALLBACK: Клієнтський парсер
+          console.warn('Python parser недоступний, використовую клієнтський:', serverError);
+          setParserOnline(false);
+          toast({ title: "⚠️ Fallback режим", description: "Використовую вбудований парсер" });
+          usedClientParser = true;
+          
+          setProgress(40);
+          const verseRange = vedabaseVerse || '1-10';
+          const [startVerse, endVerse] = verseRange.includes('-') 
+            ? verseRange.split('-').map(Number) 
+            : [parseInt(verseRange), parseInt(verseRange)];
+          
+          const verses = [];
+          for (let v = startVerse; v <= endVerse; v++) {
+            try {
+              const url = `https://vedabase.io/en/library/cc/${lila}/${vedabaseChapter}/${v}`;
+              const html = await fetch(url).then(r => r.text());
+              const verseData = parseVedabaseCC(html, url);
+              if (verseData) {
+                verses.push({
+                  verse_number: v.toString(),
+                  sanskrit: verseData.bengali,
+                  transliteration: verseData.transliteration,
+                  synonyms_en: verseData.synonyms,
+                  translation_en: verseData.translation,
+                  commentary_en: verseData.purport
+                });
+              }
+            } catch (e) {
+              console.error(`Помилка парсингу вірша ${v}:`, e);
+            }
+            setProgress(40 + ((v - startVerse) / (endVerse - startVerse + 1)) * 35);
+          }
+          
+          result = { verses };
         }
         
-        setProgress(75);
-        const result = await response.json();
-        
-        if (!result.verses || result.verses.length === 0) {
-          throw new Error('Парсер не повернув віршів');
+        if (!result?.verses || result.verses.length === 0) {
+          throw new Error('Не вдалося отримати вірші');
         }
         
         // Структуруємо дані
@@ -389,9 +431,11 @@ export default function UniversalImportFixed() {
         chapter_type: ch.chapter_type || 'verses'
       }));
 
+      // ✅ Виправлено: правильний onConflict для canto_id + chapter_number
+      const conflictColumns = cantoId ? 'canto_id,chapter_number' : 'book_id,chapter_number';
       const { data: chaptersData, error: chaptersError } = await supabase
         .from('chapters')
-        .upsert(chapterInserts, { onConflict: 'book_id,chapter_number' })
+        .upsert(chapterInserts, { onConflict: conflictColumns })
         .select('id, chapter_number');
 
       if (chaptersError) throw chaptersError;
@@ -492,12 +536,13 @@ export default function UniversalImportFixed() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6" />
-            Universal Book Import (Fixed)
-          </CardTitle>
-        </CardHeader>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <BookOpen className="w-6 h-6" />
+          Universal Book Import (Fixed)
+        </CardTitle>
+        <ParserStatus className="mt-4" />
+      </CardHeader>
         <CardContent>
           {isProcessing && (
             <div className="mb-4">

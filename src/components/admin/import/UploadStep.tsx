@@ -10,6 +10,7 @@ import { extractTextFromEPUB } from "@/utils/import/epub";
 import { extractTextFromDOCX } from "@/utils/import/docx";
 import { marked } from "marked";
 import { toast } from "sonner";
+import { ParserStatus } from "@/components/admin/ParserStatus";
 
 type SourceKind = "unknown" | "html" | "markdown" | "text";
 
@@ -183,6 +184,8 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
           Завантажте файл книги (PDF, EPUB, DOCX, TXT, MD) або вставте текст вручну. Форматування можна зберегти.
         </p>
       </div>
+
+      <ParserStatus />
 
       {/* перемикач збереження форматування */}
       <div className="flex items-center justify-between rounded-lg border p-3">
