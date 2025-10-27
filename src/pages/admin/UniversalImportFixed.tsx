@@ -167,7 +167,9 @@ export default function UniversalImportFixed() {
         for (let v = start; v <= end; v++) {
           try {
             const url = `https://vedabase.io/en/library/cc/${lila}/${chapterNum}/${v}`;
-            const html = await fetch(url).then((r) => r.text());
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const html = await response.text();
             const verseData = parseVedabaseCC(html, url);
             if (verseData) {
               verses.push({
@@ -179,6 +181,8 @@ export default function UniversalImportFixed() {
                 commentary_en: verseData.purport,
               });
             }
+            // Затримка між запитами для уникнення rate limit
+            await new Promise(resolve => setTimeout(resolve, 200));
           } catch (e) {
             console.warn(`Error on verse ${v}`, e);
           }
