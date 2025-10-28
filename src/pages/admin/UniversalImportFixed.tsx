@@ -154,63 +154,46 @@ export default function UniversalImportFixed() {
         result = await response.json();
         console.log("🐍 Python parser result:", result?.verses?.length, "verses");
         toast({ title: "✅ Парсер успішно відпрацював", description: "Отримано JSON" });
-      } catch (err) {
+      } catch (err: any) {
         console.log("🐍 Python parser failed:", err.message);
         usedFallback = true;
         toast({
-          title: "⚠️ Локальний fallback",
-          description: "Парсер недоступний, використовую вбудований CC-парсер",
+          title: "⚠️ Browser fallback",
+          description: "Використовую Edge-функцію fetch-html + parseVedabaseCC",
         });
 
-        // fallback лише для CC
         const [start, end] = verseRanges.includes("-")
           ? verseRanges.split("-").map(Number)
           : [parseInt(verseRanges, 10), parseInt(verseRanges, 10)];
 
-        console.log("🔄 Fallback: using direct vedabase scraper for CC");
-        
-        // ЗНОВУ: CORS блокує запити до vedabase.io з браузера
-        // Створюємо мінімальні фейкові дані для тесту
+        console.log("🔄 Fallback: calling fetch-html edge function for CC");
         const verses: any[] = [];
-        
-        // ТЕСТОВІ ДАНІ для madhya 10.1
-        if (lila === "madhya" && chapterNum === 10) {
-          verses.push({
-            verse_number: "1",
-            sanskrit: "তং বন্দে গৌরজলদং স্বস্য যো দর্শনামৃতৈঃ ।\nবিচ্ছেদাবগ্রহম্লান-ভক্তশস্যান্যজীবয়ৎ ॥ ১ ॥",
-            transliteration: "taṁ vande gaura-jaladaṁ\nsvasya yo darśanāmṛtaiḥ\nvicchedāvagraha-mlāna-\nbhakta-śasyāny ajīvayat",
-            synonyms_en: "tam — unto Him; vande — I offer my respectful obeisances; gaura — Śrī Caitanya Mahāprabhu; jala-dam — rain cloud; svasya — of Himself; yaḥ — He who; darśana-amṛtaiḥ — by the nectar of the audience; viccheda — because of separation; avagraha — scarcity of rain; mlāna — morose, dried up; bhakta — devotees; śasyāni — food grains; ajīvayat — saved.",
-            translation_en: "I offer my respectful obeisances unto Lord Śrī Caitanya Mahāprabhu, who is compared to a cloud that pours water on fields of grain, which are like devotees suffering due to a shortage of rain. Separation from Śrī Caitanya Mahāprabhu is like a drought, but when the Lord returns, His presence is like a nectarean rain that falls on all the grains and saves them from perishing.",
-            commentary_en: "This verse invokes the blessings of Lord Caitanya Mahāprabhu, comparing Him to a beneficent rain cloud that brings relief to His devotees..."
-          });
-          
-          // Додаємо ще кілька тестових віршів
-          for (let v = 2; v <= Math.min(5, end); v++) {
-            verses.push({
-              verse_number: v.toString(),
-              sanskrit: `[Test Sanskrit text for verse ${v}]`,
-              transliteration: `[Test transliteration for verse ${v}]`,
-              synonyms_en: `[Test synonyms for verse ${v}]`,
-              translation_en: `[Test translation for verse ${v}]`,
-              commentary_en: `[Test commentary for verse ${v}]`
+
+        for (let v = start; v <= end; v++) {
+          const url = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${v}`;
+          try {
+            const { data: fetchData, error: fetchErr } = await supabase.functions.invoke("fetch-html", {
+              body: { url },
             });
+            if (fetchErr) throw fetchErr;
+            const parsed = parseVedabaseCC(fetchData.html, url);
+            if (parsed) {
+              verses.push({
+                verse_number: String(v),
+                sanskrit: parsed.bengali || "",
+                transliteration: parsed.transliteration || "",
+                synonyms_en: parsed.synonyms || "",
+                translation_en: parsed.translation || "",
+                commentary_en: parsed.purport || "",
+              });
+            }
+          } catch (e: any) {
+            console.warn(`⚠️ Failed verse ${v}:`, e.message);
           }
-        } else {
-          // Для інших глав додаємо базові тестові дані
-          for (let v = start; v <= Math.min(start + 2, end); v++) {
-            verses.push({
-              verse_number: v.toString(),
-              sanskrit: `[Test Sanskrit for ${lila} ${chapterNum}.${v}]`,
-              transliteration: `[Test transliteration for ${lila} ${chapterNum}.${v}]`,
-              synonyms_en: `[Test synonyms for ${lila} ${chapterNum}.${v}]`,
-              translation_en: `[Test translation for ${lila} ${chapterNum}.${v}]`,
-              commentary_en: `[Test commentary for ${lila} ${chapterNum}.${v}]`
-            });
-          }
+          setProgress(10 + ((v - start + 1) / (end - start + 1)) * 80);
         }
-        
-        console.log("🧪 Created test verses:", verses.length);
-        setProgress(90);
+
+        console.log(`✅ Fallback parsed ${verses.length} verses`);
         result = { verses };
       }
 
