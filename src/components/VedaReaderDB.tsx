@@ -22,8 +22,10 @@ export const VedaReaderDB = () => {
     chapterId,
     cantoNumber,
     chapterNumber,
-    verseNumber
+    verseNumber,
+    verseId
   } = useParams();
+  const routeVerseNumber = verseNumber ?? verseId;
   const navigate = useNavigate();
   const {
     language,
@@ -236,12 +238,12 @@ export const VedaReaderDB = () => {
 
   // Jump to verse from URL if provided
   useEffect(() => {
-    if (!verseNumber || !verses.length) return;
+    if (!routeVerseNumber || !verses.length) return;
     // ✅ Шукаємо точне співпадіння або вірш який містить цей номер (для комбінованих "7-8")
-    let idx = verses.findIndex(v => String(v.verse_number) === String(verseNumber));
+    let idx = verses.findIndex(v => String(v.verse_number) === String(routeVerseNumber));
     // Якщо не знайшли точне, шукаємо комбінований (наприклад "7-8" коли шукаємо "7" або "8")
     if (idx === -1) {
-      const num = parseInt(verseNumber);
+      const num = parseInt(routeVerseNumber as string);
       if (!isNaN(num)) {
         idx = verses.findIndex(v => {
           const vn = String(v.verse_number);
@@ -257,14 +259,14 @@ export const VedaReaderDB = () => {
       setCurrentVerseIndex(idx);
     } else {
       // ✅ Вірш не знайдений - показуємо помилку та залишаємось на першому
-      console.warn(`Verse ${verseNumber} not found in chapter`);
+      console.warn(`Verse ${routeVerseNumber} not found in chapter`);
       toast({
         title: t("Вірш не знайдено", "Verse not found"),
-        description: t(`Вірш ${verseNumber} відсутній у цій главі`, `Verse ${verseNumber} not found in this chapter`),
+        description: t(`Вірш ${routeVerseNumber} відсутній у цій главі`, `Verse ${routeVerseNumber} not found in this chapter`),
         variant: "destructive"
       });
     }
-  }, [verseNumber, verses, t]);
+  }, [routeVerseNumber, verses, t]);
   // ALL CHAPTERS (для навігації між главами)
   const { data: allChapters = [] } = useQuery({
     queryKey: isCantoMode ? ["all-chapters-canto", canto?.id] : ["all-chapters-book", book?.id],
