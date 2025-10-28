@@ -138,10 +138,10 @@ export default function UniversalImportFixed() {
           const chapterUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
           const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
           const maxVerse = getMaxVerseFromChapter(chapterData.html);
-          verseRanges = maxVerse > 0 ? `1-${maxVerse}` : "1-100";
-          toast({ title: "📖 Визначено діапазон", description: `Вірші 1-${maxVerse}` });
+          verseRanges = maxVerse > 0 ? `1-${maxVerse}` : "1-500";
+          toast({ title: "📖 Визначено діапазон", description: `Вірші 1-${maxVerse > 0 ? maxVerse : 500}` });
         } catch {
-          verseRanges = "1-500"; // Збільшено default ліміт
+          verseRanges = "1-500"; // Збільшено default ліміт до 500
         }
       }
 
@@ -373,8 +373,9 @@ export default function UniversalImportFixed() {
         chapters: [
           {
             chapter_number: chapterNum,
-            title_ua: importData.metadata.title_ua || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
-            title_en: importData.metadata.title_en || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
+            // ✅ Зберігаємо назви, якщо вони заповнені користувачем
+            title_ua: importData.metadata.title_ua?.trim() || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
+            title_en: importData.metadata.title_en?.trim() || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
             chapter_type: "verses",
             verses: result.verses,
           },

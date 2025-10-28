@@ -56,18 +56,20 @@ export async function upsertChapter(
 ): Promise<string> {
   const { bookId, cantoId, chapter_number } = params;
 
-  let query = supabase.from("chapters").select("id").eq("chapter_number", chapter_number).limit(1);
-
-  if (cantoId) query = query.eq("canto_id", cantoId);
-  else query = query.eq("book_id", bookId);
-
-  const { data: existing, error: findErr } = await query.maybeSingle();
-  if (findErr) throw findErr;
+  // ✅ КРИТИЧНО: Спочатку завантажимо існуючу главу, щоб зберегти назви
+  const { data: existingChapter } = await supabase
+    .from("chapters")
+    .select("id, title_ua, title_en, content_ua, content_en")
+    .eq("chapter_number", chapter_number)
+    .eq(cantoId ? "canto_id" : "book_id", cantoId || bookId)
+    .maybeSingle();
 
   // Build payloads carefully to avoid overwriting existing titles when not provided
   const baseRefs: any = {};
   if (cantoId) baseRefs.canto_id = cantoId;
   else baseRefs.book_id = bookId;
+
+  const hasText = (v?: string) => typeof v === 'string' && v.trim().length > 0;
 
   // Insert payload: can include defaults
   const insertPayload: any = {
@@ -80,21 +82,28 @@ export async function upsertChapter(
     content_en: safeHtml(params.content_en),
   };
 
-  // Update payload: include ONLY fields explicitly provided (non-empty) to avoid wiping titles/content
+  // Update payload: ✅ Зберігаємо існуючі назви, якщо нові не надані
   const updatePayload: any = {
     ...baseRefs,
     chapter_type: params.chapter_type,
   };
-  const hasText = (v?: string) => typeof v === 'string' && v.trim().length > 0;
-  if (hasText(params.title_ua)) updatePayload.title_ua = params.title_ua;
-  if (hasText(params.title_en)) updatePayload.title_en = params.title_en;
+  if (hasText(params.title_ua)) {
+    updatePayload.title_ua = params.title_ua;
+  } else if (existingChapter?.title_ua) {
+    updatePayload.title_ua = existingChapter.title_ua;
+  }
+  if (hasText(params.title_en)) {
+    updatePayload.title_en = params.title_en;
+  } else if (existingChapter?.title_en) {
+    updatePayload.title_en = existingChapter.title_en;
+  }
   if (typeof params.content_ua === 'string' && hasText(params.content_ua)) updatePayload.content_ua = safeHtml(params.content_ua);
   if (typeof params.content_en === 'string' && hasText(params.content_en)) updatePayload.content_en = safeHtml(params.content_en);
 
-  if (existing?.id) {
-    const { error: updErr } = await supabase.from("chapters").update(updatePayload).eq("id", existing.id);
+  if (existingChapter?.id) {
+    const { error: updErr } = await supabase.from("chapters").update(updatePayload).eq("id", existingChapter.id);
     if (updErr) throw updErr;
-    return existing.id;
+    return existingChapter.id;
   } else {
     const { data: created, error: insErr } = await supabase.from("chapters").insert(insertPayload).select("id").single();
     if (insErr) throw insErr;
@@ -181,15 +190,15 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
       row.commentary_en = safeHtml(stripSectionLabel(incoming.commentary_en ?? incoming.purport));
     }
 
-    // UA blocks: update ONLY if incoming has text AND existing is empty/missing
+    // ✅ UA blocks: ЗАВЖДИ оновлюємо, якщо incoming має текст (не лише коли existing порожній)
     if (hasText(incoming.synonyms_ua)) {
-      if (!existing || isEmpty(existing.synonyms_ua)) row.synonyms_ua = normalizeSynonymsSoft(incoming.synonyms_ua);
+      row.synonyms_ua = normalizeSynonymsSoft(incoming.synonyms_ua);
     }
     if (hasText(incoming.translation_ua)) {
-      if (!existing || isEmpty(existing.translation_ua)) row.translation_ua = incoming.translation_ua;
+      row.translation_ua = incoming.translation_ua;
     }
     if (hasText(incoming.commentary_ua)) {
-      if (!existing || isEmpty(existing.commentary_ua)) row.commentary_ua = safeHtml(stripSectionLabel(incoming.commentary_ua));
+      row.commentary_ua = safeHtml(stripSectionLabel(incoming.commentary_ua));
     }
 
     // Audio URL - update when provided

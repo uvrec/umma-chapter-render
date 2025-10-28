@@ -236,10 +236,20 @@ export const VedaReaderDB = () => {
 
   // Jump to verse from URL if provided
   useEffect(() => {
-    if (!verseNumber) return;
+    if (!verseNumber || !verses.length) return;
     const idx = verses.findIndex(v => String(v.verse_number) === String(verseNumber));
-    if (idx >= 0) setCurrentVerseIndex(idx);
-  }, [verseNumber, verses]);
+    if (idx >= 0) {
+      setCurrentVerseIndex(idx);
+    } else {
+      // ✅ Вірш не знайдений - показуємо помилку та залишаємось на першому
+      console.warn(`Verse ${verseNumber} not found in chapter`);
+      toast({
+        title: t("Вірш не знайдено", "Verse not found"),
+        description: t(`Вірш ${verseNumber} відсутній у цій главі`, `Verse ${verseNumber} not found in this chapter`),
+        variant: "destructive"
+      });
+    }
+  }, [verseNumber, verses, t]);
   // ALL CHAPTERS (для навігації між главами)
   const { data: allChapters = [] } = useQuery({
     queryKey: isCantoMode ? ["all-chapters-canto", canto?.id] : ["all-chapters-book", book?.id],
@@ -363,13 +373,21 @@ export const VedaReaderDB = () => {
         return;
       }
       if (e.key === "ArrowLeft" && currentVerseIndex > 0) {
-        setCurrentVerseIndex(currentVerseIndex - 1);
+        const prevVerse = verses[currentVerseIndex - 1];
+        const path = isCantoMode 
+          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${prevVerse.verse_number}`
+          : `/veda-reader/${bookId}/${effectiveChapterParam}/${prevVerse.verse_number}`;
+        navigate(path);
         window.scrollTo({
           top: 0,
           behavior: "smooth"
         });
       } else if (e.key === "ArrowRight" && currentVerseIndex < verses.length - 1) {
-        setCurrentVerseIndex(currentVerseIndex + 1);
+        const nextVerse = verses[currentVerseIndex + 1];
+        const path = isCantoMode 
+          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${nextVerse.verse_number}`
+          : `/veda-reader/${bookId}/${effectiveChapterParam}/${nextVerse.verse_number}`;
+        navigate(path);
         window.scrollTo({
           top: 0,
           behavior: "smooth"
@@ -378,10 +396,15 @@ export const VedaReaderDB = () => {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentVerseIndex, verses.length]);
+  }, [currentVerseIndex, verses.length, verses, isCantoMode, bookId, cantoNumber, chapterNumber, effectiveChapterParam, navigate]);
   const handlePrevVerse = () => {
     if (currentVerseIndex > 0) {
-      setCurrentVerseIndex(currentVerseIndex - 1);
+      const prevVerse = verses[currentVerseIndex - 1];
+      // ✅ Оновлюємо URL при переході між віршами
+      const path = isCantoMode 
+        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${prevVerse.verse_number}`
+        : `/veda-reader/${bookId}/${effectiveChapterParam}/${prevVerse.verse_number}`;
+      navigate(path);
       window.scrollTo({
         top: 0,
         behavior: "smooth"
@@ -390,7 +413,12 @@ export const VedaReaderDB = () => {
   };
   const handleNextVerse = () => {
     if (currentVerseIndex < verses.length - 1) {
-      setCurrentVerseIndex(currentVerseIndex + 1);
+      const nextVerse = verses[currentVerseIndex + 1];
+      // ✅ Оновлюємо URL при переході між віршами
+      const path = isCantoMode 
+        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${nextVerse.verse_number}`
+        : `/veda-reader/${bookId}/${effectiveChapterParam}/${nextVerse.verse_number}`;
+      navigate(path);
       window.scrollTo({
         top: 0,
         behavior: "smooth"

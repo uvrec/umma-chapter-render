@@ -65,13 +65,17 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     if (synonymsContainer) {
       const spans = synonymsContainer.querySelectorAll('span.inline');
       const parts: string[] = [];
+      const seen = new Set<string>(); // ✅ Уникаємо дублів
       
       spans.forEach(span => {
         const text = span.textContent?.trim() || '';
         if (text) {
           // Видаляємо зайві пробіли та semicolons в кінці
           const cleaned = text.replace(/;\s*$/, '').trim();
-          if (cleaned) parts.push(cleaned);
+          if (cleaned && !seen.has(cleaned)) {
+            seen.add(cleaned);
+            parts.push(cleaned);
+          }
         }
       });
       
