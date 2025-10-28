@@ -241,7 +241,11 @@ export default function VedabaseImportV3() {
       setCurrentStep("Створення книги...");
 
       // 1. Книга
-      const bookQuery: any = await (supabase as any).from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+      const bookQuery: any = await (supabase as any)
+        .from("books")
+        .select("id")
+        .eq("slug", bookConfig.our_slug || selectedBook)
+        .maybeSingle();
       let book = bookQuery.data;
 
       if (!book) {
@@ -249,7 +253,6 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             slug: bookConfig.our_slug || selectedBook,
-            vedabase_slug: selectedBook,
             title_ua: bookConfig.name_ua,
             title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos,
@@ -335,7 +338,11 @@ export default function VedabaseImportV3() {
       }
 
       // 1. Книга
-      const bookQuery2: any = await (supabase as any).from("books").select("id").eq("vedabase_slug", selectedBook).maybeSingle();
+      const bookQuery2: any = await (supabase as any)
+        .from("books")
+        .select("id")
+        .eq("slug", bookConfig.our_slug || selectedBook)
+        .maybeSingle();
       let book = bookQuery2.data;
 
       if (!book) {
@@ -343,8 +350,6 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             slug: bookConfig.our_slug || selectedBook,
-            vedabase_slug: selectedBook,
-            gitabase_slug: bookConfig.gitabase_slug,
             title_ua: bookConfig.name_ua,
             title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos,
@@ -478,9 +483,9 @@ export default function VedabaseImportV3() {
             translationEN = data.translation;
             purportEN = data.purport;
 
-            // ✅ Нормалізуємо EN транслітерацію (IAST → UA кирилиця)
+            // ✅ Залишаємо EN транслітерацію в IAST як є (без конвертації)
             if (transliterationEN) {
-              transliterationEN = normalizeVerseField(transliterationEN, "transliteration_en");
+              transliterationEN = transliterationEN.trim();
             }
 
             await new Promise((r) => setTimeout(r, 500));
@@ -548,17 +553,13 @@ export default function VedabaseImportV3() {
             chapter_id: chapterId,
             verse_number: verseNum,
             sanskrit,
-            transliteration: transliterationUA || transliterationEN, // fallback для старих даних
-            transliteration_ua: transliterationUA, // ✅ UA транслітерація
-            transliteration_en: transliterationEN, // ✅ EN транслітерація
-            synonyms_en: synonymsEN,
-            translation_en: translationEN,
-            commentary_en: purportEN,
-            synonyms_ua: synonymsUA,
-            translation_ua: translationUA,
-            commentary_ua: purportUA,
-            display_blocks: displayBlocks,
-            is_published: true,
+            transliteration: transliterationEN || null,
+            synonyms_en: synonymsEN || null,
+            translation_en: translationEN || null,
+            commentary_en: purportEN || null,
+            synonyms_ua: synonymsUA || null,
+            translation_ua: translationUA || null,
+            commentary_ua: purportUA || null,
           },
           { onConflict: "chapter_id,verse_number" },
         );
