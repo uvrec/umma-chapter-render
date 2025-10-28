@@ -1,4 +1,4 @@
-Тільки просмотр віршів   // ChapterVersesList.tsx — Список віршів (лише переклад)
+// ChapterVersesList.tsx — Список віршів з підтримкою dualMode
 
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -16,8 +16,10 @@ export const ChapterVersesList = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
+  // Читаємо dualMode з localStorage
   const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
 
+  // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handler = () => {
       setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
@@ -77,6 +79,7 @@ export const ChapterVersesList = () => {
     enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id),
   });
 
+  // Fallback: if canto-based chapter has no verses yet, also look for legacy book-only chapter
   const { data: fallbackChapter } = useQuery({
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
     queryFn: async () => {
@@ -100,7 +103,9 @@ export const ChapterVersesList = () => {
       if (!chapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, translation_ua, translation_en")
+        .select(
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en",
+        )
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -115,7 +120,9 @@ export const ChapterVersesList = () => {
       if (!fallbackChapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, translation_ua, translation_en")
+        .select(
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en",
+        )
         .eq("chapter_id", fallbackChapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -124,7 +131,8 @@ export const ChapterVersesList = () => {
     enabled: !!fallbackChapter?.id,
   });
 
-  const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
+  const verses = versesMain && versesMain.length > 0 ? versesMain : versesFallback || [];
+
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
   const getVerseUrl = (verseNumber: string) => {
@@ -145,7 +153,11 @@ export const ChapterVersesList = () => {
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj ? (language === "ua" ? effectiveChapterObj.title_ua : effectiveChapterObj.title_en) : null;
+  const chapterTitle = effectiveChapterObj
+    ? language === "ua"
+      ? effectiveChapterObj.title_ua
+      : effectiveChapterObj.title_en
+    : null;
 
   if (isLoading) {
     return (
@@ -197,51 +209,96 @@ export const ChapterVersesList = () => {
 
           {/* Список віршів */}
           <div className="space-y-6">
-            {verses.map((verse) => (
-              <div key={verse.id} className="space-y-3">
-                {dualMode ? (
-                  <div className="grid gap-6 md:grid-cols-2">
+            {verses.map((verse) => {
+              const translationUa = verse.translation_ua || "";
+              const translationEn = verse.translation_en || "";
+              const sanskrit = verse.sanskrit || "";
+              const transliterationUa = verse.transliteration_ua || verse.transliteration || "";
+              const transliterationEn = verse.transliteration_en || verse.transliteration || "";
+
+              return (
+                <div key={verse.id} className="space-y-3">
+                  {/* Side-by-side якщо dualMode */}
+                  {dualMode ? (
+                    <div className="grid gap-6 md:grid-cols-2">
+                      {/* Українська */}
+                      <div className="space-y-3">
+                        <Link
+                          to={getVerseUrl(verse.verse_number)}
+                          className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                        >
+                          ВІРШ {verse.verse_number}
+                        </Link>
+                        {sanskrit && (
+                          <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
+                            {sanskrit}
+                          </p>
+                        )}
+                        {transliterationUa && (
+                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
+                            {transliterationUa}
+                          </p>
+                        )}
+                        <p className="text-base leading-relaxed text-foreground">
+                          {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                        </p>
+                      </div>
+
+                      {/* Англійська */}
+                      <div className="space-y-3 border-l border-border pl-6">
+                        <Link
+                          to={getVerseUrl(verse.verse_number)}
+                          className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                        >
+                          TEXT {verse.verse_number}
+                        </Link>
+                        {sanskrit && (
+                          <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
+                            {sanskrit}
+                          </p>
+                        )}
+                        {transliterationEn && (
+                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
+                            {transliterationEn}
+                          </p>
+                        )}
+                        <p className="text-base leading-relaxed text-foreground">
+                          {translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Одна мова */
                     <div className="space-y-3">
                       <Link
                         to={getVerseUrl(verse.verse_number)}
-                        className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover:bg-primary/20"
+                        className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
                       >
-                        ВІРШ {verse.verse_number}
+                        {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                       </Link>
+                      {sanskrit && (
+                        <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
+                          {sanskrit}
+                        </p>
+                      )}
+                      {(language === "ua" ? transliterationUa : transliterationEn) && (
+                        <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
+                          {language === "ua" ? transliterationUa : transliterationEn}
+                        </p>
+                      )}
                       <p className="text-base leading-relaxed text-foreground">
-                        {verse.translation_ua || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                        {language === "ua"
+                          ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
+                          : translationEn || <span className="italic text-muted-foreground">No translation</span>}
                       </p>
                     </div>
-                    <div className="space-y-3 border-l border-border pl-6">
-                      <Link
-                        to={getVerseUrl(verse.verse_number)}
-                        className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover:bg-primary/20"
-                      >
-                        TEXT {verse.verse_number}
-                      </Link>
-                      <p className="text-base leading-relaxed text-foreground">
-                        {verse.translation_en || <span className="italic text-muted-foreground">No translation</span>}
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    <Link
-                      to={getVerseUrl(verse.verse_number)}
-                      className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary hover:bg-primary/20"
-                    >
-                      {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                    </Link>
-                    <p className="text-base leading-relaxed text-foreground">
-                      {language === "ua"
-                        ? verse.translation_ua || <span className="italic text-muted-foreground">Немає перекладу</span>
-                        : verse.translation_en || <span className="italic text-muted-foreground">No translation</span>}
-                    </p>
-                  </div>
-                )}
-                <div className="border-b border-border" />
-              </div>
-            ))}
+                  )}
+
+                  {/* Розділювач */}
+                  <div className="border-b border-border" />
+                </div>
+              );
+            })}
           </div>
 
           {verses.length === 0 && (
