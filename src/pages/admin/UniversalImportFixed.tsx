@@ -169,6 +169,12 @@ export default function UniversalImportFixed() {
         if (!response.ok) throw new Error(`Parser HTTP ${response.status}: ${response.statusText}`);
         result = await response.json();
         console.log("🐍 Python parser result:", result?.verses?.length, "verses");
+        // ✅ Перевірка якості: якщо порожньо або відсутні ключові поля — примусово fallback
+        const badResult = !Array.isArray(result?.verses) || !result.verses.length ||
+          result.verses.every((v: any) => !(v?.translation_en || v?.translation_ua || v?.synonyms_en || v?.synonyms_ua || v?.commentary_en || v?.commentary_ua));
+        if (badResult) {
+          throw new Error("Python result is empty/incomplete — switching to browser fallback");
+        }
         toast({ title: "✅ Парсер успішно відпрацював", description: "Отримано JSON" });
       } catch (err: any) {
         console.log("🐍 Python parser failed, using browser fallback:", err.message);
@@ -180,88 +186,144 @@ export default function UniversalImportFixed() {
 
         const verses: any[] = [];
 
-        for (let v = start; v <= end; v++) {
-          try {
-            // Паралельно парсимо EN (Vedabase) та UA (Gitabase)
-            const vedabaseUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${v}`;
-            const gitabaseUrl = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`;
+        // 🧭 1) Знімаємо індекс посилань з сторінки глави (щоб виявляти "7-8", "10-16")
+        try {
+          const chapterUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
+          const { data: chapterHtml } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
+          const map: Array<{ lastPart: string; from: number; to: number }> = [];
+          if (chapterHtml?.html) {
+            const dp = new DOMParser();
+            const doc = dp.parseFromString(chapterHtml.html, 'text/html');
+            const anchors = Array.from(doc.querySelectorAll(`a[href*="/${vedabaseBook}/${lila}/${chapterNum}/"]`));
+            anchors.forEach(a => {
+              const href = a.getAttribute('href') || '';
+              const seg = href.split('/').filter(Boolean).pop() || '';
+              if (!seg) return;
+              if (/^\d+(?:-\d+)?$/.test(seg)) {
+                if (seg.includes('-')) {
+                  const [s, e] = seg.split('-').map(n => parseInt(n, 10));
+                  if (!Number.isNaN(s) && !Number.isNaN(e)) map.push({ lastPart: seg, from: s, to: e });
+                } else {
+                  const n = parseInt(seg, 10);
+                  if (!Number.isNaN(n)) map.push({ lastPart: seg, from: n, to: n });
+                }
+              }
+            });
 
-            const [vedabaseRes, gitabaseRes] = await Promise.allSettled([
-              supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
-              supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }),
-            ]);
+            // Фільтруємо лише сегменти, що перетинаються з [start, end], та унікалізуємо за lastPart
+            const unique = new Map<string, { lastPart: string; from: number; to: number }>();
+            map
+              .filter(m => !(m.to < start || m.from > end))
+              .sort((a, b) => a.from - b.from)
+              .forEach(m => unique.set(m.lastPart, m));
 
-            let parsedEN: any = null;
-            let parsedUA: any = null;
+            const targets = Array.from(unique.values());
 
-            if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
-              parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
-              console.log(`📖 Vedabase v${v} EN:`, {
-                has_bengali: !!parsedEN?.bengali,
-                has_translit: !!parsedEN?.transliteration,
-                has_synonyms: !!parsedEN?.synonyms,
-                has_translation: !!parsedEN?.translation,
-                has_purport: !!parsedEN?.purport,
-                translit_preview: parsedEN?.transliteration?.substring(0, 50)
-              });
-            } else {
-              console.warn(`❌ Vedabase v${v} failed:`, vedabaseRes.status === "rejected" ? vedabaseRes.reason : "No data");
+            // 2) Парсимо кожен таргет як окремий вірш (включно з об'єднаними)
+            for (const t of targets) {
+              try {
+                const vedabaseUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${t.lastPart}`;
+                const gitabaseUrl = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`;
+
+                const [vedabaseRes, gitabaseRes] = await Promise.allSettled([
+                  supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
+                  supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }),
+                ]);
+
+                let parsedEN: any = null;
+                let parsedUA: any = null;
+
+                if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
+                  parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+                }
+                if (gitabaseRes.status === "fulfilled" && gitabaseRes.value.data) {
+                  const gdp = new DOMParser();
+                  const gdoc = gdp.parseFromString(gitabaseRes.value.data.html, 'text/html');
+                  parsedUA = {
+                    synonyms_ua: Array.from(gdoc.querySelectorAll('.r-synonyms-item')).map(item => {
+                      const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
+                      const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
+                      return word && meaning ? `${word} — ${meaning}` : '';
+                    }).filter(Boolean).join('; '),
+                    translation_ua: gdoc.querySelector('.r-translation')?.textContent?.trim() || '',
+                    commentary_ua: Array.from(gdoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
+                  };
+                }
+
+                verses.push({
+                  verse_number: t.lastPart, // ← "7" або "7-8"
+                  sanskrit: parsedEN?.bengali || "",
+                  transliteration_en: parsedEN?.transliteration || "",
+                  transliteration_ua: "",
+                  synonyms_en: parsedEN?.synonyms || "",
+                  synonyms_ua: parsedUA?.synonyms_ua || "",
+                  translation_en: parsedEN?.translation || "",
+                  translation_ua: parsedUA?.translation_ua || "",
+                  commentary_en: parsedEN?.purport || "",
+                  commentary_ua: parsedUA?.commentary_ua || "",
+                });
+              } catch (e: any) {
+                console.warn(`⚠️ Failed segment ${t.lastPart}:`, e.message);
+              }
             }
 
-            if (gitabaseRes.status === "fulfilled" && gitabaseRes.value.data) {
-              // Gitabase має схожу структуру
-              const gitabaseParser = new DOMParser();
-              const gitaDoc = gitabaseParser.parseFromString(gitabaseRes.value.data.html, 'text/html');
-              
-              parsedUA = {
-                synonyms_ua: Array.from(gitaDoc.querySelectorAll('.r-synonyms-item')).map(item => {
-                  const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
-                  const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
-                  return word && meaning ? `${word} — ${meaning}` : '';
-                }).filter(Boolean).join('; '),
-                translation_ua: gitaDoc.querySelector('.r-translation')?.textContent?.trim() || '',
-                commentary_ua: Array.from(gitaDoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
-              };
-              console.log(`📖 Gitabase v${v} UA:`, {
-                has_synonyms: !!parsedUA?.synonyms_ua,
-                has_translation: !!parsedUA?.translation_ua,
-                has_commentary: !!parsedUA?.commentary_ua
-              });
-            } else {
-              console.warn(`❌ Gitabase v${v} failed:`, gitabaseRes.status === "rejected" ? gitabaseRes.reason : "No data");
-            }
-
-            verses.push({
-              verse_number: String(v),
-              sanskrit: parsedEN?.bengali || "",
-              transliteration_en: parsedEN?.transliteration || "",
-              transliteration_ua: "",
-              synonyms_en: parsedEN?.synonyms || "",
-              synonyms_ua: parsedUA?.synonyms_ua || "",
-              translation_en: parsedEN?.translation || "",
-              translation_ua: parsedUA?.translation_ua || "",
-              commentary_en: parsedEN?.purport || "",
-              commentary_ua: parsedUA?.commentary_ua || "",
-            });
-            
-            console.log(`💾 Verse ${v} ready to save:`, {
-              has_sanskrit: !!(parsedEN?.bengali),
-              has_translit: !!(parsedEN?.transliteration),
-              has_syn_en: !!(parsedEN?.synonyms),
-              has_syn_ua: !!(parsedUA?.synonyms_ua),
-              has_trans_en: !!(parsedEN?.translation),
-              has_trans_ua: !!(parsedUA?.translation_ua),
-              has_comm_en: !!(parsedEN?.purport),
-              has_comm_ua: !!(parsedUA?.commentary_ua),
-            });
-          } catch (e: any) {
-            console.warn(`⚠️ Failed verse ${v}:`, e.message);
+            console.log(`✅ Fallback parsed ${verses.length} segment(s)`);
+            result = { verses };
+          } else {
+            throw new Error('No chapter HTML');
           }
-          setProgress(10 + ((v - start + 1) / (end - start + 1)) * 80);
-        }
+        } catch (e) {
+          console.warn('Chapter TOC parse failed, using simple numeric loop', e);
+          // Простий попередній алгоритм (на випадок збою)
+          for (let v = start; v <= end; v++) {
+            try {
+              const vedabaseUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${v}`;
+              const gitabaseUrl = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`;
 
-        console.log(`✅ Fallback parsed ${verses.length} verses`);
-        result = { verses };
+              const [vedabaseRes, gitabaseRes] = await Promise.allSettled([
+                supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
+                supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }),
+              ]);
+
+              let parsedEN: any = null;
+              let parsedUA: any = null;
+
+              if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
+                parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+              }
+              if (gitabaseRes.status === "fulfilled" && gitabaseRes.value.data) {
+                const gitaDoc = new DOMParser().parseFromString(gitabaseRes.value.data.html, 'text/html');
+                parsedUA = {
+                  synonyms_ua: Array.from(gitaDoc.querySelectorAll('.r-synonyms-item')).map(item => {
+                    const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
+                    const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
+                    return word && meaning ? `${word} — ${meaning}` : '';
+                  }).filter(Boolean).join('; '),
+                  translation_ua: gitaDoc.querySelector('.r-translation')?.textContent?.trim() || '',
+                  commentary_ua: Array.from(gitaDoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
+                };
+              }
+
+              verses.push({
+                verse_number: String(v),
+                sanskrit: parsedEN?.bengali || "",
+                transliteration_en: parsedEN?.transliteration || "",
+                transliteration_ua: "",
+                synonyms_en: parsedEN?.synonyms || "",
+                synonyms_ua: parsedUA?.synonyms_ua || "",
+                translation_en: parsedEN?.translation || "",
+                translation_ua: parsedUA?.translation_ua || "",
+                commentary_en: parsedEN?.purport || "",
+                commentary_ua: parsedUA?.commentary_ua || "",
+              });
+            } catch (e: any) {
+              console.warn(`⚠️ Failed verse ${v}:`, e.message);
+            }
+            setProgress(10 + ((v - start + 1) / (end - start + 1)) * 80);
+          }
+          console.log(`✅ Fallback parsed ${verses.length} verses`);
+          result = { verses };
+        }
       }
 
       console.log("📊 Final result:", {
