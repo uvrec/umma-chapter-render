@@ -373,9 +373,10 @@ export default function UniversalImportFixed() {
         chapters: [
           {
             chapter_number: chapterNum,
-            // ✅ Зберігаємо назви, якщо вони заповнені користувачем
-            title_ua: importData.metadata.title_ua?.trim() || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
-            title_en: importData.metadata.title_en?.trim() || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
+            // ✅ Передаємо назви ТІЛЬКИ якщо вони були явно введені користувачем
+            // Інакше upsertChapter збереже існуючі назви глави
+            ...(importData.metadata.title_ua?.trim() && { title_ua: importData.metadata.title_ua.trim() }),
+            ...(importData.metadata.title_en?.trim() && { title_en: importData.metadata.title_en.trim() }),
             chapter_type: "verses",
             verses: result.verses,
           },

@@ -237,7 +237,22 @@ export const VedaReaderDB = () => {
   // Jump to verse from URL if provided
   useEffect(() => {
     if (!verseNumber || !verses.length) return;
-    const idx = verses.findIndex(v => String(v.verse_number) === String(verseNumber));
+    // ✅ Шукаємо точне співпадіння або вірш який містить цей номер (для комбінованих "7-8")
+    let idx = verses.findIndex(v => String(v.verse_number) === String(verseNumber));
+    // Якщо не знайшли точне, шукаємо комбінований (наприклад "7-8" коли шукаємо "7" або "8")
+    if (idx === -1) {
+      const num = parseInt(verseNumber);
+      if (!isNaN(num)) {
+        idx = verses.findIndex(v => {
+          const vn = String(v.verse_number);
+          if (vn.includes('-')) {
+            const [start, end] = vn.split('-').map(n => parseInt(n));
+            return !isNaN(start) && !isNaN(end) && num >= start && num <= end;
+          }
+          return false;
+        });
+      }
+    }
     if (idx >= 0) {
       setCurrentVerseIndex(idx);
     } else {
@@ -374,9 +389,13 @@ export const VedaReaderDB = () => {
       }
       if (e.key === "ArrowLeft" && currentVerseIndex > 0) {
         const prevVerse = verses[currentVerseIndex - 1];
+        // ✅ Для комбінованих віршів "7-8" використовуємо перше число
+        const urlVerseNumber = String(prevVerse.verse_number).includes('-') 
+          ? String(prevVerse.verse_number).split('-')[0] 
+          : prevVerse.verse_number;
         const path = isCantoMode 
-          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${prevVerse.verse_number}`
-          : `/veda-reader/${bookId}/${effectiveChapterParam}/${prevVerse.verse_number}`;
+          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+          : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
         navigate(path);
         window.scrollTo({
           top: 0,
@@ -384,9 +403,13 @@ export const VedaReaderDB = () => {
         });
       } else if (e.key === "ArrowRight" && currentVerseIndex < verses.length - 1) {
         const nextVerse = verses[currentVerseIndex + 1];
+        // ✅ Для комбінованих віршів "7-8" використовуємо перше число
+        const urlVerseNumber = String(nextVerse.verse_number).includes('-') 
+          ? String(nextVerse.verse_number).split('-')[0] 
+          : nextVerse.verse_number;
         const path = isCantoMode 
-          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${nextVerse.verse_number}`
-          : `/veda-reader/${bookId}/${effectiveChapterParam}/${nextVerse.verse_number}`;
+          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+          : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
         navigate(path);
         window.scrollTo({
           top: 0,
@@ -400,10 +423,13 @@ export const VedaReaderDB = () => {
   const handlePrevVerse = () => {
     if (currentVerseIndex > 0) {
       const prevVerse = verses[currentVerseIndex - 1];
-      // ✅ Оновлюємо URL при переході між віршами
+      // ✅ Для комбінованих віршів "7-8" використовуємо перше число
+      const urlVerseNumber = String(prevVerse.verse_number).includes('-') 
+        ? String(prevVerse.verse_number).split('-')[0] 
+        : prevVerse.verse_number;
       const path = isCantoMode 
-        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${prevVerse.verse_number}`
-        : `/veda-reader/${bookId}/${effectiveChapterParam}/${prevVerse.verse_number}`;
+        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+        : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({
         top: 0,
@@ -414,10 +440,13 @@ export const VedaReaderDB = () => {
   const handleNextVerse = () => {
     if (currentVerseIndex < verses.length - 1) {
       const nextVerse = verses[currentVerseIndex + 1];
-      // ✅ Оновлюємо URL при переході між віршами
+      // ✅ Для комбінованих віршів "7-8" використовуємо перше число
+      const urlVerseNumber = String(nextVerse.verse_number).includes('-') 
+        ? String(nextVerse.verse_number).split('-')[0] 
+        : nextVerse.verse_number;
       const path = isCantoMode 
-        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${nextVerse.verse_number}`
-        : `/veda-reader/${bookId}/${effectiveChapterParam}/${nextVerse.verse_number}`;
+        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+        : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({
         top: 0,
