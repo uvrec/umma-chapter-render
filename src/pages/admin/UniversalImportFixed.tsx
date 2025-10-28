@@ -12,6 +12,7 @@ import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC } from "@/utils/vedabaseParser";
+import { parseGitabaseCC, generateGitabaseURL } from "@/utils/gitabaseParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 
@@ -161,7 +162,7 @@ export default function UniversalImportFixed() {
           description: "Парсер недоступний, використовую вбудований CC-парсер",
         });
 
-        // fallback лише для CC
+        // fallback лише для CC — тягнемо EN (Vedabase) + UA (Gitabase)
         const [start, end] = verseRanges.includes("-")
           ? verseRanges.split("-").map(Number)
           : [parseInt(verseRanges, 10), parseInt(verseRanges, 10)];
@@ -169,23 +170,49 @@ export default function UniversalImportFixed() {
         const verses: any[] = [];
         for (let v = start; v <= end; v++) {
           try {
-            const url = `https://vedabase.io/en/library/cc/${lila}/${chapterNum}/${v}`;
-            const response = await fetch(url, { mode: 'cors' });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const html = await response.text();
-            const verseData = parseVedabaseCC(html, url);
-            if (verseData) {
-              verses.push({
-                verse_number: v.toString(),
-                sanskrit: verseData.bengali,
-                transliteration: verseData.transliteration,
-                synonyms_en: verseData.synonyms,
-                translation_en: verseData.translation,
-                commentary_en: verseData.purport,
-              });
+            const enUrl = `https://vedabase.io/en/library/cc/${lila}/${chapterNum}/${v}`;
+            const uaUrl = generateGitabaseURL(lila, chapterNum, v);
+
+            const [enRes, uaRes] = await Promise.all([
+              fetch(enUrl, { mode: 'cors' }),
+              fetch(uaUrl, { mode: 'cors' })
+            ]);
+
+            const verseObj: any = { verse_number: v.toString() };
+
+            if (enRes.ok) {
+              const htmlEn = await enRes.text();
+              const enData = parseVedabaseCC(htmlEn, enUrl);
+              if (enData) {
+                verseObj.sanskrit = enData.bengali || "";
+                verseObj.transliteration_en = enData.transliteration || "";
+                verseObj.synonyms_en = enData.synonyms || "";
+                verseObj.translation_en = enData.translation || "";
+                verseObj.commentary_en = enData.purport || "";
+              }
             }
-            // Затримка між запитами для уникнення rate limit
-            await new Promise(resolve => setTimeout(resolve, 200));
+
+            if (uaRes.ok) {
+              const htmlUa = await uaRes.text();
+              const uaData = parseGitabaseCC(htmlUa, uaUrl);
+              if (uaData) {
+                verseObj.transliteration_ua = uaData.transliteration_ua || "";
+                verseObj.synonyms_ua = uaData.synonyms_ua || "";
+                verseObj.translation_ua = uaData.translation_ua || "";
+                verseObj.commentary_ua = uaData.purport_ua || "";
+              }
+            }
+
+            // Додаємо тільки якщо щось з контенту присутнє
+            if (
+              verseObj.translation_en || verseObj.translation_ua ||
+              verseObj.synonyms_en || verseObj.synonyms_ua
+            ) {
+              verses.push(verseObj);
+            }
+
+            // Невелика пауза щоб не ловити rate limit
+            await new Promise(resolve => setTimeout(resolve, 150));
           } catch (e) {
             console.warn(`Error on verse ${v}`, e);
           }
