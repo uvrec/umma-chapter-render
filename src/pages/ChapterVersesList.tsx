@@ -68,7 +68,7 @@ export const ChapterVersesList = () => {
       const base = supabase
         .from("chapters")
         .select("id, chapter_number, title_ua, title_en")
-        .eq("chapter_number", parseInt(effectiveChapterParam));
+        .eq("chapter_number", parseInt(effectiveChapterParam as string));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
 
@@ -88,7 +88,7 @@ export const ChapterVersesList = () => {
         .from("chapters")
         .select("id, chapter_number, title_ua, title_en")
         .eq("book_id", book.id)
-        .eq("chapter_number", parseInt(effectiveChapterParam))
+        .eq("chapter_number", parseInt(effectiveChapterParam as string))
         .is("canto_id", null)
         .maybeSingle();
       if (error) throw error;
@@ -103,7 +103,9 @@ export const ChapterVersesList = () => {
       if (!chapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en")
+        .select(
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en"
+        )
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -118,7 +120,9 @@ export const ChapterVersesList = () => {
       if (!fallbackChapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, sanskrit, transliteration, translation_ua, translation_en")
+        .select(
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en"
+        )
         .eq("chapter_id", fallbackChapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -130,7 +134,6 @@ export const ChapterVersesList = () => {
   const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
 
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
-
 
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
@@ -227,8 +230,8 @@ export const ChapterVersesList = () => {
                             {sanskrit}
                           </p>
                         )}
-                        {transliteration && (
-                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliteration}</p>
+                        {transliterationUa && (
+                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliterationUa}</p>
                         )}
                         <p className="text-base leading-relaxed text-foreground">
                           {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
@@ -248,8 +251,8 @@ export const ChapterVersesList = () => {
                             {sanskrit}
                           </p>
                         )}
-                        {transliteration && (
-                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliteration}</p>
+                        {transliterationEn && (
+                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliterationEn}</p>
                         )}
                         <p className="text-base leading-relaxed text-foreground">
                           {translationEn || <span className="italic text-muted-foreground">No translation</span>}
@@ -270,8 +273,10 @@ export const ChapterVersesList = () => {
                           {sanskrit}
                         </p>
                       )}
-                      {transliteration && (
-                        <p className="font-sanskrit-italic italic text-sm text-muted-foreground">{transliteration}</p>
+                      {(language === "ua" ? transliterationUa : transliterationEn) && (
+                        <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
+                          {language === "ua" ? transliterationUa : transliterationEn}
+                        </p>
                       )}
                       <p className="text-base leading-relaxed text-foreground">
                         {language === "ua"
