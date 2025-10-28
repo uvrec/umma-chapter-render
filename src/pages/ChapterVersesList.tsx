@@ -79,10 +79,28 @@ export const ChapterVersesList = () => {
     enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id),
   });
 
-  const { data: verses = [], isLoading: isLoadingVerses } = useQuery({
+  // Fallback: if canto-based chapter has no verses yet, also look for legacy book-only chapter
+  const { data: fallbackChapter } = useQuery({
+    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
+    queryFn: async () => {
+      if (!book?.id || !effectiveChapterParam) return null;
+      const { data, error } = await supabase
+        .from("chapters")
+        .select("id, chapter_number, title_ua, title_en")
+        .eq("book_id", book.id)
+        .eq("chapter_number", parseInt(effectiveChapterParam))
+        .is("canto_id", null)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!book?.id && !!effectiveChapterParam,
+  });
+
+  const { data: versesMain = [], isLoading: isLoadingVersesMain } = useQuery({
     queryKey: ["chapter-verses-list", chapter?.id],
     queryFn: async () => {
-      if (!chapter?.id) return [];
+      if (!chapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
         .select("id, verse_number, sanskrit, transliteration, translation_ua, translation_en")
@@ -94,7 +112,25 @@ export const ChapterVersesList = () => {
     enabled: !!chapter?.id,
   });
 
-  const isLoading = isLoadingChapter || isLoadingVerses;
+  const { data: versesFallback = [], isLoading: isLoadingVersesFallback } = useQuery({
+    queryKey: ["chapter-verses-fallback", fallbackChapter?.id],
+    queryFn: async () => {
+      if (!fallbackChapter?.id) return [] as any[];
+      const { data, error } = await supabase
+        .from("verses")
+        .select("id, verse_number, sanskrit, transliteration, translation_ua, translation_en")
+        .eq("chapter_id", fallbackChapter.id)
+        .order("verse_number_sort", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!fallbackChapter?.id,
+  });
+
+  const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
+
+  const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
+
 
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
@@ -113,7 +149,8 @@ export const ChapterVersesList = () => {
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
-  const chapterTitle = chapter ? (language === "ua" ? chapter.title_ua : chapter.title_en) : null;
+  const effectiveChapterObj = chapter ?? fallbackChapter;
+  const chapterTitle = effectiveChapterObj ? (language === "ua" ? effectiveChapterObj.title_ua : effectiveChapterObj.title_en) : null;
 
   if (isLoading) {
     return (
