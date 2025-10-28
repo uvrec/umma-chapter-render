@@ -234,7 +234,8 @@ export default function UniversalImportFixed() {
             verses.push({
               verse_number: String(v),
               sanskrit: parsedEN?.bengali || "",
-              transliteration: parsedEN?.transliteration || "",
+              transliteration_en: parsedEN?.transliteration || "",
+              transliteration_ua: "",
               synonyms_en: parsedEN?.synonyms || "",
               synonyms_ua: parsedUA?.synonyms_ua || "",
               translation_en: parsedEN?.translation || "",
