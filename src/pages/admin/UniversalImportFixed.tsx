@@ -268,7 +268,33 @@ export default function UniversalImportFixed() {
         verses_count: result?.verses?.length,
         first_verse: result?.verses?.[0]
       });
-      
+
+      // 🔧 Дозаповнення EN блоків (synonyms/translation/purport) з Vedabase, якщо парсер їх не дав
+      if (Array.isArray(result?.verses) && result.verses.length) {
+        let idx = 0;
+        for (const v of result.verses) {
+          const missingEn = !(v?.translation_en || v?.synonyms_en || v?.commentary_en);
+          if (missingEn) {
+            try {
+              const verseUrl = `${vedabase_base}${v.verse_number}`;
+              const { data } = await supabase.functions.invoke("fetch-html", { body: { url: verseUrl } });
+              const parsed = data?.html ? parseVedabaseCC(data.html, verseUrl) : null;
+              if (parsed) {
+                v.sanskrit = v.sanskrit || parsed.bengali || "";
+                v.transliteration_en = v.transliteration_en || parsed.transliteration || "";
+                v.synonyms_en = v.synonyms_en || parsed.synonyms || "";
+                v.translation_en = v.translation_en || parsed.translation || "";
+                v.commentary_en = v.commentary_en || parsed.purport || "";
+              }
+            } catch (e) {
+              console.warn("EN fill fail for verse", v?.verse_number, e);
+            }
+          }
+          idx++;
+          setProgress(20 + Math.round((idx / result.verses.length) * 20));
+        }
+      }
+
       if (!result?.verses?.length) {
         console.error("❌ No verses in result:", result);
         throw new Error("Немає віршів у відповіді");

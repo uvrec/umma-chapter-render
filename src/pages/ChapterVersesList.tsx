@@ -103,7 +103,7 @@ export const ChapterVersesList = () => {
       if (!chapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, sanskrit, transliteration, translation_ua, translation_en")
+        .select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en")
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -206,7 +206,8 @@ export const ChapterVersesList = () => {
               const translationUa = verse.translation_ua || "";
               const translationEn = verse.translation_en || "";
               const sanskrit = verse.sanskrit || "";
-              const transliteration = verse.transliteration || "";
+              const transliterationUa = verse.transliteration_ua || verse.transliteration || "";
+              const transliterationEn = verse.transliteration_en || verse.transliteration || "";
 
               return (
                 <div key={verse.id} className="space-y-3">

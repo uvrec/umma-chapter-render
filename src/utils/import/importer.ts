@@ -34,6 +34,12 @@ export const normalizeSynonymsSoft = (s?: string) =>
     .replace(/[ \t]+/g, " ")
     .trim();
 
+/** Прибирає службові мітки на початку блоку типу "ПОЯСНЕННЯ:", "PURPORT:" */
+export const stripSectionLabel = (s?: string) =>
+  (s ?? "")
+    .replace(/^\s*(ПОЯСНЕННЯ|КОМЕНТАРІЙ|КОМЕНТАР|COMMENTARY|PURPORT)\s*[:—-]?\s*/i, "")
+    .trim();
+
 /** Пошук або створення глави (bookId/cantoId + chapter_number) з оновленням полів */
 export async function upsertChapter(
   supabase: SupabaseClient,
@@ -105,8 +111,8 @@ export async function replaceChapterVerses(
     synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
     translation_ua: (v as any).translation_ua ?? null,
     translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
-    commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
-    commentary_en: safeHtml((v as any).commentary_en ?? (v as any).purport ?? ""),
+    commentary_ua: safeHtml(stripSectionLabel((v as any).commentary_ua ?? "")),
+    commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
     // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
     audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
   }));
@@ -131,8 +137,8 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
     synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
     translation_ua: (v as any).translation_ua ?? null,
     translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
-    commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
-    commentary_en: safeHtml((v as any).commentary_en ?? (v as any).purport ?? ""),
+    commentary_ua: safeHtml(stripSectionLabel((v as any).commentary_ua ?? "")),
+    commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
     audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
   }));
 
