@@ -34,11 +34,29 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     const chapter = parseInt(urlParts[urlParts.length - 2]);
     const verse = parseInt(urlParts[urlParts.length - 1]);
 
-    // 1. BENGALI TEXT - клас 'r-verse'
+    // 1. BENGALI TEXT
+    // Try common selectors; if empty, detect by Bengali Unicode range
     let bengali = '';
-    const verseElement = doc.querySelector('.r-verse');
-    if (verseElement) {
-      bengali = verseElement.textContent?.trim() || '';
+    const bengaliSelectors = ['.r-verse', '.r-bengali', '.r-verse-bengali', '.r-original', '.r-verse-original'];
+    let verseElement: Element | null = null;
+    for (const sel of bengaliSelectors) {
+      verseElement = doc.querySelector(sel);
+      if (verseElement) {
+        bengali = verseElement.textContent?.trim() || '';
+        if (bengali) break;
+      }
+    }
+    if (!bengali) {
+      const candidates = Array.from(doc.querySelectorAll('main p, .entry-content p, blockquote p, .entry-content div'));
+      const bnRegex = /[\u0980-\u09FF]/; // Bengali Unicode block
+      for (const el of candidates) {
+        const text = el.textContent?.trim() || '';
+        if (bnRegex.test(text) && text.length > 4) {
+          bengali = text;
+          verseElement = el;
+          break;
+        }
+      }
     }
 
     // 2. TRANSLITERATION - шукаємо клас r-verse-text або перший p після r-verse
@@ -105,9 +123,9 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
       purport = purportParts.join('\n\n');
     }
 
-    // Перевірка, що ми витягли основні дані
-    if (!transliteration && !translation) {
-      console.warn('Не знайдено transliteration і translation для', url);
+    // Ensure we have at least one meaningful field
+    if (!bengali && !transliteration && !translation) {
+      console.warn('Не знайдено жодного поля (bengali/transliteration/translation) для', url);
       return null;
     }
 

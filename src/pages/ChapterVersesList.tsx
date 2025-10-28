@@ -103,9 +103,9 @@ export const ChapterVersesList = () => {
       if (!chapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select(
+         .select(
           "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en"
-        )
+         )
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -120,9 +120,9 @@ export const ChapterVersesList = () => {
       if (!fallbackChapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select(
+         .select(
           "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en"
-        )
+         )
         .eq("chapter_id", fallbackChapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;

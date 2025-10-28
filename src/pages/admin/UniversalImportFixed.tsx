@@ -384,7 +384,7 @@ export default function UniversalImportFixed() {
         cantoId = canto?.id || null;
       }
 
-      // Import chapters with full replace of verses to avoid upsert conflicts
+      // Import chapters safely: UPSERT (never delete existing verses)
       const total = data.chapters.length;
       for (let i = 0; i < total; i++) {
         const ch = data.chapters[i];
@@ -392,7 +392,7 @@ export default function UniversalImportFixed() {
           bookId,
           cantoId: cantoId ?? null,
           chapter: ch,
-          strategy: "upsert", // safer default: do not delete existing verses
+          strategy: "upsert",
         });
         setProgress(10 + Math.round(((i + 1) / total) * 80));
       }
