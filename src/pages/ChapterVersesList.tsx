@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
+import DOMPurify from "dompurify";
 
 export const ChapterVersesList = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
@@ -67,7 +68,7 @@ export const ChapterVersesList = () => {
 
       const base = supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
         .eq("chapter_number", parseInt(effectiveChapterParam as string));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
@@ -86,7 +87,7 @@ export const ChapterVersesList = () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const { data, error } = await supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
         .eq("book_id", book.id)
         .eq("chapter_number", parseInt(effectiveChapterParam as string))
         .is("canto_id", null)
@@ -206,6 +207,22 @@ export const ChapterVersesList = () => {
             </div>
             <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
           </div>
+
+          {/* Огляд глави */}
+          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
+            <div className="mb-8 rounded-lg border border-border bg-card p-6">
+              <div 
+                className="prose prose-slate dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ 
+                  __html: DOMPurify.sanitize(
+                    language === "ua" 
+                      ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
+                      : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
+                  )
+                }}
+              />
+            </div>
+          )}
 
           {/* Список віршів */}
           <div className="space-y-6">

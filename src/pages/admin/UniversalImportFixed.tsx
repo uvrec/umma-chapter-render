@@ -377,6 +377,9 @@ export default function UniversalImportFixed() {
             // Інакше upsertChapter збереже існуючі назви глави
             ...(importData.metadata.title_ua?.trim() && { title_ua: importData.metadata.title_ua.trim() }),
             ...(importData.metadata.title_en?.trim() && { title_en: importData.metadata.title_en.trim() }),
+            // ✅ Передаємо intro як content для глави
+            ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
+            ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
             chapter_type: "verses",
             verses: result.verses,
           },
