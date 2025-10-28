@@ -392,7 +392,7 @@ export default function UniversalImportFixed() {
           bookId,
           cantoId: cantoId ?? null,
           chapter: ch,
-          strategy: "replace",
+          strategy: "upsert", // safer default: do not delete existing verses
         });
         setProgress(10 + Math.round(((i + 1) / total) * 80));
       }

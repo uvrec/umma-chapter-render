@@ -64,7 +64,14 @@ export async function upsertChapter(
   const { data: existing, error: findErr } = await query.maybeSingle();
   if (findErr) throw findErr;
 
-  const payload: any = {
+  // Build payloads carefully to avoid overwriting existing titles when not provided
+  const baseRefs: any = {};
+  if (cantoId) baseRefs.canto_id = cantoId;
+  else baseRefs.book_id = bookId;
+
+  // Insert payload: can include defaults
+  const insertPayload: any = {
+    ...baseRefs,
     chapter_number,
     chapter_type: params.chapter_type,
     title_ua: params.title_ua ?? null,
@@ -73,15 +80,23 @@ export async function upsertChapter(
     content_en: safeHtml(params.content_en),
   };
 
-  if (cantoId) payload.canto_id = cantoId;
-  else payload.book_id = bookId;
+  // Update payload: include ONLY fields explicitly provided (non-empty) to avoid wiping titles/content
+  const updatePayload: any = {
+    ...baseRefs,
+    chapter_type: params.chapter_type,
+  };
+  const hasText = (v?: string) => typeof v === 'string' && v.trim().length > 0;
+  if (hasText(params.title_ua)) updatePayload.title_ua = params.title_ua;
+  if (hasText(params.title_en)) updatePayload.title_en = params.title_en;
+  if (typeof params.content_ua === 'string' && hasText(params.content_ua)) updatePayload.content_ua = safeHtml(params.content_ua);
+  if (typeof params.content_en === 'string' && hasText(params.content_en)) updatePayload.content_en = safeHtml(params.content_en);
 
   if (existing?.id) {
-    const { error: updErr } = await supabase.from("chapters").update(payload).eq("id", existing.id);
+    const { error: updErr } = await supabase.from("chapters").update(updatePayload).eq("id", existing.id);
     if (updErr) throw updErr;
     return existing.id;
   } else {
-    const { data: created, error: insErr } = await supabase.from("chapters").insert(payload).select("id").single();
+    const { data: created, error: insErr } = await supabase.from("chapters").insert(insertPayload).select("id").single();
     if (insErr) throw insErr;
     return created.id;
   }
@@ -125,22 +140,64 @@ export async function replaceChapterVerses(
 export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: string, verses: ParsedVerse[]) {
   if (!verses?.length) return;
 
-  const rows = verses.map((v) => ({
-    chapter_id: chapterId,
-    verse_number: v.verse_number,
-    sanskrit: v.sanskrit ?? null,
-    transliteration: (v as any).transliteration_en ?? v.transliteration ?? null,
-    transliteration_en: (v as any).transliteration_en ?? null,
-    transliteration_ua: (v as any).transliteration_ua ?? null,
-    synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
-    // Fallback to generic EN keys when Python parser returns {synonyms, translation, purport}
-    synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
-    translation_ua: (v as any).translation_ua ?? null,
-    translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
-    commentary_ua: safeHtml(stripSectionLabel((v as any).commentary_ua ?? "")),
-    commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
-    audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
-  }));
+  // Load existing verses to preserve curated content and Bengali when present
+  const { data: existingRows, error: exErr } = await supabase
+    .from("verses")
+    .select(
+      "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, synonyms_ua, synonyms_en, translation_ua, translation_en, commentary_ua, commentary_en, audio_url"
+    )
+    .eq("chapter_id", chapterId);
+  if (exErr) throw exErr;
+
+  const byNum = new Map<string, any>((existingRows || []).map((r: any) => [String(r.verse_number), r]));
+  const hasText = (v?: string) => typeof v === "string" && v.trim().length > 0;
+  const isEmpty = (v?: string | null) => !v || v.trim().length === 0;
+
+  const rows = verses.map((v) => {
+    const incoming: any = v as any;
+    const existing = byNum.get(String(v.verse_number));
+    const row: any = {
+      chapter_id: chapterId,
+      verse_number: v.verse_number,
+    };
+
+    // Preserve existing Bengali/Sanskrit if incoming is missing; set null only for new rows
+    if (hasText(incoming.sanskrit)) row.sanskrit = incoming.sanskrit;
+    else if (!existing) row.sanskrit = null;
+
+    // Transliteration fields - update only when provided
+    if (hasText(incoming.transliteration)) row.transliteration = incoming.transliteration;
+    if (hasText(incoming.transliteration_en)) row.transliteration_en = incoming.transliteration_en;
+    if (hasText(incoming.transliteration_ua)) row.transliteration_ua = incoming.transliteration_ua;
+
+    // EN blocks: update whenever provided
+    if (hasText(incoming.synonyms_en)) row.synonyms_en = incoming.synonyms_en;
+    else if (hasText(incoming.synonyms)) row.synonyms_en = incoming.synonyms;
+
+    if (hasText(incoming.translation_en)) row.translation_en = incoming.translation_en;
+    else if (hasText(incoming.translation)) row.translation_en = incoming.translation;
+
+    if (hasText(incoming.commentary_en) || hasText(incoming.purport)) {
+      row.commentary_en = safeHtml(stripSectionLabel(incoming.commentary_en ?? incoming.purport));
+    }
+
+    // UA blocks: update ONLY if incoming has text AND existing is empty/missing
+    if (hasText(incoming.synonyms_ua)) {
+      if (!existing || isEmpty(existing.synonyms_ua)) row.synonyms_ua = normalizeSynonymsSoft(incoming.synonyms_ua);
+    }
+    if (hasText(incoming.translation_ua)) {
+      if (!existing || isEmpty(existing.translation_ua)) row.translation_ua = incoming.translation_ua;
+    }
+    if (hasText(incoming.commentary_ua)) {
+      if (!existing || isEmpty(existing.commentary_ua)) row.commentary_ua = safeHtml(stripSectionLabel(incoming.commentary_ua));
+    }
+
+    // Audio URL - update when provided
+    if (hasText(incoming.audio_url)) row.audio_url = incoming.audio_url;
+    if (hasText(incoming.audioUrl)) row.audio_url = incoming.audioUrl;
+
+    return row;
+  });
 
   const { error } = await supabase
     .from("verses")
