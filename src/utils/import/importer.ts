@@ -56,13 +56,31 @@ export async function upsertChapter(
 ): Promise<string> {
   const { bookId, cantoId, chapter_number } = params;
 
-  // ✅ КРИТИЧНО: Спочатку завантажимо існуючу главу, щоб зберегти назви
-  const { data: existingChapter } = await supabase
-    .from("chapters")
-    .select("id, title_ua, title_en, content_ua, content_en")
-    .eq("chapter_number", chapter_number)
-    .eq(cantoId ? "canto_id" : "book_id", cantoId || bookId)
-    .maybeSingle();
+  // ✅ КРИТИЧНО: Спочатку шукаємо існуючу главу по chapter_number і book_id
+  // Це дозволить знайти главу навіть якщо вона була створена без canto_id
+  let existingChapter: any = null;
+  
+  // Спочатку пробуємо знайти з правильним canto_id (якщо є)
+  if (cantoId) {
+    const { data } = await supabase
+      .from("chapters")
+      .select("id, title_ua, title_en, content_ua, content_en, canto_id")
+      .eq("chapter_number", chapter_number)
+      .eq("canto_id", cantoId)
+      .maybeSingle();
+    existingChapter = data;
+  }
+  
+  // Якщо не знайшли або не було cantoId, шукаємо по book_id
+  if (!existingChapter) {
+    const { data } = await supabase
+      .from("chapters")
+      .select("id, title_ua, title_en, content_ua, content_en, canto_id")
+      .eq("chapter_number", chapter_number)
+      .eq("book_id", bookId)
+      .maybeSingle();
+    existingChapter = data;
+  }
 
   // Build payloads carefully to avoid overwriting existing titles when not provided
   const baseRefs: any = {};
@@ -83,8 +101,9 @@ export async function upsertChapter(
   };
 
   // Update payload: ✅ Зберігаємо існуючі назви, якщо нові не надані
+  // ✅ ЗАВЖДИ оновлюємо canto_id/book_id з baseRefs для правильної прив'язки
   const updatePayload: any = {
-    ...baseRefs,
+    ...baseRefs, // ← КРИТИЧНО: завжди оновлюємо прив'язку до канто/книги
     chapter_type: params.chapter_type,
   };
   if (hasText(params.title_ua)) {
