@@ -16,10 +16,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
-import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
-import { parseGitabaseCC, generateGitabaseURL } from "@/utils/gitabaseParser";
-import { importSingleChapter } from "@/utils/import/importer";
-import type { ParsedVerse, ParsedChapter } from "@/types/book-import";
 export const VedaReaderDB = () => {
   const {
     bookId,
@@ -41,7 +37,6 @@ export const VedaReaderDB = () => {
 
   // 🆕 Bookmark state
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
 
   // Читаємо налаштування з localStorage і слухаємо зміни
   const [fontSize, setFontSize] = useState(() => {
@@ -228,108 +223,6 @@ export const VedaReaderDB = () => {
     }
   });
   const isLoading = isLoadingChapter || isLoadingVerses;
-
-  // Admin-only: one-click import for CC chapter when empty
-  const handleAdminImportCC = useCallback(async () => {
-    if (!isAdmin || !book?.id || !chapter || !cantoNumber) return;
-    try {
-      setIsImporting(true);
-      const cNum = parseInt(cantoNumber);
-      const lilaMap: Record<number, string> = { 1: "adi", 2: "madhya", 3: "antya" };
-      const lila = lilaMap[cNum] || "adi";
-      const chNum = chapter.chapter_number;
-
-      // 1) Determine verse count from Vedabase chapter page
-      let maxVerse = 0;
-      try {
-        const chapterUrl = `https://vedabase.io/en/library/cc/${lila}/${chNum}/`;
-        const res = await fetch(chapterUrl, { mode: "cors" });
-        if (res.ok) {
-          const html = await res.text();
-          maxVerse = getMaxVerseFromChapter(html) || 0;
-        }
-      } catch {}
-
-      if (!maxVerse) {
-        toast({
-          title: t("Помилка", "Error"),
-          description: t("Не вдалося визначити кількість віршів", "Failed to determine verse count"),
-          variant: "destructive",
-        });
-        setIsImporting(false);
-        return;
-      }
-
-      const verses: ParsedVerse[] = [];
-      for (let v = 1; v <= maxVerse; v++) {
-        try {
-          const enUrl = `https://vedabase.io/en/library/cc/${lila}/${chNum}/${v}`;
-          const uaUrl = generateGitabaseURL(lila, chNum, v);
-          const [enRes, uaRes] = await Promise.all([
-            fetch(enUrl, { mode: "cors" }),
-            fetch(uaUrl, { mode: "cors" })
-          ]);
-
-          const verseObj: ParsedVerse = { verse_number: v.toString() };
-
-          if (enRes.ok) {
-            const htmlEn = await enRes.text();
-            const enData = parseVedabaseCC(htmlEn, enUrl);
-            if (enData) {
-              verseObj.sanskrit = enData.bengali || "";
-              (verseObj as any).transliteration_en = enData.transliteration || "";
-              (verseObj as any).synonyms_en = enData.synonyms || "";
-              (verseObj as any).translation_en = enData.translation || "";
-              (verseObj as any).commentary_en = enData.purport || "";
-            }
-          }
-
-          if (uaRes.ok) {
-            const htmlUa = await uaRes.text();
-            const uaData = parseGitabaseCC(htmlUa, uaUrl);
-            if (uaData) {
-              (verseObj as any).transliteration_ua = uaData.transliteration_ua || "";
-              (verseObj as any).synonyms_ua = uaData.synonyms_ua || "";
-              (verseObj as any).translation_ua = uaData.translation_ua || "";
-              (verseObj as any).commentary_ua = uaData.purport_ua || "";
-            }
-          }
-
-          if ((verseObj as any).translation_en || (verseObj as any).translation_ua || (verseObj as any).synonyms_en || (verseObj as any).synonyms_ua) {
-            verses.push(verseObj);
-          }
-
-          // Small delay to avoid rate limits
-          await new Promise((r) => setTimeout(r, 120));
-        } catch (e) {
-          console.warn("Error on verse", v, e);
-        }
-      }
-
-      if (!verses.length) {
-        toast({ title: t("Не імпортовано", "No import"), description: t("Не знайдено жодного вірша", "No verses found"), variant: "destructive" });
-        setIsImporting(false);
-        return;
-      }
-
-      const chPayload: ParsedChapter = {
-        chapter_number: chNum,
-        chapter_type: "verses",
-        title_ua: chapter.title_ua,
-        title_en: chapter.title_en,
-        verses,
-      };
-
-      await importSingleChapter(supabase, { bookId: book.id, cantoId: canto?.id, chapter: chPayload, strategy: "replace" });
-      await queryClient.invalidateQueries({ queryKey: ["verses", chapter.id] });
-
-      toast({ title: t("Готово", "Done"), description: `${t("Імпортовано віршів:", "Imported verses:")} ${verses.length}` });
-    } catch (err: any) {
-      toast({ title: t("Помилка імпорту", "Import error"), description: err.message, variant: "destructive" });
-    } finally {
-      setIsImporting(false);
-    }
-  }, [isAdmin, book?.id, canto?.id, cantoNumber, chapter, queryClient, t]);
 
   // Мутація для оновлення вірша
   const updateVerseMutation = useMutation({
@@ -584,18 +477,6 @@ export const VedaReaderDB = () => {
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <TiptapRenderer content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || chapter.content_ua || ""} />
             </div>
-
-            {/* Empty state + Admin import (only when no verses) */}
-            {verses.length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">{t("У цій главі ще немає віршів", "No verses in this chapter yet")}</p>
-                {isAdmin && book?.slug === "scc" && isCantoMode && (
-                  <Button onClick={handleAdminImportCC} disabled={isImporting}>
-                    {isImporting ? t("Імпортую...", "Importing...") : t("Імпортувати главу (CC)", "Import this chapter (CC)")}
-                  </Button>
-                )}
-              </div>
-            )}
 
             <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
               <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>

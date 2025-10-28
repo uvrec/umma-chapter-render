@@ -6,13 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC } from "@/utils/vedabaseParser";
-import { parseGitabaseCC, generateGitabaseURL } from "@/utils/gitabaseParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 
@@ -99,7 +97,6 @@ export default function UniversalImportFixed() {
       author: "Шріла Прабгупада",
     },
   });
-  const [overwriteTitles, setOverwriteTitles] = useState(false);
 
   // Vedabase
   const [vedabaseBook, setVedabaseBook] = useState("cc");
@@ -162,7 +159,7 @@ export default function UniversalImportFixed() {
           description: "Парсер недоступний, використовую вбудований CC-парсер",
         });
 
-        // fallback лише для CC — тягнемо EN (Vedabase) + UA (Gitabase)
+        // fallback лише для CC
         const [start, end] = verseRanges.includes("-")
           ? verseRanges.split("-").map(Number)
           : [parseInt(verseRanges, 10), parseInt(verseRanges, 10)];
@@ -170,49 +167,23 @@ export default function UniversalImportFixed() {
         const verses: any[] = [];
         for (let v = start; v <= end; v++) {
           try {
-            const enUrl = `https://vedabase.io/en/library/cc/${lila}/${chapterNum}/${v}`;
-            const uaUrl = generateGitabaseURL(lila, chapterNum, v);
-
-            const [enRes, uaRes] = await Promise.all([
-              fetch(enUrl, { mode: 'cors' }),
-              fetch(uaUrl, { mode: 'cors' })
-            ]);
-
-            const verseObj: any = { verse_number: v.toString() };
-
-            if (enRes.ok) {
-              const htmlEn = await enRes.text();
-              const enData = parseVedabaseCC(htmlEn, enUrl);
-              if (enData) {
-                verseObj.sanskrit = enData.bengali || "";
-                verseObj.transliteration_en = enData.transliteration || "";
-                verseObj.synonyms_en = enData.synonyms || "";
-                verseObj.translation_en = enData.translation || "";
-                verseObj.commentary_en = enData.purport || "";
-              }
+            const url = `https://vedabase.io/en/library/cc/${lila}/${chapterNum}/${v}`;
+            const response = await fetch(url, { mode: 'cors' });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const html = await response.text();
+            const verseData = parseVedabaseCC(html, url);
+            if (verseData) {
+              verses.push({
+                verse_number: v.toString(),
+                sanskrit: verseData.bengali,
+                transliteration: verseData.transliteration,
+                synonyms_en: verseData.synonyms,
+                translation_en: verseData.translation,
+                commentary_en: verseData.purport,
+              });
             }
-
-            if (uaRes.ok) {
-              const htmlUa = await uaRes.text();
-              const uaData = parseGitabaseCC(htmlUa, uaUrl);
-              if (uaData) {
-                verseObj.transliteration_ua = uaData.transliteration_ua || "";
-                verseObj.synonyms_ua = uaData.synonyms_ua || "";
-                verseObj.translation_ua = uaData.translation_ua || "";
-                verseObj.commentary_ua = uaData.purport_ua || "";
-              }
-            }
-
-            // Додаємо тільки якщо щось з контенту присутнє
-            if (
-              verseObj.translation_en || verseObj.translation_ua ||
-              verseObj.synonyms_en || verseObj.synonyms_ua
-            ) {
-              verses.push(verseObj);
-            }
-
-            // Невелика пауза щоб не ловити rate limit
-            await new Promise(resolve => setTimeout(resolve, 150));
+            // Затримка між запитами для уникнення rate limit
+            await new Promise(resolve => setTimeout(resolve, 200));
           } catch (e) {
             console.warn(`Error on verse ${v}`, e);
           }
@@ -234,8 +205,8 @@ export default function UniversalImportFixed() {
         chapters: [
           {
             chapter_number: chapterNum,
-            title_ua: prev.metadata.title_ua || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
-            title_en: prev.metadata.title_en || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
+            title_ua: importData.metadata.title_ua || `${bookInfo.name} ${vedabaseCanto} ${chapterNum}`,
+            title_en: importData.metadata.title_en || `${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${chapterNum}`,
             chapter_type: "verses",
             verses: result.verses,
           },
@@ -306,20 +277,17 @@ export default function UniversalImportFixed() {
         cantoId = canto?.id || null;
       }
 
-      // For SCC and other multi-canto books, we keep chapter_number local to each canto
-      // to match the reader routes (/veda-reader/:book/canto/:cantoNumber/chapter/:chapterNumber)
+      // Ensure we attach verses to the chapter used by the reader (canto_id + chapter_number)
       const chapterIdMap = new Map<number, string>();
       for (const ch of importData.chapters) {
         let existingId: string | undefined;
-        const localNum = ch.chapter_number;
-        const finalNum = localNum;
 
         if (cantoId) {
           const { data: existing } = await supabase
             .from("chapters")
             .select("id")
             .eq("canto_id", cantoId)
-            .eq("chapter_number", finalNum)
+            .eq("chapter_number", ch.chapter_number)
             .maybeSingle();
           existingId = existing?.id;
         } else {
@@ -327,16 +295,16 @@ export default function UniversalImportFixed() {
             .from("chapters")
             .select("id")
             .eq("book_id", bookId)
-            .eq("chapter_number", finalNum)
+            .eq("chapter_number", ch.chapter_number)
             .maybeSingle();
           existingId = existing?.id;
         }
 
         if (existingId) {
-          // Не перезаписуємо назви, якщо користувач нічого не ввів або не дозволив
+          // Не перезаписуємо назви, якщо користувач нічого не ввів
           const updates: any = { chapter_type: "verses" };
-          if (overwriteTitles && importData.metadata.title_ua?.trim()) updates.title_ua = importData.metadata.title_ua.trim();
-          if (overwriteTitles && importData.metadata.title_en?.trim()) updates.title_en = importData.metadata.title_en.trim();
+          if (importData.metadata.title_ua?.trim()) updates.title_ua = importData.metadata.title_ua.trim();
+          if (importData.metadata.title_en?.trim()) updates.title_en = importData.metadata.title_en.trim();
           // Запишемо intro якщо є
           const introUa = ch.intro_ua?.trim();
           const introEn = ch.intro_en?.trim();
@@ -344,14 +312,14 @@ export default function UniversalImportFixed() {
           if (introEn) updates.content_en = introEn;
 
           await supabase.from("chapters").update(updates).eq("id", existingId);
-          chapterIdMap.set(localNum, existingId);
+          chapterIdMap.set(ch.chapter_number, existingId);
         } else {
           const { data: inserted, error: insertErr } = await supabase
             .from("chapters")
             .insert({
               book_id: bookId,
               canto_id: cantoId,
-              chapter_number: finalNum,
+              chapter_number: ch.chapter_number,
               title_ua: (importData.metadata.title_ua?.trim() || ch.title_ua || "") as string,
               title_en: (importData.metadata.title_en?.trim() || ch.title_en || "") as string,
               chapter_type: "verses",
@@ -362,7 +330,7 @@ export default function UniversalImportFixed() {
             .select("id")
             .single();
           if (insertErr) throw insertErr;
-          chapterIdMap.set(localNum, inserted!.id);
+          chapterIdMap.set(ch.chapter_number, inserted!.id);
         }
       }
       const verses = importData.chapters.flatMap((ch) =>
@@ -406,7 +374,7 @@ export default function UniversalImportFixed() {
       setIsProcessing(false);
       setProgress(0);
     }
-  }, [importData, overwriteTitles]);
+  }, [importData]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -595,11 +563,7 @@ export default function UniversalImportFixed() {
                 </CardContent>
               </Card>
 
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="overwriteTitles" checked={overwriteTitles} onCheckedChange={(c)=>setOverwriteTitles(Boolean(c))} />
-                  <Label htmlFor="overwriteTitles">Перезаписувати існуючі назви глав</Label>
-                </div>
+              <div className="flex justify-between">
                 <Button onClick={saveToDatabase}>
                   <Download className="w-4 h-4 mr-2" />
                   Зберегти в базу

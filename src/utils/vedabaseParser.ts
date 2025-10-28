@@ -54,10 +54,11 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
       }
     }
 
-    // 3. SYNONYMS - r-synonyms-item (fallback to heading-based scan)
+    // 3. SYNONYMS - r-synonyms-item
     let synonyms = '';
     const synonymsItems = doc.querySelectorAll('.r-synonyms-item');
     const synonymsParts: string[] = [];
+    
     synonymsItems.forEach(item => {
       const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
       const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
@@ -65,57 +66,32 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
         synonymsParts.push(`${word} — ${meaning}`);
       }
     });
+    
     synonyms = synonymsParts.join('; ');
 
-    // Helper: heading-based extractor
-    const extractByHeading = (labels: string[]): string => {
-      const headingSelectors = Array.from(doc.querySelectorAll('h1,h2,h3,h4,strong,b')) as HTMLElement[];
-      const target = headingSelectors.find(h => labels.some(lbl => (h.textContent || '').trim().toLowerCase().includes(lbl)));
-      if (!target) return '';
-      const out: string[] = [];
-      let el: HTMLElement | null = target.nextElementSibling as HTMLElement;
-      while (el) {
-        const tag = el.tagName.toLowerCase();
-        if (['h1','h2','h3','h4','strong','b'].includes(tag)) break;
-        if (tag === 'p' || tag === 'div' || tag === 'ul' || tag === 'ol') {
-          const text = el.textContent?.trim();
-          if (text) out.push(text);
-        }
-        el = el.nextElementSibling as HTMLElement;
-      }
-      return out.join('\n\n');
-    };
-
-    // 4. TRANSLATION - r-translation (with fallback)
+    // 4. TRANSLATION - r-translation
     let translation = '';
     const translationElement = doc.querySelector('.r-translation');
     if (translationElement) {
       translation = translationElement.textContent?.trim() || '';
     }
-    if (!translation) {
-      translation = extractByHeading(['translation']);
-    }
 
-    // 5. PURPORT - r-purport (with fallback)
+    // 5. PURPORT - r-purport
     let purport = '';
     const purportElement = doc.querySelector('.r-purport');
     if (purportElement) {
+      // Збираємо всі параграфи з purport
       const paragraphs = purportElement.querySelectorAll('p');
       const purportParts: string[] = [];
+      
       paragraphs.forEach(p => {
         const text = p.textContent?.trim();
-        if (text) purportParts.push(text);
+        if (text) {
+          purportParts.push(text);
+        }
       });
+      
       purport = purportParts.join('\n\n');
-    }
-    if (!purport) {
-      purport = extractByHeading(['purport','commentary']);
-    }
-
-    // If class-based synonyms are empty, try heading-based
-    if (!synonyms) {
-      const s = extractByHeading(['synonyms','word for word']);
-      if (s) synonyms = s.replace(/\s*;\s*/g, '; ').trim();
     }
 
     // Перевірка, що ми витягли основні дані

@@ -4,7 +4,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -96,7 +95,6 @@ export const ChapterVersesList = () => {
   });
 
   const isLoading = isLoadingChapter || isLoadingVerses;
-
 
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
@@ -255,7 +253,7 @@ export const ChapterVersesList = () => {
           {verses.length === 0 && (
             <div className="rounded-lg border border-dashed border-border p-12 text-center">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-              <p className="mb-4 text-lg text-muted-foreground">У цій главі ще немає віршів</p>
+              <p className="text-lg text-muted-foreground">У цій главі ще немає віршів</p>
             </div>
           )}
         </div>
