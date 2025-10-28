@@ -101,11 +101,12 @@ export async function replaceChapterVerses(
     transliteration_en: (v as any).transliteration_en ?? null,
     transliteration_ua: (v as any).transliteration_ua ?? null,
     synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
-    synonyms_en: (v as any).synonyms_en ?? null,
+    // Fallback to generic EN keys when Python parser returns {synonyms, translation, purport}
+    synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
     translation_ua: (v as any).translation_ua ?? null,
-    translation_en: (v as any).translation_en ?? null,
+    translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
     commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
-    commentary_en: safeHtml((v as any).commentary_en ?? ""),
+    commentary_en: safeHtml((v as any).commentary_en ?? (v as any).purport ?? ""),
     // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
     audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
   }));
@@ -126,11 +127,12 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
     transliteration_en: (v as any).transliteration_en ?? null,
     transliteration_ua: (v as any).transliteration_ua ?? null,
     synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
-    synonyms_en: (v as any).synonyms_en ?? null,
+    // Fallback to generic EN keys when Python parser returns {synonyms, translation, purport}
+    synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
     translation_ua: (v as any).translation_ua ?? null,
-    translation_en: (v as any).translation_en ?? null,
+    translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
     commentary_ua: safeHtml((v as any).commentary_ua ?? ""),
-    commentary_en: safeHtml((v as any).commentary_en ?? ""),
+    commentary_en: safeHtml((v as any).commentary_en ?? (v as any).purport ?? ""),
     audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
   }));
 
