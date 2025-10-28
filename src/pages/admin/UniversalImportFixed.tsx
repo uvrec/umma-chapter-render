@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
@@ -103,6 +104,8 @@ export default function UniversalImportFixed() {
   const [vedabaseCanto, setVedabaseCanto] = useState("");
   const [vedabaseChapter, setVedabaseChapter] = useState("");
   const [vedabaseVerse, setVedabaseVerse] = useState("");
+
+  const navigate = useNavigate();
 
   const currentBookInfo = useMemo(
     () => VEDABASE_BOOKS[vedabaseBook as keyof typeof VEDABASE_BOOKS],
@@ -210,8 +213,8 @@ export default function UniversalImportFixed() {
       const siteSlug = VEDABASE_TO_SITE_SLUG[vedabaseBook] || vedabaseBook;
       const bookInfo = VEDABASE_BOOKS[vedabaseBook];
 
-      setImportData((prev) => ({
-        ...prev,
+      const newImport: ImportData = {
+        ...importData,
         source: "vedabase",
         rawText: JSON.stringify(result.verses, null, 2),
         processedText: JSON.stringify(result, null, 2),
@@ -225,21 +228,21 @@ export default function UniversalImportFixed() {
           },
         ],
         metadata: {
-          ...prev.metadata,
+          ...importData.metadata,
           source_url: vedabase_base,
           book_slug: siteSlug,
           vedabase_slug: vedabaseBook,
           canto: lilaNum.toString(),
           volume: vedabaseCanto,
         },
-      }));
+      };
+
+      setImportData(newImport);
+
 
       setProgress(100);
-      setCurrentStep("preview");
-      toast({
-        title: "✅ Розпарсено",
-        description: `${result.verses.length} віршів${usedFallback ? " (fallback)" : ""}`,
-      });
+      await saveToDatabase(newImport);
+      return;
     } catch (e: any) {
       toast({ title: "Помилка", description: e.message, variant: "destructive" });
     } finally {
@@ -249,8 +252,9 @@ export default function UniversalImportFixed() {
   }, [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, lilaNum]);
 
   /** Збереження у базу */
-  const saveToDatabase = useCallback(async () => {
-    if (!importData.chapters.length) {
+  const saveToDatabase = useCallback(async (dataOverride?: ImportData) => {
+    const data = dataOverride ?? importData;
+    if (!data.chapters.length) {
       toast({ title: "Немає даних", variant: "destructive" });
       return;
     }
@@ -258,7 +262,7 @@ export default function UniversalImportFixed() {
     setIsProcessing(true);
     setProgress(10);
     try {
-      const slug = importData.metadata.book_slug || "imported-book";
+      const slug = data.metadata.book_slug || "imported-book";
       const { data: existing } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
 
       let bookId = existing?.id;
@@ -267,8 +271,8 @@ export default function UniversalImportFixed() {
           .from("books")
           .insert({
             slug,
-            title_ua: importData.metadata.title_ua,
-            title_en: importData.metadata.title_en,
+            title_ua: data.metadata.title_ua,
+            title_en: data.metadata.title_en,
             is_published: true,
           })
           .select("id")
@@ -279,8 +283,8 @@ export default function UniversalImportFixed() {
 
       // Resolve canto (volume) if provided to link chapters correctly
       let cantoId: string | null = null;
-      if (importData.metadata.canto) {
-        const cantoNum = parseInt(importData.metadata.canto, 10);
+      if (data.metadata.canto) {
+        const cantoNum = parseInt(data.metadata.canto, 10);
         const { data: canto } = await supabase
           .from("cantos")
           .select("id")
@@ -292,7 +296,7 @@ export default function UniversalImportFixed() {
 
       // Ensure we attach verses to the chapter used by the reader (canto_id + chapter_number)
       const chapterIdMap = new Map<number, string>();
-      for (const ch of importData.chapters) {
+      for (const ch of data.chapters) {
         let existingId: string | undefined;
 
         if (cantoId) {
@@ -316,8 +320,8 @@ export default function UniversalImportFixed() {
         if (existingId) {
           // Не перезаписуємо назви, якщо користувач нічого не ввів
           const updates: any = { chapter_type: "verses" };
-          if (importData.metadata.title_ua?.trim()) updates.title_ua = importData.metadata.title_ua.trim();
-          if (importData.metadata.title_en?.trim()) updates.title_en = importData.metadata.title_en.trim();
+          if (data.metadata.title_ua?.trim()) updates.title_ua = data.metadata.title_ua.trim();
+          if (data.metadata.title_en?.trim()) updates.title_en = data.metadata.title_en.trim();
           // Запишемо intro якщо є
           const introUa = ch.intro_ua?.trim();
           const introEn = ch.intro_en?.trim();
@@ -333,8 +337,8 @@ export default function UniversalImportFixed() {
               book_id: bookId,
               canto_id: cantoId,
               chapter_number: ch.chapter_number,
-              title_ua: (importData.metadata.title_ua?.trim() || ch.title_ua || "") as string,
-              title_en: (importData.metadata.title_en?.trim() || ch.title_en || "") as string,
+              title_ua: (data.metadata.title_ua?.trim() || ch.title_ua || "") as string,
+              title_en: (data.metadata.title_en?.trim() || ch.title_en || "") as string,
               chapter_type: "verses",
               content_ua: ch.intro_ua || null,
               content_en: ch.intro_en || null,
@@ -346,7 +350,7 @@ export default function UniversalImportFixed() {
           chapterIdMap.set(ch.chapter_number, inserted!.id);
         }
       }
-      const verses = importData.chapters.flatMap((ch) =>
+      const verses = data.chapters.flatMap((ch) =>
         ch.verses.map((v: any) => ({
           chapter_id: chapterIdMap.get(ch.chapter_number),
           verse_number: v.verse_number,
@@ -380,7 +384,17 @@ export default function UniversalImportFixed() {
         title: "✅ Імпорт завершено",
         description: `${verses.length} віршів збережено.`,
       });
+
+      // Автоперехід до сторінки розділу після імпорту
+      const chapterNum = data.chapters[0]?.chapter_number;
+      const slugForPath = data.metadata.book_slug || "library";
+      const cantoNum = data.metadata.canto;
+      const targetPath = cantoNum
+        ? `/veda-reader/${slugForPath}/canto/${cantoNum}/chapter/${chapterNum}`
+        : `/veda-reader/${slugForPath}/${chapterNum}`;
+
       setCurrentStep("save");
+      navigate(targetPath);
     } catch (e: any) {
       toast({ title: "Помилка збереження", description: e.message, variant: "destructive" });
     } finally {
@@ -392,12 +406,15 @@ export default function UniversalImportFixed() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-2">
             <BookOpen className="w-6 h-6" />
-            Universal Book Import (Fixed)
-          </CardTitle>
-          <ParserStatus className="mt-4" />
+            <CardTitle>Universal Book Import (Fixed)</CardTitle>
+          </div>
+          <div className="flex items-center gap-2">
+            <ParserStatus />
+            <Button variant="secondary" onClick={() => navigate(-1)}>Вийти</Button>
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -577,7 +594,7 @@ export default function UniversalImportFixed() {
               </Card>
 
               <div className="flex justify-between">
-                <Button onClick={saveToDatabase}>
+                <Button onClick={() => saveToDatabase()}>
                   <Download className="w-4 h-4 mr-2" />
                   Зберегти в базу
                 </Button>
