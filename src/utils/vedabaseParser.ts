@@ -11,7 +11,7 @@ interface VedabaseVerseData {
   purport: string;
   lila: string; // 'adi', 'madhya', 'antya'
   chapter: number;
-  verse: number;
+  verse: number | string; // може бути "7-8" для об'єднаних віршів
   source_url: string;
 }
 
@@ -29,10 +29,12 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
 
     // Витягуємо lila, chapter, verse з URL
     // URL формат: https://vedabase.io/en/library/cc/adi/1/1
+    // або https://vedabase.io/en/library/cc/madhya/9/7-8 для об'єднаних віршів
     const urlParts = url.split('/');
     const lila = urlParts[urlParts.length - 3]; // 'adi', 'madhya', 'antya'
     const chapter = parseInt(urlParts[urlParts.length - 2]);
-    const verse = parseInt(urlParts[urlParts.length - 1]);
+    const verseStr = urlParts[urlParts.length - 1];
+    const verse = verseStr.includes('-') ? verseStr : parseInt(verseStr);
 
     // 1. BENGALI TEXT (немає в Антья-лілі, є тільки в Аді та Мадх'я)
     let bengali = '';
@@ -136,10 +138,10 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
  * Генерує URL для Vedabase CC verse
  * @param lila - 'adi', 'madhya', 'antya'
  * @param chapter - номер глави
- * @param verse - номер вірша
+ * @param verse - номер вірша (може бути "7-8" для об'єднаних)
  * @returns URL
  */
-export function generateVedabaseURL(lila: string, chapter: number, verse: number): string {
+export function generateVedabaseURL(lila: string, chapter: number, verse: number | string): string {
   return `https://vedabase.io/en/library/cc/${lila}/${chapter}/${verse}`;
 }
 

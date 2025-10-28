@@ -237,8 +237,8 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.transliteration} onChange={e => setEdited(p => ({
           ...p,
           transliteration: e.target.value
-        }))} className="min-h-[80px] text-center font-sanskrit-italic italic text-3xl text-gray-500 dark:text-muted-foreground" /> : <div className="space-y-1 text-center">
-                {transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-gray-500 dark:text-muted-foreground text-4xl font-semibold">
+        }))} className="min-h-[80px] text-center font-translit italic text-4xl text-muted-foreground" /> : <div className="space-y-1 text-center">
+                {transliteration.split("\n").map((line, idx) => <p key={idx} className="font-translit italic leading-relaxed text-muted-foreground text-4xl font-semibold">
                     {line}
                   </p>)}
               </div>}
@@ -257,12 +257,12 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.synonyms} onChange={e => setEdited(p => ({
           ...p,
           synonyms: e.target.value
-        }))} className="min-h-[120px] text-3xl" /> : <p className="leading-relaxed text-foreground text-4xl font-normal">
+        }))} className="min-h-[120px] text-4xl" /> : <p className="leading-relaxed text-foreground text-4xl">
                 {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
             const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
             return <span key={i}>
                         {words.map((w, wi) => <span key={wi}>
-                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
+                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-translit italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
                               {w}
                             </span>
                             {wi < words.length - 1 && " "}

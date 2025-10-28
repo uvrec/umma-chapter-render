@@ -393,7 +393,7 @@ export default function VedabaseImportV3() {
 
         let { data: chapter } = await supabase
           .from("chapters")
-          .select("id")
+          .select("id, title_ua, title_en")
           .eq("canto_id", canto.id)
           .eq("chapter_number", parseInt(chapterNumber))
           .maybeSingle();
@@ -409,19 +409,20 @@ export default function VedabaseImportV3() {
               title_en: `Chapter ${chapterNumber}`,
               is_published: true,
             })
-            .select("id")
+            .select("id, title_ua, title_en")
             .single();
 
           if (error) throw new Error(error.message);
           chapter = newChapter;
         }
+        // Зберігаємо існуючі назви глав
 
         chapterId = chapter.id;
       } else {
         // Без канто
         let { data: chapter } = await supabase
           .from("chapters")
-          .select("id")
+          .select("id, title_ua, title_en")
           .eq("book_id", book.id)
           .eq("chapter_number", parseInt(chapterNumber))
           .maybeSingle();
@@ -436,12 +437,13 @@ export default function VedabaseImportV3() {
               title_en: `Chapter ${chapterNumber}`,
               is_published: true,
             })
-            .select("id")
+            .select("id, title_ua, title_en")
             .single();
 
           if (error) throw new Error(error.message);
           chapter = newChapter;
         }
+        // Зберігаємо існуючі назви глав
 
         chapterId = chapter.id;
       }
