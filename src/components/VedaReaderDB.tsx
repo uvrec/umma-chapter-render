@@ -239,9 +239,17 @@ export const VedaReaderDB = () => {
   // Jump to verse from URL if provided
   useEffect(() => {
     if (!routeVerseNumber || !verses.length) return;
-    // ✅ Шукаємо точне співпадіння або вірш який містить цей номер (для комбінованих "7-8")
-    let idx = verses.findIndex(v => String(v.verse_number) === String(routeVerseNumber));
-    // Якщо не знайшли точне, шукаємо комбінований (наприклад "7-8" коли шукаємо "7" або "8")
+
+    // 1) Try match by UUID (verse id) first
+    let idx = verses.findIndex(v => String(v.id) === String(routeVerseNumber));
+
+    // 2) Then try exact verse_number match (works for combined like "5-8" too)
+    if (idx === -1) {
+      idx = verses.findIndex(v => String(v.verse_number) === String(routeVerseNumber));
+    }
+
+    // 3) As a fallback, if a plain number was requested (e.g. "6")
+    //    find a combined range that contains it (e.g. "5-8")
     if (idx === -1) {
       const num = parseInt(routeVerseNumber as string);
       if (!isNaN(num)) {
@@ -255,6 +263,7 @@ export const VedaReaderDB = () => {
         });
       }
     }
+
     if (idx >= 0) {
       setCurrentVerseIndex(idx);
     } else {
