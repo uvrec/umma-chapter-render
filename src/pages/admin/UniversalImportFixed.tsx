@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
-import { parseVedabaseCC } from "@/utils/vedabaseParser";
+import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 

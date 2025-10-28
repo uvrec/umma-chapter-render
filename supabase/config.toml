@@ -1,1 +1,7 @@
 project_id = "qeplxgqadcbwlrbgydlb"
+
+[functions.fetch-html]
+verify_jwt = false
+
+[functions.publish-scheduled-posts]
+# keep default auth behavior

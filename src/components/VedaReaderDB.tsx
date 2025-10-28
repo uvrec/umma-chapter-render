@@ -21,7 +21,8 @@ export const VedaReaderDB = () => {
     bookId,
     chapterId,
     cantoNumber,
-    chapterNumber
+    chapterNumber,
+    verseNumber
   } = useParams();
   const navigate = useNavigate();
   const {
@@ -163,10 +164,7 @@ export const VedaReaderDB = () => {
   });
 
   // CHAPTER
-  const {
-    data: chapter,
-    isLoading: isLoadingChapter
-  } = useQuery({
+  const { data: chapter, isLoading: isLoadingChapter } = useQuery({
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     staleTime: 60_000,
     enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id),
@@ -174,56 +172,87 @@ export const VedaReaderDB = () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const base = supabase.from("chapters").select("*").eq("chapter_number", parseInt(effectiveChapterParam));
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
-      const {
-        data,
-        error
-      } = await query.maybeSingle();
+      const { data, error } = await query.maybeSingle();
       if (error) throw error;
       return data;
     }
   });
 
-  // VERSES
-  const {
-    data: verses = [],
-    isLoading: isLoadingVerses
-  } = useQuery({
+  // Fallback: legacy chapter without canto
+  const { data: fallbackChapter } = useQuery({
+    queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
+    staleTime: 60_000,
+    enabled: !!book?.id && !!effectiveChapterParam,
+    queryFn: async () => {
+      if (!book?.id || !effectiveChapterParam) return null;
+      const { data, error } = await supabase
+        .from("chapters")
+        .select("*")
+        .eq("book_id", book.id)
+        .eq("chapter_number", parseInt(effectiveChapterParam))
+        .is("canto_id", null)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // VERSES (main)
+  const { data: versesMain = [], isLoading: isLoadingVersesMain } = useQuery({
     queryKey: ["verses", chapter?.id],
     staleTime: 60_000,
     enabled: !!chapter?.id,
     queryFn: async () => {
-      if (!chapter?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from("verses").select("*").eq("chapter_id", chapter.id).order("verse_number_sort", {
-        ascending: true
-      });
+      if (!chapter?.id) return [] as any[];
+      const { data, error } = await supabase
+        .from("verses")
+        .select("*")
+        .eq("chapter_id", chapter.id)
+        .order("verse_number_sort", { ascending: true });
       if (error) throw error;
       return (data || []) as any[];
     }
   });
 
+  // VERSES (fallback)
+  const { data: versesFallback = [], isLoading: isLoadingVersesFallback } = useQuery({
+    queryKey: ["verses-fallback", fallbackChapter?.id],
+    staleTime: 60_000,
+    enabled: !!fallbackChapter?.id,
+    queryFn: async () => {
+      if (!fallbackChapter?.id) return [] as any[];
+      const { data, error } = await supabase
+        .from("verses")
+        .select("*")
+        .eq("chapter_id", fallbackChapter.id)
+        .order("verse_number_sort", { ascending: true });
+      if (error) throw error;
+      return (data || []) as any[];
+    }
+  });
+
+  const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
+  const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
+
+  // Jump to verse from URL if provided
+  useEffect(() => {
+    if (!verseNumber) return;
+    const idx = verses.findIndex(v => String(v.verse_number) === String(verseNumber));
+    if (idx >= 0) setCurrentVerseIndex(idx);
+  }, [verseNumber, verses]);
   // ALL CHAPTERS (для навігації між главами)
-  const {
-    data: allChapters = []
-  } = useQuery({
+  const { data: allChapters = [] } = useQuery({
     queryKey: isCantoMode ? ["all-chapters-canto", canto?.id] : ["all-chapters-book", book?.id],
     staleTime: 60_000,
     enabled: isCantoMode ? !!canto?.id : !!book?.id,
     queryFn: async () => {
       const base = supabase.from("chapters").select("id, chapter_number").order("chapter_number");
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book!.id);
-      const {
-        data,
-        error
-      } = await query;
+      const { data, error } = await query;
       if (error) throw error;
       return data || [];
     }
   });
-  const isLoading = isLoadingChapter || isLoadingVerses;
-
   // Мутація для оновлення вірша
   const updateVerseMutation = useMutation({
     mutationFn: async ({
