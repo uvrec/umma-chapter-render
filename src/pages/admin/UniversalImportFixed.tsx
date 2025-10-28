@@ -196,6 +196,16 @@ export default function UniversalImportFixed() {
 
             if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
               parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+              console.log(`📖 Vedabase v${v} EN:`, {
+                has_bengali: !!parsedEN?.bengali,
+                has_translit: !!parsedEN?.transliteration,
+                has_synonyms: !!parsedEN?.synonyms,
+                has_translation: !!parsedEN?.translation,
+                has_purport: !!parsedEN?.purport,
+                translit_preview: parsedEN?.transliteration?.substring(0, 50)
+              });
+            } else {
+              console.warn(`❌ Vedabase v${v} failed:`, vedabaseRes.status === "rejected" ? vedabaseRes.reason : "No data");
             }
 
             if (gitabaseRes.status === "fulfilled" && gitabaseRes.value.data) {
@@ -212,6 +222,13 @@ export default function UniversalImportFixed() {
                 translation_ua: gitaDoc.querySelector('.r-translation')?.textContent?.trim() || '',
                 commentary_ua: Array.from(gitaDoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
               };
+              console.log(`📖 Gitabase v${v} UA:`, {
+                has_synonyms: !!parsedUA?.synonyms_ua,
+                has_translation: !!parsedUA?.translation_ua,
+                has_commentary: !!parsedUA?.commentary_ua
+              });
+            } else {
+              console.warn(`❌ Gitabase v${v} failed:`, gitabaseRes.status === "rejected" ? gitabaseRes.reason : "No data");
             }
 
             verses.push({
@@ -224,6 +241,17 @@ export default function UniversalImportFixed() {
               translation_ua: parsedUA?.translation_ua || "",
               commentary_en: parsedEN?.purport || "",
               commentary_ua: parsedUA?.commentary_ua || "",
+            });
+            
+            console.log(`💾 Verse ${v} ready to save:`, {
+              has_sanskrit: !!(parsedEN?.bengali),
+              has_translit: !!(parsedEN?.transliteration),
+              has_syn_en: !!(parsedEN?.synonyms),
+              has_syn_ua: !!(parsedUA?.synonyms_ua),
+              has_trans_en: !!(parsedEN?.translation),
+              has_trans_ua: !!(parsedUA?.translation_ua),
+              has_comm_en: !!(parsedEN?.purport),
+              has_comm_ua: !!(parsedUA?.commentary_ua),
             });
           } catch (e: any) {
             console.warn(`⚠️ Failed verse ${v}:`, e.message);

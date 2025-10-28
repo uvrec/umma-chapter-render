@@ -41,16 +41,27 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
       bengali = verseElement.textContent?.trim() || '';
     }
 
-    // 2. TRANSLITERATION - перший текстовий блок після Bengali
+    // 2. TRANSLITERATION - шукаємо клас r-verse-text або перший p після r-verse
     let transliteration = '';
-    const translitElements = doc.querySelectorAll('p');
-    for (const el of Array.from(translitElements)) {
-      const text = el.textContent?.trim() || '';
-      // Транслітерація зазвичай містить латинські літери з діакритикою
-      // і йде відразу після Bengali
-      if (text && text.length > 10 && /[a-z]/i.test(text) && !text.includes('—')) {
-        transliteration = text;
-        break;
+    // Спочатку пробуємо клас r-verse-text
+    const translitElement = doc.querySelector('.r-verse-text');
+    if (translitElement) {
+      transliteration = translitElement.textContent?.trim() || '';
+    }
+    
+    // Якщо не знайшли, шукаємо перший p-елемент який йде після .r-verse
+    if (!transliteration && verseElement) {
+      let nextEl = verseElement.nextElementSibling;
+      while (nextEl && !transliteration) {
+        if (nextEl.tagName === 'P') {
+          const text = nextEl.textContent?.trim() || '';
+          // Транслітерація містить латинські літери з діакритикою і немає "—"
+          if (text && text.length > 10 && /[a-z]/i.test(text) && !text.includes('—') && !text.includes('SYNONYMS')) {
+            transliteration = text;
+            break;
+          }
+        }
+        nextEl = nextEl.nextElementSibling;
       }
     }
 
