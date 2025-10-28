@@ -287,7 +287,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] text-3xl font-medium" /> : <p className="leading-relaxed text-foreground font-medium text-4xl">{translation}</p>}
+        }))} className="min-h-[100px] text-4xl font-semibold" /> : <p className="leading-relaxed text-foreground font-semibold text-4xl">{translation}</p>}
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
@@ -303,7 +303,7 @@ export const VerseCard = ({
             {isEditing ? <InlineTiptapEditor content={edited.commentary} onChange={html => setEdited(p => ({
           ...p,
           commentary: html
-        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="text-3xl leading-relaxed" />}
+        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="text-4xl leading-relaxed" />}
           </div>}
       </div>
     </Card>;
