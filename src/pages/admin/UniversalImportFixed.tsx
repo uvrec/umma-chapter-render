@@ -129,15 +129,27 @@ export default function UniversalImportFixed() {
 
     try {
       const chapterNum = parseInt(vedabaseChapter, 10);
-      const verseRanges = vedabaseVerse || "1-100";
+      const lila = vedabaseCanto || "adi";
+      
+      // Автоматично визначаємо максимальний вірш якщо не вказано
+      let verseRanges = vedabaseVerse;
+      if (!verseRanges) {
+        try {
+          const chapterUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
+          const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
+          const maxVerse = getMaxVerseFromChapter(chapterData.html);
+          verseRanges = maxVerse > 0 ? `1-${maxVerse}` : "1-100";
+          toast({ title: "📖 Визначено діапазон", description: `Вірші 1-${maxVerse}` });
+        } catch {
+          verseRanges = "1-500"; // Збільшено default ліміт
+        }
+      }
 
       // Формуємо базові URL
-      const lila = vedabaseCanto || "adi";
       const vedabase_base = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
       const gitabase_base = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`;
 
       let result: any = null;
-      let usedFallback = false;
 
       try {
         console.log("🐍 Trying Python parser at:", PARSE_ENDPOINT);
@@ -159,38 +171,60 @@ export default function UniversalImportFixed() {
         console.log("🐍 Python parser result:", result?.verses?.length, "verses");
         toast({ title: "✅ Парсер успішно відпрацював", description: "Отримано JSON" });
       } catch (err: any) {
-        console.log("🐍 Python parser failed:", err.message);
-        usedFallback = true;
-        toast({
-          title: "⚠️ Browser fallback",
-          description: "Використовую Edge-функцію fetch-html + parseVedabaseCC",
-        });
+        console.log("🐍 Python parser failed, using browser fallback:", err.message);
+        toast({ title: "⚠️ Browser fallback", description: "Парсинг через Edge-функції (EN + UA)" });
 
         const [start, end] = verseRanges.includes("-")
           ? verseRanges.split("-").map(Number)
           : [parseInt(verseRanges, 10), parseInt(verseRanges, 10)];
 
-        console.log("🔄 Fallback: calling fetch-html edge function for CC");
         const verses: any[] = [];
 
         for (let v = start; v <= end; v++) {
-          const url = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${v}`;
           try {
-            const { data: fetchData, error: fetchErr } = await supabase.functions.invoke("fetch-html", {
-              body: { url },
-            });
-            if (fetchErr) throw fetchErr;
-            const parsed = parseVedabaseCC(fetchData.html, url);
-            if (parsed) {
-              verses.push({
-                verse_number: String(v),
-                sanskrit: parsed.bengali || "",
-                transliteration: parsed.transliteration || "",
-                synonyms_en: parsed.synonyms || "",
-                translation_en: parsed.translation || "",
-                commentary_en: parsed.purport || "",
-              });
+            // Паралельно парсимо EN (Vedabase) та UA (Gitabase)
+            const vedabaseUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${v}`;
+            const gitabaseUrl = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`;
+
+            const [vedabaseRes, gitabaseRes] = await Promise.allSettled([
+              supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
+              supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }),
+            ]);
+
+            let parsedEN: any = null;
+            let parsedUA: any = null;
+
+            if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
+              parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
             }
+
+            if (gitabaseRes.status === "fulfilled" && gitabaseRes.value.data) {
+              // Gitabase має схожу структуру
+              const gitabaseParser = new DOMParser();
+              const gitaDoc = gitabaseParser.parseFromString(gitabaseRes.value.data.html, 'text/html');
+              
+              parsedUA = {
+                synonyms_ua: Array.from(gitaDoc.querySelectorAll('.r-synonyms-item')).map(item => {
+                  const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
+                  const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
+                  return word && meaning ? `${word} — ${meaning}` : '';
+                }).filter(Boolean).join('; '),
+                translation_ua: gitaDoc.querySelector('.r-translation')?.textContent?.trim() || '',
+                commentary_ua: Array.from(gitaDoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
+              };
+            }
+
+            verses.push({
+              verse_number: String(v),
+              sanskrit: parsedEN?.bengali || "",
+              transliteration: parsedEN?.transliteration || "",
+              synonyms_en: parsedEN?.synonyms || "",
+              synonyms_ua: parsedUA?.synonyms_ua || "",
+              translation_en: parsedEN?.translation || "",
+              translation_ua: parsedUA?.translation_ua || "",
+              commentary_en: parsedEN?.purport || "",
+              commentary_ua: parsedUA?.commentary_ua || "",
+            });
           } catch (e: any) {
             console.warn(`⚠️ Failed verse ${v}:`, e.message);
           }
