@@ -212,9 +212,6 @@ export const ChapterVersesList = () => {
             {verses.map((verse) => {
               const translationUa = verse.translation_ua || "";
               const translationEn = verse.translation_en || "";
-              const sanskrit = verse.sanskrit || "";
-              const transliterationUa = verse.transliteration_ua || verse.transliteration || "";
-              const transliterationEn = verse.transliteration_en || verse.transliteration || "";
 
               return (
                 <div key={verse.id} className="space-y-3">
@@ -229,16 +226,6 @@ export const ChapterVersesList = () => {
                         >
                           ВІРШ {verse.verse_number}
                         </Link>
-                        {sanskrit && (
-                          <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
-                            {sanskrit}
-                          </p>
-                        )}
-                        {transliterationUa && (
-                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
-                            {transliterationUa}
-                          </p>
-                        )}
                         <p className="text-base leading-relaxed text-foreground">
                           {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                         </p>
@@ -252,16 +239,6 @@ export const ChapterVersesList = () => {
                         >
                           TEXT {verse.verse_number}
                         </Link>
-                        {sanskrit && (
-                          <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
-                            {sanskrit}
-                          </p>
-                        )}
-                        {transliterationEn && (
-                          <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
-                            {transliterationEn}
-                          </p>
-                        )}
                         <p className="text-base leading-relaxed text-foreground">
                           {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
@@ -276,16 +253,6 @@ export const ChapterVersesList = () => {
                       >
                         {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                       </Link>
-                      {sanskrit && (
-                        <p className="font-sanskrit text-[1.4em] leading-relaxed text-gray-700 dark:text-gray-300">
-                          {sanskrit}
-                        </p>
-                      )}
-                      {(language === "ua" ? transliterationUa : transliterationEn) && (
-                        <p className="font-sanskrit-italic italic text-sm text-muted-foreground">
-                          {language === "ua" ? transliterationUa : transliterationEn}
-                        </p>
-                      )}
                       <p className="text-base leading-relaxed text-foreground">
                         {language === "ua"
                           ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
