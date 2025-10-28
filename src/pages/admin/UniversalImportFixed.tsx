@@ -14,6 +14,7 @@ import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
+import { importSingleChapter } from "@/utils/import/importer";
 
 // Мапінг Vedabase slug → Vedavoice slug
 const VEDABASE_TO_SITE_SLUG: Record<string, string> = {
@@ -294,95 +295,23 @@ export default function UniversalImportFixed() {
         cantoId = canto?.id || null;
       }
 
-      // Ensure we attach verses to the chapter used by the reader (canto_id + chapter_number)
-      const chapterIdMap = new Map<number, string>();
-      for (const ch of data.chapters) {
-        let existingId: string | undefined;
-
-        if (cantoId) {
-          const { data: existing } = await supabase
-            .from("chapters")
-            .select("id")
-            .eq("canto_id", cantoId)
-            .eq("chapter_number", ch.chapter_number)
-            .maybeSingle();
-          existingId = existing?.id;
-        } else {
-          const { data: existing } = await supabase
-            .from("chapters")
-            .select("id")
-            .eq("book_id", bookId)
-            .eq("chapter_number", ch.chapter_number)
-            .maybeSingle();
-          existingId = existing?.id;
-        }
-
-        if (existingId) {
-          // Не перезаписуємо назви, якщо користувач нічого не ввів
-          const updates: any = { chapter_type: "verses" };
-          if (data.metadata.title_ua?.trim()) updates.title_ua = data.metadata.title_ua.trim();
-          if (data.metadata.title_en?.trim()) updates.title_en = data.metadata.title_en.trim();
-          // Запишемо intro якщо є
-          const introUa = ch.intro_ua?.trim();
-          const introEn = ch.intro_en?.trim();
-          if (introUa) updates.content_ua = introUa;
-          if (introEn) updates.content_en = introEn;
-
-          await supabase.from("chapters").update(updates).eq("id", existingId);
-          chapterIdMap.set(ch.chapter_number, existingId);
-        } else {
-          const { data: inserted, error: insertErr } = await supabase
-            .from("chapters")
-            .insert({
-              book_id: bookId,
-              canto_id: cantoId,
-              chapter_number: ch.chapter_number,
-              title_ua: (data.metadata.title_ua?.trim() || ch.title_ua || "") as string,
-              title_en: (data.metadata.title_en?.trim() || ch.title_en || "") as string,
-              chapter_type: "verses",
-              content_ua: ch.intro_ua || null,
-              content_en: ch.intro_en || null,
-              is_published: true,
-            })
-            .select("id")
-            .single();
-          if (insertErr) throw insertErr;
-          chapterIdMap.set(ch.chapter_number, inserted!.id);
-        }
+      // Import chapters with full replace of verses to avoid upsert conflicts
+      const total = data.chapters.length;
+      for (let i = 0; i < total; i++) {
+        const ch = data.chapters[i];
+        await importSingleChapter(supabase, {
+          bookId,
+          cantoId: cantoId ?? null,
+          chapter: ch,
+          strategy: "replace",
+        });
+        setProgress(10 + Math.round(((i + 1) / total) * 80));
       }
-      const verses = data.chapters.flatMap((ch) =>
-        ch.verses.map((v: any) => ({
-          chapter_id: chapterIdMap.get(ch.chapter_number),
-          verse_number: v.verse_number,
-          verse_number_sort: (() => {
-            const parts = String(v.verse_number).split(/[^0-9]+/).filter(Boolean);
-            const last = parts.length ? parseInt(parts[parts.length - 1], 10) : NaN;
-            return Number.isFinite(last) ? last : null;
-          })(),
-          // Bengali/Devanagari (store for both languages)
-          sanskrit: v.sanskrit || v.sanskrit_ua || v.sanskrit_en || "",
-          sanskrit_ua: v.sanskrit_ua || v.sanskrit || "",
-          sanskrit_en: v.sanskrit_en || v.sanskrit || "",
-          // Transliteration (separate UA and EN)
-          transliteration_ua: v.transliteration_ua || v.transliteration || "",
-          transliteration_en: v.transliteration_en || "",
-          // Synonyms (word-by-word)
-          synonyms_ua: v.synonyms_ua || "",
-          synonyms_en: v.synonyms_en || v.synonyms || "",
-          // Translation
-          translation_ua: v.translation_ua || "",
-          translation_en: v.translation_en || v.translation || "",
-          // Commentary (purport)
-          commentary_ua: v.commentary_ua || "",
-          commentary_en: v.commentary_en || v.purport || v.commentary || "",
-        }))
-      );
 
-      await supabase.from("verses").upsert(verses, { onConflict: "chapter_id,verse_number" });
-
+      const totalVerses = data.chapters.reduce((sum, ch) => sum + (ch.verses?.length || 0), 0);
       toast({
         title: "✅ Імпорт завершено",
-        description: `${verses.length} віршів збережено.`,
+        description: `${totalVerses} віршів збережено.`,
       });
 
       // Автоперехід до сторінки розділу після імпорту
