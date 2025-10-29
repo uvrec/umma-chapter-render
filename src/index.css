@@ -276,8 +276,8 @@ body {
 /* Деванагарі для транслітератора */
 .devanagari-text {
   font-family: var(--font-devanagari);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 1.125rem;
+  line-height: 1.7;
   text-align: left;
   font-weight: 400;
   letter-spacing: 0.01em;
@@ -286,8 +286,8 @@ body {
 /* IAST латиниця з діакритикою */
 .iast-text {
   font-family: "Gentium Plus", serif !important;
-  font-size: 1rem !important;
-  line-height: 1.6;
+  font-size: 1.125rem !important;
+  line-height: 1.7;
   font-style: normal;
   font-weight: 400 !important;
   font-variant-ligatures: none;
@@ -302,8 +302,8 @@ body {
 .transliteration-output,
 .prose-reader .translit {
   font-family: "Gentium Plus", serif !important;
-  font-size: 1rem !important;
-  line-height: 1.6;
+  font-size: 1.125rem !important;
+  line-height: 1.7;
   font-style: normal;
   font-weight: 400 !important;
   text-align: left;
@@ -496,6 +496,16 @@ body {
 
   .sanskrit-block {
     padding: 2rem 1rem;
+  }
+
+  /* Transliterator fields: keep sizes readable and equal */
+  .iast-text,
+  .translit,
+  .transliteration-output,
+  .devanagari-text,
+  .bengali-text {
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
   }
 
   /* Touch targets */

@@ -66,8 +66,8 @@
   font-feature-settings: normal;
   font-style: normal;
   font-weight: 400 !important;
-  font-size: 1rem !important;
-  line-height: 1.6;
+  font-size: 1.125rem !important;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -85,8 +85,8 @@
   font-family: "Noto Sans Devanagari", sans-serif !important;
   font-style: normal;
   font-weight: 400 !important;
-  font-size: 1rem !important;
-  line-height: 1.6;
+  font-size: 1.125rem !important;
+  line-height: 1.7;
 }
 
 /* -------- Бенгалі -------- */
@@ -95,8 +95,8 @@
   font-family: "Noto Sans Bengali", sans-serif !important;
   font-style: normal;
   font-weight: 400 !important;
-  font-size: 1rem !important;
-  line-height: 1.6;
+  font-size: 1.125rem !important;
+  line-height: 1.7;
 }
 
 /* -------- Санскрит (IAST латиниця) -------- */
@@ -108,8 +108,8 @@ input.iast-text {
   font-family: "Gentium Plus", serif !important;
   font-style: normal !important;
   font-weight: 400 !important;
-  font-size: 1rem !important;
-  line-height: 1.6 !important;
+  font-size: 1.125rem !important;
+  line-height: 1.7 !important;
   font-feature-settings: normal !important;
   font-variant-ligatures: none !important;
   letter-spacing: 0 !important;
