@@ -533,13 +533,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "book_pages_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "readable_chapters"
-            referencedColumns: ["book_id"]
-          },
-          {
             foreignKeyName: "book_pages_canto_id_fkey"
             columns: ["canto_id"]
             isOneToOne: false
@@ -666,13 +659,6 @@ export type Database = {
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "cantos_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "readable_chapters"
-            referencedColumns: ["book_id"]
-          },
         ]
       }
       chapters: {
@@ -735,13 +721,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chapters_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "readable_chapters"
-            referencedColumns: ["book_id"]
           },
           {
             foreignKeyName: "chapters_canto_id_fkey"
@@ -887,13 +866,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "intro_chapters_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "readable_chapters"
-            referencedColumns: ["book_id"]
           },
         ]
       }
@@ -1435,13 +1407,6 @@ export type Database = {
             referencedRelation: "books_with_mapping"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "book_pages_book_id_fkey"
-            columns: ["book_id"]
-            isOneToOne: false
-            referencedRelation: "readable_chapters"
-            referencedColumns: ["book_id"]
-          },
         ]
       }
       books_with_mapping: {
@@ -1457,6 +1422,32 @@ export type Database = {
           title_ua: string | null
           vedabase_slug: string | null
           verses_count: number | null
+        }
+        Insert: {
+          cantos_count?: never
+          chapters_count?: never
+          default_structure?: string | null
+          gitabase_slug?: string | null
+          has_cantos?: boolean | null
+          id?: string | null
+          our_slug?: string | null
+          title_en?: string | null
+          title_ua?: string | null
+          vedabase_slug?: string | null
+          verses_count?: never
+        }
+        Update: {
+          cantos_count?: never
+          chapters_count?: never
+          default_structure?: string | null
+          gitabase_slug?: string | null
+          has_cantos?: boolean | null
+          id?: string | null
+          our_slug?: string | null
+          title_en?: string | null
+          title_ua?: string | null
+          vedabase_slug?: string | null
+          verses_count?: never
         }
         Relationships: []
       }
@@ -1497,7 +1488,22 @@ export type Database = {
           filled_verses: number | null
           total_verses: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books_with_mapping"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       verses_with_structure: {
         Row: {
