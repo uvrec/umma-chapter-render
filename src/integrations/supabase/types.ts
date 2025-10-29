@@ -554,6 +554,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string
           default_structure: string | null
+          deleted_at: string | null
           description_en: string | null
           description_ua: string | null
           display_category: string | null
@@ -574,6 +575,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           default_structure?: string | null
+          deleted_at?: string | null
           description_en?: string | null
           description_ua?: string | null
           display_category?: string | null
@@ -594,6 +596,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           default_structure?: string | null
+          deleted_at?: string | null
           description_en?: string | null
           description_ua?: string | null
           display_category?: string | null
@@ -1072,6 +1075,7 @@ export type Database = {
           commentary_en: string | null
           commentary_ua: string | null
           created_at: string
+          deleted_at: string | null
           display_blocks: Json | null
           id: string
           is_published: boolean | null
@@ -1098,6 +1102,7 @@ export type Database = {
           commentary_en?: string | null
           commentary_ua?: string | null
           created_at?: string
+          deleted_at?: string | null
           display_blocks?: Json | null
           id?: string
           is_published?: boolean | null
@@ -1124,6 +1129,7 @@ export type Database = {
           commentary_en?: string | null
           commentary_ua?: string | null
           created_at?: string
+          deleted_at?: string | null
           display_blocks?: Json | null
           id?: string
           is_published?: boolean | null
