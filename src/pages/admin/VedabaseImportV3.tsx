@@ -118,12 +118,22 @@ function extractGitabaseContent(html: string) {
       result.transliteration = translitMatch[1].trim();
     }
 
-    // Синоніми
+    // Синоніми - з видаленням дублікатів
     const italicsPattern = /<i[^>]*>([^<]+)<\/i>/gi;
     const allItalics = [...html.matchAll(italicsPattern)].map((m) => m[1].trim());
+    const seen = new Set<string>();
+    const uniqueItalics: string[] = [];
 
-    if (allItalics.length > 5) {
-      result.synonyms = allItalics.slice(0, 60).join(" ; ");
+    allItalics.forEach(text => {
+      const cleaned = text.replace(/;\s*$/, '').trim();
+      if (cleaned && !seen.has(cleaned)) {
+        seen.add(cleaned);
+        uniqueItalics.push(cleaned);
+      }
+    });
+
+    if (uniqueItalics.length > 5) {
+      result.synonyms = uniqueItalics.slice(0, 60).join('; ');
     }
 
     // Переклад
