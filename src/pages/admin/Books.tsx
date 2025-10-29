@@ -1,15 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Eye, EyeOff, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Books = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -20,12 +33,54 @@ const Books = () => {
   const { data: books, isLoading } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("books").select("*").order("created_at", { ascending: true });
+      const { data, error } = await supabase
+        .from("books")
+        .select("*")
+        .is("deleted_at", null)
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
       return data;
     },
     enabled: !!user && isAdmin,
+  });
+
+  const togglePublishMutation = useMutation({
+    mutationFn: async ({ id, isPublished }: { id: string; isPublished: boolean }) => {
+      const { error } = await supabase
+        .from("books")
+        .update({ is_published: !isPublished })
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-books"] });
+      toast.success("Статус книги оновлено");
+    },
+    onError: () => {
+      toast.error("Помилка при оновленні статусу");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("books")
+        .update({ deleted_at: new Date().toISOString() } as any)
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-books"] });
+      toast.success("Книгу видалено");
+      setDeleteBookId(null);
+    },
+    onError: () => {
+      toast.error("Помилка при видаленні книги");
+      setDeleteBookId(null);
+    },
   });
 
   if (!user || !isAdmin) return null;
@@ -66,20 +121,57 @@ const Books = () => {
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">Slug: {book.slug}</p>
-                  <div className="flex gap-2 flex-wrap">
-                    <Button size="sm" asChild variant="outline">
-                      <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
-                    </Button>
-                    {book.has_cantos ? (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Slug: {book.slug}</p>
+                      <p className="text-sm">
+                        Статус:{" "}
+                        <span className={book.is_published ? "text-green-600" : "text-orange-600"}>
+                          {book.is_published ? "Опубліковано" : "Приховано"}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
                       <Button size="sm" asChild variant="outline">
-                        <Link to={`/admin/cantos/${book.id}`}>Пісні</Link>
+                        <Link to={`/admin/books/${book.id}/edit`}>Редагувати</Link>
                       </Button>
-                    ) : (
-                      <Button size="sm" asChild variant="outline">
-                        <Link to={`/admin/chapters/${book.id}`}>Глави</Link>
+                      {book.has_cantos ? (
+                        <Button size="sm" asChild variant="outline">
+                          <Link to={`/admin/cantos/${book.id}`}>Пісні</Link>
+                        </Button>
+                      ) : (
+                        <Button size="sm" asChild variant="outline">
+                          <Link to={`/admin/chapters/${book.id}`}>Глави</Link>
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => togglePublishMutation.mutate({ id: book.id, isPublished: book.is_published })}
+                        disabled={togglePublishMutation.isPending}
+                      >
+                        {book.is_published ? (
+                          <>
+                            <EyeOff className="w-4 h-4 mr-2" />
+                            Приховати
+                          </>
+                        ) : (
+                          <>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Показати
+                          </>
+                        )}
                       </Button>
-                    )}
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => setDeleteBookId(book.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Видалити
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -93,6 +185,26 @@ const Books = () => {
           </Card>
         )}
       </div>
+
+      <AlertDialog open={!!deleteBookId} onOpenChange={() => setDeleteBookId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Видалити книгу?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ця дія приховає книгу з публічного доступу. Книга буде позначена як видалена, але залишиться в базі даних.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Скасувати</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteBookId && deleteMutation.mutate(deleteBookId)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Видалити
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
