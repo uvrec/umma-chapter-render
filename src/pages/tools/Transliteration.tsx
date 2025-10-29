@@ -241,7 +241,15 @@ export default function TransliterationTool() {
                     ? "ॐ नमो भगवते वासुदेवाय"
                     : "বন্দে গুরূন্ ঈশভক্তান্"
               }
-              className="font-mono resize-none"
+              spellCheck={false}
+              data-script={mode}
+              className={`resize-none ${
+                mode === "iast"
+                  ? "sanskrit-text"
+                  : mode === "devanagari"
+                    ? "devanagari-text"
+                    : "bengali-text"
+              }`}
             />
           </Card>
 
@@ -263,8 +271,9 @@ export default function TransliterationTool() {
               value={outputText}
               readOnly
               placeholder={t("Результат з'явиться автоматично...", "Result appears automatically...")}
-              className="translit resize-none bg-muted/30"
-              style={{ fontFamily: '"Gentium Plus Cyr", "Gaura Times", "Noto Serif", serif' }}
+              className="translit transliteration-output resize-none bg-muted/30"
+              data-script={mode}
+              spellCheck={false}
             />
           </Card>
         </div>
