@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus, Edit, Eye, EyeOff, Trash2, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -30,6 +31,8 @@ const Verses = () => {
   const [deleteVerseId, setDeleteVerseId] = useState<string | null>(null);
   const [selectedVerses, setSelectedVerses] = useState<Set<string>>(new Set());
   const [bulkDeleteMode, setBulkDeleteMode] = useState(false);
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+  const [rangeInput, setRangeInput] = useState("");
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -154,25 +157,69 @@ const Verses = () => {
     },
   });
 
-  const toggleVerseSelection = (id: string) => {
+  const toggleVerseSelection = (id: string, index: number, shiftKey: boolean) => {
     const newSelected = new Set(selectedVerses);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
+    
+    if (shiftKey && lastSelectedIndex !== null && verses) {
+      // Shift+click: select range
+      const start = Math.min(lastSelectedIndex, index);
+      const end = Math.max(lastSelectedIndex, index);
+      for (let i = start; i <= end; i++) {
+        if (verses[i]) {
+          newSelected.add(verses[i].id);
+        }
+      }
     } else {
-      newSelected.add(id);
-    }
-    setSelectedVerses(newSelected);
-  };
-
-  const selectRange = (startIdx: number, endIdx: number) => {
-    if (!verses) return;
-    const newSelected = new Set(selectedVerses);
-    for (let i = startIdx; i <= endIdx; i++) {
-      if (verses[i]) {
-        newSelected.add(verses[i].id);
+      // Regular click: toggle single
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
       }
     }
+    
     setSelectedVerses(newSelected);
+    setLastSelectedIndex(index);
+  };
+
+  const selectAll = () => {
+    if (!verses) return;
+    const allIds = new Set(verses.map(v => v.id));
+    setSelectedVerses(allIds);
+  };
+
+  const deselectAll = () => {
+    setSelectedVerses(new Set());
+  };
+
+  const selectByRange = () => {
+    if (!verses || !rangeInput.trim()) return;
+    
+    const match = rangeInput.match(/^(\d+)-(\d+)$/);
+    if (!match) {
+      toast.error("Введіть діапазон у форматі: 200-500");
+      return;
+    }
+    
+    const start = parseInt(match[1]);
+    const end = parseInt(match[2]);
+    
+    if (start > end) {
+      toast.error("Початок діапазону має бути меншим за кінець");
+      return;
+    }
+    
+    const newSelected = new Set(selectedVerses);
+    verses.forEach((verse, idx) => {
+      const verseNum = idx + 1; // assuming 1-based indexing
+      if (verseNum >= start && verseNum <= end) {
+        newSelected.add(verse.id);
+      }
+    });
+    
+    setSelectedVerses(newSelected);
+    toast.success(`Вибрано вірші ${start}-${end}`);
+    setRangeInput("");
   };
 
   if (!user || !isAdmin) return null;
@@ -211,6 +258,7 @@ const Verses = () => {
                   onClick={() => {
                     setBulkDeleteMode(!bulkDeleteMode);
                     setSelectedVerses(new Set());
+                    setLastSelectedIndex(null);
                   }}
                 >
                   {bulkDeleteMode ? "Скасувати" : "Масове видалення"}
@@ -299,6 +347,54 @@ const Verses = () => {
 
         {selectedChapterId && (
           <>
+            {bulkDeleteMode && verses && verses.length > 0 && (
+              <Card className="mb-4">
+                <CardContent className="pt-6">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={selectAll}
+                    >
+                      <CheckSquare className="w-4 h-4 mr-2" />
+                      Вибрати всі
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={deselectAll}
+                    >
+                      <Square className="w-4 h-4 mr-2" />
+                      Зняти всі
+                    </Button>
+                    <div className="flex gap-2 items-center ml-4">
+                      <Input
+                        type="text"
+                        placeholder="200-500"
+                        value={rangeInput}
+                        onChange={(e) => setRangeInput(e.target.value)}
+                        className="w-32"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            selectByRange();
+                          }
+                        }}
+                      />
+                      <Button
+                        size="sm"
+                        onClick={selectByRange}
+                      >
+                        Вибрати діапазон
+                      </Button>
+                    </div>
+                    <span className="text-sm text-muted-foreground ml-auto">
+                      Вибрано: {selectedVerses.size} із {verses.length}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
             {isLoading ? (
               <p>Завантаження...</p>
             ) : verses && verses.length > 0 ? (
@@ -308,11 +404,18 @@ const Verses = () => {
                     <CardContent className="pt-6">
                       <div className="flex items-start gap-4">
                         {bulkDeleteMode && (
-                          <Checkbox
-                            checked={selectedVerses.has(verse.id)}
-                            onCheckedChange={() => toggleVerseSelection(verse.id)}
-                            className="mt-1"
-                          />
+                          <div
+                            onClick={(e) => {
+                              toggleVerseSelection(verse.id, idx, e.shiftKey);
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Checkbox
+                              checked={selectedVerses.has(verse.id)}
+                              onCheckedChange={() => {}}
+                              className="mt-1"
+                            />
+                          </div>
                         )}
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
