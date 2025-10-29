@@ -30,7 +30,8 @@ Deno.serve(async (req) => {
 
     const res = await fetch(url, { headers: { "User-Agent": "VedavoiceFetcher/1.0 (+https://vedavoice.app)" } });
     if (!res.ok) {
-      return new Response(JSON.stringify({ error: `Upstream ${res.status}` }), { status: 502, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      // Return the actual upstream status code instead of always 502
+      return new Response(JSON.stringify({ error: `Upstream ${res.status}`, notFound: res.status === 404 }), { status: res.status, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
     const html = await res.text();
     return new Response(JSON.stringify({ html }), { headers: { "Content-Type": "application/json", ...corsHeaders } });

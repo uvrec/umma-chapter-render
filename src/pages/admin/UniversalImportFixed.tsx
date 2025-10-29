@@ -250,18 +250,27 @@ export default function UniversalImportFixed() {
                   };
                 }
 
-                verses.push({
-                  verse_number: t.lastPart, // ← "7" або "7-8"
-                  sanskrit: parsedEN?.bengali || "",
-                  transliteration_en: parsedEN?.transliteration || "",
-                  transliteration_ua: "",
-                  synonyms_en: parsedEN?.synonyms || "",
-                  synonyms_ua: parsedUA?.synonyms_ua || "",
-                  translation_en: parsedEN?.translation || "",
-                  translation_ua: parsedUA?.translation_ua || "",
-                  commentary_en: parsedEN?.purport || "",
-                  commentary_ua: parsedUA?.commentary_ua || "",
-                });
+                // Тільки додаємо вірш якщо є хоч якийсь контент
+                const hasContent = 
+                  (parsedEN?.bengali || parsedEN?.transliteration || parsedEN?.synonyms || parsedEN?.translation || parsedEN?.purport) ||
+                  (parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.commentary_ua);
+                
+                if (hasContent) {
+                  verses.push({
+                    verse_number: t.lastPart, // ← "7" або "7-8"
+                    sanskrit: parsedEN?.bengali || "",
+                    transliteration_en: parsedEN?.transliteration || "",
+                    transliteration_ua: "",
+                    synonyms_en: parsedEN?.synonyms || "",
+                    synonyms_ua: parsedUA?.synonyms_ua || "",
+                    translation_en: parsedEN?.translation || "",
+                    translation_ua: parsedUA?.translation_ua || "",
+                    commentary_en: parsedEN?.purport || "",
+                    commentary_ua: parsedUA?.commentary_ua || "",
+                  });
+                } else {
+                  console.log(`⏭️ Пропускаю сегмент ${t.lastPart} (немає контенту)`);
+                }
               } catch (e: any) {
                 console.warn(`⚠️ Failed segment ${t.lastPart}:`, e.message);
               }
@@ -304,18 +313,27 @@ export default function UniversalImportFixed() {
                 };
               }
 
-              verses.push({
-                verse_number: String(v),
-                sanskrit: parsedEN?.bengali || "",
-                transliteration_en: parsedEN?.transliteration || "",
-                transliteration_ua: "",
-                synonyms_en: parsedEN?.synonyms || "",
-                synonyms_ua: parsedUA?.synonyms_ua || "",
-                translation_en: parsedEN?.translation || "",
-                translation_ua: parsedUA?.translation_ua || "",
-                commentary_en: parsedEN?.purport || "",
-                commentary_ua: parsedUA?.commentary_ua || "",
-              });
+              // Тільки додаємо вірш якщо є хоч якийсь контент
+              const hasContent = 
+                (parsedEN?.bengali || parsedEN?.transliteration || parsedEN?.synonyms || parsedEN?.translation || parsedEN?.purport) ||
+                (parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.commentary_ua);
+              
+              if (hasContent) {
+                verses.push({
+                  verse_number: String(v),
+                  sanskrit: parsedEN?.bengali || "",
+                  transliteration_en: parsedEN?.transliteration || "",
+                  transliteration_ua: "",
+                  synonyms_en: parsedEN?.synonyms || "",
+                  synonyms_ua: parsedUA?.synonyms_ua || "",
+                  translation_en: parsedEN?.translation || "",
+                  translation_ua: parsedUA?.translation_ua || "",
+                  commentary_en: parsedEN?.purport || "",
+                  commentary_ua: parsedUA?.commentary_ua || "",
+                });
+              } else {
+                console.log(`⏭️ Пропускаю вірш ${v} (немає контенту)`);
+              }
             } catch (e: any) {
               console.warn(`⚠️ Failed verse ${v}:`, e.message);
             }

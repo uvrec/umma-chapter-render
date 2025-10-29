@@ -196,32 +196,78 @@ export default function VedabaseImportV3() {
   // ========================================================================
 
   const fetchHTML = async (url: string, attempt = 1): Promise<string> => {
+    // Спочатку пробуємо edge function
+    if (attempt === 1) {
+      try {
+        console.log(`Спроба edge function: ${url}`);
+        const { data, error } = await supabase.functions.invoke("fetch-html", {
+          body: { url }
+        });
+        
+        if (error) {
+          // Якщо це 404, кидаємо спеціальну помилку
+          if (error.message?.includes('404') || error.message?.includes('Upstream 404')) {
+            throw new Error('Upstream 404');
+          }
+          throw new Error(error.message || 'Edge function error');
+        }
+        
+        if (data?.html && data.html.length > 100) {
+          return data.html;
+        }
+        throw new Error("Порожня відповідь від edge function");
+      } catch (error: any) {
+        // Якщо це 404, пробросуємо помилку далі
+        if (error.message?.includes('404')) {
+          throw error;
+        }
+        console.warn('Edge function failed, trying proxies...', error);
+        // Інакше пробуємо проксі
+      }
+    }
+
+    // Fallback на проксі
     const proxies = [
       async () => {
         const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
         const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Upstream 404');
+          }
+          throw new Error(`HTTP ${response.status}`);
+        }
         return await response.text();
       },
       async () => {
         const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
         const response = await fetch(proxyUrl);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Upstream 404');
+          }
+          throw new Error(`HTTP ${response.status}`);
+        }
         return await response.text();
       },
     ];
 
-    if (attempt > proxies.length) {
+    const proxyIndex = attempt - 2; // -2 because attempt 1 is edge function
+    if (proxyIndex >= proxies.length) {
       throw new Error(`Не вдалося завантажити ${url}`);
     }
 
     try {
-      console.log(`Спроба ${attempt}: ${url}`);
-      const html = await proxies[attempt - 1]();
+      console.log(`Спроба proxy ${proxyIndex + 1}: ${url}`);
+      const html = await proxies[proxyIndex]();
       if (!html || html.length < 100) throw new Error("Порожня відповідь");
       return html;
-    } catch (error) {
-      if (attempt < proxies.length) {
+    } catch (error: any) {
+      // Якщо це 404, не пробуємо інші проксі
+      if (error.message?.includes('404')) {
+        throw error;
+      }
+      if (attempt - 1 < proxies.length) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         return fetchHTML(url, attempt + 1);
       }
@@ -501,7 +547,13 @@ export default function VedabaseImportV3() {
             }
 
             await new Promise((r) => setTimeout(r, 500));
-          } catch (e) {
+          } catch (e: any) {
+            // Якщо вірш не існує (404), пропускаємо його без помилки
+            if (e?.message?.includes('404') || e?.message?.includes('Upstream 404')) {
+              console.log(`Вірш ${verseNum} не знайдено на Vedabase, пропускаю...`);
+              setStats((prev) => ({ ...prev!, skipped: prev!.skipped + 1 }));
+              continue;
+            }
             console.error(`Помилка Vedabase ${verseNum}:`, e);
           }
         }
@@ -522,8 +574,13 @@ export default function VedabaseImportV3() {
             purportUA = data.purport;
 
             await new Promise((r) => setTimeout(r, 500));
-          } catch (e) {
-            console.error(`Помилка Gitabase ${verseNum}:`, e);
+          } catch (e: any) {
+            // Якщо вірш не існує (404), просто пропускаємо
+            if (e?.message?.includes('404') || e?.message?.includes('Upstream 404')) {
+              console.log(`Вірш ${verseNum} не знайдено на Gitabase, пропускаю...`);
+            } else {
+              console.error(`Помилка Gitabase ${verseNum}:`, e);
+            }
           }
         }
         if (transliterationUA) {
