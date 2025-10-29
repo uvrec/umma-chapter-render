@@ -243,9 +243,9 @@ export default function TransliterationTool() {
               }
               spellCheck={false}
               data-script={mode}
-              className={`resize-none ${
+className={`resize-none ${
                 mode === "iast"
-                  ? "sanskrit-text"
+                  ? "iast-text"
                   : mode === "devanagari"
                     ? "devanagari-text"
                     : "bengali-text"

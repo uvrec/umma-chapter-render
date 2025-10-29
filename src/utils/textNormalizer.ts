@@ -115,7 +115,8 @@ export function convertIASTtoUkrainian(text: string): string {
     "\u015B": "ш́", // ś
     "\u00F1": "н̃", // ñ
     "\u1E45": "н̇", // ṅ
-    "\u1E43": "м̇", // ṃ
+    "\u1E41": "м̇", // ṁ (dot above)
+    "\u1E43": "м̣", // ṃ (dot below)
     "\u1E25": "х̣", // ḥ
     "\u1E37": "л̣", // ḷ
     "\u0100": "А̄", // Ā

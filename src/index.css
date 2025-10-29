@@ -13,16 +13,16 @@
    ========================= */
 :root {
   /* Основний текст (кирилиця + латиниця) */
-  --font-primary: "Crimson Text", "Gaura Times", "Noto Serif", Georgia, serif;
+  --font-primary: "Noto Serif", "Gentium Plus", Georgia, serif;
 
-  /* Трансліт (діакритика) */
-  --font-translit: "Gaura Times", "Crimson Text", "Noto Serif", serif;
+  /* Трансліт (IAST + укр. з діакритикою) */
+  --font-translit: "Gentium Plus", "Noto Serif", "Gentium Plus Cyr", "Gaura Times", serif;
 
   /* Деванагарі */
-  --font-devanagari: "Noto Sans Devanagari", "Noto Serif Devanagari", serif;
+  --font-devanagari: "Noto Sans Devanagari", sans-serif;
 
   /* Бенгалі */
-  --font-bengali: "Noto Sans Bengali", "Noto Serif Bengali", serif;
+  --font-bengali: "Noto Sans Bengali", sans-serif;
 
   /* UI (інтерфейс) */
   --font-ui: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -271,6 +271,18 @@ body {
   text-align: center;
   font-weight: 500;
   letter-spacing: 0.01em;
+}
+
+/* IAST латиниця з діакритикою */
+.iast-text {
+  font-family: var(--font-translit);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  font-style: normal;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Трансліт */
