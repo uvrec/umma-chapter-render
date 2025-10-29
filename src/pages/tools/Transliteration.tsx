@@ -263,7 +263,8 @@ export default function TransliterationTool() {
               value={outputText}
               readOnly
               placeholder={t("Результат з'явиться автоматично...", "Result appears automatically...")}
-              className="font-sans resize-none bg-muted/30"
+              className="translit resize-none bg-muted/30"
+              style={{ fontFamily: '"Gentium Plus Cyr", "Gaura Times", "Noto Serif", serif' }}
             />
           </Card>
         </div>

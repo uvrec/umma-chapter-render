@@ -1,36 +1,74 @@
 /* Типографіка для блог постів */
 .blog-body.prose {
-  /* Параграфи */
-  @apply prose-p:text-foreground prose-p:leading-relaxed prose-p:mb-4;
-  
-  /* Заголовки */
-  @apply prose-headings:text-foreground prose-headings:font-bold;
-  @apply prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl;
-  @apply prose-h1:mb-6 prose-h2:mb-4 prose-h3:mb-3;
-  
-  /* Списки */
-  @apply prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4;
-  @apply prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4;
-  @apply prose-li:text-foreground prose-li:mb-2;
-  
-  /* Посилання */
-  @apply prose-a:text-primary prose-a:underline hover:prose-a:text-primary/80;
-  
-  /* Цитати */
-  @apply prose-blockquote:border-l-4 prose-blockquote:border-primary;
-  @apply prose-blockquote:pl-4 prose-blockquote:italic;
-  @apply prose-blockquote:text-muted-foreground;
-  
-  /* Код */
-  @apply prose-code:bg-muted prose-code:px-1 prose-code:py-0.5;
-  @apply prose-code:rounded prose-code:text-sm;
-  @apply prose-pre:bg-muted prose-pre:p-4 prose-pre:rounded-lg;
-  
-  /* Таблиці */
-  @apply prose-table:border-collapse prose-table:w-full;
-  @apply prose-th:border prose-th:p-2 prose-th:bg-muted;
-  @apply prose-td:border prose-td:p-2;
-  
-  /* Зображення */
-  @apply prose-img:rounded-lg prose-img:shadow-md;
+  @apply text-foreground leading-relaxed;
+}
+
+.blog-body.prose p {
+  @apply mb-4;
+}
+
+.blog-body.prose h1,
+.blog-body.prose h2,
+.blog-body.prose h3 {
+  @apply text-foreground font-bold;
+}
+
+.blog-body.prose h1 {
+  @apply text-4xl mb-6;
+}
+
+.blog-body.prose h2 {
+  @apply text-3xl mb-4;
+}
+
+.blog-body.prose h3 {
+  @apply text-2xl mb-3;
+}
+
+.blog-body.prose ul {
+  @apply list-disc ml-6 mb-4;
+}
+
+.blog-body.prose ol {
+  @apply list-decimal ml-6 mb-4;
+}
+
+.blog-body.prose li {
+  @apply text-foreground mb-2;
+}
+
+.blog-body.prose a {
+  @apply text-primary underline;
+}
+
+.blog-body.prose a:hover {
+  @apply text-primary/80;
+}
+
+.blog-body.prose blockquote {
+  @apply border-l-4 border-primary pl-4 italic text-muted-foreground;
+}
+
+.blog-body.prose code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm;
+}
+
+.blog-body.prose pre {
+  @apply bg-muted p-4 rounded-lg;
+}
+
+.blog-body.prose table {
+  @apply border-collapse w-full;
+}
+
+.blog-body.prose th {
+  @apply border p-2 bg-muted;
+}
+
+.blog-body.prose td {
+  @apply border p-2;
+}
+
+.blog-body.prose img {
+  @apply rounded-lg shadow-md;
 }

@@ -23,10 +23,10 @@
 /* -------- Gentium Plus Cyr (для української кирилиці з діакритикою) -------- */
 @font-face {
   font-family: "Gentium Plus Cyr";
-  src:
-    url("/fonts/Gentium-Regular.woff2") format("woff2"),
-    url("/fonts/Gentium-Italic.woff2") format("woff");
+  src: url("/fonts/Gentium-Regular.woff2") format("woff2");
   font-display: swap;
+  font-style: normal;
+  font-weight: 400;
   font-feature-settings:
     "kern" 1,
     "liga" 1,
@@ -37,6 +37,21 @@
   unicode-range: U+0300-036F, U+1E00-1EFF, U+0400-04FF, U+0500-052F;
 }
 
+@font-face {
+  font-family: "Gentium Plus Cyr";
+  src: url("/fonts/Gentium-Italic.woff2") format("woff2");
+  font-display: swap;
+  font-style: italic;
+  font-weight: 400;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "ccmp" 1,
+    "mark" 1,
+    "mkmk" 1;
+  unicode-range: U+0300-036F, U+1E00-1EFF, U+0400-04FF, U+0500-052F;
+}
+
 
 
 /* -------- Блок для трансліту -------- */
@@ -44,7 +59,7 @@
 .prose-reader .translit,
 .result-text,
 [data-result] {
-  font-family: "Gaura Times", "Gentium Plus Cyr", "Noto Serif", serif;
+  font-family: "Gentium Plus Cyr", "Gaura Times", "Noto Serif", serif;
   font-feature-settings:
     "kern" 1,
     "liga" 1,
@@ -61,6 +76,7 @@
   word-break: break-word;
   unicode-bidi: isolate;
   font-variant-position: normal;
+  letter-spacing: 0.01em;
 }
 
 /* -------- Деванагарі -------- */
