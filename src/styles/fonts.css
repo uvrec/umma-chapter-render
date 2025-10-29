@@ -62,18 +62,12 @@
 .result-text,
 .transliteration-output,
 [data-result] {
-  font-family: "Gentium Plus", "Noto Serif", "Gentium Plus Cyr", "Gaura Times", serif;
-  font-feature-settings:
-    "kern" 1,
-    "liga" 1,
-    "calt" 1,
-    "ccmp" 1,
-    "mark" 1,
-    "mkmk" 1;
+  font-family: "Gentium Plus", serif !important;
+  font-feature-settings: normal;
   font-style: normal;
-  font-weight: 400;
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -81,44 +75,47 @@
   word-break: break-word;
   unicode-bidi: isolate;
   font-variant-position: normal;
-  letter-spacing: 0.01em;
+  font-variant-ligatures: none;
+  letter-spacing: 0;
 }
 
 /* -------- Деванагарі -------- */
 .devanagari-text,
 .transliteration-output[data-script="devanagari"] {
-  font-family: "Noto Sans Devanagari", "Gaura Times", serif;
+  font-family: "Noto Sans Devanagari", sans-serif !important;
   font-style: normal;
-  font-weight: 400;
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+  line-height: 1.6;
 }
 
 /* -------- Бенгалі -------- */
 .bengali-text,
 .transliteration-output[data-script="bengali"] {
-  font-family: "Noto Sans Bengali", "Gaura Times", serif;
+  font-family: "Noto Sans Bengali", sans-serif !important;
   font-style: normal;
-  font-weight: 400;
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+  line-height: 1.6;
 }
 
 /* -------- Санскрит (IAST латиниця) -------- */
 .sanskrit-text,
-.transliteration-output[data-script="iast"] {
-  font-family: "Gentium Plus", "Noto Serif", "Gentium Plus Cyr", "Gaura Times", serif;
-  font-style: normal;
-  font-weight: 400;
-  font-size: 1.05rem;
-  line-height: 1.7;
-  font-feature-settings:
-    "kern" 1,
-    "liga" 1,
-    "calt" 1,
-    "ccmp" 1,
-    "mark" 1,
-    "mkmk" 1;
+.iast-text,
+.transliteration-output[data-script="iast"],
+textarea.iast-text,
+input.iast-text {
+  font-family: "Gentium Plus", serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  font-feature-settings: normal !important;
+  font-variant-ligatures: none !important;
+  letter-spacing: 0 !important;
+  -webkit-font-smoothing: antialiased !important;
+  text-rendering: optimizeLegibility !important;
+  font-synthesis: none !important;
 }
 
 /* -------- Tailwind базові директиви -------- */

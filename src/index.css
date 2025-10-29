@@ -15,8 +15,8 @@
   /* Основний текст (кирилиця + латиниця) */
   --font-primary: "Noto Serif", "Gentium Plus", Georgia, serif;
 
-  /* Трансліт (IAST + укр. з діакритикою) */
-  --font-translit: "Gentium Plus", "Noto Serif", "Gentium Plus Cyr", "Gaura Times", serif;
+  /* Трансліт (IAST + укр. з діакритикою) - simplified stack */
+  --font-translit: "Gentium Plus", serif;
 
   /* Деванагарі */
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
@@ -285,28 +285,32 @@ body {
 
 /* IAST латиниця з діакритикою */
 .iast-text {
-  font-family: var(--font-translit);
-  font-size: 1rem;
+  font-family: "Gentium Plus", serif !important;
+  font-size: 1rem !important;
   line-height: 1.6;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 !important;
+  font-variant-ligatures: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: normal;
 }
 
 /* Трансліт */
 .translit,
 .transliteration-output,
 .prose-reader .translit {
-  font-family: var(--font-translit);
-  font-size: 1rem;
+  font-family: "Gentium Plus", serif !important;
+  font-size: 1rem !important;
   line-height: 1.6;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 400 !important;
   text-align: left;
+  font-variant-ligatures: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  font-feature-settings: normal;
 }
 
 /* Послівний переклад */
