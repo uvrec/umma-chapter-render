@@ -205,11 +205,12 @@ export default function VedabaseImportV3() {
         });
         
         if (error) {
-          // Якщо це 404, кидаємо спеціальну помилку
-          if (error.message?.includes('404') || error.message?.includes('Upstream 404')) {
-            throw new Error('Upstream 404');
-          }
           throw new Error(error.message || 'Edge function error');
+        }
+        
+        // Check for 404 in response data
+        if (data?.notFound) {
+          throw new Error('Upstream 404');
         }
         
         if (data?.html && data.html.length > 100) {
