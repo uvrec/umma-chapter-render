@@ -266,18 +266,28 @@ body {
 /* Бенгалі */
 .bengali-text {
   font-family: var(--font-bengali);
-  font-size: var(--sanskrit-font-size);
-  line-height: var(--sanskrit-line-height);
-  text-align: center;
-  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: left;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Деванагарі для транслітератора */
+.devanagari-text {
+  font-family: var(--font-devanagari);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: left;
+  font-weight: 400;
   letter-spacing: 0.01em;
 }
 
 /* IAST латиниця з діакритикою */
 .iast-text {
   font-family: var(--font-translit);
-  font-size: 1.05rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.6;
   font-style: normal;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
@@ -287,13 +297,14 @@ body {
 
 /* Трансліт */
 .translit,
+.transliteration-output,
 .prose-reader .translit {
   font-family: var(--font-translit);
-  font-size: var(--translit-font-size);
-  line-height: var(--translit-line-height);
-  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.6;
+  font-style: normal;
   font-weight: 400;
-  text-align: center;
+  text-align: left;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
