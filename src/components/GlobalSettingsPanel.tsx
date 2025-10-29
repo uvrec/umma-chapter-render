@@ -19,6 +19,8 @@ const LS_KEYS = {
   lineHeight: "vv_reader_lineHeight",
   dual: "vv_reader_dualMode",
   blocks: "vv_reader_blocks",
+  showNumbers: "vv_reader_showNumbers",
+  flowMode: "vv_reader_flowMode",
 };
 
 type BlocksState = {
@@ -60,6 +62,8 @@ export const GlobalSettingsPanel = () => {
   });
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
+  const [showNumbers, setShowNumbers] = useState<boolean>(() => localStorage.getItem(LS_KEYS.showNumbers) !== "false");
+  const [flowMode, setFlowMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.flowMode) === "true");
 
   const bumpReader = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
@@ -84,6 +88,16 @@ export const GlobalSettingsPanel = () => {
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
     bumpReader();
   }, [blocks]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEYS.showNumbers, String(showNumbers));
+    bumpReader();
+  }, [showNumbers]);
+
+  useEffect(() => {
+    localStorage.setItem(LS_KEYS.flowMode, String(flowMode));
+    bumpReader();
+  }, [flowMode]);
 
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
   const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
@@ -215,6 +229,16 @@ export const GlobalSettingsPanel = () => {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="dual-language">Двомовний режим</Label>
                   <Switch id="dual-language" checked={dualMode} onCheckedChange={(v) => setDualMode(v)} />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="show-numbers">Показувати номери віршів</Label>
+                  <Switch id="show-numbers" checked={showNumbers} onCheckedChange={(v) => setShowNumbers(v)} />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="flow-mode">Суцільний текст (без рамок)</Label>
+                  <Switch id="flow-mode" checked={flowMode} onCheckedChange={(v) => setFlowMode(v)} />
                 </div>
               </div>
             </div>

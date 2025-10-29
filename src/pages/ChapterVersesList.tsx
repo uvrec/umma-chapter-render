@@ -17,13 +17,17 @@ export const ChapterVersesList = () => {
   const { language } = useLanguage();
   const navigate = useNavigate();
 
-  // Читаємо dualMode з localStorage
+  // Читаємо налаштування з localStorage
   const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+  const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
+  const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
 
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handler = () => {
       setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+      setShowNumbers(localStorage.getItem("vv_reader_showNumbers") !== "false");
+      setFlowMode(localStorage.getItem("vv_reader_flowMode") === "true");
     };
     window.addEventListener("vv-reader-prefs-changed", handler);
     return () => window.removeEventListener("vv-reader-prefs-changed", handler);
@@ -225,65 +229,86 @@ export const ChapterVersesList = () => {
           )}
 
           {/* Список віршів */}
-          <div className="space-y-6">
-            {verses.map((verse) => {
-              const translationUa = verse.translation_ua || "";
-              const translationEn = verse.translation_en || "";
+          {flowMode ? (
+            /* Режим суцільного тексту - без контейнерів, номерів, рамок */
+            <div className="prose prose-lg max-w-none">
+              {verses.map((verse, idx) => {
+                const text = language === "ua" ? verse.translation_ua : verse.translation_en;
+                return (
+                  <p key={verse.id} className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground mb-6">
+                    {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
+                  </p>
+                );
+              })}
+            </div>
+          ) : (
+            /* Звичайний режим */
+            <div className="space-y-6">
+              {verses.map((verse) => {
+                const translationUa = verse.translation_ua || "";
+                const translationEn = verse.translation_en || "";
 
-              return (
-                <div key={verse.id} className="space-y-3">
-                  {/* Side-by-side якщо dualMode */}
-                  {dualMode ? (
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {/* Українська */}
+                return (
+                  <div key={verse.id} className="space-y-3">
+                    {/* Side-by-side якщо dualMode */}
+                    {dualMode ? (
+                      <div className="grid gap-6 md:grid-cols-2">
+                        {/* Українська */}
+                        <div className="space-y-3">
+                          {showNumbers && (
+                            <Link
+                              to={getVerseUrl(verse.verse_number)}
+                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                            >
+                              ВІРШ {verse.verse_number}
+                            </Link>
+                          )}
+                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground">
+                            {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                          </p>
+                        </div>
+
+                        {/* Англійська */}
+                        <div className="space-y-3 border-l border-border pl-6">
+                          {showNumbers && (
+                            <Link
+                              to={getVerseUrl(verse.verse_number)}
+                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                            >
+                              TEXT {verse.verse_number}
+                            </Link>
+                          )}
+                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground">
+                            {translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Одна мова */
                       <div className="space-y-3">
-                        <Link
-                          to={getVerseUrl(verse.verse_number)}
-                          className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                        >
-                          ВІРШ {verse.verse_number}
-                        </Link>
-                        <p className="text-base leading-relaxed text-foreground">
-                          {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                        {showNumbers && (
+                          <Link
+                            to={getVerseUrl(verse.verse_number)}
+                            className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                          >
+                            {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
+                          </Link>
+                        )}
+                        <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground">
+                          {language === "ua"
+                            ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
+                            : translationEn || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>
+                    )}
 
-                      {/* Англійська */}
-                      <div className="space-y-3 border-l border-border pl-6">
-                        <Link
-                          to={getVerseUrl(verse.verse_number)}
-                          className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                        >
-                          TEXT {verse.verse_number}
-                        </Link>
-                        <p className="text-base leading-relaxed text-foreground">
-                          {translationEn || <span className="italic text-muted-foreground">No translation</span>}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Одна мова */
-                    <div className="space-y-3">
-                      <Link
-                        to={getVerseUrl(verse.verse_number)}
-                        className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                      >
-                        {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                      </Link>
-                      <p className="text-base leading-relaxed text-foreground">
-                        {language === "ua"
-                          ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
-                          : translationEn || <span className="italic text-muted-foreground">No translation</span>}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Розділювач */}
-                  <div className="border-b border-border" />
-                </div>
-              );
-            })}
-          </div>
+                    {/* Невеликий відступ замість роздільної лінії */}
+                    <div className="h-4" />
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {verses.length === 0 && (
             <div className="rounded-lg border border-dashed border-border p-12 text-center">
