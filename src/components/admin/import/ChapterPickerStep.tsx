@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ParsedChapter, ParsedVerse } from "@/types/book-import";
 import { BookOpen, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 
 interface ChapterPickerStepProps {
   chapters: ParsedChapter[];
@@ -134,10 +135,17 @@ export function ChapterPickerStep({ chapters, onNext, onBack }: ChapterPickerSte
           ) : selectedChapter.chapter_type === "text" ? (
             <ScrollArea className="max-h-[460px] pr-2">
               <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-ul:my-2 prose-ol:my-2">
-                {/* Рендеримо HTML напряму, щоб бачити реальне форматування */}
+                {/* Рендеримо HTML з санітизацією для безпеки */}
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: selectedChapter.content_ua || '<p class="text-muted-foreground">Порожній текст</p>',
+                    __html: DOMPurify.sanitize(
+                      selectedChapter.content_ua || '<p class="text-muted-foreground">Порожній текст</p>',
+                      {
+                        ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'div', 'span'],
+                        ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+                        ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+                      }
+                    ),
                   }}
                 />
               </div>

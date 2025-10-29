@@ -11,6 +11,7 @@ import { extractTextFromDOCX } from "@/utils/import/docx";
 import { marked } from "marked";
 import { toast } from "sonner";
 import { ParserStatus } from "@/components/admin/ParserStatus";
+import DOMPurify from "dompurify";
 
 type SourceKind = "unknown" | "html" | "markdown" | "text";
 
@@ -263,7 +264,13 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
           </div>
           <div
             className="prose prose-slate max-w-none rounded-md bg-background p-4 text-sm dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: previewHTML }}
+            dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(previewHTML, {
+                ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'a', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td'],
+                ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
+                ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+              })
+            }}
           />
         </div>
       )}
