@@ -3,8 +3,10 @@
    ========================================== */
 
 /* -------- Google Fonts імпорти (мають бути на початку) -------- */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap');
 
 /* -------- Gaura Times (основний вайшнавський шрифт) -------- */
 @font-face {
@@ -54,12 +56,13 @@
 
 
 
-/* -------- Блок для трансліту -------- */
+/* -------- Блок для трансліту (українська кирилиця з діакритикою) -------- */
 .translit,
 .prose-reader .translit,
 .result-text,
+.transliteration-output,
 [data-result] {
-  font-family: "Gentium Plus Cyr", "Gaura Times", "Noto Serif", serif;
+  font-family: "Gentium Plus", "Noto Serif", "Gentium Plus Cyr", "Gaura Times", serif;
   font-feature-settings:
     "kern" 1,
     "liga" 1,
@@ -67,8 +70,10 @@
     "ccmp" 1,
     "mark" 1,
     "mkmk" 1;
-  font-style: italic;
+  font-style: normal;
   font-weight: 400;
+  font-size: 1.05rem;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -85,7 +90,8 @@
   font-family: "Noto Sans Devanagari", "Gaura Times", serif;
   font-style: normal;
   font-weight: 400;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 /* -------- Бенгалі -------- */
@@ -94,16 +100,25 @@
   font-family: "Noto Sans Bengali", "Gaura Times", serif;
   font-style: normal;
   font-weight: 400;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 /* -------- Санскрит (IAST латиниця) -------- */
 .sanskrit-text,
 .transliteration-output[data-script="iast"] {
-  font-family: "Gentium Plus Cyr", "Gaura Times", serif;
+  font-family: "Gentium Plus", "Noto Serif", "Gentium Plus Cyr", "Gaura Times", serif;
   font-style: normal;
   font-weight: 400;
-  line-height: 1.5;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  font-feature-settings:
+    "kern" 1,
+    "liga" 1,
+    "calt" 1,
+    "ccmp" 1,
+    "mark" 1,
+    "mkmk" 1;
 }
 
 /* -------- Tailwind базові директиви -------- */
