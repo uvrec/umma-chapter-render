@@ -495,7 +495,6 @@ export default function UniversalImportFixed() {
       }
 
       const siteSlug = VEDABASE_TO_SITE_SLUG[vedabaseBook] || vedabaseBook;
-      const bookInfo = VEDABASE_BOOKS[vedabaseBook];
 
       const newImport: ImportData = {
         ...importData,
