@@ -148,13 +148,17 @@ export default function UniversalImportFixed() {
 
     try {
       const chapterNum = parseInt(vedabaseChapter, 10);
-      const lila = vedabaseCanto || "adi";
-      
+      const bookInfo = VEDABASE_BOOKS[vedabaseBook];
+
       // Автоматично визначаємо максимальний вірш якщо не вказано
       let verseRanges = vedabaseVerse;
       if (!verseRanges) {
         try {
-          const chapterUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
+          // ✅ Формуємо URL залежно від типу книги
+          const chapterUrl = bookInfo.isMultiVolume
+            ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+            : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+
           const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
           const maxVerse = getMaxVerseFromChapter(chapterData.html);
           verseRanges = maxVerse > 0 ? `1-${maxVerse}` : "1-500";
@@ -164,9 +168,14 @@ export default function UniversalImportFixed() {
         }
       }
 
-      // Формуємо базові URL
-      const vedabase_base = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
-      const gitabase_base = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`;
+      // ✅ Формуємо базові URL залежно від типу книги
+      const vedabase_base = bookInfo.isMultiVolume
+        ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+        : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+
+      const gitabase_base = bookInfo.isMultiVolume
+        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
+        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}`;
 
       let result: any = null;
 
@@ -207,13 +216,22 @@ export default function UniversalImportFixed() {
 
         // 🧭 1) Знімаємо індекс посилань з сторінки глави (щоб виявляти "7-8", "10-16")
         try {
-          const chapterUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
+          // ✅ Використовуємо ту саму логіку формування URL
+          const chapterUrl = bookInfo.isMultiVolume
+            ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+            : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+
           const { data: chapterHtml } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
           const map: Array<{ lastPart: string; from: number; to: number }> = [];
           if (chapterHtml?.html) {
             const dp = new DOMParser();
             const doc = dp.parseFromString(chapterHtml.html, 'text/html');
-            const anchors = Array.from(doc.querySelectorAll(`a[href*="/${vedabaseBook}/${lila}/${chapterNum}/"]`));
+
+            // ✅ Селектор також залежить від типу книги
+            const hrefPattern = bookInfo.isMultiVolume
+              ? `/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+              : `/${vedabaseBook}/${chapterNum}/`;
+            const anchors = Array.from(doc.querySelectorAll(`a[href*="${hrefPattern}"]`));
             anchors.forEach(a => {
               const href = a.getAttribute('href') || '';
               const seg = href.split('/').filter(Boolean).pop() || '';
@@ -241,8 +259,14 @@ export default function UniversalImportFixed() {
             // 2) Парсимо кожен таргет як окремий вірш (включно з об'єднаними)
             for (const t of targets) {
               try {
-                const vedabaseUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${t.lastPart}`;
-                const gitabaseUrl = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`;
+                // ✅ Формуємо URL залежно від типу книги
+                const vedabaseUrl = bookInfo.isMultiVolume
+                  ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${t.lastPart}`
+                  : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${t.lastPart}`;
+
+                const gitabaseUrl = bookInfo.isMultiVolume
+                  ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
 
                 const [vedabaseRes, gitabaseRes] = await Promise.allSettled([
                   supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
@@ -305,8 +329,14 @@ export default function UniversalImportFixed() {
           // Простий попередній алгоритм (на випадок збою)
           for (let v = start; v <= end; v++) {
             try {
-              const vedabaseUrl = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/${v}`;
-              const gitabaseUrl = `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`;
+              // ✅ Формуємо URL залежно від типу книги
+              const vedabaseUrl = bookInfo.isMultiVolume
+                ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${v}`
+                : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${v}`;
+
+              const gitabaseUrl = bookInfo.isMultiVolume
+                ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
 
               const [vedabaseRes, gitabaseRes] = await Promise.allSettled([
                 supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
@@ -426,8 +456,11 @@ export default function UniversalImportFixed() {
           source_url: vedabase_base,
           book_slug: siteSlug,
           vedabase_slug: vedabaseBook,
-          canto: lilaNum.toString(),
-          volume: vedabaseCanto,
+          // ✅ Тільки для багатотомних книг додаємо canto
+          ...(bookInfo?.isMultiVolume && {
+            canto: lilaNum.toString(),
+            volume: vedabaseCanto,
+          }),
         },
       };
 
@@ -1074,8 +1107,12 @@ export default function UniversalImportFixed() {
                     try {
                       setIsProcessing(true);
                       const chapterNum = parseInt(vedabaseChapter || "0", 10);
-                      const lila = vedabaseCanto || "adi";
-                      const vedabase_base = `https://vedabase.io/en/library/${vedabaseBook}/${lila}/${chapterNum}/`;
+                      const bookInfo = VEDABASE_BOOKS[vedabaseBook];
+
+                      // ✅ Формуємо URL залежно від типу книги
+                      const vedabase_base = bookInfo.isMultiVolume
+                        ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+                        : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
                       const res = await fetch(vedabase_base);
                       const html = await res.text();
                       const parser = new DOMParser();
