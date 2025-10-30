@@ -62,6 +62,15 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     synonymsPattern: /^(ПОСЛІВНИЙ ПЕРЕКЛАД|WORD FOR WORD|СИНОНІМИ|SYNONYMS):/i,
     translationPattern: /^(ПЕРЕКЛАД|TRANSLATION):/i,
     commentaryPattern: /^(КОМЕНТАР|ПОЯСНЕННЯ|КОММЕНТАРИЙ|COMMENTARY|PURPORT):/i,
-    chapterPattern: /^(ГЛАВА|CHAPTER|РОЗДІЛ)\s+(\d+)/i,
+    chapterPattern: /^(ГЛАВА|CHAPTER|РОЗДІЛ)\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|\d+)/i,
+  },
+  {
+    id: "bhagavad-gita",
+    name: "Бгаґавад-ґіта (українська)",
+    versePattern: /^(ВІРШ|ТЕКСТ)\s+(\d+(?:\.\d+)?)/i,
+    synonymsPattern: /^(ПОСЛІВНИЙ ПЕРЕКЛАД):/i,
+    translationPattern: /^(ПЕРЕКЛАД):/i,
+    commentaryPattern: /^(ПОЯСНЕННЯ):/i,
+    chapterPattern: /^ГЛАВА\s+(ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|ДЕВ'ЯТА|ДЕСЯТА|ОДИНАДЦЯТА|ДВАНАДЦЯТА|ТРИНАДЦЯТА|ЧОТИРНАДЦЯТА|П'ЯТНАДЦЯТА|ШІСТНАДЦЯТА|СІМНАДЦЯТА|ВІСІМНАДЦЯТА)/i,
   },
 ];
