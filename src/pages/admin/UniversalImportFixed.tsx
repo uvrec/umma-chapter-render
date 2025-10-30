@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { Globe, BookOpen, FileText, CheckCircle, Download } from "lucide-react";
+import { Globe, BookOpen, FileText, CheckCircle, Download, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
@@ -15,6 +15,11 @@ import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser"
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
+import { extractTextFromPDF } from "@/utils/import/pdf";
+import { extractTextFromEPUB } from "@/utils/import/epub";
+import { extractTextFromDOCX } from "@/utils/import/docx";
+import { splitIntoChapters } from "@/utils/import/splitters";
+import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
 
 // Мапінг Vedabase slug → Vedavoice slug
 const VEDABASE_TO_SITE_SLUG: Record<string, string> = {
@@ -47,7 +52,7 @@ interface ImportData {
   };
 }
 
-// Каталог Vedabase книг
+// Каталог Vedabase книг з шаблонами розпізнавання
 const VEDABASE_BOOKS: Record<
   string,
   {
@@ -55,28 +60,36 @@ const VEDABASE_BOOKS: Record<
     isMultiVolume: boolean;
     volumeLabel: string;
     cantos?: (string | number)[];
+    templateId?: string; // ID шаблону для парсингу файлів
   }
 > = {
-  bg: { name: "Бгаґавад-ґіта як вона є", isMultiVolume: false, volumeLabel: "Глава" },
+  bg: {
+    name: "Бгаґавад-ґіта як вона є",
+    isMultiVolume: false,
+    volumeLabel: "Глава",
+    templateId: "bhagavad-gita"
+  },
   sb: {
     name: "Шрімад-Бгаґаватам",
     isMultiVolume: true,
     volumeLabel: "Пісня",
     cantos: Array.from({ length: 12 }, (_, i) => i + 1),
+    templateId: "srimad-bhagavatam"
   },
   cc: {
     name: "Шрі Чайтанья-чарітамріта",
     isMultiVolume: true,
     volumeLabel: "Ліла",
     cantos: ["adi", "madhya", "antya"],
+    templateId: "default"
   },
-  iso: { name: "Шрі Ішопанішад", isMultiVolume: false, volumeLabel: "Мантра" },
-  noi: { name: "Нектар настанов", isMultiVolume: false, volumeLabel: "Текст" },
-  nod: { name: "Нектар відданості", isMultiVolume: false, volumeLabel: "Глава" },
-  kb: { name: "Крішна — Верховна Особистість Бога", isMultiVolume: false, volumeLabel: "Глава" },
-  tlk: { name: "Наука самоусвідомлення", isMultiVolume: false, volumeLabel: "Глава" },
-  transcripts: { name: "Лекції", isMultiVolume: false, volumeLabel: "Лекція" },
-  letters: { name: "Листи", isMultiVolume: false, volumeLabel: "Лист" },
+  iso: { name: "Шрі Ішопанішад", isMultiVolume: false, volumeLabel: "Мантра", templateId: "default" },
+  noi: { name: "Нектар настанов", isMultiVolume: false, volumeLabel: "Текст", templateId: "default" },
+  nod: { name: "Нектар відданості", isMultiVolume: false, volumeLabel: "Глава", templateId: "default" },
+  kb: { name: "Крішна — Верховна Особистість Бога", isMultiVolume: false, volumeLabel: "Глава", templateId: "default" },
+  tlk: { name: "Наука самоусвідомлення", isMultiVolume: false, volumeLabel: "Глава", templateId: "default" },
+  transcripts: { name: "Лекції", isMultiVolume: false, volumeLabel: "Лекція", templateId: "default" },
+  letters: { name: "Листи", isMultiVolume: false, volumeLabel: "Лист", templateId: "default" },
 };
 
 // 👇 головна змінна: адреса парсера
@@ -105,6 +118,12 @@ export default function UniversalImportFixed() {
   const [vedabaseCanto, setVedabaseCanto] = useState("");
   const [vedabaseChapter, setVedabaseChapter] = useState("");
   const [vedabaseVerse, setVedabaseVerse] = useState("");
+
+  // File import
+  const [fileText, setFileText] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("bhagavad-gita");
+  const [parsedChapters, setParsedChapters] = useState<any[]>([]);
+  const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(0);
 
   const navigate = useNavigate();
 
@@ -426,6 +445,212 @@ export default function UniversalImportFixed() {
     }
   }, [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, lilaNum]);
 
+  /** Обробка файлу */
+  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsProcessing(true);
+    setProgress(10);
+
+    try {
+      let extractedText = "";
+      const ext = file.name.split(".").pop()?.toLowerCase();
+
+      if (file.type === "application/pdf" || ext === "pdf") {
+        toast({ title: "Обробка PDF...", description: "Це може зайняти деякий час" });
+        extractedText = await extractTextFromPDF(file);
+      } else if (file.type === "application/epub+zip" || ext === "epub") {
+        toast({ title: "Обробка EPUB..." });
+        extractedText = await extractTextFromEPUB(file);
+      } else if (
+        ext === "docx" ||
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        toast({ title: "Обробка DOCX..." });
+        extractedText = await extractTextFromDOCX(file);
+      } else if (ext === "md" || file.type === "text/plain" || ext === "txt") {
+        toast({ title: "Читання тексту..." });
+        extractedText = await file.text();
+      } else {
+        toast({
+          title: "Помилка",
+          description: "Непідтримуваний формат. Використайте PDF/DOCX/EPUB/TXT/MD.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!extractedText || !extractedText.trim()) {
+        toast({
+          title: "Помилка",
+          description: "Файл порожній або не містить тексту",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setFileText(extractedText);
+      setProgress(50);
+
+      // Автоматично парсимо текст після завантаження
+      await parseFileText(extractedText);
+
+      toast({ title: "✅ Файл завантажено", description: `${extractedText.length} символів` });
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        title: "Помилка обробки файлу",
+        description: err?.message || "Невідома помилка",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+      e.target.value = "";
+    }
+  }, [selectedTemplate]);
+
+  /** Парсинг тексту з файлу */
+  const parseFileText = useCallback(async (text?: string) => {
+    const textToParse = text || fileText;
+    if (!textToParse.trim()) {
+      toast({ title: "Помилка", description: "Немає тексту для парсингу", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+    setProgress(10);
+
+    try {
+      // Знайти шаблон
+      const template = BOOK_TEMPLATES.find(t => t.id === selectedTemplate) || BOOK_TEMPLATES[0];
+
+      console.log("📖 Парсинг з шаблоном:", template.name);
+      console.log("📝 Текст довжина:", textToParse.length);
+
+      // Парсити розділи
+      const chapters = splitIntoChapters(textToParse, template);
+
+      console.log("✅ Знайдено розділів:", chapters.length);
+
+      if (chapters.length === 0) {
+        toast({
+          title: "Не знайдено розділів",
+          description: "Спробуйте інший шаблон або перевірте формат тексту",
+          variant: "destructive"
+        });
+        setParsedChapters([]);
+        return;
+      }
+
+      setParsedChapters(chapters);
+      setSelectedChapterIndex(0);
+
+      toast({
+        title: "✅ Парсинг завершено",
+        description: `Знайдено ${chapters.length} розділ(ів), ${chapters.reduce((sum, ch) => sum + ch.verses.length, 0)} віршів`
+      });
+
+      setProgress(100);
+    } catch (err: any) {
+      console.error("Помилка парсингу:", err);
+      toast({
+        title: "Помилка парсингу",
+        description: err?.message || "Невідома помилка",
+        variant: "destructive"
+      });
+      setParsedChapters([]);
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+    }
+  }, [fileText, selectedTemplate]);
+
+  /** Імпорт розділу з файлу */
+  const handleFileChapterImport = useCallback(async () => {
+    if (parsedChapters.length === 0) {
+      toast({ title: "Помилка", description: "Немає розділів для імпорту", variant: "destructive" });
+      return;
+    }
+
+    const chapter = parsedChapters[selectedChapterIndex];
+    if (!chapter) {
+      toast({ title: "Помилка", description: "Розділ не знайдено", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+    setProgress(10);
+
+    try {
+      const slug = importData.metadata.book_slug || VEDABASE_TO_SITE_SLUG[vedabaseBook] || "imported-book";
+      const { data: existing } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
+
+      let bookId = existing?.id;
+      if (!bookId) {
+        const { data: created, error } = await supabase
+          .from("books")
+          .insert({
+            slug,
+            title_ua: importData.metadata.title_ua || currentBookInfo?.name || "Імпортована книга",
+            title_en: importData.metadata.title_en,
+            is_published: true,
+          })
+          .select("id")
+          .single();
+        if (error) throw error;
+        bookId = created.id;
+      }
+
+      // Resolve canto if needed
+      let cantoId: string | null = null;
+      if (vedabaseCanto && currentBookInfo?.isMultiVolume) {
+        const cantoNum = parseInt(vedabaseCanto, 10);
+        if (!isNaN(cantoNum)) {
+          const { data: canto } = await supabase
+            .from("cantos")
+            .select("id")
+            .eq("book_id", bookId)
+            .eq("canto_number", cantoNum)
+            .maybeSingle();
+          cantoId = canto?.id || null;
+        }
+      }
+
+      await importSingleChapter(supabase, {
+        bookId,
+        cantoId: cantoId ?? null,
+        chapter,
+        strategy: "upsert",
+      });
+
+      toast({
+        title: "✅ Імпорт завершено",
+        description: `Розділ ${chapter.chapter_number}: ${chapter.verses?.length || 0} віршів збережено`,
+      });
+
+      setProgress(100);
+
+      // Навігація до розділу
+      const targetPath = cantoId
+        ? `/veda-reader/${slug}/canto/${vedabaseCanto}/chapter/${chapter.chapter_number}`
+        : `/veda-reader/${slug}/${chapter.chapter_number}`;
+
+      navigate(targetPath);
+    } catch (err: any) {
+      console.error("Помилка імпорту:", err);
+      toast({
+        title: "Помилка збереження",
+        description: err?.message || "Невідома помилка",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+    }
+  }, [parsedChapters, selectedChapterIndex, importData, vedabaseBook, vedabaseCanto, currentBookInfo, navigate]);
+
   /** Збереження у базу */
   const saveToDatabase = useCallback(async (dataOverride?: ImportData) => {
     const data = dataOverride ?? importData;
@@ -529,11 +754,17 @@ export default function UniversalImportFixed() {
           )}
 
           <Tabs value={currentStep} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="source">Джерело</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+              <TabsTrigger value="source" onClick={() => setCurrentStep("source")}>
+                <Globe className="w-4 h-4 mr-2" />
+                Vedabase
+              </TabsTrigger>
+              <TabsTrigger value="file" onClick={() => setCurrentStep("file")}>
+                <Upload className="w-4 h-4 mr-2" />
+                Файл
+              </TabsTrigger>
               <TabsTrigger value="intro">Intro</TabsTrigger>
-              <TabsTrigger value="normalize">Normalization</TabsTrigger>
-              <TabsTrigger value="process">Обробка</TabsTrigger>
+              <TabsTrigger value="normalize">Norm</TabsTrigger>
               <TabsTrigger value="preview">Перегляд</TabsTrigger>
               <TabsTrigger value="save">Збереження</TabsTrigger>
             </TabsList>
@@ -613,6 +844,208 @@ export default function UniversalImportFixed() {
                 <Globe className="w-4 h-4 mr-2" />
                 Імпортувати з Vedabase
               </Button>
+            </TabsContent>
+
+            <TabsContent value="file" className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Крок 1: Оберіть книгу та шаблон</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Книга</Label>
+                      <select
+                        value={vedabaseBook}
+                        onChange={(e) => {
+                          setVedabaseBook(e.target.value);
+                          const book = VEDABASE_BOOKS[e.target.value];
+                          if (book.templateId) {
+                            setSelectedTemplate(book.templateId);
+                          }
+                        }}
+                        className="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+                      >
+                        {Object.entries(VEDABASE_BOOKS).map(([slug, info]) => (
+                          <option key={slug} value={slug}>
+                            {info.name} ({slug.toUpperCase()})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <Label>Шаблон розпізнавання</Label>
+                      <select
+                        value={selectedTemplate}
+                        onChange={(e) => setSelectedTemplate(e.target.value)}
+                        className="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+                      >
+                        {BOOK_TEMPLATES.map((template) => (
+                          <option key={template.id} value={template.id}>
+                            {template.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Автоматично обрано для вибраної книги
+                      </p>
+                    </div>
+                  </div>
+
+                  {currentBookInfo.isMultiVolume && (
+                    <div className="mt-4">
+                      <Label>{currentBookInfo.volumeLabel}</Label>
+                      <select
+                        value={vedabaseCanto}
+                        onChange={(e) => setVedabaseCanto(e.target.value)}
+                        className="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+                      >
+                        <option value="">Оберіть...</option>
+                        {currentBookInfo.cantos?.map((c) => (
+                          <option key={c} value={String(c)}>
+                            {String(c)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Крок 2: Завантажте файл</h3>
+                  <div className="rounded-lg border-2 border-dashed p-8 text-center">
+                    <Upload className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                    <label className="cursor-pointer">
+                      <span className="text-primary hover:underline font-medium">
+                        Натисніть для вибору файлу
+                      </span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.epub,.txt,.md,.docx"
+                        onChange={handleFileUpload}
+                        disabled={isProcessing}
+                      />
+                    </label>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      Підтримувані формати: PDF, EPUB, DOCX, TXT, MD
+                    </p>
+                  </div>
+                  {fileText && (
+                    <div className="mt-4 p-4 bg-muted rounded-lg">
+                      <p className="text-sm">
+                        📄 Завантажено: <strong>{fileText.length.toLocaleString()}</strong> символів
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => parseFileText()}
+                        className="mt-2"
+                        disabled={isProcessing}
+                      >
+                        🔄 Перепарсити з поточним шаблоном
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {parsedChapters.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Крок 3: Оберіть розділ для імпорту</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <Label>Розділ ({parsedChapters.length} знайдено)</Label>
+                        <select
+                          value={selectedChapterIndex}
+                          onChange={(e) => setSelectedChapterIndex(parseInt(e.target.value))}
+                          className="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
+                        >
+                          {parsedChapters.map((ch, idx) => (
+                            <option key={idx} value={idx}>
+                              Розділ {ch.chapter_number}: {ch.title_ua || ch.title_en || "Без назви"} (
+                              {ch.verses?.length || 0} віршів, тип: {ch.chapter_type})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="p-4 bg-muted rounded-lg">
+                        <h4 className="font-semibold mb-2">Попередній перегляд</h4>
+                        {parsedChapters[selectedChapterIndex] && (
+                          <div className="space-y-2 text-sm">
+                            <p>
+                              <strong>Номер:</strong> {parsedChapters[selectedChapterIndex].chapter_number}
+                            </p>
+                            <p>
+                              <strong>Назва (UA):</strong>{" "}
+                              {parsedChapters[selectedChapterIndex].title_ua || "Не вказано"}
+                            </p>
+                            <p>
+                              <strong>Тип:</strong> {parsedChapters[selectedChapterIndex].chapter_type}
+                            </p>
+                            <p>
+                              <strong>Віршів:</strong> {parsedChapters[selectedChapterIndex].verses?.length || 0}
+                            </p>
+                            {parsedChapters[selectedChapterIndex].verses?.length > 0 && (
+                              <div className="mt-3 p-3 bg-background rounded border">
+                                <p className="font-semibold text-xs mb-2">Перший вірш:</p>
+                                <p className="text-xs">
+                                  <strong>№:</strong> {parsedChapters[selectedChapterIndex].verses[0].verse_number}
+                                </p>
+                                {parsedChapters[selectedChapterIndex].verses[0].sanskrit && (
+                                  <p className="text-xs mt-1">
+                                    <strong>Санскрит:</strong>{" "}
+                                    {parsedChapters[selectedChapterIndex].verses[0].sanskrit.substring(0, 100)}...
+                                  </p>
+                                )}
+                                {parsedChapters[selectedChapterIndex].verses[0].translation_ua && (
+                                  <p className="text-xs mt-1">
+                                    <strong>Переклад:</strong>{" "}
+                                    {parsedChapters[selectedChapterIndex].verses[0].translation_ua.substring(0, 150)}
+                                    ...
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label>Назва розділу (UA) - необов'язково</Label>
+                          <Input
+                            value={importData.metadata.title_ua}
+                            onChange={(e) =>
+                              setImportData((prev) => ({
+                                ...prev,
+                                metadata: { ...prev.metadata, title_ua: e.target.value },
+                              }))
+                            }
+                            placeholder={parsedChapters[selectedChapterIndex]?.title_ua || "Залишити як є"}
+                          />
+                        </div>
+                        <div>
+                          <Label>Назва розділу (EN) - необов'язково</Label>
+                          <Input
+                            value={importData.metadata.title_en}
+                            onChange={(e) =>
+                              setImportData((prev) => ({
+                                ...prev,
+                                metadata: { ...prev.metadata, title_en: e.target.value },
+                              }))
+                            }
+                            placeholder={parsedChapters[selectedChapterIndex]?.title_en || "Залишити як є"}
+                          />
+                        </div>
+                      </div>
+
+                      <Button onClick={handleFileChapterImport} disabled={isProcessing} className="w-full">
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Імпортувати обраний розділ
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="intro" className="space-y-4">
