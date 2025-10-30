@@ -41,6 +41,9 @@ function withFlags(re: RegExp, extraFlags: string): RegExp {
   return new RegExp(re.source, flags);
 }
 
+// Debug flag - disable heavy logging in production
+const DEBUG = process.env.NODE_ENV === 'development' && false;
+
 export function splitIntoChapters(
   text: string,
   template: ImportTemplate
@@ -50,13 +53,15 @@ export function splitIntoChapters(
   const pattern = withFlags(template.chapterPattern, 'gu');
   const chapterMatches = [...text.matchAll(pattern)];
   
-  console.log('🔍 Looking for chapters with pattern:', template.chapterPattern);
-  console.log(`📚 Found ${chapterMatches.length} chapter markers`);
-  if (chapterMatches.length > 0) {
-    console.log('✅ First 5 chapters:', chapterMatches.slice(0, 5).map(m => m[0]));
+  if (DEBUG) {
+    console.log('🔍 Looking for chapters with pattern:', template.chapterPattern);
+    console.log(`📚 Found ${chapterMatches.length} chapter markers`);
+    if (chapterMatches.length > 0) {
+      console.log('✅ First 5 chapters:', chapterMatches.slice(0, 5).map(m => m[0]));
+    }
+    console.log(`📝 Total text length: ${text.length} characters`);
+    console.log(`📄 Sample text (first 200 chars):`, text.substring(0, 200));
   }
-  console.log(`📝 Total text length: ${text.length} characters`);
-  console.log(`📄 Sample text (first 500 chars):`, text.substring(0, 500));
   
   if (chapterMatches.length === 0) {
     console.warn('❌ No chapter markers found. Treating entire text as one chapter.');
@@ -83,17 +88,34 @@ export function splitIntoChapters(
     const rawNumber = match[1] || '';
     const fullMatch = match[0] || '';
     
-    // Special handling for introductory text chapters
+    // 🔧 Розширене розпізнавання вступних розділів
+    const introTitles: Record<string, { num: number; title: string }> = {
+      'ЛАНКИ ЛАНЦЮГА': { num: -5, title: 'Ланки ланцюга учнівської послідовності' },
+      'ВСТУП': { num: -4, title: 'Вступ' },
+      'ПЕРЕДМОВА': { num: -3, title: 'Передмова до англійського видання' },
+      'ПЕРЕДІСТОРІЯ': { num: -2, title: 'Передісторія «Бгаґавад-ґіти»' },
+      'ПОСВЯТА': { num: -1, title: 'Посвята' },
+      'НАРИС ЖИТТЯ': { num: -2, title: 'Нарис життя і повчань Господа Чайтаньї' },
+      'ЗВЕРНЕННЯ': { num: 0, title: 'Звернення' },
+    };
+
     let chapterNum: number;
     let chapterTitle: string;
+    let isIntroChapter = false;
     
-    if (/^\s*(?:Вступ|ВСТУП)/i.test(fullMatch)) {
-      chapterNum = -1;
-      chapterTitle = 'Вступ';
-    } else if (/^\s*(?:Звернення|ЗВЕРНЕННЯ)/i.test(fullMatch)) {
-      chapterNum = 0;
-      chapterTitle = 'Звернення';
-    } else {
+    // Перевірка на вступний розділ
+    const upperMatch = fullMatch.toUpperCase();
+    for (const [key, value] of Object.entries(introTitles)) {
+      if (upperMatch.includes(key)) {
+        chapterNum = value.num;
+        chapterTitle = value.title;
+        isIntroChapter = true;
+        if (DEBUG) console.log(`✅ Intro chapter detected: "${chapterTitle}" (num: ${chapterNum})`);
+        break;
+      }
+    }
+    
+    if (!isIntroChapter) {
       // Try to parse as number first
       chapterNum = parseInt(rawNumber);
       
@@ -125,12 +147,12 @@ export function splitIntoChapters(
     
     const verses = splitIntoVerses(chapterText, template);
     
-    // Determine chapter type: "Вступ" is text-only, all others with verses are verse chapters
+    // Determine chapter type
     let chapterType: ChapterType;
     let contentUa: string | undefined;
     
-    if (chapterNum === -1) {
-      // "Вступ" is always text-only
+    if (isIntroChapter) {
+      // Вступні розділи завжди текстові
       chapterType = 'text';
       contentUa = chapterText.trim();
     } else if (verses.length > 0) {
@@ -143,7 +165,9 @@ export function splitIntoChapters(
       contentUa = chapterText.trim();
     }
     
-    console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses, type: ${chapterType})`);
+    if (DEBUG) {
+      console.log(`📖 Chapter ${chapterNum}: "${chapterTitle}" (${verses.length} verses, type: ${chapterType})`);
+    }
     
     // Include all chapters, even if no verses (text-only chapters like prefaces)
     chapters.push({
@@ -173,14 +197,15 @@ export function splitIntoVerses(
   const pattern = withFlags(template.versePattern, 'gu');
   const verseMatches = [...chapterText.matchAll(pattern)];
   
-  console.log(`🔍 Verse pattern:`, template.versePattern);
-  console.log(`📊 Found ${verseMatches.length} verse markers`);
-  if (verseMatches.length > 0) {
-    console.log(`✅ First verse:`, verseMatches[0][0]);
-    console.log(`✅ Last verse:`, verseMatches[verseMatches.length - 1][0]);
+  if (DEBUG) {
+    console.log(`🔍 Verse pattern:`, template.versePattern);
+    console.log(`📊 Found ${verseMatches.length} verse markers`);
+    if (verseMatches.length > 0) {
+      console.log(`✅ First verse:`, verseMatches[0][0]);
+      console.log(`✅ Last verse:`, verseMatches[verseMatches.length - 1][0]);
+    }
+    console.log(`📝 Sample text (first 200 chars):`, chapterText.substring(0, 200));
   }
-  console.log(`📝 Sample text (first 300 chars):`, chapterText.substring(0, 300));
-  console.log(`📝 Full matches:`, verseMatches.map(m => ({ text: m[0], groups: m.slice(1) })));
   
   // Try generic 'anywhere' fallback (remove leading ^) if nothing found
   if (verseMatches.length === 0) {
@@ -303,11 +328,13 @@ function parseVerse(
 ): ParsedVerse {
   const verse: ParsedVerse = { verse_number: verseNumber };
   
-  console.log(`\n🔍 Parsing verse ${verseNumber}`);
-  console.log(`📄 Text length: ${text.length} chars`);
+  if (DEBUG) {
+    console.log(`\n🔍 Parsing verse ${verseNumber}`);
+    console.log(`📄 Text length: ${text.length} chars`);
+  }
   
   const lines = text.split('\n').filter(l => l.trim());
-  console.log(`📋 Total lines: ${lines.length}`);
+  if (DEBUG) console.log(`📋 Total lines: ${lines.length}`);
   
   // Extract Sanskrit - collect all consecutive Devanagari lines
   const sanskritLines: string[] = [];
@@ -316,14 +343,14 @@ function parseVerse(
   for (let i = 1; i < lines.length; i++) { // Start from 1 to skip verse number
     const line = lines[i].trim();
     
-    // Check if line contains Devanagari characters
-    if (/[\u0900-\u097F]/.test(line)) {
+    // 🔧 Розширене розпізнавання санскриту (деванаґарі + бенгалі)
+    if (/[\u0900-\u097F\u0980-\u09FF]/.test(line)) {
       sanskritLines.push(line);
-      console.log(`✅ Sanskrit line ${i}: ${line.substring(0, 50)}...`);
+      if (DEBUG) console.log(`✅ Sanskrit line ${i}: ${line.substring(0, 50)}...`);
     } else if (sanskritLines.length > 0) {
       // Found end of Sanskrit section
       translitStartIndex = i;
-      console.log(`🔚 End of Sanskrit at line ${i}`);
+      if (DEBUG) console.log(`🔚 End of Sanskrit at line ${i}`);
       break;
     }
   }

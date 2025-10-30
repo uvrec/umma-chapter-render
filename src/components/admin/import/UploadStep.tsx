@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Upload, FileText } from "lucide-react";
 import { extractTextFromPDF } from "@/utils/import/pdf";
 import { extractTextFromEPUB } from "@/utils/import/epub";
@@ -29,6 +30,10 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
   const [isLoading, setIsLoading] = useState(false);
   const [preserveFormatting, setPreserveFormatting] = useState(true);
   const [previewHTML, setPreviewHTML] = useState("");
+  
+  type DataSource = 'file' | 'vedabase' | 'gitabase';
+  const [dataSource, setDataSource] = useState<DataSource>('file');
+  const [sourceUrl, setSourceUrl] = useState('');
 
   // ───────────── helpers
   const isLikelyHTML = (s: string) => /<\s*(p|div|h1|h2|h3|h4|h5|h6|ul|ol|li|table|strong|em|a)\b/i.test(s.trim());
@@ -142,6 +147,11 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
   };
 
   const handleNext = async () => {
+    if (dataSource === 'vedabase' || dataSource === 'gitabase') {
+      toast.info('Інтеграція з Vedabase/Gitabase буде додана в наступній версії');
+      return;
+    }
+    
     if (!raw.trim()) {
       const msg = "Будь ласка, завантажте файл або вставте текст";
       toast.error(msg);
@@ -187,6 +197,61 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
       </div>
 
       <ParserStatus />
+
+      {/* Вибір джерела даних */}
+      <div className="space-y-3 p-4 border rounded-lg">
+        <Label className="font-semibold">Джерело даних</Label>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="source-file"
+              value="file"
+              checked={dataSource === 'file'}
+              onChange={(e) => setDataSource(e.target.value as DataSource)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="source-file" className="font-normal cursor-pointer">
+              Файл (PDF/EPUB/DOCX/TXT)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="source-vedabase"
+              value="vedabase"
+              checked={dataSource === 'vedabase'}
+              onChange={(e) => setDataSource(e.target.value as DataSource)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="source-vedabase" className="font-normal cursor-pointer">
+              Vedabase.io (скоро)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <input
+              type="radio"
+              id="source-gitabase"
+              value="gitabase"
+              checked={dataSource === 'gitabase'}
+              onChange={(e) => setDataSource(e.target.value as DataSource)}
+              className="h-4 w-4"
+            />
+            <Label htmlFor="source-gitabase" className="font-normal cursor-pointer">
+              Gitabase (UA) (скоро)
+            </Label>
+          </div>
+        </div>
+
+        {(dataSource === 'vedabase' || dataSource === 'gitabase') && (
+          <Input
+            value={sourceUrl}
+            onChange={(e) => setSourceUrl(e.target.value)}
+            placeholder="URL книги або глави"
+            className="mt-2"
+          />
+        )}
+      </div>
 
       {/* перемикач збереження форматування */}
       <div className="flex items-center justify-between rounded-lg border p-3">

@@ -32,6 +32,9 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
+  
+  type ImportStrategy = 'replace' | 'upsert';
+  const [importStrategy, setImportStrategy] = useState<ImportStrategy>('upsert');
 
   const { data: books } = useQuery({
     queryKey: ["books"],
@@ -95,6 +98,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         bookId: selectedBookId,
         cantoId: needsCanto ? selectedCantoId : null,
         chapter: editedChapter,
+        strategy: importStrategy,
       });
 
       toast.success(`Глава ${editedChapter.chapter_number} імпортована (оновлено/створено)`);
@@ -120,6 +124,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         bookId: selectedBookId,
         cantoId: needsCanto ? selectedCantoId : null,
         chapters: allChapters,
+        strategy: importStrategy,
         onProgress: ({ index, total, chapter }) => {
           toast.message(`Імпорт розділу ${chapter.chapter_number}… (${index}/${total})`);
         },
@@ -182,6 +187,28 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
             </Select>
           </div>
         )}
+
+        <div>
+          <Label>Стратегія імпорту</Label>
+          <Select value={importStrategy} onValueChange={(v) => setImportStrategy(v as ImportStrategy)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="upsert">
+                Оновити існуючі (безпечно)
+              </SelectItem>
+              <SelectItem value="replace">
+                Повна заміна (видалить старі)
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1">
+            {importStrategy === 'upsert' 
+              ? 'Створить нові вірші або оновить існуючі. Не видалить наявні дані.'
+              : 'УВАГА: Видалить всі існуючі вірші глави перед імпортом!'}
+          </p>
+        </div>
 
         <div>
           <Label>Назва глави (UA)</Label>
