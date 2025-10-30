@@ -36,6 +36,7 @@ Deno.serve(async (req) => {
     const html = await res.text();
     return new Response(JSON.stringify({ html }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e?.message || "Unknown error" }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    const errorMessage = e instanceof Error ? e.message : "Unknown error";
+    return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
   }
 });
