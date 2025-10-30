@@ -32,7 +32,7 @@ const VEDABASE_TO_SITE_SLUG: Record<string, string> = {
 
 // Типи станів
 type ImportSource = "file" | "vedabase" | "gitabase";
-type Step = "source" | "intro" | "normalize" | "process" | "preview" | "save";
+type Step = "source" | "file" | "intro" | "normalize" | "process" | "preview" | "save";
 
 interface ImportData {
   source: ImportSource;
