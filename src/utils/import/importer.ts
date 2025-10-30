@@ -95,7 +95,8 @@ export async function upsertChapter(
     chapter_number,
     chapter_type: params.chapter_type,
     title_ua: params.title_ua ?? null,
-    title_en: params.title_en ?? null,
+    // ✅ Ensure title_en always has a value (database NOT NULL constraint)
+    title_en: params.title_en || params.title_ua || `Chapter ${chapter_number}`,
     content_ua: safeHtml(params.content_ua),
     content_en: safeHtml(params.content_en),
   };
@@ -111,10 +112,14 @@ export async function upsertChapter(
   } else if (existingChapter?.title_ua) {
     updatePayload.title_ua = existingChapter.title_ua;
   }
+  // ✅ Always ensure title_en has a value (database NOT NULL constraint)
   if (hasText(params.title_en)) {
     updatePayload.title_en = params.title_en;
   } else if (existingChapter?.title_en) {
     updatePayload.title_en = existingChapter.title_en;
+  } else {
+    // Fallback to title_ua or generic chapter name
+    updatePayload.title_en = params.title_ua || existingChapter?.title_ua || `Chapter ${chapter_number}`;
   }
   if (typeof params.content_ua === 'string' && hasText(params.content_ua)) updatePayload.content_ua = safeHtml(params.content_ua);
   if (typeof params.content_en === 'string' && hasText(params.content_en)) updatePayload.content_en = safeHtml(params.content_en);

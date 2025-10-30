@@ -410,14 +410,14 @@ export default function UniversalImportFixed() {
         chapters: [
           {
             chapter_number: chapterNum,
-            // ✅ Передаємо назви ТІЛЬКИ якщо вони були явно введені користувачем
-            // Інакше upsertChapter збереже існуючі назви глави
-            ...(importData.metadata.title_ua?.trim() && { title_ua: importData.metadata.title_ua.trim() }),
-            ...(importData.metadata.title_en?.trim() && { title_en: importData.metadata.title_en.trim() }),
+            // ✅ Передаємо назви (з дефолтними значеннями для БД NOT NULL constraint)
+            title_ua: importData.metadata.title_ua?.trim() || undefined,
+            title_en: importData.metadata.title_en?.trim() ||
+                     `${bookInfo?.name || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + ' ' : ''}${chapterNum}`,
             // ✅ Передаємо intro як content для глави
             ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
             ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
-            chapter_type: "verses",
+            chapter_type: "verses" as const,
             verses: result.verses,
           },
         ],
@@ -594,7 +594,7 @@ export default function UniversalImportFixed() {
           .insert({
             slug,
             title_ua: importData.metadata.title_ua || currentBookInfo?.name || "Імпортована книга",
-            title_en: importData.metadata.title_en,
+            title_en: importData.metadata.title_en || currentBookInfo?.name || "Imported Book",
             is_published: true,
           })
           .select("id")
@@ -618,10 +618,19 @@ export default function UniversalImportFixed() {
         }
       }
 
+      // Ensure chapter has title_en (required by database)
+      const chapterToImport = {
+        ...chapter,
+        title_en: chapter.title_en ||
+                  importData.metadata.title_en ||
+                  chapter.title_ua ||
+                  `Chapter ${chapter.chapter_number}`,
+      };
+
       await importSingleChapter(supabase, {
         bookId,
         cantoId: cantoId ?? null,
-        chapter,
+        chapter: chapterToImport,
         strategy: "upsert",
       });
 
@@ -698,10 +707,19 @@ export default function UniversalImportFixed() {
       const total = data.chapters.length;
       for (let i = 0; i < total; i++) {
         const ch = data.chapters[i];
+
+        // Ensure chapter has title_en (required by database)
+        const chapterToImport = {
+          ...ch,
+          title_en: ch.title_en ||
+                   ch.title_ua ||
+                   `Chapter ${ch.chapter_number}`,
+        };
+
         await importSingleChapter(supabase, {
           bookId,
           cantoId: cantoId ?? null,
-          chapter: ch,
+          chapter: chapterToImport,
           strategy: "upsert",
         });
         setProgress(10 + Math.round(((i + 1) / total) * 80));
