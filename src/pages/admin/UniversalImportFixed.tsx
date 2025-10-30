@@ -195,14 +195,14 @@ export default function UniversalImportFixed() {
 
     try {
       const chapterNum = parseInt(vedabaseChapter, 10);
-      const bookMeta = VEDABASE_BOOKS[vedabaseBook];
+      const bookInfo = VEDABASE_BOOKS[vedabaseBook];
 
       // Автоматично визначаємо максимальний вірш якщо не вказано
       let verseRanges = vedabaseVerse;
       if (!verseRanges) {
         try {
           // ✅ Формуємо URL залежно від типу книги
-          const chapterUrl = bookMeta.isMultiVolume
+          const chapterUrl = bookInfo.isMultiVolume
             ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
             : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
@@ -216,11 +216,11 @@ export default function UniversalImportFixed() {
       }
 
       // ✅ Формуємо базові URL залежно від типу книги
-      const vedabase_base = bookMeta.isMultiVolume
+      const vedabase_base = bookInfo.isMultiVolume
         ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
         : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
-      const gitabase_base = bookMeta.isMultiVolume
+      const gitabase_base = bookInfo.isMultiVolume
         ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
         : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}`;
 
@@ -264,7 +264,7 @@ export default function UniversalImportFixed() {
         // 🧭 1) Знімаємо індекс посилань з сторінки глави (щоб виявляти "7-8", "10-16")
         try {
           // ✅ Використовуємо ту саму логіку формування URL
-          const chapterUrl = bookMeta.isMultiVolume
+          const chapterUrl = bookInfo.isMultiVolume
             ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
             : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
@@ -275,7 +275,7 @@ export default function UniversalImportFixed() {
             const doc = dp.parseFromString(chapterHtml.html, 'text/html');
 
             // ✅ Селектор також залежить від типу книги
-            const hrefPattern = bookMeta.isMultiVolume
+            const hrefPattern = bookInfo.isMultiVolume
               ? `/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
               : `/${vedabaseBook}/${chapterNum}/`;
             const anchors = Array.from(doc.querySelectorAll(`a[href*="${hrefPattern}"]`));
@@ -307,7 +307,7 @@ export default function UniversalImportFixed() {
             for (const t of targets) {
               try {
                 // ✅ Формуємо URL залежно від типу книги
-                const vedabaseUrl = bookMeta.isMultiVolume
+                const vedabaseUrl = bookInfo.isMultiVolume
                   ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${t.lastPart}`
                   : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${t.lastPart}`;
 
@@ -316,8 +316,8 @@ export default function UniversalImportFixed() {
                   supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } })
                 ];
 
-                if (bookMeta.hasGitabaseUA) {
-                  const gitabaseUrl = bookMeta.isMultiVolume
+                if (bookInfo.hasGitabaseUA) {
+                  const gitabaseUrl = bookInfo.isMultiVolume
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
                     : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
                   requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
@@ -325,7 +325,7 @@ export default function UniversalImportFixed() {
 
                 const results = await Promise.allSettled(requests);
                 const vedabaseRes = results[0];
-                const gitabaseRes = bookMeta.hasGitabaseUA ? results[1] : null;
+                const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
 
                 let parsedEN: any = null;
                 let parsedUA: any = null;
@@ -335,7 +335,7 @@ export default function UniversalImportFixed() {
                 }
 
                 // ✅ Парсимо UA тільки якщо робили запит
-                if (bookMeta.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+                if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                   const gdp = new DOMParser();
                   const gdoc = gdp.parseFromString(gitabaseRes.value.data.html, 'text/html');
                   parsedUA = {
@@ -386,7 +386,7 @@ export default function UniversalImportFixed() {
           for (let v = start; v <= end; v++) {
             try {
               // ✅ Формуємо URL залежно від типу книги
-              const vedabaseUrl = bookMeta.isMultiVolume
+              const vedabaseUrl = bookInfo.isMultiVolume
                 ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${v}`
                 : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${v}`;
 
@@ -395,8 +395,8 @@ export default function UniversalImportFixed() {
                 supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } })
               ];
 
-              if (bookMeta.hasGitabaseUA) {
-                const gitabaseUrl = bookMeta.isMultiVolume
+              if (bookInfo.hasGitabaseUA) {
+                const gitabaseUrl = bookInfo.isMultiVolume
                   ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
                   : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
@@ -404,7 +404,7 @@ export default function UniversalImportFixed() {
 
               const results = await Promise.allSettled(requests);
               const vedabaseRes = results[0];
-              const gitabaseRes = bookMeta.hasGitabaseUA ? results[1] : null;
+              const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
 
               let parsedEN: any = null;
               let parsedUA: any = null;
@@ -414,7 +414,7 @@ export default function UniversalImportFixed() {
               }
 
               // ✅ Парсимо UA тільки якщо робили запит
-              if (bookMeta.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+              if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                 const gitaDoc = new DOMParser().parseFromString(gitabaseRes.value.data.html, 'text/html');
                 parsedUA = {
                   synonyms_ua: Array.from(gitaDoc.querySelectorAll('.r-synonyms-item')).map(item => {
@@ -875,7 +875,7 @@ export default function UniversalImportFixed() {
                 <Globe className="w-4 h-4 mr-2" />
                 Vedabase
               </TabsTrigger>
-              <TabsTrigger value="file" onClick={() => setCurrentStep("source")}>
+              <TabsTrigger value="file" onClick={() => setCurrentStep("file")}>
                 <Upload className="w-4 h-4 mr-2" />
                 Файл
               </TabsTrigger>
