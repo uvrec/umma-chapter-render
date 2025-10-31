@@ -414,7 +414,7 @@ export default function UniversalImportFixed() {
             // ✅ Передаємо назви (з дефолтними значеннями для БД NOT NULL constraint)
             title_ua: importData.metadata.title_ua?.trim() || undefined,
             title_en: importData.metadata.title_en?.trim() ||
-                     `${bookInfo?.name || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + ' ' : ''}${chapterNum}`,
+                     `${bookInfo?.name_ua || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + ' ' : ''}${chapterNum}`,
             // ✅ Передаємо intro як content для глави
             ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
             ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
@@ -846,7 +846,7 @@ export default function UniversalImportFixed() {
                       ...prev,
                       metadata: { ...prev.metadata, title_ua: e.target.value }
                     }))}
-                    placeholder={`${currentBookInfo.name} ${vedabaseCanto} ${vedabaseChapter}`}
+                    placeholder={`${currentBookInfo?.name_ua} ${vedabaseCanto} ${vedabaseChapter}`}
                   />
                 </div>
                 <div>
