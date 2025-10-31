@@ -1,16 +1,19 @@
 // ChapterVersesList.tsx — Список віршів з підтримкою dualMode
 
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
+import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { toast } from "@/hooks/use-toast";
 
 export const ChapterVersesList = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
@@ -109,9 +112,11 @@ export const ChapterVersesList = () => {
       const { data, error } = await supabase
         .from("verses")
         .select(
-          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en",
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at",
         )
         .eq("chapter_id", chapter.id)
+        .is("deleted_at", null)
+        .eq("is_published", true)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
       return data || [];
@@ -126,9 +131,11 @@ export const ChapterVersesList = () => {
       const { data, error } = await supabase
         .from("verses")
         .select(
-          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en",
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at",
         )
         .eq("chapter_id", fallbackChapter.id)
+        .is("deleted_at", null)
+        .eq("is_published", true)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
       return data || [];
@@ -137,6 +144,15 @@ export const ChapterVersesList = () => {
   });
 
   const verses = versesMain && versesMain.length > 0 ? versesMain : versesFallback || [];
+
+  // Приховуємо «порожні» вірші без перекладу (обидві мови порожні)
+  const versesFiltered = useMemo(
+    () =>
+      (verses || []).filter(
+        (v: any) => (v?.translation_ua && v.translation_ua.trim().length > 0) || (v?.translation_en && v.translation_en.trim().length > 0)
+      ),
+    [verses]
+  );
 
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
@@ -232,7 +248,7 @@ export const ChapterVersesList = () => {
           {flowMode ? (
             /* Режим суцільного тексту - без контейнерів, номерів, рамок */
             <div className="prose prose-lg max-w-none">
-              {verses.map((verse, idx) => {
+              {versesFiltered.map((verse, idx) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
                   <p key={verse.id} className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground mb-6">
