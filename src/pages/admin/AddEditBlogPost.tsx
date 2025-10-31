@@ -124,7 +124,7 @@ export default function AddEditBlogPost() {
         content_en: contentEn,
         excerpt_ua: excerptUa,
         excerpt_en: excerptEn,
-        category_id: categoryId || null,
+        category_id: categoryId,
         is_published: isPublished,
         scheduled_publish_at: scheduledAt || null,
         featured_image: featuredImage,
@@ -234,6 +234,16 @@ export default function AddEditBlogPost() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Перевірка обов'язкових полів
+    if (!categoryId) {
+      toast({
+        title: "Помилка",
+        description: "Оберіть категорію поста",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Валідація URL
     const checks: Array<{ label: string; value: string; schema: z.ZodTypeAny }> = [
       { label: "Обкладинка", value: featuredImage.trim(), schema: httpsUrlSchema },
@@ -266,7 +276,7 @@ export default function AddEditBlogPost() {
       content_en: contentEn,
       excerpt_ua: excerptUa,
       excerpt_en: excerptEn,
-      category_id: categoryId || null,
+      category_id: categoryId,
       is_published: isPublished,
       published_at: isPublished ? new Date().toISOString() : null,
       scheduled_publish_at: scheduledAt || null,
@@ -433,8 +443,8 @@ export default function AddEditBlogPost() {
             </div>
 
             <div>
-              <Label htmlFor="category">Категорія</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
+              <Label htmlFor="category">Категорія *</Label>
+              <Select value={categoryId} onValueChange={setCategoryId} required>
                 <SelectTrigger>
                   <SelectValue placeholder="Оберіть категорію" />
                 </SelectTrigger>
@@ -446,6 +456,7 @@ export default function AddEditBlogPost() {
                   ))}
                 </SelectContent>
               </Select>
+              {!categoryId && <p className="text-xs text-destructive mt-1">Категорія обов'язкова</p>}
             </div>
           </div>
 
