@@ -20,15 +20,7 @@ import { extractTextFromEPUB } from "@/utils/import/epub";
 import { extractTextFromDOCX } from "@/utils/import/docx";
 import { splitIntoChapters } from "@/utils/import/splitters";
 import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
-
-// Мапінг Vedabase slug → Vedavoice slug
-const VEDABASE_TO_SITE_SLUG: Record<string, string> = {
-  sb: "bhagavatam",
-  bg: "gita",
-  cc: "scc",
-  transcripts: "lectures",
-  letters: "letters",
-};
+import { VEDABASE_BOOKS, getBookConfigByVedabaseSlug } from "@/utils/Vedabase-books";
 
 // Типи станів
 type ImportSource = "file" | "vedabase" | "gitabase";
@@ -52,92 +44,7 @@ interface ImportData {
   };
 }
 
-// Каталог Vedabase книг з шаблонами розпізнавання
 // TODO: Додати підтримку bhaktivinodainstitute.org для пісень та поем (Шікшаштака, Шаранагаті тощо)
-const VEDABASE_BOOKS: Record<
-  string,
-  {
-    name: string;
-    isMultiVolume: boolean;
-    volumeLabel: string;
-    cantos?: (string | number)[];
-    templateId?: string; // ID шаблону для парсингу файлів
-    hasGitabaseUA?: boolean; // Чи є українська версія на Gitabase (тільки CC та NoI)
-  }
-> = {
-  bg: {
-    name: "Бгаґавад-ґіта як вона є",
-    isMultiVolume: false,
-    volumeLabel: "Глава",
-    templateId: "bhagavad-gita",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  sb: {
-    name: "Шрімад-Бгаґаватам",
-    isMultiVolume: true,
-    volumeLabel: "Пісня",
-    cantos: Array.from({ length: 12 }, (_, i) => i + 1),
-    templateId: "srimad-bhagavatam",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  cc: {
-    name: "Шрі Чайтанья-чарітамріта",
-    isMultiVolume: true,
-    volumeLabel: "Ліла",
-    cantos: ["adi", "madhya", "antya"],
-    templateId: "default",
-    hasGitabaseUA: true // ✅ Є UA версія на Gitabase
-  },
-  iso: {
-    name: "Шрі Ішопанішад",
-    isMultiVolume: false,
-    volumeLabel: "Мантра",
-    templateId: "default",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  noi: {
-    name: "Нектар настанов",
-    isMultiVolume: false,
-    volumeLabel: "Текст",
-    templateId: "default",
-    hasGitabaseUA: true // ✅ Є UA версія на Gitabase
-  },
-  nod: {
-    name: "Нектар відданості",
-    isMultiVolume: false,
-    volumeLabel: "Глава",
-    templateId: "default",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  kb: {
-    name: "Крішна — Верховна Особистість Бога",
-    isMultiVolume: false,
-    volumeLabel: "Глава",
-    templateId: "default",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  tlk: {
-    name: "Наука самоусвідомлення",
-    isMultiVolume: false,
-    volumeLabel: "Глава",
-    templateId: "default",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  transcripts: {
-    name: "Лекції",
-    isMultiVolume: false,
-    volumeLabel: "Лекція",
-    templateId: "default",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-  letters: {
-    name: "Листи",
-    isMultiVolume: false,
-    volumeLabel: "Лист",
-    templateId: "default",
-    hasGitabaseUA: false // ❌ UA версії немає на Gitabase
-  },
-};
 
 // 👇 головна змінна: адреса парсера
 const PARSE_ENDPOINT = import.meta.env.VITE_PARSER_URL
@@ -175,7 +82,7 @@ export default function UniversalImportFixed() {
   const navigate = useNavigate();
 
   const currentBookInfo = useMemo(
-    () => VEDABASE_BOOKS[vedabaseBook as keyof typeof VEDABASE_BOOKS],
+    () => getBookConfigByVedabaseSlug(vedabaseBook),
     [vedabaseBook]
   );
 
@@ -195,7 +102,7 @@ export default function UniversalImportFixed() {
 
     try {
       const chapterNum = parseInt(vedabaseChapter, 10);
-      const bookInfo = VEDABASE_BOOKS[vedabaseBook];
+      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
 
       // Автоматично визначаємо максимальний вірш якщо не вказано
       let verseRanges = vedabaseVerse;
@@ -494,7 +401,7 @@ export default function UniversalImportFixed() {
         throw new Error("Немає віршів у відповіді");
       }
 
-      const siteSlug = VEDABASE_TO_SITE_SLUG[vedabaseBook] || vedabaseBook;
+      const siteSlug = bookInfo.our_slug;
 
       const newImport: ImportData = {
         ...importData,
@@ -507,7 +414,7 @@ export default function UniversalImportFixed() {
             // ✅ Передаємо назви (з дефолтними значеннями для БД NOT NULL constraint)
             title_ua: importData.metadata.title_ua?.trim() || undefined,
             title_en: importData.metadata.title_en?.trim() ||
-                     `${bookInfo?.name || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + ' ' : ''}${chapterNum}`,
+                     `${bookInfo?.name_ua || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + ' ' : ''}${chapterNum}`,
             // ✅ Передаємо intro як content для глави
             ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
             ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
@@ -681,7 +588,7 @@ export default function UniversalImportFixed() {
     setProgress(10);
 
     try {
-      const slug = importData.metadata.book_slug || VEDABASE_TO_SITE_SLUG[vedabaseBook] || "imported-book";
+      const slug = importData.metadata.book_slug || currentBookInfo?.our_slug || "imported-book";
       const { data: existing } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
 
       let bookId = existing?.id;
@@ -893,16 +800,16 @@ export default function UniversalImportFixed() {
                     onChange={(e) => setVedabaseBook(e.target.value)}
                     className="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
                   >
-                    {Object.entries(VEDABASE_BOOKS).map(([slug, info]) => (
-                      <option key={slug} value={slug}>
-                        {info.name} ({slug.toUpperCase()})
+                    {VEDABASE_BOOKS.map((book) => (
+                      <option key={book.slug} value={book.slug}>
+                        {book.name_ua} ({book.slug.toUpperCase()})
                       </option>
                     ))}
                   </select>
                 </div>
-                {currentBookInfo.isMultiVolume && (
+                {currentBookInfo?.isMultiVolume && (
                   <div>
-                    <Label>{currentBookInfo.volumeLabel}</Label>
+                    <Label>{currentBookInfo?.volumeLabel}</Label>
                     <select
                       value={vedabaseCanto}
                       onChange={(e) => setVedabaseCanto(e.target.value)}
@@ -939,7 +846,7 @@ export default function UniversalImportFixed() {
                       ...prev,
                       metadata: { ...prev.metadata, title_ua: e.target.value }
                     }))}
-                    placeholder={`${currentBookInfo.name} ${vedabaseCanto} ${vedabaseChapter}`}
+                    placeholder={`${currentBookInfo?.name_ua} ${vedabaseCanto} ${vedabaseChapter}`}
                   />
                 </div>
                 <div>
@@ -972,16 +879,16 @@ export default function UniversalImportFixed() {
                         value={vedabaseBook}
                         onChange={(e) => {
                           setVedabaseBook(e.target.value);
-                          const book = VEDABASE_BOOKS[e.target.value];
-                          if (book.templateId) {
+                          const book = getBookConfigByVedabaseSlug(e.target.value);
+                          if (book?.templateId) {
                             setSelectedTemplate(book.templateId);
                           }
                         }}
                         className="flex h-10 w-full rounded-md border px-3 py-2 text-sm"
                       >
-                        {Object.entries(VEDABASE_BOOKS).map(([slug, info]) => (
-                          <option key={slug} value={slug}>
-                            {info.name} ({slug.toUpperCase()})
+                        {VEDABASE_BOOKS.map((book) => (
+                          <option key={book.slug} value={book.slug}>
+                            {book.name_ua} ({book.slug.toUpperCase()})
                           </option>
                         ))}
                       </select>
@@ -1005,9 +912,9 @@ export default function UniversalImportFixed() {
                     </div>
                   </div>
 
-                  {currentBookInfo.isMultiVolume && (
+                  {currentBookInfo?.isMultiVolume && (
                     <div className="mt-4">
-                      <Label>{currentBookInfo.volumeLabel}</Label>
+                      <Label>{currentBookInfo?.volumeLabel}</Label>
                       <select
                         value={vedabaseCanto}
                         onChange={(e) => setVedabaseCanto(e.target.value)}
@@ -1171,7 +1078,7 @@ export default function UniversalImportFixed() {
                     try {
                       setIsProcessing(true);
                       const chapterNum = parseInt(vedabaseChapter || "0", 10);
-                      const bookInfo = VEDABASE_BOOKS[vedabaseBook];
+                      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
 
                       // ✅ Формуємо URL залежно від типу книги
                       const vedabase_base = bookInfo.isMultiVolume
