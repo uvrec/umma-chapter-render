@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,6 +52,11 @@ export default function AddEditBlogPost() {
   // ——— автор
   const [authorName, setAuthorName] = useState("Аніруддга дас");
 
+  // ——— автозбереження
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout>();
+
   // категорії
   const { data: categories } = useQuery({
     queryKey: ["blog-categories"],
@@ -103,6 +108,97 @@ export default function AddEditBlogPost() {
       setSlug(generateSlug(titleUa));
     }
   }, [titleUa, isEdit, slug]);
+
+  // ——— автозбереження
+  const autoSave = useCallback(async () => {
+    if (!isEdit || !id) return;
+
+    setIsSaving(true);
+    try {
+      const readTime = calculateReadTime(contentUa + contentEn);
+      const postData = {
+        title_ua: titleUa,
+        title_en: titleEn,
+        slug,
+        content_ua: contentUa,
+        content_en: contentEn,
+        excerpt_ua: excerptUa,
+        excerpt_en: excerptEn,
+        category_id: categoryId || null,
+        is_published: isPublished,
+        scheduled_publish_at: scheduledAt || null,
+        featured_image: featuredImage,
+        video_url: videoUrl,
+        audio_url: audioUrl,
+        instagram_embed_url: instagramUrl,
+        telegram_embed_url: telegramUrl,
+        substack_embed_url: substackUrl,
+        meta_description_ua: metaDescUa,
+        meta_description_en: metaDescEn,
+        read_time: readTime,
+        author_name: authorName || "Аніруддга дас",
+      };
+
+      await supabase.from("blog_posts").update(postData).eq("id", id);
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error("Auto-save error:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [
+    isEdit,
+    id,
+    titleUa,
+    titleEn,
+    slug,
+    contentUa,
+    contentEn,
+    excerptUa,
+    excerptEn,
+    categoryId,
+    isPublished,
+    scheduledAt,
+    featuredImage,
+    videoUrl,
+    audioUrl,
+    instagramUrl,
+    telegramUrl,
+    substackUrl,
+    metaDescUa,
+    metaDescEn,
+    authorName,
+  ]);
+
+  // Trigger auto-save when content changes
+  useEffect(() => {
+    if (!isEdit) return;
+
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSave();
+    }, 3000); // Auto-save after 3 seconds of inactivity
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [
+    contentUa,
+    contentEn,
+    titleUa,
+    titleEn,
+    excerptUa,
+    excerptEn,
+    metaDescUa,
+    metaDescEn,
+    autoSave,
+    isEdit,
+  ]);
 
   // ——— завантаження обкладинки
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,10 +301,19 @@ export default function AddEditBlogPost() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate("/admin/blog-posts")}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Назад до списку
         </Button>
+        {isEdit && (
+          <div className="text-sm text-muted-foreground">
+            {isSaving ? (
+              <span className="text-amber-600">Збереження...</span>
+            ) : lastSaved ? (
+              <span>Автозбереження: {lastSaved.toLocaleTimeString()}</span>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">

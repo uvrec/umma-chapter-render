@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -10,6 +11,7 @@ import { TableHeader } from "@tiptap/extension-table-header";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Placeholder } from "@tiptap/extension-placeholder";
+import TextAlign from "@tiptap/extension-text-align";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -36,6 +38,10 @@ import {
   Redo,
   Palette,
   Type,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -60,6 +66,9 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       TableCell,
       Color,
       TextStyle,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
       Placeholder.configure({ placeholder }),
     ],
     content,
@@ -70,6 +79,13 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       },
     },
   });
+
+  // Sync content when it changes externally
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");
@@ -216,6 +232,42 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
         </Button>
         <Button variant="ghost" size="icon" onClick={insertTable}>
           <TableIcon className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Text Alignment */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign('left').run()}
+          className={editor.isActive({ textAlign: 'left' }) ? "bg-accent" : ""}
+        >
+          <AlignLeft className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign('center').run()}
+          className={editor.isActive({ textAlign: 'center' }) ? "bg-accent" : ""}
+        >
+          <AlignCenter className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign('right').run()}
+          className={editor.isActive({ textAlign: 'right' }) ? "bg-accent" : ""}
+        >
+          <AlignRight className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          className={editor.isActive({ textAlign: 'justify' }) ? "bg-accent" : ""}
+        >
+          <AlignJustify className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
