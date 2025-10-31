@@ -562,7 +562,7 @@ export default function VedabaseImportV3() {
         // GITABASE (українська)
         if (importUA && useGitabase && bookConfig?.gitabase_available) {
           try {
-            const gitabaseUrl = buildGitabaseUrl(bookConfig, {
+            const gitabaseUrl = buildGitabaseUrl(bookConfig.gitabaseSlug!, {
               chapter: parseInt(chapterNumber),
               verse: verseNum,
             });
