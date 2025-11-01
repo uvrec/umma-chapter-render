@@ -856,9 +856,8 @@ export default function UniversalImportFixed() {
         // Ensure chapter has title_en (required by database)
         const chapterToImport = {
           ...ch,
-          title_en: ch.title_en ||
-                   ch.title_ua ||
-                   `Chapter ${ch.chapter_number}`,
+          title_en: ch.title_en || ch.title_ua || `Chapter ${ch.chapter_number}`,
+          title_ua: ch.title_ua || ch.title_en || `Глава ${ch.chapter_number}`,
         };
 
         await importSingleChapter(supabase, {

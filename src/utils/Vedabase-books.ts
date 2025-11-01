@@ -21,6 +21,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'sb',
@@ -40,6 +45,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'cc',
@@ -59,6 +69,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: true, // ✅ Є UA версія на Gitabase
     gitabase_available: true,
     gitabaseSlug: 'CC',
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'iso',
@@ -78,6 +93,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'noi',
@@ -97,6 +117,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: true, // ✅ Є UA версія на Gitabase
     gitabase_available: true,
     gitabaseSlug: 'NoI',
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'nod',
@@ -116,6 +141,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'kb',
@@ -135,6 +165,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'tlk',
@@ -154,6 +189,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'transcripts',
@@ -173,6 +213,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   {
     slug: 'letters',
@@ -192,6 +237,11 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
   },
   // ========== КНИГИ BHAKTIVINODA THAKUR ==========
   {
@@ -245,9 +295,10 @@ export function getBookConfig(ourSlug: string) {
 
 /**
  * Знайти конфігурацію книги по Vedabase slug (bg, sb, cc, etc.)
+ * Також працює з книгами без vedabaseSlug (наприклад, bhaktivinoda книги)
  */
 export function getBookConfigByVedabaseSlug(vedabaseSlug: string) {
-  return VEDABASE_BOOKS.find((b) => b.slug === vedabaseSlug);
+  return VEDABASE_BOOKS.find((b) => b.slug === vedabaseSlug || b.vedabaseSlug === vedabaseSlug);
 }
 
 /**

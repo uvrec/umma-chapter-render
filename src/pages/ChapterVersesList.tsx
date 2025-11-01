@@ -1,26 +1,36 @@
 // ChapterVersesList.tsx — Список віршів з підтримкою dualMode
 
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
+import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { toast } from "@/hooks/use-toast";
 
 export const ChapterVersesList = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const { language } = useLanguage();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   // Читаємо налаштування з localStorage
   const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
   const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
   const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
+  
+  // Editing state
+  const [isEditingContent, setIsEditingContent] = useState(false);
+  const [editedContentUa, setEditedContentUa] = useState("");
+  const [editedContentEn, setEditedContentEn] = useState("");
 
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
@@ -109,9 +119,11 @@ export const ChapterVersesList = () => {
       const { data, error } = await supabase
         .from("verses")
         .select(
-          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en",
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at",
         )
         .eq("chapter_id", chapter.id)
+        .is("deleted_at", null)
+        .eq("is_published", true)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
       return data || [];
@@ -126,9 +138,11 @@ export const ChapterVersesList = () => {
       const { data, error } = await supabase
         .from("verses")
         .select(
-          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en",
+          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at",
         )
         .eq("chapter_id", fallbackChapter.id)
+        .is("deleted_at", null)
+        .eq("is_published", true)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
       return data || [];
@@ -137,6 +151,45 @@ export const ChapterVersesList = () => {
   });
 
   const verses = versesMain && versesMain.length > 0 ? versesMain : versesFallback || [];
+
+  // Приховуємо «порожні» вірші без перекладу (обидві мови порожні)
+  const versesFiltered = useMemo(
+    () =>
+      (verses || []).filter(
+        (v: any) => (v?.translation_ua && v.translation_ua.trim().length > 0) || (v?.translation_en && v.translation_en.trim().length > 0)
+      ),
+    [verses]
+  );
+
+  // Get adjacent chapters for navigation
+  const { data: adjacentChapters } = useQuery({
+    queryKey: ["adjacent-chapters", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
+    queryFn: async () => {
+      if (!book?.id || !effectiveChapterParam) return { prev: null, next: null };
+
+      const currentNum = parseInt(effectiveChapterParam as string);
+      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en");
+
+      if (isCantoMode && canto?.id) {
+        const { data } = await base.eq("canto_id", canto.id).order("chapter_number");
+        const chapters = data || [];
+        const currentIdx = chapters.findIndex(c => c.chapter_number === currentNum);
+        return {
+          prev: currentIdx > 0 ? chapters[currentIdx - 1] : null,
+          next: currentIdx < chapters.length - 1 ? chapters[currentIdx + 1] : null
+        };
+      } else {
+        const { data } = await base.eq("book_id", book.id).is("canto_id", null).order("chapter_number");
+        const chapters = data || [];
+        const currentIdx = chapters.findIndex(c => c.chapter_number === currentNum);
+        return {
+          prev: currentIdx > 0 ? chapters[currentIdx - 1] : null,
+          next: currentIdx < chapters.length - 1 ? chapters[currentIdx + 1] : null
+        };
+      }
+    },
+    enabled: !!book?.id && !!effectiveChapterParam
+  });
 
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
@@ -163,6 +216,45 @@ export const ChapterVersesList = () => {
       ? effectiveChapterObj.title_ua
       : effectiveChapterObj.title_en
     : null;
+
+  // Save chapter content mutation
+  const saveContentMutation = useMutation({
+    mutationFn: async () => {
+      if (!effectiveChapterObj?.id) return;
+      const { error } = await supabase
+        .from("chapters")
+        .update({
+          content_ua: editedContentUa,
+          content_en: editedContentEn
+        })
+        .eq("id", effectiveChapterObj.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapter"] });
+      setIsEditingContent(false);
+      toast({ title: "Зміни збережено" });
+    },
+    onError: () => {
+      toast({ title: "Помилка збереження", variant: "destructive" });
+    }
+  });
+
+  // Initialize edited content when chapter loads
+  useEffect(() => {
+    if (effectiveChapterObj) {
+      setEditedContentUa(effectiveChapterObj.content_ua || "");
+      setEditedContentEn(effectiveChapterObj.content_en || "");
+    }
+  }, [effectiveChapterObj]);
+
+  const handleNavigate = (chapterNum: number) => {
+    if (isCantoMode) {
+      navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`);
+    } else {
+      navigate(`/veda-reader/${bookId}/${chapterNum}`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -195,6 +287,32 @@ export const ChapterVersesList = () => {
               <ArrowLeft className="h-4 w-4" />
               Назад
             </Button>
+            
+            {/* Chapter Navigation */}
+            <div className="flex items-center gap-2">
+              {adjacentChapters?.prev && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  {language === "ua" ? "Попередня" : "Previous"}
+                </Button>
+              )}
+              {adjacentChapters?.next && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleNavigate(adjacentChapters.next.chapter_number)}
+                  className="gap-2"
+                >
+                  {language === "ua" ? "Наступна" : "Next"}
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Заголовок */}
@@ -215,16 +333,67 @@ export const ChapterVersesList = () => {
           {/* Огляд глави */}
           {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
             <div className="mb-8 rounded-lg border border-border bg-card p-6">
-              <div 
-                className="prose prose-slate dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(
-                    language === "ua" 
-                      ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
-                      : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
-                  )
-                }}
-              />
+              {user && !isEditingContent && (
+                <div className="mb-4 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditingContent(true)}
+                    className="gap-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    {language === "ua" ? "Редагувати" : "Edit"}
+                  </Button>
+                </div>
+              )}
+
+              {isEditingContent ? (
+                <div className="space-y-4">
+                  <InlineTiptapEditor
+                    content={editedContentUa}
+                    onChange={setEditedContentUa}
+                    label="Українська"
+                  />
+                  <InlineTiptapEditor
+                    content={editedContentEn}
+                    onChange={setEditedContentEn}
+                    label="English"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => saveContentMutation.mutate()}
+                      disabled={saveContentMutation.isPending}
+                      className="gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {language === "ua" ? "Зберегти" : "Save"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingContent(false);
+                        setEditedContentUa(effectiveChapterObj.content_ua || "");
+                        setEditedContentEn(effectiveChapterObj.content_en || "");
+                      }}
+                      className="gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      {language === "ua" ? "Скасувати" : "Cancel"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className="prose prose-slate dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ 
+                    __html: DOMPurify.sanitize(
+                      language === "ua" 
+                        ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
+                        : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
+                    )
+                  }}
+                />
+              )}
             </div>
           )}
 
@@ -232,7 +401,7 @@ export const ChapterVersesList = () => {
           {flowMode ? (
             /* Режим суцільного тексту - без контейнерів, номерів, рамок */
             <div className="prose prose-lg max-w-none">
-              {verses.map((verse, idx) => {
+              {versesFiltered.map((verse, idx) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
                   <p key={verse.id} className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground mb-6">
@@ -314,6 +483,47 @@ export const ChapterVersesList = () => {
             <div className="rounded-lg border border-dashed border-border p-12 text-center">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">У цій главі ще немає віршів</p>
+            </div>
+          )}
+
+          {/* Bottom Chapter Navigation */}
+          {(adjacentChapters?.prev || adjacentChapters?.next) && (
+            <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
+              {adjacentChapters?.prev ? (
+                <Button
+                  variant="outline"
+                  onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="text-xs text-muted-foreground">
+                      {language === "ua" ? "Попередня глава" : "Previous Chapter"}
+                    </div>
+                    <div className="font-medium">
+                      {language === "ua" ? adjacentChapters.prev.title_ua : adjacentChapters.prev.title_en}
+                    </div>
+                  </div>
+                </Button>
+              ) : <div />}
+              
+              {adjacentChapters?.next ? (
+                <Button
+                  variant="outline"
+                  onClick={() => handleNavigate(adjacentChapters.next.chapter_number)}
+                  className="gap-2"
+                >
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground">
+                      {language === "ua" ? "Наступна глава" : "Next Chapter"}
+                    </div>
+                    <div className="font-medium">
+                      {language === "ua" ? adjacentChapters.next.title_ua : adjacentChapters.next.title_en}
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              ) : <div />}
             </div>
           )}
         </div>

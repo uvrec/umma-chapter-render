@@ -296,14 +296,14 @@ export const VedaReaderDB = () => {
       };
 
       // Transliteration - зберігати в правильне поле
-      if (updates.transliteration_ua) {
+      if (updates.transliteration_ua !== undefined) {
         payload.transliteration_ua = updates.transliteration_ua;
       }
-      if (updates.transliteration_en) {
+      if (updates.transliteration_en !== undefined) {
         payload.transliteration_en = updates.transliteration_en;
       }
       // Fallback для single mode
-      if (updates.transliteration && !updates.transliteration_ua && !updates.transliteration_en) {
+      if (updates.transliteration !== undefined && updates.transliteration_ua === undefined && updates.transliteration_en === undefined) {
         if (language === "ua") {
           payload.transliteration_ua = updates.transliteration;
         } else {
@@ -311,16 +311,54 @@ export const VedaReaderDB = () => {
         }
       }
 
-      // Інші поля залежать від мови
-      if (language === "ua") {
-        payload.synonyms_ua = updates.synonyms;
-        payload.translation_ua = updates.translation;
-        payload.commentary_ua = updates.commentary;
-      } else {
-        payload.synonyms_en = updates.synonyms;
-        payload.translation_en = updates.translation;
-        payload.commentary_en = updates.commentary;
+      // Synonyms - зберігати в правильне поле
+      if (updates.synonyms_ua !== undefined) {
+        payload.synonyms_ua = updates.synonyms_ua;
       }
+      if (updates.synonyms_en !== undefined) {
+        payload.synonyms_en = updates.synonyms_en;
+      }
+      // Fallback для single mode
+      if (updates.synonyms !== undefined && updates.synonyms_ua === undefined && updates.synonyms_en === undefined) {
+        if (language === "ua") {
+          payload.synonyms_ua = updates.synonyms;
+        } else {
+          payload.synonyms_en = updates.synonyms;
+        }
+      }
+
+      // Translation - зберігати в правильне поле
+      if (updates.translation_ua !== undefined) {
+        payload.translation_ua = updates.translation_ua;
+      }
+      if (updates.translation_en !== undefined) {
+        payload.translation_en = updates.translation_en;
+      }
+      // Fallback для single mode
+      if (updates.translation !== undefined && updates.translation_ua === undefined && updates.translation_en === undefined) {
+        if (language === "ua") {
+          payload.translation_ua = updates.translation;
+        } else {
+          payload.translation_en = updates.translation;
+        }
+      }
+
+      // Commentary - зберігати в правильне поле
+      if (updates.commentary_ua !== undefined) {
+        payload.commentary_ua = updates.commentary_ua;
+      }
+      if (updates.commentary_en !== undefined) {
+        payload.commentary_en = updates.commentary_en;
+      }
+      // Fallback для single mode
+      if (updates.commentary !== undefined && updates.commentary_ua === undefined && updates.commentary_en === undefined) {
+        if (language === "ua") {
+          payload.commentary_ua = updates.commentary;
+        } else {
+          payload.commentary_en = updates.commentary;
+        }
+      }
+
       const {
         error
       } = await supabase.from("verses").update(payload).eq("id", verseId);
@@ -685,9 +723,9 @@ export const VedaReaderDB = () => {
                           updates: {
                             sanskrit: updates.sanskrit,
                             transliteration_ua: updates.transliteration,
-                            synonyms: updates.synonyms,
-                            translation: updates.translation,
-                            commentary: updates.commentary
+                            synonyms_ua: updates.synonyms,
+                            translation_ua: updates.translation,
+                            commentary_ua: updates.commentary
                           }
                         })}
                       />
@@ -709,9 +747,9 @@ export const VedaReaderDB = () => {
                           updates: {
                             sanskrit: updates.sanskrit,
                             transliteration_en: updates.transliteration,
-                            synonyms: updates.synonyms,
-                            translation: updates.translation,
-                            commentary: updates.commentary
+                            synonyms_en: updates.synonyms,
+                            translation_en: updates.translation,
+                            commentary_en: updates.commentary
                           }
                         })}
                       />

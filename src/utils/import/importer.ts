@@ -90,13 +90,15 @@ export async function upsertChapter(
   const hasText = (v?: string) => typeof v === 'string' && v.trim().length > 0;
 
   // Insert payload: can include defaults
+  const uaTitle = params.title_ua || params.title_en || `Глава ${chapter_number}`;
+  const enTitle = params.title_en || params.title_ua || `Chapter ${chapter_number}`;
   const insertPayload: any = {
     ...baseRefs,
     chapter_number,
     chapter_type: params.chapter_type,
-    title_ua: params.title_ua ?? null,
+    title_ua: uaTitle,
     // ✅ Ensure title_en always has a value (database NOT NULL constraint)
-    title_en: params.title_en || params.title_ua || `Chapter ${chapter_number}`,
+    title_en: enTitle,
     content_ua: safeHtml(params.content_ua),
     content_en: safeHtml(params.content_en),
   };
@@ -111,6 +113,8 @@ export async function upsertChapter(
     updatePayload.title_ua = params.title_ua;
   } else if (existingChapter?.title_ua) {
     updatePayload.title_ua = existingChapter.title_ua;
+  } else {
+    updatePayload.title_ua = params.title_en || `Глава ${chapter_number}`;
   }
   // ✅ Always ensure title_en has a value (database NOT NULL constraint)
   if (hasText(params.title_en)) {
