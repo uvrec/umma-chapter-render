@@ -22,7 +22,48 @@ export interface BhaktivinodaSong {
 }
 
 /**
- * Parse bhaktivinoda institute page
+ * Extract song URLs from root page (e.g., Śaraṇāgati list page)
+ * Returns array of individual song URLs
+ */
+export function extractSongUrls(html: string, baseUrl: string): string[] {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    const urls: string[] = [];
+
+    // Find all links that look like song pages
+    const links = doc.querySelectorAll('a[href]');
+    links.forEach(link => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      // Match patterns like:
+      // - /dainya-song-one/
+      // - /atmanivedana-song-two/
+      // - /song-1/, /song-2/
+      if (href.match(/\/(song-|dainya|atmanivedana|goptritve|avaśya|bhakti-anukula|bhakti-pratikula)/i)) {
+        let fullUrl = href;
+        if (href.startsWith('/')) {
+          const base = new URL(baseUrl);
+          fullUrl = base.origin + href;
+        } else if (!href.startsWith('http')) {
+          fullUrl = baseUrl.replace(/\/$/, '') + '/' + href;
+        }
+        urls.push(fullUrl);
+      }
+    });
+
+    // Remove duplicates
+    return Array.from(new Set(urls));
+  } catch (error) {
+    console.error('Error extracting song URLs:', error);
+    return [];
+  }
+}
+
+/**
+ * Parse a single song page
  *
  * Структура на сайті:
  * (1)
@@ -39,7 +80,7 @@ export interface BhaktivinodaSong {
  * transliteration for verse 4
  * 3-4) English translation for both verses
  */
-export function parseBhaktivinodaPage(html: string, url: string): BhaktivinodaSong[] {
+export function parseBhaktivinodaSongPage(html: string, url: string): BhaktivinodaSong | null {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -47,65 +88,74 @@ export function parseBhaktivinodaPage(html: string, url: string): BhaktivinodaSo
     // Витягуємо весь текстовий контент
     const body = doc.body.textContent || '';
 
-    return parseTextContent(body);
+    const verses = parseTextContent(body);
+
+    if (verses.length === 0) {
+      return null;
+    }
+
+    // Отримуємо назву пісні
+    const songTitle = getBhaktivinodaSongTitle(html);
+
+    return {
+      song_number: 1,
+      title_en: songTitle.title_en,
+      title_ua: songTitle.title_ua,
+      verses: verses
+    };
   } catch (error) {
-    console.error('Error parsing bhaktivinoda page:', error);
-    return [];
+    console.error('Error parsing bhaktivinoda song page:', error);
+    return null;
   }
 }
 
 /**
- * Парсинг текстового контенту
+ * Парсинг текстового контенту (витягує вірші)
  */
-function parseTextContent(text: string): BhaktivinodaSong[] {
+function parseTextContent(text: string): BhaktivinodaVerse[] {
   const verses: BhaktivinodaVerse[] = [];
 
   // Розбиваємо на блоки по номерах в дужках: (1), (2), (3-4), etc.
-  const verseBlocks = text.split(/\n\(/).filter(block => block.trim());
+  // ВАЖЛИВО: використовуємо lookahead щоб не втратити дужку
+  const blocks = text.split(/\n(?=\()/);
 
-  // Перший блок може бути заголовок, пропускаємо якщо не починається з цифри
-  const startIndex = verseBlocks[0].match(/^\d/) ? 0 : 1;
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed || !trimmed.startsWith('(')) continue;
 
-  for (let i = startIndex; i < verseBlocks.length; i++) {
-    const block = verseBlocks[i].trim();
-    if (!block) continue;
-
-    // Знаходимо номер вірша в початку блоку
-    const verseNumMatch = block.match(/^(\d+(?:-\d+)?)\)/);
+    // Знаходимо номер вірша: (1) або (3-4)
+    const verseNumMatch = trimmed.match(/^\((\d+(?:-\d+)?)\)/);
     if (!verseNumMatch) continue;
 
     const verseNumber = verseNumMatch[1]; // "1" або "3-4"
 
-    // Витягуємо текст після номера
-    const content = block.substring(verseNumMatch[0].length).trim();
+    // Витягуємо текст після (1)
+    const content = trimmed.substring(verseNumMatch[0].length).trim();
 
-    // Розділяємо на транслітерацію і переклад
-    // Переклад починається з "номер) " - наприклад "1) " або "3-4) "
-    const translationMatch = content.match(new RegExp(`\\n${verseNumber.replace('-', '-')}\\)\\s+(.+)`, 's'));
+    // Шукаємо переклад: він починається з "1) " або "3-4) "
+    // Використовуємо multiline regex
+    const escapedNum = verseNumber.replace('-', '-');
+    const translationRegex = new RegExp(`^(.+?)\\n${escapedNum}\\)\\s+(.+)$`, 's');
+    const match = content.match(translationRegex);
 
-    if (!translationMatch) {
-      // Якщо не знайшли переклад, весь блок = транслітерація
+    if (!match) {
+      // Якщо не знайшли переклад, весь контент = транслітерація
       verses.push({
         verse_number: verseNumber,
-        transliteration_en: content.trim(),
+        transliteration_en: content,
         translation_en: ''
       });
       continue;
     }
 
-    // Транслітерація = все до перекладу
-    const transliterationEnd = content.indexOf(`\n${verseNumber})`);
-    const transliteration = content.substring(0, transliterationEnd).trim();
-    const translation = translationMatch[1].trim();
+    const [, transliteration, translation] = match;
 
-    // Перевіряємо чи це подвійний номер (3-4)
+    // Обробка подвійних номерів (3-4)
     if (verseNumber.includes('-')) {
       const [start, end] = verseNumber.split('-').map(n => parseInt(n));
+      const transLines = transliteration.trim().split('\n').map(l => l.trim()).filter(l => l);
 
-      // Розділяємо транслітерацію на рядки
-      const transLines = transliteration.split('\n').map(l => l.trim()).filter(l => l);
-
-      // Якщо транслітерація має парну кількість рядків, ділимо порівну
+      // Ділимо рівно між віршами
       const linesPerVerse = Math.ceil(transLines.length / (end - start + 1));
 
       for (let v = start; v <= end; v++) {
@@ -116,34 +166,26 @@ function parseTextContent(text: string): BhaktivinodaSong[] {
         verses.push({
           verse_number: v.toString(),
           transliteration_en: verseTrans,
-          translation_en: translation // Обидва вірші діляться одним перекладом
+          translation_en: translation.trim() // Обидва діляться перекладом
         });
       }
     } else {
       // Звичайний одинарний вірш
       verses.push({
         verse_number: verseNumber,
-        transliteration_en: transliteration,
-        translation_en: translation
+        transliteration_en: transliteration.trim(),
+        translation_en: translation.trim()
       });
     }
   }
 
-  if (verses.length === 0) {
-    return [];
-  }
-
-  // Повертаємо як одну пісню з усіма віршами
-  return [{
-    song_number: 1,
-    verses: verses
-  }];
+  return verses;
 }
 
 /**
  * Отримати назву пісні зі сторінки
  */
-export function getBhaktivinodaTitle(html: string): { title_en: string; title_ua?: string } {
+function getBhaktivinodaSongTitle(html: string): { title_en: string; title_ua?: string } {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -178,6 +220,22 @@ export function getBhaktivinodaTitle(html: string): { title_en: string; title_ua
   } catch {
     return { title_en: 'Untitled' };
   }
+}
+
+/**
+ * Get book title from page (for main book page)
+ */
+export function getBhaktivinodaTitle(html: string): { title_en: string; title_ua?: string } {
+  return getBhaktivinodaSongTitle(html);
+}
+
+/**
+ * Legacy function - kept for backwards compatibility
+ * Use parseBhaktivinodaSongPage instead for single songs
+ */
+export function parseBhaktivinodaPage(html: string, url: string): BhaktivinodaSong[] {
+  const song = parseBhaktivinodaSongPage(html, url);
+  return song ? [song] : [];
 }
 
 /**

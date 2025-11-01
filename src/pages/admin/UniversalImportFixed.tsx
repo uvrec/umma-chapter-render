@@ -12,7 +12,14 @@ import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
-import { parseBhaktivinodaPage, getBhaktivinodaTitle, bhaktivinodaSongToChapter } from "@/utils/bhaktivinodaParser";
+import {
+  parseBhaktivinodaPage,
+  parseBhaktivinodaSongPage,
+  extractSongUrls,
+  getBhaktivinodaTitle,
+  bhaktivinodaSongToChapter,
+  BhaktivinodaSong
+} from "@/utils/bhaktivinodaParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -464,9 +471,9 @@ export default function UniversalImportFixed() {
     setProgress(10);
 
     try {
-      toast({ title: "Завантаження...", description: "Отримання HTML з bhaktivinodainstitute.org" });
+      toast({ title: "Завантаження...", description: "Отримання кореневої сторінки..." });
 
-      // Fetch HTML through edge function
+      // Step 1: Fetch root page (list of songs)
       const { data, error } = await supabase.functions.invoke("fetch-html", {
         body: { url: sourceUrl }
       });
@@ -475,18 +482,54 @@ export default function UniversalImportFixed() {
         throw new Error(error?.message || "Не вдалося отримати HTML");
       }
 
-      setProgress(30);
-      toast({ title: "Парсинг...", description: "Розбір пісень та віршів" });
+      setProgress(20);
+      toast({ title: "Парсинг...", description: "Витягування посилань на пісні..." });
 
-      // Parse the page
-      const songs = parseBhaktivinodaPage(data.html, sourceUrl);
+      // Step 2: Extract individual song URLs from root page
+      const songUrls = extractSongUrls(data.html, sourceUrl);
       const pageTitle = getBhaktivinodaTitle(data.html);
 
-      if (!songs || songs.length === 0) {
-        throw new Error("Не знайдено жодної пісні/вірша на сторінці");
+      if (!songUrls || songUrls.length === 0) {
+        throw new Error("Не знайдено жодного посилання на пісні на кореневій сторінці");
       }
 
-      setProgress(60);
+      toast({ title: "Знайдено пісень", description: `Завантажуємо ${songUrls.length} пісень...` });
+
+      // Step 3: Fetch and parse each individual song
+      const songs: BhaktivinodaSong[] = [];
+      const progressStep = 60 / songUrls.length;
+
+      for (let i = 0; i < songUrls.length; i++) {
+        const songUrl = songUrls[i];
+
+        toast({
+          title: `Завантаження пісні ${i + 1}/${songUrls.length}`,
+          description: songUrl.substring(songUrl.lastIndexOf('/') + 1)
+        });
+
+        const { data: songData, error: songError } = await supabase.functions.invoke("fetch-html", {
+          body: { url: songUrl }
+        });
+
+        if (songError || !songData?.html) {
+          console.warn(`Не вдалося завантажити пісню: ${songUrl}`, songError);
+          continue; // Skip this song, continue with others
+        }
+
+        const song = parseBhaktivinodaSongPage(songData.html, songUrl);
+        if (song && song.verses.length > 0) {
+          song.song_number = i + 1; // Set correct song number
+          songs.push(song);
+        }
+
+        setProgress(20 + Math.round((i + 1) * progressStep));
+      }
+
+      if (songs.length === 0) {
+        throw new Error("Не вдалося розпарсити жодної пісні");
+      }
+
+      setProgress(85);
 
       // Convert songs to chapters
       const chapters = songs.map((song, index) =>
