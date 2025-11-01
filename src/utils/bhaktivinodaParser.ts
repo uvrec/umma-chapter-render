@@ -85,10 +85,17 @@ export function parseBhaktivinodaSongPage(html: string, url: string): Bhaktivino
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Витягуємо весь текстовий контент
-    const body = doc.body.textContent || '';
+    // Витягуємо ТІЛЬКИ основний контент (не меню/footer/header)
+    const mainContent =
+      doc.querySelector('main') ||           // Основний контент
+      doc.querySelector('article') ||        // Або стаття
+      doc.querySelector('.entry-content') || // Або WordPress контент
+      doc.querySelector('.post-content') ||  // Або інший варіант
+      doc.body;                              // Fallback
 
-    const verses = parseTextContent(body);
+    const text = mainContent.textContent || '';
+
+    const verses = parseTextContent(text);
 
     if (verses.length === 0) {
       return null;
