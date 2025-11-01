@@ -9,7 +9,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const ALLOWED_HOSTS = new Set(["vedabase.io", "www.vedabase.io", "gitabase.com", "www.gitabase.com"]);
+const ALLOWED_HOSTS = new Set([
+  "vedabase.io",
+  "www.vedabase.io",
+  "gitabase.com",
+  "www.gitabase.com",
+  "bhaktivinodainstitute.org",
+  "www.bhaktivinodainstitute.org"
+]);
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
