@@ -202,6 +202,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
 
         {/* Lists */}
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleBulletList().run()}
@@ -210,6 +211,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           <List className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
@@ -221,16 +223,16 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
         <div className="w-px h-6 bg-border mx-1" />
 
         {/* Media + Links */}
-        <Button variant="ghost" size="icon" onClick={addLink}>
+        <Button type="button" variant="ghost" size="icon" onClick={addLink}>
           <LinkIcon className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={handleImageUpload}>
+        <Button type="button" variant="ghost" size="icon" onClick={handleImageUpload}>
           <ImageIcon className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={addYoutubeVideo}>
+        <Button type="button" variant="ghost" size="icon" onClick={addYoutubeVideo}>
           <YoutubeIcon className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={insertTable}>
+        <Button type="button" variant="ghost" size="icon" onClick={insertTable}>
           <TableIcon className="h-4 w-4" />
         </Button>
 
@@ -238,6 +240,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
 
         {/* Text Alignment */}
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
@@ -246,6 +249,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           <AlignLeft className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
@@ -254,6 +258,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           <AlignCenter className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
@@ -262,6 +267,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           <AlignRight className="h-4 w-4" />
         </Button>
         <Button
+          type="button"
           variant="ghost"
           size="icon"
           onClick={() => editor.chain().focus().setTextAlign('justify').run()}
