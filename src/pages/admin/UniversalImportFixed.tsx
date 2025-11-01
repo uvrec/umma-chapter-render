@@ -494,10 +494,18 @@ export default function UniversalImportFixed() {
 
       // Step 2: Extract individual song URLs from root page
       const isKKSongs = bookInfo.source === 'kksongs';
+      console.log(`[Import] Source type: ${isKKSongs ? 'KKSongs' : 'BhaktivinodaInstitute'}`);
+      console.log(`[Import] Root URL: ${sourceUrl}`);
+
       const songUrls = isKKSongs
         ? extractKKSongUrls(data.html, sourceUrl)
         : extractSongUrls(data.html, sourceUrl);
       const pageTitle = getBhaktivinodaTitle(data.html);
+
+      console.log(`[Import] Found ${songUrls.length} songs`);
+      if (songUrls.length > 0) {
+        console.log(`[Import] First 3 URLs:`, songUrls.slice(0, 3));
+      }
 
       if (!songUrls || songUrls.length === 0) {
         throw new Error("Не знайдено жодного посилання на пісні на кореневій сторінці");
@@ -536,14 +544,22 @@ export default function UniversalImportFixed() {
             // KKSongs: fetch 3 pages (main, bengali, commentary)
             const { mainUrl, bengaliUrl, commentaryUrl } = deriveKKSongUrls(songUrl);
 
+            console.log(`[KKSongs] Fetching song ${songIndex + 1}:`, { mainUrl, bengaliUrl, commentaryUrl });
+
             const [mainRes, bengaliRes, commentaryRes] = await Promise.all([
               supabase.functions.invoke("fetch-html", { body: { url: mainUrl } }),
               supabase.functions.invoke("fetch-html", { body: { url: bengaliUrl } }),
               supabase.functions.invoke("fetch-html", { body: { url: commentaryUrl } }),
             ]);
 
+            console.log(`[KKSongs] Results:`, {
+              main: { hasHtml: !!mainRes.data?.html, error: mainRes.error },
+              bengali: { hasHtml: !!bengaliRes.data?.html, error: bengaliRes.error },
+              commentary: { hasHtml: !!commentaryRes.data?.html, error: commentaryRes.error }
+            });
+
             if (mainRes.error || !mainRes.data?.html) {
-              console.warn(`Не вдалося завантажити основну сторінку: ${mainUrl}`, mainRes.error);
+              console.error(`[KKSongs] Помилка завантаження основної сторінки: ${mainUrl}`, mainRes.error, mainRes.data);
               continue;
             }
 
