@@ -255,8 +255,8 @@ export const VEDABASE_BOOKS = [
     author: 'Bhaktivinoda Thakur',
     author_ua: 'Бгактівінод Тхакур',
     // Джерело
-    source: 'bhaktivinodainstitute',
-    sourceUrl: 'https://bhaktivinodainstitute.org/writings/songs-poems/saranagati-surrendered-to-the-lords-shelter/',
+    source: 'kksongs',
+    sourceUrl: 'https://kksongs.org/authors/literature/saranagati.html',
     // Структура книги
     isMultiVolume: false,
     has_cantos: true, // ✅ 9 cantos (sections), 54 songs total
@@ -273,9 +273,9 @@ export const VEDABASE_BOOKS = [
       { number: 9, name: 'Vijñapti & Śrī Nāma Māhātmya', name_ua: 'Молитва і слава Святого Імені', songs: 2 }
     ],
     // Парсинг
-    templateId: 'bhaktivinoda-songs',
+    templateId: 'kksongs-songs', // ✅ Bengali, transliteration, synonyms, translation, commentary
     // Gitabase
-    hasGitabaseUA: false, // ❌ Тільки EN з bhaktivinodainstitute.org
+    hasGitabaseUA: false, // ❌ Імпортується з kksongs.org (Bengali + EN)
     gitabase_available: false,
     gitabaseSlug: null,
   },

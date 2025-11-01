@@ -16,6 +16,8 @@ const ALLOWED_HOSTS = new Set([
   "www.gitabase.com",
   "bhaktivinodainstitute.org",
   "www.bhaktivinodainstitute.org",
+  "kksongs.org",
+  "www.kksongs.org",
   // WordPress CDN occasionally used in content links
   "i0.wp.com"
 ]);

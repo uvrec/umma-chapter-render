@@ -22,6 +22,11 @@ import {
   bhaktivinodaSongToChapter,
   BhaktivinodaSong
 } from "@/utils/bhaktivinodaParser";
+import {
+  extractKKSongUrls,
+  deriveKKSongUrls,
+  parseKKSongComplete
+} from "@/utils/kksongsParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -488,7 +493,10 @@ export default function UniversalImportFixed() {
       toast({ title: "Парсинг...", description: "Витягування посилань на пісні..." });
 
       // Step 2: Extract individual song URLs from root page
-      const songUrls = extractSongUrls(data.html, sourceUrl);
+      const isKKSongs = bookInfo.source === 'kksongs';
+      const songUrls = isKKSongs
+        ? extractKKSongUrls(data.html, sourceUrl)
+        : extractSongUrls(data.html, sourceUrl);
       const pageTitle = getBhaktivinodaTitle(data.html);
 
       if (!songUrls || songUrls.length === 0) {
@@ -522,16 +530,42 @@ export default function UniversalImportFixed() {
         for (let songIndex = 0; songIndex < cantoData.urls.length; songIndex++) {
           const songUrl = cantoData.urls[songIndex];
 
-          const { data: songData, error: songError } = await supabase.functions.invoke("fetch-html", {
-            body: { url: songUrl }
-          });
+          let song: BhaktivinodaSong | null = null;
 
-          if (songError || !songData?.html) {
-            console.warn(`Не вдалося завантажити пісню: ${songUrl}`, songError);
-            continue;
+          if (isKKSongs) {
+            // KKSongs: fetch 3 pages (main, bengali, commentary)
+            const { mainUrl, bengaliUrl, commentaryUrl } = deriveKKSongUrls(songUrl);
+
+            const [mainRes, bengaliRes, commentaryRes] = await Promise.all([
+              supabase.functions.invoke("fetch-html", { body: { url: mainUrl } }),
+              supabase.functions.invoke("fetch-html", { body: { url: bengaliUrl } }),
+              supabase.functions.invoke("fetch-html", { body: { url: commentaryUrl } }),
+            ]);
+
+            if (mainRes.error || !mainRes.data?.html) {
+              console.warn(`Не вдалося завантажити основну сторінку: ${mainUrl}`, mainRes.error);
+              continue;
+            }
+
+            const mainHtml = mainRes.data.html;
+            const bengaliHtml = bengaliRes.data?.html || '';
+            const commentaryHtml = commentaryRes.data?.html || '';
+
+            song = await parseKKSongComplete(mainHtml, bengaliHtml, commentaryHtml, songUrl);
+          } else {
+            // BhaktivinodaInstitute: fetch single page
+            const { data: songData, error: songError } = await supabase.functions.invoke("fetch-html", {
+              body: { url: songUrl }
+            });
+
+            if (songError || !songData?.html) {
+              console.warn(`Не вдалося завантажити пісню: ${songUrl}`, songError);
+              continue;
+            }
+
+            song = parseBhaktivinodaSongPage(songData.html, songUrl);
           }
 
-          const song = parseBhaktivinodaSongPage(songData.html, songUrl);
           if (song && song.verses.length > 0) {
             song.song_number = songIndex + 1; // Song number within canto
             song.canto_number = cantoNumber; // Add canto number
@@ -1003,23 +1037,32 @@ export default function UniversalImportFixed() {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handleVedabaseImport} disabled={isProcessing || currentBookInfo?.source === 'bhaktivinodainstitute'}>
+                <Button onClick={handleVedabaseImport} disabled={isProcessing || currentBookInfo?.source === 'bhaktivinodainstitute' || currentBookInfo?.source === 'kksongs'}>
                   <Globe className="w-4 h-4 mr-2" />
                   Імпортувати з Vedabase
                 </Button>
 
-                {currentBookInfo?.source === 'bhaktivinodainstitute' && (
+                {(currentBookInfo?.source === 'bhaktivinodainstitute' || currentBookInfo?.source === 'kksongs') && (
                   <Button onClick={() => handleBhaktivinodaImport()} disabled={isProcessing} variant="secondary">
                     <BookOpen className="w-4 h-4 mr-2" />
-                    Імпортувати з Bhaktivinoda Institute
+                    {currentBookInfo?.source === 'kksongs' ? 'Імпортувати з KKSongs' : 'Імпортувати з Bhaktivinoda Institute'}
                   </Button>
                 )}
               </div>
 
+              {currentBookInfo?.source === 'kksongs' && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-900 dark:text-blue-100">
+                    <strong>ℹ️ KKSongs (kksongs.org):</strong> Імпортується <strong>Bengali</strong>, transliteration,
+                    translation та commentary. Кожна пісня завантажується з 3 окремих сторінок.
+                  </p>
+                </div>
+              )}
+
               {currentBookInfo?.source === 'bhaktivinodainstitute' && (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
-                    <strong>ℹ️ Bhaktivinoda Thakur:</strong> Імпортується тільки <strong>EN</strong> сторона
+                    <strong>ℹ️ Bhaktivinoda Institute:</strong> Імпортується тільки <strong>EN</strong> сторона
                     (transliteration + translation). Sanskrit, word-for-word та commentary можна додати пізніше вручну.
                   </p>
                   {currentBookInfo?.sourceUrl && (
