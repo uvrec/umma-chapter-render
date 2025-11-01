@@ -209,9 +209,19 @@ export const VEDABASE_BOOKS = [
     sourceUrl: 'https://bhaktivinodainstitute.org/writings/songs-poems/saranagati-surrendered-to-the-lords-shelter/',
     // Структура книги
     isMultiVolume: false,
-    has_cantos: false,
+    has_cantos: true, // ✅ 9 cantos (sections), 54 songs total
     volumeLabel: 'Song', // Пісня
-    cantos: undefined,
+    cantos: [
+      { number: 1, name: 'Dainya', name_ua: 'Смирення', songs: 7 },
+      { number: 2, name: 'Ātma Nivedana', name_ua: 'Посвячення себе', songs: 8 },
+      { number: 3, name: 'Goptṛtve-Varaṇa', name_ua: 'Вибір Захисника', songs: 4 },
+      { number: 4, name: 'Avaśya Rakṣibe Kṛṣṇa', name_ua: 'Крішна неодмінно захистить', songs: 6 },
+      { number: 5, name: 'Bhakti-Pratikūla-Bhāva', name_ua: 'Відкинути несприятливе для бгакті', songs: 5 },
+      { number: 6, name: 'Svīkara', name_ua: 'Прийняти сприятливе', songs: 5 },
+      { number: 7, name: 'Bhajana Lālasā', name_ua: 'Прагнення до бгаджану', songs: 13 },
+      { number: 8, name: 'Siddhi Lālasā', name_ua: 'Прагнення до досконалості', songs: 3 },
+      { number: 9, name: 'Vijñapti & Śrī Nāma Māhātmya', name_ua: 'Молитва і слава Святого Імені', songs: 2 }
+    ],
     // Парсинг
     templateId: 'bhaktivinoda-songs',
     // Gitabase

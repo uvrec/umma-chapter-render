@@ -19,6 +19,70 @@ export interface BhaktivinodaSong {
   title_en?: string;
   title_ua?: string;
   verses: BhaktivinodaVerse[];
+  canto_number?: number; // Додано для підтримки структури cantos
+}
+
+export interface BhaktivinodaCanto {
+  canto_number: number;
+  title_en: string;
+  title_ua: string;
+  songs: BhaktivinodaSong[];
+}
+
+/**
+ * Визначити canto на основі URL пісні
+ * Приклад: /dainya-song-one/ → Canto 1 (Dainya)
+ */
+export function determineCantoFromUrl(url: string): { number: number; name: string; name_ua: string } | null {
+  const urlLower = url.toLowerCase();
+
+  // Canto 1: Dainya (Смирення) - 7 songs
+  if (urlLower.includes('dainya')) {
+    return { number: 1, name: 'Dainya', name_ua: 'Смирення' };
+  }
+
+  // Canto 2: Ātma Nivedana (Посвячення себе) - 8 songs
+  if (urlLower.includes('atmanivedana') || urlLower.includes('atma-nivedana')) {
+    return { number: 2, name: 'Ātma Nivedana', name_ua: 'Посвячення себе' };
+  }
+
+  // Canto 3: Goptṛtve-Varaṇa (Вибір Захисника) - 4 songs
+  if (urlLower.includes('goptritve') || urlLower.includes('varana')) {
+    return { number: 3, name: 'Goptṛtve-Varaṇa', name_ua: 'Вибір Захисника' };
+  }
+
+  // Canto 4: Avaśya Rakṣibe Kṛṣṇa (Крішна неодмінно захистить) - 6 songs
+  if (urlLower.includes('avasya') || urlLower.includes('raksibe') || urlLower.includes('krsna')) {
+    return { number: 4, name: 'Avaśya Rakṣibe Kṛṣṇa', name_ua: 'Крішна неодмінно захистить' };
+  }
+
+  // Canto 5: Bhakti-Pratikūla-Bhāva (Відкинути несприятливе для бгакті) - 5 songs
+  if (urlLower.includes('bhakti-pratikula') || urlLower.includes('pratikula')) {
+    return { number: 5, name: 'Bhakti-Pratikūla-Bhāva', name_ua: 'Відкинути несприятливе для бгакті' };
+  }
+
+  // Canto 6: Svīkara (Прийняти сприятливе) - 5 songs
+  if (urlLower.includes('svikara')) {
+    return { number: 6, name: 'Svīkara', name_ua: 'Прийняти сприятливе' };
+  }
+
+  // Canto 7: Bhajana Lālasā (Прагнення до бгаджану) - 13 songs
+  if (urlLower.includes('bhajana') || urlLower.includes('lalasa')) {
+    return { number: 7, name: 'Bhajana Lālasā', name_ua: 'Прагнення до бгаджану' };
+  }
+
+  // Canto 8: Siddhi Lālasā (Прагнення до досконалості) - 3 songs
+  if (urlLower.includes('siddhi')) {
+    return { number: 8, name: 'Siddhi Lālasā', name_ua: 'Прагнення до досконалості' };
+  }
+
+  // Canto 9: Vijñapti & Śrī Nāma Māhātmya (Молитва і слава Святого Імені) - 2 songs
+  if (urlLower.includes('vijnaptih') || urlLower.includes('vijnapti') ||
+      urlLower.includes('nama-mahatmya') || urlLower.includes('sri-nama')) {
+    return { number: 9, name: 'Vijñapti & Śrī Nāma Māhātmya', name_ua: 'Молитва і слава Святого Імені' };
+  }
+
+  return null;
 }
 
 /**
@@ -66,6 +130,35 @@ export function extractSongUrls(html: string, baseUrl: string): string[] {
     console.error('Error extracting song URLs:', error);
     return [];
   }
+}
+
+/**
+ * Групувати URL пісень за cantos (розділами)
+ * Повертає структуру: Map<canto_number, { info, urls }>
+ */
+export function groupSongUrlsByCantos(songUrls: string[]): Map<number, { name: string; name_ua: string; urls: string[] }> {
+  const cantoMap = new Map<number, { name: string; name_ua: string; urls: string[] }>();
+
+  for (const url of songUrls) {
+    const cantoInfo = determineCantoFromUrl(url);
+
+    if (!cantoInfo) {
+      console.warn(`Cannot determine canto for URL: ${url}`);
+      continue;
+    }
+
+    if (!cantoMap.has(cantoInfo.number)) {
+      cantoMap.set(cantoInfo.number, {
+        name: cantoInfo.name,
+        name_ua: cantoInfo.name_ua,
+        urls: []
+      });
+    }
+
+    cantoMap.get(cantoInfo.number)!.urls.push(url);
+  }
+
+  return cantoMap;
 }
 
 /**
@@ -257,6 +350,7 @@ export function parseBhaktivinodaPage(html: string, url: string): BhaktivinodaSo
 export function bhaktivinodaSongToChapter(song: BhaktivinodaSong, chapterNumber: number) {
   return {
     chapter_number: chapterNumber,
+    canto_number: song.canto_number || undefined, // Додано підтримку cantos
     title_en: song.title_en || `Song ${song.song_number}`,
     title_ua: song.title_ua || `Пісня ${song.song_number}`,
     chapter_type: 'verses' as const,
