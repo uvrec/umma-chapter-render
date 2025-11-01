@@ -15,7 +15,9 @@ const ALLOWED_HOSTS = new Set([
   "gitabase.com",
   "www.gitabase.com",
   "bhaktivinodainstitute.org",
-  "www.bhaktivinodainstitute.org"
+  "www.bhaktivinodainstitute.org",
+  "kksongs.org",
+  "www.kksongs.org"
 ]);
 
 Deno.serve(async (req) => {
