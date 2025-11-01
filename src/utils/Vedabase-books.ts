@@ -193,6 +193,32 @@ export const VEDABASE_BOOKS = [
     gitabase_available: false,
     gitabaseSlug: null,
   },
+  // ========== КНИГИ BHAKTIVINODA THAKUR ==========
+  {
+    slug: 'saranagati',
+    name: 'Śaraṇāgati',
+    vedabaseSlug: null,
+    our_slug: 'saranagati',
+    name_ua: 'Шаранагаті',
+    name_en: 'Śaraṇāgati - Songs of Surrender',
+    // Автор
+    author: 'Bhaktivinoda Thakur',
+    author_ua: 'Бгактівінод Тхакур',
+    // Джерело
+    source: 'bhaktivinodainstitute',
+    sourceUrl: 'https://bhaktivinodainstitute.org/writings/songs-poems/saranagati-surrendered-to-the-lords-shelter/',
+    // Структура книги
+    isMultiVolume: false,
+    has_cantos: false,
+    volumeLabel: 'Song', // Пісня
+    cantos: undefined,
+    // Парсинг
+    templateId: 'bhaktivinoda-songs',
+    // Gitabase
+    hasGitabaseUA: false, // ❌ Тільки EN з bhaktivinodainstitute.org
+    gitabase_available: false,
+    gitabaseSlug: null,
+  },
 ] as const;
 
 // Типи для TypeScript

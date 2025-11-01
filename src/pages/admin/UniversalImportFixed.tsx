@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
+import { parseBhaktivinodaPage, getBhaktivinodaTitle, bhaktivinodaSongToChapter } from "@/utils/bhaktivinodaParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -23,7 +24,7 @@ import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
 import { VEDABASE_BOOKS, getBookConfigByVedabaseSlug } from "@/utils/Vedabase-books";
 
 // Типи станів
-type ImportSource = "file" | "vedabase" | "gitabase";
+type ImportSource = "file" | "vedabase" | "gitabase" | "bhaktivinoda";
 type Step = "source" | "file" | "intro" | "normalize" | "process" | "preview" | "save";
 
 interface ImportData {
