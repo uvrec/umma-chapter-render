@@ -559,7 +559,7 @@ export default function UniversalImportFixed() {
         ...importData,
         source: "bhaktivinoda",
         rawText: data.html.substring(0, 1000), // Preview
-        processedText: JSON.stringify(songs, null, 2),
+        processedText: JSON.stringify(allSongs, null, 2),
         chapters: chapters,
         metadata: {
           ...importData.metadata,
