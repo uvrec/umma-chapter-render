@@ -450,6 +450,85 @@ export default function UniversalImportFixed() {
     }
   }, [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, lilaNum]);
 
+  /** Імпорт з Bhaktivinoda Institute */
+  const handleBhaktivinodaImport = useCallback(async (url?: string) => {
+    const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
+    const sourceUrl = url || bookInfo.sourceUrl;
+
+    if (!sourceUrl) {
+      toast({ title: "Помилка", description: "URL не вказано", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+    setProgress(10);
+
+    try {
+      toast({ title: "Завантаження...", description: "Отримання HTML з bhaktivinodainstitute.org" });
+
+      // Fetch HTML through edge function
+      const { data, error } = await supabase.functions.invoke("fetch-html", {
+        body: { url: sourceUrl }
+      });
+
+      if (error || !data?.html) {
+        throw new Error(error?.message || "Не вдалося отримати HTML");
+      }
+
+      setProgress(30);
+      toast({ title: "Парсинг...", description: "Розбір пісень та віршів" });
+
+      // Parse the page
+      const songs = parseBhaktivinodaPage(data.html, sourceUrl);
+      const pageTitle = getBhaktivinodaTitle(data.html);
+
+      if (!songs || songs.length === 0) {
+        throw new Error("Не знайдено жодної пісні/вірша на сторінці");
+      }
+
+      setProgress(60);
+
+      // Convert songs to chapters
+      const chapters = songs.map((song, index) =>
+        bhaktivinodaSongToChapter(song, index + 1)
+      );
+
+      // Create import data (EN ONLY - no UA from bhaktivinoda institute)
+      const newImport: ImportData = {
+        ...importData,
+        source: "bhaktivinoda",
+        rawText: data.html.substring(0, 1000), // Preview
+        processedText: JSON.stringify(songs, null, 2),
+        chapters: chapters,
+        metadata: {
+          ...importData.metadata,
+          title_en: pageTitle.title_en || bookInfo.name_en,
+          title_ua: bookInfo.name_ua, // Use book config for UA
+          author: bookInfo.author || "Bhaktivinoda Thakur",
+          book_slug: bookInfo.our_slug,
+          source_url: sourceUrl,
+        },
+      };
+
+      setImportData(newImport);
+      setProgress(100);
+
+      toast({
+        title: "✅ Успішно!",
+        description: `Імпортовано ${chapters.length} пісень (${chapters.reduce((acc, ch) => acc + ch.verses.length, 0)} віршів)`
+      });
+
+      await saveToDatabase(newImport);
+
+    } catch (e: any) {
+      console.error("Bhaktivinoda import error:", e);
+      toast({ title: "Помилка", description: e.message, variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+    }
+  }, [vedabaseBook, importData]);
+
   /** Обробка файлу */
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -863,10 +942,33 @@ export default function UniversalImportFixed() {
                 </div>
               </div>
 
-              <Button onClick={handleVedabaseImport} disabled={isProcessing}>
-                <Globe className="w-4 h-4 mr-2" />
-                Імпортувати з Vedabase
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={handleVedabaseImport} disabled={isProcessing || currentBookInfo?.source === 'bhaktivinodainstitute'}>
+                  <Globe className="w-4 h-4 mr-2" />
+                  Імпортувати з Vedabase
+                </Button>
+
+                {currentBookInfo?.source === 'bhaktivinodainstitute' && (
+                  <Button onClick={() => handleBhaktivinodaImport()} disabled={isProcessing} variant="secondary">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Імпортувати з Bhaktivinoda Institute
+                  </Button>
+                )}
+              </div>
+
+              {currentBookInfo?.source === 'bhaktivinodainstitute' && (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="text-sm text-blue-900 dark:text-blue-100">
+                    <strong>ℹ️ Bhaktivinoda Thakur:</strong> Імпортується тільки <strong>EN</strong> сторона
+                    (transliteration + translation). Sanskrit, word-for-word та commentary можна додати пізніше вручну.
+                  </p>
+                  {currentBookInfo?.sourceUrl && (
+                    <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                      Джерело: {currentBookInfo.sourceUrl}
+                    </p>
+                  )}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="file" className="space-y-4">
