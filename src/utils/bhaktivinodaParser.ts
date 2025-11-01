@@ -38,11 +38,17 @@ export function extractSongUrls(html: string, baseUrl: string): string[] {
       const href = link.getAttribute('href');
       if (!href) return;
 
-      // Match patterns like:
-      // - /dainya-song-one/
-      // - /atmanivedana-song-two/
-      // - /song-1/, /song-2/
-      if (href.match(/\/(song-|dainya|atmanivedana|goptritve|avaśya|bhakti-anukula|bhakti-pratikula)/i)) {
+      // Match patterns for all Śaraṇāgati sections (9 sections, 54 songs total):
+      // 1. Вступна пісня (1) + Dainya (7) - /dainya-song-one/
+      // 2. Ātma Nivedana (8) - /atmanivedana-song-one/
+      // 3. Goptṛtve-Varaṇa (4) - /goptritve-varana-song-one/
+      // 4. Avaśya Rakṣibe Kṛṣṇa (6) - /avasya-raksibe-krsna-song-one/
+      // 5. Bhakti-Pratikūla-Bhāva (5) - /bhakti-pratikula-bhava-song-one/
+      // 6. Svīkara (5) - /svikara-song-one/
+      // 7. Bhajana Lālasā (13) - /bhajana-lalasa-song-one/
+      // 8. Siddhi Lālasā (3) - /siddhi-lalasa-song-one/
+      // 9. Vijñapti + Śrī Nāma Māhātmya (2) - /vijnaptih-song-one/, /sri-nama-mahatmya-song-one/
+      if (href.match(/\/(song-|dainya|atmanivedana|goptritve|varana|avaśya|avasya|raksibe|krsna|bhakti-anukula|bhakti-pratikula|bhava|svikara|bhajana|lalasa|siddhi|vijnaptih|vijnapti|nama-mahatmya|sri-nama)/i)) {
         let fullUrl = href;
         if (href.startsWith('/')) {
           const base = new URL(baseUrl);
