@@ -80,12 +80,25 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const handleImportChapter = async () => {
     if (!validateTarget()) return;
 
+    // Локальна перевірка: не передавати fallback-назви, щоб НЕ перезаписувати існуючі
+    const isFallbackTitle = (t?: string) => {
+      const s = (t || "").trim();
+      const n = editedChapter.chapter_number;
+      if (!s) return true;
+      const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
+      return re.test(s);
+    };
+
+    const safeChapter = { ...editedChapter } as any;
+    if (isFallbackTitle(safeChapter.title_ua)) delete safeChapter.title_ua;
+    if (isFallbackTitle(safeChapter.title_en)) delete safeChapter.title_en;
+
     setIsImporting(true);
     try {
       // якщо віршова глава — приберемо дублікати перед збереженням (м’яко)
-      if ((editedChapter.chapter_type ?? "verses") === "verses") {
+      if ((safeChapter.chapter_type ?? "verses") === "verses") {
         const seen = new Set<string>();
-        editedChapter.verses = (editedChapter.verses || []).filter((v) => {
+        safeChapter.verses = (safeChapter.verses || []).filter((v: any) => {
           const num = (v.verse_number || "").trim();
           if (!num) return true;
           if (seen.has(num)) return false;
@@ -97,7 +110,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
       await importSingleChapter(supabase, {
         bookId: selectedBookId,
         cantoId: needsCanto ? selectedCantoId : null,
-        chapter: editedChapter,
+        chapter: safeChapter,
         strategy: importStrategy,
       });
 
@@ -118,12 +131,29 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     }
     if (!validateTarget()) return;
 
+    // Санітуємо fallback-назви для всієї книги
+    const sanitize = (ch: ParsedChapter) => {
+      const s = { ...ch } as any;
+      const n = ch.chapter_number;
+      const isFallback = (t?: string) => {
+        const v = (t || "").trim();
+        if (!v) return true;
+        const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
+        return re.test(v);
+      };
+      if (isFallback(s.title_ua)) delete s.title_ua;
+      if (isFallback(s.title_en)) delete s.title_en;
+      return s as ParsedChapter;
+    };
+
+    const chaptersToImport = allChapters.map(sanitize);
+
     setIsImportingBook(true);
     try {
       await importBook(supabase, {
         bookId: selectedBookId,
         cantoId: needsCanto ? selectedCantoId : null,
-        chapters: allChapters,
+        chapters: chaptersToImport,
         strategy: importStrategy,
         onProgress: ({ index, total, chapter }) => {
           toast.message(`Імпорт розділу ${chapter.chapter_number}… (${index}/${total})`);

@@ -813,14 +813,17 @@ export default function UniversalImportFixed() {
         }
       }
 
-      // Ensure chapter has title_en (required by database)
-      const chapterToImport = {
-        ...chapter,
-        title_en: chapter.title_en ||
-                  importData.metadata.title_en ||
-                  chapter.title_ua ||
-                  `Chapter ${chapter.chapter_number}`,
+      // Не передаємо fallback-назви, щоб не перезаписувати існуючі
+      const isFallback = (t?: string) => {
+        const s = (t || '').trim();
+        const n = chapter.chapter_number;
+        if (!s) return true;
+        const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, 'i');
+        return re.test(s);
       };
+      const chapterToImport: any = { ...chapter };
+      if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+      if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
       await importSingleChapter(supabase, {
         bookId,
@@ -903,12 +906,17 @@ export default function UniversalImportFixed() {
       for (let i = 0; i < total; i++) {
         const ch = data.chapters[i];
 
-        // Ensure chapter has title_en (required by database)
-        const chapterToImport = {
-          ...ch,
-          title_en: ch.title_en || ch.title_ua || `Chapter ${ch.chapter_number}`,
-          title_ua: ch.title_ua || ch.title_en || `Глава ${ch.chapter_number}`,
+        // Не передаємо fallback-назви, щоб не перезаписувати існуючі
+        const isFallback = (t?: string) => {
+          const s = (t || '').trim();
+          const n = ch.chapter_number;
+          if (!s) return true;
+          const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, 'i');
+          return re.test(s);
         };
+        const chapterToImport: any = { ...ch };
+        if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+        if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
         await importSingleChapter(supabase, {
           bookId,
