@@ -73,6 +73,7 @@ import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
 import { PageView } from "./pages/PageView";
+import Highlights from "./pages/admin/Highlights";
 
 const queryClient = new QueryClient();
 
@@ -184,6 +185,7 @@ const App = () => (
                   <Route path="/admin/pages" element={<Pages />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
+                  <Route path="/admin/highlights" element={<Highlights />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />
