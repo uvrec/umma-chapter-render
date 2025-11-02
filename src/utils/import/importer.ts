@@ -41,16 +41,26 @@ export const stripSectionLabel = (s?: string) =>
     .trim();
 
 /** Перевірка чи це fallback-назва (автоматично згенерована) */
-const isFallbackTitle = (title: string, chapterNum: number): boolean => {
-  const cleaned = title.trim();
-  return (
-    cleaned === `Глава ${chapterNum}` ||
-    cleaned === `Chapter ${chapterNum}` ||
-    cleaned === `Song ${chapterNum}` ||
-    cleaned === `Пісня ${chapterNum}` ||
-    cleaned === `Розділ ${chapterNum}` ||
-    !cleaned // порожня назва теж fallback
-  );
+const isFallbackTitle = (title: string, chapterNum: number, extras: string[] = []): boolean => {
+  const cleaned = (title || "").trim();
+  if (!cleaned) return true;
+
+  // Базові автогенеровані варіанти
+  const base = new Set<string>([
+    `Глава ${chapterNum}`,
+    `Chapter ${chapterNum}`,
+    `Song ${chapterNum}`,
+    `Пісня ${chapterNum}`,
+    `Розділ ${chapterNum}`,
+  ].map((s) => s.trim().toLowerCase()));
+
+  // Додаткові "дефолтні" значення з форми (назва книги/канто тощо)
+  for (const e of extras) {
+    const v = (e || "").trim().toLowerCase();
+    if (v) base.add(v);
+  }
+
+  return base.has(cleaned.toLowerCase());
 };
 
 /** Пошук або створення глави (bookId/cantoId + chapter_number) з оновленням полів */
@@ -95,6 +105,26 @@ export async function upsertChapter(
     existingChapter = data;
   }
 
+  // Load book/canto titles to treat certain UI defaults as fallback
+  let fallbackExtras: string[] = [];
+  try {
+    const { data: bookMeta } = await supabase
+      .from("books")
+      .select("title_ua, title_en")
+      .eq("id", bookId)
+      .maybeSingle();
+    if (bookMeta) fallbackExtras.push(bookMeta.title_ua || "", bookMeta.title_en || "");
+    if (cantoId) {
+      const { data: cantoMeta } = await supabase
+        .from("cantos")
+        .select("title_ua, title_en")
+        .eq("id", cantoId)
+        .maybeSingle();
+      if (cantoMeta) fallbackExtras.push(cantoMeta.title_ua || "", cantoMeta.title_en || "");
+    }
+  } catch {}
+  fallbackExtras = fallbackExtras.filter(Boolean);
+
   // Build payloads carefully to avoid overwriting existing titles when not provided
   const baseRefs: any = {};
   if (cantoId) baseRefs.canto_id = cantoId;
@@ -124,10 +154,10 @@ export async function upsertChapter(
   };
 
   // ОНОВЛЮЄМО НАЗВИ ЛИШЕ КОЛИ Є ЯВНЕ НОВЕ ЗНАЧЕННЯ І ВОНО НЕ FALLBACK
-  if (hasText(params.title_ua) && !isFallbackTitle(params.title_ua, chapter_number)) {
+  if (hasText(params.title_ua) && !isFallbackTitle(params.title_ua, chapter_number, fallbackExtras)) {
     updatePayload.title_ua = params.title_ua;
   }
-  if (hasText(params.title_en) && !isFallbackTitle(params.title_en, chapter_number)) {
+  if (hasText(params.title_en) && !isFallbackTitle(params.title_en, chapter_number, fallbackExtras)) {
     updatePayload.title_en = params.title_en;
   }
 
