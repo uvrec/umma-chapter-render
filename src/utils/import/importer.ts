@@ -116,31 +116,21 @@ export async function upsertChapter(
     content_en: safeHtml(params.content_en),
   };
 
-  // Update payload: ✅ Зберігаємо існуючі назви, якщо нові не надані АБО якщо нові - це fallback
-  // ✅ ЗАВЖДИ оновлюємо canto_id/book_id з baseRefs для правильної прив'язки
+  // Update payload: оновлюємо прив'язку та тип, але НІКОЛИ не чіпаємо назви,
+  // якщо користувач явно їх не змінив (і це не fallback)
   const updatePayload: any = {
-    ...baseRefs, // ← КРИТИЧНО: завжди оновлюємо прив'язку до канто/книги
+    ...baseRefs,
     chapter_type: params.chapter_type,
   };
-  
-  // ✅ ВИПРАВЛЕННЯ: НЕ затираємо існуючі назви fallback-назвами
+
+  // ОНОВЛЮЄМО НАЗВИ ЛИШЕ КОЛИ Є ЯВНЕ НОВЕ ЗНАЧЕННЯ І ВОНО НЕ FALLBACK
   if (hasText(params.title_ua) && !isFallbackTitle(params.title_ua, chapter_number)) {
     updatePayload.title_ua = params.title_ua;
-  } else if (existingChapter?.title_ua) {
-    updatePayload.title_ua = existingChapter.title_ua;
-  } else {
-    updatePayload.title_ua = params.title_en || `Глава ${chapter_number}`;
   }
-  
-  // ✅ Always ensure title_en has a value (database NOT NULL constraint)
   if (hasText(params.title_en) && !isFallbackTitle(params.title_en, chapter_number)) {
     updatePayload.title_en = params.title_en;
-  } else if (existingChapter?.title_en) {
-    updatePayload.title_en = existingChapter.title_en;
-  } else {
-    // Fallback to title_ua or generic chapter name
-    updatePayload.title_en = params.title_ua || existingChapter?.title_ua || `Chapter ${chapter_number}`;
   }
+
   if (typeof params.content_ua === 'string' && hasText(params.content_ua)) updatePayload.content_ua = safeHtml(params.content_ua);
   if (typeof params.content_en === 'string' && hasText(params.content_en)) updatePayload.content_en = safeHtml(params.content_en);
 
