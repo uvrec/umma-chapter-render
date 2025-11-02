@@ -14,6 +14,8 @@ import { TelegramEmbed } from "@/components/blog/TelegramEmbed";
 import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,6 +33,15 @@ export default function BlogPost() {
   // Читаємо dualMode з localStorage
   const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
 
+  // ✅ ДОДАНО: Display blocks для контролю видимості блоків
+  const [displayBlocks, setDisplayBlocks] = useState({
+    sanskrit: true,
+    transliteration: true,
+    synonyms: true,
+    translation: true,
+    commentary: true,
+  });
+
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handler = () => {
@@ -39,28 +50,6 @@ export default function BlogPost() {
     window.addEventListener("vv-reader-prefs-changed", handler);
     return () => window.removeEventListener("vv-reader-prefs-changed", handler);
   }, []);
-
-  // Функція для збереження змін контенту
-  const handleContentUpdate = async (field: "content_ua" | "content_en", value: string) => {
-    if (!post?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from("blog_posts")
-        .update({ [field]: value })
-        .eq("id", post.id);
-
-      if (error) throw error;
-
-      // Оновлюємо кеш
-      queryClient.setQueryData(["blog-post", slug], (old: any) => (old ? { ...old, [field]: value } : old));
-
-      toast({ title: "✅ Збережено" });
-    } catch (error) {
-      console.error(error);
-      toast({ title: "Помилка збереження", variant: "destructive" });
-    }
-  };
 
   const {
     data: post,
@@ -98,6 +87,7 @@ export default function BlogPost() {
           read_time,
           category_id,
           author_display_name,
+          display_blocks,
           category:blog_categories(name_ua, name_en),
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `,
@@ -112,6 +102,62 @@ export default function BlogPost() {
     },
     enabled: !!slug,
   });
+
+  // ✅ ДОДАНО: Завантажити display_blocks з БД
+  useEffect(() => {
+    if (post?.display_blocks) {
+      setDisplayBlocks({
+        sanskrit: (post.display_blocks as any).sanskrit ?? true,
+        transliteration: (post.display_blocks as any).transliteration ?? true,
+        synonyms: (post.display_blocks as any).synonyms ?? true,
+        translation: (post.display_blocks as any).translation ?? true,
+        commentary: (post.display_blocks as any).commentary ?? true,
+      });
+    }
+  }, [post?.display_blocks]);
+
+  // Функція для збереження змін контенту
+  const handleContentUpdate = async (field: "content_ua" | "content_en", value: string) => {
+    if (!post?.id) return;
+
+    try {
+      const { error } = await supabase
+        .from("blog_posts")
+        .update({ [field]: value })
+        .eq("id", post.id);
+
+      if (error) throw error;
+
+      // Оновлюємо кеш
+      queryClient.setQueryData(["blog-post", slug], (old: any) => (old ? { ...old, [field]: value } : old));
+
+      toast({ title: "✅ Збережено" });
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Помилка збереження", variant: "destructive" });
+    }
+  };
+
+  // ✅ ДОДАНО: Обробка перемикання блоків
+  const handleToggleBlock = async (blockName: keyof typeof displayBlocks, value: boolean) => {
+    const newBlocks = { ...displayBlocks, [blockName]: value };
+    setDisplayBlocks(newBlocks);
+
+    if (isAdmin && post?.id) {
+      try {
+        const { error } = await supabase
+          .from("blog_posts")
+          .update({ display_blocks: newBlocks })
+          .eq("id", post.id);
+
+        if (error) throw error;
+        toast({ title: "✅ Налаштування збережено" });
+      } catch (error) {
+        console.error(error);
+        toast({ title: "Помилка збереження", variant: "destructive" });
+      }
+    }
+  };
 
   const { data: relatedPosts } = useQuery({
     queryKey: ["related-posts", post?.category_id],
@@ -213,6 +259,52 @@ export default function BlogPost() {
 
       <article className="container mx-auto py-8">
         <div className={dualMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
+          {/* ✅ ДОДАНО: Панель налаштувань блоків (тільки для адміна) */}
+          {isAdmin && (
+            <Card className="mb-6 p-4 bg-card/50">
+              <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+                {language === "ua" ? "Налаштування відображення блоків" : "Display Blocks Settings"}
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={displayBlocks.sanskrit}
+                    onCheckedChange={(v) => handleToggleBlock('sanskrit', !!v)}
+                  />
+                  <span className="text-sm">{language === "ua" ? "Санскрит" : "Sanskrit"}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={displayBlocks.transliteration}
+                    onCheckedChange={(v) => handleToggleBlock('transliteration', !!v)}
+                  />
+                  <span className="text-sm">{language === "ua" ? "Транслітерація" : "Transliteration"}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={displayBlocks.synonyms}
+                    onCheckedChange={(v) => handleToggleBlock('synonyms', !!v)}
+                  />
+                  <span className="text-sm">{language === "ua" ? "Послівний переклад" : "Word-for-word"}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={displayBlocks.translation}
+                    onCheckedChange={(v) => handleToggleBlock('translation', !!v)}
+                  />
+                  <span className="text-sm">{language === "ua" ? "Переклад" : "Translation"}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={displayBlocks.commentary}
+                    onCheckedChange={(v) => handleToggleBlock('commentary', !!v)}
+                  />
+                  <span className="text-sm">{language === "ua" ? "Пояснення" : "Commentary"}</span>
+                </label>
+              </div>
+            </Card>
+          )}
+          
           {/* Breadcrumbs */}
           <nav className="mb-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">
@@ -284,7 +376,7 @@ export default function BlogPost() {
                         label="Контент (UA)"
                       />
                     ) : (
-                      <TiptapRenderer content={contentUa} className="!max-w-none" />
+                      <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
                     )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
@@ -336,7 +428,7 @@ export default function BlogPost() {
                         label="Content (EN)"
                       />
                     ) : (
-                      <TiptapRenderer content={contentEn} className="!max-w-none" />
+                      <TiptapRenderer content={contentEn} displayBlocks={displayBlocks} className="!max-w-none" />
                     )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
@@ -403,9 +495,9 @@ export default function BlogPost() {
                         onChange={(value) => handleContentUpdate("content_ua", value)}
                         label="Контент (UA)"
                       />
-                    ) : (
-                      <TiptapRenderer content={contentUa} className="!max-w-none" />
-                    )
+                  ) : (
+                    <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
+                  )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
                       <p className="text-lg">Контент поста ще не додано</p>
@@ -420,7 +512,7 @@ export default function BlogPost() {
                       label="Content (EN)"
                     />
                   ) : (
-                    <TiptapRenderer content={contentEn} className="!max-w-none" />
+                    <TiptapRenderer content={contentEn} displayBlocks={displayBlocks} className="!max-w-none" />
                   )
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">

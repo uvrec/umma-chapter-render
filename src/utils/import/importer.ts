@@ -40,6 +40,19 @@ export const stripSectionLabel = (s?: string) =>
     .replace(/^\s*(ПОЯСНЕННЯ|КОМЕНТАРІЙ|КОМЕНТАР|COMMENTARY|PURPORT)\s*[:—-]?\s*/i, "")
     .trim();
 
+/** Перевірка чи це fallback-назва (автоматично згенерована) */
+const isFallbackTitle = (title: string, chapterNum: number): boolean => {
+  const cleaned = title.trim();
+  return (
+    cleaned === `Глава ${chapterNum}` ||
+    cleaned === `Chapter ${chapterNum}` ||
+    cleaned === `Song ${chapterNum}` ||
+    cleaned === `Пісня ${chapterNum}` ||
+    cleaned === `Розділ ${chapterNum}` ||
+    !cleaned // порожня назва теж fallback
+  );
+};
+
 /** Пошук або створення глави (bookId/cantoId + chapter_number) з оновленням полів */
 export async function upsertChapter(
   supabase: SupabaseClient,
@@ -103,21 +116,24 @@ export async function upsertChapter(
     content_en: safeHtml(params.content_en),
   };
 
-  // Update payload: ✅ Зберігаємо існуючі назви, якщо нові не надані
+  // Update payload: ✅ Зберігаємо існуючі назви, якщо нові не надані АБО якщо нові - це fallback
   // ✅ ЗАВЖДИ оновлюємо canto_id/book_id з baseRefs для правильної прив'язки
   const updatePayload: any = {
     ...baseRefs, // ← КРИТИЧНО: завжди оновлюємо прив'язку до канто/книги
     chapter_type: params.chapter_type,
   };
-  if (hasText(params.title_ua)) {
+  
+  // ✅ ВИПРАВЛЕННЯ: НЕ затираємо існуючі назви fallback-назвами
+  if (hasText(params.title_ua) && !isFallbackTitle(params.title_ua, chapter_number)) {
     updatePayload.title_ua = params.title_ua;
   } else if (existingChapter?.title_ua) {
     updatePayload.title_ua = existingChapter.title_ua;
   } else {
     updatePayload.title_ua = params.title_en || `Глава ${chapter_number}`;
   }
+  
   // ✅ Always ensure title_en has a value (database NOT NULL constraint)
-  if (hasText(params.title_en)) {
+  if (hasText(params.title_en) && !isFallbackTitle(params.title_en, chapter_number)) {
     updatePayload.title_en = params.title_en;
   } else if (existingChapter?.title_en) {
     updatePayload.title_en = existingChapter.title_en;
