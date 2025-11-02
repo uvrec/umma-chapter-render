@@ -89,49 +89,16 @@ export function parseKKSongMainPage(html: string): {
     const titleEl = doc.querySelector('h1, h2, .song-title');
     const title = titleEl?.textContent?.trim() || 'Untitled';
 
-    // ✅ ВИПРАВЛЕННЯ: Витягати ЛИШЕ текст пісні, ігноруючи скрипти, стилі, навігацію
-    let contentEl = doc.querySelector('.song-content') || 
-                    doc.querySelector('.verse-container') ||
-                    doc.querySelector('#verses') ||
-                    doc.querySelector('main') || 
-                    doc.querySelector('article') ||
-                    doc.querySelector('.content') ||
-                    doc.querySelector('pre');
-
+    // Get content - simple approach that works
+    let contentEl = doc.querySelector('pre') || doc.querySelector('body');
     if (!contentEl) {
       console.warn('Не знайдено контент для парсингу');
       return { verses: [], title };
     }
 
-    // Витягати ЛИШЕ текстові вузли, виключаючи скрипти, стилі, навігацію
-    const textParts: string[] = [];
-    const walker = document.createTreeWalker(
-      contentEl,
-      NodeFilter.SHOW_TEXT,
-      {
-        acceptNode: (node) => {
-          const parent = node.parentElement;
-          if (!parent) return NodeFilter.FILTER_REJECT;
-          
-          // Ігноруємо текст зі скриптів, стилів, навігації
-          const tagName = parent.tagName.toLowerCase();
-          if (['script', 'style', 'nav', 'header', 'footer', 'noscript', 'iframe'].includes(tagName)) {
-            return NodeFilter.FILTER_REJECT;
-          }
-          
-          const text = node.textContent?.trim();
-          return text ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-        }
-      }
-    );
-
-    let node;
-    while (node = walker.nextNode()) {
-      const text = node.textContent?.trim();
-      if (text) textParts.push(text);
-    }
-
-    const text = textParts.join('\n');
+    // Clean scripts/styles
+    contentEl.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    const text = contentEl.textContent || '';
 
     // Parse verses
     // KKSongs format typically has numbered verses
@@ -202,34 +169,9 @@ export function parseKKSongBengaliPage(html: string): Record<string, string> {
       return {};
     }
 
-    // Витягати текст без HTML коду
-    const textParts: string[] = [];
-    const walker = document.createTreeWalker(
-      contentEl,
-      NodeFilter.SHOW_TEXT,
-      {
-        acceptNode: (node) => {
-          const parent = node.parentElement;
-          if (!parent) return NodeFilter.FILTER_REJECT;
-          
-          const tagName = parent.tagName.toLowerCase();
-          if (['script', 'style', 'nav', 'header', 'footer', 'noscript', 'iframe'].includes(tagName)) {
-            return NodeFilter.FILTER_REJECT;
-          }
-          
-          const text = node.textContent?.trim();
-          return text ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-        }
-      }
-    );
-
-    let node;
-    while (node = walker.nextNode()) {
-      const text = node.textContent?.trim();
-      if (text) textParts.push(text);
-    }
-
-    const text = textParts.join('\n');
+    // Clean and extract text
+    contentEl.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    const text = contentEl.textContent || '';
     const lines = text.split('\n').filter(l => l.trim());
 
     // Map verse number to Bengali text
@@ -289,34 +231,9 @@ export function parseKKSongCommentaryPage(html: string): string {
       return '';
     }
 
-    // Витягати текст без HTML коду
-    const textParts: string[] = [];
-    const walker = document.createTreeWalker(
-      contentEl,
-      NodeFilter.SHOW_TEXT,
-      {
-        acceptNode: (node) => {
-          const parent = node.parentElement;
-          if (!parent) return NodeFilter.FILTER_REJECT;
-          
-          const tagName = parent.tagName.toLowerCase();
-          if (['script', 'style', 'nav', 'header', 'footer', 'noscript', 'iframe'].includes(tagName)) {
-            return NodeFilter.FILTER_REJECT;
-          }
-          
-          const text = node.textContent?.trim();
-          return text ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
-        }
-      }
-    );
-
-    let node;
-    while (node = walker.nextNode()) {
-      const text = node.textContent?.trim();
-      if (text) textParts.push(text);
-    }
-
-    return textParts.join('\n');
+    // Clean and extract
+    contentEl.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    return (contentEl.textContent || '').trim();
   } catch (error) {
     console.error('Error parsing kksongs commentary page:', error);
     return '';
