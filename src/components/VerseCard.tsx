@@ -47,6 +47,7 @@ interface VerseCardProps {
     commentary: string;
   }) => void;
   onVerseNumberUpdate?: () => void; // коллбек після зміни номера
+  language?: 'ua' | 'en'; // ✅ НОВЕ: мова інтерфейсу
 }
 
 /* =========================
@@ -121,8 +122,24 @@ export const VerseCard = ({
   },
   isAdmin = false,
   onVerseUpdate,
-  onVerseNumberUpdate
+  onVerseNumberUpdate,
+  language = 'ua'
 }: VerseCardProps) => {
+  // ✅ Назви блоків залежно від мови
+  const blockLabels = {
+    ua: {
+      synonyms: 'Послівний переклад',
+      translation: 'Літературний переклад',
+      commentary: 'Пояснення',
+    },
+    en: {
+      synonyms: 'Synonyms',
+      translation: 'Translation',
+      commentary: 'Purport',
+    },
+  };
+
+  const labels = blockLabels[language];
   const {
     playTrack,
     currentTrack,
@@ -248,7 +265,7 @@ export const VerseCard = ({
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6 border-t border-border pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] font-bold text-foreground">Послівний переклад</h4>
+              <h4 className="text-[1.17em] font-bold text-foreground">{labels.synonyms}</h4>
               <button onClick={() => playSection("Послівний переклад", audioSynonyms)} disabled={!audioSynonyms && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати послівний переклад">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -278,7 +295,7 @@ export const VerseCard = ({
         {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6 border-t border-border pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] font-bold text-foreground">Літературний переклад</h4>
+              <h4 className="text-[1.17em] font-bold text-foreground">{labels.translation}</h4>
               <button onClick={() => playSection("Літературний переклад", audioTranslation)} disabled={!audioTranslation && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати переклад">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -294,7 +311,7 @@ export const VerseCard = ({
         {textDisplaySettings.showCommentary && (isEditing || commentary) && <div className="border-t border-border pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] text-foreground font-extrabold">Purport</h4>
+              <h4 className="text-[1.17em] text-foreground font-extrabold">{labels.commentary}</h4>
               <button onClick={() => playSection("Пояснення", audioCommentary)} disabled={!audioCommentary && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати пояснення">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>

@@ -322,6 +322,18 @@ function removeGitabaseArtifacts(text: string): string {
   return result.trim();
 }
 
+/**
+ * Виправляє апостроф після "н" в українській мові
+ * Правило: н' → нь, Н' → Нь
+ * Приклади: сан'яса → санняса, Кан'я → Канья
+ */
+function fixApostropheAfterN(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/н'/g, 'нь')
+    .replace(/Н'/g, 'Нь');
+}
+
 // ============================================================================
 // ПУБЛІЧНІ ФУНКЦІЇ
 // ============================================================================
@@ -334,6 +346,7 @@ export function normalizeVerseField(text: string, fieldType: string): string {
 
   let result = normalizeMojibake(text);
   result = removeGitabaseArtifacts(result);
+  result = fixApostropheAfterN(result); // ✅ НОВЕ правило
 
   switch (fieldType) {
     case "sanskrit":

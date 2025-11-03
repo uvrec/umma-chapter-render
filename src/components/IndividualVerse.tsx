@@ -26,6 +26,13 @@ export const IndividualVerse = () => {
   const { isAdmin } = useAuth(); // залишено, якщо треба
   const { playTrack } = useAudio();
 
+  // ✅ Назви блоків (поки що UA, можна додати мовний контекст)
+  const blockLabels = {
+    synonyms: 'Послівний переклад',
+    translation: 'Літературний переклад',
+    commentary: 'Пояснення',
+  };
+
   // ← використовуємо єдиний хук
   const { fontSize, lineHeight } = useReaderSettings();
 
@@ -280,7 +287,7 @@ export const IndividualVerse = () => {
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-center gap-4">
               <h2 className="font-bold" style={{ fontSize: `${fontSize * 1.7}px` }}>
-                Послівний переклад
+                {blockLabels.synonyms}
               </h2>
               <button
                 className="rounded-full p-2 hover:bg-accent transition-colors"
@@ -328,7 +335,7 @@ export const IndividualVerse = () => {
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-center gap-4">
               <h2 className="font-bold" style={{ fontSize: `${fontSize * 1.7}px` }}>
-                Літературний переклад
+                {blockLabels.translation}
               </h2>
               <button
                 className="rounded-full p-2 hover:bg-accent transition-colors"
@@ -349,7 +356,7 @@ export const IndividualVerse = () => {
           <section className="mb-12">
             <div className="mb-6 flex items-center justify-center gap-4">
               <h2 className="font-bold" style={{ fontSize: `${fontSize * 1.7}px` }}>
-                Пояснення
+                {blockLabels.commentary}
               </h2>
               <button
                 className="rounded-full p-2 hover:bg-accent transition-colors"

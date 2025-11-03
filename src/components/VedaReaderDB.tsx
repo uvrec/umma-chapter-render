@@ -432,6 +432,63 @@ export const VedaReaderDB = () => {
     });
   };
 
+  // 🆕 Text selection handler with checks
+  const handleTextSelection = useCallback(() => {
+    // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
+    const editableElement = document.activeElement as HTMLElement;
+    if (editableElement?.tagName === 'TEXTAREA' || 
+        editableElement?.tagName === 'INPUT' ||
+        editableElement?.contentEditable === 'true' ||
+        editableElement?.closest('[contenteditable="true"]')) {
+      console.log('🚫 Highlights: В режимі редагування');
+      return;
+    }
+
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+    
+    // ✅ ПЕРЕВІРКА 2: Чи достатньо тексту? (мінімум 10 символів)
+    if (!selectedText || selectedText.length < 10) {
+      console.log('🚫 Highlights: Занадто короткий текст', selectedText?.length);
+      return;
+    }
+
+    // ✅ ПЕРЕВІРКА 3: Чи це не одне слово?
+    if (!selectedText.includes(' ')) {
+      console.log('🚫 Highlights: Одне слово, ймовірно копіювання');
+      return;
+    }
+
+    // Get context
+    const range = selection?.getRangeAt(0);
+    if (!range) return;
+
+    const container = range.commonAncestorContainer;
+    const fullText = container.textContent || '';
+    const startOffset = range.startOffset;
+    const endOffset = range.endOffset;
+
+    const before = fullText.substring(Math.max(0, startOffset - 50), startOffset);
+    const after = fullText.substring(endOffset, Math.min(fullText.length, endOffset + 50));
+
+    setSelectedTextForHighlight(selectedText);
+    setSelectionContext({ before, after });
+
+    // ✅ Затримка перед показом діалогу
+    setTimeout(() => {
+      const currentSelection = window.getSelection()?.toString().trim();
+      if (currentSelection === selectedText) {
+        setHighlightDialogOpen(true);
+      }
+    }, 300);
+  }, []);
+
+  // Mouseup listener for highlights
+  useEffect(() => {
+    document.addEventListener('mouseup', handleTextSelection);
+    return () => document.removeEventListener('mouseup', handleTextSelection);
+  }, [handleTextSelection]);
+
   // 🆕 Keyboard navigation (← →)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -525,28 +582,6 @@ export const VedaReaderDB = () => {
       setCurrentVerseIndex(0);
     }
   };
-
-  // Handle text selection for highlighting
-  const handleTextSelection = useCallback(() => {
-    const selection = window.getSelection();
-    const selectedText = selection?.toString().trim();
-    
-    if (selectedText && selectedText.length > 0) {
-      // Get context around selection
-      const range = selection?.getRangeAt(0);
-      const container = range?.commonAncestorContainer;
-      const fullText = container?.textContent || "";
-      const startOffset = range?.startOffset || 0;
-      const endOffset = range?.endOffset || 0;
-      
-      const contextBefore = fullText.substring(Math.max(0, startOffset - 100), startOffset);
-      const contextAfter = fullText.substring(endOffset, Math.min(fullText.length, endOffset + 100));
-      
-      setSelectedTextForHighlight(selectedText);
-      setSelectionContext({ before: contextBefore, after: contextAfter });
-      setHighlightDialogOpen(true);
-    }
-  }, []);
 
   const handleSaveHighlight = useCallback((notes: string) => {
     if (!book?.id || !chapter?.id) return;

@@ -43,6 +43,7 @@ import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
 import TransliterationTool from "./pages/TransliterationTool";
 import Dashboard from "./pages/admin/Dashboard";
+import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
 import Chapters from "./pages/admin/Chapters";
@@ -154,7 +155,8 @@ const App = () => (
                   {/* Admin */}
                   <Route path="/admin/banners" element={<AdminBanners />} />
                   <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
-                  <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/normalize-texts" element={<NormalizeTexts />} />
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
                   <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
