@@ -126,22 +126,22 @@ TRANSLIT_FIXES = {
     "бх": "бг",
     "Бх": "Бг",
     "БХ": "БГ",
-    
+
     "ґх": "ґг",
     "Ґх": "Ґг",
-    
+
     "дх": "дг",
     "Дх": "Дг",
-    
+
     "тх": "тх",  # вже правильно
     "Тх": "Тх",
-    
+
     "кх": "кх",  # вже правильно
     "Кх": "Кх",
-    
+
     "чг": "чх",
     "Чг": "Чх",
-    
+
     # Неправильні з Gitabase
     "тг": "тх",
     "Тг": "Тх",
@@ -149,6 +149,13 @@ TRANSLIT_FIXES = {
     "Пг": "Пх",
     "кг": "кх",
     "Кг": "Кх",
+
+    # ДОДАТКОВІ ПРАВИЛА з normalize_ukrainian_cc_texts (SQL функція)
+    # Придихові приголосні (складні випадки)
+    "джджг": "джджх",  # ✅ КРИТИЧНО: спочатку подвійний (щоб не було конфлікту з одиночним)
+    "Джджг": "Джджх",
+    "джг": "джх",
+    "Джг": "Джх",
 }
 
 # ============================================================================
@@ -360,17 +367,19 @@ def normalize_transliteration(text: str) -> str:
     """Виправляє транслітерацію (bh→бг, тощо)"""
     if not text:
         return text
-    
+
     result = text
-    
+
     # Спочатку сполучення
     for old, new in CONSONANT_CLUSTERS.items():
         result = result.replace(old, new)
-    
-    # Потім окремі виправлення
-    for old, new in TRANSLIT_FIXES.items():
+
+    # Потім окремі виправлення - КРИТИЧНО: сортуємо за довжиною (спадно)
+    # Щоб "джджг" замінилось ПЕРЕД "джг"
+    sorted_fixes = sorted(TRANSLIT_FIXES.items(), key=lambda x: len(x[0]), reverse=True)
+    for old, new in sorted_fixes:
         result = result.replace(old, new)
-    
+
     return result
 
 
@@ -378,18 +387,58 @@ def remove_gitabase_artifacts(text: str) -> str:
     """Видаляє артефакти Gitabase (номери віршів, зайві пробіли)"""
     if not text:
         return text
-    
+
     # Видаляємо "Текст 1:", "18:" на початку
     result = re.sub(r'^\s*\d+\s*:\s*', '', text)
     result = re.sub(r'^\s*Текст\s+\d+\s*:\s*', '', text, flags=re.IGNORECASE)
-    
+
     # Множинні пробіли → один пробіл
     result = re.sub(r'\s+', ' ', result)
-    
+
     # Видаляємо зайві пробіли навколо знаків пунктуації
     result = re.sub(r'\s+([,.;:!?])', r'\1', result)
-    
+
     return result.strip()
+
+
+def normalize_apostrophe_after_n(text: str) -> str:
+    """
+    Замінює апостроф після "н" на м'який знак "ь"
+    За винятком випадків де апостроф правильний (ачар'я, антар'ямі)
+
+    Правило: н' → нь, Н' → Нь
+    Виключення: ачар'я, антар'ямі (санскритські терміни)
+
+    Синхронізовано з SQL функцією normalize_ukrainian_text()
+    """
+    if not text:
+        return text
+
+    result = text
+
+    # Спочатку зберігаємо виключення (заміняємо тимчасовим placeholder)
+    placeholders = {
+        '___ACHARYA___': "ачар'я",
+        '___ACHARYA_CAP___': "Ачар'я",
+        '___ANTARYAMI___': "антар'ямі",
+        '___ANTARYAMI_CAP___': "Антар'ямі",
+        '___ANTARYAM___': "антар'ям",
+        '___ANTARYAM_CAP___': "Антар'ям",
+    }
+
+    # Зберігаємо виключення
+    for placeholder, original in placeholders.items():
+        result = result.replace(original, placeholder)
+
+    # Тепер робимо заміну н' → нь
+    result = result.replace("н'", "нь")
+    result = result.replace("Н'", "Нь")
+
+    # Відновлюємо виключення
+    for placeholder, original in placeholders.items():
+        result = result.replace(placeholder, original)
+
+    return result
 
 
 def normalize_verse_field(text: str, field_type: str) -> str:
@@ -427,13 +476,13 @@ def normalize_verse_field(text: str, field_type: str) -> str:
         # НЕ: result = normalize_word_replacements(result)
     
     elif field_type in ['synonyms', 'translation', 'commentary']:
-        # Українські тексти - всі правила окрім транслітерації consonant clusters
+        # Українські тексти - всі правила включаючи н'→нь з виключеннями
         result = normalize_diacritics(result)
         result = normalize_word_replacements(result)
-        # Виправляємо тільки неправильні поєднання (тг→тх)
+        result = normalize_apostrophe_after_n(result)  # ✅ ДОДАНО: н'→нь (крім ачар'я/антар'ямі)
+        # Виправляємо всі придихові приголосні (включаючи джг→джх, джджг→джджх)
         for old, new in TRANSLIT_FIXES.items():
-            if old in ['тг', 'пг', 'кг', 'Тг', 'Пг', 'Кг', 'чг', 'Чг']:
-                result = result.replace(old, new)
+            result = result.replace(old, new)
     
     return result
 
