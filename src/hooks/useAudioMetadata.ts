@@ -2,6 +2,7 @@
 // Мінімально робочий хук для витягування метаданих і завантаження аудіо у Supabase
 import { useCallback, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { sanitizeFilename } from '@/utils/textNormalizer';
 
 export type AudioMetadata = {
   title?: string;
@@ -51,9 +52,11 @@ export const useAudioMetadata = () => {
 
       // 1) Завантажуємо файл у storage
       const ext = file.name.split('.').pop()?.toLowerCase() || 'mp3';
-      const path = `uploads/${playlistId}/${Date.now()}-${file.name}`;
-      
+      const sanitizedName = sanitizeFilename(file.name);
+      const path = `uploads/${playlistId}/${Date.now()}-${sanitizedName}`;
+
       console.log('Uploading to storage path:', path);
+      console.log('Original filename:', file.name, '→ Sanitized:', sanitizedName);
       // Спочатку спробуємо audio-files, якщо не вийде - verse-audio
       let uploadError = null;
       let audioUrl = '';
