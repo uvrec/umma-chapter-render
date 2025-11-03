@@ -3,17 +3,23 @@ import { useCallback, useState } from 'react';
 type ParserStatus = 'online' | 'offline' | 'unknown';
 
 export const useParserHealth = () => {
-  const [status, setStatus] = useState<ParserStatus>('unknown');
+  const PARSER_URL = import.meta.env.VITE_PARSER_URL;
+  const [status, setStatus] = useState<ParserStatus>(PARSER_URL ? 'unknown' : 'offline');
   const [checking, setChecking] = useState(false);
 
   const check = useCallback(async () => {
+    // Не перевіряємо якщо парсер не налаштований
+    if (!PARSER_URL) {
+      setStatus('offline');
+      return;
+    }
+
     try {
       setChecking(true);
-      // Реальна перевірка парсер сервера з timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 sec timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
       
-      const response = await fetch('http://127.0.0.1:5003/health', {
+      const response = await fetch(`${PARSER_URL}/health`, {
         method: 'GET',
         signal: controller.signal
       });
@@ -26,12 +32,11 @@ export const useParserHealth = () => {
         setStatus('offline');
       }
     } catch (error) {
-      console.warn('Parser health check failed:', error);
       setStatus('offline');
     } finally {
       setChecking(false);
     }
-  }, []);
+  }, [PARSER_URL]);
 
   return { status, checking, check };
 };
