@@ -151,6 +151,7 @@ export function convertIASTtoUkrainian(text: string): string {
     nyo: "нйо",
     nyu: "нйу",
     сch: "ччх",
+    jjh: "джджх",
 
     // ============ 2 символи ============
     bh: "бг",
