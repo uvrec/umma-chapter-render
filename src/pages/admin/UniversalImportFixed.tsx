@@ -283,9 +283,9 @@ export default function UniversalImportFixed() {
                 }
 
                 // Тільки додаємо вірш якщо є хоч якийсь контент
-                const hasContent = 
+                const hasContent =
                   (parsedEN?.bengali || parsedEN?.transliteration || parsedEN?.synonyms || parsedEN?.translation || parsedEN?.purport) ||
-                  (parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.commentary_ua);
+                  (parsedUA?.transliteration_ua || parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.purport_ua);
                 
                 if (hasContent) {
                   verses.push({
@@ -298,7 +298,7 @@ export default function UniversalImportFixed() {
                     translation_en: parsedEN?.translation || "",
                     translation_ua: parsedUA?.translation_ua || "",
                     commentary_en: parsedEN?.purport || "",
-                    commentary_ua: parsedUA?.commentary_ua || "",
+                    commentary_ua: parsedUA?.purport_ua || "",
                   });
                 } else {
                   console.log(`⏭️ Пропускаю сегмент ${t.lastPart} (немає контенту)`);
@@ -363,22 +363,22 @@ export default function UniversalImportFixed() {
               }
 
               // Тільки додаємо вірш якщо є хоч якийсь контент
-              const hasContent = 
+              const hasContent =
                 (parsedEN?.bengali || parsedEN?.transliteration || parsedEN?.synonyms || parsedEN?.translation || parsedEN?.purport) ||
-                (parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.commentary_ua);
-              
+                (parsedUA?.transliteration_ua || parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.purport_ua);
+
               if (hasContent) {
                 verses.push({
                   verse_number: String(v),
                   sanskrit: parsedEN?.bengali || "",
                   transliteration_en: parsedEN?.transliteration || "",
-                  transliteration_ua: "",
+                  transliteration_ua: parsedUA?.transliteration_ua || "",
                   synonyms_en: parsedEN?.synonyms || "",
                   synonyms_ua: parsedUA?.synonyms_ua || "",
                   translation_en: parsedEN?.translation || "",
                   translation_ua: parsedUA?.translation_ua || "",
                   commentary_en: parsedEN?.purport || "",
-                  commentary_ua: parsedUA?.commentary_ua || "",
+                  commentary_ua: parsedUA?.purport_ua || "",
                 });
               } else {
                 console.log(`⏭️ Пропускаю вірш ${v} (немає контенту)`);
