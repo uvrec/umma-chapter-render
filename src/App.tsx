@@ -43,6 +43,7 @@ import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
 import TransliterationTool from "./pages/TransliterationTool";
 import Dashboard from "./pages/admin/Dashboard";
+import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
 import Chapters from "./pages/admin/Chapters";
@@ -73,6 +74,7 @@ import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
 import { PageView } from "./pages/PageView";
+import Highlights from "./pages/admin/Highlights";
 
 const queryClient = new QueryClient();
 
@@ -153,7 +155,8 @@ const App = () => (
                   {/* Admin */}
                   <Route path="/admin/banners" element={<AdminBanners />} />
                   <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
-                  <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/normalize-texts" element={<NormalizeTexts />} />
                   <Route path="/admin/books" element={<Books />} />
                   <Route path="/admin/books/new" element={<AddEditBook />} />
                   <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
@@ -182,8 +185,10 @@ const App = () => (
                   <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
                   <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
                   <Route path="/admin/pages" element={<Pages />} />
+                  <Route path="/admin/pages/new" element={<EditPage />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
+                  <Route path="/admin/highlights" element={<Highlights />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />

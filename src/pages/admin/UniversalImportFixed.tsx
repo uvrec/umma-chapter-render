@@ -62,10 +62,10 @@ interface ImportData {
 
 // TODO: Додати підтримку bhaktivinodainstitute.org для пісень та поем (Шікшаштака, Шаранагаті тощо)
 
-// 👇 головна змінна: адреса парсера
-const PARSE_ENDPOINT = import.meta.env.VITE_PARSER_URL
+// 👇 головна змінна: адреса парсера (якщо не налаштовано - використовуємо fallback)
+const PARSE_ENDPOINT = import.meta.env.VITE_PARSER_URL 
   ? `${import.meta.env.VITE_PARSER_URL}/admin/parse-web-chapter`
-  : "http://127.0.0.1:5003/admin/parse-web-chapter";
+  : null;
 
 export default function UniversalImportFixed() {
   const [currentStep, setCurrentStep] = useState<Step>("source");
@@ -149,34 +149,43 @@ export default function UniversalImportFixed() {
 
       let result: any = null;
 
-      try {
-        console.log("🐍 Trying Python parser at:", PARSE_ENDPOINT);
-        toast({ title: "Python парсер", description: "Звернення до Flask API..." });
-        const response = await fetch(PARSE_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            lila: lilaNum,
-            chapter: chapterNum,
-            verse_ranges: verseRanges,
-            vedabase_base,
-            gitabase_base,
-          }),
-        });
+      // Використовуємо Python парсер лише якщо він налаштований
+      if (PARSE_ENDPOINT) {
+        try {
+          console.log("🐍 Trying Python parser at:", PARSE_ENDPOINT);
+          toast({ title: "Python парсер", description: "Звернення до Flask API..." });
+          const response = await fetch(PARSE_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lila: lilaNum,
+              chapter: chapterNum,
+              verse_ranges: verseRanges,
+              vedabase_base,
+              gitabase_base,
+            }),
+          });
 
-        if (!response.ok) throw new Error(`Parser HTTP ${response.status}: ${response.statusText}`);
-        result = await response.json();
-        console.log("🐍 Python parser result:", result?.verses?.length, "verses");
-        // ✅ Перевірка якості: якщо порожньо або відсутні ключові поля — примусово fallback
-        const badResult = !Array.isArray(result?.verses) || !result.verses.length ||
-          result.verses.every((v: any) => !(v?.translation_en || v?.translation_ua || v?.synonyms_en || v?.synonyms_ua || v?.commentary_en || v?.commentary_ua));
-        if (badResult) {
-          throw new Error("Python result is empty/incomplete — switching to browser fallback");
+          if (!response.ok) throw new Error(`Parser HTTP ${response.status}: ${response.statusText}`);
+          result = await response.json();
+          console.log("🐍 Python parser result:", result?.verses?.length, "verses");
+          // ✅ Перевірка якості: якщо порожньо або відсутні ключові поля — примусово fallback
+          const badResult = !Array.isArray(result?.verses) || !result.verses.length ||
+            result.verses.every((v: any) => !(v?.translation_en || v?.translation_ua || v?.synonyms_en || v?.synonyms_ua || v?.commentary_en || v?.commentary_ua));
+          if (badResult) {
+            throw new Error("Python result is empty/incomplete — switching to browser fallback");
+          }
+          toast({ title: "✅ Парсер успішно відпрацював", description: "Отримано JSON" });
+        } catch (err: any) {
+          console.log("🐍 Python parser failed, using browser fallback:", err.message);
+          toast({ title: "⚠️ Browser fallback", description: "Парсинг через Edge-функції (EN + UA)" });
+          result = null; // Примусово переходимо до fallback
         }
-        toast({ title: "✅ Парсер успішно відпрацював", description: "Отримано JSON" });
-      } catch (err: any) {
-        console.log("🐍 Python parser failed, using browser fallback:", err.message);
-        toast({ title: "⚠️ Browser fallback", description: "Парсинг через Edge-функції (EN + UA)" });
+      }
+
+      // Fallback: якщо парсер не налаштований або повернув помилку
+      if (!result) {
+        toast({ title: "🌐 Browser парсинг", description: "Використовується Edge-функції (EN + UA)" });
 
         const [start, end] = verseRanges.includes("-")
           ? verseRanges.split("-").map(Number)
@@ -262,7 +271,15 @@ export default function UniversalImportFixed() {
                   const gitabaseUrl = bookInfo.isMultiVolume
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
                     : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
-                  parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                  const parsed = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                  parsedUA = parsed
+                    ? {
+                        transliteration_ua: parsed.transliteration_ua || "",
+                        synonyms_ua: parsed.synonyms_ua || "",
+                        translation_ua: parsed.translation_ua || "",
+                        commentary_ua: parsed.purport_ua || "",
+                      }
+                    : null;
                 }
 
                 // Тільки додаємо вірш якщо є хоч якийсь контент
@@ -334,7 +351,15 @@ export default function UniversalImportFixed() {
                 const gitabaseUrl = bookInfo.isMultiVolume
                   ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
                   : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
-                parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                const parsed = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                parsedUA = parsed
+                  ? {
+                      transliteration_ua: parsed.transliteration_ua || "",
+                      synonyms_ua: parsed.synonyms_ua || "",
+                      translation_ua: parsed.translation_ua || "",
+                      commentary_ua: parsed.purport_ua || "",
+                    }
+                  : null;
               }
 
               // Тільки додаємо вірш якщо є хоч якийсь контент
@@ -801,14 +826,17 @@ export default function UniversalImportFixed() {
         }
       }
 
-      // Ensure chapter has title_en (required by database)
-      const chapterToImport = {
-        ...chapter,
-        title_en: chapter.title_en ||
-                  importData.metadata.title_en ||
-                  chapter.title_ua ||
-                  `Chapter ${chapter.chapter_number}`,
+      // Не передаємо fallback-назви, щоб не перезаписувати існуючі
+      const isFallback = (t?: string) => {
+        const s = (t || '').trim();
+        const n = chapter.chapter_number;
+        if (!s) return true;
+        const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, 'i');
+        return re.test(s);
       };
+      const chapterToImport: any = { ...chapter };
+      if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+      if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
       await importSingleChapter(supabase, {
         bookId,
@@ -891,12 +919,17 @@ export default function UniversalImportFixed() {
       for (let i = 0; i < total; i++) {
         const ch = data.chapters[i];
 
-        // Ensure chapter has title_en (required by database)
-        const chapterToImport = {
-          ...ch,
-          title_en: ch.title_en || ch.title_ua || `Chapter ${ch.chapter_number}`,
-          title_ua: ch.title_ua || ch.title_en || `Глава ${ch.chapter_number}`,
+        // Не передаємо fallback-назви, щоб не перезаписувати існуючі
+        const isFallback = (t?: string) => {
+          const s = (t || '').trim();
+          const n = ch.chapter_number;
+          if (!s) return true;
+          const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, 'i');
+          return re.test(s);
         };
+        const chapterToImport: any = { ...ch };
+        if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+        if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
 
         await importSingleChapter(supabase, {
           bookId,

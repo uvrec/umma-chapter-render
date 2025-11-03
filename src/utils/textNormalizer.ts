@@ -144,13 +144,15 @@ export function convertIASTtoUkrainian(text: string): string {
     "h\u0323": "х̣", // h + combining dot below
     "l\u0323": "л̣", // l + combining dot below
 
-    // ============ 3 символи ============
+    // ============ 3 символи (СПОЧАТКУ!) ============
     nya: "нйа",
     nye: "нйе",
     nyi: "нйі",
     nyo: "нйо",
     nyu: "нйу",
     сch: "ччх",
+    jjh: "жджх",  // ✅ НОВЕ: jjh → жджх (3 символи)
+    "джджг": "жджх", // ✅ НОВЕ: кирилична версія
 
     // ============ 2 символи ============
     bh: "бг",
@@ -160,7 +162,8 @@ export function convertIASTtoUkrainian(text: string): string {
     ph: "пх",
     kh: "кх",
     ch: "чх",
-    jh: "джх",
+    jh: "джх",  // ✅ ОНОВЛЕНО: jh → джх
+    "джг": "джх", // ✅ НОВЕ: кирилична версія джг → джх
     sh: "сх",
     kṣ: "кш",
     jñ: "джн̃",
@@ -319,6 +322,18 @@ function removeGitabaseArtifacts(text: string): string {
   return result.trim();
 }
 
+/**
+ * Виправляє апостроф після "н" в українській мові
+ * Правило: н' → нь, Н' → Нь
+ * Приклади: сан'яса → санняса, Кан'я → Канья
+ */
+function fixApostropheAfterN(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/н'/g, 'нь')
+    .replace(/Н'/g, 'Нь');
+}
+
 // ============================================================================
 // ПУБЛІЧНІ ФУНКЦІЇ
 // ============================================================================
@@ -331,6 +346,7 @@ export function normalizeVerseField(text: string, fieldType: string): string {
 
   let result = normalizeMojibake(text);
   result = removeGitabaseArtifacts(result);
+  result = fixApostropheAfterN(result); // ✅ НОВЕ правило
 
   switch (fieldType) {
     case "sanskrit":

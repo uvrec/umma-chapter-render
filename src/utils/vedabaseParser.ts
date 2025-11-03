@@ -3,6 +3,8 @@
  * Основано на аналізі https://vedabase.io/en/library/cc/adi/1/1
  */
 
+import { normalizeVerseField } from './textNormalizer';
+
 interface VedabaseVerseData {
   bengali: string;
   transliteration: string;
@@ -120,12 +122,13 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
       purport: purport ? '✓' : '✗'
     });
 
+    // ✅ Застосовуємо нормалізацію до всіх текстових полів
     return {
-      bengali,
-      transliteration,
-      synonyms,
-      translation,
-      purport,
+      bengali: normalizeVerseField(bengali, 'sanskrit'),
+      transliteration: normalizeVerseField(transliteration, 'transliteration_en'),
+      synonyms: normalizeVerseField(synonyms, 'synonyms'),
+      translation: normalizeVerseField(translation, 'translation'),
+      purport: normalizeVerseField(purport, 'commentary'),
       lila,
       chapter,
       verse,

@@ -40,6 +40,61 @@ export const stripSectionLabel = (s?: string) =>
     .replace(/^\s*(ПОЯСНЕННЯ|КОМЕНТАРІЙ|КОМЕНТАР|COMMENTARY|PURPORT)\s*[:—-]?\s*/i, "")
     .trim();
 
+/** Перевірка чи це fallback-назва (автоматично згенерована) */
+const isFallbackTitle = (title: string, chapterNum: number, extras: string[] = []): boolean => {
+  const cleaned = (title || "").trim();
+  if (!cleaned) return true;
+
+  const n = chapterNum;
+  
+  // Базові автогенеровані варіанти
+  const patterns = [
+    `^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`,
+    // Формати типу "CC madhya 24", "SB 1.1", "BG 2.13"
+    `^[A-Z]{1,4}\\s+(madhya|adi|antya|lila|canto)?\\s*${n}$`,
+    // Формати з назвою lila
+    `(madhya|adi|antya)\\s*lila\\s*${n}$`,
+    `(madhya|adi|antya)\\s*${n}$`,
+    // Формати типу "Canto 1", "Madhya 24"
+    `^(Canto|Madhya|Adi|Antya)\\s*${n}$`,
+    // Повні назви типу "Шрі Чайтанья-чарітамріта madhya 24"
+    `чайтанья.*madhya\\s*${n}`,
+    `чайтанья.*adi\\s*${n}`,
+    `чайтанья.*antya\\s*${n}`,
+    `bhagavatam.*canto\\s*${n}`,
+    `шрімад.*пісня\\s*${n}`,
+  ];
+
+  // Перевірка по всіх патернах
+  const matchesPattern = patterns.some(p => new RegExp(p, "i").test(cleaned));
+  if (matchesPattern) return true;
+
+  // Додаткові "дефолтні" значення з форми (назва книги/канто тощо)
+  const baseExtras = new Set<string>();
+  for (const e of extras) {
+    const v = (e || "").trim().toLowerCase();
+    if (v) {
+      baseExtras.add(v);
+      // Також додати варіанти з номером
+      baseExtras.add(`${v} ${n}`);
+      baseExtras.add(`${v} ${n}`.replace(/\s+/g, ' '));
+      
+      // Перевірка чи назва містить фрагменти з extras + номер
+      const words = v.split(/\s+/);
+      for (const word of words) {
+        if (word.length > 3) {
+          const titleLower = cleaned.toLowerCase();
+          if (titleLower.includes(word) && titleLower.includes(String(n))) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+
+  return baseExtras.has(cleaned.toLowerCase());
+};
+
 /** Пошук або створення глави (bookId/cantoId + chapter_number) з оновленням полів */
 export async function upsertChapter(
   supabase: SupabaseClient,
@@ -82,6 +137,26 @@ export async function upsertChapter(
     existingChapter = data;
   }
 
+  // Load book/canto titles to treat certain UI defaults as fallback
+  let fallbackExtras: string[] = [];
+  try {
+    const { data: bookMeta } = await supabase
+      .from("books")
+      .select("title_ua, title_en")
+      .eq("id", bookId)
+      .maybeSingle();
+    if (bookMeta) fallbackExtras.push(bookMeta.title_ua || "", bookMeta.title_en || "");
+    if (cantoId) {
+      const { data: cantoMeta } = await supabase
+        .from("cantos")
+        .select("title_ua, title_en")
+        .eq("id", cantoId)
+        .maybeSingle();
+      if (cantoMeta) fallbackExtras.push(cantoMeta.title_ua || "", cantoMeta.title_en || "");
+    }
+  } catch {}
+  fallbackExtras = fallbackExtras.filter(Boolean);
+
   // Build payloads carefully to avoid overwriting existing titles when not provided
   const baseRefs: any = {};
   if (cantoId) baseRefs.canto_id = cantoId;
@@ -103,36 +178,52 @@ export async function upsertChapter(
     content_en: safeHtml(params.content_en),
   };
 
-  // Update payload: ✅ Зберігаємо існуючі назви, якщо нові не надані
-  // ✅ ЗАВЖДИ оновлюємо canto_id/book_id з baseRefs для правильної прив'язки
+  // Update payload: оновлюємо прив'язку та тип, але НІКОЛИ не чіпаємо назви,
+  // якщо користувач явно їх не змінив (і це не fallback)
   const updatePayload: any = {
-    ...baseRefs, // ← КРИТИЧНО: завжди оновлюємо прив'язку до канто/книги
+    ...baseRefs,
     chapter_type: params.chapter_type,
   };
-  if (hasText(params.title_ua)) {
+
+  console.log('🔍 upsertChapter: Отримав параметри', {
+    chapter_number,
+    title_ua: params.title_ua,
+    title_en: params.title_en,
+    title_ua_provided: params.title_ua !== undefined,
+    title_en_provided: params.title_en !== undefined,
+    existing_chapter_id: existingChapter?.id,
+    existing_title_ua: existingChapter?.title_ua,
+    existing_title_en: existingChapter?.title_en,
+  });
+
+  // ✅ КРИТИЧНО: Оновлюємо назви ЛИШЕ якщо:
+  // 1. Параметр явно переданий (не undefined)
+  // 2. Має текст
+  // 3. НЕ є fallback
+  if (params.title_ua !== undefined && hasText(params.title_ua) && !isFallbackTitle(params.title_ua, chapter_number, fallbackExtras)) {
+    console.log('🔍 upsertChapter: Оновлюємо title_ua');
     updatePayload.title_ua = params.title_ua;
-  } else if (existingChapter?.title_ua) {
-    updatePayload.title_ua = existingChapter.title_ua;
   } else {
-    updatePayload.title_ua = params.title_en || `Глава ${chapter_number}`;
+    console.log('🔍 upsertChapter: НЕ оновлюємо title_ua (undefined або fallback)');
   }
-  // ✅ Always ensure title_en has a value (database NOT NULL constraint)
-  if (hasText(params.title_en)) {
+  
+  if (params.title_en !== undefined && hasText(params.title_en) && !isFallbackTitle(params.title_en, chapter_number, fallbackExtras)) {
+    console.log('🔍 upsertChapter: Оновлюємо title_en');
     updatePayload.title_en = params.title_en;
-  } else if (existingChapter?.title_en) {
-    updatePayload.title_en = existingChapter.title_en;
   } else {
-    // Fallback to title_ua or generic chapter name
-    updatePayload.title_en = params.title_ua || existingChapter?.title_ua || `Chapter ${chapter_number}`;
+    console.log('🔍 upsertChapter: НЕ оновлюємо title_en (undefined або fallback)');
   }
+
   if (typeof params.content_ua === 'string' && hasText(params.content_ua)) updatePayload.content_ua = safeHtml(params.content_ua);
   if (typeof params.content_en === 'string' && hasText(params.content_en)) updatePayload.content_en = safeHtml(params.content_en);
 
   if (existingChapter?.id) {
+    console.log('🔍 upsertChapter: Update payload', updatePayload);
     const { error: updErr } = await supabase.from("chapters").update(updatePayload).eq("id", existingChapter.id);
     if (updErr) throw updErr;
     return existingChapter.id;
   } else {
+    console.log('🔍 upsertChapter: Insert payload', insertPayload);
     const { data: created, error: insErr } = await supabase.from("chapters").insert(insertPayload).select("id").single();
     if (insErr) throw insErr;
     return created.id;

@@ -86,18 +86,19 @@ export function parseKKSongMainPage(html: string): {
     const doc = parser.parseFromString(html, 'text/html');
 
     // Get title
-    const titleEl = doc.querySelector('h1, h2, title');
+    const titleEl = doc.querySelector('h1, h2, .song-title');
     const title = titleEl?.textContent?.trim() || 'Untitled';
 
-    // Get main content
-    const mainContent =
-      doc.querySelector('main') ||
-      doc.querySelector('article') ||
-      doc.querySelector('.content') ||
-      doc.querySelector('pre') ||
-      doc.body;
+    // Get content - simple approach that works
+    let contentEl = doc.querySelector('pre') || doc.querySelector('body');
+    if (!contentEl) {
+      console.warn('Не знайдено контент для парсингу');
+      return { verses: [], title };
+    }
 
-    const text = mainContent.textContent || '';
+    // Clean scripts/styles
+    contentEl.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    const text = contentEl.textContent || '';
 
     // Parse verses
     // KKSongs format typically has numbered verses
@@ -155,14 +156,22 @@ export function parseKKSongBengaliPage(html: string): Record<string, string> {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    const mainContent =
-      doc.querySelector('main') ||
-      doc.querySelector('article') ||
-      doc.querySelector('.content') ||
-      doc.querySelector('pre') ||
-      doc.body;
+    // ✅ ВИПРАВЛЕННЯ: Витягати ЛИШЕ бенгальський текст
+    let contentEl = doc.querySelector('.song-content') || 
+                    doc.querySelector('.bengali-text') ||
+                    doc.querySelector('main') || 
+                    doc.querySelector('article') ||
+                    doc.querySelector('.content') ||
+                    doc.querySelector('pre');
 
-    const text = mainContent.textContent || '';
+    if (!contentEl) {
+      console.warn('Не знайдено бенгальський контент');
+      return {};
+    }
+
+    // Clean and extract text
+    contentEl.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    const text = contentEl.textContent || '';
     const lines = text.split('\n').filter(l => l.trim());
 
     // Map verse number to Bengali text
@@ -209,14 +218,22 @@ export function parseKKSongCommentaryPage(html: string): string {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    const mainContent =
-      doc.querySelector('main') ||
-      doc.querySelector('article') ||
-      doc.querySelector('.content') ||
-      doc.querySelector('pre') ||
-      doc.body;
+    // ✅ ВИПРАВЛЕННЯ: Витягати ЛИШЕ текст коментаря
+    let contentEl = doc.querySelector('.commentary') || 
+                    doc.querySelector('.purport') ||
+                    doc.querySelector('main') || 
+                    doc.querySelector('article') ||
+                    doc.querySelector('.content') ||
+                    doc.querySelector('pre');
 
-    return mainContent.textContent?.trim() || '';
+    if (!contentEl) {
+      console.warn('Не знайдено коментар');
+      return '';
+    }
+
+    // Clean and extract
+    contentEl.querySelectorAll('script, style, nav, header, footer').forEach(el => el.remove());
+    return (contentEl.textContent || '').trim();
   } catch (error) {
     console.error('Error parsing kksongs commentary page:', error);
     return '';

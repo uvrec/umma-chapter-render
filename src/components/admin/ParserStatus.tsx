@@ -3,12 +3,20 @@ import { useParserHealth } from "@/hooks/useParserHealth";
 import { useEffect } from "react";
 
 export function ParserStatus({ className }: { className?: string }) {
+  const PARSER_URL = import.meta.env.VITE_PARSER_URL;
   const { status, checking, check } = useParserHealth();
   
-  // Auto-check on mount
+  // Auto-check on mount тільки якщо парсер налаштований
   useEffect(() => {
-    check();
-  }, [check]);
+    if (PARSER_URL) {
+      check();
+    }
+  }, [check, PARSER_URL]);
+
+  // Не показуємо статус якщо парсер не налаштований
+  if (!PARSER_URL) {
+    return null;
+  }
 
   return (
     <div className={`flex items-center gap-2 p-3 bg-muted/50 rounded-lg border ${className ?? ''}`}>

@@ -815,6 +815,57 @@ export type Database = {
         }
         Relationships: []
       }
+      highlights: {
+        Row: {
+          book_id: string
+          canto_id: string | null
+          chapter_id: string
+          context_after: string | null
+          context_before: string | null
+          created_at: string
+          highlight_color: string | null
+          id: string
+          notes: string | null
+          selected_text: string
+          updated_at: string
+          user_id: string
+          verse_id: string | null
+          verse_number: string | null
+        }
+        Insert: {
+          book_id: string
+          canto_id?: string | null
+          chapter_id: string
+          context_after?: string | null
+          context_before?: string | null
+          created_at?: string
+          highlight_color?: string | null
+          id?: string
+          notes?: string | null
+          selected_text: string
+          updated_at?: string
+          user_id: string
+          verse_id?: string | null
+          verse_number?: string | null
+        }
+        Update: {
+          book_id?: string
+          canto_id?: string | null
+          chapter_id?: string
+          context_after?: string | null
+          context_before?: string | null
+          created_at?: string
+          highlight_color?: string | null
+          id?: string
+          notes?: string | null
+          selected_text?: string
+          updated_at?: string
+          user_id?: string
+          verse_id?: string | null
+          verse_number?: string | null
+        }
+        Relationships: []
+      }
       intro_chapters: {
         Row: {
           book_id: string

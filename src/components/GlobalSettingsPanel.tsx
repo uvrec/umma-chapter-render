@@ -244,30 +244,30 @@ export const GlobalSettingsPanel = () => {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2">Елементи тексту</h3>
+              <h3 className="text-lg font-semibold mb-2">{t("Елементи тексту", "Text Elements")}</h3>
               <div className="space-y-3">
                 <RowToggle
-                  label="Санскрит / Деванагарі"
+                  label={t("Санскрит / Деванагарі", "Sanskrit / Devanagari")}
                   checked={blocks.sanskrit}
                   onChange={(v) => setBlocks({ ...blocks, sanskrit: v })}
                 />
                 <RowToggle
-                  label="Транслітерація"
+                  label={t("Транслітерація", "Transliteration")}
                   checked={blocks.translit}
                   onChange={(v) => setBlocks({ ...blocks, translit: v })}
                 />
                 <RowToggle
-                  label="Послівний переклад"
+                  label={language === "ua" ? "Послівний переклад" : "Synonyms"}
                   checked={blocks.synonyms}
                   onChange={(v) => setBlocks({ ...blocks, synonyms: v })}
                 />
                 <RowToggle
-                  label="Переклад"
+                  label={language === "ua" ? "Літературний переклад" : "Translation"}
                   checked={blocks.translation}
                   onChange={(v) => setBlocks({ ...blocks, translation: v })}
                 />
                 <RowToggle
-                  label="Пояснення"
+                  label={language === "ua" ? "Пояснення" : "Purport"}
                   checked={blocks.commentary}
                   onChange={(v) => setBlocks({ ...blocks, commentary: v })}
                 />

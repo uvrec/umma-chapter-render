@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
@@ -16,6 +16,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { HighlightDialog } from "@/components/HighlightDialog";
+import { useHighlights } from "@/hooks/useHighlights";
 
 export const VedaReaderDB = () => {
   const {
@@ -41,6 +43,11 @@ export const VedaReaderDB = () => {
 
   // Bookmark state
   const [isBookmarked, setIsBookmarked] = useState(false);
+
+  // Highlight state
+  const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
+  const [selectedTextForHighlight, setSelectedTextForHighlight] = useState("");
+  const [selectionContext, setSelectionContext] = useState({ before: "", after: "" });
 
   // Читаємо налаштування з localStorage і слухаємо зміни
   const [fontSize, setFontSize] = useState(() => {
@@ -232,6 +239,9 @@ export const VedaReaderDB = () => {
   const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
+  // Highlights hook - needs chapter.id
+  const { createHighlight } = useHighlights(chapter?.id);
+
   // Jump to verse from URL if provided
   useEffect(() => {
     if (!routeVerseNumber || !verses.length) return;
@@ -422,6 +432,63 @@ export const VedaReaderDB = () => {
     });
   };
 
+  // 🆕 Text selection handler with checks
+  const handleTextSelection = useCallback(() => {
+    // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
+    const editableElement = document.activeElement as HTMLElement;
+    if (editableElement?.tagName === 'TEXTAREA' || 
+        editableElement?.tagName === 'INPUT' ||
+        editableElement?.contentEditable === 'true' ||
+        editableElement?.closest('[contenteditable="true"]')) {
+      console.log('🚫 Highlights: В режимі редагування');
+      return;
+    }
+
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+    
+    // ✅ ПЕРЕВІРКА 2: Чи достатньо тексту? (мінімум 10 символів)
+    if (!selectedText || selectedText.length < 10) {
+      console.log('🚫 Highlights: Занадто короткий текст', selectedText?.length);
+      return;
+    }
+
+    // ✅ ПЕРЕВІРКА 3: Чи це не одне слово?
+    if (!selectedText.includes(' ')) {
+      console.log('🚫 Highlights: Одне слово, ймовірно копіювання');
+      return;
+    }
+
+    // Get context
+    const range = selection?.getRangeAt(0);
+    if (!range) return;
+
+    const container = range.commonAncestorContainer;
+    const fullText = container.textContent || '';
+    const startOffset = range.startOffset;
+    const endOffset = range.endOffset;
+
+    const before = fullText.substring(Math.max(0, startOffset - 50), startOffset);
+    const after = fullText.substring(endOffset, Math.min(fullText.length, endOffset + 50));
+
+    setSelectedTextForHighlight(selectedText);
+    setSelectionContext({ before, after });
+
+    // ✅ Затримка перед показом діалогу
+    setTimeout(() => {
+      const currentSelection = window.getSelection()?.toString().trim();
+      if (currentSelection === selectedText) {
+        setHighlightDialogOpen(true);
+      }
+    }, 300);
+  }, []);
+
+  // Mouseup listener for highlights
+  useEffect(() => {
+    document.addEventListener('mouseup', handleTextSelection);
+    return () => document.removeEventListener('mouseup', handleTextSelection);
+  }, [handleTextSelection]);
+
   // 🆕 Keyboard navigation (← →)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -516,6 +583,34 @@ export const VedaReaderDB = () => {
     }
   };
 
+  const handleSaveHighlight = useCallback((notes: string) => {
+    if (!book?.id || !chapter?.id) return;
+
+    createHighlight({
+      book_id: book.id,
+      canto_id: canto?.id,
+      chapter_id: chapter.id,
+      verse_id: currentVerse?.id,
+      verse_number: currentVerse?.verse_number,
+      selected_text: selectedTextForHighlight,
+      context_before: selectionContext.before,
+      context_after: selectionContext.after,
+      notes: notes || undefined,
+      highlight_color: "yellow",
+    });
+  }, [book, canto, chapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight]);
+
+  // Add mouseup listener for text selection
+  useEffect(() => {
+    const handleMouseUp = () => {
+      // Delay to allow selection to complete
+      setTimeout(handleTextSelection, 100);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => document.removeEventListener("mouseup", handleMouseUp);
+  }, [handleTextSelection]);
+
   // Скелетон-завантаження
   if (isLoading) {
     return <div className="min-h-screen bg-background">
@@ -581,6 +676,16 @@ export const VedaReaderDB = () => {
               <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
               </Button>
+              {isAdmin && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => navigate("/admin/highlights")} 
+                  title={t("Виділення", "Highlights")}
+                >
+                  <Highlighter className="h-5 w-5" />
+                </Button>
+              )}
               <Button variant="ghost" size="icon" onClick={handleShare} title={t("Поділитися", "Share")}>
                 <Share2 className="h-5 w-5" />
               </Button>
@@ -804,6 +909,13 @@ export const VedaReaderDB = () => {
       </div>
 
       <GlobalSettingsPanel />
+      
+      <HighlightDialog
+        isOpen={highlightDialogOpen}
+        onClose={() => setHighlightDialogOpen(false)}
+        onSave={handleSaveHighlight}
+        selectedText={selectedTextForHighlight}
+      />
     </div>
   );
 };

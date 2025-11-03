@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +32,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
+  const [originalTitles, setOriginalTitles] = useState<{ ua?: string; en?: string }>({});
   
   type ImportStrategy = 'replace' | 'upsert';
   const [importStrategy, setImportStrategy] = useState<ImportStrategy>('upsert');
@@ -62,6 +63,37 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     },
   });
 
+  // ✅ Завантажити існуючу главу з бази, якщо вона є
+  const { data: existingChapter } = useQuery({
+    queryKey: ["existing-chapter", selectedBookId, selectedCantoId, editedChapter.chapter_number],
+    enabled: !!selectedBookId && editedChapter.chapter_number > 0,
+    queryFn: async () => {
+      let query = supabase
+        .from("chapters")
+        .select("id, title_ua, title_en")
+        .eq("chapter_number", editedChapter.chapter_number);
+      
+      if (selectedCantoId) {
+        query = query.eq("canto_id", selectedCantoId);
+      } else {
+        query = query.eq("book_id", selectedBookId);
+      }
+      
+      const { data } = await query.maybeSingle();
+      return data;
+    },
+  });
+
+  // ✅ Коли завантажилася існуюча глава - зберегти її оригінальні назви
+  useEffect(() => {
+    if (existingChapter?.title_ua || existingChapter?.title_en) {
+      setOriginalTitles({
+        ua: existingChapter.title_ua,
+        en: existingChapter.title_en,
+      });
+    }
+  }, [existingChapter]);
+
   const selectedBook = books?.find((b) => b.id === selectedBookId);
   const needsCanto = selectedBook?.has_cantos ?? false;
 
@@ -80,12 +112,100 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const handleImportChapter = async () => {
     if (!validateTarget()) return;
 
+    const safeChapter = { ...editedChapter } as any;
+    
+    // ✅ КРИТИЧНО: Якщо назва НЕ змінювалася користувачем - НЕ передавати її!
+    // Це дозволить зберегти існуючі назви в базі
+    const isFallbackOrUnchanged = (t?: string, original?: string) => {
+      const s = (t || "").trim();
+      const n = editedChapter.chapter_number;
+      if (!s) return true;
+      
+      // Якщо співпадає з оригінальною назвою з бази - значить користувач НЕ міняв
+      if (original && s === original) return true;
+      
+      console.log('🔍 PreviewStep: Перевірка назви', { title: s, original, chapterNum: n });
+      
+      // Отримуємо назви книги/канто для перевірки
+      const bookName = selectedBook?.title_ua || selectedBook?.title_en || '';
+      const cantoData = cantos?.find(c => c.id === selectedCantoId);
+      const cantoName = cantoData?.title_ua || '';
+      
+      // Стандартні fallback формати
+      const patterns = [
+        `^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`,
+        // Формати типу "CC madhya 24", "SB 1.1", "BG 2", тощо
+        `^[A-Z]{1,4}\\s+(madhya|adi|antya|lila|canto)?\\s*${n}$`,
+        // Формати з назвою lila
+        `(madhya|adi|antya)\\s*lila\\s*${n}$`,
+        `(madhya|adi|antya)\\s*${n}$`,
+        // Формати типу "Canto 1", "Madhya 24"
+        `^(Canto|Madhya|Adi|Antya)\\s*${n}$`,
+      ];
+      
+      // Перевірка по всіх патернах
+      const matchesPattern = patterns.some(p => new RegExp(p, "i").test(s));
+      if (matchesPattern) {
+        console.log('🔍 Назва розпізнана як fallback pattern');
+        return true;
+      }
+      
+      // Перевірка чи назва містить фрагменти назви книги + номер
+      if (bookName) {
+        const bookWords = bookName.toLowerCase().split(/\s+/);
+        const titleLower = s.toLowerCase();
+        const hasBookFragment = bookWords.some(word => 
+          word.length > 3 && titleLower.includes(word) && titleLower.includes(String(n))
+        );
+        if (hasBookFragment) {
+          console.log('🔍 Назва містить фрагмент назви книги + номер');
+          return true;
+        }
+      }
+      
+      // Перевірка чи назва містить фрагменти назви канто + номер
+      if (cantoName) {
+        const cantoWords = cantoName.toLowerCase().split(/\s+/);
+        const titleLower = s.toLowerCase();
+        const hasCantoFragment = cantoWords.some(word => 
+          word.length > 3 && titleLower.includes(word) && titleLower.includes(String(n))
+        );
+        if (hasCantoFragment) {
+          console.log('🔍 Назва містить фрагмент назви канто + номер');
+          return true;
+        }
+      }
+      
+      console.log('🔍 Назва НЕ є fallback');
+      return false;
+    };
+
+    // Видалити назви якщо вони не змінені або є fallback
+    if (isFallbackOrUnchanged(safeChapter.title_ua, originalTitles.ua)) {
+      console.log('🔍 PreviewStep: Видаляємо title_ua (fallback/unchanged)');
+      delete safeChapter.title_ua;
+    }
+    if (isFallbackOrUnchanged(safeChapter.title_en, originalTitles.en)) {
+      console.log('🔍 PreviewStep: Видаляємо title_en (fallback/unchanged)');
+      delete safeChapter.title_en;
+    }
+    
+    console.log('🔍 PreviewStep: Відправляю главу', {
+      chapter_number: safeChapter.chapter_number,
+      title_ua: safeChapter.title_ua,
+      title_en: safeChapter.title_en,
+      title_ua_deleted: !safeChapter.title_ua,
+      title_en_deleted: !safeChapter.title_en,
+      strategy: importStrategy,
+      verses_count: safeChapter.verses?.length
+    });
+
     setIsImporting(true);
     try {
       // якщо віршова глава — приберемо дублікати перед збереженням (м’яко)
-      if ((editedChapter.chapter_type ?? "verses") === "verses") {
+      if ((safeChapter.chapter_type ?? "verses") === "verses") {
         const seen = new Set<string>();
-        editedChapter.verses = (editedChapter.verses || []).filter((v) => {
+        safeChapter.verses = (safeChapter.verses || []).filter((v: any) => {
           const num = (v.verse_number || "").trim();
           if (!num) return true;
           if (seen.has(num)) return false;
@@ -97,7 +217,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
       await importSingleChapter(supabase, {
         bookId: selectedBookId,
         cantoId: needsCanto ? selectedCantoId : null,
-        chapter: editedChapter,
+        chapter: safeChapter,
         strategy: importStrategy,
       });
 
@@ -118,12 +238,29 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     }
     if (!validateTarget()) return;
 
+    // Санітуємо fallback-назви для всієї книги
+    const sanitize = (ch: ParsedChapter) => {
+      const s = { ...ch } as any;
+      const n = ch.chapter_number;
+      const isFallback = (t?: string) => {
+        const v = (t || "").trim();
+        if (!v) return true;
+        const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
+        return re.test(v);
+      };
+      if (isFallback(s.title_ua)) delete s.title_ua;
+      if (isFallback(s.title_en)) delete s.title_en;
+      return s as ParsedChapter;
+    };
+
+    const chaptersToImport = allChapters.map(sanitize);
+
     setIsImportingBook(true);
     try {
       await importBook(supabase, {
         bookId: selectedBookId,
         cantoId: needsCanto ? selectedCantoId : null,
-        chapters: allChapters,
+        chapters: chaptersToImport,
         strategy: importStrategy,
         onProgress: ({ index, total, chapter }) => {
           toast.message(`Імпорт розділу ${chapter.chapter_number}… (${index}/${total})`);

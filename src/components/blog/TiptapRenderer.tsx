@@ -7,9 +7,16 @@ import { highlightSanskritTerms } from "@/utils/highlightSanskritTerms";
 interface TiptapRendererProps {
   content: string;
   className?: string;
+  displayBlocks?: {
+    sanskrit?: boolean;
+    transliteration?: boolean;
+    synonyms?: boolean;
+    translation?: boolean;
+    commentary?: boolean;
+  };
 }
 
-export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps) => {
+export const TiptapRenderer = ({ content, className = "", displayBlocks }: TiptapRendererProps) => {
   const { getTermsMap } = useSanskritTerms();
   const { language } = useLanguage();
 
@@ -89,6 +96,20 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
     return <div className="text-muted-foreground italic">Контент відсутній</div>;
   }
 
+  // ✅ ДОДАНО: Стиль для приховування блоків згідно з налаштуваннями
+  const hiddenBlocksStyle = useMemo(() => {
+    if (!displayBlocks) return {};
+    
+    const styles: Record<string, string> = {};
+    if (!displayBlocks.sanskrit) styles['--hide-sanskrit'] = 'none';
+    if (!displayBlocks.transliteration) styles['--hide-transliteration'] = 'none';
+    if (!displayBlocks.synonyms) styles['--hide-synonyms'] = 'none';
+    if (!displayBlocks.translation) styles['--hide-translation'] = 'none';
+    if (!displayBlocks.commentary) styles['--hide-commentary'] = 'none';
+    
+    return styles;
+  }, [displayBlocks]);
+
   return (
     <div
       className={`prose prose-lg max-w-none transition-all duration-300 dark:prose-invert
@@ -101,7 +122,13 @@ export const TiptapRenderer = ({ content, className = "" }: TiptapRendererProps)
         prose-blockquote:text-muted-foreground prose-blockquote:border-l-primary
         prose-code:text-foreground prose-code:bg-muted prose-code:px-1 prose-code:rounded
         prose-table:border prose-th:border prose-td:border prose-img:rounded-lg
+        [&_.sanskrit-block]:display-[var(--hide-sanskrit,block)]
+        [&_.transliteration-block]:display-[var(--hide-transliteration,block)]
+        [&_.synonyms-block]:display-[var(--hide-synonyms,block)]
+        [&_.translation-block]:display-[var(--hide-translation,block)]
+        [&_.commentary-block]:display-[var(--hide-commentary,block)]
         ${className}`}
+      style={hiddenBlocksStyle as any}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
   );

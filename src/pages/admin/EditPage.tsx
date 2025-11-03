@@ -14,6 +14,7 @@ import { TiptapEditor } from "@/components/blog/TiptapEditor";
 import { Textarea } from "@/components/ui/textarea";
 import { z } from "zod";
 import { ExternalLink, RotateCcw } from "lucide-react";
+import { PageBuilder, type PageBlock } from "@/components/admin/PageBuilder";
 
 const urlSchema = z.string().url("Невірний формат URL").or(z.literal(""));
 
@@ -30,6 +31,7 @@ type PageRow = {
   og_image: string | null;
   seo_keywords: string | null;
   is_published: boolean | null;
+  sections: any | null;
 };
 
 export default function EditPage() {
@@ -50,6 +52,7 @@ export default function EditPage() {
   const [ogImage, setOgImage] = useState("");
   const [seoKeywords, setSeoKeywords] = useState("");
   const [isPublished, setIsPublished] = useState(true);
+  const [sections, setSections] = useState<PageBlock[]>([]);
 
   // redirect non-admin
   useEffect(() => {
@@ -100,6 +103,7 @@ export default function EditPage() {
       setOgImage(page.og_image || "");
       setSeoKeywords(page.seo_keywords || "");
       setIsPublished(page.is_published ?? true);
+      setSections((page.sections as PageBlock[]) || []);
     }
   }, [page]);
 
@@ -161,6 +165,7 @@ export default function EditPage() {
         og_image: ogImage,
         seo_keywords: seoKeywords,
         is_published: isPublished,
+        sections: sections.length > 0 ? (sections as any) : null,
       };
 
       const { error } = await supabase.from("pages").update(payload).eq("slug", slug);
@@ -281,19 +286,24 @@ export default function EditPage() {
                 <Switch id="isPublished" checked={isPublished} onCheckedChange={setIsPublished} />
               </div>
 
-              <Tabs defaultValue="ua" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="ua">Українська</TabsTrigger>
-                  <TabsTrigger value="en">English</TabsTrigger>
+              <Tabs defaultValue="basic">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="basic">Основне</TabsTrigger>
+                  <TabsTrigger value="blocks">Блоки контенту</TabsTrigger>
+                  <TabsTrigger value="legacy">Старий контент</TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="ua" className="space-y-4">
+                <TabsContent value="basic" className="space-y-4">
                   <div>
-                    <Label htmlFor="titleUa">Заголовок *</Label>
+                    <Label htmlFor="titleUa">Заголовок (UA) *</Label>
                     <Input id="titleUa" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
                   </div>
                   <div>
-                    <Label htmlFor="metaDescriptionUa">Meta опис (SEO)</Label>
+                    <Label htmlFor="titleEn">Заголовок (EN) *</Label>
+                    <Input id="titleEn" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required />
+                  </div>
+                  <div>
+                    <Label htmlFor="metaDescriptionUa">Meta опис (UA)</Label>
                     <Textarea
                       id="metaDescriptionUa"
                       value={metaDescriptionUa}
@@ -302,18 +312,7 @@ export default function EditPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="contentUa">Контент</Label>
-                    <TiptapEditor content={contentUa} onChange={setContentUa} />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="en" className="space-y-4">
-                  <div>
-                    <Label htmlFor="titleEn">Title *</Label>
-                    <Input id="titleEn" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="metaDescriptionEn">Meta Description (SEO)</Label>
+                    <Label htmlFor="metaDescriptionEn">Meta Description (EN)</Label>
                     <Textarea
                       id="metaDescriptionEn"
                       value={metaDescriptionEn}
@@ -321,8 +320,22 @@ export default function EditPage() {
                       rows={2}
                     />
                   </div>
+                </TabsContent>
+
+                <TabsContent value="blocks">
+                  <PageBuilder sections={sections} onChange={setSections} />
+                </TabsContent>
+
+                <TabsContent value="legacy" className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Використовується для сторінок без блокової структури (застарілий формат)
+                  </p>
                   <div>
-                    <Label htmlFor="contentEn">Content</Label>
+                    <Label htmlFor="contentUa">Контент (UA)</Label>
+                    <TiptapEditor content={contentUa} onChange={setContentUa} />
+                  </div>
+                  <div>
+                    <Label htmlFor="contentEn">Content (EN)</Label>
                     <TiptapEditor content={contentEn} onChange={setContentEn} />
                   </div>
                 </TabsContent>
