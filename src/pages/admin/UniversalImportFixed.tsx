@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
+import { parseGitabaseCC } from "@/utils/gitabaseParser";
 import {
   parseBhaktivinodaPage,
   parseBhaktivinodaSongPage,
@@ -267,17 +268,18 @@ export default function UniversalImportFixed() {
 
                 // ✅ Парсимо UA тільки якщо робили запит
                 if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
-                  const gdp = new DOMParser();
-                  const gdoc = gdp.parseFromString(gitabaseRes.value.data.html, 'text/html');
-                  parsedUA = {
-                    synonyms_ua: Array.from(gdoc.querySelectorAll('.r-synonyms-item')).map(item => {
-                      const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
-                      const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
-                      return word && meaning ? `${word} — ${meaning}` : '';
-                    }).filter(Boolean).join('; '),
-                    translation_ua: gdoc.querySelector('.r-translation')?.textContent?.trim() || '',
-                    commentary_ua: Array.from(gdoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
-                  };
+                  const gitabaseUrl = bookInfo.isMultiVolume
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                  const parsed = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                  parsedUA = parsed
+                    ? {
+                        transliteration_ua: parsed.transliteration_ua || "",
+                        synonyms_ua: parsed.synonyms_ua || "",
+                        translation_ua: parsed.translation_ua || "",
+                        commentary_ua: parsed.purport_ua || "",
+                      }
+                    : null;
                 }
 
                 // Тільки додаємо вірш якщо є хоч якийсь контент
@@ -290,7 +292,7 @@ export default function UniversalImportFixed() {
                     verse_number: t.lastPart, // ← "7" або "7-8"
                     sanskrit: parsedEN?.bengali || "",
                     transliteration_en: parsedEN?.transliteration || "",
-                    transliteration_ua: "",
+                    transliteration_ua: parsedUA?.transliteration_ua || "",
                     synonyms_en: parsedEN?.synonyms || "",
                     synonyms_ua: parsedUA?.synonyms_ua || "",
                     translation_en: parsedEN?.translation || "",
@@ -346,16 +348,18 @@ export default function UniversalImportFixed() {
 
               // ✅ Парсимо UA тільки якщо робили запит
               if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
-                const gitaDoc = new DOMParser().parseFromString(gitabaseRes.value.data.html, 'text/html');
-                parsedUA = {
-                  synonyms_ua: Array.from(gitaDoc.querySelectorAll('.r-synonyms-item')).map(item => {
-                    const word = item.querySelector('.r-synonym')?.textContent?.trim() || '';
-                    const meaning = item.querySelector('.r-synonim-text, .r-synonym-text')?.textContent?.trim() || '';
-                    return word && meaning ? `${word} — ${meaning}` : '';
-                  }).filter(Boolean).join('; '),
-                  translation_ua: gitaDoc.querySelector('.r-translation')?.textContent?.trim() || '',
-                  commentary_ua: Array.from(gitaDoc.querySelectorAll('.r-purport p')).map(p => p.textContent?.trim()).filter(Boolean).join('\n\n')
-                };
+                const gitabaseUrl = bookInfo.isMultiVolume
+                  ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                const parsed = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                parsedUA = parsed
+                  ? {
+                      transliteration_ua: parsed.transliteration_ua || "",
+                      synonyms_ua: parsed.synonyms_ua || "",
+                      translation_ua: parsed.translation_ua || "",
+                      commentary_ua: parsed.purport_ua || "",
+                    }
+                  : null;
               }
 
               // Тільки додаємо вірш якщо є хоч якийсь контент

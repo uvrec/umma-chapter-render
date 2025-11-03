@@ -15,6 +15,7 @@ import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } fro
 import { normalizeVerseField } from "@/utils/textNormalizer";
 import { Badge } from "@/components/ui/badge";
 import { ParserStatus } from "@/components/admin/ParserStatus";
+import { parseGitabaseCC } from "@/utils/gitabaseParser";
 
 interface ImportStats {
   total: number;
@@ -567,12 +568,12 @@ export default function VedabaseImportV3() {
               verse: verseNum,
             });
             const html = await fetchHTML(gitabaseUrl!);
-            const data = extractGitabaseContent(html);
+            const data = parseGitabaseCC(html, gitabaseUrl!);
 
-            transliterationUA = data.transliteration;
-            synonymsUA = data.synonyms;
-            translationUA = data.translation;
-            purportUA = data.purport;
+            transliterationUA = data?.transliteration_ua || "";
+            synonymsUA = data?.synonyms_ua || "";
+            translationUA = data?.translation_ua || "";
+            purportUA = data?.purport_ua || "";
 
             await new Promise((r) => setTimeout(r, 500));
           } catch (e: any) {
@@ -624,6 +625,7 @@ export default function VedabaseImportV3() {
             verse_number: verseNum,
             sanskrit,
             transliteration: transliterationEN || null,
+            transliteration_ua: transliterationUA || null,
             synonyms_en: synonymsEN || null,
             translation_en: translationEN || null,
             commentary_en: purportEN || null,
