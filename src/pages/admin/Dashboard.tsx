@@ -342,6 +342,21 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader>
+              <CardTitle>Нормалізація текстів</CardTitle>
+              <CardDescription>Масове оновлення Чайтанья-чарітамріти</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link to="/admin/normalize-texts">
+                  <WrapText className="w-4 h-4 mr-2" />
+                  Нормалізувати тексти
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Повернутися на сайт</CardTitle>
               <CardDescription>Переглянути публічну версію</CardDescription>
             </CardHeader>
