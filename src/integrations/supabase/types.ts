@@ -1726,7 +1726,6 @@ export type Database = {
         Returns: undefined
       }
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
-      normalize_ukrainian_cc_texts: { Args: never; Returns: undefined }
       parse_verse_number: {
         Args: { v_num: string }
         Returns: {
@@ -1735,7 +1734,6 @@ export type Database = {
           v_suffix: string
         }[]
       }
-      remove_duplicate_words_in_synonyms: { Args: never; Returns: undefined }
       slugify: { Args: { "": string }; Returns: string }
       update_intro_chapters_order: {
         Args: { p_items: Json }

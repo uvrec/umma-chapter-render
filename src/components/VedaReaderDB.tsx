@@ -758,7 +758,6 @@ export const VedaReaderDB = () => {
                 <VerseCard
                   key={verse.id}
                   verseId={verse.id}
-                  language={language}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
                   sanskritText={language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || ""}
@@ -814,7 +813,6 @@ export const VedaReaderDB = () => {
                       <VerseCard
                         key={`${currentVerse.id}-ua`}
                         verseId={currentVerse.id}
-                        language="ua"
                         verseNumber={fullVerseNumber}
                         bookName={chapterTitle}
                         sanskritText={(currentVerse as any).sanskrit || ""}
@@ -839,7 +837,6 @@ export const VedaReaderDB = () => {
                       <VerseCard
                         key={`${currentVerse.id}-en`}
                         verseId={currentVerse.id}
-                        language="en"
                         verseNumber={fullVerseNumber}
                         bookName={chapterTitle}
                         sanskritText={(currentVerse as any).sanskrit || ""}
@@ -866,7 +863,6 @@ export const VedaReaderDB = () => {
                     <VerseCard
                       key={currentVerse.id}
                       verseId={currentVerse.id}
-                      language={language}
                       verseNumber={fullVerseNumber}
                       bookName={chapterTitle}
                       sanskritText={(currentVerse as any).sanskrit || ""}
