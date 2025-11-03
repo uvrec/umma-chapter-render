@@ -341,16 +341,27 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
             inner = el.select_one('div[id]')
             if inner:
                 # Extract all <span> items with word — meaning format
+                # ВАЖЛИВО: Кожен span.inline містить ОДНУ пару "слово — переклад"
+                # На Vedabase вони вже розділені, не треба їх всі збирати підряд
                 spans = inner.find_all('span', class_='inline')
                 if spans:
                     parts = []
+                    seen = set()  # Відстежуємо унікальність
                     for span in spans:
                         # Get text, clean up extra spaces
                         text = span.get_text(' ', strip=True)
                         # Remove trailing semicolon/space
                         text = text.rstrip('; ')
-                        if text:
+                        
+                        # Пропускаємо дублікати та порожні рядки
+                        if not text or text in seen:
+                            continue
+                        
+                        # Перевіряємо чи це валідна пара "слово — переклад"
+                        if '—' in text or '-' in text:
                             parts.append(text)
+                            seen.add(text)
+                    
                     if parts:
                         synonyms_en = '; '.join(parts)
                         print(f"[Vedabase] Found synonyms_en with .av-synonyms: {synonyms_en[:100]}...")
@@ -450,6 +461,12 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     ВАЖЛИВО: Gitabase має проблему - вірш 19 відсутній, а вірш 20 містить текст 19+20.
     Для віршу 19 повертаємо порожні поля (заповнюється вручну).
     Для віршу 20 використовуємо текст як є (редагується вручну).
+    
+    ПОВЕРТАЄ:
+    - translation_ua: український переклад
+    - commentary_ua: український коментар
+    - transliteration_ua: українська транслітерація (НЕ нормалізована)
+    - synonyms_ua: послівний переклад українською (word-by-word)
     """
     soup = BeautifulSoup(html, 'html.parser')
     
@@ -466,26 +483,27 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
         return {
             'translation_ua': '',
             'commentary_ua': '',
-            'transliteration': '',
-            'word_by_word': '',
+            'transliteration_ua': '',
+            'synonyms_ua': '',
         }
     
     # Prefer structured selectors similar to cc_importer_final heuristics
     translation_ua = ""
     commentary_ua = ""
-    transliteration = ""
-    word_by_word = ""
+    transliteration_ua = ""
+    synonyms_ua = ""
 
     # transliteration: try id/div with translit
     div_trans = soup.select_one('#div_translit') or soup.select_one('.translit')
     if div_trans:
         em = div_trans.find(['i', 'em'])
         if em:
-            transliteration = em.get_text('\n', strip=False)  # Зберігаємо рядки!
+            transliteration_ua = em.get_text('\n', strip=False)  # Зберігаємо рядки!
             # Видаляємо "Verse text " з Vedabase
-            transliteration = transliteration.replace('Verse text ', '').replace('Verse Text ', '')
+            transliteration_ua = transliteration_ua.replace('Verse text ', '').replace('Verse Text ', '')
             # Обрізаємо зайві пробіли ТІЛЬКИ з країв, БЕЗ видалення \n всередині
-            transliteration = transliteration.strip()
+            transliteration_ua = transliteration_ua.strip()
+            print(f"[Gitabase] Found transliteration_ua: {transliteration_ua[:100]}...")
 
     # word-by-word: Gitabase format is: <i>term</i> — translation; <i>term</i> — translation
     # We need FULL text with both terms AND translations, not just <i> tags!
@@ -498,8 +516,8 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             full_text = db.get_text(' ', strip=True)
             # Verify it has word-by-word pattern (em-dashes and semicolons)
             if '—' in full_text and len(full_text) > 50:
-                word_by_word = full_text
-                print(f"[Gitabase] Found word_by_word: {word_by_word[:150]}...")
+                synonyms_ua = full_text
+                print(f"[Gitabase] Found synonyms_ua (word-by-word): {synonyms_ua[:150]}...")
                 break
 
     # translation and commentary: look for labelled blocks
@@ -536,9 +554,8 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
         has_cyrillic = bool(re.search(r"[\u0400-\u04FF]", text))
         has_latin = bool(re.search(r"[a-zA-Z]", text))
         
-        # Якщо блок ТІЛЬКИ латиниця - це транслітерація, пропускаємо
-        if has_latin and not has_cyrillic:
-            continue
+        # ВИПРАВЛЕНО: НЕ пропускаємо блоки з тільки латиницею - вони можуть бути українською транслітерацією!
+        # Замість цього, такі блоки будемо зберігати у transliteration_ua якщо ще не знайдено
         
         # Якщо блок містить кирилицю і достатньо довгий
         if has_cyrillic and len(text) > 20:
@@ -550,13 +567,21 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
                 'has_italics': has_many_italics,
                 'element': div
             })
+        # НОВИЙ ВИПАДОК: блок тільки з латиницею - це може бути українська транслітерація!
+        elif has_latin and not has_cyrillic and len(text) > 20 and not transliteration_ua:
+            # Перевіряємо чи це схоже на транслітерацію (слова через пробіл, мало пунктуації)
+            punct_count = text.count('.') + text.count(',')
+            space_count = text.count(' ')
+            if punct_count < 3 and space_count >= 2:
+                transliteration_ua = text
+                print(f"[Gitabase] Found transliteration_ua from latin block: {transliteration_ua[:100]}...")
     
     # Sort by index to maintain document order
     all_blocks.sort(key=lambda x: x['index'])
     
     for block in all_blocks:
         # Block 0 or 1: Word-by-word (має багато <i> тегів з україномовними словами)
-        if block['has_italics'] and not word_by_word:
+        if block['has_italics'] and not synonyms_ua:
             # Послівний переклад на Gitabase - це українські слова в <i> тегах
             # Формат: <i>слово1</i> — значення; <i>слово2</i> — значення;
             # Беремо весь текст блоку (і латинь, і кирилиця)
@@ -565,24 +590,22 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             if ('—' in full_text or ':' in full_text) and len(full_text) > 50:
                 # Обмежуємо довжину (послівний переклад зазвичай не дуже довгий)
                 if len(full_text) < 2000:
-                    word_by_word = full_text
+                    synonyms_ua = full_text
+                    print(f"[Gitabase] Found synonyms_ua from italic block: {synonyms_ua[:150]}...")
                     continue
         
-        # ПЕРЕВІРКА: чи це українська транслітерація? (ПРОПУСКАЄМО!)
-        # Ознаки: коротка, слова через пробіл/дефіс, немає крапок/ком, може бути апостроф
-        # Приклад: "ванде ґурун іша-бгактан іша-аватаракан"
-        is_ua_translit = False
-        if block['length'] < 250:
+        # ВИПРАВЛЕНО: НЕ пропускаємо українську транслітерацію - зберігаємо її!
+        # Перевірка чи це українська транслітерація (якщо ще не знайдено)
+        if not transliteration_ua and block['length'] < 250:
             punct_count = block['text'].count('.') + block['text'].count(',')
             space_count = block['text'].count(' ')
-            # Якщо мало пунктуації, багато пробілів (окремі слова), це транслітерація
+            # Якщо мало пунктуації, багато пробілів (окремі слова), це може бути транслітерація
             if punct_count < 2 and space_count >= 2:
                 # Додатково: немає типових українських слів з закінченнями -ся, -ться, -ння
                 if not any(ending in block['text'] for ending in ['ться', '-ся', 'ння', 'ість', 'ував']):
-                    is_ua_translit = True
-        
-        if is_ua_translit:
-            continue  # Пропускаємо український транслітерований текст
+                    transliteration_ua = block['text']
+                    print(f"[Gitabase] Found transliteration_ua from cyrillic block: {transliteration_ua[:100]}...")
+                    continue  # Зберегли транслітерацію, переходимо до наступного блоку
         
         # Next block after word-by-word: Translation (medium size, single sentence/paragraph)
         # ВИПРАВЛЕНО: пропускаємо блоки які виглядають як послівний переклад
@@ -597,9 +620,9 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
                 continue
         
         # All remaining blocks: Commentary (може бути ДУЖЕ довгим!)
-        # ВИПРАВЛЕНО: НЕ додаємо блоки які виглядають як послівний переклад!
+        # ВИПРАВЛЕНО: НЁ додаємо блоки які виглядають як послівний переклад!
         # ВИПРАВЛЕНО 2: НЕ додаємо блок який вже є перекладом!
-        # ВИПРАВЛЕНО 3: НЕ додаємо українську транслітерацію!
+        # ВИПРАВЛЕНО 3: НЕ додаємо українську транслітерацію до коментаря!
         if translation_ua and not commentary_ua:
             # Skip word-by-word blocks (many dashes and semicolons)
             if block['text'].count('—') > 3 and block['text'].count(';') > 3:
@@ -607,15 +630,8 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             # Skip if this block IS the translation (exact match)
             if block['text'] == translation_ua:
                 continue
-            # Skip Ukrainian transliteration (same logic as above)
-            is_ua_translit = False
-            if block['length'] < 250:
-                punct_count = block['text'].count('.') + block['text'].count(',')
-                space_count = block['text'].count(' ')
-                if punct_count < 2 and space_count >= 2:
-                    if not any(ending in block['text'] for ending in ['ться', '-ся', 'ння', 'ість', 'ував']):
-                        is_ua_translit = True
-            if is_ua_translit:
+            # Skip Ukrainian transliteration (already saved to transliteration_ua)
+            if block['text'] == transliteration_ua:
                 continue
             # Об'єднуємо ВСІ параграфи з цього блоку
             paragraphs = [p.get_text(' ', strip=True) for p in block['element'].find_all('p')]
@@ -630,15 +646,8 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             # Skip if this block IS the translation
             if block['text'] == translation_ua:
                 continue
-            # Skip Ukrainian transliteration
-            is_ua_translit = False
-            if block['length'] < 250:
-                punct_count = block['text'].count('.') + block['text'].count(',')
-                space_count = block['text'].count(' ')
-                if punct_count < 2 and space_count >= 2:
-                    if not any(ending in block['text'] for ending in ['ться', '-ся', 'ння', 'ість', 'ував']):
-                        is_ua_translit = True
-            if is_ua_translit:
+            # Skip Ukrainian transliteration (already saved to transliteration_ua)
+            if block['text'] == transliteration_ua:
                 continue
             # Якщо є ще блоки - додаємо їх до коментаря
             paragraphs = [p.get_text(' ', strip=True) for p in block['element'].find_all('p')]
@@ -662,12 +671,18 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
         print(f"[Gitabase] Found translation for verse {verse_num}: {translation_ua[:120]}")
     else:
         print(f"[Gitabase] Verse {verse_num} not found via selectors; fallback empty")
+    
+    if transliteration_ua:
+        print(f"[Gitabase] Found transliteration_ua for verse {verse_num}: {transliteration_ua[:80]}")
+    
+    if synonyms_ua:
+        print(f"[Gitabase] Found synonyms_ua for verse {verse_num}: {synonyms_ua[:80]}")
 
     return {
         'translation_ua': translation_ua,
         'commentary_ua': commentary_ua,
-        'transliteration': transliteration,
-        'word_by_word': word_by_word,
+        'transliteration_ua': transliteration_ua,
+        'synonyms_ua': synonyms_ua,
     }
 
 
@@ -857,7 +872,13 @@ async def parse_chapter_async(
                 # CRITICAL: Convert English IAST → Ukrainian transliteration
                 transliteration_en = ved_data.get('transliteration_en') or ''
                 transliteration_ua = ''
-                if transliteration_en and NORMALIZER_AVAILABLE:
+                
+                # ПРИОРИТЕТ 1: Використовуємо українську транслітерацію з Gitabase (якщо є)
+                if git_data.get('transliteration_ua'):
+                    transliteration_ua = git_data.get('transliteration_ua')
+                    print(f"[Gitabase] Using Ukrainian transliteration from Gitabase: {transliteration_ua[:50]}")
+                # ПРИОРИТЕТ 2: Конвертуємо англійську IAST → українська
+                elif transliteration_en and NORMALIZER_AVAILABLE:
                     try:
                         from pre_import_normalizer import convert_english_to_ukrainian_translit
                         transliteration_ua = convert_english_to_ukrainian_translit(transliteration_en)
@@ -877,7 +898,7 @@ async def parse_chapter_async(
                     'synonyms_en': ved_data.get('synonyms_en') or '',
                     'translation_en': ved_data.get('translation_en') or '',
                     'commentary_en': ved_data.get('commentary_en') or '',
-                    'synonyms_ua': git_data.get('word_by_word') or '',
+                    'synonyms_ua': git_data.get('synonyms_ua') or '',  # ВИПРАВЛЕНО: було word_by_word
                     'translation_ua': git_data.get('translation_ua') or '',
                     'commentary_ua': git_data.get('commentary_ua') or '',
                     'missing': [],
@@ -1016,8 +1037,9 @@ if __name__ == '__main__':
         verse = {
             'verse_number': str(v),
             'sanskrit': ved_data.get('sanskrit') or '',
-            'transliteration': ved_data.get('transliteration') or git_data.get('transliteration') or '',
-            'synonyms_en': ved_data.get('synonyms_en') or git_data.get('word_by_word') or '',
+            'transliteration': ved_data.get('transliteration') or git_data.get('transliteration_ua') or '',
+            'synonyms_en': ved_data.get('synonyms_en') or '',
+            'synonyms_ua': git_data.get('synonyms_ua') or '',  # ВИПРАВЛЕНО: було word_by_word
             'translation_en': ved_data.get('translation_en') or '',
             'commentary_en': ved_data.get('commentary_en') or '',
             'translation_ua': git_data.get('translation_ua') or '',

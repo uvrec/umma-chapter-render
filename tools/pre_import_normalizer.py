@@ -33,6 +33,19 @@ MOJIBAKE_REPLACEMENTS = {
     'Ã­': 'í',
     'Ã³': 'ó',
     'Ãº': 'ú',
+    
+    # ДОДАТКОВІ з textNormalizer.ts
+    '\ufeff': '',  # BOM (byte order mark)
+    '\u00A0': ' ',  # non-breaking space
+    '\u2018': "'",  # left single quotation mark
+    '\u2019': "'",  # right single quotation mark
+    '\u201C': '"',  # left double quotation mark
+    '\u201D': '"',  # right double quotation mark
+    '\u2013': '-',  # en dash
+    '\u2014': '—',  # em dash
+    '\r\n': '\n',   # Windows line endings
+    '\r': '\n',     # Mac line endings
+    '\t': ' ',      # tabs to spaces
 }
 
 # ============================================================================
@@ -60,9 +73,14 @@ DIACRITIC_FIXES = {
     'ṁ': 'м̇',
     'ḥ': 'х̣',
     
-    # Часті помилки з Gitabase
-    'а̣': 'а',  # неправильна крапка під а
-    'і̣': 'і',  # неправильна крапка під і
+    # Часті помилки з Gitabase (крапка під українськими літерами замість діакритики)
+    # ТІЛЬКИ літери які НЕ використовуються в санскриті з діакритикою!
+    'а̣': 'а',  # неправильна крапка під а (в українському тексті має бути просто а)
+    'і̣': 'і',  # неправильна крапка під і (в українському тексті має бути просто і)
+    'е̣': 'е',  # неправильна крапка під е
+    'о̣': 'о',  # неправильна крапка під о
+    'у̣': 'у',  # неправильна крапка під у
+    # НЕ включаємо н̣, т̣, д̣, м̣ - вони можуть бути правильними в транслітерації!
 }
 
 # ============================================================================
@@ -99,9 +117,6 @@ WORD_REPLACEMENTS = {
     "Ніт'янанду": "Нітьянанду",
     "Ніт'янандою": "Нітьянандою",
     
-    # Махапрабгу → Махапрабху
-    "Махапрабху": "Махапрабгу",
-    
     # Ґопінатга → Ґопінатха
     "Ґопінатга": "Ґопінатха",
     "Ґопінатгу": "Ґопінатху",
@@ -112,6 +127,25 @@ WORD_REPLACEMENTS = {
     "енерґію": "енергію",
     "енерґією": "енергією",
     "енерґіями": "енергіями",
+    
+    # Санньясі (специфічне правило з SQL функції)
+    "санн'ясі": "санньясі",
+    "Санн'ясі": "Санньясі",
+    "санн'яса": "саньяса",
+    "Санн'яса": "Саньяса",
+    "санн'ясу": "саньясу",
+    "санн'ясою": "саньясою",
+    "санн'ясам": "саньясам",
+    "санн'ясами": "саньясами",
+    
+    # Специфічні виправлення
+    "проджджгіта": "проджджхіта",
+    "Проджджгіта": "Проджджхіта",
+    
+    # ДОДАТКОВІ з textNormalizer.ts
+    "Ачйута": "Ачьюта",
+    "Адвайта": "Адваіта",
+    "Джгарікханда": "Джхарікханда",
     
     # Інші виправлення придихових
     "Пуруши": "Пуруши",  # якщо було неправильно транскрибовано
@@ -133,22 +167,25 @@ TRANSLIT_FIXES = {
     "дх": "дг",
     "Дх": "Дг",
     
-    "тх": "тх",  # вже правильно
-    "Тх": "Тх",
+    "тг": "тх",
+    "Тг": "Тх",
     
-    "кх": "кх",  # вже правильно
-    "Кх": "Кх",
+    "кг": "кх",
+    "Кг": "Кх",
     
     "чг": "чх",
     "Чг": "Чх",
     
     # Неправильні з Gitabase
-    "тг": "тх",
-    "Тг": "Тх",
     "пг": "пх",
     "Пг": "Пх",
-    "кг": "кх",
-    "Кг": "Кх",
+    
+    # ДОДАТКОВІ ПРАВИЛА з normalize_ukrainian_cc_texts (SQL функція)
+    # Придихові приголосні (складні випадки)
+    "джг": "джх",
+    "Джг": "Джх",
+    "джджг": "джджх",
+    "Джджг": "Джджх",
 }
 
 # ============================================================================
@@ -256,8 +293,8 @@ def convert_english_to_ukrainian_translit(text: str) -> str:
     # КРИТИЧНО: сортуємо за довжиною спадно для жадібного збігу
     patterns = {
         # 3 символи
-        'jjh': 'жджх','kṣa': 'кша', 'kṣe': 'кше', 'kṣi': 'кші', 'kṣu': 'кшу', 'kṣṇ': 'кшн̣',
-        'aya': 'айа', 'aye': 'айе',
+        'cch': 'ччх', 'jjh': 'жджх','kṣa': 'кша', 'kṣe': 'кше', 'kṣi': 'кші', 'kṣu': 'кшу', 'kṣṇ': 'кшн̣',
+        'aya': 'айа', 'aye': 'айе', 'hye': 'хйе',
         'Kṣa': 'кша', 'Kṣe': 'кше', 'Kṣi': 'кші', 'Kṣu': 'кшу',
         # Сполучення ny + голосні (ПРАВИЛЬНО: нй, а не нь!)
         # Приклад: caitanya → чаітанйа (не чаітанья!)
@@ -374,6 +411,50 @@ def normalize_transliteration(text: str) -> str:
     return result
 
 
+def normalize_apostrophe_after_n(text: str) -> str:
+    """
+    Замінює апостроф після "н" на м'який знак "ь"
+    За винятком випадків де апостроф правильний (ачар'я, антар'ямі)
+    
+    Правило з SQL функції normalize_ukrainian_cc_texts:
+    н' → нь (крім випадків де апостроф правильний)
+    """
+    if not text:
+        return text
+    
+    # Виключення - слова де апостроф після н правильний
+    exceptions = [
+        "ачар'я", "Ачар'я",
+        "антар'ямі", "Антар'ямі",
+        "антар'ям", "Антар'ям",
+        # Додайте інші виключення якщо потрібно
+    ]
+    
+    result = text
+    
+    # Замінюємо н' на нь (case-insensitive для різних регістрів)
+    # Використовуємо regex для точнішого контролю
+    import re
+    
+    # Спочатку зберігаємо виключення (заміняємо тимчасовим placeholder)
+    placeholders = {}
+    for idx, exception in enumerate(exceptions):
+        placeholder = f"__EXCEPTION_{idx}__"
+        if exception in result:
+            placeholders[placeholder] = exception
+            result = result.replace(exception, placeholder)
+    
+    # Тепер робимо заміну н' → нь
+    result = result.replace("н'", "нь")
+    result = result.replace("Н'", "Нь")
+    
+    # Відновлюємо виключення
+    for placeholder, original in placeholders.items():
+        result = result.replace(placeholder, original)
+    
+    return result
+
+
 def remove_gitabase_artifacts(text: str) -> str:
     """Видаляє артефакти Gitabase (номери віршів, зайві пробіли)"""
     if not text:
@@ -390,6 +471,116 @@ def remove_gitabase_artifacts(text: str) -> str:
     result = re.sub(r'\s+([,.;:!?])', r'\1', result)
     
     return result.strip()
+
+
+def convert_synonyms_from_english(synonyms_en: str) -> str:
+    """
+    Конвертує synonyms_en → synonyms_ua
+    
+    Обробляє тільки санскритські/бенгальські терміни (IAST → українська з діакритикою),
+    а українські переклади залишає без змін.
+    
+    Приклад:
+    EN: "caitanya — of Lord Caitanya; caraṇa-ambhoja — lotus feet"
+    UA: "чаітанйа — Господа Чайтаньї; чаран̣а-амбгоджа — лотосові стопи"
+    """
+    if not synonyms_en:
+        return ''
+    
+    result_pairs = []
+    
+    for pair in synonyms_en.split(';'):
+        pair = pair.strip()
+        if not pair:
+            continue
+        
+        if '—' not in pair and '-' not in pair:
+            result_pairs.append(pair)
+            continue
+        
+        # Розділяємо на санскритський термін та переклад
+        parts = pair.split('—', 1)
+        if len(parts) == 2:
+            sanskrit_term = parts[0].strip()
+            english_meaning = parts[1].strip()
+            
+            # Конвертуємо ТІЛЬКИ санскритський термін (IAST → українська)
+            ukrainian_term = convert_english_to_ukrainian_translit(sanskrit_term)
+            ukrainian_term = normalize_diacritics(ukrainian_term)
+            
+            # Переклад залишаємо як є (він буде замінений парсером на український)
+            result_pairs.append(f'{ukrainian_term} — {english_meaning}')
+        else:
+            # Немає роздільника —, просто конвертуємо
+            converted = convert_english_to_ukrainian_translit(pair)
+            converted = normalize_diacritics(converted)
+            result_pairs.append(converted)
+    
+    return '; '.join(result_pairs)
+
+
+def restore_diacritics_in_synonyms(synonyms_text: str, transliteration_text: str) -> str:
+    """
+    Відновлює діакритику в synonyms_ua на основі transliteration_ua
+    
+    Gitabase має діакритику, але вона губиться при копіюванні/імпорті.
+    Використовуємо transliteration_ua як джерело правильних форм з діакритикою.
+    
+    Приклад:
+    synonyms: "чараа — біля стіп"
+    translit: "чаран̣а̄"
+    result: "чаран̣а̄ — біля стіп"
+    """
+    if not synonyms_text or not transliteration_text:
+        return synonyms_text
+    
+    import unicodedata
+    
+    def remove_combining_marks(text):
+        """Видаляє combining діакритичні знаки для порівняння"""
+        nfd = unicodedata.normalize('NFD', text)
+        without = ''.join(ch for ch in nfd if unicodedata.category(ch) != 'Mn')
+        return unicodedata.normalize('NFC', without)
+    
+    # Створюємо словник: слово_без_діакритики → слово_з_діакритикою
+    translit_map = {}
+    for word in transliteration_text.replace('-', ' ').replace('  ', ' ').split():
+        clean_word = remove_combining_marks(word).lower()
+        if clean_word and len(clean_word) > 1:  # Ігноруємо одиночні символи
+            translit_map[clean_word] = word
+    
+    # Обробляємо synonyms
+    result_pairs = []
+    for pair in synonyms_text.split(';'):
+        pair = pair.strip()
+        if not pair:
+            continue
+            
+        if '—' not in pair:
+            result_pairs.append(pair)
+            continue
+        
+        parts = pair.split('—', 1)
+        sanskrit_word = parts[0].strip()
+        ukrainian_meaning = parts[1].strip() if len(parts) > 1 else ''
+        
+        # Для складених слів (наприклад: "чараа-амбгоджа")
+        if '-' in sanskrit_word:
+            # Обробляємо кожну частину окремо
+            word_parts = sanskrit_word.split('-')
+            restored_parts = []
+            for part in word_parts:
+                clean_part = remove_combining_marks(part).lower()
+                restored_parts.append(translit_map.get(clean_part, part))
+            restored_word = '-'.join(restored_parts)
+        else:
+            # Одне слово
+            clean_word = remove_combining_marks(sanskrit_word).lower()
+            restored_word = translit_map.get(clean_word, sanskrit_word)
+        
+        result_pairs.append(f'{restored_word} — {ukrainian_meaning}')
+    
+    return '; '.join(result_pairs)
 
 
 def normalize_verse_field(text: str, field_type: str) -> str:
@@ -413,10 +604,9 @@ def normalize_verse_field(text: str, field_type: str) -> str:
         result = normalize_diacritics(result)
     
     elif field_type == 'transliteration_en':
-        # Англійська транслітерація з Vedabase → українська
-        result = convert_english_to_ukrainian_translit(result)
-        result = normalize_diacritics(result)
-        result = normalize_word_replacements(result)
+        # Англійська транслітерація з Vedabase - ЗАЛИШАЄМО БЕЗ ЗМІН (оригінальний IAST)
+        # Тільки видаляємо артефакти
+        pass
     
     elif field_type == 'transliteration':
         # Транслітерація - IAST→українська, діакритика, виправлення сполучень, БЕЗ заміни слів!
@@ -427,13 +617,14 @@ def normalize_verse_field(text: str, field_type: str) -> str:
         # НЕ: result = normalize_word_replacements(result)
     
     elif field_type in ['synonyms', 'translation', 'commentary']:
-        # Українські тексти - всі правила окрім транслітерації consonant clusters
-        result = normalize_diacritics(result)
+        # Українські тексти - всі правила включаючи виправлення помилок діакритики
+        result = normalize_diacritics(result)  # ПОВЕРТАЄМО! Виправляє помилки Gitabase (а̣→а, і̣→і)
         result = normalize_word_replacements(result)
-        # Виправляємо тільки неправильні поєднання (тг→тх)
+        result = normalize_apostrophe_after_n(result)  # н' → нь
+        # Виправляємо тільки неправильні поєднання (тг→тх, джг→джх, тощо)
         for old, new in TRANSLIT_FIXES.items():
-            if old in ['тг', 'пг', 'кг', 'Тг', 'Пг', 'Кг', 'чг', 'Чг']:
-                result = result.replace(old, new)
+            # Застосовуємо всі правила з TRANSLIT_FIXES включно з джг→джх, джджг→джджх
+            result = result.replace(old, new)
     
     return result
 
@@ -444,10 +635,71 @@ def normalize_verse(verse: dict) -> dict:
     
     # Нормалізуємо кожне поле
     normalized['sanskrit'] = normalize_verse_field(verse.get('sanskrit', ''), 'sanskrit')
-    # КРИТИЧНО: transliteration БЕЗ normalize_word_replacements - залишаємо "чайтанйа" як є!
-    normalized['transliteration'] = normalize_verse_field(verse.get('transliteration', ''), 'transliteration')
-    normalized['synonyms_ua'] = normalize_verse_field(verse.get('synonyms_ua', ''), 'synonyms')
-    normalized['synonyms_en'] = normalize_verse_field(verse.get('synonyms_en', ''), 'synonyms')
+    
+    # transliteration_en - ЗАЛИШАЄМО БЕЗ ЗМІН (оригінальний IAST з Vedabase)
+    normalized['transliteration_en'] = normalize_verse_field(verse.get('transliteration_en', ''), 'transliteration_en')
+    
+    # transliteration_ua - конвертуємо transliteration_en → українська
+    if normalized.get('transliteration_en'):
+        # Беремо IAST з Vedabase і конвертуємо в українську транслітерацію
+        ua_translit = convert_english_to_ukrainian_translit(normalized['transliteration_en'])
+        ua_translit = normalize_diacritics(ua_translit)
+        normalized['transliteration_ua'] = ua_translit
+    else:
+        # Fallback: якщо немає transliteration_en, беремо що є
+        normalized['transliteration_ua'] = normalize_verse_field(verse.get('transliteration_ua', ''), 'transliteration')
+    
+    # Підтримка старого формату (deprecated)
+    normalized['transliteration'] = normalized.get('transliteration_ua', '')
+    
+    # synonyms_en - залишаємо БЕЗ ЗМІН (оригінал з Vedabase)
+    normalized['synonyms_en'] = normalize_verse_field(verse.get('synonyms_en', ''), 'transliteration_en')
+    
+    # synonyms_ua - конвертуємо з synonyms_en (ТІЛЬКИ санскритські терміни, переклади окремо)
+    if verse.get('synonyms_en'):
+        # Конвертуємо санскритські терміни з IAST → українська
+        ua_synonyms = convert_synonyms_from_english(verse['synonyms_en'])
+        
+        # Застосовуємо нормалізацію до української частини (якщо є synonyms_ua з Gitabase)
+        if verse.get('synonyms_ua'):
+            # Беремо українські переклади з Gitabase, санскритські терміни з конвертованого
+            gitabase_synonyms = verse['synonyms_ua']
+            
+            # Об'єднуємо: санскритські терміни з ua_synonyms + переклади з gitabase_synonyms
+            result_pairs = []
+            ua_pairs = ua_synonyms.split(';')
+            gitabase_pairs = gitabase_synonyms.split(';')
+            
+            for idx, ua_pair in enumerate(ua_pairs):
+                ua_pair = ua_pair.strip()
+                if not ua_pair:
+                    continue
+                
+                if '—' in ua_pair and idx < len(gitabase_pairs):
+                    # Беремо санскритський термін з ua_pair, переклад з gitabase
+                    ua_parts = ua_pair.split('—', 1)
+                    sanskrit_term = ua_parts[0].strip()
+                    
+                    gitabase_pair = gitabase_pairs[idx].strip()
+                    if '—' in gitabase_pair:
+                        gitabase_parts = gitabase_pair.split('—', 1)
+                        ukrainian_meaning = gitabase_parts[1].strip()
+                        result_pairs.append(f'{sanskrit_term} — {ukrainian_meaning}')
+                    else:
+                        result_pairs.append(ua_pair)
+                else:
+                    result_pairs.append(ua_pair)
+            
+            normalized['synonyms_ua'] = '; '.join(result_pairs)
+        else:
+            # Немає Gitabase synonyms, використовуємо тільки конвертоване
+            normalized['synonyms_ua'] = ua_synonyms
+        
+        # Нормалізуємо фінальний результат
+        normalized['synonyms_ua'] = normalize_verse_field(normalized['synonyms_ua'], 'synonyms')
+    else:
+        # Fallback: якщо немає synonyms_en, беремо що є з Gitabase
+        normalized['synonyms_ua'] = normalize_verse_field(verse.get('synonyms_ua', ''), 'synonyms')
     normalized['translation_ua'] = normalize_verse_field(verse.get('translation_ua', ''), 'translation')
     normalized['translation_en'] = normalize_verse_field(verse.get('translation_en', ''), 'translation')
     normalized['commentary_ua'] = normalize_verse_field(verse.get('commentary_ua', ''), 'commentary')
