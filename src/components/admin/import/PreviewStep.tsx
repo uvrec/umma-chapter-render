@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +32,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
+  const [originalTitles, setOriginalTitles] = useState<{ ua?: string; en?: string }>({});
   
   type ImportStrategy = 'replace' | 'upsert';
   const [importStrategy, setImportStrategy] = useState<ImportStrategy>('upsert');
@@ -62,6 +63,37 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     },
   });
 
+  // ✅ Завантажити існуючу главу з бази, якщо вона є
+  const { data: existingChapter } = useQuery({
+    queryKey: ["existing-chapter", selectedBookId, selectedCantoId, editedChapter.chapter_number],
+    enabled: !!selectedBookId && editedChapter.chapter_number > 0,
+    queryFn: async () => {
+      let query = supabase
+        .from("chapters")
+        .select("id, title_ua, title_en")
+        .eq("chapter_number", editedChapter.chapter_number);
+      
+      if (selectedCantoId) {
+        query = query.eq("canto_id", selectedCantoId);
+      } else {
+        query = query.eq("book_id", selectedBookId);
+      }
+      
+      const { data } = await query.maybeSingle();
+      return data;
+    },
+  });
+
+  // ✅ Коли завантажилася існуюча глава - зберегти її оригінальні назви
+  useEffect(() => {
+    if (existingChapter?.title_ua || existingChapter?.title_en) {
+      setOriginalTitles({
+        ua: existingChapter.title_ua,
+        en: existingChapter.title_en,
+      });
+    }
+  }, [existingChapter]);
+
   const selectedBook = books?.find((b) => b.id === selectedBookId);
   const needsCanto = selectedBook?.has_cantos ?? false;
 
@@ -80,18 +112,38 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const handleImportChapter = async () => {
     if (!validateTarget()) return;
 
-    // Локальна перевірка: не передавати fallback-назви, щоб НЕ перезаписувати існуючі
-    const isFallbackTitle = (t?: string) => {
+    const safeChapter = { ...editedChapter } as any;
+    
+    // ✅ КРИТИЧНО: Якщо назва НЕ змінювалася користувачем - НЕ передавати її!
+    // Це дозволить зберегти існуючі назви в базі
+    const isFallbackOrUnchanged = (t?: string, original?: string) => {
       const s = (t || "").trim();
       const n = editedChapter.chapter_number;
       if (!s) return true;
-      const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
-      return re.test(s);
+      
+      // Якщо співпадає з оригінальною назвою з бази - значить користувач НЕ міняв
+      if (original && s === original) return true;
+      
+      // Стандартні fallback формати
+      const patterns = [
+        `^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`,
+        // Формати типу "CC madhya 24", "SB 1.1", тощо
+        `^[A-Z]{1,3}\\s+(madhya|adi|antya|lila|canto)?\\s*${n}$`,
+        // Формати з назвою книги
+        `madhya\\s*${n}$`,
+        `canto\\s*${n}$`,
+      ];
+      
+      return patterns.some(p => new RegExp(p, "i").test(s));
     };
 
-    const safeChapter = { ...editedChapter } as any;
-    if (isFallbackTitle(safeChapter.title_ua)) delete safeChapter.title_ua;
-    if (isFallbackTitle(safeChapter.title_en)) delete safeChapter.title_en;
+    // Видалити назви якщо вони не змінені або є fallback
+    if (isFallbackOrUnchanged(safeChapter.title_ua, originalTitles.ua)) {
+      delete safeChapter.title_ua;
+    }
+    if (isFallbackOrUnchanged(safeChapter.title_en, originalTitles.en)) {
+      delete safeChapter.title_en;
+    }
 
     setIsImporting(true);
     try {

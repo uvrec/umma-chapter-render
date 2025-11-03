@@ -45,22 +45,37 @@ const isFallbackTitle = (title: string, chapterNum: number, extras: string[] = [
   const cleaned = (title || "").trim();
   if (!cleaned) return true;
 
+  const n = chapterNum;
+  
   // Базові автогенеровані варіанти
-  const base = new Set<string>([
-    `Глава ${chapterNum}`,
-    `Chapter ${chapterNum}`,
-    `Song ${chapterNum}`,
-    `Пісня ${chapterNum}`,
-    `Розділ ${chapterNum}`,
-  ].map((s) => s.trim().toLowerCase()));
+  const patterns = [
+    `^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`,
+    // Формати типу "CC madhya 24", "SB 1.1", "BG 2.13"
+    `^[A-Z]{1,4}\\s+(madhya|adi|antya|lila|canto)?\\s*${n}$`,
+    // Формати з назвою lila
+    `(madhya|adi|antya)\\s*lila\\s*${n}$`,
+    `(madhya|adi|antya)\\s*${n}$`,
+    // Формати типу "Canto 1", "Madhya 24"
+    `^(Canto|Madhya|Adi|Antya)\\s*${n}$`,
+  ];
+
+  // Перевірка по всіх патернах
+  const matchesPattern = patterns.some(p => new RegExp(p, "i").test(cleaned));
+  if (matchesPattern) return true;
 
   // Додаткові "дефолтні" значення з форми (назва книги/канто тощо)
+  const baseExtras = new Set<string>();
   for (const e of extras) {
     const v = (e || "").trim().toLowerCase();
-    if (v) base.add(v);
+    if (v) {
+      baseExtras.add(v);
+      // Також додати варіанти з номером
+      baseExtras.add(`${v} ${n}`);
+      baseExtras.add(`${v} ${n}`.replace(/\s+/g, ' '));
+    }
   }
 
-  return base.has(cleaned.toLowerCase());
+  return baseExtras.has(cleaned.toLowerCase());
 };
 
 /** Пошук або створення глави (bookId/cantoId + chapter_number) з оновленням полів */
