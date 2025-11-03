@@ -183,6 +183,7 @@ const App = () => (
                   <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
                   <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
                   <Route path="/admin/pages" element={<Pages />} />
+                  <Route path="/admin/pages/new" element={<EditPage />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
                   <Route path="/admin/highlights" element={<Highlights />} />

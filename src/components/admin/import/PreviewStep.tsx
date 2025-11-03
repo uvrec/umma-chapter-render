@@ -124,26 +124,81 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
       // Якщо співпадає з оригінальною назвою з бази - значить користувач НЕ міняв
       if (original && s === original) return true;
       
+      console.log('🔍 PreviewStep: Перевірка назви', { title: s, original, chapterNum: n });
+      
+      // Отримуємо назви книги/канто для перевірки
+      const bookName = selectedBook?.title_ua || selectedBook?.title_en || '';
+      const cantoData = cantos?.find(c => c.id === selectedCantoId);
+      const cantoName = cantoData?.title_ua || '';
+      
       // Стандартні fallback формати
       const patterns = [
         `^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`,
-        // Формати типу "CC madhya 24", "SB 1.1", тощо
-        `^[A-Z]{1,3}\\s+(madhya|adi|antya|lila|canto)?\\s*${n}$`,
-        // Формати з назвою книги
-        `madhya\\s*${n}$`,
-        `canto\\s*${n}$`,
+        // Формати типу "CC madhya 24", "SB 1.1", "BG 2", тощо
+        `^[A-Z]{1,4}\\s+(madhya|adi|antya|lila|canto)?\\s*${n}$`,
+        // Формати з назвою lila
+        `(madhya|adi|antya)\\s*lila\\s*${n}$`,
+        `(madhya|adi|antya)\\s*${n}$`,
+        // Формати типу "Canto 1", "Madhya 24"
+        `^(Canto|Madhya|Adi|Antya)\\s*${n}$`,
       ];
       
-      return patterns.some(p => new RegExp(p, "i").test(s));
+      // Перевірка по всіх патернах
+      const matchesPattern = patterns.some(p => new RegExp(p, "i").test(s));
+      if (matchesPattern) {
+        console.log('🔍 Назва розпізнана як fallback pattern');
+        return true;
+      }
+      
+      // Перевірка чи назва містить фрагменти назви книги + номер
+      if (bookName) {
+        const bookWords = bookName.toLowerCase().split(/\s+/);
+        const titleLower = s.toLowerCase();
+        const hasBookFragment = bookWords.some(word => 
+          word.length > 3 && titleLower.includes(word) && titleLower.includes(String(n))
+        );
+        if (hasBookFragment) {
+          console.log('🔍 Назва містить фрагмент назви книги + номер');
+          return true;
+        }
+      }
+      
+      // Перевірка чи назва містить фрагменти назви канто + номер
+      if (cantoName) {
+        const cantoWords = cantoName.toLowerCase().split(/\s+/);
+        const titleLower = s.toLowerCase();
+        const hasCantoFragment = cantoWords.some(word => 
+          word.length > 3 && titleLower.includes(word) && titleLower.includes(String(n))
+        );
+        if (hasCantoFragment) {
+          console.log('🔍 Назва містить фрагмент назви канто + номер');
+          return true;
+        }
+      }
+      
+      console.log('🔍 Назва НЕ є fallback');
+      return false;
     };
 
     // Видалити назви якщо вони не змінені або є fallback
     if (isFallbackOrUnchanged(safeChapter.title_ua, originalTitles.ua)) {
+      console.log('🔍 PreviewStep: Видаляємо title_ua (fallback/unchanged)');
       delete safeChapter.title_ua;
     }
     if (isFallbackOrUnchanged(safeChapter.title_en, originalTitles.en)) {
+      console.log('🔍 PreviewStep: Видаляємо title_en (fallback/unchanged)');
       delete safeChapter.title_en;
     }
+    
+    console.log('🔍 PreviewStep: Відправляю главу', {
+      chapter_number: safeChapter.chapter_number,
+      title_ua: safeChapter.title_ua,
+      title_en: safeChapter.title_en,
+      title_ua_deleted: !safeChapter.title_ua,
+      title_en_deleted: !safeChapter.title_en,
+      strategy: importStrategy,
+      verses_count: safeChapter.verses?.length
+    });
 
     setIsImporting(true);
     try {

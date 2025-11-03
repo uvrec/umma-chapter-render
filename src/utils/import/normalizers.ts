@@ -10,6 +10,10 @@ export function normalizeText(text: string): string {
     .replace(/[\u201C\u201D]/g, '"')
     .replace(/\u2013/g, '-') // en dash
     .replace(/\u2014/g, '—') // em dash
+    // ✅ НОВІ ПРАВИЛА ТРАНСЛІТЕРАЦІЇ
+    .replace(/джджг/g, 'жджх')  // спочатку 3 символи
+    .replace(/джг/g, 'джх')     // потім 2 символи
+    .replace(/проджджгіта/g, 'проджджхіта')  // специфічне слово
     .trim();
 }
 
