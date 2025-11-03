@@ -1,5 +1,6 @@
 -- ============================================================================
 -- Скрипт нормалізації існуючих текстів Чайтанья-чарітамріти
+-- Об'єднує розширені правила з main та RPC структуру для UI
 -- ============================================================================
 --
 -- ВИКОРИСТАННЯ:
@@ -14,7 +15,8 @@
 -- ЩО РОБИТЬ:
 --   - Нормалізує українські тексти (synonyms_ua, translation_ua, commentary_ua)
 --   - Видаляє дублікати слів з англійських synonyms_en
---   - Застосовує правила: н'→нь, санн'ясі→санньясі, джг→джх, джджг→джджх
+--   - Застосовує правила: н'→нь (крім ачар'я/антар'ямі), санньяс, джг→джх
+--   - Виправляє mojibake, діакритику, імена, придихові приголосні
 --
 -- ============================================================================
 
@@ -33,10 +35,114 @@ WHERE b.slug LIKE 'cc-%'
 LIMIT 5;
 
 -- ============================================================================
--- ФУНКЦІЯ 1: Нормалізація українських текстів
+-- ДОПОМІЖНА ФУНКЦІЯ: Нормалізація одного текстового поля
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION normalize_ukrainian_cc_texts()
+CREATE OR REPLACE FUNCTION normalize_ukrainian_text(text_input TEXT)
+RETURNS TEXT AS $$
+DECLARE
+    result TEXT;
+BEGIN
+    result := text_input;
+
+    IF result IS NULL OR result = '' THEN
+        RETURN result;
+    END IF;
+
+    -- 1. ВИПРАВЛЕННЯ MOJIBAKE
+    result := REPLACE(result, E'\ufeff', ''); -- BOM
+    result := REPLACE(result, E'\u00A0', ' '); -- non-breaking space
+    result := REPLACE(result, 'â€™', '''');
+    result := REPLACE(result, 'â€œ', '"');
+    result := REPLACE(result, 'â€', '"');
+
+    -- 2. ВИПРАВЛЕННЯ НЕПРАВИЛЬНИХ ДІАКРИТИЧНИХ СИМВОЛІВ
+    result := REPLACE(result, 'а̣', 'а');
+    result := REPLACE(result, 'і̣', 'і');
+    result := REPLACE(result, 'е̣', 'е');
+    result := REPLACE(result, 'о̣', 'о');
+    result := REPLACE(result, 'у̣', 'у');
+
+    -- 3. ВИПРАВЛЕННЯ ІМЕН ТА ТЕРМІНІВ
+    -- Чайтанья (нйа → ння)
+    result := REGEXP_REPLACE(result, 'Шрі Чайтан''я-чарітамріта', 'Шрі Чайтанья-чарітамріта', 'g');
+    result := REGEXP_REPLACE(result, 'Чайтан''я-чарітамріта', 'Чайтанья-чарітамріта', 'g');
+    result := REGEXP_REPLACE(result, 'Чайтан''я-бгаґавата', 'Чайтанья-бгаґавата', 'g');
+    result := REGEXP_REPLACE(result, '\mЧайтан''я\M', 'Чайтанья', 'g');
+    result := REGEXP_REPLACE(result, '\mЧайтан''ї\M', 'Чайтаньї', 'g');
+    result := REGEXP_REPLACE(result, '\mЧайтан''ю\M', 'Чайтанью', 'g');
+    result := REGEXP_REPLACE(result, '\mчаітанйа\M', 'Чайтанья', 'gi');
+    result := REGEXP_REPLACE(result, '\mчаітанйі\M', 'Чайтаньї', 'gi');
+    result := REGEXP_REPLACE(result, '\mчаітанйу\M', 'Чайтанью', 'gi');
+
+    -- Нітьянанда
+    result := REGEXP_REPLACE(result, '\mНіт''янанд', 'Нітьянанд', 'g');
+    result := REGEXP_REPLACE(result, '\mніт''янанд', 'нітьянанд', 'g');
+
+    -- Інші імена
+    result := REGEXP_REPLACE(result, '\mҐопінатга\M', 'Ґопінатха', 'g');
+    result := REGEXP_REPLACE(result, '\mҐопінатгу\M', 'Ґопінатху', 'g');
+    result := REGEXP_REPLACE(result, '\mенерґі', 'енергі', 'g');
+    result := REGEXP_REPLACE(result, '\mАчйут', 'Ачьют', 'g');
+    result := REGEXP_REPLACE(result, '\mАдвайт', 'Адваіт', 'g');
+
+    -- Санньяса
+    result := REGEXP_REPLACE(result, '\mсанн''яс', 'санньяс', 'g');
+    result := REGEXP_REPLACE(result, '\mСанн''яс', 'Санньяс', 'g');
+
+    -- Специфічні виправлення
+    result := REGEXP_REPLACE(result, '\mпроджджгіт', 'проджджхіт', 'g');
+    result := REGEXP_REPLACE(result, '\mДжгарікханд', 'Джхарікханд', 'g');
+
+    -- 4. ВИПРАВЛЕННЯ ПРИДИХОВИХ ПРИГОЛОСНИХ
+    result := REGEXP_REPLACE(result, 'джджг', 'джджх', 'g');
+    result := REGEXP_REPLACE(result, 'Джджг', 'Джджх', 'g');
+    result := REGEXP_REPLACE(result, 'джг', 'джх', 'g');
+    result := REGEXP_REPLACE(result, 'Джг', 'Джх', 'g');
+    result := REGEXP_REPLACE(result, 'тг', 'тх', 'g');
+    result := REGEXP_REPLACE(result, 'Тг', 'Тх', 'g');
+    result := REGEXP_REPLACE(result, 'кг', 'кх', 'g');
+    result := REGEXP_REPLACE(result, 'Кг', 'Кх', 'g');
+    result := REGEXP_REPLACE(result, 'пг', 'пх', 'g');
+    result := REPLACE(result, 'Пг', 'Пх', 'g');
+    result := REGEXP_REPLACE(result, 'чг', 'чх', 'g');
+    result := REGEXP_REPLACE(result, 'Чг', 'Чх', 'g');
+
+    -- 5. НОРМАЛІЗАЦІЯ АПОСТРОФА ПІСЛЯ "Н"
+    -- н' → нь (КРІМ виключень: ачар'я, антар'ямі)
+    -- Зберігаємо виключення
+    result := REPLACE(result, 'ачар''я', '___ACHARYA___');
+    result := REPLACE(result, 'Ачар''я', '___ACHARYA_CAP___');
+    result := REPLACE(result, 'антар''ямі', '___ANTARYAMI___');
+    result := REPLACE(result, 'Антар''ямі', '___ANTARYAMI_CAP___');
+    result := REPLACE(result, 'антар''ям', '___ANTARYAM___');
+    result := REPLACE(result, 'Антар''ям', '___ANTARYAM_CAP___');
+
+    -- Замінюємо н' → нь
+    result := REPLACE(result, 'н''', 'нь');
+    result := REPLACE(result, 'Н''', 'Нь');
+
+    -- Відновлюємо виключення
+    result := REPLACE(result, '___ACHARYA___', 'ачар''я');
+    result := REPLACE(result, '___ACHARYA_CAP___', 'Ачар''я');
+    result := REPLACE(result, '___ANTARYAMI___', 'антар''ямі');
+    result := REPLACE(result, '___ANTARYAMI_CAP___', 'Антар''ямі');
+    result := REPLACE(result, '___ANTARYAM___', 'антар''ям');
+    result := REPLACE(result, '___ANTARYAM_CAP___', 'Антар''ям');
+
+    -- 6. ВИДАЛЕННЯ ЗАЙВИХ ПРОБІЛІВ
+    result := REGEXP_REPLACE(result, '\s+', ' ', 'g');
+    result := TRIM(result);
+
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+-- ============================================================================
+-- ФУНКЦІЯ 1: Нормалізація українських текстів (з детальним виводом)
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION normalize_ukrainian_cc_texts_detailed()
 RETURNS TABLE(verse_id UUID, changed_fields TEXT[], before_sample TEXT, after_sample TEXT) AS $$
 DECLARE
   verse_record RECORD;
@@ -56,56 +162,21 @@ BEGIN
   LOOP
     changes := ARRAY[]::TEXT[];
 
-    -- Synonyms
-    normalized_synonyms := verse_record.synonyms_ua;
-    IF normalized_synonyms IS NOT NULL THEN
-      -- 1. Апостроф після "н" → м'який знак (н' → нь)
-      normalized_synonyms := regexp_replace(normalized_synonyms, 'н''', 'нь', 'g');
-      normalized_synonyms := regexp_replace(normalized_synonyms, 'Н''', 'Нь', 'g');
+    -- Нормалізуємо
+    normalized_synonyms := normalize_ukrainian_text(verse_record.synonyms_ua);
+    normalized_translation := normalize_ukrainian_text(verse_record.translation_ua);
+    normalized_commentary := normalize_ukrainian_text(verse_record.commentary_ua);
 
-      -- 2. Санн'ясі → Санньясі
-      normalized_synonyms := replace(normalized_synonyms, 'санн''яс', 'санньяс');
-      normalized_synonyms := replace(normalized_synonyms, 'Санн''яс', 'Санньяс');
-
-      -- 3. джджг → джджх
-      normalized_synonyms := replace(normalized_synonyms, 'джджг', 'джджх');
-
-      -- 4. джг → джх (negative lookahead через regex)
-      normalized_synonyms := regexp_replace(normalized_synonyms, 'джг(?!джх)', 'джх', 'g');
-
-      IF normalized_synonyms != verse_record.synonyms_ua THEN
-        changes := array_append(changes, 'synonyms_ua');
-      END IF;
+    IF normalized_synonyms != verse_record.synonyms_ua THEN
+      changes := array_append(changes, 'synonyms_ua');
     END IF;
 
-    -- Translation
-    normalized_translation := verse_record.translation_ua;
-    IF normalized_translation IS NOT NULL THEN
-      normalized_translation := regexp_replace(normalized_translation, 'н''', 'нь', 'g');
-      normalized_translation := regexp_replace(normalized_translation, 'Н''', 'Нь', 'g');
-      normalized_translation := replace(normalized_translation, 'санн''яс', 'санньяс');
-      normalized_translation := replace(normalized_translation, 'Санн''яс', 'Санньяс');
-      normalized_translation := replace(normalized_translation, 'джджг', 'джджх');
-      normalized_translation := regexp_replace(normalized_translation, 'джг(?!джх)', 'джх', 'g');
-
-      IF normalized_translation != verse_record.translation_ua THEN
-        changes := array_append(changes, 'translation_ua');
-      END IF;
+    IF normalized_translation != verse_record.translation_ua THEN
+      changes := array_append(changes, 'translation_ua');
     END IF;
 
-    -- Commentary
-    normalized_commentary := verse_record.commentary_ua;
-    IF normalized_commentary IS NOT NULL THEN
-      normalized_commentary := regexp_replace(normalized_commentary, 'н''', 'нь', 'g');
-      normalized_commentary := regexp_replace(normalized_commentary, 'Н''', 'Нь', 'g');
-      normalized_commentary := replace(normalized_commentary, 'санн''яс', 'санньяс');
-      normalized_commentary := replace(normalized_commentary, 'Санн''яс', 'Санньяс');
-      normalized_commentary := replace(normalized_commentary, 'джджг', 'джджх');
-      normalized_commentary := regexp_replace(normalized_commentary, 'джг(?!джх)', 'джх', 'g');
-
-      IF normalized_commentary != verse_record.commentary_ua THEN
-        changes := array_append(changes, 'commentary_ua');
-      END IF;
+    IF normalized_commentary != verse_record.commentary_ua THEN
+      changes := array_append(changes, 'commentary_ua');
     END IF;
 
     -- Оновлюємо і повертаємо результат якщо щось змінилося
@@ -118,7 +189,6 @@ BEGIN
         updated_at = NOW()
       WHERE id = verse_record.id;
 
-      -- Повертаємо інформацію про зміни
       verse_id := verse_record.id;
       changed_fields := changes;
       before_sample := LEFT(verse_record.synonyms_ua, 80);
@@ -130,10 +200,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- ============================================================================
--- ФУНКЦІЯ 2: Видалення дублікатів у synonyms_en
+-- ФУНКЦІЯ 2: Видалення дублікатів у synonyms_en (з детальним виводом)
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION remove_duplicate_words_in_synonyms()
+CREATE OR REPLACE FUNCTION remove_duplicate_words_in_synonyms_detailed()
 RETURNS TABLE(verse_id UUID, before_text TEXT, after_text TEXT, removed_count INTEGER) AS $$
 DECLARE
   verse_record RECORD;
@@ -151,10 +221,7 @@ BEGIN
       AND v.synonyms_en IS NOT NULL
       AND v.synonyms_en != ''
   LOOP
-    -- Розбиваємо на слова
     words := string_to_array(verse_record.synonyms_en, ' ');
-
-    -- Видаляємо дублікати зі збереженням порядку
     unique_words := ARRAY[]::TEXT[];
 
     FOREACH word IN ARRAY words
@@ -166,7 +233,6 @@ BEGIN
 
     cleaned_synonyms := array_to_string(unique_words, ' ');
 
-    -- Оновлюємо і повертаємо якщо щось змінилося
     IF cleaned_synonyms != verse_record.synonyms_en THEN
       UPDATE verses
       SET
@@ -198,7 +264,7 @@ SELECT
   array_to_string(changed_fields, ', ') AS fields_changed,
   LEFT(before_sample, 60) AS before,
   LEFT(after_sample, 60) AS after
-FROM normalize_ukrainian_cc_texts();
+FROM normalize_ukrainian_cc_texts_detailed();
 
 \echo ''
 \echo '=== ПОЧИНАЄМО ВИДАЛЕННЯ ДУБЛІКАТІВ У SYNONYMS_EN ==='
@@ -210,7 +276,7 @@ SELECT
   removed_count AS duplicates_removed,
   LEFT(before_text, 60) AS before,
   LEFT(after_text, 60) AS after
-FROM remove_duplicate_words_in_synonyms();
+FROM remove_duplicate_words_in_synonyms_detailed();
 
 -- ============================================================================
 -- СТАТИСТИКА ПІСЛЯ НОРМАЛІЗАЦІЇ
@@ -219,7 +285,7 @@ FROM remove_duplicate_words_in_synonyms();
 \echo ''
 \echo '=== СТАТИСТИКА ПІСЛЯ НОРМАЛІЗАЦІЇ ==='
 
--- Перевіряємо скільки залишилось н' (має бути 0 або дуже мало в коректних випадках)
+-- Перевіряємо скільки залишилось н' (має бути 0 крім ачар'я/антар'ямі)
 SELECT
   COUNT(*) AS verses_with_apostrophe_n,
   COUNT(DISTINCT b.slug) AS books_affected
@@ -227,7 +293,9 @@ FROM verses v
 JOIN chapters ch ON v.chapter_id = ch.id
 JOIN books b ON ch.book_id = b.id
 WHERE b.slug LIKE 'cc-%'
-  AND (v.synonyms_ua LIKE '%н''%' OR v.translation_ua LIKE '%н''%' OR v.commentary_ua LIKE '%н''%');
+  AND (v.synonyms_ua LIKE '%н''%' OR v.translation_ua LIKE '%н''%' OR v.commentary_ua LIKE '%н''%')
+  AND v.synonyms_ua NOT LIKE '%ачар''я%'
+  AND v.synonyms_ua NOT LIKE '%антар''ямі%';
 
 -- Підрахунок всіх віршів CC
 SELECT
@@ -249,4 +317,6 @@ ORDER BY b.slug;
 \echo 'Перевірте результати вище.'
 \echo 'Якщо все правильно - база даних оновлена.'
 \echo 'Якщо потрібно відкотити зміни - використовуйте резервну копію.'
+\echo ''
+\echo 'ВИКЛЮЧЕННЯ: слова "ачар''я" та "антар''ямі" зберігають апостроф'
 \echo ''
