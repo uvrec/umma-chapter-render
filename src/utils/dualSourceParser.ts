@@ -288,6 +288,9 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       });
 
       synonyms_ua = parts.join('; ');
+      console.log('[Gitabase] synonyms_ua parsed:', synonyms_ua ? `${synonyms_ua.substring(0, 100)}...` : 'EMPTY');
+    } else {
+      console.warn('[Gitabase] .av-synonyms .text-justify NOT FOUND for', url);
     }
 
     // Літературний переклад UA
@@ -342,6 +345,9 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
 function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
   if (!synonyms_en) return '';
 
+  console.log('[mergeSynonyms] EN pairs:', synonyms_en.split(';').length);
+  console.log('[mergeSynonyms] UA pairs:', synonyms_ua ? synonyms_ua.split(';').length : 0);
+
   try {
     // Розділяємо на пари
     const enPairs = synonyms_en.split(';').map(p => p.trim()).filter(p => p);
@@ -367,9 +373,10 @@ function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
         uaTranslation = uaParts[1] || ''; // ✅ БЕЗ fallback на англійський!
       }
 
-      // ✅ Якщо немає українського перекладу - залишаємо порожнім (або англійський як останній fallback)
+      // ⚠️ ТИМЧАСОВИЙ fallback на англійський (поки Gitabase не парситься правильно)
       if (!uaTranslation) {
-        uaTranslation = enParts[1] || ''; // fallback на англійський тільки якщо зовсім немає UA
+        console.warn(`[mergeSynonyms] Missing UA translation for term ${i+1}/${enPairs.length}: ${iastTerm}`);
+        uaTranslation = enParts[1] || ''; // fallback на англійський
       }
 
       // Об'єднуємо
