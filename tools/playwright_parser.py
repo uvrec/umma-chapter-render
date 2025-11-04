@@ -348,8 +348,22 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
                 # Рішення: беремо ТІЛЬКИ <a><em> для слів і перший span.inline для перекладу
                 
                 parts = []
+                # CRITICAL FIX: Vedabase має ДОДАТКОВИЙ wrapper div!
+                # Структура: .av-synonyms > div[id] > div.em:mb-4 > span.inline
+                # Треба шукати ВСІ span.inline РЕКУРСИВНО, не тільки direct children
+                top_level_spans = inner.find_all('span', class_='inline', recursive=True)
+                
+                # Фільтруємо: беремо ТІЛЬКИ top-level span.inline (які НЕ вкладені в інші span.inline)
+                filtered_spans = []
+                for span in top_level_spans:
+                    # Перевіряємо чи parent span теж має клас 'inline'
+                    parent = span.find_parent('span', class_='inline')
+                    if parent is None:
+                        # Це top-level span (НЕ вкладений)
+                        filtered_spans.append(span)
+                
                 # Знаходимо всі top-level елементи (не вкладені span.inline)
-                for child in inner.children:
+                for child in filtered_spans:
                     if hasattr(child, 'name'):
                         # Пропускаємо вкладені span.inline (вони створюють дублікати)
                         if child.name == 'span' and 'inline' in child.get('class', []):
@@ -360,10 +374,13 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
                                 if em:
                                     word_parts.append(em.get_text(strip=True))
                             
-                            # Витягуємо переклад з ПЕРШОГО вкладеного span.inline
-                            meaning_span = child.find('span', class_='inline')
-                            if meaning_span:
-                                meaning = meaning_span.get_text(strip=True)
+                            # CRITICAL FIX: Шукаємо ВКЛАДЕНИЙ span.inline (не child itself!)
+                            # child.find() знаходить САМ child якщо він span.inline
+                            # Потрібно шукати ВНУТРІШНІЙ span серед дітей child
+                            inner_spans = [s for s in child.find_all('span', class_='inline', recursive=False) if s != child]
+                            if inner_spans:
+                                # Беремо ПЕРШИЙ вкладений span
+                                meaning = inner_spans[0].get_text(strip=True)
                             else:
                                 # Якщо немає вкладеного span, беремо текст після —
                                 full_text = child.get_text(' ', strip=True)
