@@ -254,60 +254,155 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
     // Gitabase має зіпсовану транслітерацію без діакритик - не використовуємо!
 
-    // Послівний переклад UA
-    // Структура: <div class="dia_text"><p><i>термін</i> — переклад; <i>термін2</i> — переклад2; ...</p></div>
-    // Може бути в div.row:nth-child(3) > div:nth-child(1) > div.dia_text
     let synonyms_ua = '';
-    const diaTextContainer = doc.querySelector('div.dia_text');
-    if (diaTextContainer) {
-      // Знаходимо <p> які містять <i> теги (не порожні <p align="center">)
-      const paragraphs = Array.from(diaTextContainer.querySelectorAll('p')).filter(p => {
-        const hasItalic = p.querySelector('i');
-        const hasText = (p.textContent?.trim().length || 0) > 10;
-        return hasItalic && hasText;
-      });
-
-      if (paragraphs.length > 0) {
-        // Беремо перший непорожній параграф з <i> тегами
-        const p = paragraphs[0];
-        const text = p.textContent?.trim() || '';
-
-        // Розділяємо по крапці з комою і очищаємо
-        const pairs = text.split(';').map(s => s.trim()).filter(s => s.length > 0);
-        synonyms_ua = pairs.join('; ');
-
-        console.log('[Gitabase] synonyms_ua parsed from div.dia_text:', synonyms_ua ? `${synonyms_ua.substring(0, 100)}...` : 'EMPTY');
-        console.log('[Gitabase] Found', pairs.length, 'synonym pairs');
-      } else {
-        console.warn('[Gitabase] No <p> with <i> tags found in div.dia_text for', url);
-      }
-    } else {
-      console.warn('[Gitabase] div.dia_text NOT FOUND for', url);
-    }
-
-    // Літературний переклад UA
     let translation_ua = '';
-    const translationUaElement = doc.querySelector('.av-translation strong');
-    if (translationUaElement) {
-      translation_ua = translationUaElement.textContent?.trim() || '';
+    let purport_ua = '';
+
+    // GITABASE СТРУКТУРА: Є КІЛЬКА .dia_text блоків у різному порядку
+    // - Блок 1: Word-by-word (synonyms) - багато <i> тегів (>5), містить — та ;
+    // - Блок 2: Translation - середній розмір (80-700 chars), один параграф
+    // - Блок 3+: Commentary - все інше, може бути дуже довгим
+
+    const diaBlocks = Array.from(doc.querySelectorAll('div.dia_text'));
+    console.log(`[Gitabase] Found ${diaBlocks.length} .dia_text blocks`);
+
+    // Класифікуємо кожен блок
+    interface Block {
+      index: number;
+      text: string;
+      length: number;
+      hasItalics: boolean;
+      italicCount: number;
+      element: Element;
     }
 
-    // Пояснення UA
-    let purport_ua = '';
-    const purportUaContainer = doc.querySelector('.av-purport');
-    if (purportUaContainer) {
-      const paragraphs = purportUaContainer.querySelectorAll('p, div');
-      const parts: string[] = [];
-      
-      paragraphs.forEach(p => {
-        const text = p.textContent?.trim();
-        if (text && text.length > 10) {
-          parts.push(text);
+    const blocks: Block[] = [];
+
+    diaBlocks.forEach((div, idx) => {
+      const text = div.textContent?.trim() || '';
+      const hasCyrillic = /[\u0400-\u04FF]/.test(text);
+
+      // Беремо тільки блоки з кирилицею (українською) та достатньо довгі
+      if (hasCyrillic && text.length > 20) {
+        const italics = div.querySelectorAll('i');
+        blocks.push({
+          index: idx,
+          text,
+          length: text.length,
+          hasItalics: italics.length > 5,
+          italicCount: italics.length,
+          element: div
+        });
+      }
+    });
+
+    console.log(`[Gitabase] Classified ${blocks.length} Cyrillic blocks`);
+
+    // Проходимо по блоках і класифікуємо їх
+    for (const block of blocks) {
+      // 1. SYNONYMS: багато <i> тегів, містить —, має ;, не занадто довгий
+      if (!synonyms_ua && block.hasItalics) {
+        const hasDashes = block.text.includes('—');
+        const hasSemicolons = block.text.includes(';');
+        const notTooLong = block.length < 2000;
+
+        if (hasDashes && hasSemicolons && notTooLong && block.italicCount > 5) {
+          synonyms_ua = block.text;
+          console.log(`[Gitabase] Found synonyms_ua (${block.italicCount} <i> tags, ${block.length} chars):`, synonyms_ua.substring(0, 100) + '...');
+          continue;
         }
-      });
-      
-      purport_ua = parts.join('\n\n');
+      }
+
+      // 2. TRANSLATION: середній розмір, НЕ багато — та ;
+      if (!translation_ua && block.length >= 80 && block.length <= 700) {
+        const dashCount = (block.text.match(/—/g) || []).length;
+        const semicolonCount = (block.text.match(/;/g) || []).length;
+
+        // Skip якщо це схоже на word-by-word (багато — та ;)
+        if (dashCount > 3 && semicolonCount > 3) {
+          continue;
+        }
+
+        // Skip якщо багато параграфів (це commentary)
+        const pCount = block.element.querySelectorAll('p').length;
+        if (pCount <= 2) {
+          translation_ua = block.text;
+          console.log(`[Gitabase] Found translation_ua (${block.length} chars):`, translation_ua.substring(0, 100) + '...');
+          continue;
+        }
+      }
+
+      // 3. COMMENTARY: все інше (після того як знайшли translation)
+      if (translation_ua) {
+        const dashCount = (block.text.match(/—/g) || []).length;
+        const semicolonCount = (block.text.match(/;/g) || []).length;
+
+        // Skip word-by-word blocks
+        if (dashCount > 3 && semicolonCount > 3) {
+          continue;
+        }
+
+        // Skip якщо це той самий блок що й translation
+        if (block.text === translation_ua) {
+          continue;
+        }
+
+        // Skip якщо блок занадто короткий для commentary
+        if (block.length < 100) {
+          continue;
+        }
+
+        // Витягуємо параграфи
+        let commentaryText = block.text;
+
+        // Видаляємо "ПОЯСНЕННЯ:" з початку
+        if (commentaryText.startsWith('ПОЯСНЕННЯ:')) {
+          commentaryText = commentaryText.substring('ПОЯСНЕННЯ:'.length).trim();
+          console.log(`[Gitabase] Removed 'ПОЯСНЕННЯ:' marker from commentary`);
+        }
+
+        // Якщо вже є commentary - додаємо
+        if (purport_ua) {
+          purport_ua += '\n\n' + commentaryText;
+        } else {
+          purport_ua = commentaryText;
+        }
+
+        console.log(`[Gitabase] Found commentary block (${block.length} chars)`);
+      }
     }
+
+    // Fallback для translation якщо не знайдено
+    if (!translation_ua) {
+      const allParas = Array.from(doc.querySelectorAll('p, div'));
+      for (const p of allParas) {
+        const text = p.textContent?.trim() || '';
+        const hasCyrillic = /[\u0400-\u04FF]/.test(text);
+
+        if (hasCyrillic && text.length >= 80 && text.length <= 700) {
+          const dashCount = (text.match(/—/g) || []).length;
+          const semicolonCount = (text.match(/;/g) || []).length;
+
+          // Skip word-by-word pattern
+          if (dashCount > 3 && semicolonCount > 3) {
+            continue;
+          }
+
+          translation_ua = text;
+          console.log(`[Gitabase] Found translation_ua via fallback:`, translation_ua.substring(0, 100) + '...');
+          break;
+        }
+      }
+    }
+
+    console.log(`[Gitabase] FINAL RESULTS:`, {
+      hasSynonyms: !!synonyms_ua,
+      hasTranslation: !!translation_ua,
+      hasCommentary: !!purport_ua,
+      synonymsLength: synonyms_ua.length,
+      translationLength: translation_ua.length,
+      commentaryLength: purport_ua.length,
+    });
 
     return {
       transliteration_ua: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього
