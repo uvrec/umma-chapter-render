@@ -38,14 +38,26 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     const verseStr = urlParts[urlParts.length - 1];
     const verse = verseStr.includes('-') ? verseStr : parseInt(verseStr);
 
-    // 1. BENGALI TEXT (немає в Антья-лілі, є тільки в Аді та Мадх'я)
+    // 1. BENGALI TEXT - ВИПРАВЛЕНИЙ СЕЛЕКТОР ДЛЯ CC
     let bengali = '';
-    const bengaliSelectors = ['.r-verse', '.r-bengali', '.r-verse-bengali', '.r-original'];
-    for (const sel of bengaliSelectors) {
-      const el = doc.querySelector(sel);
-      if (el) {
-        bengali = el.textContent?.trim() || '';
-        if (bengali) break;
+    // Bengali/Sanskrit для CC знаходиться в .av-bengali div.text-center
+    const bengaliContainer = doc.querySelector('.av-bengali div.text-center');
+    if (bengaliContainer) {
+      bengali = bengaliContainer.innerHTML
+        .replace(/<br\s*\/?>/g, '\n')
+        .replace(/<[^>]*>/g, '')
+        .trim();
+    }
+    
+    // Fallback на старі селектори для інших текстів
+    if (!bengali) {
+      const bengaliSelectors = ['.r-verse', '.r-bengali', '.r-verse-bengali', '.r-original'];
+      for (const sel of bengaliSelectors) {
+        const el = doc.querySelector(sel);
+        if (el) {
+          bengali = el.textContent?.trim() || '';
+          if (bengali) break;
+        }
       }
     }
 
