@@ -599,14 +599,26 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
         if block['has_italics'] and not synonyms_ua:
             # Послівний переклад на Gitabase - це українські слова в <i> тегах
             # Формат: <i>слово1</i> — значення; <i>слово2</i> — значення;
+            # ВАЖЛИВО: Gitabase має ДВА блоки з <i>:
+            # 1. Транслітерація (один великий <i> тег)
+            # 2. Послівний переклад (багато маленьких <i> тегів з окремими словами)
+            # Потрібно брати ДРУГИЙ блок!
+            
+            # Перевіряємо кількість <i> тегів у блоці
+            italic_count = len(block['element'].find_all('i'))
+            
             # Беремо весь текст блоку (і латинь, і кирилиця)
             full_text = block['text']
-            # Якщо містить типові ознаки послівного перекладу
-            if ('—' in full_text or ':' in full_text) and len(full_text) > 50:
+            
+            # Послівний переклад має:
+            # 1. Багато <i> тегів (> 5)
+            # 2. Містить — та ; (формат: слово — переклад;)
+            # 3. НЕ занадто довгий (< 2000)
+            if italic_count > 5 and ('—' in full_text or ':' in full_text) and len(full_text) > 50:
                 # Обмежуємо довжину (послівний переклад зазвичай не дуже довгий)
                 if len(full_text) < 2000:
                     synonyms_ua = full_text
-                    print(f"[Gitabase] Found synonyms_ua from italic block: {synonyms_ua[:150]}...")
+                    print(f"[Gitabase] Found synonyms_ua from italic block ({italic_count} <i> tags): {synonyms_ua[:150]}...")
                     continue
         
         # ВИПРАВЛЕНО: НЕ пропускаємо українську транслітерацію - зберігаємо її!
@@ -638,6 +650,7 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
         # ВИПРАВЛЕНО: НЁ додаємо блоки які виглядають як послівний переклад!
         # ВИПРАВЛЕНО 2: НЕ додаємо блок який вже є перекладом!
         # ВИПРАВЛЕНО 3: НЕ додаємо українську транслітерацію до коментаря!
+        # ВИПРАВЛЕНО 4: НЕ додаємо транслітерацію БЕЗ діакритиків до коментаря!
         if translation_ua and not commentary_ua:
             # Skip word-by-word blocks (many dashes and semicolons)
             if block['text'].count('—') > 3 and block['text'].count(';') > 3:
@@ -648,12 +661,33 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             # Skip Ukrainian transliteration (already saved to transliteration_ua)
             if block['text'] == transliteration_ua:
                 continue
+            
+            # ВИПРАВЛЕНО: Skip transliteration WITHOUT diacritics (Gitabase has 2 translit blocks!)
+            # Format: "тха праварта̄іла̄..." (латиниця БЕЗ діакритиків перед "ПОЯСНЕННЯ:")
+            block_text = block['text']
+            if 'ПОЯСНЕННЯ' in block_text:
+                # Видаляємо текст ДО "ПОЯСНЕННЯ:" (це транслітерація)
+                idx = block_text.find('ПОЯСНЕННЯ')
+                if idx > 0:
+                    print(f"[Gitabase] Removed transliteration before 'ПОЯСНЕННЯ:' ({idx} chars)")
+            
+            # Перевіряємо чи блок достатньо довгий для коментаря (> 100 chars)
+            if len(block_text) < 100:
+                continue
+            
             # Об'єднуємо ВСІ параграфи з цього блоку
             paragraphs = [p.get_text(' ', strip=True) for p in block['element'].find_all('p')]
             if paragraphs:
-                commentary_ua = '\n\n'.join(paragraphs)
+                commentary_text = '\n\n'.join(paragraphs)
             else:
-                commentary_ua = block['text']
+                commentary_text = block_text
+            
+            # ВИДАЛЯЄМО "ПОЯСНЕННЯ:" з початку commentary_text
+            if commentary_text.startswith('ПОЯСНЕННЯ:'):
+                commentary_ua = commentary_text[len('ПОЯСНЕННЯ:'):].lstrip()
+                print(f"[Gitabase] Removed 'ПОЯСНЕННЯ:' marker from commentary start")
+            else:
+                commentary_ua = commentary_text
         elif translation_ua and commentary_ua:
             # Skip word-by-word blocks
             if block['text'].count('—') > 3 and block['text'].count(';') > 3:
@@ -972,10 +1006,24 @@ if __name__ == '__main__':
     verse_count = args.verse_count
 
     def join_ved(base: str, verse: int) -> str:
-        # Ensure trailing slash, then replace last numeric segment with verse
+        # ВИПРАВЛЕНО: Якщо база вже закінчується на номер віршу, використовуємо її як є
+        # Приклад: --vedabase-base 'https://vedabase.io/en/library/cc/antya/7/12/' 
+        # означає що користувач хоче парсити САМЕ вірш 12, а не вірш 1!
         if not base.endswith('/'):
             base = base + '/'
-        return re.sub(r'/\d+/?$', f'/{verse}/', base)
+        
+        # Перевіряємо чи база закінчується на /ЧИСЛО/
+        match = re.search(r'/(\d+)/?$', base)
+        if match:
+            base_verse_num = int(match.group(1))
+            # Якщо номер віршу в базі СПІВПАДАЄ з запитуваним - повертаємо як є
+            if base_verse_num == verse:
+                return base
+            # Інакше замінюємо номер
+            return re.sub(r'/\d+/?$', f'/{verse}/', base)
+        else:
+            # Якщо база НЕ закінчується на число - додаємо номер віршу
+            return f'{base}{verse}/'
 
     def join_git(base: str, verse: int) -> str:
         # Gitabase CC/1/{verse}
@@ -990,8 +1038,22 @@ if __name__ == '__main__':
     print(f'🚀 ПОЧАТОК ПАРСИНГУ: {verse_count} віршів')
     print(f'{"="*60}\n')
     
-    for v in range(1, verse_count + 1):
-        print(f'\n[{v}/{verse_count}] 📖 Обробка віршу {v}...')
+    # ВИПРАВЛЕНО: Якщо база вже містить номер віршу - використовуємо його!
+    # Приклад: --vedabase-base 'https://vedabase.io/en/library/cc/antya/7/12/'
+    # означає парсити вірш 12, а не перебирати вірші 1, 2, 3...
+    base_verse_match = re.search(r'/(\d+)/?$', vedabase_base)
+    if base_verse_match and verse_count == 1:
+        # Користувач передав URL конкретного віршу і хоче парсити тільки його
+        start_verse = int(base_verse_match.group(1))
+        verse_range = range(start_verse, start_verse + 1)
+    else:
+        # Звичайний режим: парсити вірші 1, 2, 3...
+        start_verse = 1
+        verse_range = range(1, verse_count + 1)
+    
+    for v in verse_range:
+        verse_display = v if base_verse_match else v
+        print(f'\n[{v - start_verse + 1}/{verse_count}] 📖 Обробка віршу {verse_display}...')
         ved_url = join_ved(vedabase_base, v)
         git_url = join_git(gitabase_base, v)
         # Basic URL sanity
