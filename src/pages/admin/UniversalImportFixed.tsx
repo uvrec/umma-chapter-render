@@ -817,16 +817,17 @@ export default function UniversalImportFixed() {
       // Resolve canto if needed
       let cantoId: string | null = null;
       if (vedabaseCanto && currentBookInfo?.isMultiVolume) {
-        const cantoNum = parseInt(vedabaseCanto, 10);
-        if (!isNaN(cantoNum)) {
-          const { data: canto } = await supabase
-            .from("cantos")
-            .select("id")
-            .eq("book_id", bookId)
-            .eq("canto_number", cantoNum)
-            .maybeSingle();
-          cantoId = canto?.id || null;
-        }
+        // ✅ FIX: Use lilaNum which correctly maps lila names (adi/madhya/antya) to numbers (1/2/3)
+        const cantoNum = lilaNum;
+        const { data: canto } = await supabase
+          .from("cantos")
+          .select("id")
+          .eq("book_id", bookId)
+          .eq("canto_number", cantoNum)
+          .maybeSingle();
+        cantoId = canto?.id || null;
+
+        console.log('🔍 Canto resolution:', { vedabaseCanto, lilaNum, cantoNum, cantoId, found: !!canto });
       }
 
       // Не передаємо fallback-назви, щоб не перезаписувати існуючі
