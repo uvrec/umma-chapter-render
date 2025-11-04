@@ -174,8 +174,14 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
       const spans = synonymsContainer.querySelectorAll('span.inline');
       const parts: string[] = [];
       const seen = new Set<string>();
-      
+
       spans.forEach(span => {
+        // ✅ FIX: Skip nested span.inline to avoid duplication
+        const parentSpan = span.parentElement?.closest('span.inline');
+        if (parentSpan && parentSpan !== span) {
+          return; // Skip nested span
+        }
+
         const text = span.textContent?.trim() || '';
         if (text) {
           const cleaned = text.replace(/;\s*$/, '').trim();
@@ -185,7 +191,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
           }
         }
       });
-      
+
       synonyms_en = parts.join('; ');
     }
 
@@ -256,8 +262,14 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     if (synonymsUaContainer) {
       const spans = synonymsUaContainer.querySelectorAll('span.inline');
       const parts: string[] = [];
-      
+
       spans.forEach(span => {
+        // ✅ FIX: Skip nested span.inline to avoid duplication
+        const parentSpan = span.parentElement?.closest('span.inline');
+        if (parentSpan && parentSpan !== span) {
+          return; // Skip nested span
+        }
+
         const text = span.textContent?.trim() || '';
         if (text) {
           const cleaned = text.replace(/;\s*$/, '').trim();
@@ -266,7 +278,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
           }
         }
       });
-      
+
       synonyms_ua = parts.join('; ');
     }
 

@@ -74,14 +74,24 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     }
 
     // 3. SYNONYMS - РЕАЛЬНА структура: .av-synonyms .text-justify span.inline
+    // КРИТИЧНО: Vedabase має ВКЛАДЕНІ span.inline (один всередині іншого),
+    // що викликає дублювання тексту. Беремо ТІЛЬКИ top-level span.inline.
     let synonyms = '';
     const synonymsContainer = doc.querySelector('.av-synonyms .text-justify');
     if (synonymsContainer) {
-      const spans = synonymsContainer.querySelectorAll('span.inline');
+      const allSpans = synonymsContainer.querySelectorAll('span.inline');
       const parts: string[] = [];
-      const seen = new Set<string>(); // ✅ Уникаємо дублів
-      
-      spans.forEach(span => {
+      const seen = new Set<string>();
+
+      allSpans.forEach(span => {
+        // ✅ ВИПРАВЛЕННЯ: Пропускаємо вкладені span.inline (які є всередині інших span.inline)
+        // Перевіряємо чи батьківський елемент є span.inline
+        const parentSpan = span.parentElement?.closest('span.inline');
+        if (parentSpan && parentSpan !== span) {
+          // Це вкладений span - пропускаємо, щоб уникнути дублювання
+          return;
+        }
+
         const text = span.textContent?.trim() || '';
         if (text) {
           // Видаляємо зайві пробіли та semicolons в кінці
@@ -92,7 +102,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
           }
         }
       });
-      
+
       synonyms = parts.join('; ');
     }
 
