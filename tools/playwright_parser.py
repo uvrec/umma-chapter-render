@@ -208,8 +208,8 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
     if not sanskrit:
         el = soup.select_one('.av-bengali')
         if el:
-            # Get text from inner div, preserve line breaks
-            inner = el.select_one('div[id]')
+            # Get text from inner div with text-center class
+            inner = el.select_one('div.text-center')
             if inner:
                 text = inner.get_text('\n', strip=True)
                 # Remove label "Bengali" if present
@@ -703,7 +703,7 @@ def parse_chapter(vedabase_url: str, gitabase_url: str, verse_count: int) -> dic
         vedabase_data = parse_vedabase_verse(vedabase_html, verse_num)
         gitabase_data = parse_gitabase_verse(gitabase_html, verse_num)
         
-        # Об'єднати
+        # Об'єднати (sanskrit містить Bengali/Sanskrit текст)
         verse = {
             'verse_number': str(verse_num),
             **vedabase_data,
@@ -1034,12 +1034,18 @@ if __name__ == '__main__':
 
         git_data = parse_gitabase_verse(git_html, v)
 
+        # ✅ ВИПРАВЛЕНО: зберігаємо IAST окремо від української транслітерації
+        transliteration_en = ved_data.get('transliteration_en') or ''
+        transliteration_ua = git_data.get('transliteration_ua') or ''
+
         verse = {
             'verse_number': str(v),
             'sanskrit': ved_data.get('sanskrit') or '',
-            'transliteration': ved_data.get('transliteration') or git_data.get('transliteration_ua') or '',
+            'transliteration': transliteration_ua or transliteration_en,  # Deprecated, fallback
+            'transliteration_en': transliteration_en,  # IAST з Vedabase
+            'transliteration_ua': transliteration_ua,  # Українська з Gitabase (конвертується в нормалізаторі)
             'synonyms_en': ved_data.get('synonyms_en') or '',
-            'synonyms_ua': git_data.get('synonyms_ua') or '',  # ВИПРАВЛЕНО: було word_by_word
+            'synonyms_ua': git_data.get('synonyms_ua') or '',
             'translation_en': ved_data.get('translation_en') or '',
             'commentary_en': ved_data.get('commentary_en') or '',
             'translation_ua': git_data.get('translation_ua') or '',

@@ -117,6 +117,8 @@ WORD_REPLACEMENTS = {
     "Ніт'янанду": "Нітьянанду",
     "Ніт'янандою": "Нітьянандою",
     
+    "Махапрабху": "Махапрабгу",
+    
     # Ґопінатга → Ґопінатха
     "Ґопінатга": "Ґопінатха",
     "Ґопінатгу": "Ґопінатху",
@@ -634,6 +636,7 @@ def normalize_verse(verse: dict) -> dict:
     normalized = verse.copy()
     
     # Нормалізуємо кожне поле
+    # sanskrit містить Bengali/Sanskrit текст (назва не важлива)
     normalized['sanskrit'] = normalize_verse_field(verse.get('sanskrit', ''), 'sanskrit')
     
     # transliteration_en - ЗАЛИШАЄМО БЕЗ ЗМІН (оригінальний IAST з Vedabase)
