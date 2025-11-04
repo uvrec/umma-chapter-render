@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dual Source Parser</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d35400;
+            border-bottom: 3px solid #e67e22;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        .test-controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .loading {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .result-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+        .result-section h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
+        .field {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-left: 3px solid #3498db;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .field-value {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .diacritics-check {
+            background: #d5f4e6;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .diacritics-check.fail {
+            background: #fadbd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Тест Dual Source Parser (Vedabase EN + Gitabase UA)</h1>
+        
+        <div class="test-controls">
+            <h3>Вірш для тесту: CC Antya-lila 7.3</h3>
+            <button onclick="testParser()">▶️ Запустити тест</button>
+            <button onclick="clearResults()">🗑️ Очистити результати</button>
+            <div id="status" style="margin-top: 15px;"></div>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script type="module">
+        import { 
+            parseVedabaseCC, 
+            parseGitabaseCC, 
+            mergeVedabaseAndGitabase,
+            generateVedabaseURL,
+            generateGitabaseURL
+        } from './src/utils/dualSourceParser.ts';
+
+        window.testParser = async function() {
+            const statusEl = document.getElementById('status');
+            const resultsEl = document.getElementById('results');
+            
+            statusEl.innerHTML = '<span class="loading">⏳ Завантаження даних з Vedabase та Gitabase...</span>';
+            resultsEl.innerHTML = '';
+
+            try {
+                // Параметри вірша
+                const lila = 'antya';
+                const lilaNum = 3;
+                const chapter = 7;
+                const verse = 3;
+
+                // Генеруємо URLs
+                const vedabaseUrl = generateVedabaseURL(lila, chapter, verse);
+                const gitabaseUrl = generateGitabaseURL(lilaNum, chapter, verse);
+
+                console.log('Vedabase URL:', vedabaseUrl);
+                console.log('Gitabase URL:', gitabaseUrl);
+
+                // Fetch обидві сторінки
+                statusEl.innerHTML = '<span class="loading">⏳ Завантаження Vedabase EN...</span>';
+                const vedabaseResponse = await fetch(vedabaseUrl);
+                const vedabaseHtml = await vedabaseResponse.text();
+
+                statusEl.innerHTML = '<span class="loading">⏳ Завантаження Gitabase UA...</span>';
+                const gitabaseResponse = await fetch(gitabaseUrl);
+                const gitabaseHtml = await gitabaseResponse.text();
+
+                // Парсинг
+                statusEl.innerHTML = '<span class="loading">⏳ Парсинг Vedabase EN...</span>';
+                const vedabaseData = parseVedabaseCC(vedabaseHtml, vedabaseUrl);
+                
+                statusEl.innerHTML = '<span class="loading">⏳ Парсинг Gitabase UA...</span>';
+                const gitabaseData = parseGitabaseCC(gitabaseHtml, gitabaseUrl);
+
+                // Об'єднання
+                statusEl.innerHTML = '<span class="loading">⏳ Об\'єднання даних...</span>';
+                const merged = mergeVedabaseAndGitabase(
+                    vedabaseData,
+                    gitabaseData,
+                    lila,
+                    chapter,
+                    verse,
+                    vedabaseUrl,
+                    gitabaseUrl
+                );
+
+                if (!merged) {
+                    throw new Error('Не вдалося об\'єднати дані');
+                }
+
+                statusEl.innerHTML = '<span class="success">✅ Тест завершено успішно!</span>';
+
+                // Відображення результатів
+                displayResults(merged, vedabaseData, gitabaseData);
+
+            } catch (error) {
+                console.error('Помилка тесту:', error);
+                statusEl.innerHTML = `<span class="error">❌ Помилка: ${error.message}</span>`;
+            }
+        };
+
+        function displayResults(merged, vedabase, gitabase) {
+            const resultsEl = document.getElementById('results');
+            
+            let html = '<h2>📊 Результати парсингу</h2>';
+
+            // Перевірка діакритики в transliteration_ua
+            const hasDiacritics = /[а̄і̄ӯн̣т̣д̣ш́н̃н̇м̇х̣]/.test(merged.transliteration_ua);
+            html += `
+                <div class="diacritics-check ${hasDiacritics ? '' : 'fail'}">
+                    ${hasDiacritics ? '✅' : '❌'} Діакритика в transliteration_ua: ${hasDiacritics ? 'ПРИСУТНЯ' : 'ВІДСУТНЯ'}
+                </div>
+            `;
+
+            // Перевірка діакритики в synonyms_ua
+            const hasDiacriticsSyn = /[а̄і̄ӯн̣т̣д̣ш́н̃н̇м̇х̣]/.test(merged.synonyms_ua);
+            html += `
+                <div class="diacritics-check ${hasDiacriticsSyn ? '' : 'fail'}">
+                    ${hasDiacriticsSyn ? '✅' : '❌'} Діакритика в synonyms_ua: ${hasDiacriticsSyn ? 'ПРИСУТНЯ' : 'ВІДСУТНЯ'}
+                </div>
+            `;
+
+            // Vedabase EN дані
+            html += '<div class="result-section">';
+            html += '<h3>🇬🇧 Vedabase EN (вихідні дані)</h3>';
+            html += renderField('Bengali/Sanskrit', vedabase.bengali);
+            html += renderField('Transliteration EN (IAST)', vedabase.transliteration_en);
+            html += renderField('Synonyms EN (перші 200 символів)', vedabase.synonyms_en.substring(0, 200) + '...');
+            html += renderField('Translation EN (перші 150 символів)', vedabase.translation_en.substring(0, 150) + '...');
+            html += '</div>';
+
+            // Gitabase UA дані
+            html += '<div class="result-section">';
+            html += '<h3>🇺🇦 Gitabase UA (вихідні дані)</h3>';
+            html += renderField('Transliteration UA (зіпсована)', gitabase.transliteration_ua.substring(0, 150) + '...');
+            html += renderField('Synonyms UA (зіпсовані, перші 200)', gitabase.synonyms_ua.substring(0, 200) + '...');
+            html += renderField('Translation UA (перші 150)', gitabase.translation_ua.substring(0, 150) + '...');
+            html += '</div>';
+
+            // Об'єднані дані
+            html += '<div class="result-section">';
+            html += '<h3>🎯 MERGED DATA (фінальний результат)</h3>';
+            html += renderField('Bengali', merged.bengali);
+            html += renderField('Transliteration EN (IAST)', merged.transliteration_en);
+            html += renderField('Transliteration UA (конвертовано з IAST)', merged.transliteration_ua);
+            html += renderField('Synonyms EN (IAST, перші 300)', merged.synonyms_en.substring(0, 300) + '...');
+            html += renderField('Synonyms UA (конвертовано + UA переклади, перші 300)', merged.synonyms_ua.substring(0, 300) + '...');
+            html += renderField('Translation EN', merged.translation_en);
+            html += renderField('Translation UA', merged.translation_ua);
+            html += '</div>';
+
+            resultsEl.innerHTML = html;
+        }
+
+        function renderField(label, value) {
+            return `
+                <div class="field">
+                    <div class="field-label">${label}</div>
+                    <div class="field-value">${value || '(пусто)'}</div>
+                </div>
+            `;
+        }
+
+        window.clearResults = function() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('status').innerHTML = '';
+        };
+    </script>
+</body>
+</html>

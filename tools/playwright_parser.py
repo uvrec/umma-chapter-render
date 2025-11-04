@@ -340,27 +340,42 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
         if el:
             inner = el.select_one('div[id]')
             if inner:
-                # Extract all <span> items with word — meaning format
-                # ВАЖЛИВО: Кожен span.inline містить ОДНУ пару "слово — переклад"
-                # На Vedabase вони вже розділені, не треба їх всі збирати підряд
-                spans = inner.find_all('span', class_='inline')
-                if spans:
+                # ВИПРАВЛЕНО: Структура Vedabase:
+                # <span class="inline">
+                #   <a><em>word1</em></a>-<a><em>word2</em></a> — <span class="inline">meaning</span>; 
+                # </span>
+                # Треба брати ТІЛЬКИ зовнішні span.inline (НЕ вкладені!)
+                
+                # Стратегія: беремо всі top-level span.inline (які НЕ всередині іншого span.inline)
+                outer_spans = []
+                for span in inner.find_all('span', class_='inline'):
+                    # Перевіряємо чи батьківський елемент - це span.inline
+                    parent = span.parent
+                    is_nested = False
+                    while parent and parent != inner:
+                        if parent.name == 'span' and 'inline' in parent.get('class', []):
+                            is_nested = True
+                            break
+                        parent = parent.parent
+                    
+                    if not is_nested:
+                        outer_spans.append(span)
+                
+                if outer_spans:
                     parts = []
-                    seen = set()  # Відстежуємо унікальність
-                    for span in spans:
-                        # Get text, clean up extra spaces
+                    for span in outer_spans:
+                        # Отримуємо ТІЛЬКИ прямий текст span (слово) + переклад
+                        # Використовуємо get_text з separator для збереження структури
                         text = span.get_text(' ', strip=True)
-                        # Remove trailing semicolon/space
-                        text = text.rstrip('; ')
                         
-                        # Пропускаємо дублікати та порожні рядки
-                        if not text or text in seen:
-                            continue
-                        
-                        # Перевіряємо чи це валідна пара "слово — переклад"
-                        if '—' in text or '-' in text:
-                            parts.append(text)
-                            seen.add(text)
+                        # Перевіряємо формат: має бути "word — meaning" АБО "word-word — meaning"
+                        if '—' in text:
+                            # Видаляємо кінцеву крапку з комою та пробіли
+                            text = text.rstrip('; ').strip()
+                            
+                            # Перевіряємо що це НЕ тільки переклад (має містити слово перед —)
+                            if text and len(text.split('—')[0].strip()) > 0:
+                                parts.append(text)
                     
                     if parts:
                         synonyms_en = '; '.join(parts)
