@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } from "@/utils/Vedabase-books";
-import { normalizeVerseField } from "@/utils/textNormalizer";
+import { normalizeVerseField, convertIASTtoUkrainian } from "@/utils/textNormalizer";
 import { Badge } from "@/components/ui/badge";
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { parseGitabaseCC } from "@/utils/dualSourceParser";
@@ -570,7 +570,8 @@ export default function VedabaseImportV3() {
             const html = await fetchHTML(gitabaseUrl!);
             const data = parseGitabaseCC(html, gitabaseUrl!);
 
-            transliterationUA = data?.transliteration_ua || "";
+            // ⚠️ transliteration_ua НЕ береться з Gitabase (там він зіпсований)
+            // Замість цього конвертуємо IAST з Vedabase нижче
             synonymsUA = data?.synonyms_ua || "";
             translationUA = data?.translation_ua || "";
             purportUA = data?.purport_ua || "";
@@ -585,17 +586,27 @@ export default function VedabaseImportV3() {
             }
           }
         }
-        if (transliterationUA) {
-          transliterationUA = normalizeVerseField(transliterationUA, "transliteration");
+
+        // ✅ КОНВЕРТАЦІЯ IAST → Українська транслітерація
+        // Беремо IAST з Vedabase і конвертуємо в українську кирилицю з діакритикою
+        if (importUA && transliterationEN) {
+          transliterationUA = convertIASTtoUkrainian(transliterationEN);
         }
-        if (synonymsUA) {
-          synonymsUA = normalizeVerseField(synonymsUA, "synonyms");
-        }
-        if (translationUA) {
-          translationUA = normalizeVerseField(translationUA, "translation");
-        }
-        if (purportUA) {
-          purportUA = normalizeVerseField(purportUA, "commentary");
+
+        // ✅ НОРМАЛІЗАЦІЯ українських полів (тільки якщо імпортується UA)
+        if (importUA) {
+          if (transliterationUA) {
+            transliterationUA = normalizeVerseField(transliterationUA, "transliteration");
+          }
+          if (synonymsUA) {
+            synonymsUA = normalizeVerseField(synonymsUA, "synonyms");
+          }
+          if (translationUA) {
+            translationUA = normalizeVerseField(translationUA, "translation");
+          }
+          if (purportUA) {
+            purportUA = normalizeVerseField(purportUA, "commentary");
+          }
         }
 
         // Перевірка контенту
