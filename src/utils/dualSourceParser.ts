@@ -250,15 +250,9 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Транслітерація UA (може бути зіпсована без діакритик)
-    let transliteration_ua = '';
-    const translitUaElement = doc.querySelector('.av-verse_text .text-center.italic em');
-    if (translitUaElement) {
-      transliteration_ua = translitUaElement.innerHTML
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<[^>]+>/g, '')
-        .trim();
-    }
+    // ⚠️ NOTE: transliteration_ua НЕ парситься з Gitabase!
+    // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
+    // Gitabase має зіпсовану транслітерацію без діакритик - не використовуємо!
 
     // Послівний переклад UA
     // Структура: <div class="dia_text"><p><i>термін</i> — переклад; <i>термін2</i> — переклад2; ...</p></div>
@@ -316,7 +310,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     }
 
     return {
-      transliteration_ua,
+      transliteration_ua: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього
       synonyms_ua,
       translation_ua,
       purport_ua
