@@ -340,46 +340,46 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
         if el:
             inner = el.select_one('div[id]')
             if inner:
-                # ВИПРАВЛЕНО: Структура Vedabase:
+                # ВИПРАВЛЕНО: Структура Vedabase (WITHOUT duplicates):
                 # <span class="inline">
                 #   <a><em>word1</em></a>-<a><em>word2</em></a> — <span class="inline">meaning</span>; 
                 # </span>
-                # Треба брати ТІЛЬКИ зовнішні span.inline (НЕ вкладені!)
+                # Проблема: вкладені span.inline створюють дублікати
+                # Рішення: беремо ТІЛЬКИ <a><em> для слів і перший span.inline для перекладу
                 
-                # Стратегія: беремо всі top-level span.inline (які НЕ всередині іншого span.inline)
-                outer_spans = []
-                for span in inner.find_all('span', class_='inline'):
-                    # Перевіряємо чи батьківський елемент - це span.inline
-                    parent = span.parent
-                    is_nested = False
-                    while parent and parent != inner:
-                        if parent.name == 'span' and 'inline' in parent.get('class', []):
-                            is_nested = True
-                            break
-                        parent = parent.parent
-                    
-                    if not is_nested:
-                        outer_spans.append(span)
-                
-                if outer_spans:
-                    parts = []
-                    for span in outer_spans:
-                        # Отримуємо ТІЛЬКИ прямий текст span (слово) + переклад
-                        # Використовуємо get_text з separator для збереження структури
-                        text = span.get_text(' ', strip=True)
-                        
-                        # Перевіряємо формат: має бути "word — meaning" АБО "word-word — meaning"
-                        if '—' in text:
-                            # Видаляємо кінцеву крапку з комою та пробіли
-                            text = text.rstrip('; ').strip()
+                parts = []
+                # Знаходимо всі top-level елементи (не вкладені span.inline)
+                for child in inner.children:
+                    if hasattr(child, 'name'):
+                        # Пропускаємо вкладені span.inline (вони створюють дублікати)
+                        if child.name == 'span' and 'inline' in child.get('class', []):
+                            # Витягуємо слова з <a><em> тегів
+                            word_parts = []
+                            for a_tag in child.find_all('a', recursive=False):
+                                em = a_tag.find('em')
+                                if em:
+                                    word_parts.append(em.get_text(strip=True))
                             
-                            # Перевіряємо що це НЕ тільки переклад (має містити слово перед —)
-                            if text and len(text.split('—')[0].strip()) > 0:
-                                parts.append(text)
-                    
-                    if parts:
-                        synonyms_en = '; '.join(parts)
-                        print(f"[Vedabase] Found synonyms_en with .av-synonyms: {synonyms_en[:100]}...")
+                            # Витягуємо переклад з ПЕРШОГО вкладеного span.inline
+                            meaning_span = child.find('span', class_='inline')
+                            if meaning_span:
+                                meaning = meaning_span.get_text(strip=True)
+                            else:
+                                # Якщо немає вкладеного span, беремо текст після —
+                                full_text = child.get_text(' ', strip=True)
+                                if '—' in full_text:
+                                    meaning = full_text.split('—', 1)[1].strip().rstrip(';').strip()
+                                else:
+                                    continue
+                            
+                            # Формуємо пару "слово — переклад"
+                            if word_parts and meaning:
+                                word = '-'.join(word_parts)
+                                parts.append(f"{word} — {meaning}")
+                
+                if parts:
+                    synonyms_en = '; '.join(parts)
+                    print(f"[Vedabase] Found synonyms_en with .av-synonyms (deduplicated): {synonyms_en[:100]}...")
     
     # FALLBACK: Try multiple selectors
     if not synonyms_en:
@@ -402,6 +402,9 @@ def parse_vedabase_verse(html: str, verse_num: int) -> dict:
                 else:
                     # Fallback: get all text
                     synonyms_en = syn.get_text(' ', strip=True)
+                    # ВИПРАВЛЕНО: Видаляємо "Synonyms" з початку
+                    if synonyms_en.startswith('Synonyms '):
+                        synonyms_en = synonyms_en[len('Synonyms '):].strip()
                     if synonyms_en:
                         print(f"[Vedabase] Found synonyms_en (fallback): {synonyms_en[:100]}...")
                         break
