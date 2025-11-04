@@ -257,120 +257,69 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     let translation_ua = '';
     let purport_ua = '';
 
-    // НОВИЙ ПІДХІД: Шукаємо по заголовках та класах (базовано на робочому Playwright скрипті)
-    // Знаходимо всі заголовки
-    const headers = Array.from(doc.querySelectorAll('h2, h3, h4, .heading'));
-    console.log(`[Gitabase] Found ${headers.length} headers`);
+    // РЕАЛЬНА СТРУКТУРА GITABASE (підтверджена користувачем):
+    // 1. Синоніми: div.dia_text (з <i> тегами)
+    // 2. Переклад: h4 > b
+    // 3. Пояснення: div.row (багато параграфів)
 
-    // 1. ПЕРЕКЛАД - шукаємо заголовок "Переклад"
-    const translationHeader = headers.find(h =>
-      h.textContent?.toLowerCase().includes('переклад')
-    );
+    console.log('[Gitabase] Parsing with REAL selectors from user...');
 
-    if (translationHeader) {
-      let next = translationHeader.nextElementSibling;
-      let parts: string[] = [];
-
-      // Беремо всі наступні елементи до наступного заголовка
-      while (next && !next.tagName.match(/^H[2-4]$/)) {
-        const text = next.textContent?.trim();
-        if (text && text.length > 10) {
-          parts.push(text);
-        }
-        next = next.nextElementSibling;
-      }
-
-      translation_ua = parts.join('\n').trim();
-      console.log(`[Gitabase] Found translation_ua via header (${translation_ua.length} chars):`, translation_ua.substring(0, 100) + '...');
+    // 1. СИНОНІМИ - div.dia_text з <i> тегами
+    const diaTextEl = doc.querySelector('div.dia_text');
+    if (diaTextEl) {
+      synonyms_ua = diaTextEl.textContent?.trim() || '';
+      console.log(`[Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars):`, synonyms_ua.substring(0, 100) + '...');
+    } else {
+      console.warn('[Gitabase] div.dia_text NOT FOUND for synonyms');
     }
 
-    // Fallback для перекладу - шукаємо по класах
+    // 2. ПЕРЕКЛАД - h4 > b (користувач підтвердив: div.row:nth-child(5) > ... > h4 > b)
+    const translationEl = doc.querySelector('h4 > b');
+    if (translationEl) {
+      translation_ua = translationEl.textContent?.trim() || '';
+      console.log(`[Gitabase] Found translation_ua via h4>b (${translation_ua.length} chars):`, translation_ua.substring(0, 100) + '...');
+    } else {
+      console.warn('[Gitabase] h4 > b NOT FOUND for translation');
+    }
+
+    // Fallback для перекладу - шукаємо просто h4 або b
     if (!translation_ua) {
-      const translationEl = doc.querySelector('.translation, .verse-translation, [class*="translation"]');
-      if (translationEl) {
-        translation_ua = translationEl.textContent?.trim() || '';
-        console.log(`[Gitabase] Found translation_ua via class (${translation_ua.length} chars)`);
-      }
-    }
-
-    // 2. СИНОНІМИ - шукаємо заголовок "Синоніми" або "Пословн"
-    const synonymsHeader = headers.find(h => {
-      const text = h.textContent?.toLowerCase() || '';
-      return text.includes('синонім') || text.includes('пословн');
-    });
-
-    if (synonymsHeader) {
-      let next = synonymsHeader.nextElementSibling;
-      let parts: string[] = [];
-
-      while (next && !next.tagName.match(/^H[2-4]$/)) {
-        const text = next.textContent?.trim();
-        if (text && text.length > 10) {
-          parts.push(text);
+      const h4Elements = Array.from(doc.querySelectorAll('h4'));
+      for (const h4 of h4Elements) {
+        const text = h4.textContent?.trim() || '';
+        if (text.length > 50 && text.length < 500) {
+          translation_ua = text;
+          console.log(`[Gitabase] Found translation_ua via h4 fallback (${translation_ua.length} chars)`);
+          break;
         }
-        next = next.nextElementSibling;
-      }
-
-      synonyms_ua = parts.join('\n').trim();
-      console.log(`[Gitabase] Found synonyms_ua via header (${synonyms_ua.length} chars):`, synonyms_ua.substring(0, 100) + '...');
-    }
-
-    // Fallback для синонімів - шукаємо по класах
-    if (!synonyms_ua) {
-      const synonymsEl = doc.querySelector('.synonyms, .word-by-word, [class*="synonym"]');
-      if (synonymsEl) {
-        synonyms_ua = synonymsEl.textContent?.trim() || '';
-        console.log(`[Gitabase] Found synonyms_ua via class (${synonyms_ua.length} chars)`);
       }
     }
 
-    // 3. ПОЯСНЕННЯ - шукаємо заголовок "Пояснення" або "Коментар"
-    const commentaryHeader = headers.find(h => {
-      const text = h.textContent?.toLowerCase() || '';
-      return text.includes('пояснення') || text.includes('коментар');
-    });
+    // 3. ПОЯСНЕННЯ - всі параграфи в div.row (після перекладу)
+    // Користувач підтвердив: div.row:nth-child(6) > ... > p
+    // Беремо ВСІ div.row і витягуємо всі параграфи
+    const rows = Array.from(doc.querySelectorAll('div.row'));
+    console.log(`[Gitabase] Found ${rows.length} div.row elements`);
 
-    if (commentaryHeader) {
-      let next = commentaryHeader.nextElementSibling;
-      let parts: string[] = [];
+    const commentaryParts: string[] = [];
 
-      while (next && !next.tagName.match(/^H[2-4]$/)) {
-        const text = next.textContent?.trim();
-        if (text && text.length > 10) {
-          parts.push(text);
+    // Шукаємо параграфи в кожному row (пропускаючи короткі)
+    for (const row of rows) {
+      const paragraphs = Array.from(row.querySelectorAll('p'));
+      for (const p of paragraphs) {
+        const text = p.textContent?.trim() || '';
+        // Пропускаємо короткі параграфи та ті що є перекладом
+        if (text.length > 100 && text !== translation_ua && text !== synonyms_ua) {
+          commentaryParts.push(text);
         }
-        next = next.nextElementSibling;
-      }
-
-      purport_ua = parts.join('\n\n').trim();
-      console.log(`[Gitabase] Found purport_ua via header (${purport_ua.length} chars)`);
-    }
-
-    // Fallback для пояснення - шукаємо по класах
-    if (!purport_ua) {
-      const commentaryEl = doc.querySelector('.commentary, .purport, [class*="commentary"]');
-      if (commentaryEl) {
-        purport_ua = commentaryEl.textContent?.trim() || '';
-        console.log(`[Gitabase] Found purport_ua via class (${purport_ua.length} chars)`);
       }
     }
 
-    // FINAL FALLBACK: якщо нічого не знайшли через заголовки/класи,
-    // шукаємо всі великі текстові блоки
-    if (!translation_ua && !purport_ua) {
-      const allParas = Array.from(doc.querySelectorAll('p, .content, .text-block, div.dia_text'));
-      const longTexts = allParas
-        .map(p => p.textContent?.trim() || '')
-        .filter(text => text.length > 50);
-
-      if (longTexts.length >= 2) {
-        translation_ua = longTexts[0];
-        purport_ua = longTexts.slice(1).join('\n\n');
-        console.log(`[Gitabase] Found via fallback paragraphs: translation (${translation_ua.length} chars), commentary (${purport_ua.length} chars)`);
-      } else if (longTexts.length === 1) {
-        purport_ua = longTexts[0];
-        console.log(`[Gitabase] Found via fallback paragraphs: commentary only (${purport_ua.length} chars)`);
-      }
+    if (commentaryParts.length > 0) {
+      purport_ua = commentaryParts.join('\n\n');
+      console.log(`[Gitabase] Found purport_ua from ${commentaryParts.length} paragraphs (${purport_ua.length} chars total)`);
+    } else {
+      console.warn('[Gitabase] No commentary paragraphs found');
     }
 
     console.log(`[Gitabase] FINAL RESULTS:`, {
