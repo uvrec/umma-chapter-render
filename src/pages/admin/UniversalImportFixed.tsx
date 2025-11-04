@@ -11,8 +11,12 @@ import { Globe, BookOpen, FileText, CheckCircle, Download, Upload } from "lucide
 import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
-import { parseVedabaseCC, getMaxVerseFromChapter } from "@/utils/vedabaseParser";
-import { parseGitabaseCC } from "@/utils/gitabaseParser";
+import { getMaxVerseFromChapter } from "@/utils/vedabaseParser";
+import { 
+  parseVedabaseCC, 
+  parseGitabaseCC, 
+  mergeVedabaseAndGitabase 
+} from "@/utils/dualSourceParser";
 import {
   parseBhaktivinodaPage,
   parseBhaktivinodaSongPage,
@@ -271,34 +275,33 @@ export default function UniversalImportFixed() {
                   const gitabaseUrl = bookInfo.isMultiVolume
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
                     : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
-                  const parsed = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
-                  parsedUA = parsed
-                    ? {
-                        transliteration_ua: parsed.transliteration_ua || "",
-                        synonyms_ua: parsed.synonyms_ua || "",
-                        translation_ua: parsed.translation_ua || "",
-                        commentary_ua: parsed.purport_ua || "",
-                      }
-                    : null;
+                  parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                 }
 
+                // ✅ Використовуємо новий merger для об'єднання EN + UA
+                const merged = mergeVedabaseAndGitabase(
+                  parsedEN,
+                  parsedUA,
+                  vedabaseCanto, // lila
+                  chapterNum,
+                  t.lastPart, // verse number
+                  vedabaseUrl,
+                  bookInfo.hasGitabaseUA ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}` : ''
+                );
+
                 // Тільки додаємо вірш якщо є хоч якийсь контент
-                const hasContent =
-                  (parsedEN?.bengali || parsedEN?.transliteration || parsedEN?.synonyms || parsedEN?.translation || parsedEN?.purport) ||
-                  (parsedUA?.transliteration_ua || parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.purport_ua);
-                
-                if (hasContent) {
+                if (merged) {
                   verses.push({
                     verse_number: t.lastPart, // ← "7" або "7-8"
-                    sanskrit: parsedEN?.bengali || "",
-                    transliteration_en: parsedEN?.transliteration || "",
-                    transliteration_ua: parsedUA?.transliteration_ua || "",
-                    synonyms_en: parsedEN?.synonyms || "",
-                    synonyms_ua: parsedUA?.synonyms_ua || "",
-                    translation_en: parsedEN?.translation || "",
-                    translation_ua: parsedUA?.translation_ua || "",
-                    commentary_en: parsedEN?.purport || "",
-                    commentary_ua: parsedUA?.purport_ua || "",
+                    sanskrit: merged.bengali || "",
+                    transliteration_en: merged.transliteration_en || "",
+                    transliteration_ua: merged.transliteration_ua || "",
+                    synonyms_en: merged.synonyms_en || "",
+                    synonyms_ua: merged.synonyms_ua || "",
+                    translation_en: merged.translation_en || "",
+                    translation_ua: merged.translation_ua || "",
+                    commentary_en: merged.purport_en || "",
+                    commentary_ua: merged.purport_ua || "",
                   });
                 } else {
                   console.log(`⏭️ Пропускаю сегмент ${t.lastPart} (немає контенту)`);
@@ -351,37 +354,37 @@ export default function UniversalImportFixed() {
                 const gitabaseUrl = bookInfo.isMultiVolume
                   ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
                   : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
-                const parsed = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
-                parsedUA = parsed
-                  ? {
-                      transliteration_ua: parsed.transliteration_ua || "",
-                      synonyms_ua: parsed.synonyms_ua || "",
-                      translation_ua: parsed.translation_ua || "",
-                      commentary_ua: parsed.purport_ua || "",
-                    }
-                  : null;
+                parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
               }
 
-              // Тільки додаємо вірш якщо є хоч якийсь контент
-              const hasContent =
-                (parsedEN?.bengali || parsedEN?.transliteration || parsedEN?.synonyms || parsedEN?.translation || parsedEN?.purport) ||
-                (parsedUA?.transliteration_ua || parsedUA?.synonyms_ua || parsedUA?.translation_ua || parsedUA?.purport_ua);
+              // ✅ Використовуємо новий merger для об'єднання EN + UA
+              const merged = mergeVedabaseAndGitabase(
+                parsedEN,
+                parsedUA,
+                vedabaseCanto, // lila
+                chapterNum,
+                String(v), // verse number
+                vedabaseUrl,
+                bookInfo.hasGitabaseUA 
+                  ? (bookInfo.isMultiVolume
+                      ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                      : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`)
+                  : ''
+              );
 
-              if (hasContent) {
+              if (merged) {
                 verses.push({
                   verse_number: String(v),
-                  sanskrit: parsedEN?.bengali || "",
-                  transliteration_en: parsedEN?.transliteration || "",
-                  transliteration_ua: parsedUA?.transliteration_ua || "",
-                  synonyms_en: parsedEN?.synonyms || "",
-                  synonyms_ua: parsedUA?.synonyms_ua || "",
-                  translation_en: parsedEN?.translation || "",
-                  translation_ua: parsedUA?.translation_ua || "",
-                  commentary_en: parsedEN?.purport || "",
-                  commentary_ua: parsedUA?.purport_ua || "",
+                  sanskrit: merged.bengali || "",
+                  transliteration_en: merged.transliteration_en || "",
+                  transliteration_ua: merged.transliteration_ua || "",
+                  synonyms_en: merged.synonyms_en || "",
+                  synonyms_ua: merged.synonyms_ua || "",
+                  translation_en: merged.translation_en || "",
+                  translation_ua: merged.translation_ua || "",
+                  commentary_en: merged.purport_en || "",
+                  commentary_ua: merged.purport_ua || "",
                 });
-              } else {
-                console.log(`⏭️ Пропускаю вірш ${v} (немає контенту)`);
               }
             } catch (e: any) {
               console.warn(`⚠️ Failed verse ${v}:`, e.message);
@@ -410,10 +413,10 @@ export default function UniversalImportFixed() {
               const parsed = data?.html ? parseVedabaseCC(data.html, verseUrl) : null;
               if (parsed) {
                 v.sanskrit = v.sanskrit || parsed.bengali || "";
-                v.transliteration_en = v.transliteration_en || parsed.transliteration || "";
-                v.synonyms_en = v.synonyms_en || parsed.synonyms || "";
-                v.translation_en = v.translation_en || parsed.translation || "";
-                v.commentary_en = v.commentary_en || parsed.purport || "";
+                v.transliteration_en = v.transliteration_en || parsed.transliteration_en || "";
+                v.synonyms_en = v.synonyms_en || parsed.synonyms_en || "";
+                v.translation_en = v.translation_en || parsed.translation_en || "";
+                v.commentary_en = v.commentary_en || parsed.purport_en || "";
               }
             } catch (e) {
               console.warn("EN fill fail for verse", v?.verse_number, e);

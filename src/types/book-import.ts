@@ -6,7 +6,9 @@ export interface ParsedVerse {
   sanskrit?: string;
   sanskrit_ua?: string;
   sanskrit_en?: string;
-  transliteration?: string;
+  transliteration?: string; // deprecated, для backward compatibility
+  transliteration_en?: string; // оригінальний IAST з Vedabase
+  transliteration_ua?: string; // українська транслітерація з діакритикою
   synonyms_ua?: string;
   synonyms_en?: string;
   translation_ua?: string;

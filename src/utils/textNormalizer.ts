@@ -27,6 +27,16 @@ const MOJIBAKE_REPLACEMENTS: Record<string, string> = {
   Ãº: "ú",
   "": "",
   "\ufeff": "",
+  "\u00A0": " ", // non-breaking space
+  "\u2018": "'", // left single quotation mark
+  "\u2019": "'", // right single quotation mark
+  "\u201C": '"', // left double quotation mark
+  "\u201D": '"', // right double quotation mark
+  "\u2013": "-", // en dash
+  "\u2014": "—", // em dash
+  "\r\n": "\n", // Windows line endings
+  "\r": "\n", // Mac line endings
+  "\t": " ", // tabs to spaces
 };
 
 // ============================================================================
@@ -57,12 +67,57 @@ const DIACRITIC_FIXES: Record<string, string> = {
 // ============================================================================
 
 const WORD_REPLACEMENTS: Record<string, string> = {
+  // Чайтанья (виправлення після транслітерації: нйа → ння)
   "Шрі Чайтан'я-чарітамріта": "Шрі Чайтанья-чарітамріта",
+  "Чайтан'я-чарітамріта": "Чайтанья-чарітамріта",
+  "Чайтан'я-чандродая-натака": "Чайтанья-чандродая-натака",
+  "Чайтан'я-бгаґавата": "Чайтанья-бгаґавата",
   "Чайтан'я": "Чайтанья",
+  "Чайтан'ї": "Чайтаньї",
+  "Чайтан'ю": "Чайтанью",
+  "Чайтан'єю": "Чайтаньєю",
+  "чаітанйа": "Чайтанья",
+  "Чаітанйа": "Чайтанья",
+  "чаітанйі": "Чайтаньї",
+  "чаітанйу": "Чайтанью",
+  
+  // Нітьянанда (апостроф ' → м'який знак ь)
   "Ніт'янанда": "Нітьянанда",
-  енерґія: "енергія",
-  Ачйута: "Ачьюта",
-  Адвайта: "Адваіта",
+  "Ніт'янанди": "Нітьянанди",
+  "Ніт'янанді": "Нітьянанді",
+  "Ніт'янанду": "Нітьянанду",
+  "Ніт'янандою": "Нітьянандою",
+  
+  // Ґопінатха → Ґопінатха
+  "Ґопінатга": "Ґопінатха",
+  "Ґопінатгу": "Ґопінатху",
+  
+  // Енергія (ґ → г)
+  "енерґія": "енергія",
+  "енерґії": "енергії",
+  "енерґію": "енергію",
+  "енерґією": "енергією",
+  "енерґіями": "енергіями",
+  
+  // Санньясі
+  "санн'ясі": "санньясі",
+  "Санн'ясі": "Санньясі",
+  "санн'яса": "саньяса",
+  "Санн'яса": "Саньяса",
+  "санн'ясу": "саньясу",
+  "санн'ясою": "саньясою",
+  "санн'ясам": "саньясам",
+  "санн'ясами": "саньясами",
+  
+  // Специфічні виправлення
+  "проджджгіта": "проджджхіта",
+  "Проджджгіта": "Проджджхіта",
+  
+  // Інші
+  "Ачйута": "Ачьюта",
+  "Адвайта": "Адваіта",
+  "Джгарікханда": "Джхарікханда",
+  "Пуруши": "Пуруши",
 };
 
 // ============================================================================
@@ -70,6 +125,14 @@ const WORD_REPLACEMENTS: Record<string, string> = {
 // ============================================================================
 
 const CONSONANT_CLUSTERS: Record<string, string> = {
+  // Придихові приголосні (h після приголосної)
+  бх: "бг",
+  Бх: "Бг",
+  БХ: "БГ",
+  гх: "ґг", // ✅ ВИПРАВЛЕНО: латинська g
+  Гх: "Ґг",
+  дх: "дг",
+  Дх: "Дг",
   тг: "тх",
   пг: "пх",
   кг: "кх",
@@ -78,6 +141,12 @@ const CONSONANT_CLUSTERS: Record<string, string> = {
   Пг: "Пх",
   Кг: "Кх",
   Чг: "Чх",
+  
+  // Складні випадки
+  джг: "джх",
+  Джг: "Джх",
+  джджг: "джджх",
+  Джджг: "Джджх",
 };
 
 // ============================================================================
@@ -325,13 +394,39 @@ function removeGitabaseArtifacts(text: string): string {
 /**
  * Виправляє апостроф після "н" в українській мові
  * Правило: н' → нь, Н' → Нь
- * Приклади: сан'яса → санняса, Кан'я → Канья
+ * За винятком випадків де апостроф правильний (ачар'я, антар'ямі)
  */
 function fixApostropheAfterN(text: string): string {
   if (!text) return text;
-  return text
-    .replace(/н'/g, 'нь')
-    .replace(/Н'/g, 'Нь');
+  
+  // Виключення - слова де апостроф після н правильний
+  const exceptions = [
+    "ачар'я", "Ачар'я",
+    "антар'ямі", "Антар'ямі",
+    "антар'ям", "Антар'ям",
+  ];
+  
+  let result = text;
+  
+  // Зберігаємо виключення (заміняємо тимчасовим placeholder)
+  const placeholders: Record<string, string> = {};
+  exceptions.forEach((exception, idx) => {
+    const placeholder = `__EXCEPTION_${idx}__`;
+    if (result.includes(exception)) {
+      placeholders[placeholder] = exception;
+      result = result.split(exception).join(placeholder);
+    }
+  });
+  
+  // Тепер робимо заміну н' → нь
+  result = result.replace(/н'/g, 'нь').replace(/Н'/g, 'Нь');
+  
+  // Відновлюємо виключення
+  Object.entries(placeholders).forEach(([placeholder, original]) => {
+    result = result.split(placeholder).join(original);
+  });
+  
+  return result;
 }
 
 // ============================================================================
@@ -346,7 +441,6 @@ export function normalizeVerseField(text: string, fieldType: string): string {
 
   let result = normalizeMojibake(text);
   result = removeGitabaseArtifacts(result);
-  result = fixApostropheAfterN(result); // ✅ НОВЕ правило
 
   switch (fieldType) {
     case "sanskrit":
@@ -354,14 +448,13 @@ export function normalizeVerseField(text: string, fieldType: string): string {
       break;
 
     case "transliteration_en":
-      result = convertIASTtoUkrainian(result);
-      result = normalizeDiacritics(result);
-      result = normalizeWordReplacements(result);
+      // ЗАЛИШАЄМО БЕЗ ЗМІН - оригінальний IAST!
       break;
 
     case "transliteration":
       result = normalizeDiacritics(result);
       result = normalizeConsonantClusters(result);
+      // НЕ застосовуємо normalizeWordReplacements!
       break;
 
     case "synonyms":
@@ -369,10 +462,9 @@ export function normalizeVerseField(text: string, fieldType: string): string {
     case "commentary":
       result = normalizeDiacritics(result);
       result = normalizeWordReplacements(result);
+      result = fixApostropheAfterN(result); // ✅ ТІЛЬКИ для українського тексту!
       for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
-        if (["тг", "пг", "кг", "чг", "Тг", "Пг", "Кг", "Чг"].includes(old)) {
-          result = result.split(old).join(newVal);
-        }
+        result = result.split(old).join(newVal);
       }
       break;
   }

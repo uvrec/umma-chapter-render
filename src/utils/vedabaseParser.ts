@@ -125,7 +125,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     // ✅ Застосовуємо нормалізацію до всіх текстових полів
     return {
       bengali: normalizeVerseField(bengali, 'sanskrit'),
-      transliteration: normalizeVerseField(transliteration, 'transliteration_en'),
+      transliteration: transliteration, // ✅ БЕЗ нормалізації - зберігаємо оригінальний IAST!
       synonyms: normalizeVerseField(synonyms, 'synonyms'),
       translation: normalizeVerseField(translation, 'translation'),
       purport: normalizeVerseField(purport, 'commentary'),
