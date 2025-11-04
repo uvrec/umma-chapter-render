@@ -15,7 +15,7 @@ import { VEDABASE_BOOKS, getBookConfig, buildVedabaseUrl, buildGitabaseUrl } fro
 import { normalizeVerseField } from "@/utils/textNormalizer";
 import { Badge } from "@/components/ui/badge";
 import { ParserStatus } from "@/components/admin/ParserStatus";
-import { parseGitabaseCC } from "@/utils/gitabaseParser";
+import { parseGitabaseCC } from "@/utils/dualSourceParser";
 
 interface ImportStats {
   total: number;

@@ -36,13 +36,12 @@
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, 'text/html');
 
-                // Test selectors
+                // Test selectors - EXACT selectors from user inspection
                 const tests = [
-                    { name: 'transliteration_ua', selector: '.av-verse_text .text-center.italic em' },
-                    { name: 'synonyms_ua container', selector: '.av-synonyms .text-justify' },
-                    { name: 'synonyms_ua spans', selector: '.av-synonyms .text-justify span.inline' },
-                    { name: 'translation_ua', selector: '.av-translation strong' },
-                    { name: 'purport_ua', selector: '.av-purport' },
+                    { name: 'synonyms_ua', selector: 'div.dia_text' },
+                    { name: 'translation_ua (EXACT)', selector: 'div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)' },
+                    { name: 'purport_ua container (EXACT)', selector: 'div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)' },
+                    { name: 'purport_ua paragraphs', selector: 'div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) p' },
                 ];
 
                 tests.forEach(test => {
@@ -56,40 +55,36 @@
                     </div>`;
                 });
 
-                // Test synonyms_ua parsing
-                const synonymsContainer = doc.querySelector('.av-synonyms .text-justify');
-                if (synonymsContainer) {
-                    const spans = synonymsContainer.querySelectorAll('span.inline');
-                    const parts = [];
-
-                    spans.forEach(span => {
-                        // Check for nested span
-                        let parent = span.parentElement;
-                        let isNested = false;
-                        while (parent) {
-                            if (parent.classList.contains('inline') && parent.tagName === 'SPAN') {
-                                isNested = true;
-                                break;
-                            }
-                            parent = parent.parentElement;
-                        }
-
-                        if (!isNested) {
-                            const text = span.textContent?.trim() || '';
-                            if (text) {
-                                const cleaned = text.replace(/;\s*$/, '').trim();
-                                if (cleaned) parts.push(cleaned);
-                            }
-                        }
-                    });
-
-                    const synonyms_ua = parts.join('; ');
+                // Test synonyms_ua parsing with EXACT selector
+                const diaTextEl = doc.querySelector('div.dia_text');
+                if (diaTextEl) {
+                    const synonyms_ua = diaTextEl.textContent?.trim() || '';
                     output.innerHTML += `<div class="log success">
-                        📝 Parsed synonyms_ua (${parts.length} pairs):
-                        <pre>${synonyms_ua}</pre>
+                        📝 Parsed synonyms_ua from div.dia_text (${synonyms_ua.length} chars):
+                        <pre>${synonyms_ua.substring(0, 300)}...</pre>
                     </div>`;
                 } else {
-                    output.innerHTML += `<div class="log error">❌ synonyms container not found!</div>`;
+                    output.innerHTML += `<div class="log error">❌ div.dia_text not found for synonyms!</div>`;
+                }
+
+                // Test purport_ua parsing with EXACT selector
+                const commentaryContainer = doc.querySelector('div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)');
+                if (commentaryContainer) {
+                    const paragraphs = Array.from(commentaryContainer.querySelectorAll('p'));
+                    const parts = [];
+                    paragraphs.forEach(p => {
+                        const text = p.textContent?.trim() || '';
+                        if (text.length > 50) {
+                            parts.push(text);
+                        }
+                    });
+                    const purport_ua = parts.join('\n\n');
+                    output.innerHTML += `<div class="log success">
+                        📝 Parsed purport_ua (${paragraphs.length} paragraphs, ${purport_ua.length} chars total):
+                        <pre>${purport_ua.substring(0, 300)}...</pre>
+                    </div>`;
+                } else {
+                    output.innerHTML += `<div class="log error">❌ purport container not found!</div>`;
                 }
 
             } catch (error) {
