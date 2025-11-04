@@ -177,9 +177,13 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
 
       spans.forEach(span => {
         // ✅ FIX: Skip nested span.inline to avoid duplication
-        const parentSpan = span.parentElement?.closest('span.inline');
-        if (parentSpan && parentSpan !== span) {
-          return; // Skip nested span
+        // Check if parent element (not the span itself) is span.inline
+        let parent = span.parentElement;
+        while (parent) {
+          if (parent.classList.contains('inline') && parent.tagName === 'SPAN') {
+            return; // Skip - this is nested span
+          }
+          parent = parent.parentElement;
         }
 
         const text = span.textContent?.trim() || '';
@@ -265,9 +269,13 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
 
       spans.forEach(span => {
         // ✅ FIX: Skip nested span.inline to avoid duplication
-        const parentSpan = span.parentElement?.closest('span.inline');
-        if (parentSpan && parentSpan !== span) {
-          return; // Skip nested span
+        // Check if parent element (not the span itself) is span.inline
+        let parent = span.parentElement;
+        while (parent) {
+          if (parent.classList.contains('inline') && parent.tagName === 'SPAN') {
+            return; // Skip - this is nested span
+          }
+          parent = parent.parentElement;
         }
 
         const text = span.textContent?.trim() || '';
