@@ -200,7 +200,7 @@ class CCImporter:
             except Exception:
                 gitabase_url = gitabase_base_url
         else:
-            gitabase_url = f"https://gitabase.com/ukr/CC/{chapter}/{verse}"
+            gitabase_url = f"https://gitabase.com/ua/CC/{chapter}/{verse}"
 
         print(f"Importing lila={lila_num} chapter={chapter} verse={verse}")
         out = {

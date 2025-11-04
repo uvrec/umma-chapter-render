@@ -466,5 +466,5 @@ export function generateVedabaseURL(lila: string, chapter: number, verse: number
 }
 
 export function generateGitabaseURL(lilaNum: number, chapter: number, verse: number | string): string {
-  return `https://gitabase.com/ukr/CC/${lilaNum}/${chapter}/${verse}`;
+  return `https://gitabase.com/ua/CC/${lilaNum}/${chapter}/${verse}`;
 }

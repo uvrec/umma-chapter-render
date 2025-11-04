@@ -857,7 +857,7 @@ export default function VedabaseImportV3() {
                       <Input
                         value={introUrlUA}
                         onChange={(e) => setIntroUrlUA(e.target.value)}
-                        placeholder="https://gitabase.com/ukr/BG/introduction"
+                        placeholder="https://gitabase.com/ua/BG/introduction"
                       />
                     </div>
                   )}

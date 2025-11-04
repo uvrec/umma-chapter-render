@@ -148,8 +148,8 @@ export default function UniversalImportFixed() {
         : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
       const gitabase_base = bookInfo.isMultiVolume
-        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
-        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}`;
+        ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
+        : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}`;
 
       let result: any = null;
 
@@ -254,8 +254,8 @@ export default function UniversalImportFixed() {
 
                 if (bookInfo.hasGitabaseUA) {
                   const gitabaseUrl = bookInfo.isMultiVolume
-                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                    ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
                   requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
                 }
 
@@ -284,8 +284,8 @@ export default function UniversalImportFixed() {
                 // ✅ Парсимо UA тільки якщо робили запит
                 if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                   const gitabaseUrl = bookInfo.isMultiVolume
-                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                    ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
                   console.log(`🇺🇦 Parsing Gitabase for ${t.lastPart}:`, gitabaseUrl);
                   parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                   console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
@@ -309,7 +309,7 @@ export default function UniversalImportFixed() {
                   chapterNum,
                   t.lastPart, // verse number
                   vedabaseUrl,
-                  bookInfo.hasGitabaseUA ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}` : ''
+                  bookInfo.hasGitabaseUA ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}` : ''
                 );
 
                 // Тільки додаємо вірш якщо є хоч якийсь контент
@@ -356,8 +356,8 @@ export default function UniversalImportFixed() {
 
               if (bookInfo.hasGitabaseUA) {
                 const gitabaseUrl = bookInfo.isMultiVolume
-                  ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                  ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                  : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
               }
 
@@ -382,8 +382,8 @@ export default function UniversalImportFixed() {
               // ✅ Парсимо UA тільки якщо робили запит
               if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                 const gitabaseUrl = bookInfo.isMultiVolume
-                  ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                  ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                  : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 console.log(`🇺🇦 [Fallback] Parsing Gitabase for ${v}:`, gitabaseUrl);
                 parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
               } else {
@@ -404,8 +404,8 @@ export default function UniversalImportFixed() {
                 vedabaseUrl,
                 bookInfo.hasGitabaseUA 
                   ? (bookInfo.isMultiVolume
-                      ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                      : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`)
+                      ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                      : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`)
                   : ''
               );
 
