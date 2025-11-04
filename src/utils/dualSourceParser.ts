@@ -341,34 +341,37 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
  */
 function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
   if (!synonyms_en) return '';
-  
+
   try {
     // Розділяємо на пари
     const enPairs = synonyms_en.split(';').map(p => p.trim()).filter(p => p);
     const uaPairs = synonyms_ua.split(';').map(p => p.trim()).filter(p => p);
-    
+
     const result: string[] = [];
-    
+
     for (let i = 0; i < enPairs.length; i++) {
       const enPair = enPairs[i];
       const uaPair = uaPairs[i] || '';
-      
+
       // Витягуємо термін IAST (до '—')
       const enParts = enPair.split('—').map(p => p.trim());
       const iastTerm = enParts[0] || '';
-      
-      // Витягуємо український переклад (після '—')
+
+      // Конвертуємо IAST термін в українську кирилицю (з маленької літери, "нйа")
+      const ukrainianTerm = convertIASTtoUkrainian(iastTerm).toLowerCase();
+
+      // Витягуємо український переклад (після '—') ТІЛЬКИ з Gitabase
       let uaTranslation = '';
       if (uaPair) {
         const uaParts = uaPair.split('—').map(p => p.trim());
-        uaTranslation = uaParts[1] || enParts[1] || ''; // fallback на англійський якщо немає українського
-      } else {
-        uaTranslation = enParts[1] || '';
+        uaTranslation = uaParts[1] || ''; // ✅ БЕЗ fallback на англійський!
       }
-      
-      // Конвертуємо IAST термін в українську кирилицю
-      const ukrainianTerm = convertIASTtoUkrainian(iastTerm);
-      
+
+      // ✅ Якщо немає українського перекладу - залишаємо порожнім (або англійський як останній fallback)
+      if (!uaTranslation) {
+        uaTranslation = enParts[1] || ''; // fallback на англійський тільки якщо зовсім немає UA
+      }
+
       // Об'єднуємо
       if (ukrainianTerm && uaTranslation) {
         result.push(`${ukrainianTerm} — ${uaTranslation}`);
@@ -376,13 +379,13 @@ function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
         result.push(ukrainianTerm);
       }
     }
-    
+
     return result.join('; ');
-    
+
   } catch (error) {
     console.error('Помилка mergeSynonyms:', error);
     // Fallback: просто конвертуємо англійські терміни
-    return convertIASTtoUkrainian(synonyms_en);
+    return convertIASTtoUkrainian(synonyms_en).toLowerCase();
   }
 }
 
@@ -413,13 +416,24 @@ export function mergeVedabaseAndGitabase(
     gitabase?.synonyms_ua || ''
   );
   
+  // ✅ Нормалізуємо ТІЛЬКИ праву частину synonyms_ua (переклади), НЕ ліву (транслітерацію)
+  const normalizedSynonymsUa = synonyms_ua.split(';').map(pair => {
+    const parts = pair.split('—').map(p => p.trim());
+    if (parts.length === 2) {
+      const term = parts[0]; // транслітерація - БЕЗ нормалізації
+      const translation = normalizeVerseField(parts[1], 'translation'); // переклад - З нормалізацією
+      return `${term} — ${translation}`;
+    }
+    return pair; // якщо немає —, залишаємо як є
+  }).join('; ');
+
   // Застосовуємо нормалізацію
   const merged: MergedVerseData = {
     bengali: normalizeVerseField(vedabase.bengali, 'sanskrit'),
     transliteration_en: vedabase.transliteration_en, // IAST без змін
-    transliteration_ua: normalizeVerseField(transliteration_ua, 'transliteration_ua'),
-    synonyms_en: vedabase.synonyms_en, // IAST без змін (тільки видалення дублікатів вже зроблено в parseVedabaseCC)
-    synonyms_ua: normalizeVerseField(synonyms_ua, 'synonyms'),
+    transliteration_ua: transliteration_ua, // ✅ БЕЗ нормалізації слів! (тільки діакритика)
+    synonyms_en: vedabase.synonyms_en, // IAST без змін
+    synonyms_ua: normalizedSynonymsUa, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
     translation_en: normalizeVerseField(vedabase.translation_en, 'translation'),
     translation_ua: normalizeVerseField(gitabase?.translation_ua || '', 'translation'),
     purport_en: normalizeVerseField(vedabase.purport_en, 'commentary'),
