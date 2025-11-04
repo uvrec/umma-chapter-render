@@ -559,7 +559,7 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     for label in soup.select('.tlabel, .label, h4, b'):
         lt = label.get_text(' ', strip=True).lower()
         # translation
-        if 'текст' in lt or 'текст' in lt or 'переклад' in lt or 'текст' in lt:
+        if 'текст' in lt or 'переклад' in lt or 'translation' in lt:
             sibling = label.find_next_sibling(class_='dia_text') or label.find_next_sibling()
             if sibling:
                 translation_ua = sibling.get_text(' ', strip=True)
