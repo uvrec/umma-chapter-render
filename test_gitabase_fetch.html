@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Gitabase Parser</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .log { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+        .error { background: #ffcccc; }
+        .success { background: #ccffcc; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Gitabase Parser Test</h1>
+    <button onclick="testGitabase()">Test Gitabase CC Antya 3.6.1</button>
+    <div id="output"></div>
+
+    <script>
+        async function testGitabase() {
+            const output = document.getElementById('output');
+            output.innerHTML = '<div class="log">⏳ Fetching Gitabase...</div>';
+
+            try {
+                // URL для Antya-lila 3, chapter 6, verse 1
+                const url = 'https://gitabase.com/ua/CC/3/6/1';
+
+                output.innerHTML += `<div class="log">🌐 URL: ${url}</div>`;
+
+                const response = await fetch(url);
+                const html = await response.text();
+
+                output.innerHTML += `<div class="log success">✅ Fetched ${html.length} characters</div>`;
+
+                // Parse HTML
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                // Test selectors
+                const tests = [
+                    { name: 'transliteration_ua', selector: '.av-verse_text .text-center.italic em' },
+                    { name: 'synonyms_ua container', selector: '.av-synonyms .text-justify' },
+                    { name: 'synonyms_ua spans', selector: '.av-synonyms .text-justify span.inline' },
+                    { name: 'translation_ua', selector: '.av-translation strong' },
+                    { name: 'purport_ua', selector: '.av-purport' },
+                ];
+
+                tests.forEach(test => {
+                    const elements = doc.querySelectorAll(test.selector);
+                    const found = elements.length > 0;
+                    const firstContent = found ? (elements[0].textContent?.substring(0, 100) || '') : 'N/A';
+
+                    output.innerHTML += `<div class="log ${found ? 'success' : 'error'}">
+                        ${found ? '✅' : '❌'} ${test.name}: ${elements.length} elements
+                        ${found ? `<pre>${firstContent}...</pre>` : ''}
+                    </div>`;
+                });
+
+                // Test synonyms_ua parsing
+                const synonymsContainer = doc.querySelector('.av-synonyms .text-justify');
+                if (synonymsContainer) {
+                    const spans = synonymsContainer.querySelectorAll('span.inline');
+                    const parts = [];
+
+                    spans.forEach(span => {
+                        // Check for nested span
+                        let parent = span.parentElement;
+                        let isNested = false;
+                        while (parent) {
+                            if (parent.classList.contains('inline') && parent.tagName === 'SPAN') {
+                                isNested = true;
+                                break;
+                            }
+                            parent = parent.parentElement;
+                        }
+
+                        if (!isNested) {
+                            const text = span.textContent?.trim() || '';
+                            if (text) {
+                                const cleaned = text.replace(/;\s*$/, '').trim();
+                                if (cleaned) parts.push(cleaned);
+                            }
+                        }
+                    });
+
+                    const synonyms_ua = parts.join('; ');
+                    output.innerHTML += `<div class="log success">
+                        📝 Parsed synonyms_ua (${parts.length} pairs):
+                        <pre>${synonyms_ua}</pre>
+                    </div>`;
+                } else {
+                    output.innerHTML += `<div class="log error">❌ synonyms container not found!</div>`;
+                }
+
+            } catch (error) {
+                output.innerHTML += `<div class="log error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

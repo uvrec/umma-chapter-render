@@ -12,7 +12,7 @@ Endpoints:
       "chapter": 1, 
       "verse_count": 1, 
       "vedabase_base": "https://vedabase.io/en/library/cc/adi/1/1/",
-      "gitabase_base": "https://gitabase.com/ukr/CC/1/1"
+      "gitabase_base": "https://gitabase.com/ua/CC/1/1"
     }
     Returns: { 
       "verses": [ ...verse objects with transliteration... ], 
@@ -59,7 +59,7 @@ def parse_web_chapter():
       "chapter": 1, 
       "verse_ranges": "1-64,65-66,67-110",
       "vedabase_base": "https://vedabase.io/en/library/cc/adi/1/",  // optional
-      "gitabase_base": "https://gitabase.com/ukr/CC/1/1"              // optional
+      "gitabase_base": "https://gitabase.com/ua/CC/1/1"              // optional
     }
     """
     if IMPORT_ERROR:
@@ -82,8 +82,8 @@ def parse_web_chapter():
         vedabase_base = f"https://vedabase.io/en/library/cc/{lila_name}/{chapter}/"
     
     if not gitabase_base:
-        # Default: https://gitabase.com/ukr/CC/{lila}/{chapter}
-        gitabase_base = f"https://gitabase.com/ukr/CC/{lila}/{chapter}"
+        # Default: https://gitabase.com/ua/CC/{lila}/{chapter}
+        gitabase_base = f"https://gitabase.com/ua/CC/{lila}/{chapter}"
     
     try:
         # Run async parser

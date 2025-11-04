@@ -250,47 +250,39 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Транслітерація UA (може бути зіпсована без діакритик)
-    let transliteration_ua = '';
-    const translitUaElement = doc.querySelector('.av-verse_text .text-center.italic em');
-    if (translitUaElement) {
-      transliteration_ua = translitUaElement.innerHTML
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<[^>]+>/g, '')
-        .trim();
-    }
+    // ⚠️ NOTE: transliteration_ua НЕ парситься з Gitabase!
+    // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
+    // Gitabase має зіпсовану транслітерацію без діакритик - не використовуємо!
 
-    // Послівний переклад UA (може бути зіпсований)
+    // Послівний переклад UA
+    // Структура: <div class="dia_text"><p><i>термін</i> — переклад; <i>термін2</i> — переклад2; ...</p></div>
+    // Може бути в div.row:nth-child(3) > div:nth-child(1) > div.dia_text
     let synonyms_ua = '';
-    const synonymsUaContainer = doc.querySelector('.av-synonyms .text-justify');
-    if (synonymsUaContainer) {
-      const spans = synonymsUaContainer.querySelectorAll('span.inline');
-      const parts: string[] = [];
-
-      spans.forEach(span => {
-        // ✅ FIX: Skip nested span.inline to avoid duplication
-        // Check if parent element (not the span itself) is span.inline
-        let parent = span.parentElement;
-        while (parent) {
-          if (parent.classList.contains('inline') && parent.tagName === 'SPAN') {
-            return; // Skip - this is nested span
-          }
-          parent = parent.parentElement;
-        }
-
-        const text = span.textContent?.trim() || '';
-        if (text) {
-          const cleaned = text.replace(/;\s*$/, '').trim();
-          if (cleaned) {
-            parts.push(cleaned);
-          }
-        }
+    const diaTextContainer = doc.querySelector('div.dia_text');
+    if (diaTextContainer) {
+      // Знаходимо <p> які містять <i> теги (не порожні <p align="center">)
+      const paragraphs = Array.from(diaTextContainer.querySelectorAll('p')).filter(p => {
+        const hasItalic = p.querySelector('i');
+        const hasText = (p.textContent?.trim().length || 0) > 10;
+        return hasItalic && hasText;
       });
 
-      synonyms_ua = parts.join('; ');
-      console.log('[Gitabase] synonyms_ua parsed:', synonyms_ua ? `${synonyms_ua.substring(0, 100)}...` : 'EMPTY');
+      if (paragraphs.length > 0) {
+        // Беремо перший непорожній параграф з <i> тегами
+        const p = paragraphs[0];
+        const text = p.textContent?.trim() || '';
+
+        // Розділяємо по крапці з комою і очищаємо
+        const pairs = text.split(';').map(s => s.trim()).filter(s => s.length > 0);
+        synonyms_ua = pairs.join('; ');
+
+        console.log('[Gitabase] synonyms_ua parsed from div.dia_text:', synonyms_ua ? `${synonyms_ua.substring(0, 100)}...` : 'EMPTY');
+        console.log('[Gitabase] Found', pairs.length, 'synonym pairs');
+      } else {
+        console.warn('[Gitabase] No <p> with <i> tags found in div.dia_text for', url);
+      }
     } else {
-      console.warn('[Gitabase] .av-synonyms .text-justify NOT FOUND for', url);
+      console.warn('[Gitabase] div.dia_text NOT FOUND for', url);
     }
 
     // Літературний переклад UA
@@ -318,7 +310,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     }
 
     return {
-      transliteration_ua,
+      transliteration_ua: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього
       synonyms_ua,
       translation_ua,
       purport_ua
@@ -466,5 +458,5 @@ export function generateVedabaseURL(lila: string, chapter: number, verse: number
 }
 
 export function generateGitabaseURL(lilaNum: number, chapter: number, verse: number | string): string {
-  return `https://gitabase.com/ukr/CC/${lilaNum}/${chapter}/${verse}`;
+  return `https://gitabase.com/ua/CC/${lilaNum}/${chapter}/${verse}`;
 }

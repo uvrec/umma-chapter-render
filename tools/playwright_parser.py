@@ -810,7 +810,7 @@ async def parse_chapter_async(
     Args:
         verse_ranges: Comma-separated ranges like "1-64,65-66,67-110"
         vedabase_base: Base URL for Vedabase (e.g. "https://vedabase.io/en/library/cc/adi/1/")
-        gitabase_base: Base URL for Gitabase (e.g. "https://gitabase.com/ukr/CC/1/1")
+        gitabase_base: Base URL for Gitabase (e.g. "https://gitabase.com/ua/CC/1/1")
         lila_num: Lila number (1=Adi, 2=Madhya, 3=Antya)
         chapter_num: Chapter number
         
@@ -1017,7 +1017,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parse Vedabase + Gitabase verses')
     parser.add_argument('--verse-count', type=int, default=3, help='Number of verses to parse (default: 3)')
     parser.add_argument('--vedabase-base', type=str, default='https://vedabase.io/en/library/cc/adi/1/1/', help='Vedabase base URL (verse 1)')
-    parser.add_argument('--gitabase-base', type=str, default='https://gitabase.com/ukr/CC/1/1', help='Gitabase base URL (lila/chapter)')
+    parser.add_argument('--gitabase-base', type=str, default='https://gitabase.com/ua/CC/1/1', help='Gitabase base URL (lila/chapter)')
     args = parser.parse_args()
     
     # Тест на Adi 1 — використовуємо посилання на ПЕРШИЙ вірш як базу і замінюємо номер
