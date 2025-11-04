@@ -85,11 +85,13 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
 
       allSpans.forEach(span => {
         // ✅ ВИПРАВЛЕННЯ: Пропускаємо вкладені span.inline (які є всередині інших span.inline)
-        // Перевіряємо чи батьківський елемент є span.inline
-        const parentSpan = span.parentElement?.closest('span.inline');
-        if (parentSpan && parentSpan !== span) {
-          // Це вкладений span - пропускаємо, щоб уникнути дублювання
-          return;
+        // Перевіряємо чи будь-який батьківський елемент є span.inline
+        let parent = span.parentElement;
+        while (parent) {
+          if (parent.classList.contains('inline') && parent.tagName === 'SPAN') {
+            return; // Skip - це вкладений span
+          }
+          parent = parent.parentElement;
         }
 
         const text = span.textContent?.trim() || '';
