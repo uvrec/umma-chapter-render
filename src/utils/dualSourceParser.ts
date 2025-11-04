@@ -252,146 +252,79 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
 
     // ⚠️ NOTE: transliteration_ua НЕ парситься з Gitabase!
     // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
-    // Gitabase має зіпсовану транслітерацію без діакритик - не використовуємо!
 
     let synonyms_ua = '';
     let translation_ua = '';
     let purport_ua = '';
 
-    // GITABASE СТРУКТУРА: Є КІЛЬКА .dia_text блоків у різному порядку
-    // - Блок 1: Word-by-word (synonyms) - багато <i> тегів (>5), містить — та ;
-    // - Блок 2: Translation - середній розмір (80-700 chars), один параграф
-    // - Блок 3+: Commentary - все інше, може бути дуже довгим
+    // ТОЧНІ СЕЛЕКТОРИ З GITABASE (підтверджені користувачем):
+    // 1. Синоніми: div.dia_text
+    // 2. Переклад: div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)
+    // 3. Пояснення: div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > p (всі параграфи)
 
-    const diaBlocks = Array.from(doc.querySelectorAll('div.dia_text'));
-    console.log(`[Gitabase] Found ${diaBlocks.length} .dia_text blocks`);
+    console.log('[Gitabase] Parsing with EXACT nth-child selectors from user...');
 
-    // Класифікуємо кожен блок
-    interface Block {
-      index: number;
-      text: string;
-      length: number;
-      hasItalics: boolean;
-      italicCount: number;
-      element: Element;
+    // 1. СИНОНІМИ - div.dia_text
+    const diaTextEl = doc.querySelector('div.dia_text');
+    if (diaTextEl) {
+      synonyms_ua = diaTextEl.textContent?.trim() || '';
+      console.log(`[Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars):`, synonyms_ua.substring(0, 100) + '...');
+    } else {
+      console.warn('[Gitabase] div.dia_text NOT FOUND for synonyms');
     }
 
-    const blocks: Block[] = [];
-
-    diaBlocks.forEach((div, idx) => {
-      const text = div.textContent?.trim() || '';
-      const hasCyrillic = /[\u0400-\u04FF]/.test(text);
-
-      // Беремо тільки блоки з кирилицею (українською) та достатньо довгі
-      if (hasCyrillic && text.length > 20) {
-        const italics = div.querySelectorAll('i');
-        blocks.push({
-          index: idx,
-          text,
-          length: text.length,
-          hasItalics: italics.length > 5,
-          italicCount: italics.length,
-          element: div
-        });
-      }
-    });
-
-    console.log(`[Gitabase] Classified ${blocks.length} Cyrillic blocks`);
-
-    // Проходимо по блоках і класифікуємо їх
-    for (const block of blocks) {
-      // 1. SYNONYMS: багато <i> тегів, містить —, має ;, не занадто довгий
-      if (!synonyms_ua && block.hasItalics) {
-        const hasDashes = block.text.includes('—');
-        const hasSemicolons = block.text.includes(';');
-        const notTooLong = block.length < 2000;
-
-        if (hasDashes && hasSemicolons && notTooLong && block.italicCount > 5) {
-          synonyms_ua = block.text;
-          console.log(`[Gitabase] Found synonyms_ua (${block.italicCount} <i> tags, ${block.length} chars):`, synonyms_ua.substring(0, 100) + '...');
-          continue;
-        }
-      }
-
-      // 2. TRANSLATION: середній розмір, НЕ багато — та ;
-      if (!translation_ua && block.length >= 80 && block.length <= 700) {
-        const dashCount = (block.text.match(/—/g) || []).length;
-        const semicolonCount = (block.text.match(/;/g) || []).length;
-
-        // Skip якщо це схоже на word-by-word (багато — та ;)
-        if (dashCount > 3 && semicolonCount > 3) {
-          continue;
-        }
-
-        // Skip якщо багато параграфів (це commentary)
-        const pCount = block.element.querySelectorAll('p').length;
-        if (pCount <= 2) {
-          translation_ua = block.text;
-          console.log(`[Gitabase] Found translation_ua (${block.length} chars):`, translation_ua.substring(0, 100) + '...');
-          continue;
-        }
-      }
-
-      // 3. COMMENTARY: все інше (після того як знайшли translation)
-      if (translation_ua) {
-        const dashCount = (block.text.match(/—/g) || []).length;
-        const semicolonCount = (block.text.match(/;/g) || []).length;
-
-        // Skip word-by-word blocks
-        if (dashCount > 3 && semicolonCount > 3) {
-          continue;
-        }
-
-        // Skip якщо це той самий блок що й translation
-        if (block.text === translation_ua) {
-          continue;
-        }
-
-        // Skip якщо блок занадто короткий для commentary
-        if (block.length < 100) {
-          continue;
-        }
-
-        // Витягуємо параграфи
-        let commentaryText = block.text;
-
-        // Видаляємо "ПОЯСНЕННЯ:" з початку
-        if (commentaryText.startsWith('ПОЯСНЕННЯ:')) {
-          commentaryText = commentaryText.substring('ПОЯСНЕННЯ:'.length).trim();
-          console.log(`[Gitabase] Removed 'ПОЯСНЕННЯ:' marker from commentary`);
-        }
-
-        // Якщо вже є commentary - додаємо
-        if (purport_ua) {
-          purport_ua += '\n\n' + commentaryText;
-        } else {
-          purport_ua = commentaryText;
-        }
-
-        console.log(`[Gitabase] Found commentary block (${block.length} chars)`);
+    // 2. ПЕРЕКЛАД - ТОЧНИЙ селектор
+    const translationEl = doc.querySelector('div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)');
+    if (translationEl) {
+      translation_ua = translationEl.textContent?.trim() || '';
+      console.log(`[Gitabase] Found translation_ua via EXACT selector (${translation_ua.length} chars):`, translation_ua.substring(0, 100) + '...');
+    } else {
+      console.warn('[Gitabase] EXACT translation selector NOT FOUND, trying fallback h4 > b');
+      // Fallback
+      const h4b = doc.querySelector('h4 > b');
+      if (h4b) {
+        translation_ua = h4b.textContent?.trim() || '';
+        console.log(`[Gitabase] Found translation_ua via h4>b fallback (${translation_ua.length} chars)`);
       }
     }
 
-    // Fallback для translation якщо не знайдено
-    if (!translation_ua) {
-      const allParas = Array.from(doc.querySelectorAll('p, div'));
-      for (const p of allParas) {
+    // 3. ПОЯСНЕННЯ - ТОЧНИЙ контейнер, всі параграфи
+    const commentaryContainer = doc.querySelector('div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)');
+    if (commentaryContainer) {
+      const paragraphs = Array.from(commentaryContainer.querySelectorAll('p'));
+      console.log(`[Gitabase] Found commentary container with ${paragraphs.length} paragraphs`);
+
+      const parts: string[] = [];
+      paragraphs.forEach(p => {
         const text = p.textContent?.trim() || '';
-        const hasCyrillic = /[\u0400-\u04FF]/.test(text);
-
-        if (hasCyrillic && text.length >= 80 && text.length <= 700) {
-          const dashCount = (text.match(/—/g) || []).length;
-          const semicolonCount = (text.match(/;/g) || []).length;
-
-          // Skip word-by-word pattern
-          if (dashCount > 3 && semicolonCount > 3) {
-            continue;
-          }
-
-          translation_ua = text;
-          console.log(`[Gitabase] Found translation_ua via fallback:`, translation_ua.substring(0, 100) + '...');
-          break;
+        if (text.length > 50) {
+          parts.push(text);
         }
+      });
+
+      purport_ua = parts.join('\n\n');
+      console.log(`[Gitabase] Found purport_ua from EXACT selector (${purport_ua.length} chars total)`);
+    } else {
+      console.warn('[Gitabase] EXACT commentary selector NOT FOUND, trying fallback div.row');
+
+      // Fallback - всі div.row
+      const rows = Array.from(doc.querySelectorAll('div.row'));
+      console.log(`[Gitabase] Fallback: Found ${rows.length} div.row elements`);
+
+      const commentaryParts: string[] = [];
+      for (const row of rows) {
+        const paragraphs = Array.from(row.querySelectorAll('p'));
+        for (const p of paragraphs) {
+          const text = p.textContent?.trim() || '';
+          if (text.length > 100 && text !== translation_ua && text !== synonyms_ua) {
+            commentaryParts.push(text);
+          }
+        }
+      }
+
+      if (commentaryParts.length > 0) {
+        purport_ua = commentaryParts.join('\n\n');
+        console.log(`[Gitabase] Found purport_ua via fallback (${purport_ua.length} chars)`);
       }
     }
 
