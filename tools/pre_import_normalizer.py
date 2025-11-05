@@ -457,6 +457,40 @@ def normalize_apostrophe_after_n(text: str) -> str:
     return result
 
 
+def normalize_sanskrit_line_breaks(text: str) -> str:
+    """Додає правильні розриви рядків у санскриті/бенгалі за дандами.
+    
+    Формат:
+    - Перший рядок: до । (single daṇḍa)
+    - Другий рядок: після । до ॥ (double daṇḍa з номером віршу)
+    
+    Приклад:
+    ДО:  বন্দে গুরূন্‌ । তৎপ্রকাশাংশ্চ ॥ ১ ॥
+    ПІСЛЯ: বন্দে গুরূন্‌ ।\nতৎপ্রকাশাংশ্চ ॥ ১ ॥
+    """
+    if not text:
+        return text
+    
+    # Видаляємо існуючі \n щоб почати з чистого тексту
+    text = text.replace('\n', ' ')
+    
+    # Видаляємо зайві пробіли
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Розбиваємо на рядки за । (single daṇḍa)
+    # Формат: "текст । текст ॥ N ॥"
+    # ВАЖЛИВО: зберігаємо । в кінці першого рядка
+    if '।' in text:
+        # Знаходимо ПЕРШУ single daṇḍa (може бути кілька в довгих віршах)
+        parts = text.split('।', 1)  # Split на 2 частини
+        if len(parts) == 2:
+            first_line = parts[0].strip() + ' ।'
+            second_line = parts[1].strip()
+            return f'{first_line}\n{second_line}'
+    
+    return text
+
+
 def remove_gitabase_artifacts(text: str) -> str:
     """Видаляє артефакти Gitabase (номери віршів, зайві пробіли)"""
     if not text:
@@ -602,8 +636,9 @@ def normalize_verse_field(text: str, field_type: str) -> str:
     
     # 3. Залежно від типу поля
     if field_type == 'sanskrit':
-        # Санскрит - тільки діакритика
+        # Санскрит - діакритика + розриви рядків за дандами
         result = normalize_diacritics(result)
+        result = normalize_sanskrit_line_breaks(result)
     
     elif field_type == 'transliteration_en':
         # Англійська транслітерація з Vedabase - ЗАЛИШАЄМО БЕЗ ЗМІН (оригінальний IAST)
@@ -663,34 +698,25 @@ def normalize_verse(verse: dict) -> dict:
         # Конвертуємо санскритські терміни з IAST → українська
         ua_synonyms = convert_synonyms_from_english(verse['synonyms_en'])
         
-        # Застосовуємо нормалізацію до української частини (якщо є synonyms_ua з Gitabase)
+        # ВИПРАВЛЕНО: Gitabase тепер повертає ТІЛЬКИ українські ЗНАЧЕННЯ (без термінів!)
+        # Формат gitabase_synonyms: "я складаю шанобливі поклони ; духовним вчителям ; ..."
         if verse.get('synonyms_ua'):
-            # Беремо українські переклади з Gitabase, санскритські терміни з конвертованого
-            gitabase_synonyms = verse['synonyms_ua']
+            # gitabase_synonyms містить ТІЛЬКИ українські значення (розділені ;)
+            gitabase_meanings = [m.strip() for m in verse['synonyms_ua'].split(';') if m.strip()]
             
-            # Об'єднуємо: санскритські терміни з ua_synonyms + переклади з gitabase_synonyms
+            # ua_synonyms містить ПАРИ "український_термін — english_meaning"
+            ua_pairs = [p.strip() for p in ua_synonyms.split(';') if p.strip()]
+            
+            # Об'єднуємо: беремо українські ТЕРМІНИ з ua_pairs + українські ЗНАЧЕННЯ з gitabase_meanings
             result_pairs = []
-            ua_pairs = ua_synonyms.split(';')
-            gitabase_pairs = gitabase_synonyms.split(';')
-            
             for idx, ua_pair in enumerate(ua_pairs):
-                ua_pair = ua_pair.strip()
-                if not ua_pair:
-                    continue
-                
-                if '—' in ua_pair and idx < len(gitabase_pairs):
-                    # Беремо санскритський термін з ua_pair, переклад з gitabase
-                    ua_parts = ua_pair.split('—', 1)
-                    sanskrit_term = ua_parts[0].strip()
-                    
-                    gitabase_pair = gitabase_pairs[idx].strip()
-                    if '—' in gitabase_pair:
-                        gitabase_parts = gitabase_pair.split('—', 1)
-                        ukrainian_meaning = gitabase_parts[1].strip()
-                        result_pairs.append(f'{sanskrit_term} — {ukrainian_meaning}')
-                    else:
-                        result_pairs.append(ua_pair)
+                if '—' in ua_pair and idx < len(gitabase_meanings):
+                    # Витягуємо ТІЛЬКИ український термін (ліва частина ДО —)
+                    ukrainian_term = ua_pair.split('—', 1)[0].strip()
+                    ukrainian_meaning = gitabase_meanings[idx]
+                    result_pairs.append(f'{ukrainian_term} — {ukrainian_meaning}')
                 else:
+                    # Якщо немає відповідного значення з Gitabase, використовуємо як є
                     result_pairs.append(ua_pair)
             
             normalized['synonyms_ua'] = '; '.join(result_pairs)
