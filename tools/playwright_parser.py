@@ -541,25 +541,41 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             print(f"[Gitabase] Found transliteration_ua: {transliteration_ua[:100]}...")
 
     # word-by-word: Gitabase format is: <i>term</i> — translation; <i>term</i> — translation
-    # We need FULL text with both terms AND translations, not just <i> tags!
+    # КРИТИЧНЕ ВИПРАВЛЕННЯ: витягуємо ТІЛЬКИ українські ЗНАЧЕННЯ (після —)
+    # СЛОВА беруться з Vedabase synonyms_en (IAST) і конвертуються в нормалізаторі
     dia_blocks = soup.select('.dia_text, .dia, .wfw')
     for db in dia_blocks:
         italics = db.find_all('i')
         # Check if block contains word-by-word (many <i> tags with short words)
         if italics and len(italics) >= 4:
-            # Get FULL block text instead of just italic tags
-            full_text = db.get_text(' ', strip=True)
-            # Verify it has word-by-word pattern (em-dashes and semicolons)
-            if '—' in full_text and len(full_text) > 50:
-                synonyms_ua = full_text
-                print(f"[Gitabase] Found synonyms_ua (word-by-word): {synonyms_ua[:150]}...")
+            # НОВИЙ ПІДХІД: витягуємо пари "слово — значення"
+            # ТІЛЬКИ значення (після —) зберігаємо для об'єднання з Vedabase IAST
+            meanings = []
+            for i_tag in italics:
+                # Шукаємо текст ПІСЛЯ <i> тегу (там має бути "— український_переклад;")
+                next_sibling = i_tag.next_sibling
+                if next_sibling:
+                    text_after = str(next_sibling).strip()
+                    # Витягуємо текст після —
+                    if '—' in text_after:
+                        meaning = text_after.split('—', 1)[1].strip()
+                        # Видаляємо ; в кінці
+                        meaning = meaning.rstrip(';').strip()
+                        if meaning:
+                            meanings.append(meaning)
+            
+            if meanings:
+                # Зберігаємо ТІЛЬКИ українські значення (без слів!)
+                # Формат: "я складаю шанобливі поклони ; духовним вчителям ; ..."
+                synonyms_ua = ' ; '.join(meanings[:200])
+                print(f"[Gitabase] Found {len(meanings)} Ukrainian MEANINGS (without terms): {synonyms_ua[:150]}...")
                 break
 
     # translation and commentary: look for labelled blocks
     for label in soup.select('.tlabel, .label, h4, b'):
         lt = label.get_text(' ', strip=True).lower()
         # translation
-        if 'текст' in lt or 'переклад' in lt or 'translation' in lt:
+        if 'текст' in lt or 'текст' in lt or 'переклад' in lt or 'текст' in lt:
             sibling = label.find_next_sibling(class_='dia_text') or label.find_next_sibling()
             if sibling:
                 translation_ua = sibling.get_text(' ', strip=True)
@@ -615,32 +631,6 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     all_blocks.sort(key=lambda x: x['index'])
     
     for block in all_blocks:
-        # Block 0 or 1: Word-by-word (має багато <i> тегів з україномовними словами)
-        if block['has_italics'] and not synonyms_ua:
-            # Послівний переклад на Gitabase - це українські слова в <i> тегах
-            # Формат: <i>слово1</i> — значення; <i>слово2</i> — значення;
-            # ВАЖЛИВО: Gitabase має ДВА блоки з <i>:
-            # 1. Транслітерація (один великий <i> тег)
-            # 2. Послівний переклад (багато маленьких <i> тегів з окремими словами)
-            # Потрібно брати ДРУГИЙ блок!
-            
-            # Перевіряємо кількість <i> тегів у блоці
-            italic_count = len(block['element'].find_all('i'))
-            
-            # Беремо весь текст блоку (і латинь, і кирилиця)
-            full_text = block['text']
-            
-            # Послівний переклад має:
-            # 1. Багато <i> тегів (> 5)
-            # 2. Містить — та ; (формат: слово — переклад;)
-            # 3. НЕ занадто довгий (< 2000)
-            if italic_count > 5 and ('—' in full_text or ':' in full_text) and len(full_text) > 50:
-                # Обмежуємо довжину (послівний переклад зазвичай не дуже довгий)
-                if len(full_text) < 2000:
-                    synonyms_ua = full_text
-                    print(f"[Gitabase] Found synonyms_ua from italic block ({italic_count} <i> tags): {synonyms_ua[:150]}...")
-                    continue
-        
         # ВИПРАВЛЕНО: НЕ пропускаємо українську транслітерацію - зберігаємо її!
         # Перевірка чи це українська транслітерація (якщо ще не знайдено)
         if not transliteration_ua and block['length'] < 250:
@@ -810,7 +800,7 @@ async def parse_chapter_async(
     Args:
         verse_ranges: Comma-separated ranges like "1-64,65-66,67-110"
         vedabase_base: Base URL for Vedabase (e.g. "https://vedabase.io/en/library/cc/adi/1/")
-        gitabase_base: Base URL for Gitabase (e.g. "https://gitabase.com/ua/CC/1/1")
+        gitabase_base: Base URL for Gitabase (e.g. "https://gitabase.com/ukr/CC/1/1")
         lila_num: Lila number (1=Adi, 2=Madhya, 3=Antya)
         chapter_num: Chapter number
         
@@ -1017,7 +1007,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parse Vedabase + Gitabase verses')
     parser.add_argument('--verse-count', type=int, default=3, help='Number of verses to parse (default: 3)')
     parser.add_argument('--vedabase-base', type=str, default='https://vedabase.io/en/library/cc/adi/1/1/', help='Vedabase base URL (verse 1)')
-    parser.add_argument('--gitabase-base', type=str, default='https://gitabase.com/ua/CC/1/1', help='Gitabase base URL (lila/chapter)')
+    parser.add_argument('--gitabase-base', type=str, default='https://gitabase.com/ukr/CC/1/1', help='Gitabase base URL (lila/chapter)')
     args = parser.parse_args()
     
     # Тест на Adi 1 — використовуємо посилання на ПЕРШИЙ вірш як базу і замінюємо номер
