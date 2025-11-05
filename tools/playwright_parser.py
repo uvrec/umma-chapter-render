@@ -543,33 +543,44 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     # word-by-word: Gitabase format is: <i>term</i> — translation; <i>term</i> — translation
     # КРИТИЧНЕ ВИПРАВЛЕННЯ: витягуємо ТІЛЬКИ українські ЗНАЧЕННЯ (після —)
     # СЛОВА беруться з Vedabase synonyms_en (IAST) і конвертуються в нормалізаторі
+    
+    # STRATEGY 1: Витягуємо з нормалізованого тексту (БЕЗ HTML)
+    # Gitabase структура: вже містить українські терміни + українські значення
+    # Нам потрібно витягнути ТІЛЬКИ значення (текст після —)
+    
     dia_blocks = soup.select('.dia_text, .dia, .wfw')
+    synonyms_values = []
+    
     for db in dia_blocks:
-        italics = db.find_all('i')
-        # Check if block contains word-by-word (many <i> tags with short words)
-        if italics and len(italics) >= 4:
-            # НОВИЙ ПІДХІД: витягуємо пари "слово — значення"
-            # ТІЛЬКИ значення (після —) зберігаємо для об'єднання з Vedabase IAST
-            meanings = []
-            for i_tag in italics:
-                # Шукаємо текст ПІСЛЯ <i> тегу (там має бути "— український_переклад;")
-                next_sibling = i_tag.next_sibling
-                if next_sibling:
-                    text_after = str(next_sibling).strip()
-                    # Витягуємо текст після —
-                    if '—' in text_after:
-                        meaning = text_after.split('—', 1)[1].strip()
-                        # Видаляємо ; в кінці
-                        meaning = meaning.rstrip(';').strip()
-                        if meaning:
-                            meanings.append(meaning)
+        # Отримуємо текст БЕЗ HTML тегів
+        text = db.get_text(' ', strip=True)
+        
+        # Перевіряємо чи це блок з synonyms (містить багато —)
+        if text.count('—') > 3 and text.count(';') > 3:
+            # Розбиваємо по крапці з комою
+            pairs = text.split(';')
             
-            if meanings:
-                # Зберігаємо ТІЛЬКИ українські значення (без слів!)
-                # Формат: "я складаю шанобливі поклони ; духовним вчителям ; ..."
-                synonyms_ua = ' ; '.join(meanings[:200])
-                print(f"[Gitabase] Found {len(meanings)} Ukrainian MEANINGS (without terms): {synonyms_ua[:150]}...")
+            for pair in pairs:
+                pair = pair.strip()
+                # Шукаємо — і витягуємо ТІЛЬКИ текст після нього
+                if '—' in pair:
+                    # Split by — and take ONLY the meaning part (after —)
+                    parts = pair.split('—', 1)
+                    if len(parts) == 2:
+                        meaning = parts[1].strip()
+                        if meaning and len(meaning) > 2:
+                            synonyms_values.append(meaning)
+            
+            # Якщо знайшли значення - виходимо (це наш блок)
+            if synonyms_values:
+                print(f"[Gitabase] Found {len(synonyms_values)} Ukrainian MEANINGS (extracted from pairs)")
                 break
+    
+    if synonyms_values:
+        # Зберігаємо ТІЛЬКИ українські значення (без слів!)
+        # Формат: "я складаю шанобливі поклони ; духовним вчителям ; ..."
+        synonyms_ua = ' ; '.join(synonyms_values[:200])
+        print(f"[Gitabase] synonyms_ua (meanings only): {synonyms_ua[:150]}...")
 
     # translation and commentary: look for labelled blocks
     for label in soup.select('.tlabel, .label, h4, b'):
