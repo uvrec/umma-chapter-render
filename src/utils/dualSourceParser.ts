@@ -246,9 +246,16 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
  * Парсить Gitabase UA сторінку
  */
 export function parseGitabaseCC(html: string, url: string): GitabaseData | null {
+  console.log(`[Gitabase DEBUG] parseGitabaseCC called for URL: ${url}`);
+  console.log(`[Gitabase DEBUG] HTML length: ${html?.length || 0} chars`);
+  console.log(`[Gitabase DEBUG] HTML preview:`, html?.substring(0, 200));
+
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+
+    console.log(`[Gitabase DEBUG] DOM parsed, body exists:`, !!doc.body);
+    console.log(`[Gitabase DEBUG] All divs count:`, doc.querySelectorAll('div').length);
 
     // ⚠️ NOTE: transliteration_ua НЕ парситься з Gitabase!
     // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
