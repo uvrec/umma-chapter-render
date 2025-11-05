@@ -256,7 +256,7 @@ export default function UniversalImportFixed() {
                   const gitabaseUrl = bookInfo.isMultiVolume
                     ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
                     : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
-                  requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
+                  requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl, executeJS: true } }));
                 }
 
                 const results = await Promise.allSettled(requests);
@@ -358,7 +358,7 @@ export default function UniversalImportFixed() {
                 const gitabaseUrl = bookInfo.isMultiVolume
                   ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
                   : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
-                requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
+                requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl, executeJS: true } }));
               }
 
               const results = await Promise.allSettled(requests);
