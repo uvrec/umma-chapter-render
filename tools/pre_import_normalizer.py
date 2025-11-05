@@ -72,15 +72,10 @@ DIACRITIC_FIXES = {
     'ṅ': 'н̇',
     'ṁ': 'м̇',
     'ḥ': 'х̣',
-    
-    # Часті помилки з Gitabase (крапка під українськими літерами замість діакритики)
-    # ТІЛЬКИ літери які НЕ використовуються в санскриті з діакритикою!
-    'а̣': 'а',  # неправильна крапка під а (в українському тексті має бути просто а)
-    'і̣': 'і',  # неправильна крапка під і (в українському тексті має бути просто і)
-    'е̣': 'е',  # неправильна крапка під е
-    'о̣': 'о',  # неправильна крапка під о
-    'у̣': 'у',  # неправильна крапка під у
-    # НЕ включаємо н̣, т̣, д̣, м̣ - вони можуть бути правильними в транслітерації!
+
+    # ❌ ВИДАЛЕНО неправильні правила видалення діакритичних крапок
+    # Gitabase повертає чистий текст з HTML, без помилок діакритики
+    # Правила типу 'а̣': 'а' псують правильну транслітерацію (наприклад чаран̣а → чарана)
 }
 
 # ============================================================================
@@ -95,7 +90,7 @@ WORD_REPLACEMENTS = {
     # ОСНОВНІ ІМЕНА (правильна транслітерація)
     # =========================
     
-    # Чайтанья (виправлення після транслітерації: нйа → ння)
+    # Чайтанья (виправлення після транслітерації: нйа → нья)
     "Шрі Чайтан'я-чарітамріта": "Шрі Чайтанья-чарітамріта",
     "Чайтан'я-чарітамріта": "Чайтанья-чарітамріта",
     "Чайтан'я-чандродая-натака": "Чайтанья-чандродая-натака",
@@ -104,7 +99,7 @@ WORD_REPLACEMENTS = {
     "Чайтан'ї": "Чайтаньї",
     "Чайтан'ю": "Чайтанью",
     "Чайтан'єю": "Чайтаньєю",
-    # НОВІ правила для транслітерації нйа → ння
+    # НОВІ правила для транслітерації нйа → нья
     "чаітанйа": "Чайтанья",
     "Чаітанйа": "Чайтанья",
     "чаітанйі": "Чайтаньї",
@@ -206,7 +201,7 @@ CONSONANT_CLUSTERS = {
     "aya": "айа",
     "āye": "а̄йе",
     "jjh": "жджх",
-    "jh": "жх",
+    # ❌ ВИДАЛЕНО "jh": "жх" - конфліктує з convert_english_to_ukrainian_translit
 }
 
 # ============================================================================
@@ -619,9 +614,9 @@ def normalize_verse_field(text: str, field_type: str) -> str:
         # НЕ: result = normalize_word_replacements(result)
     
     elif field_type in ['synonyms', 'translation', 'commentary']:
-        # Українські тексти - всі правила включаючи виправлення помилок діакритики
-        result = normalize_diacritics(result)  # ПОВЕРТАЄМО! Виправляє помилки Gitabase (а̣→а, і̣→і)
-        result = normalize_word_replacements(result)
+        # Українські тексти - всі правила нормалізації
+        result = normalize_diacritics(result)  # Виправляє санскритську діакритику
+        result = normalize_word_replacements(result)  # чаітанйа → Чайтанья (нйа → нья)
         result = normalize_apostrophe_after_n(result)  # н' → нь
         # Виправляємо тільки неправильні поєднання (тг→тх, джг→джх, тощо)
         for old, new in TRANSLIT_FIXES.items():
@@ -657,52 +652,19 @@ def normalize_verse(verse: dict) -> dict:
     
     # synonyms_en - залишаємо БЕЗ ЗМІН (оригінал з Vedabase)
     normalized['synonyms_en'] = normalize_verse_field(verse.get('synonyms_en', ''), 'transliteration_en')
-    
-    # synonyms_ua - конвертуємо з synonyms_en (ТІЛЬКИ санскритські терміни, переклади окремо)
-    if verse.get('synonyms_en'):
-        # Конвертуємо санскритські терміни з IAST → українська
+
+    # synonyms_ua - беремо з Gitabase (вже містить повні пари "термін — значення")
+    if verse.get('synonyms_ua'):
+        # ✅ Gitabase ВJЖЕ повертає ПОВНІ пари "термін — значення"
+        # Формат: "вандє — я складаю поклони; ґурӯн — духовним вчителям; ..."
+        # Просто нормалізуємо їх
+        normalized['synonyms_ua'] = normalize_verse_field(verse['synonyms_ua'], 'synonyms')
+    elif verse.get('synonyms_en'):
+        # Fallback: конвертуємо з EN якщо немає UA
         ua_synonyms = convert_synonyms_from_english(verse['synonyms_en'])
-        
-        # Застосовуємо нормалізацію до української частини (якщо є synonyms_ua з Gitabase)
-        if verse.get('synonyms_ua'):
-            # Беремо українські переклади з Gitabase, санскритські терміни з конвертованого
-            gitabase_synonyms = verse['synonyms_ua']
-            
-            # Об'єднуємо: санскритські терміни з ua_synonyms + переклади з gitabase_synonyms
-            result_pairs = []
-            ua_pairs = ua_synonyms.split(';')
-            gitabase_pairs = gitabase_synonyms.split(';')
-            
-            for idx, ua_pair in enumerate(ua_pairs):
-                ua_pair = ua_pair.strip()
-                if not ua_pair:
-                    continue
-                
-                if '—' in ua_pair and idx < len(gitabase_pairs):
-                    # Беремо санскритський термін з ua_pair, переклад з gitabase
-                    ua_parts = ua_pair.split('—', 1)
-                    sanskrit_term = ua_parts[0].strip()
-                    
-                    gitabase_pair = gitabase_pairs[idx].strip()
-                    if '—' in gitabase_pair:
-                        gitabase_parts = gitabase_pair.split('—', 1)
-                        ukrainian_meaning = gitabase_parts[1].strip()
-                        result_pairs.append(f'{sanskrit_term} — {ukrainian_meaning}')
-                    else:
-                        result_pairs.append(ua_pair)
-                else:
-                    result_pairs.append(ua_pair)
-            
-            normalized['synonyms_ua'] = '; '.join(result_pairs)
-        else:
-            # Немає Gitabase synonyms, використовуємо тільки конвертоване
-            normalized['synonyms_ua'] = ua_synonyms
-        
-        # Нормалізуємо фінальний результат
-        normalized['synonyms_ua'] = normalize_verse_field(normalized['synonyms_ua'], 'synonyms')
+        normalized['synonyms_ua'] = normalize_verse_field(ua_synonyms, 'synonyms')
     else:
-        # Fallback: якщо немає synonyms_en, беремо що є з Gitabase
-        normalized['synonyms_ua'] = normalize_verse_field(verse.get('synonyms_ua', ''), 'synonyms')
+        normalized['synonyms_ua'] = ''
     normalized['translation_ua'] = normalize_verse_field(verse.get('translation_ua', ''), 'translation')
     normalized['translation_en'] = normalize_verse_field(verse.get('translation_en', ''), 'translation')
     normalized['commentary_ua'] = normalize_verse_field(verse.get('commentary_ua', ''), 'commentary')
