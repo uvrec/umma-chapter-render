@@ -525,20 +525,10 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     # Prefer structured selectors similar to cc_importer_final heuristics
     translation_ua = ""
     commentary_ua = ""
-    transliteration_ua = ""
     synonyms_ua = ""
 
-    # transliteration: try id/div with translit
-    div_trans = soup.select_one('#div_translit') or soup.select_one('.translit')
-    if div_trans:
-        em = div_trans.find(['i', 'em'])
-        if em:
-            transliteration_ua = em.get_text('\n', strip=False)  # Зберігаємо рядки!
-            # Видаляємо "Verse text " з Vedabase
-            transliteration_ua = transliteration_ua.replace('Verse text ', '').replace('Verse Text ', '')
-            # Обрізаємо зайві пробіли ТІЛЬКИ з країв, БЕЗ видалення \n всередині
-            transliteration_ua = transliteration_ua.strip()
-            print(f"[Gitabase] Found transliteration_ua: {transliteration_ua[:100]}...")
+    # ❌ НЕ витягуємо transliteration_ua з Gitabase - вона зіпсована!
+    # transliteration_ua конвертується з IAST (Vedabase) в основній функції
 
     # word-by-word: Gitabase format is: <i>term</i> — translation; <i>term</i> — translation
     # КРИТИЧНЕ ВИПРАВЛЕННЯ: витягуємо ТІЛЬКИ українські ЗНАЧЕННЯ (після —)
@@ -751,8 +741,8 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     return {
         'translation_ua': translation_ua,
         'commentary_ua': commentary_ua,
-        'transliteration_ua': transliteration_ua,
         'synonyms_ua': synonyms_ua,
+        # ❌ НЕ повертаємо transliteration_ua - вона конвертується з IAST!
     }
 
 
@@ -942,20 +932,16 @@ async def parse_chapter_async(
                 # CRITICAL: Convert English IAST → Ukrainian transliteration
                 transliteration_en = ved_data.get('transliteration_en') or ''
                 transliteration_ua = ''
-                
-                # ПРИОРИТЕТ 1: Використовуємо українську транслітерацію з Gitabase (якщо є)
-                if git_data.get('transliteration_ua'):
-                    transliteration_ua = git_data.get('transliteration_ua')
-                    print(f"[Gitabase] Using Ukrainian transliteration from Gitabase: {transliteration_ua[:50]}")
-                # ПРИОРИТЕТ 2: Конвертуємо англійську IAST → українська
-                elif transliteration_en and NORMALIZER_AVAILABLE:
+
+                # ✅ ЗАВЖДИ конвертуємо з IAST (Vedabase), НІКОЛИ не з Gitabase!
+                if transliteration_en and NORMALIZER_AVAILABLE:
                     try:
                         from pre_import_normalizer import convert_english_to_ukrainian_translit
                         transliteration_ua = convert_english_to_ukrainian_translit(transliteration_en)
-                        print(f"[Converted] IAST → UA: {transliteration_en[:50]} → {transliteration_ua[:50]}")
+                        print(f"[Converted] IAST → UA: {transliteration_ua[:50]}")
                     except Exception as e:
                         print(f"[WARN] Transliteration conversion failed: {e}")
-                        transliteration_ua = transliteration_en
+                # ❌ НЕ використовуємо Gitabase transliteration_ua - вона зіпсована!
 
                 verse = {
                     'lila_num': lila_num,
@@ -1134,14 +1120,22 @@ if __name__ == '__main__':
 
         # ✅ ВИПРАВЛЕНО: зберігаємо IAST окремо від української транслітерації
         transliteration_en = ved_data.get('transliteration_en') or ''
-        transliteration_ua = git_data.get('transliteration_ua') or ''
+
+        # ✅ Конвертуємо IAST → українська (НЕ з Gitabase!)
+        transliteration_ua = ''
+        if transliteration_en and NORMALIZER_AVAILABLE:
+            try:
+                from pre_import_normalizer import convert_english_to_ukrainian_translit
+                transliteration_ua = convert_english_to_ukrainian_translit(transliteration_en)
+            except Exception as e:
+                print(f"[WARN] Transliteration conversion failed: {e}")
 
         verse = {
             'verse_number': str(v),
             'sanskrit': ved_data.get('sanskrit') or '',
             'transliteration': transliteration_ua or transliteration_en,  # Deprecated, fallback
             'transliteration_en': transliteration_en,  # IAST з Vedabase
-            'transliteration_ua': transliteration_ua,  # Українська з Gitabase (конвертується в нормалізаторі)
+            'transliteration_ua': transliteration_ua,  # ✅ Конвертована з IAST (НЕ з Gitabase!)
             'synonyms_en': ved_data.get('synonyms_en') or '',
             'synonyms_ua': git_data.get('synonyms_ua') or '',
             'translation_en': ved_data.get('translation_en') or '',
