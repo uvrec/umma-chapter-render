@@ -452,6 +452,40 @@ def normalize_apostrophe_after_n(text: str) -> str:
     return result
 
 
+def normalize_sanskrit_line_breaks(text: str) -> str:
+    """Додає правильні розриви рядків у санскриті/бенгалі за дандами.
+    
+    Формат:
+    - Перший рядок: до । (single daṇḍa)
+    - Другий рядок: після । до ॥ (double daṇḍa з номером віршу)
+    
+    Приклад:
+    ДО:  বন্দে গুরূন্‌ । তৎপ্রকাশাংশ্চ ॥ ১ ॥
+    ПІСЛЯ: বন্দে গুরূন্‌ ।\nতৎপ্রকাশাংশ্চ ॥ ১ ॥
+    """
+    if not text:
+        return text
+    
+    # Видаляємо існуючі \n щоб почати з чистого тексту
+    text = text.replace('\n', ' ')
+    
+    # Видаляємо зайві пробіли
+    text = re.sub(r'\s+', ' ', text).strip()
+    
+    # Розбиваємо на рядки за । (single daṇḍa)
+    # Формат: "текст । текст ॥ N ॥"
+    # ВАЖЛИВО: зберігаємо । в кінці першого рядка
+    if '।' in text:
+        # Знаходимо ПЕРШУ single daṇḍa (може бути кілька в довгих віршах)
+        parts = text.split('।', 1)  # Split на 2 частини
+        if len(parts) == 2:
+            first_line = parts[0].strip() + ' ।'
+            second_line = parts[1].strip()
+            return f'{first_line}\n{second_line}'
+    
+    return text
+
+
 def remove_gitabase_artifacts(text: str) -> str:
     """Видаляє артефакти Gitabase (номери віршів, зайві пробіли)"""
     if not text:
@@ -597,8 +631,9 @@ def normalize_verse_field(text: str, field_type: str) -> str:
     
     # 3. Залежно від типу поля
     if field_type == 'sanskrit':
-        # Санскрит - тільки діакритика
+        # Санскрит - діакритика + розриви рядків за дандами
         result = normalize_diacritics(result)
+        result = normalize_sanskrit_line_breaks(result)
     
     elif field_type == 'transliteration_en':
         # Англійська транслітерація з Vedabase - ЗАЛИШАЄМО БЕЗ ЗМІН (оригінальний IAST)
