@@ -688,36 +688,50 @@ def normalize_verse(verse: dict) -> dict:
     # synonyms_en - залишаємо БЕЗ ЗМІН (оригінал з Vedabase)
     normalized['synonyms_en'] = normalize_verse_field(verse.get('synonyms_en', ''), 'transliteration_en')
 
-    # synonyms_ua - MERGE логіка: об'єднуємо IAST терміни (з Vedabase) + українські значення (з Gitabase)
+    # synonyms_ua - MERGE Vedabase IAST terms + Gitabase UA meanings
     if verse.get('synonyms_ua') and verse.get('synonyms_en'):
-        # ✅ MERGE: Parser повертає ТІЛЬКИ українські значення (без термінів)
-        # Беремо IAST терміни з synonyms_en і об'єднуємо з українськими значеннями з synonyms_ua
+        # ✅ ПРАВИЛЬНИЙ ПІДХІД:
+        # Парсер повертає з Gitabase ТІЛЬКИ ЗНАЧЕННЯ (БЕЗ термінів!)
+        # Формат Gitabase synonyms_ua: "в той час; країни; один; мусульманин; ..." (тільки переклади)
+        # Формат Vedabase synonyms_en: "hena-kāle — at this time; mulukera — of the country; ..."
+        #
+        # Треба MERGE:
+        #   1. Витягнути IAST терміни з Vedabase synonyms_en
+        #   2. Конвертувати їх в українську транслітерацію з діакритикою (ISTA2Ukrainian)
+        #   3. Взяти українські значення з Gitabase synonyms_ua (вже без термінів!)
+        #   4. Об'єднати: vedabase_ukrainian_term — gitabase_meaning
         
-        # 1. Витягуємо IAST терміни з synonyms_en
-        en_pairs = [p.strip() for p in verse['synonyms_en'].split(';') if p.strip()]
-        ua_values = [v.strip() for v in verse['synonyms_ua'].split(';') if v.strip()]
+        # Gitabase synonyms_ua містить ТІЛЬКИ ЗНАЧЕННЯ (розділені ;)
+        gitabase_meanings = [m.strip() for m in verse['synonyms_ua'].split(';') if m.strip()]
         
-        merged_pairs = []
-        for i, en_pair in enumerate(en_pairs):
-            if '—' in en_pair:
-                # Витягуємо IAST термін (частина перед —)
-                iast_term = en_pair.split('—', 1)[0].strip()
-                # Конвертуємо IAST → українська
+        # Розбиваємо Vedabase pairs на список
+        vedabase_pairs = [p.strip() for p in verse['synonyms_en'].split(';') if p.strip()]
+        
+        result_pairs = []
+        for idx, vb_pair in enumerate(vedabase_pairs):
+            if '—' in vb_pair:
+                # Витягуємо IAST термін (перша частина до —)
+                iast_term = vb_pair.split('—', 1)[0].strip()
+                
+                # Конвертуємо IAST → українська транслітерація з діакритикою
                 ua_term = convert_english_to_ukrainian_translit(iast_term)
-                ua_term = normalize_diacritics(ua_term)
                 
-                # Беремо відповідне українське значення
-                ua_value = ua_values[i] if i < len(ua_values) else ''
-                
-                if ua_value:
-                    merged_pairs.append(f'{ua_term} — {ua_value}')
+                # Об'єднуємо з українським значенням (якщо є)
+                if idx < len(gitabase_meanings):
+                    ua_meaning = gitabase_meanings[idx]
+                    result_pairs.append(f'{ua_term} — {ua_meaning}')
+                else:
+                    # Fallback: немає українського значення, беремо англійське
+                    en_meaning = vb_pair.split('—', 1)[1].strip() if '—' in vb_pair else ''
+                    if en_meaning:
+                        result_pairs.append(f'{ua_term} — {en_meaning}')
         
-        normalized['synonyms_ua'] = normalize_verse_field('; '.join(merged_pairs), 'synonyms')
-    elif verse.get('synonyms_ua'):
-        # Якщо немає synonyms_en, просто нормалізуємо те що є
-        normalized['synonyms_ua'] = normalize_verse_field(verse['synonyms_ua'], 'synonyms')
+        if result_pairs:
+            normalized['synonyms_ua'] = normalize_verse_field('; '.join(result_pairs), 'synonyms')
+        else:
+            normalized['synonyms_ua'] = ''
     elif verse.get('synonyms_en'):
-        # Fallback: конвертуємо з EN якщо немає UA зовсім
+        # Fallback: конвертуємо з EN якщо немає UA
         ua_synonyms = convert_synonyms_from_english(verse['synonyms_en'])
         normalized['synonyms_ua'] = normalize_verse_field(ua_synonyms, 'synonyms')
     else:
