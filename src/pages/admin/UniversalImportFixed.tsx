@@ -42,6 +42,11 @@ import { splitIntoChapters } from "@/utils/import/splitters";
 import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
 import { VEDABASE_BOOKS, getBookConfigByVedabaseSlug } from "@/utils/Vedabase-books";
 
+// 🐍 ЛОКАЛЬНИЙ PYTHON PARSER (для обходу обмежень Puppeteer в Supabase Edge Functions)
+// Встановіть true щоб використовувати parse_server.py для Gitabase (потребує запущеного сервера на порту 5003)
+const USE_LOCAL_PARSER = true;
+const LOCAL_PARSER_URL = "http://127.0.0.1:5003/admin/parse-web-chapter";
+
 // Типи станів
 type ImportSource = "file" | "vedabase" | "gitabase" | "bhaktivinoda";
 type Step = "source" | "file" | "intro" | "normalize" | "process" | "preview" | "save";
@@ -111,6 +116,37 @@ export default function UniversalImportFixed() {
     return map[vedabaseCanto.toLowerCase()] || 1;
   }, [vedabaseCanto]);
 
+  /** 🐍 Парсинг через локальний Python server (обхід обмежень Puppeteer в Supabase) */
+  const parseChapterWithPythonServer = async (params: {
+    lila: number;
+    chapter: number;
+    verse_ranges: string;
+    vedabase_base: string;
+    gitabase_base: string;
+  }) => {
+    console.log(`[Python Parser] Calling local parse_server:`, params);
+
+    try {
+      const response = await fetch(LOCAL_PARSER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`Parse server error: ${error.error || error.detail || response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log(`[Python Parser] Success! Parsed ${result.verses?.length || 0} verses`);
+      return result;
+    } catch (error) {
+      console.error('[Python Parser] Failed:', error);
+      throw error;
+    }
+  };
+
   /** Імпорт з Vedabase */
   const handleVedabaseImport = useCallback(async () => {
     if (!vedabaseChapter) {
@@ -153,41 +189,41 @@ export default function UniversalImportFixed() {
 
       let result: any = null;
 
-      // Використовуємо Python парсер лише якщо він налаштований
-      if (PARSE_ENDPOINT) {
+      // 🐍 Використовуємо локальний Python parser (обхід обмежень Puppeteer в Supabase)
+      if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUA) {
         try {
-          console.log("🐍 Trying Python parser at:", PARSE_ENDPOINT);
-          toast({ title: "Python парсер", description: "Звернення до Flask API..." });
-          const response = await fetch(PARSE_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              lila: lilaNum,
-              chapter: chapterNum,
-              verse_ranges: verseRanges,
-              vedabase_base,
-              gitabase_base,
-            }),
+          console.log("🐍 Using local Python parser (parse_server.py)");
+          toast({ title: "🐍 Python парсер", description: "Звернення до локального parse_server.py..." });
+
+          result = await parseChapterWithPythonServer({
+            lila: lilaNum,
+            chapter: chapterNum,
+            verse_ranges: verseRanges,
+            vedabase_base,
+            gitabase_base,
           });
 
-          if (!response.ok) throw new Error(`Parser HTTP ${response.status}: ${response.statusText}`);
-          result = await response.json();
-          console.log("🐍 Python parser result:", result?.verses?.length, "verses");
           // ✅ Перевірка якості: якщо порожньо або відсутні ключові поля — примусово fallback
           const badResult = !Array.isArray(result?.verses) || !result.verses.length ||
             result.verses.every((v: any) => !(v?.translation_en || v?.translation_ua || v?.synonyms_en || v?.synonyms_ua || v?.commentary_en || v?.commentary_ua));
           if (badResult) {
             throw new Error("Python result is empty/incomplete — switching to browser fallback");
           }
-          toast({ title: "✅ Парсер успішно відпрацював", description: "Отримано JSON" });
+
+          console.log(`✅ Python parser успішно: ${result.verses.length} віршів`);
+          toast({ title: "✅ Python парсер успішний", description: `Отримано ${result.verses.length} віршів з UA перекладами` });
         } catch (err: any) {
-          console.log("🐍 Python parser failed, using browser fallback:", err.message);
-          toast({ title: "⚠️ Browser fallback", description: "Парсинг через Edge-функції (EN + UA)" });
+          console.error("🐍 Python parser failed:", err);
+          toast({
+            title: "⚠️ Python parser провалився",
+            description: `${err.message}. Fallback на browser parsing...`,
+            variant: "destructive"
+          });
           result = null; // Примусово переходимо до fallback
         }
       }
 
-      // Fallback: якщо парсер не налаштований або повернув помилку
+      // Fallback: якщо парсер не увімкнений або повернув помилку
       if (!result) {
         toast({ title: "🌐 Browser парсинг", description: "Використовується Edge-функції (EN + UA)" });
 
