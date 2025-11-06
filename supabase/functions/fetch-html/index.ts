@@ -1,8 +1,10 @@
 // Supabase Edge Function: fetch-html
 // Public CORS-enabled proxy to fetch HTML from allowed domains (vedabase.io, gitabase.com)
 // Returns: { html: string }
+// Supports JavaScript execution via Puppeteer for client-side rendered content (Gitabase)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,8 +30,10 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { url } = await req.json().catch(() => ({ url: "" }));
+    const { url, executeJS } = await req.json().catch(() => ({ url: "", executeJS: false }));
     const rawUrl = typeof url === "string" ? url.trim() : "";
+    const shouldExecuteJS = executeJS === true;
+
     if (!rawUrl) {
       return new Response(JSON.stringify({ error: "Missing 'url'" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
@@ -45,13 +49,52 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Domain not allowed", host }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
 
-    console.log(`[fetch-html] Fetching: ${rawUrl} (host: ${host})`);
-    const res = await fetch(rawUrl, { headers: { "User-Agent": "VedavoiceFetcher/1.0 (+https://vedavoice.app)" } });
-    if (!res.ok) {
-      // Always return 200 with notFound flag for client-side handling
-      return new Response(JSON.stringify({ error: `Upstream ${res.status}`, notFound: res.status === 404 }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    console.log(`[fetch-html] Fetching: ${rawUrl} (host: ${host}, executeJS: ${shouldExecuteJS})`);
+
+    let html: string;
+
+    if (shouldExecuteJS) {
+      // Use Puppeteer to execute JavaScript and get rendered HTML
+      console.log(`[fetch-html] Using Puppeteer for ${rawUrl}`);
+      let browser;
+      try {
+        browser = await puppeteer.launch({
+          headless: true,
+          args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+        const page = await browser.newPage();
+        await page.setUserAgent("VedavoiceFetcher/1.0 (+https://vedavoice.app)");
+
+        // Navigate and wait for network to be idle
+        await page.goto(rawUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+
+        // For Gitabase, wait for div.dia_text to appear
+        if (host?.includes('gitabase')) {
+          try {
+            await page.waitForSelector('div.dia_text', { timeout: 10000 });
+          } catch (e) {
+            console.warn(`[fetch-html] div.dia_text not found, continuing anyway`);
+          }
+        }
+
+        // Get the rendered HTML
+        html = await page.content();
+        console.log(`[fetch-html] Puppeteer HTML length: ${html.length} chars`);
+      } finally {
+        if (browser) {
+          await browser.close();
+        }
+      }
+    } else {
+      // Simple fetch for static content (Vedabase)
+      const res = await fetch(rawUrl, { headers: { "User-Agent": "VedavoiceFetcher/1.0 (+https://vedavoice.app)" } });
+      if (!res.ok) {
+        // Always return 200 with notFound flag for client-side handling
+        return new Response(JSON.stringify({ error: `Upstream ${res.status}`, notFound: res.status === 404 }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      }
+      html = await res.text();
     }
-    const html = await res.text();
+
     return new Response(JSON.stringify({ html }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : "Unknown error";
