@@ -525,19 +525,15 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     # Prefer structured selectors similar to cc_importer_final heuristics
     translation_ua = ""
     commentary_ua = ""
+    transliteration_ua = ""  # ✅ ІНІЦІАЛІЗАЦІЯ
     synonyms_ua = ""
-    transliteration_ua = ""  # ✅ FIX: Initialize to avoid UnboundLocalError
 
     # ❌ НЕ витягуємо transliteration_ua з Gitabase - вона зіпсована!
     # transliteration_ua конвертується з IAST (Vedabase) в основній функції
 
     # word-by-word: Gitabase format is: <i>term</i> — translation; <i>term</i> — translation
-    # КРИТИЧНЕ ВИПРАВЛЕННЯ: витягуємо ТІЛЬКИ українські ЗНАЧЕННЯ (після —)
-    # СЛОВА беруться з Vedabase synonyms_en (IAST) і конвертуються в нормалізаторі
-    
-    # STRATEGY 1: Витягуємо з нормалізованого тексту (БЕЗ HTML)
-    # Gitabase структура: вже містить українські терміни + українські значення
-    # Нам потрібно витягнути ТІЛЬКИ значення (текст після —)
+    # КРИТИЧНО: витягуємо ТІЛЬКИ українські ЗНАЧЕННЯ (після —), БЕЗ термінів!
+    # Терміни беруться з Vedabase (IAST) і конвертуються в нормалізаторі через ISTA2Ukrainian
     
     dia_blocks = soup.select('.dia_text, .dia, .wfw')
     synonyms_values = []
@@ -553,7 +549,7 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
             
             for pair in pairs:
                 pair = pair.strip()
-                # Шукаємо — і витягуємо ТІЛЬКИ текст після нього
+                # Шукаємо — і витягуємо ТІЛЬКИ текст після нього (значення)
                 if '—' in pair:
                     # Split by — and take ONLY the meaning part (after —)
                     parts = pair.split('—', 1)
@@ -568,9 +564,9 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
                 break
     
     if synonyms_values:
-        # Зберігаємо ТІЛЬКИ українські значення (без слів!)
-        # Формат: "я складаю шанобливі поклони ; духовним вчителям ; ..."
-        synonyms_ua = ' ; '.join(synonyms_values[:200])
+        # Зберігаємо ТІЛЬКИ українські значення (без термінів!)
+        # Формат: "в той час; країни; один; мусульманин; ..."
+        synonyms_ua = '; '.join(synonyms_values[:200])
         print(f"[Gitabase] synonyms_ua (meanings only): {synonyms_ua[:150]}...")
 
     # translation and commentary: look for labelled blocks
