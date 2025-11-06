@@ -28,7 +28,7 @@ const Verses = () => {
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
   const [selectedChapterId, setSelectedChapterId] = useState<string>("");
-  const [deleteVerseId, setDeleteVerseId] = useState<{ id: string; verseNumber: number } | null>(null);
+  const [deleteVerseId, setDeleteVerseId] = useState<{ id: string; verseNumber: string } | null>(null);
   const [selectedVerses, setSelectedVerses] = useState<Set<string>>(new Set());
   const [bulkDeleteMode, setBulkDeleteMode] = useState(false);
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
@@ -107,7 +107,7 @@ const Verses = () => {
   });
 
   const togglePublishMutation = useMutation({
-    mutationFn: async ({ id, isPublished, verseNumber }: { id: string; isPublished: boolean; verseNumber?: number }) => {
+    mutationFn: async ({ id, isPublished, verseNumber }: { id: string; isPublished: boolean; verseNumber?: string }) => {
       const { error } = await supabase.from("verses").update({ is_published: !isPublished }).eq("id", id);
       if (error) throw error;
       return { verseNumber };
@@ -123,7 +123,7 @@ const Verses = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async ({ id, verseNumber }: { id: string; verseNumber?: number }) => {
+    mutationFn: async ({ id, verseNumber }: { id: string; verseNumber?: string }) => {
       const { error } = await supabase
         .from("verses")
         .update({ deleted_at: new Date().toISOString() } as any)
