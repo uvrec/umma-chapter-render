@@ -275,9 +275,22 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     const diaTextEl = doc.querySelector('div.dia_text');
     if (diaTextEl) {
       synonyms_ua = diaTextEl.textContent?.trim() || '';
-      console.log(`[Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars):`, synonyms_ua.substring(0, 100) + '...');
+      console.log(`✅ [Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars)`);
+      console.log(`   First 200 chars:`, synonyms_ua.substring(0, 200));
+
+      // Перевірка чи не англійські слова (ознака що Puppeteer не виконав JS)
+      if (synonyms_ua.includes(' — by ') || synonyms_ua.includes(' — the ') ||
+          synonyms_ua.includes(' — of ') || synonyms_ua.includes(' — in ') ||
+          synonyms_ua.includes(' — to ')) {
+        console.error(`❌ [Gitabase] CRITICAL: synonyms_ua містить англійські слова! Puppeteer НЕ виконав JavaScript!`);
+        console.error(`   Edge function повернула статичний HTML замість rendered HTML.`);
+        console.error(`   Перевірте чи задеплоїлась оновлена версія fetch-html з Puppeteer!`);
+      } else {
+        console.log(`✅ [Gitabase] synonyms_ua виглядає коректно (українські переклади)`);
+      }
     } else {
-      console.warn('[Gitabase] div.dia_text NOT FOUND for synonyms');
+      console.error('❌ [Gitabase] div.dia_text NOT FOUND - Puppeteer не спрацював або HTML порожній!');
+      console.error('   Перевірте логи edge function fetch-html для діагностики.');
     }
 
     // 2. ПЕРЕКЛАД - ТОЧНИЙ селектор
@@ -400,10 +413,12 @@ function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
         uaTranslation = uaParts[1] || ''; // ✅ БЕЗ fallback на англійський!
       }
 
-      // ⚠️ ТИМЧАСОВИЙ fallback на англійський (поки Gitabase не парситься правильно)
+      // ❌ ВИДАЛЕНО fallback на англійський - краще порожній рядок, ніж маскувати проблему!
       if (!uaTranslation) {
-        console.warn(`[mergeSynonyms] Missing UA translation for term ${i+1}/${enPairs.length}: ${iastTerm}`);
-        uaTranslation = enParts[1] || ''; // fallback на англійський
+        console.error(`❌ [mergeSynonyms] CRITICAL: Missing UA translation for term ${i+1}/${enPairs.length}: ${iastTerm}`);
+        console.error(`   This means Gitabase parsing failed! Check edge function logs for Puppeteer execution.`);
+        // НЕ підставляти англійський - краще порожній рядок і побачити помилку!
+        // uaTranslation залишається порожнім ''
       }
 
       // Об'єднуємо
