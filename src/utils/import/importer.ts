@@ -220,12 +220,18 @@ export async function upsertChapter(
   if (existingChapter?.id) {
     console.log('🔍 upsertChapter: Update payload', updatePayload);
     const { error: updErr } = await supabase.from("chapters").update(updatePayload).eq("id", existingChapter.id);
-    if (updErr) throw updErr;
+    if (updErr) {
+      console.error(`❌ Помилка оновлення розділу ${chapter_number}:`, updErr);
+      throw new Error(`Розділ ${chapter_number}: ${updErr.message}`);
+    }
     return existingChapter.id;
   } else {
     console.log('🔍 upsertChapter: Insert payload', insertPayload);
     const { data: created, error: insErr } = await supabase.from("chapters").insert(insertPayload).select("id").single();
-    if (insErr) throw insErr;
+    if (insErr) {
+      console.error(`❌ Помилка створення розділу ${chapter_number}:`, insErr);
+      throw new Error(`Розділ ${chapter_number}: ${insErr.message}`);
+    }
     return created.id;
   }
 }
@@ -238,7 +244,10 @@ export async function replaceChapterVerses(
   _opts?: { language?: "ua" | "en" },
 ) {
   const { error: delErr } = await supabase.from("verses").delete().eq("chapter_id", chapterId);
-  if (delErr) throw delErr;
+  if (delErr) {
+    console.error(`❌ Помилка видалення віршів розділу ${chapterId}:`, delErr);
+    throw new Error(`Видалення віршів розділу ${chapterId}: ${delErr.message}`);
+  }
 
   if (!verses?.length) return;
 
@@ -261,7 +270,11 @@ export async function replaceChapterVerses(
   }));
 
   const { error: insErr } = await supabase.from("verses").insert(rows);
-  if (insErr) throw insErr;
+  if (insErr) {
+    const verseNumbers = verses.map(v => v.verse_number).join(', ');
+    console.error(`❌ Помилка вставки віршів (${verses.length} віршів: ${verseNumbers}):`, insErr);
+    throw new Error(`Вставка віршів [${verseNumbers}]: ${insErr.message}`);
+  }
 }
 
 /** АЛЬТЕРНАТИВА: лише upsert віршів (за унікальним ключем chapter_id,verse_number) */
@@ -330,7 +343,11 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
   const { error } = await supabase
     .from("verses")
     .upsert(rows, { onConflict: "chapter_id,verse_number", ignoreDuplicates: false });
-  if (error) throw error;
+  if (error) {
+    const verseNumbers = verses.map(v => v.verse_number).join(', ');
+    console.error(`❌ Помилка upsert віршів (${verses.length} віршів: ${verseNumbers}):`, error);
+    throw new Error(`Upsert віршів [${verseNumbers}]: ${error.message}`);
+  }
 }
 
 /** Імпорт однієї глави (оновити або створити) + вірші (за замовчуванням — повна заміна) */

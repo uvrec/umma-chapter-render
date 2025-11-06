@@ -65,9 +65,9 @@ export function splitIntoChapters(
   
   if (chapterMatches.length === 0) {
     console.warn('❌ No chapter markers found. Treating entire text as one chapter.');
-    const verses = splitIntoVerses(text, template);
+    const verses = splitIntoVerses(text, template, 1);
     if (verses.length === 0) {
-      console.warn('⚠️ No verses found. This may be a text-only chapter (preface/introduction).');
+      console.warn('⚠️ No verses found in chapter 1. This may be a text-only chapter (preface/introduction).');
       return [{
         chapter_number: 1,
         chapter_type: 'text',
@@ -145,7 +145,7 @@ export function splitIntoChapters(
       }
     }
     
-    const verses = splitIntoVerses(chapterText, template);
+    const verses = splitIntoVerses(chapterText, template, chapterNum);
     
     // Determine chapter type
     let chapterType: ChapterType;
@@ -190,8 +190,10 @@ export function splitIntoChapters(
 
 export function splitIntoVerses(
   chapterText: string,
-  template: ImportTemplate
+  template: ImportTemplate,
+  chapterNumber?: number
 ): ParsedVerse[] {
+  const chapterInfo = chapterNumber !== undefined ? ` в розділі ${chapterNumber}` : '';
   const verses: ParsedVerse[] = [];
   // Ensure global + unicode flags for verse regex
   const pattern = withFlags(template.versePattern, 'gu');
@@ -209,12 +211,12 @@ export function splitIntoVerses(
   
   // Try generic 'anywhere' fallback (remove leading ^) if nothing found
   if (verseMatches.length === 0) {
-    console.warn('⚠️ No verses found with main pattern. Trying generic anywhere fallback...');
+    console.warn(`⚠️ Не знайдено віршів${chapterInfo} з основним шаблоном. Спроба fallback...`);
     const anywhereSource = template.versePattern.source.replace(/^[\^]\s*/, '');
     const anywhereBase = new RegExp(anywhereSource, template.versePattern.flags);
     const anywherePattern = withFlags(anywhereBase, 'gu');
     const anywhereMatches = [...chapterText.matchAll(anywherePattern)];
-    console.log(`🔄 Anywhere fallback found ${anywhereMatches.length} verses`);
+    console.log(`🔄 Fallback знайшов ${anywhereMatches.length} віршів${chapterInfo}`);
 
     if (anywhereMatches.length > 0) {
       anywhereMatches.forEach((match, index) => {
@@ -234,10 +236,10 @@ export function splitIntoVerses(
     // Template-specific second fallback (legacy): Srimad-Bhagavatam "ВІРШ"/"ТЕКСТ"
     const fallbackPattern = /^\s*(?:В[\u0406I]РШ|ТЕКСТ)\s+(\d+)/gmi;
     const fallbackMatches = [...chapterText.matchAll(fallbackPattern)];
-    console.log(`🔄 Legacy fallback found ${fallbackMatches.length} verses`);
-    
+    console.log(`🔄 Legacy fallback знайшов ${fallbackMatches.length} віршів${chapterInfo}`);
+
     if (fallbackMatches.length === 0) {
-      console.warn('❌ Still no verses found. Returning empty array.');
+      console.warn(`❌ Не знайдено жодного вірша${chapterInfo}. Повертаємо порожній масив.`);
       return verses;
     }
     

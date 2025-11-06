@@ -149,7 +149,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
 
     // Перевірка
     if (!transliteration_ua && !translation_ua) {
-      console.warn('Не знайдено transliteration і translation для', url);
+      console.warn(`❌ Gitabase ${lila} ${chapter}:${verse} - не знайдено transliteration і translation для ${url}`);
       return null;
     }
 
@@ -165,7 +165,12 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
     };
 
   } catch (error) {
-    console.error('Помилка парсингу Gitabase CC:', error);
+    // Витягуємо verse info з URL для контексту
+    const urlParts = url.split('/');
+    const lilaNum = urlParts[urlParts.length - 3];
+    const chapter = urlParts[urlParts.length - 2];
+    const verse = urlParts[urlParts.length - 1];
+    console.error(`❌ Помилка парсингу Gitabase CC (lila ${lilaNum}, ${chapter}:${verse}) з ${url}:`, error);
     return null;
   }
 }
@@ -219,7 +224,7 @@ export function getMaxVerseFromGitabaseChapter(html: string): number {
     
     return maxVerse;
   } catch (error) {
-    console.error('Помилка визначення maxVerse:', error);
+    console.error('❌ Gitabase - Помилка визначення maxVerse:', error);
     return 0;
   }
 }

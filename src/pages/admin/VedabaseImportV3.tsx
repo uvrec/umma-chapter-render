@@ -556,7 +556,13 @@ export default function VedabaseImportV3() {
               setStats((prev) => ({ ...prev!, skipped: prev!.skipped + 1 }));
               continue;
             }
-            console.error(`Помилка Vedabase ${verseNum}:`, e);
+            const errorMsg = `Вірш ${verseNum} [Vedabase EN]: ${e?.message || 'Невідома помилка'}`;
+            console.error(errorMsg, e);
+            setStats((prev) => ({
+              ...prev!,
+              errors: [...prev!.errors, errorMsg],
+            }));
+            // Continue to try Gitabase if enabled
           }
         }
 
@@ -582,7 +588,12 @@ export default function VedabaseImportV3() {
             if (e?.message?.includes("404") || e?.message?.includes("Upstream 404")) {
               console.log(`Вірш ${verseNum} не знайдено на Gitabase, пропускаю...`);
             } else {
-              console.error(`Помилка Gitabase ${verseNum}:`, e);
+              const errorMsg = `Вірш ${verseNum} [Gitabase UA]: ${e?.message || 'Невідома помилка'}`;
+              console.error(errorMsg, e);
+              setStats((prev) => ({
+                ...prev!,
+                errors: [...prev!.errors, errorMsg],
+              }));
             }
           }
         }
@@ -614,9 +625,12 @@ export default function VedabaseImportV3() {
           sanskrit || synonymsEN || translationEN || purportEN || synonymsUA || translationUA || purportUA;
 
         if (!hasContent) {
+          const sources = [];
+          if (importEN) sources.push('EN');
+          if (importUA) sources.push('UA');
           setStats((prev) => ({
             ...prev!,
-            errors: [...prev!.errors, `${verseNum}: порожній`],
+            errors: [...prev!.errors, `Вірш ${verseNum}: порожній вміст (джерела: ${sources.join(', ')})`],
           }));
           continue;
         }
@@ -650,7 +664,7 @@ export default function VedabaseImportV3() {
         if (error) {
           setStats((prev) => ({
             ...prev!,
-            errors: [...prev!.errors, `${verseNum}: ${error.message}`],
+            errors: [...prev!.errors, `Вірш ${verseNum} [Database]: ${error.message}`],
           }));
         } else {
           setStats((prev) => ({ ...prev!, imported: prev!.imported + 1 }));

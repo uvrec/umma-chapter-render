@@ -134,7 +134,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
 
     // Перевірка: потрібна хоча б транслітерація або переклад
     if (!transliteration && !translation) {
-      console.warn('❌ Не знайдено transliteration/translation для', url);
+      console.warn(`❌ Vedabase ${lila} ${chapter}:${verse} - не знайдено transliteration/translation для ${url}`);
       return null;
     }
     
@@ -160,7 +160,12 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     };
 
   } catch (error) {
-    console.error('Помилка парсингу Vedabase CC:', error);
+    // Витягуємо verse info з URL для контексту
+    const urlParts = url.split('/');
+    const lila = urlParts[urlParts.length - 3];
+    const chapter = urlParts[urlParts.length - 2];
+    const verse = urlParts[urlParts.length - 1];
+    console.error(`❌ Помилка парсингу Vedabase CC (${lila} ${chapter}:${verse}) з ${url}:`, error);
     return null;
   }
 }
@@ -203,7 +208,7 @@ export function getMaxVerseFromChapter(html: string): number {
     
     return maxVerse;
   } catch (error) {
-    console.error('Помилка визначення maxVerse:', error);
+    console.error('❌ Vedabase - Помилка визначення maxVerse:', error);
     return 0;
   }
 }
