@@ -224,7 +224,12 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
     }
 
     if (!transliteration_en && !translation_en) {
-      console.warn('❌ Vedabase: не знайдено transliteration/translation для', url);
+      // Витягуємо verse info з URL
+      const urlParts = url.split('/');
+      const lila = urlParts[urlParts.length - 3];
+      const chapter = urlParts[urlParts.length - 2];
+      const verse = urlParts[urlParts.length - 1];
+      console.warn(`❌ Vedabase ${lila} ${chapter}:${verse} - не знайдено transliteration/translation для ${url}`);
       return null;
     }
 
@@ -237,7 +242,12 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
     };
 
   } catch (error) {
-    console.error('Помилка парсингу Vedabase:', error);
+    // Витягуємо verse info з URL для контексту
+    const urlParts = url.split('/');
+    const lila = urlParts[urlParts.length - 3];
+    const chapter = urlParts[urlParts.length - 2];
+    const verse = urlParts[urlParts.length - 1];
+    console.error(`❌ Помилка парсингу Vedabase (${lila} ${chapter}:${verse}) з ${url}:`, error);
     return null;
   }
 }
@@ -365,7 +375,12 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     };
 
   } catch (error) {
-    console.error('Помилка парсингу Gitabase:', error);
+    // Витягуємо verse info з URL для контексту
+    const urlParts = url.split('/');
+    const lilaNum = urlParts[urlParts.length - 3];
+    const chapter = urlParts[urlParts.length - 2];
+    const verse = urlParts[urlParts.length - 1];
+    console.error(`❌ Помилка парсингу Gitabase (lila ${lilaNum}, ${chapter}:${verse}) з ${url}:`, error);
     return null;
   }
 }
@@ -415,8 +430,8 @@ function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
 
       // ❌ ВИДАЛЕНО fallback на англійський - краще порожній рядок, ніж маскувати проблему!
       if (!uaTranslation) {
-        console.error(`❌ [mergeSynonyms] CRITICAL: Missing UA translation for term ${i+1}/${enPairs.length}: ${iastTerm}`);
-        console.error(`   This means Gitabase parsing failed! Check edge function logs for Puppeteer execution.`);
+        console.error(`❌ [mergeSynonyms] Missing UA translation for term ${i+1}/${enPairs.length}: "${iastTerm}"`);
+        console.error(`   Gitabase parsing may have failed - check if Ukrainian synonyms were properly fetched`);
         // НЕ підставляти англійський - краще порожній рядок і побачити помилку!
         // uaTranslation залишається порожнім ''
       }
@@ -432,7 +447,7 @@ function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
     return result.join('; ');
 
   } catch (error) {
-    console.error('Помилка mergeSynonyms:', error);
+    console.error('❌ Помилка mergeSynonyms:', error);
     // Fallback: просто конвертуємо англійські терміни
     return convertIASTtoUkrainian(synonyms_en).toLowerCase();
   }
@@ -450,9 +465,9 @@ export function mergeVedabaseAndGitabase(
   vedabaseUrl: string,
   gitabaseUrl: string
 ): MergedVerseData | null {
-  
+
   if (!vedabase) {
-    console.warn('❌ Немає даних Vedabase для', vedabaseUrl);
+    console.warn(`❌ Немає даних Vedabase для ${lila} ${chapter}:${verse} (${vedabaseUrl})`);
     return null;
   }
   
@@ -494,8 +509,13 @@ export function mergeVedabaseAndGitabase(
     source_url_gitabase: gitabaseUrl
   };
   
-  console.log('✅ Merged verse:', { lila, chapter, verse });
-  
+  console.log(`✅ Merged verse: ${lila} ${chapter}:${verse}`, {
+    hasVedabase: !!vedabase,
+    hasGitabase: !!gitabase,
+    hasTranslationUA: !!gitabase?.translation_ua,
+    hasSynonymsUA: !!gitabase?.synonyms_ua
+  });
+
   return merged;
 }
 

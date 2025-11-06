@@ -58,7 +58,7 @@ export default function FixVerseLineBreaks() {
 
         const { data: pageVerses, error: fetchErr } = await supabase
           .from("verses")
-          .select("id, verse_number, sanskrit, transliteration", { count: "exact" })
+          .select("id, verse_number, sanskrit, transliteration, chapters!inner(chapter_number)", { count: "exact" })
           .not("sanskrit", "is", null)
           .not("sanskrit", "like", "%\n%")
           .order("id", { ascending: true })
@@ -91,12 +91,14 @@ export default function FixVerseLineBreaks() {
                   .eq("id", verse.id);
 
                 if (updateErr) {
-                  errorMessages.push(`Вірш ${verse.verse_number}: ${updateErr.message}`);
+                  const chapterNum = (verse as any).chapters?.chapter_number || '?';
+                  errorMessages.push(`Вірш ${chapterNum}:${verse.verse_number}: ${updateErr.message}`);
                 }
               }
             } catch (err) {
+              const chapterNum = (verse as any).chapters?.chapter_number || '?';
               errorMessages.push(
-                `Вірш ${verse.verse_number}: ${err instanceof Error ? err.message : "Помилка обробки"}`,
+                `Вірш ${chapterNum}:${verse.verse_number}: ${err instanceof Error ? err.message : "Помилка обробки"}`,
               );
             }
 

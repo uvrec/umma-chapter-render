@@ -28,7 +28,7 @@ const Verses = () => {
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
   const [selectedChapterId, setSelectedChapterId] = useState<string>("");
-  const [deleteVerseId, setDeleteVerseId] = useState<string | null>(null);
+  const [deleteVerseId, setDeleteVerseId] = useState<{ id: string; verseNumber: number } | null>(null);
   const [selectedVerses, setSelectedVerses] = useState<Set<string>>(new Set());
   const [bulkDeleteMode, setBulkDeleteMode] = useState(false);
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
@@ -107,53 +107,58 @@ const Verses = () => {
   });
 
   const togglePublishMutation = useMutation({
-    mutationFn: async ({ id, isPublished }: { id: string; isPublished: boolean }) => {
+    mutationFn: async ({ id, isPublished, verseNumber }: { id: string; isPublished: boolean; verseNumber?: number }) => {
       const { error } = await supabase.from("verses").update({ is_published: !isPublished }).eq("id", id);
       if (error) throw error;
+      return { verseNumber };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
       toast.success("Статус вірша оновлено");
     },
-    onError: () => {
-      toast.error("Помилка при оновленні статусу");
+    onError: (error: any, variables) => {
+      const verseInfo = variables.verseNumber ? ` (вірш ${variables.verseNumber})` : '';
+      toast.error(`Помилка при оновленні статусу${verseInfo}: ${error?.message || ''}`);
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async ({ id, verseNumber }: { id: string; verseNumber?: number }) => {
       const { error } = await supabase
         .from("verses")
         .update({ deleted_at: new Date().toISOString() } as any)
         .eq("id", id);
       if (error) throw error;
+      return { verseNumber };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
       toast.success("Вірш видалено");
       setDeleteVerseId(null);
     },
-    onError: () => {
-      toast.error("Помилка при видаленні вірша");
+    onError: (error: any, variables) => {
+      const verseInfo = variables.verseNumber ? ` (вірш ${variables.verseNumber})` : '';
+      toast.error(`Помилка при видаленні вірша${verseInfo}: ${error?.message || ''}`);
     },
   });
 
   const bulkDeleteMutation = useMutation({
-    mutationFn: async (ids: string[]) => {
+    mutationFn: async ({ ids, count }: { ids: string[]; count: number }) => {
       const { error } = await supabase
         .from("verses")
         .update({ deleted_at: new Date().toISOString() } as any)
         .in("id", ids);
       if (error) throw error;
+      return { count };
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
-      toast.success(`Видалено ${selectedVerses.size} віршів`);
+      toast.success(`Видалено ${variables.count} віршів`);
       setSelectedVerses(new Set());
       setBulkDeleteMode(false);
     },
-    onError: () => {
-      toast.error("Помилка при масовому видаленні");
+    onError: (error: any, variables) => {
+      toast.error(`Помилка при масовому видаленні (${variables.count} віршів): ${error?.message || ''}`);
     },
   });
 
@@ -244,7 +249,7 @@ const Verses = () => {
                   variant="destructive"
                   onClick={() => {
                     if (confirm(`Видалити ${selectedVerses.size} вибраних віршів?`)) {
-                      bulkDeleteMutation.mutate(Array.from(selectedVerses));
+                      bulkDeleteMutation.mutate({ ids: Array.from(selectedVerses), count: selectedVerses.size });
                     }
                   }}
                 >
@@ -452,6 +457,7 @@ const Verses = () => {
                               togglePublishMutation.mutate({
                                 id: verse.id,
                                 isPublished: verse.is_published ?? true,
+                                verseNumber: verse.verse_number,
                               })
                             }
                           >
@@ -465,7 +471,7 @@ const Verses = () => {
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => setDeleteVerseId(verse.id)}
+                            onClick={() => setDeleteVerseId({ id: verse.id, verseNumber: verse.verse_number })}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
