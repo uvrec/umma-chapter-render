@@ -1,0 +1,31 @@
+Fix critical parser bugs: UnboundLocalError and missing MERGE logic
+
+✅ BUG #1: UnboundLocalError in playwright_parser.py
+   - Location: tools/playwright_parser.py:529
+   - Issue: transliteration_ua used before initialization
+   - Fix: Added transliteration_ua = "" initialization
+
+✅ BUG #2: Missing MERGE logic in pre_import_normalizer.py
+   - Location: tools/pre_import_normalizer.py:691-723
+   - Issue: Parser returns ONLY Ukrainian values (without terms)
+            Normalizer did not merge IAST terms with Ukrainian values
+   - Fix: Added MERGE logic:
+          1. Extract IAST terms from synonyms_en (Vedabase)
+          2. Convert IAST → Ukrainian transliteration
+          3. Merge with Ukrainian values from synonyms_ua (Gitabase)
+
+📊 TESTED ON:
+   - SCC Antya 6.2 ✅
+   - SCC Antya 6.17 ✅
+   
+   Result: synonyms_ua now contains correct format:
+   "хена-ка̄ле — в той час; мулукера — країни; ..."
+   
+   ✅ NO English fallback
+   ✅ 100% Ukrainian content
+   ✅ Proper "термін — значення" format
+
+FILES CHANGED:
+   - tools/playwright_parser.py (added transliteration_ua init)
+   - tools/pre_import_normalizer.py (added MERGE logic)
+   - PARSER_FIXES_REPORT.md (comprehensive test report)

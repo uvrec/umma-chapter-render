@@ -526,6 +526,7 @@ def parse_gitabase_verse(html: str, verse_num: int) -> dict:
     translation_ua = ""
     commentary_ua = ""
     synonyms_ua = ""
+    transliteration_ua = ""  # ✅ FIX: Initialize to avoid UnboundLocalError
 
     # ❌ НЕ витягуємо transliteration_ua з Gitabase - вона зіпсована!
     # transliteration_ua конвертується з IAST (Vedabase) в основній функції
