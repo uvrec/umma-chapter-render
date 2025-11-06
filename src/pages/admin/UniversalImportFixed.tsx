@@ -12,11 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { getMaxVerseFromChapter } from "@/utils/vedabaseParser";
-import { 
-  parseVedabaseCC, 
-  parseGitabaseCC, 
-  mergeVedabaseAndGitabase 
-} from "@/utils/dualSourceParser";
+import { parseVedabaseCC, parseGitabaseCC, mergeVedabaseAndGitabase } from "@/utils/dualSourceParser";
 import {
   parseBhaktivinodaPage,
   parseBhaktivinodaSongPage,
@@ -25,13 +21,9 @@ import {
   determineCantoFromUrl,
   getBhaktivinodaTitle,
   bhaktivinodaSongToChapter,
-  BhaktivinodaSong
+  BhaktivinodaSong,
 } from "@/utils/bhaktivinodaParser";
-import {
-  extractKKSongUrls,
-  deriveKKSongUrls,
-  parseKKSongComplete
-} from "@/utils/kksongsParser";
+import { extractKKSongUrls, deriveKKSongUrls, parseKKSongComplete } from "@/utils/kksongsParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -72,7 +64,7 @@ interface ImportData {
 // TODO: Додати підтримку bhaktivinodainstitute.org для пісень та поем (Шікшаштака, Шаранагаті тощо)
 
 // 👇 головна змінна: адреса парсера (якщо не налаштовано - використовуємо fallback)
-const PARSE_ENDPOINT = import.meta.env.VITE_PARSER_URL 
+const PARSE_ENDPOINT = import.meta.env.VITE_PARSER_URL
   ? `${import.meta.env.VITE_PARSER_URL}/admin/parse-web-chapter`
   : null;
 
@@ -106,10 +98,7 @@ export default function UniversalImportFixed() {
 
   const navigate = useNavigate();
 
-  const currentBookInfo = useMemo(
-    () => getBookConfigByVedabaseSlug(vedabaseBook),
-    [vedabaseBook]
-  );
+  const currentBookInfo = useMemo(() => getBookConfigByVedabaseSlug(vedabaseBook), [vedabaseBook]);
 
   const lilaNum = useMemo(() => {
     const map: Record<string, number> = { adi: 1, madhya: 2, antya: 3 };
@@ -128,9 +117,9 @@ export default function UniversalImportFixed() {
 
     try {
       const response = await fetch(LOCAL_PARSER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
       });
 
       if (!response.ok) {
@@ -142,7 +131,7 @@ export default function UniversalImportFixed() {
       console.log(`[Python Parser] Success! Parsed ${result.verses?.length || 0} verses`);
       return result;
     } catch (error) {
-      console.error('[Python Parser] Failed:', error);
+      console.error("[Python Parser] Failed:", error);
       throw error;
     }
   };
@@ -184,8 +173,8 @@ export default function UniversalImportFixed() {
         : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
       const gitabase_base = bookInfo.isMultiVolume
-        ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
-        : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}`;
+        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
+        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}`;
 
       let result: any = null;
 
@@ -204,20 +193,35 @@ export default function UniversalImportFixed() {
           });
 
           // ✅ Перевірка якості: якщо порожньо або відсутні ключові поля — примусово fallback
-          const badResult = !Array.isArray(result?.verses) || !result.verses.length ||
-            result.verses.every((v: any) => !(v?.translation_en || v?.translation_ua || v?.synonyms_en || v?.synonyms_ua || v?.commentary_en || v?.commentary_ua));
+          const badResult =
+            !Array.isArray(result?.verses) ||
+            !result.verses.length ||
+            result.verses.every(
+              (v: any) =>
+                !(
+                  v?.translation_en ||
+                  v?.translation_ua ||
+                  v?.synonyms_en ||
+                  v?.synonyms_ua ||
+                  v?.commentary_en ||
+                  v?.commentary_ua
+                ),
+            );
           if (badResult) {
             throw new Error("Python result is empty/incomplete — switching to browser fallback");
           }
 
           console.log(`✅ Python parser успішно: ${result.verses.length} віршів`);
-          toast({ title: "✅ Python парсер успішний", description: `Отримано ${result.verses.length} віршів з UA перекладами` });
+          toast({
+            title: "✅ Python парсер успішний",
+            description: `Отримано ${result.verses.length} віршів з UA перекладами`,
+          });
         } catch (err: any) {
           console.error("🐍 Python parser failed:", err);
           toast({
             title: "⚠️ Python parser провалився",
             description: `${err.message}. Fallback на browser parsing...`,
-            variant: "destructive"
+            variant: "destructive",
           });
           result = null; // Примусово переходимо до fallback
         }
@@ -244,20 +248,20 @@ export default function UniversalImportFixed() {
           const map: Array<{ lastPart: string; from: number; to: number }> = [];
           if (chapterHtml?.html) {
             const dp = new DOMParser();
-            const doc = dp.parseFromString(chapterHtml.html, 'text/html');
+            const doc = dp.parseFromString(chapterHtml.html, "text/html");
 
             // ✅ Селектор також залежить від типу книги
             const hrefPattern = bookInfo.isMultiVolume
               ? `/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
               : `/${vedabaseBook}/${chapterNum}/`;
             const anchors = Array.from(doc.querySelectorAll(`a[href*="${hrefPattern}"]`));
-            anchors.forEach(a => {
-              const href = a.getAttribute('href') || '';
-              const seg = href.split('/').filter(Boolean).pop() || '';
+            anchors.forEach((a) => {
+              const href = a.getAttribute("href") || "";
+              const seg = href.split("/").filter(Boolean).pop() || "";
               if (!seg) return;
               if (/^\d+(?:-\d+)?$/.test(seg)) {
-                if (seg.includes('-')) {
-                  const [s, e] = seg.split('-').map(n => parseInt(n, 10));
+                if (seg.includes("-")) {
+                  const [s, e] = seg.split("-").map((n) => parseInt(n, 10));
                   if (!Number.isNaN(s) && !Number.isNaN(e)) map.push({ lastPart: seg, from: s, to: e });
                 } else {
                   const n = parseInt(seg, 10);
@@ -269,9 +273,9 @@ export default function UniversalImportFixed() {
             // Фільтруємо лише сегменти, що перетинаються з [start, end], та унікалізуємо за lastPart
             const unique = new Map<string, { lastPart: string; from: number; to: number }>();
             map
-              .filter(m => !(m.to < start || m.from > end))
+              .filter((m) => !(m.to < start || m.from > end))
               .sort((a, b) => a.from - b.from)
-              .forEach(m => unique.set(m.lastPart, m));
+              .forEach((m) => unique.set(m.lastPart, m));
 
             const targets = Array.from(unique.values());
 
@@ -285,13 +289,13 @@ export default function UniversalImportFixed() {
 
                 // ✅ Gitabase тільки для CC та NoI
                 const requests: Promise<any>[] = [
-                  supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } })
+                  supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
                 ];
 
                 if (bookInfo.hasGitabaseUA) {
                   const gitabaseUrl = bookInfo.isMultiVolume
-                    ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
-                    : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
                   requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
                 }
 
@@ -301,9 +305,9 @@ export default function UniversalImportFixed() {
 
                 console.log(`📊 Fetch results for verse ${t.lastPart}:`, {
                   vedabaseStatus: vedabaseRes.status,
-                  gitabaseStatus: gitabaseRes?.status || 'N/A',
-                  vedabaseHasData: vedabaseRes.status === 'fulfilled' && !!vedabaseRes.value?.data,
-                  gitabaseHasData: gitabaseRes?.status === 'fulfilled' && !!gitabaseRes?.value?.data,
+                  gitabaseStatus: gitabaseRes?.status || "N/A",
+                  vedabaseHasData: vedabaseRes.status === "fulfilled" && !!vedabaseRes.value?.data,
+                  gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                 });
 
                 let parsedEN: any = null;
@@ -320,8 +324,8 @@ export default function UniversalImportFixed() {
                 // ✅ Парсимо UA тільки якщо робили запит
                 if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                   const gitabaseUrl = bookInfo.isMultiVolume
-                    ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
-                    : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
                   console.log(`🇺🇦 Parsing Gitabase for ${t.lastPart}:`, gitabaseUrl);
                   parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                   console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
@@ -332,8 +336,8 @@ export default function UniversalImportFixed() {
                 } else {
                   console.warn(`⚠️ Gitabase skipped for ${t.lastPart}:`, {
                     hasGitabaseUA: bookInfo.hasGitabaseUA,
-                    gitabaseResFulfilled: gitabaseRes?.status === 'fulfilled',
-                    gitabaseHasData: gitabaseRes?.status === 'fulfilled' && !!gitabaseRes?.value?.data,
+                    gitabaseResFulfilled: gitabaseRes?.status === "fulfilled",
+                    gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                   });
                 }
 
@@ -345,7 +349,9 @@ export default function UniversalImportFixed() {
                   chapterNum,
                   t.lastPart, // verse number
                   vedabaseUrl,
-                  bookInfo.hasGitabaseUA ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}` : ''
+                  bookInfo.hasGitabaseUA
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    : "",
                 );
 
                 // Тільки додаємо вірш якщо є хоч якийсь контент
@@ -373,10 +379,10 @@ export default function UniversalImportFixed() {
             console.log(`✅ Fallback parsed ${verses.length} segment(s)`);
             result = { verses };
           } else {
-            throw new Error('No chapter HTML');
+            throw new Error("No chapter HTML");
           }
         } catch (e) {
-          console.warn('Chapter TOC parse failed, using simple numeric loop', e);
+          console.warn("Chapter TOC parse failed, using simple numeric loop", e);
           // Простий попередній алгоритм (на випадок збою)
           for (let v = start; v <= end; v++) {
             try {
@@ -387,13 +393,13 @@ export default function UniversalImportFixed() {
 
               // ✅ Gitabase тільки для CC та NoI
               const requests: Promise<any>[] = [
-                supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } })
+                supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
               ];
 
               if (bookInfo.hasGitabaseUA) {
                 const gitabaseUrl = bookInfo.isMultiVolume
-                  ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                  : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                  ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
               }
 
@@ -403,9 +409,9 @@ export default function UniversalImportFixed() {
 
               console.log(`📊 [Fallback] Fetch results for verse ${v}:`, {
                 vedabaseStatus: vedabaseRes.status,
-                gitabaseStatus: gitabaseRes?.status || 'N/A',
-                vedabaseHasData: vedabaseRes.status === 'fulfilled' && !!vedabaseRes.value?.data,
-                gitabaseHasData: gitabaseRes?.status === 'fulfilled' && !!gitabaseRes?.value?.data,
+                gitabaseStatus: gitabaseRes?.status || "N/A",
+                vedabaseHasData: vedabaseRes.status === "fulfilled" && !!vedabaseRes.value?.data,
+                gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
               });
 
               let parsedEN: any = null;
@@ -418,15 +424,15 @@ export default function UniversalImportFixed() {
               // ✅ Парсимо UA тільки якщо робили запит
               if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                 const gitabaseUrl = bookInfo.isMultiVolume
-                  ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                  : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                  ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 console.log(`🇺🇦 [Fallback] Parsing Gitabase for ${v}:`, gitabaseUrl);
                 parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
               } else {
                 console.warn(`⚠️ [Fallback] Gitabase skipped for ${v}:`, {
                   hasGitabaseUA: bookInfo.hasGitabaseUA,
-                  gitabaseResFulfilled: gitabaseRes?.status === 'fulfilled',
-                  gitabaseHasData: gitabaseRes?.status === 'fulfilled' && !!gitabaseRes?.value?.data,
+                  gitabaseResFulfilled: gitabaseRes?.status === "fulfilled",
+                  gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                 });
               }
 
@@ -438,11 +444,11 @@ export default function UniversalImportFixed() {
                 chapterNum,
                 String(v), // verse number
                 vedabaseUrl,
-                bookInfo.hasGitabaseUA 
-                  ? (bookInfo.isMultiVolume
-                      ? `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                      : `https://gitabase.com/ua/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`)
-                  : ''
+                bookInfo.hasGitabaseUA
+                  ? bookInfo.isMultiVolume
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`
+                  : "",
               );
 
               if (merged) {
@@ -471,7 +477,7 @@ export default function UniversalImportFixed() {
 
       console.log("📊 Final result:", {
         verses_count: result?.verses?.length,
-        first_verse: result?.verses?.[0]
+        first_verse: result?.verses?.[0],
       });
 
       // 🔧 Дозаповнення EN блоків (synonyms/translation/purport) з Vedabase, якщо парсер їх не дав
@@ -517,8 +523,9 @@ export default function UniversalImportFixed() {
             chapter_number: chapterNum,
             // ✅ Передаємо назви (з дефолтними значеннями для БД NOT NULL constraint)
             title_ua: importData.metadata.title_ua?.trim() || undefined,
-            title_en: importData.metadata.title_en?.trim() ||
-                     `${bookInfo?.name_ua || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + ' ' : ''}${chapterNum}`,
+            title_en:
+              importData.metadata.title_en?.trim() ||
+              `${bookInfo?.name_ua || vedabaseBook.toUpperCase()} ${vedabaseCanto ? vedabaseCanto + " " : ""}${chapterNum}`,
             // ✅ Передаємо intro як content для глави
             ...(importData.chapters[0]?.intro_ua && { content_ua: importData.chapters[0].intro_ua }),
             ...(importData.chapters[0]?.intro_en && { content_en: importData.chapters[0].intro_en }),
@@ -541,7 +548,6 @@ export default function UniversalImportFixed() {
 
       setImportData(newImport);
 
-
       setProgress(100);
       await saveToDatabase(newImport);
       return;
@@ -554,302 +560,310 @@ export default function UniversalImportFixed() {
   }, [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, lilaNum]);
 
   /** Імпорт з Bhaktivinoda Institute */
-  const handleBhaktivinodaImport = useCallback(async (url?: string) => {
-    const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
-    const sourceUrl = url || bookInfo.sourceUrl;
+  const handleBhaktivinodaImport = useCallback(
+    async (url?: string) => {
+      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
+      const sourceUrl = url || bookInfo.sourceUrl;
 
-    if (!sourceUrl) {
-      toast({ title: "Помилка", description: "URL не вказано", variant: "destructive" });
-      return;
-    }
-
-    setIsProcessing(true);
-    setProgress(10);
-
-    try {
-      toast({ title: "Завантаження...", description: "Отримання кореневої сторінки..." });
-
-      // Step 1: Fetch root page (list of songs)
-      const { data, error } = await supabase.functions.invoke("fetch-html", {
-        body: { url: sourceUrl }
-      });
-
-      if (error || !data?.html) {
-        throw new Error(error?.message || "Не вдалося отримати HTML");
+      if (!sourceUrl) {
+        toast({ title: "Помилка", description: "URL не вказано", variant: "destructive" });
+        return;
       }
 
-      setProgress(20);
-      toast({ title: "Парсинг...", description: "Витягування посилань на пісні..." });
+      setIsProcessing(true);
+      setProgress(10);
 
-      // Step 2: Extract individual song URLs from root page
-      const isKKSongs = bookInfo.source === 'kksongs';
-      console.log(`[Import] Source type: ${isKKSongs ? 'KKSongs' : 'BhaktivinodaInstitute'}`);
-      console.log(`[Import] Root URL: ${sourceUrl}`);
+      try {
+        toast({ title: "Завантаження...", description: "Отримання кореневої сторінки..." });
 
-      const songUrls = isKKSongs
-        ? extractKKSongUrls(data.html, sourceUrl)
-        : extractSongUrls(data.html, sourceUrl);
-      const pageTitle = getBhaktivinodaTitle(data.html);
-
-      console.log(`[Import] Found ${songUrls.length} songs`);
-      if (songUrls.length > 0) {
-        console.log(`[Import] First 3 URLs:`, songUrls.slice(0, 3));
-      }
-
-      if (!songUrls || songUrls.length === 0) {
-        throw new Error("Не знайдено жодного посилання на пісні на кореневій сторінці");
-      }
-
-      // Step 3: Group songs by cantos (sections)
-      const cantoMap = groupSongUrlsByCantos(songUrls);
-      const totalSongs = songUrls.length;
-      const totalCantos = cantoMap.size;
-
-      toast({
-        title: `Знайдено структуру`,
-        description: `${totalCantos} розділів, ${totalSongs} пісень загалом`
-      });
-
-      // Step 4: Fetch and parse songs organized by cantos
-      const allSongs: BhaktivinodaSong[] = [];
-      const progressStep = 60 / totalSongs;
-      let processedSongs = 0;
-
-      // Sort cantos by number
-      const sortedCantos = Array.from(cantoMap.entries()).sort((a, b) => a[0] - b[0]);
-
-      for (const [cantoNumber, cantoData] of sortedCantos) {
-        toast({
-          title: `Розділ ${cantoNumber}/${totalCantos}: ${cantoData.name}`,
-          description: `Завантаження ${cantoData.urls.length} пісень...`
+        // Step 1: Fetch root page (list of songs)
+        const { data, error } = await supabase.functions.invoke("fetch-html", {
+          body: { url: sourceUrl },
         });
 
-        for (let songIndex = 0; songIndex < cantoData.urls.length; songIndex++) {
-          const songUrl = cantoData.urls[songIndex];
-
-          let song: BhaktivinodaSong | null = null;
-
-          if (isKKSongs) {
-            // KKSongs: fetch 3 pages (main, bengali, commentary)
-            const { mainUrl, bengaliUrl, commentaryUrl } = deriveKKSongUrls(songUrl);
-
-            console.log(`[KKSongs] Fetching song ${songIndex + 1}:`, { mainUrl, bengaliUrl, commentaryUrl });
-
-            const [mainRes, bengaliRes, commentaryRes] = await Promise.all([
-              supabase.functions.invoke("fetch-html", { body: { url: mainUrl } }),
-              supabase.functions.invoke("fetch-html", { body: { url: bengaliUrl } }),
-              supabase.functions.invoke("fetch-html", { body: { url: commentaryUrl } }),
-            ]);
-
-            console.log(`[KKSongs] Results:`, {
-              main: { hasHtml: !!mainRes.data?.html, error: mainRes.error },
-              bengali: { hasHtml: !!bengaliRes.data?.html, error: bengaliRes.error },
-              commentary: { hasHtml: !!commentaryRes.data?.html, error: commentaryRes.error }
-            });
-
-            if (mainRes.error || !mainRes.data?.html) {
-              console.error(`[KKSongs] Помилка завантаження основної сторінки: ${mainUrl}`, mainRes.error, mainRes.data);
-              continue;
-            }
-
-            const mainHtml = mainRes.data.html;
-            const bengaliHtml = bengaliRes.data?.html || '';
-            const commentaryHtml = commentaryRes.data?.html || '';
-
-            song = await parseKKSongComplete(mainHtml, bengaliHtml, commentaryHtml, songUrl);
-          } else {
-            // BhaktivinodaInstitute: fetch single page
-            const { data: songData, error: songError } = await supabase.functions.invoke("fetch-html", {
-              body: { url: songUrl }
-            });
-
-            if (songError || !songData?.html) {
-              console.warn(`Не вдалося завантажити пісню: ${songUrl}`, songError);
-              continue;
-            }
-
-            song = parseBhaktivinodaSongPage(songData.html, songUrl);
-          }
-
-          if (song && song.verses.length > 0) {
-            song.song_number = songIndex + 1; // Song number within canto
-            song.canto_number = cantoNumber; // Add canto number
-            allSongs.push(song);
-          }
-
-          processedSongs++;
-          setProgress(20 + Math.round(processedSongs * progressStep));
+        if (error || !data?.html) {
+          throw new Error(error?.message || "Не вдалося отримати HTML");
         }
+
+        setProgress(20);
+        toast({ title: "Парсинг...", description: "Витягування посилань на пісні..." });
+
+        // Step 2: Extract individual song URLs from root page
+        const isKKSongs = bookInfo.source === "kksongs";
+        console.log(`[Import] Source type: ${isKKSongs ? "KKSongs" : "BhaktivinodaInstitute"}`);
+        console.log(`[Import] Root URL: ${sourceUrl}`);
+
+        const songUrls = isKKSongs ? extractKKSongUrls(data.html, sourceUrl) : extractSongUrls(data.html, sourceUrl);
+        const pageTitle = getBhaktivinodaTitle(data.html);
+
+        console.log(`[Import] Found ${songUrls.length} songs`);
+        if (songUrls.length > 0) {
+          console.log(`[Import] First 3 URLs:`, songUrls.slice(0, 3));
+        }
+
+        if (!songUrls || songUrls.length === 0) {
+          throw new Error("Не знайдено жодного посилання на пісні на кореневій сторінці");
+        }
+
+        // Step 3: Group songs by cantos (sections)
+        const cantoMap = groupSongUrlsByCantos(songUrls);
+        const totalSongs = songUrls.length;
+        const totalCantos = cantoMap.size;
+
+        toast({
+          title: `Знайдено структуру`,
+          description: `${totalCantos} розділів, ${totalSongs} пісень загалом`,
+        });
+
+        // Step 4: Fetch and parse songs organized by cantos
+        const allSongs: BhaktivinodaSong[] = [];
+        const progressStep = 60 / totalSongs;
+        let processedSongs = 0;
+
+        // Sort cantos by number
+        const sortedCantos = Array.from(cantoMap.entries()).sort((a, b) => a[0] - b[0]);
+
+        for (const [cantoNumber, cantoData] of sortedCantos) {
+          toast({
+            title: `Розділ ${cantoNumber}/${totalCantos}: ${cantoData.name}`,
+            description: `Завантаження ${cantoData.urls.length} пісень...`,
+          });
+
+          for (let songIndex = 0; songIndex < cantoData.urls.length; songIndex++) {
+            const songUrl = cantoData.urls[songIndex];
+
+            let song: BhaktivinodaSong | null = null;
+
+            if (isKKSongs) {
+              // KKSongs: fetch 3 pages (main, bengali, commentary)
+              const { mainUrl, bengaliUrl, commentaryUrl } = deriveKKSongUrls(songUrl);
+
+              console.log(`[KKSongs] Fetching song ${songIndex + 1}:`, { mainUrl, bengaliUrl, commentaryUrl });
+
+              const [mainRes, bengaliRes, commentaryRes] = await Promise.all([
+                supabase.functions.invoke("fetch-html", { body: { url: mainUrl } }),
+                supabase.functions.invoke("fetch-html", { body: { url: bengaliUrl } }),
+                supabase.functions.invoke("fetch-html", { body: { url: commentaryUrl } }),
+              ]);
+
+              console.log(`[KKSongs] Results:`, {
+                main: { hasHtml: !!mainRes.data?.html, error: mainRes.error },
+                bengali: { hasHtml: !!bengaliRes.data?.html, error: bengaliRes.error },
+                commentary: { hasHtml: !!commentaryRes.data?.html, error: commentaryRes.error },
+              });
+
+              if (mainRes.error || !mainRes.data?.html) {
+                console.error(
+                  `[KKSongs] Помилка завантаження основної сторінки: ${mainUrl}`,
+                  mainRes.error,
+                  mainRes.data,
+                );
+                continue;
+              }
+
+              const mainHtml = mainRes.data.html;
+              const bengaliHtml = bengaliRes.data?.html || "";
+              const commentaryHtml = commentaryRes.data?.html || "";
+
+              song = await parseKKSongComplete(mainHtml, bengaliHtml, commentaryHtml, songUrl);
+            } else {
+              // BhaktivinodaInstitute: fetch single page
+              const { data: songData, error: songError } = await supabase.functions.invoke("fetch-html", {
+                body: { url: songUrl },
+              });
+
+              if (songError || !songData?.html) {
+                console.warn(`Не вдалося завантажити пісню: ${songUrl}`, songError);
+                continue;
+              }
+
+              song = parseBhaktivinodaSongPage(songData.html, songUrl);
+            }
+
+            if (song && song.verses.length > 0) {
+              song.song_number = songIndex + 1; // Song number within canto
+              song.canto_number = cantoNumber; // Add canto number
+              allSongs.push(song);
+            }
+
+            processedSongs++;
+            setProgress(20 + Math.round(processedSongs * progressStep));
+          }
+        }
+
+        if (allSongs.length === 0) {
+          throw new Error("Не вдалося розпарсити жодної пісні");
+        }
+
+        setProgress(85);
+
+        // Convert songs to chapters
+        const chapters = allSongs.map((song, index) => bhaktivinodaSongToChapter(song, index + 1));
+
+        // Create import data (EN ONLY - no UA from bhaktivinoda institute)
+        const newImport: ImportData = {
+          ...importData,
+          source: "bhaktivinoda",
+          rawText: data.html.substring(0, 1000), // Preview
+          processedText: JSON.stringify(allSongs, null, 2),
+          chapters: chapters,
+          metadata: {
+            ...importData.metadata,
+            title_en: pageTitle.title_en || bookInfo.name_en,
+            title_ua: bookInfo.name_ua, // Use book config for UA
+            author: bookInfo.author || "Bhaktivinoda Thakur",
+            book_slug: bookInfo.our_slug,
+            source_url: sourceUrl,
+          },
+        };
+
+        setImportData(newImport);
+        setProgress(100);
+
+        toast({
+          title: "✅ Успішно!",
+          description: `Імпортовано ${chapters.length} пісень (${chapters.reduce((acc, ch) => acc + ch.verses.length, 0)} віршів)`,
+        });
+
+        await saveToDatabase(newImport);
+      } catch (e: any) {
+        console.error("Bhaktivinoda import error:", e);
+        toast({ title: "Помилка", description: e.message, variant: "destructive" });
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
       }
-
-      if (allSongs.length === 0) {
-        throw new Error("Не вдалося розпарсити жодної пісні");
-      }
-
-      setProgress(85);
-
-      // Convert songs to chapters
-      const chapters = allSongs.map((song, index) =>
-        bhaktivinodaSongToChapter(song, index + 1)
-      );
-
-      // Create import data (EN ONLY - no UA from bhaktivinoda institute)
-      const newImport: ImportData = {
-        ...importData,
-        source: "bhaktivinoda",
-        rawText: data.html.substring(0, 1000), // Preview
-        processedText: JSON.stringify(allSongs, null, 2),
-        chapters: chapters,
-        metadata: {
-          ...importData.metadata,
-          title_en: pageTitle.title_en || bookInfo.name_en,
-          title_ua: bookInfo.name_ua, // Use book config for UA
-          author: bookInfo.author || "Bhaktivinoda Thakur",
-          book_slug: bookInfo.our_slug,
-          source_url: sourceUrl,
-        },
-      };
-
-      setImportData(newImport);
-      setProgress(100);
-
-      toast({
-        title: "✅ Успішно!",
-        description: `Імпортовано ${chapters.length} пісень (${chapters.reduce((acc, ch) => acc + ch.verses.length, 0)} віршів)`
-      });
-
-      await saveToDatabase(newImport);
-
-    } catch (e: any) {
-      console.error("Bhaktivinoda import error:", e);
-      toast({ title: "Помилка", description: e.message, variant: "destructive" });
-    } finally {
-      setIsProcessing(false);
-      setProgress(0);
-    }
-  }, [vedabaseBook, importData]);
+    },
+    [vedabaseBook, importData],
+  );
 
   /** Обробка файлу */
-  const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    setIsProcessing(true);
-    setProgress(10);
+      setIsProcessing(true);
+      setProgress(10);
 
-    try {
-      let extractedText = "";
-      const ext = file.name.split(".").pop()?.toLowerCase();
+      try {
+        let extractedText = "";
+        const ext = file.name.split(".").pop()?.toLowerCase();
 
-      if (file.type === "application/pdf" || ext === "pdf") {
-        toast({ title: "Обробка PDF...", description: "Це може зайняти деякий час" });
-        extractedText = await extractTextFromPDF(file);
-      } else if (file.type === "application/epub+zip" || ext === "epub") {
-        toast({ title: "Обробка EPUB..." });
-        extractedText = await extractTextFromEPUB(file);
-      } else if (
-        ext === "docx" ||
-        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      ) {
-        toast({ title: "Обробка DOCX..." });
-        extractedText = await extractTextFromDOCX(file);
-      } else if (ext === "md" || file.type === "text/plain" || ext === "txt") {
-        toast({ title: "Читання тексту..." });
-        extractedText = await file.text();
-      } else {
+        if (file.type === "application/pdf" || ext === "pdf") {
+          toast({ title: "Обробка PDF...", description: "Це може зайняти деякий час" });
+          extractedText = await extractTextFromPDF(file);
+        } else if (file.type === "application/epub+zip" || ext === "epub") {
+          toast({ title: "Обробка EPUB..." });
+          extractedText = await extractTextFromEPUB(file);
+        } else if (
+          ext === "docx" ||
+          file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ) {
+          toast({ title: "Обробка DOCX..." });
+          extractedText = await extractTextFromDOCX(file);
+        } else if (ext === "md" || file.type === "text/plain" || ext === "txt") {
+          toast({ title: "Читання тексту..." });
+          extractedText = await file.text();
+        } else {
+          toast({
+            title: "Помилка",
+            description: "Непідтримуваний формат. Використайте PDF/DOCX/EPUB/TXT/MD.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (!extractedText || !extractedText.trim()) {
+          toast({
+            title: "Помилка",
+            description: "Файл порожній або не містить тексту",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setFileText(extractedText);
+        setProgress(50);
+
+        // Автоматично парсимо текст після завантаження
+        await parseFileText(extractedText);
+
+        toast({ title: "✅ Файл завантажено", description: `${extractedText.length} символів` });
+      } catch (err: any) {
+        console.error(err);
         toast({
-          title: "Помилка",
-          description: "Непідтримуваний формат. Використайте PDF/DOCX/EPUB/TXT/MD.",
-          variant: "destructive"
+          title: "Помилка обробки файлу",
+          description: err?.message || "Невідома помилка",
+          variant: "destructive",
         });
-        return;
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
+        e.target.value = "";
       }
-
-      if (!extractedText || !extractedText.trim()) {
-        toast({
-          title: "Помилка",
-          description: "Файл порожній або не містить тексту",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      setFileText(extractedText);
-      setProgress(50);
-
-      // Автоматично парсимо текст після завантаження
-      await parseFileText(extractedText);
-
-      toast({ title: "✅ Файл завантажено", description: `${extractedText.length} символів` });
-    } catch (err: any) {
-      console.error(err);
-      toast({
-        title: "Помилка обробки файлу",
-        description: err?.message || "Невідома помилка",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-      setProgress(0);
-      e.target.value = "";
-    }
-  }, [selectedTemplate]);
+    },
+    [selectedTemplate],
+  );
 
   /** Парсинг тексту з файлу */
-  const parseFileText = useCallback(async (text?: string) => {
-    const textToParse = text || fileText;
-    if (!textToParse.trim()) {
-      toast({ title: "Помилка", description: "Немає тексту для парсингу", variant: "destructive" });
-      return;
-    }
-
-    setIsProcessing(true);
-    setProgress(10);
-
-    try {
-      // Знайти шаблон
-      const template = BOOK_TEMPLATES.find(t => t.id === selectedTemplate) || BOOK_TEMPLATES[0];
-
-      console.log("📖 Парсинг з шаблоном:", template.name);
-      console.log("📝 Текст довжина:", textToParse.length);
-
-      // Парсити розділи
-      const chapters = splitIntoChapters(textToParse, template);
-
-      console.log("✅ Знайдено розділів:", chapters.length);
-
-      if (chapters.length === 0) {
-        toast({
-          title: "Не знайдено розділів",
-          description: "Спробуйте інший шаблон або перевірте формат тексту",
-          variant: "destructive"
-        });
-        setParsedChapters([]);
+  const parseFileText = useCallback(
+    async (text?: string) => {
+      const textToParse = text || fileText;
+      if (!textToParse.trim()) {
+        toast({ title: "Помилка", description: "Немає тексту для парсингу", variant: "destructive" });
         return;
       }
 
-      setParsedChapters(chapters);
-      setSelectedChapterIndex(0);
+      setIsProcessing(true);
+      setProgress(10);
 
-      toast({
-        title: "✅ Парсинг завершено",
-        description: `Знайдено ${chapters.length} розділ(ів), ${chapters.reduce((sum, ch) => sum + ch.verses.length, 0)} віршів`
-      });
+      try {
+        // Знайти шаблон
+        const template = BOOK_TEMPLATES.find((t) => t.id === selectedTemplate) || BOOK_TEMPLATES[0];
 
-      setProgress(100);
-    } catch (err: any) {
-      console.error("Помилка парсингу:", err);
-      toast({
-        title: "Помилка парсингу",
-        description: err?.message || "Невідома помилка",
-        variant: "destructive"
-      });
-      setParsedChapters([]);
-    } finally {
-      setIsProcessing(false);
-      setProgress(0);
-    }
-  }, [fileText, selectedTemplate]);
+        console.log("📖 Парсинг з шаблоном:", template.name);
+        console.log("📝 Текст довжина:", textToParse.length);
+
+        // Парсити розділи
+        const chapters = splitIntoChapters(textToParse, template);
+
+        console.log("✅ Знайдено розділів:", chapters.length);
+
+        if (chapters.length === 0) {
+          toast({
+            title: "Не знайдено розділів",
+            description: "Спробуйте інший шаблон або перевірте формат тексту",
+            variant: "destructive",
+          });
+          setParsedChapters([]);
+          return;
+        }
+
+        setParsedChapters(chapters);
+        setSelectedChapterIndex(0);
+
+        toast({
+          title: "✅ Парсинг завершено",
+          description: `Знайдено ${chapters.length} розділ(ів), ${chapters.reduce((sum, ch) => sum + ch.verses.length, 0)} віршів`,
+        });
+
+        setProgress(100);
+      } catch (err: any) {
+        console.error("Помилка парсингу:", err);
+        toast({
+          title: "Помилка парсингу",
+          description: err?.message || "Невідома помилка",
+          variant: "destructive",
+        });
+        setParsedChapters([]);
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
+      }
+    },
+    [fileText, selectedTemplate],
+  );
 
   /** Імпорт розділу з файлу */
   const handleFileChapterImport = useCallback(async () => {
@@ -900,15 +914,15 @@ export default function UniversalImportFixed() {
           .maybeSingle();
         cantoId = canto?.id || null;
 
-        console.log('🔍 Canto resolution:', { vedabaseCanto, lilaNum, cantoNum, cantoId, found: !!canto });
+        console.log("🔍 Canto resolution:", { vedabaseCanto, lilaNum, cantoNum, cantoId, found: !!canto });
       }
 
       // Не передаємо fallback-назви, щоб не перезаписувати існуючі
       const isFallback = (t?: string) => {
-        const s = (t || '').trim();
+        const s = (t || "").trim();
         const n = chapter.chapter_number;
         if (!s) return true;
-        const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, 'i');
+        const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
         return re.test(s);
       };
       const chapterToImport: any = { ...chapter };
@@ -940,7 +954,7 @@ export default function UniversalImportFixed() {
       toast({
         title: "Помилка збереження",
         description: err?.message || "Невідома помилка",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
@@ -949,97 +963,100 @@ export default function UniversalImportFixed() {
   }, [parsedChapters, selectedChapterIndex, importData, vedabaseBook, vedabaseCanto, currentBookInfo, navigate]);
 
   /** Збереження у базу */
-  const saveToDatabase = useCallback(async (dataOverride?: ImportData) => {
-    const data = dataOverride ?? importData;
-    if (!data.chapters.length) {
-      toast({ title: "Немає даних", variant: "destructive" });
-      return;
-    }
-
-    setIsProcessing(true);
-    setProgress(10);
-    try {
-      const slug = data.metadata.book_slug || "imported-book";
-      const { data: existing } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
-
-      let bookId = existing?.id;
-      if (!bookId) {
-        const { data: created, error } = await supabase
-          .from("books")
-          .insert({
-            slug,
-            title_ua: data.metadata.title_ua,
-            title_en: data.metadata.title_en,
-            is_published: true,
-          })
-          .select("id")
-          .single();
-        if (error) throw error;
-        bookId = created.id;
+  const saveToDatabase = useCallback(
+    async (dataOverride?: ImportData) => {
+      const data = dataOverride ?? importData;
+      if (!data.chapters.length) {
+        toast({ title: "Немає даних", variant: "destructive" });
+        return;
       }
 
-      // Resolve canto (volume) if provided to link chapters correctly
-      let cantoId: string | null = null;
-      if (data.metadata.canto) {
-        const cantoNum = parseInt(data.metadata.canto, 10);
-        const { data: canto } = await supabase
-          .from("cantos")
-          .select("id")
-          .eq("book_id", bookId)
-          .eq("canto_number", cantoNum)
-          .maybeSingle();
-        cantoId = canto?.id || null;
-      }
+      setIsProcessing(true);
+      setProgress(10);
+      try {
+        const slug = data.metadata.book_slug || "imported-book";
+        const { data: existing } = await supabase.from("books").select("id").eq("slug", slug).maybeSingle();
 
-      // Import chapters safely: UPSERT (never delete existing verses)
-      const total = data.chapters.length;
-      for (let i = 0; i < total; i++) {
-        const ch = data.chapters[i];
+        let bookId = existing?.id;
+        if (!bookId) {
+          const { data: created, error } = await supabase
+            .from("books")
+            .insert({
+              slug,
+              title_ua: data.metadata.title_ua,
+              title_en: data.metadata.title_en,
+              is_published: true,
+            })
+            .select("id")
+            .single();
+          if (error) throw error;
+          bookId = created.id;
+        }
 
-        // Не передаємо fallback-назви, щоб не перезаписувати існуючі
-        const isFallback = (t?: string) => {
-          const s = (t || '').trim();
-          const n = ch.chapter_number;
-          if (!s) return true;
-          const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, 'i');
-          return re.test(s);
-        };
-        const chapterToImport: any = { ...ch };
-        if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
-        if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
+        // Resolve canto (volume) if provided to link chapters correctly
+        let cantoId: string | null = null;
+        if (data.metadata.canto) {
+          const cantoNum = parseInt(data.metadata.canto, 10);
+          const { data: canto } = await supabase
+            .from("cantos")
+            .select("id")
+            .eq("book_id", bookId)
+            .eq("canto_number", cantoNum)
+            .maybeSingle();
+          cantoId = canto?.id || null;
+        }
 
-        await importSingleChapter(supabase, {
-          bookId,
-          cantoId: cantoId ?? null,
-          chapter: chapterToImport,
-          strategy: "upsert",
+        // Import chapters safely: UPSERT (never delete existing verses)
+        const total = data.chapters.length;
+        for (let i = 0; i < total; i++) {
+          const ch = data.chapters[i];
+
+          // Не передаємо fallback-назви, щоб не перезаписувати існуючі
+          const isFallback = (t?: string) => {
+            const s = (t || "").trim();
+            const n = ch.chapter_number;
+            if (!s) return true;
+            const re = new RegExp(`^(Глава|Розділ|Chapter|Song|Пісня)\\s*${n}(?:\\s*[.:—-])?$`, "i");
+            return re.test(s);
+          };
+          const chapterToImport: any = { ...ch };
+          if (isFallback(chapterToImport.title_ua)) delete chapterToImport.title_ua;
+          if (isFallback(chapterToImport.title_en)) delete chapterToImport.title_en;
+
+          await importSingleChapter(supabase, {
+            bookId,
+            cantoId: cantoId ?? null,
+            chapter: chapterToImport,
+            strategy: "upsert",
+          });
+          setProgress(10 + Math.round(((i + 1) / total) * 80));
+        }
+
+        const totalVerses = data.chapters.reduce((sum, ch) => sum + (ch.verses?.length || 0), 0);
+        toast({
+          title: "✅ Імпорт завершено",
+          description: `${totalVerses} віршів збережено.`,
         });
-        setProgress(10 + Math.round(((i + 1) / total) * 80));
+
+        // Автоперехід до сторінки розділу після імпорту
+        const chapterNum = data.chapters[0]?.chapter_number;
+        const slugForPath = data.metadata.book_slug || "library";
+        const cantoNum = data.metadata.canto;
+        const targetPath = cantoNum
+          ? `/veda-reader/${slugForPath}/canto/${cantoNum}/chapter/${chapterNum}`
+          : `/veda-reader/${slugForPath}/${chapterNum}`;
+
+        setCurrentStep("save");
+        navigate(targetPath);
+      } catch (e: any) {
+        toast({ title: "Помилка збереження", description: e.message, variant: "destructive" });
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
       }
-
-      const totalVerses = data.chapters.reduce((sum, ch) => sum + (ch.verses?.length || 0), 0);
-      toast({
-        title: "✅ Імпорт завершено",
-        description: `${totalVerses} віршів збережено.`,
-      });
-
-      // Автоперехід до сторінки розділу після імпорту
-      const chapterNum = data.chapters[0]?.chapter_number;
-      const slugForPath = data.metadata.book_slug || "library";
-      const cantoNum = data.metadata.canto;
-      const targetPath = cantoNum
-        ? `/veda-reader/${slugForPath}/canto/${cantoNum}/chapter/${chapterNum}`
-        : `/veda-reader/${slugForPath}/${chapterNum}`;
-
-      setCurrentStep("save");
-      navigate(targetPath);
-    } catch (e: any) {
-      toast({ title: "Помилка збереження", description: e.message, variant: "destructive" });
-    } finally {
-      setIsProcessing(false);
-      setProgress(0);
-    }
-  }, [importData]);
+    },
+    [importData],
+  );
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -1051,7 +1068,9 @@ export default function UniversalImportFixed() {
           </div>
           <div className="flex items-center gap-2">
             <ParserStatus />
-            <Button variant="secondary" onClick={() => navigate(-1)}>Вийти</Button>
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              Вийти
+            </Button>
           </div>
         </CardHeader>
 
@@ -1128,43 +1147,56 @@ export default function UniversalImportFixed() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Назва глави (UA)</Label>
-                  <Input 
-                    value={importData.metadata.title_ua} 
-                    onChange={(e) => setImportData(prev => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, title_ua: e.target.value }
-                    }))}
+                  <Input
+                    value={importData.metadata.title_ua}
+                    onChange={(e) =>
+                      setImportData((prev) => ({
+                        ...prev,
+                        metadata: { ...prev.metadata, title_ua: e.target.value },
+                      }))
+                    }
                     placeholder={`${currentBookInfo?.name_ua} ${vedabaseCanto} ${vedabaseChapter}`}
                   />
                 </div>
                 <div>
                   <Label>Назва глави (EN)</Label>
-                  <Input 
-                    value={importData.metadata.title_en} 
-                    onChange={(e) => setImportData(prev => ({
-                      ...prev,
-                      metadata: { ...prev.metadata, title_en: e.target.value }
-                    }))}
+                  <Input
+                    value={importData.metadata.title_en}
+                    onChange={(e) =>
+                      setImportData((prev) => ({
+                        ...prev,
+                        metadata: { ...prev.metadata, title_en: e.target.value },
+                      }))
+                    }
                     placeholder={`${vedabaseBook.toUpperCase()} ${vedabaseCanto} ${vedabaseChapter}`}
                   />
                 </div>
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handleVedabaseImport} disabled={isProcessing || currentBookInfo?.source === 'bhaktivinodainstitute' || currentBookInfo?.source === 'kksongs'}>
+                <Button
+                  onClick={handleVedabaseImport}
+                  disabled={
+                    isProcessing ||
+                    currentBookInfo?.source === "bhaktivinodainstitute" ||
+                    currentBookInfo?.source === "kksongs"
+                  }
+                >
                   <Globe className="w-4 h-4 mr-2" />
                   Імпортувати з Vedabase
                 </Button>
 
-                {(currentBookInfo?.source === 'bhaktivinodainstitute' || currentBookInfo?.source === 'kksongs') && (
+                {(currentBookInfo?.source === "bhaktivinodainstitute" || currentBookInfo?.source === "kksongs") && (
                   <Button onClick={() => handleBhaktivinodaImport()} disabled={isProcessing} variant="secondary">
                     <BookOpen className="w-4 h-4 mr-2" />
-                    {currentBookInfo?.source === 'kksongs' ? 'Імпортувати з KKSongs' : 'Імпортувати з Bhaktivinoda Institute'}
+                    {currentBookInfo?.source === "kksongs"
+                      ? "Імпортувати з KKSongs"
+                      : "Імпортувати з Bhaktivinoda Institute"}
                   </Button>
                 )}
               </div>
 
-              {currentBookInfo?.source === 'kksongs' && (
+              {currentBookInfo?.source === "kksongs" && (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
                     <strong>ℹ️ KKSongs (kksongs.org):</strong> Імпортується <strong>Bengali</strong>, transliteration,
@@ -1173,7 +1205,7 @@ export default function UniversalImportFixed() {
                 </div>
               )}
 
-              {currentBookInfo?.source === 'bhaktivinodainstitute' && (
+              {currentBookInfo?.source === "bhaktivinodainstitute" && (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
                   <p className="text-sm text-blue-900 dark:text-blue-100">
                     <strong>ℹ️ Bhaktivinoda Institute:</strong> Імпортується тільки <strong>EN</strong> сторона
@@ -1226,9 +1258,7 @@ export default function UniversalImportFixed() {
                           </option>
                         ))}
                       </select>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Автоматично обрано для вибраної книги
-                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">Автоматично обрано для вибраної книги</p>
                     </div>
                   </div>
 
@@ -1256,9 +1286,7 @@ export default function UniversalImportFixed() {
                   <div className="rounded-lg border-2 border-dashed p-8 text-center">
                     <Upload className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                     <label className="cursor-pointer">
-                      <span className="text-primary hover:underline font-medium">
-                        Натисніть для вибору файлу
-                      </span>
+                      <span className="text-primary hover:underline font-medium">Натисніть для вибору файлу</span>
                       <input
                         type="file"
                         className="hidden"
@@ -1267,9 +1295,7 @@ export default function UniversalImportFixed() {
                         disabled={isProcessing}
                       />
                     </label>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Підтримувані формати: PDF, EPUB, DOCX, TXT, MD
-                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">Підтримувані формати: PDF, EPUB, DOCX, TXT, MD</p>
                   </div>
                   {fileText && (
                     <div className="mt-4 p-4 bg-muted rounded-lg">
@@ -1394,49 +1420,88 @@ export default function UniversalImportFixed() {
               <div className="space-y-3">
                 <Label>Intro (EN) — з Vedabase</Label>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={async () => {
-                    try {
-                      setIsProcessing(true);
-                      const chapterNum = parseInt(vedabaseChapter || "0", 10);
-                      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        setIsProcessing(true);
+                        const chapterNum = parseInt(vedabaseChapter || "0", 10);
+                        const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
 
-                      // ✅ Формуємо URL залежно від типу книги
-                      const vedabase_base = bookInfo.isMultiVolume
-                        ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
-                        : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
-                      const res = await fetch(vedabase_base);
-                      const html = await res.text();
-                      const parser = new DOMParser();
-                      const doc = parser.parseFromString(html, "text/html");
-                      // Грубий хак: беремо перші параграфи перед списком віршів
-                      const allP = Array.from(doc.querySelectorAll("main p, .entry-content p"));
-                      const introParas: string[] = [];
-                      for (const p of allP) {
-                        const txt = p.textContent?.trim() || "";
-                        if (!txt) continue;
-                        if (/[0-9]+\s*:\s*[0-9]+/.test(txt)) break; // зупиняємось, якщо схоже на посилання
-                        if (p.querySelector("a[href*='/cc/']")) break; // список віршів
-                        introParas.push(`<p>${txt}</p>`);
-                        if (introParas.length >= 6) break; // обмежимося
+                        // ✅ Формуємо URL залежно від типу книги
+                        const vedabase_base = bookInfo.isMultiVolume
+                          ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+                          : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+                        const res = await fetch(vedabase_base);
+                        const html = await res.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, "text/html");
+                        // Грубий хак: беремо перші параграфи перед списком віршів
+                        const allP = Array.from(doc.querySelectorAll("main p, .entry-content p"));
+                        const introParas: string[] = [];
+                        for (const p of allP) {
+                          const txt = p.textContent?.trim() || "";
+                          if (!txt) continue;
+                          if (/[0-9]+\s*:\s*[0-9]+/.test(txt)) break; // зупиняємось, якщо схоже на посилання
+                          if (p.querySelector("a[href*='/cc/']")) break; // список віршів
+                          introParas.push(`<p>${txt}</p>`);
+                          if (introParas.length >= 6) break; // обмежимося
+                        }
+                        const introHtml = introParas.join("\n");
+                        setImportData((prev) => {
+                          const chapters = prev.chapters.length
+                            ? [...prev.chapters]
+                            : [{ chapter_number: chapterNum, chapter_type: "verses", verses: [] }];
+                          chapters[0] = { ...chapters[0], intro_en: introHtml };
+                          return { ...prev, chapters };
+                        });
+                        toast({ title: "Intro додано", description: `${introParas.length} абзаців` });
+                      } catch (e: any) {
+                        toast({ title: "Intro помилка", description: e.message, variant: "destructive" });
+                      } finally {
+                        setIsProcessing(false);
                       }
-                      const introHtml = introParas.join("\n");
-                      setImportData(prev => {
-                        const chapters = prev.chapters.length ? [...prev.chapters] : [{ chapter_number: chapterNum, chapter_type: "verses", verses: [] }];
-                        chapters[0] = { ...chapters[0], intro_en: introHtml };
-                        return { ...prev, chapters };
-                      });
-                      toast({ title: "Intro додано", description: `${introParas.length} абзаців` });
-                    } catch (e: any) {
-                      toast({ title: "Intro помилка", description: e.message, variant: "destructive" });
-                    } finally {
-                      setIsProcessing(false);
-                    }
-                  }}>Завантажити Intro EN</Button>
+                    }}
+                  >
+                    Завантажити Intro EN
+                  </Button>
                 </div>
                 <Label>Intro (UA)</Label>
-                <Textarea value={(importData.chapters[0]?.intro_ua)||""} onChange={(e)=>setImportData(prev=>{ const ch=[...prev.chapters]; if(!ch.length) ch.push({chapter_number: parseInt(vedabaseChapter||"0",10)||1, chapter_type:"verses", verses:[]}); ch[0]={...ch[0], intro_ua:e.target.value}; return {...prev, chapters: ch}; })} placeholder="Вставте український вступ (за потреби)" />
+                <Textarea
+                  value={importData.chapters[0]?.intro_ua || ""}
+                  onChange={(e) =>
+                    setImportData((prev) => {
+                      const ch = [...prev.chapters];
+                      if (!ch.length)
+                        ch.push({
+                          chapter_number: parseInt(vedabaseChapter || "0", 10) || 1,
+                          chapter_type: "verses",
+                          verses: [],
+                        });
+                      ch[0] = { ...ch[0], intro_ua: e.target.value };
+                      return { ...prev, chapters: ch };
+                    })
+                  }
+                  placeholder="Вставте український вступ (за потреби)"
+                />
                 <Label>Intro (EN)</Label>
-                <Textarea value={(importData.chapters[0]?.intro_en)||""} onChange={(e)=>setImportData(prev=>{ const ch=[...prev.chapters]; if(!ch.length) ch.push({chapter_number: parseInt(vedabaseChapter||"0",10)||1, chapter_type:"verses", verses:[]}); ch[0]={...ch[0], intro_en:e.target.value}; return {...prev, chapters: ch}; })} placeholder="Відредагуйте англійський вступ" />
+                <Textarea
+                  value={importData.chapters[0]?.intro_en || ""}
+                  onChange={(e) =>
+                    setImportData((prev) => {
+                      const ch = [...prev.chapters];
+                      if (!ch.length)
+                        ch.push({
+                          chapter_number: parseInt(vedabaseChapter || "0", 10) || 1,
+                          chapter_type: "verses",
+                          verses: [],
+                        });
+                      ch[0] = { ...ch[0], intro_en: e.target.value };
+                      return { ...prev, chapters: ch };
+                    })
+                  }
+                  placeholder="Відредагуйте англійський вступ"
+                />
               </div>
             </TabsContent>
 
@@ -1446,20 +1511,28 @@ export default function UniversalImportFixed() {
                   <CardTitle>Нормалізація послівних термінів (UA)</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">Застосувати технічну нормалізацію діакритики (ı̄ тощо) до поля "synonyms_ua" у поточних даних імпорту.</p>
-                  <Button variant="secondary" onClick={() => {
-                    setImportData(prev => {
-                      const chapters = prev.chapters.map(ch => ({
-                        ...ch,
-                        verses: ch.verses.map((v: any) => ({
-                          ...v,
-                          synonyms_ua: v.synonyms_ua ? normalizeTransliteration(v.synonyms_ua) : v.synonyms_ua,
-                        })),
-                      }));
-                      return { ...prev, chapters };
-                    });
-                    toast({ title: "Нормалізовано", description: "Символи в послівних виправлено у даних імпорту" });
-                  }}>Нормалізувати зараз</Button>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Застосувати технічну нормалізацію діакритики (ı̄ тощо) до поля "synonyms_ua" у поточних даних
+                    імпорту.
+                  </p>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setImportData((prev) => {
+                        const chapters = prev.chapters.map((ch) => ({
+                          ...ch,
+                          verses: ch.verses.map((v: any) => ({
+                            ...v,
+                            synonyms_ua: v.synonyms_ua ? normalizeTransliteration(v.synonyms_ua) : v.synonyms_ua,
+                          })),
+                        }));
+                        return { ...prev, chapters };
+                      });
+                      toast({ title: "Нормалізовано", description: "Символи в послівних виправлено у даних імпорту" });
+                    }}
+                  >
+                    Нормалізувати зараз
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
