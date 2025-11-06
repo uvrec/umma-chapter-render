@@ -125,8 +125,8 @@ function extractGitabaseContent(html: string) {
     const seen = new Set<string>();
     const uniqueItalics: string[] = [];
 
-    allItalics.forEach(text => {
-      const cleaned = text.replace(/;\s*$/, '').trim();
+    allItalics.forEach((text) => {
+      const cleaned = text.replace(/;\s*$/, "").trim();
       if (cleaned && !seen.has(cleaned)) {
         seen.add(cleaned);
         uniqueItalics.push(cleaned);
@@ -134,7 +134,7 @@ function extractGitabaseContent(html: string) {
     });
 
     if (uniqueItalics.length > 5) {
-      result.synonyms = uniqueItalics.slice(0, 60).join('; ');
+      result.synonyms = uniqueItalics.slice(0, 60).join("; ");
     }
 
     // Переклад
@@ -202,28 +202,28 @@ export default function VedabaseImportV3() {
       try {
         console.log(`Спроба edge function: ${url}`);
         const { data, error } = await supabase.functions.invoke("fetch-html", {
-          body: { url }
+          body: { url },
         });
-        
+
         if (error) {
-          throw new Error(error.message || 'Edge function error');
+          throw new Error(error.message || "Edge function error");
         }
-        
+
         // Check for 404 in response data
         if (data?.notFound) {
-          throw new Error('Upstream 404');
+          throw new Error("Upstream 404");
         }
-        
+
         if (data?.html && data.html.length > 100) {
           return data.html;
         }
         throw new Error("Порожня відповідь від edge function");
       } catch (error: any) {
         // Якщо це 404, пробросуємо помилку далі
-        if (error.message?.includes('404')) {
+        if (error.message?.includes("404")) {
           throw error;
         }
-        console.warn('Edge function failed, trying proxies...', error);
+        console.warn("Edge function failed, trying proxies...", error);
         // Інакше пробуємо проксі
       }
     }
@@ -235,7 +235,7 @@ export default function VedabaseImportV3() {
         const response = await fetch(proxyUrl);
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('Upstream 404');
+            throw new Error("Upstream 404");
           }
           throw new Error(`HTTP ${response.status}`);
         }
@@ -246,7 +246,7 @@ export default function VedabaseImportV3() {
         const response = await fetch(proxyUrl);
         if (!response.ok) {
           if (response.status === 404) {
-            throw new Error('Upstream 404');
+            throw new Error("Upstream 404");
           }
           throw new Error(`HTTP ${response.status}`);
         }
@@ -266,7 +266,7 @@ export default function VedabaseImportV3() {
       return html;
     } catch (error: any) {
       // Якщо це 404, не пробуємо інші проксі
-      if (error.message?.includes('404')) {
+      if (error.message?.includes("404")) {
         throw error;
       }
       if (attempt - 1 < proxies.length) {
@@ -551,7 +551,7 @@ export default function VedabaseImportV3() {
             await new Promise((r) => setTimeout(r, 500));
           } catch (e: any) {
             // Якщо вірш не існує (404), пропускаємо його без помилки
-            if (e?.message?.includes('404') || e?.message?.includes('Upstream 404')) {
+            if (e?.message?.includes("404") || e?.message?.includes("Upstream 404")) {
               console.log(`Вірш ${verseNum} не знайдено на Vedabase, пропускаю...`);
               setStats((prev) => ({ ...prev!, skipped: prev!.skipped + 1 }));
               continue;
@@ -579,7 +579,7 @@ export default function VedabaseImportV3() {
             await new Promise((r) => setTimeout(r, 500));
           } catch (e: any) {
             // Якщо вірш не існує (404), просто пропускаємо
-            if (e?.message?.includes('404') || e?.message?.includes('Upstream 404')) {
+            if (e?.message?.includes("404") || e?.message?.includes("Upstream 404")) {
               console.log(`Вірш ${verseNum} не знайдено на Gitabase, пропускаю...`);
             } else {
               console.error(`Помилка Gitabase ${verseNum}:`, e);
@@ -868,7 +868,7 @@ export default function VedabaseImportV3() {
                       <Input
                         value={introUrlUA}
                         onChange={(e) => setIntroUrlUA(e.target.value)}
-                        placeholder="https://gitabase.com/ua/BG/introduction"
+                        placeholder="https://gitabase.com/ukr/BG/introduction"
                       />
                     </div>
                   )}
