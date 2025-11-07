@@ -25,6 +25,8 @@ import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
 import { AcharyasBooks } from "./pages/library/AcharyasBooks";
+import { LecturesLibrary } from "./pages/library/LecturesLibrary";
+import { LectureView } from "./pages/library/LectureView";
 import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
@@ -122,6 +124,8 @@ const App = () => (
 
                   {/* Бібліотека */}
                   <Route path="/library" element={<Library />} />
+                  <Route path="/library/lectures" element={<LecturesLibrary />} />
+                  <Route path="/library/lectures/:slug" element={<LectureView />} />
                   <Route path="/library/:slug" element={<BookOverview />} />
                   <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
                   <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
