@@ -17,6 +17,8 @@ import { ModernGlobalPlayer } from "@/components/ModernGlobalPlayer";
 
 import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
+import LectureImport from "@/pages/admin/LectureImport";
+import LetterImport from "@/pages/admin/LetterImport";
 
 import { NewHome } from "./pages/NewHome";
 import VedaReader from "./pages/VedaReader"; // ← тепер існує
@@ -27,6 +29,8 @@ import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
 import { AcharyasBooks } from "./pages/library/AcharyasBooks";
 import { LecturesLibrary } from "./pages/library/LecturesLibrary";
 import { LectureView } from "./pages/library/LectureView";
+import { LettersLibrary } from "./pages/library/LettersLibrary";
+import { LetterView } from "./pages/library/LetterView";
 import { Audio } from "./pages/Audio";
 import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
 import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
@@ -126,6 +130,8 @@ const App = () => (
                   <Route path="/library" element={<Library />} />
                   <Route path="/library/lectures" element={<LecturesLibrary />} />
                   <Route path="/library/lectures/:slug" element={<LectureView />} />
+                  <Route path="/library/letters" element={<LettersLibrary />} />
+                  <Route path="/library/letters/:slug" element={<LetterView />} />
                   <Route path="/library/:slug" element={<BookOverview />} />
                   <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
                   <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
@@ -193,6 +199,8 @@ const App = () => (
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
                   <Route path="/admin/highlights" element={<Highlights />} />
+                  <Route path="/admin/lecture-import" element={<LectureImport />} />
+                  <Route path="/admin/letter-import" element={<LetterImport />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />
