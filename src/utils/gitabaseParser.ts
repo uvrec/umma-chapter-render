@@ -16,7 +16,7 @@ interface GitabaseVerseData {
   purport_ua: string;          // Пояснення ПІСЛЯ normalizeText
   lila: string;                // '1'=Adi, '2'=Madhya, '3'=Antya
   chapter: number;
-  verse: number;
+  verse: number | string;      // ✅ може бути "263-264" для складених віршів
   source_url: string;
 }
 
@@ -34,10 +34,13 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
 
     // Витягуємо lila, chapter, verse з URL
     // URL формат: https://gitabase.com/ua/CC/1/1/1
+    // або https://gitabase.com/ua/CC/1/1/263-264 для складених віршів
     const urlParts = url.split('/');
     const lilaNum = urlParts[urlParts.length - 3]; // '1', '2', '3'
     const chapter = parseInt(urlParts[urlParts.length - 2]);
-    const verse = parseInt(urlParts[urlParts.length - 1]);
+    const verseStr = urlParts[urlParts.length - 1];
+    // ✅ Підтримка складених віршів: зберігаємо як string якщо містить дефіс
+    const verse = verseStr.includes('-') ? verseStr : parseInt(verseStr);
 
     // Мапінг: '1'→'adi', '2'→'madhya', '3'→'antya'
     const lilaMap: Record<string, string> = {
