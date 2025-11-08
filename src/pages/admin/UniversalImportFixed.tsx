@@ -296,9 +296,10 @@ export default function UniversalImportFixed() {
                 ];
 
                 if (bookInfo.hasGitabaseUA) {
+                  // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   const gitabaseUrl = bookInfo.isMultiVolume
-                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
                   requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
                 }
 
@@ -326,9 +327,10 @@ export default function UniversalImportFixed() {
 
                 // ✅ Парсимо UA тільки якщо робили запит
                 if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+                  // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   const gitabaseUrl = bookInfo.isMultiVolume
-                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.from}`;
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
                   console.log(`🇺🇦 Parsing Gitabase for ${t.lastPart}:`, gitabaseUrl);
                   parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                   console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
@@ -353,7 +355,8 @@ export default function UniversalImportFixed() {
                   t.lastPart, // verse number
                   vedabaseUrl,
                   bookInfo.hasGitabaseUA
-                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.from}`
+                    // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
                     : "",
                 );
 
