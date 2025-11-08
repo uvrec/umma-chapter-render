@@ -9,6 +9,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
@@ -31,6 +32,11 @@ export const ChapterVersesList = () => {
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
+
+  // Summary editing state
+  const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [editedSummaryUa, setEditedSummaryUa] = useState("");
+  const [editedSummaryEn, setEditedSummaryEn] = useState("");
 
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
@@ -82,7 +88,7 @@ export const ChapterVersesList = () => {
 
       const base = supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, summary_ua, summary_en")
         .eq("chapter_number", parseInt(effectiveChapterParam as string));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
@@ -240,11 +246,36 @@ export const ChapterVersesList = () => {
     }
   });
 
+  // Save chapter summary mutation
+  const saveSummaryMutation = useMutation({
+    mutationFn: async () => {
+      if (!effectiveChapterObj?.id) return;
+      const { error } = await supabase
+        .from("chapters")
+        .update({
+          summary_ua: editedSummaryUa,
+          summary_en: editedSummaryEn
+        })
+        .eq("id", effectiveChapterObj.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapter"] });
+      setIsEditingSummary(false);
+      toast({ title: language === "ua" ? "Summary збережено" : "Summary saved" });
+    },
+    onError: () => {
+      toast({ title: language === "ua" ? "Помилка збереження" : "Save error", variant: "destructive" });
+    }
+  });
+
   // Initialize edited content when chapter loads
   useEffect(() => {
     if (effectiveChapterObj) {
       setEditedContentUa(effectiveChapterObj.content_ua || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
+      setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
+      setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
     }
   }, [effectiveChapterObj]);
 
@@ -329,6 +360,110 @@ export const ChapterVersesList = () => {
             </div>
             <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
           </div>
+
+          {/* Summary блок - Vedabase style */}
+          {(effectiveChapterObj && ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || user)) && (
+            <div className="mb-8 rounded-lg border border-border bg-card p-6">
+              {user && !isEditingSummary && (
+                <div className="mb-4 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditingSummary(true)}
+                    className="gap-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    {language === "ua" ? "Редагувати summary" : "Edit summary"}
+                  </Button>
+                </div>
+              )}
+
+              {isEditingSummary ? (
+                <div className="space-y-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {language === "ua" ? "Український summary" : "Ukrainian summary"}
+                    </label>
+                    <Textarea
+                      value={editedSummaryUa}
+                      onChange={(e) => setEditedSummaryUa(e.target.value)}
+                      className="min-h-[200px] font-mono text-sm"
+                      placeholder={language === "ua" ? "Введіть summary українською..." : "Enter Ukrainian summary..."}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium">
+                      {language === "ua" ? "English summary" : "English summary"}
+                    </label>
+                    <Textarea
+                      value={editedSummaryEn}
+                      onChange={(e) => setEditedSummaryEn(e.target.value)}
+                      className="min-h-[200px] font-mono text-sm"
+                      placeholder="Enter English summary..."
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => saveSummaryMutation.mutate()}
+                      disabled={saveSummaryMutation.isPending}
+                      className="gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {language === "ua" ? "Зберегти" : "Save"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingSummary(false);
+                        setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
+                        setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
+                      }}
+                      className="gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      {language === "ua" ? "Скасувати" : "Cancel"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {dualMode ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                          {language === "ua" ? "Короткий зміст" : "Summary"} (UA)
+                        </p>
+                        <div className="prose prose-slate dark:prose-invert max-w-none">
+                          <p className="whitespace-pre-wrap">{(effectiveChapterObj as any).summary_ua || ""}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                          Summary (EN)
+                        </p>
+                        <div className="prose prose-slate dark:prose-invert max-w-none">
+                          <p className="whitespace-pre-wrap">{(effectiveChapterObj as any).summary_en || ""}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                        {language === "ua" ? "Короткий зміст" : "Summary"}
+                      </p>
+                      <div className="prose prose-slate dark:prose-invert max-w-none">
+                        <p className="whitespace-pre-wrap">
+                          {language === "ua"
+                            ? ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || "")
+                            : ((effectiveChapterObj as any).summary_en || (effectiveChapterObj as any).summary_ua || "")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Огляд глави */}
           {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
