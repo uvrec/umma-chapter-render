@@ -3,6 +3,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.mjs?url"; // ✅ для сучасних версій
 import { sanitizeHtml } from "./normalizers";
 import { extractVerseNumberFromUrl } from '@/utils/vedabaseParsers';
+import { parseStructuredVerses, exportForDatabase, type StructuredVerse } from './pdfStructuredParser';
 
 // Прив’язуємо worker
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = workerUrl;
@@ -105,4 +106,62 @@ export async function extractTextFromPDF(file: File, opts: Options = {}): Promis
 
   // Після повного проходу — ще раз «легкий» санітизатор (на випадок склеювання)
   return sanitizeHtml(resultHTML);
+}
+
+/**
+ * ✨ НОВА ФУНКЦІЯ: Витягує структуровані вірші з PDF
+ * Розпізнає санскрит, транслітерацію, синоніми, переклади та пояснення
+ */
+export async function extractStructuredVersesFromPDF(
+  file: File,
+  opts: Options = {}
+): Promise<ReturnType<typeof exportForDatabase>> {
+  const { onProgress, signal, pageLimit } = opts;
+
+  const buf = await file.arrayBuffer();
+
+  if (file.size > 40 * 1024 * 1024) {
+    console.warn("[PDF] Large file:", Math.round(file.size / (1024 * 1024)), "MB");
+  }
+
+  const task = pdfjsLib.getDocument({ data: buf });
+  const pdf = await task.promise;
+
+  const totalPages = Math.min(pdf.numPages, pageLimit ?? pdf.numPages);
+  const allLines: string[] = [];
+
+  console.log(`📄 Читання PDF: ${totalPages} сторінок`);
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (signal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
+    }
+
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+
+    const items = (textContent.items as any[]) || [];
+
+    // Зберігаємо кожен текстовий елемент окремо для кращого розпізнавання
+    for (const item of items) {
+      const str = (item?.str as string) || "";
+      if (str.trim()) {
+        allLines.push(str);
+      }
+    }
+
+    onProgress?.({ page: i, total: totalPages });
+  }
+
+  if (allLines.length === 0) {
+    throw new Error("Схоже, PDF — це скани без текстового шару. Спробуйте інший файл або OCR.");
+  }
+
+  console.log(`📝 Витягнуто ${allLines.length} рядків тексту`);
+
+  // Парсимо структуровані вірші
+  const verses = parseStructuredVerses(allLines);
+
+  // Експортуємо в форматі для БД
+  return exportForDatabase(verses);
 }

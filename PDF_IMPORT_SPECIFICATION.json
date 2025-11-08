@@ -1,0 +1,259 @@
+{
+  "title": "Специфікація імпорту структурованого контенту з PDF",
+  "version": "1.0.0",
+  "description": "Правила розпізнавання та витягування віршів з ведичних текстів у форматі PDF",
+
+  "page_structures": {
+    "standard_verse": {
+      "description": "Стандартна структура вірша з усіма компонентами",
+      "order": [
+        "verse_number",
+        "sanskrit",
+        "transliteration",
+        "synonyms",
+        "translation",
+        "commentary"
+      ],
+      "example": "Вірш 1 → санскрит → транслітерація → синоніми → переклад → пояснення"
+    },
+    "composite_verse": {
+      "description": "Складені вірші (діапазон номерів)",
+      "pattern": "^(\\d+)-(\\d+)$",
+      "examples": ["22-23", "256-266", "263-264"],
+      "note": "Всі компоненти (санскрит, переклад тощо) об'єднані в один блок"
+    },
+    "continuation_page": {
+      "description": "Сторінка-продовження коментаря з попередньої сторінки",
+      "markers": {
+        "header": "Номер вірша в правому верхньому куті",
+        "content": "Продовження тексту ПОЯСНЕННЯ:"
+      }
+    },
+    "chapter_header": {
+      "description": "Заголовок глави",
+      "markers": ["ГЛАВА", "CHAPTER"],
+      "position": "На початку глави, перед першим віршем"
+    }
+  },
+
+  "block_identifiers": {
+    "verse_number": {
+      "description": "Номер вірша",
+      "location": "Правий верхній кут або на початку рядка",
+      "patterns": [
+        "Verse \\d+",
+        "Verses \\d+-\\d+",
+        "Текст \\d+",
+        "Вірш \\d+",
+        "^\\d+$",
+        "^\\d+-\\d+$"
+      ],
+      "examples": ["Verse 1", "Verses 22-23", "Текст 256", "1"]
+    },
+    "sanskrit": {
+      "description": "Санскрит (Devanagari або Bengali script)",
+      "unicode_ranges": {
+        "devanagari": "U+0900-U+097F",
+        "bengali": "U+0980-U+09FF"
+      },
+      "position": "Перший блок після номера вірша",
+      "features": [
+        "Містить символи деванагарі або бенгальського письма",
+        "Зазвичай короткий (1-3 рядки)",
+        "Може містити цифри у кінці (номер вірша в дужках)"
+      ]
+    },
+    "transliteration": {
+      "description": "Транслітерація (IAST з діакритикою)",
+      "script": "Latin",
+      "diacritics": ["ā", "ī", "ū", "ṛ", "ṝ", "ḷ", "ḹ", "ṃ", "ṅ", "ñ", "ṭ", "ḍ", "ṇ", "ś", "ṣ"],
+      "position": "Одразу після санскриту",
+      "features": [
+        "Латинські літери з діакритичними знаками",
+        "Може бути дві версії: англійська та українська",
+        "Зазвичай 1-2 рядки"
+      ],
+      "examples": [
+        "vande gurūn īśa-bhaktān īśam īśāvatārakān",
+        "ванде ґурӯн īш́а-бгакта̄н īш́ам īш́а̄вата̄рака̄н"
+      ]
+    },
+    "synonyms": {
+      "description": "Синоніми (пословний переклад)",
+      "markers": ["SYNONYMS:", "СИНОНІМИ:"],
+      "position": "Після транслітерації",
+      "format": "слово1 — переклад1; слово2 — переклад2",
+      "features": [
+        "Починається з маркера SYNONYMS: або СИНОНІМИ:",
+        "Містить em-dash (—) або тире (-) між словом та перекладом",
+        "Може бути дві версії: англійська та українська"
+      ]
+    },
+    "translation": {
+      "description": "Переклад вірша",
+      "markers": ["TRANSLATION:", "ПЕРЕКЛАД:"],
+      "position": "Після синонімів",
+      "features": [
+        "Може починатися з маркера TRANSLATION: або ПЕРЕКЛАД:",
+        "Зазвичай 1-3 речення",
+        "Може бути дві версії: англійська та українська"
+      ]
+    },
+    "commentary": {
+      "description": "Пояснення (коментар до вірша)",
+      "markers": ["PURPORT", "COMMENTARY", "ПОЯСНЕННЯ:"],
+      "position": "Після перекладу",
+      "features": [
+        "Починається з маркера PURPORT, COMMENTARY або ПОЯСНЕННЯ:",
+        "Найдовший блок тексту",
+        "Може продовжуватися на наступних сторінках",
+        "Може містити посилання на інші вірші"
+      ]
+    }
+  },
+
+  "parsing_rules": {
+    "block_detection": {
+      "order": "Послідовний порядок: номер → санскрит → транслітерація → синоніми → переклад → пояснення",
+      "script_recognition": {
+        "devanagari": "Перевірка Unicode range U+0900-U+097F",
+        "bengali": "Перевірка Unicode range U+0980-U+09FF",
+        "iast": "Перевірка наявності діакритичних знаків: āīūṛṝḷḹṃṅñṭḍṇśṣ"
+      },
+      "marker_detection": {
+        "case_insensitive": true,
+        "patterns": [
+          "^(?:SYNONYMS?|СИНОНІМИ):",
+          "^(?:TRANSLATION|ПЕРЕКЛАД):",
+          "^(?:PURPORT|COMMENTARY|ПОЯСНЕННЯ):"
+        ]
+      }
+    },
+    "text_cleaning": {
+      "whitespace": "Нормалізувати множинні пробіли до одного",
+      "soft_hyphens": "Видалити U+00AD (soft hyphen)",
+      "zero_width": "Видалити U+FEFF (zero-width no-break space)",
+      "line_breaks": "Зберігати семантичні переноси, видаляти технічні"
+    },
+    "language_detection": {
+      "ukrainian": "Наявність символів [а-яіїєґА-ЯІЇЄҐ]",
+      "english": "Відсутність українських символів",
+      "storage": "Зберігати обидві мови окремо (_en, _ua суфікси)"
+    },
+    "verse_boundaries": {
+      "start": "Розпізнавання номера вірша",
+      "end": "Початок наступного вірша або кінець документа",
+      "continuation": "Коментар може продовжуватися на наступних сторінках"
+    }
+  },
+
+  "special_cases": {
+    "composite_verses": {
+      "pattern": "\\d+-\\d+",
+      "handling": "Всі компоненти зберігаються як єдиний вірш",
+      "verse_number_field": "Зберігати повний діапазон (напр. '263-264')"
+    },
+    "missing_blocks": {
+      "optional": ["commentary", "synonyms"],
+      "required": ["verse_number", "sanskrit"],
+      "fallback": "Порожній рядок для відсутніх опціональних блоків"
+    },
+    "page_headers": {
+      "verse_number_position": "Правий верхній кут",
+      "chapter_info": "Може містити номер глави та назву книги",
+      "handling": "Використовувати для контексту, не включати в текст вірша"
+    },
+    "formatting_artifacts": {
+      "hyphenation": "Об'єднати слова, розділені переносом на межі рядка",
+      "page_numbers": "Ігнорувати номери сторінок",
+      "headers_footers": "Ігнорувати колонтитули"
+    }
+  },
+
+  "output_format": {
+    "structure": {
+      "verse_number": "string (e.g., '1' or '22-23')",
+      "sanskrit": "string (Devanagari/Bengali)",
+      "transliteration": "string (основна транслітерація)",
+      "transliteration_en": "string (англійська IAST)",
+      "transliteration_ua": "string (українська транслітерація)",
+      "synonyms_en": "string (англійські синоніми)",
+      "synonyms_ua": "string (українські синоніми)",
+      "translation_en": "string (англійський переклад)",
+      "translation_ua": "string (український переклад)",
+      "commentary_en": "string (англійське пояснення)",
+      "commentary_ua": "string (українське пояснення)"
+    },
+    "encoding": "UTF-8",
+    "json_format": {
+      "verses": "Array<StructuredVerse>",
+      "summary": {
+        "total": "number",
+        "hasTransliteration": "number",
+        "hasSynonyms": "number",
+        "hasCommentary": "number"
+      }
+    }
+  },
+
+  "quality_assurance": {
+    "validation": {
+      "required_fields": ["verse_number"],
+      "verse_number_format": "Перевірка на \\d+ або \\d+-\\d+",
+      "script_consistency": "Деванагарі/бенгальський для санскриту",
+      "language_pairing": "Наявність хоча б однієї мови для кожного блоку"
+    },
+    "error_handling": {
+      "no_text_layer": "Повідомлення про скановані PDF без OCR",
+      "malformed_structure": "Логування попереджень про незвичайну структуру",
+      "missing_markers": "Спроба визначити блоки за контекстом"
+    },
+    "logging": {
+      "verse_detection": "Лог кожного знайденого вірша",
+      "block_type": "Лог типу кожного розпізнаного блоку",
+      "statistics": "Підсумкова статистика (кількість віршів, повнота даних)"
+    }
+  },
+
+  "implementation_notes": {
+    "performance": {
+      "streaming": "Обробка сторінок PDF послідовно для економії пам'яті",
+      "batch_size": "Обробка до 100 сторінок за раз для великих документів",
+      "cancellation": "Підтримка AbortSignal для переривання обробки"
+    },
+    "compatibility": {
+      "pdf_versions": "Підтримка PDF 1.4-1.7",
+      "fonts": "Робота з embedded та не-embedded шрифтами",
+      "encodings": "UTF-8, UTF-16, font-specific encodings"
+    },
+    "extensibility": {
+      "custom_markers": "Можливість додавання нових маркерів блоків",
+      "language_support": "Можливість додавання нових мов",
+      "book_specific_rules": "Можливість налаштування правил для конкретних книг"
+    }
+  },
+
+  "usage_example": {
+    "code": "import { extractStructuredVersesFromPDF } from '@/utils/import/pdf';\n\nconst file = // PDF File object\nconst result = await extractStructuredVersesFromPDF(file, {\n  onProgress: ({ page, total }) => console.log(`${page}/${total}`),\n  pageLimit: 100\n});\n\nconsole.log(`Розпізнано ${result.summary.total} віршів`);\nresult.verses.forEach(v => {\n  console.log(`Вірш ${v.verse_number}:`, v.sanskrit);\n});",
+    "output_sample": {
+      "verses": [
+        {
+          "verse_number": "1",
+          "sanskrit": "বন্দে গুরূনীশভক্তানীশমীশাবতারকান্‌",
+          "transliteration_en": "vande gurūn īśa-bhaktān",
+          "transliteration_ua": "ванде ґурӯн īш́а-бгакта̄н",
+          "synonyms_en": "vande — I offer respectful obeisances",
+          "synonyms_ua": "ванде — я складаю шанобливі поклони",
+          "translation_en": "I offer my respectful obeisances...",
+          "translation_ua": "Я складаю шанобливі поклони..."
+        }
+      ],
+      "summary": {
+        "total": 1,
+        "hasTransliteration": 1,
+        "hasSynonyms": 1,
+        "hasCommentary": 0
+      }
+    }
+  }
+}
