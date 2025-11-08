@@ -135,6 +135,31 @@ export const VedaReaderDB = () => {
     return parts[parts.length - 1] || verseNumber;
   };
 
+  // ✅ НОВЕ: Helper для fallback на іншу мову якщо переклад відсутній
+  const getTranslationWithFallback = (verse: any, field: 'translation' | 'synonyms' | 'commentary'): string => {
+    const primaryField = language === 'ua' ? `${field}_ua` : `${field}_en`;
+    const fallbackField = language === 'ua' ? `${field}_en` : `${field}_ua`;
+
+    // Спочатку намагаємося взяти основну мову
+    const primaryValue = verse[primaryField];
+    if (primaryValue && primaryValue.trim()) {
+      return primaryValue;
+    }
+
+    // Якщо основної мови немає, беремо fallback
+    const fallbackValue = verse[fallbackField];
+    if (fallbackValue && fallbackValue.trim()) {
+      // Додаємо маркер що це fallback (тільки для адміна і тільки для перекладу)
+      if (isAdmin && field === 'translation') {
+        const fallbackLang = language === 'ua' ? 'EN' : 'UA';
+        return `⚠️ [${fallbackLang} fallback] ${fallbackValue}`;
+      }
+      return fallbackValue;
+    }
+
+    return '';
+  };
+
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
 
@@ -910,9 +935,9 @@ export const VedaReaderDB = () => {
                   bookName={chapterTitle}
                   sanskritText={language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || ""}
                   transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""}
-                  synonyms={language === "ua" ? (verse as any).synonyms_ua || "" : (verse as any).synonyms_en || ""}
-                  translation={language === "ua" ? (verse as any).translation_ua || "" : (verse as any).translation_en || ""}
-                  commentary={language === "ua" ? (verse as any).commentary_ua || "" : (verse as any).commentary_en || ""}
+                  synonyms={getTranslationWithFallback(verse, 'synonyms')}
+                  translation={getTranslationWithFallback(verse, 'translation')}
+                  commentary={getTranslationWithFallback(verse, 'commentary')}
                   audioUrl={(verse as any).audio_url || ""}
                   is_composite={(verse as any).is_composite}
                   start_verse={(verse as any).start_verse}
@@ -1027,9 +1052,9 @@ export const VedaReaderDB = () => {
                       bookName={chapterTitle}
                       sanskritText={(currentVerse as any).sanskrit || ""}
                       transliteration={language === "ua" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""}
-                      synonyms={language === "ua" ? (currentVerse as any).synonyms_ua || "" : (currentVerse as any).synonyms_en || ""}
-                      translation={language === "ua" ? (currentVerse as any).translation_ua || "" : (currentVerse as any).translation_en || ""}
-                      commentary={language === "ua" ? (currentVerse as any).commentary_ua || "" : (currentVerse as any).commentary_en || ""}
+                      synonyms={getTranslationWithFallback(currentVerse, 'synonyms')}
+                      translation={getTranslationWithFallback(currentVerse, 'translation')}
+                      commentary={getTranslationWithFallback(currentVerse, 'commentary')}
                       audioUrl={currentVerse.audio_url || ""}
                       is_composite={(currentVerse as any).is_composite}
                       start_verse={(currentVerse as any).start_verse}
