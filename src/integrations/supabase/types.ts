@@ -920,6 +920,152 @@ export type Database = {
           },
         ]
       }
+      lecture_paragraphs: {
+        Row: {
+          audio_timecode: number | null
+          content_en: string
+          content_ua: string | null
+          created_at: string
+          id: string
+          lecture_id: string
+          paragraph_number: number
+        }
+        Insert: {
+          audio_timecode?: number | null
+          content_en: string
+          content_ua?: string | null
+          created_at?: string
+          id?: string
+          lecture_id: string
+          paragraph_number: number
+        }
+        Update: {
+          audio_timecode?: number | null
+          content_en?: string
+          content_ua?: string | null
+          created_at?: string
+          id?: string
+          lecture_id?: string
+          paragraph_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lecture_paragraphs_lecture_id_fkey"
+            columns: ["lecture_id"]
+            isOneToOne: false
+            referencedRelation: "lectures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lectures: {
+        Row: {
+          audio_url: string | null
+          book_slug: string | null
+          canto_number: number | null
+          chapter_number: number | null
+          created_at: string
+          description_en: string | null
+          description_ua: string | null
+          id: string
+          lecture_date: string
+          lecture_type: Database["public"]["Enums"]["lecture_type"]
+          location_en: string
+          location_ua: string | null
+          slug: string
+          title_en: string
+          title_ua: string | null
+          updated_at: string
+          verse_number: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          book_slug?: string | null
+          canto_number?: number | null
+          chapter_number?: number | null
+          created_at?: string
+          description_en?: string | null
+          description_ua?: string | null
+          id?: string
+          lecture_date: string
+          lecture_type?: Database["public"]["Enums"]["lecture_type"]
+          location_en: string
+          location_ua?: string | null
+          slug: string
+          title_en: string
+          title_ua?: string | null
+          updated_at?: string
+          verse_number?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          book_slug?: string | null
+          canto_number?: number | null
+          chapter_number?: number | null
+          created_at?: string
+          description_en?: string | null
+          description_ua?: string | null
+          id?: string
+          lecture_date?: string
+          lecture_type?: Database["public"]["Enums"]["lecture_type"]
+          location_en?: string
+          location_ua?: string | null
+          slug?: string
+          title_en?: string
+          title_ua?: string | null
+          updated_at?: string
+          verse_number?: string | null
+        }
+        Relationships: []
+      }
+      letters: {
+        Row: {
+          address_block: string | null
+          content_en: string
+          content_ua: string | null
+          created_at: string
+          id: string
+          letter_date: string
+          location_en: string
+          location_ua: string | null
+          recipient_en: string
+          recipient_ua: string | null
+          reference: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          address_block?: string | null
+          content_en: string
+          content_ua?: string | null
+          created_at?: string
+          id?: string
+          letter_date: string
+          location_en: string
+          location_ua?: string | null
+          recipient_en: string
+          recipient_ua?: string | null
+          reference?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          address_block?: string | null
+          content_en?: string
+          content_ua?: string | null
+          created_at?: string
+          id?: string
+          letter_date?: string
+          location_en?: string
+          location_ua?: string | null
+          recipient_en?: string
+          recipient_ua?: string | null
+          reference?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           banner_image_url: string | null
@@ -1726,6 +1872,7 @@ export type Database = {
         Returns: undefined
       }
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
+      normalize_ukrainian_cc_texts: { Args: never; Returns: undefined }
       parse_verse_number: {
         Args: { v_num: string }
         Returns: {
@@ -1734,6 +1881,7 @@ export type Database = {
           v_suffix: string
         }[]
       }
+      remove_duplicate_words_in_synonyms: { Args: never; Returns: undefined }
       slugify: { Args: { "": string }; Returns: string }
       update_intro_chapters_order: {
         Args: { p_items: Json }
@@ -1744,6 +1892,25 @@ export type Database = {
       app_role: "admin" | "editor" | "user"
       audio_event_type: "play" | "pause" | "complete" | "skip"
       chapter_type: "verses" | "text"
+      lecture_type:
+        | "Conversation"
+        | "Walk"
+        | "Morning Walk"
+        | "Lecture"
+        | "Bhagavad-gita"
+        | "Srimad-Bhagavatam"
+        | "Nectar of Devotion"
+        | "Sri Isopanisad"
+        | "Sri Caitanya-caritamrta"
+        | "Initiation"
+        | "Room Conversation"
+        | "Interview"
+        | "Arrival"
+        | "Departure"
+        | "Festival"
+        | "Bhajan"
+        | "Kirtan"
+        | "Other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1874,6 +2041,26 @@ export const Constants = {
       app_role: ["admin", "editor", "user"],
       audio_event_type: ["play", "pause", "complete", "skip"],
       chapter_type: ["verses", "text"],
+      lecture_type: [
+        "Conversation",
+        "Walk",
+        "Morning Walk",
+        "Lecture",
+        "Bhagavad-gita",
+        "Srimad-Bhagavatam",
+        "Nectar of Devotion",
+        "Sri Isopanisad",
+        "Sri Caitanya-caritamrta",
+        "Initiation",
+        "Room Conversation",
+        "Interview",
+        "Arrival",
+        "Departure",
+        "Festival",
+        "Bhajan",
+        "Kirtan",
+        "Other",
+      ],
     },
   },
 } as const
