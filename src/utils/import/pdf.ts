@@ -2,6 +2,7 @@
 import * as pdfjsLib from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.mjs?url"; // ✅ для сучасних версій
 import { sanitizeHtml } from "./normalizers";
+import { extractVerseNumberFromUrl } from '@/utils/vedabaseParsers';
 
 // Прив’язуємо worker
 (pdfjsLib as any).GlobalWorkerOptions.workerSrc = workerUrl;
@@ -63,8 +64,22 @@ export async function extractTextFromPDF(file: File, opts: Options = {}): Promis
 
     if (text.length > 0) pagesWithText++;
 
+    // ✅ ОНОВЛЕНО: Витягуємо номери віршів з тексту (підтримка складених віршів)
+    let enrichedText = '';
+    const lines = text.split('\n');
+
+    for (const line of lines) {
+      // Шукаємо патерни номерів віршів у кожному рядку
+      const verseNum = extractVerseNumberFromUrl(line);
+      if (verseNum) {
+        enrichedText += `\nВІРШ ${verseNum}\n`;
+        console.log(`📌 Знайдено номер вірша в PDF: ${verseNum}`);
+      }
+    }
+
     // Перетворюємо у прості <p> з урахуванням порожніх рядків
     const asHtml =
+      (enrichedText ? "<p>" + enrichedText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</p>" : "") +
       "<p>" +
       text
         .split(/\n{2,}/)
