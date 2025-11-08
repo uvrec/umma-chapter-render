@@ -380,28 +380,16 @@ export const ChapterVersesList = () => {
 
               {isEditingSummary ? (
                 <div className="space-y-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium">
-                      {language === "ua" ? "Український summary" : "Ukrainian summary"}
-                    </label>
-                    <Textarea
-                      value={editedSummaryUa}
-                      onChange={(e) => setEditedSummaryUa(e.target.value)}
-                      className="min-h-[200px] font-mono text-sm"
-                      placeholder={language === "ua" ? "Введіть summary українською..." : "Enter Ukrainian summary..."}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium">
-                      {language === "ua" ? "English summary" : "English summary"}
-                    </label>
-                    <Textarea
-                      value={editedSummaryEn}
-                      onChange={(e) => setEditedSummaryEn(e.target.value)}
-                      className="min-h-[200px] font-mono text-sm"
-                      placeholder="Enter English summary..."
-                    />
-                  </div>
+                  <InlineTiptapEditor
+                    content={editedSummaryUa}
+                    onChange={setEditedSummaryUa}
+                    label={language === "ua" ? "Український summary" : "Ukrainian summary"}
+                  />
+                  <InlineTiptapEditor
+                    content={editedSummaryEn}
+                    onChange={setEditedSummaryEn}
+                    label={language === "ua" ? "English summary" : "English summary"}
+                  />
                   <div className="flex gap-2">
                     <Button
                       onClick={() => saveSummaryMutation.mutate()}
@@ -426,24 +414,28 @@ export const ChapterVersesList = () => {
                   </div>
                 </div>
               ) : (
-                <>
+                <div className="prose prose-slate dark:prose-invert max-w-none">
                   {dualMode ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                           {language === "ua" ? "Короткий зміст" : "Summary"} (UA)
                         </p>
-                        <div className="prose prose-slate dark:prose-invert max-w-none">
-                          <p className="whitespace-pre-wrap">{(effectiveChapterObj as any).summary_ua || ""}</p>
-                        </div>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize((effectiveChapterObj as any).summary_ua || "")
+                          }}
+                        />
                       </div>
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                           Summary (EN)
                         </p>
-                        <div className="prose prose-slate dark:prose-invert max-w-none">
-                          <p className="whitespace-pre-wrap">{(effectiveChapterObj as any).summary_en || ""}</p>
-                        </div>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize((effectiveChapterObj as any).summary_en || "")
+                          }}
+                        />
                       </div>
                     </div>
                   ) : (
@@ -451,16 +443,18 @@ export const ChapterVersesList = () => {
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                         {language === "ua" ? "Короткий зміст" : "Summary"}
                       </p>
-                      <div className="prose prose-slate dark:prose-invert max-w-none">
-                        <p className="whitespace-pre-wrap">
-                          {language === "ua"
-                            ? ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || "")
-                            : ((effectiveChapterObj as any).summary_en || (effectiveChapterObj as any).summary_ua || "")}
-                        </p>
-                      </div>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(
+                            language === "ua"
+                              ? ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || "")
+                              : ((effectiveChapterObj as any).summary_en || (effectiveChapterObj as any).summary_ua || "")
+                          )
+                        }}
+                      />
                     </div>
                   )}
-                </>
+                </div>
               )}
             </div>
           )}

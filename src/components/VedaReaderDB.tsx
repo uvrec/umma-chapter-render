@@ -4,10 +4,9 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, Edit, Save, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { VerseCard } from "@/components/VerseCard";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { Header } from "@/components/Header";
@@ -54,10 +53,6 @@ export const VedaReaderDB = () => {
 
   // Keyboard shortcuts state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
-
-  // Summary editing state
-  const [isEditingSummary, setIsEditingSummary] = useState(false);
-  const [editedSummary, setEditedSummary] = useState({ ua: '', en: '' });
 
   // Читаємо налаштування з localStorage і слухаємо зміни
   const [fontSize, setFontSize] = useState(() => {
@@ -402,54 +397,11 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // Мутація для оновлення summary глави
-  const updateChapterMutation = useMutation({
-    mutationFn: async ({
-      chapterId,
-      summaryUa,
-      summaryEn
-    }: {
-      chapterId: string;
-      summaryUa: string;
-      summaryEn: string;
-    }) => {
-      const { error } = await supabase
-        .from("chapters")
-        .update({
-          summary_ua: summaryUa,
-          summary_en: summaryEn
-        })
-        .eq("id", chapterId);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode]
-      });
-      toast({
-        title: t("Збережено", "Saved"),
-        description: t("Короткий зміст оновлено", "Summary updated")
-      });
-      setIsEditingSummary(false);
-    },
-    onError: (err: any) => {
-      toast({
-        title: t("Помилка", "Error"),
-        description: err.message,
-        variant: "destructive"
-      });
-    }
-  });
-
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
   const chapterTitle = chapter ? (language === "ua" ? chapter.title_ua : chapter.title_en) : null;
   const currentChapterIndex = allChapters.findIndex(ch => ch.id === chapter?.id);
   const currentVerse = verses[currentVerseIndex];
-
-  // Optional chapter summaries (present if DB has columns or via view)
-  const summaryUa: string | undefined = (chapter as any)?.summary_ua;
-  const summaryEn: string | undefined = (chapter as any)?.summary_en;
 
   // 🆕 Bookmark функція
   const toggleBookmark = () => {
@@ -482,29 +434,6 @@ export const VedaReaderDB = () => {
     toast({
       title: t("Завантаження", "Download"),
       description: t("Функція в розробці", "Feature in development")
-    });
-  };
-
-  // Summary editing handlers
-  const startEditingSummary = () => {
-    setEditedSummary({
-      ua: summaryUa || '',
-      en: summaryEn || ''
-    });
-    setIsEditingSummary(true);
-  };
-
-  const cancelEditingSummary = () => {
-    setIsEditingSummary(false);
-    setEditedSummary({ ua: '', en: '' });
-  };
-
-  const saveSummary = () => {
-    if (!chapter?.id) return;
-    updateChapterMutation.mutate({
-      chapterId: chapter.id,
-      summaryUa: editedSummary.ua,
-      summaryEn: editedSummary.en
     });
   };
 
@@ -906,146 +835,10 @@ export const VedaReaderDB = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8" style={readerStyle} data-reader-root="true">
-        {/* Summary Section - Vedabase Style (no Card, clean layout) */}
-        {(summaryUa || summaryEn || isAdmin) ? (
-          <div className="mt-8 mb-12">
-            {/* Edit/Save/Cancel buttons for admins */}
-            {isAdmin && (
-              <div className="flex justify-end mb-4 gap-2">
-                {isEditingSummary ? (
-                  <>
-                    <Button variant="default" size="sm" onClick={saveSummary}>
-                      <Save className="mr-2 h-4 w-4" />
-                      {t("Зберегти", "Save")}
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={cancelEditingSummary}>
-                      <X className="mr-2 h-4 w-4" />
-                      {t("Скасувати", "Cancel")}
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="ghost" size="sm" onClick={startEditingSummary}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    {t("Редагувати summary", "Edit summary")}
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {isEditingSummary ? (
-              // Editing Mode - Always dual language
-              <div className="space-y-6">
-                {/* Chapter labels */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 mb-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
-                    {t("ГЛАВА", "CHAPTER")} {chapter.chapter_number} (UA)
-                  </p>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
-                    CHAPTER {chapter.chapter_number} (EN)
-                  </p>
-                </div>
-
-                {/* Editing textareas */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      {t("Український summary", "Ukrainian summary")}
-                    </label>
-                    <Textarea
-                      value={editedSummary.ua}
-                      onChange={(e) => setEditedSummary(prev => ({ ...prev, ua: e.target.value }))}
-                      className="min-h-[300px] font-mono text-sm"
-                      placeholder={t("Введіть summary українською...", "Enter Ukrainian summary...")}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      {t("English summary", "English summary")}
-                    </label>
-                    <Textarea
-                      value={editedSummary.en}
-                      onChange={(e) => setEditedSummary(prev => ({ ...prev, en: e.target.value }))}
-                      className="min-h-[300px] font-mono text-sm"
-                      placeholder="Enter English summary..."
-                    />
-                  </div>
-                </div>
-              </div>
-            ) : (
-              // Display Mode
-              dualLanguageMode ? (
-                // Dual Language Mode - Side by Side
-                <>
-                  {/* Chapter labels */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 mb-2">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
-                      {t("ГЛАВА", "CHAPTER")} {chapter.chapter_number}
-                    </p>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
-                      CHAPTER {chapter.chapter_number}
-                    </p>
-                  </div>
-
-                  {/* Chapter titles */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 mb-8">
-                    <h2 className="text-3xl font-bold leading-tight">
-                      {chapter.title_ua}
-                    </h2>
-                    <h2 className="text-3xl font-bold leading-tight">
-                      {chapter.title_en}
-                    </h2>
-                  </div>
-
-                  {/* Summary text - synchronized paragraphs */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
-                    {/* Ukrainian column */}
-                    <div className="space-y-4">
-                      {(summaryUa || '').split('\n\n').filter(p => p.trim()).map((para, idx) => (
-                        <p key={`ua-${idx}`} className="leading-relaxed text-base">
-                          {para}
-                        </p>
-                      ))}
-                    </div>
-
-                    {/* English column */}
-                    <div className="space-y-4">
-                      {(summaryEn || '').split('\n\n').filter(p => p.trim()).map((para, idx) => (
-                        <p key={`en-${idx}`} className="leading-relaxed text-base">
-                          {para}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                // Single Language Mode
-                <>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70 mb-2">
-                    {language === 'ua' ? 'ГЛАВА' : 'CHAPTER'} {chapter.chapter_number}
-                  </p>
-                  <h2 className="text-3xl font-bold leading-tight mb-8">
-                    {language === 'ua' ? chapter.title_ua : chapter.title_en}
-                  </h2>
-                  <div className="space-y-4">
-                    {(language === 'ua' ? summaryUa : summaryEn)
-                      ?.split('\n\n')
-                      .filter(p => p.trim())
-                      .map((para, idx) => (
-                        <p key={idx} className="leading-relaxed text-base">
-                          {para}
-                        </p>
-                      ))}
-                  </div>
-                </>
-              )
-            )}
-          </div>
-        ) : (
-          // If no summary, show title only
-          <div className="mt-8 mb-8">
-            <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
-          </div>
-        )}
+        {/* Заголовок */}
+        <div className="mt-8 mb-8">
+          <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
+        </div>
 
         {/* Intro/preface block (render above verses if present) */}
         {(language === "ua" ? chapter.content_ua : chapter.content_en) && !isTextChapter && (
