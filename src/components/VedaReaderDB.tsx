@@ -706,6 +706,43 @@ export const VedaReaderDB = () => {
           <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
         </div>
 
+        {/* Summary блок (короткий зміст глави) */}
+        {(chapter.summary_ua || chapter.summary_en) && (
+          dualLanguageMode ? (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
+              <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6`}>
+                <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  Короткий зміст
+                </p>
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="text-foreground whitespace-pre-wrap">{chapter.summary_ua || ''}</p>
+                </div>
+              </Card>
+              <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6`}>
+                <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                  Summary
+                </p>
+                <div className="prose dark:prose-invert max-w-none">
+                  <p className="text-foreground whitespace-pre-wrap">{chapter.summary_en || ''}</p>
+                </div>
+              </Card>
+            </div>
+          ) : (
+            (language === "ua" ? chapter.summary_ua : chapter.summary_en) && (
+              <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6 mb-8`}>
+                <div className="prose prose-lg max-w-none dark:prose-invert">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+                    {t("Короткий зміст", "Summary")}
+                  </p>
+                  <div className="text-foreground whitespace-pre-wrap">
+                    {language === "ua" ? chapter.summary_ua : chapter.summary_en}
+                  </div>
+                </div>
+              </Card>
+            )
+          )
+        )}
+
         {/* Intro/preface block (render above verses if present) */}
         {(language === "ua" ? chapter.content_ua : chapter.content_en) && !isTextChapter && (
           <Card className="verse-surface p-8 mb-8">
