@@ -1,5 +1,6 @@
 import ePub from 'epubjs';
 import { normalizeText } from './normalizers';
+import { extractVerseNumberFromUrl } from '@/utils/vedabaseParsers';
 
 export async function extractTextFromEPUB(file: File): Promise<string> {
   try {
@@ -21,18 +22,68 @@ export async function extractTextFromEPUB(file: File): Promise<string> {
           
           // Check if doc is a Document object
           if (doc instanceof Document && doc.body?.textContent) {
+            // ✅ ОНОВЛЕНО: Спробуємо витягти номери віршів з заголовків та анкорів
+            let enrichedText = '';
+
+            // Шукаємо заголовки з номерами віршів
+            const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6, [class*="title"], [class*="heading"]');
+            headings.forEach((heading) => {
+              const headingText = heading.textContent || '';
+              const verseNum = extractVerseNumberFromUrl(headingText);
+              if (verseNum) {
+                enrichedText += `\nВІРШ ${verseNum}\n`;
+                console.log(`📌 Знайдено номер вірша в заголовку: ${verseNum}`);
+              }
+            });
+
+            // Шукаємо анкори з ID віршів (наприклад, <a id="verse-3-5">)
+            const anchors = doc.querySelectorAll('a[id*="verse"], [id*="verse"]');
+            anchors.forEach((anchor) => {
+              const anchorId = anchor.getAttribute('id') || '';
+              const verseNum = extractVerseNumberFromUrl(anchorId);
+              if (verseNum) {
+                enrichedText += `\nВІРШ ${verseNum}\n`;
+                console.log(`📌 Знайдено номер вірша в anchor: ${verseNum}`);
+              }
+            });
+
             const cleanText = normalizeText(doc.body.textContent);
-            console.log(`📄 Section ${sectionsCount}: ${cleanText.substring(0, 100)}...`);
-            return cleanText;
+            const finalText = enrichedText ? enrichedText + '\n' + cleanText : cleanText;
+            console.log(`📄 Section ${sectionsCount}: ${finalText.substring(0, 100)}...`);
+            return finalText;
           }
-          
+
           // Fallback: if it's a string, parse it
           if (typeof doc === 'string') {
             const parser = new DOMParser();
             const parsedDoc = parser.parseFromString(doc, 'text/html');
+
+            // ✅ ОНОВЛЕНО: те саме для string варіанту
+            let enrichedText = '';
+            const headings = parsedDoc.querySelectorAll('h1, h2, h3, h4, h5, h6, [class*="title"], [class*="heading"]');
+            headings.forEach((heading) => {
+              const headingText = heading.textContent || '';
+              const verseNum = extractVerseNumberFromUrl(headingText);
+              if (verseNum) {
+                enrichedText += `\nВІРШ ${verseNum}\n`;
+                console.log(`📌 Знайдено номер вірша в заголовку (parsed): ${verseNum}`);
+              }
+            });
+
+            const anchors = parsedDoc.querySelectorAll('a[id*="verse"], [id*="verse"]');
+            anchors.forEach((anchor) => {
+              const anchorId = anchor.getAttribute('id') || '';
+              const verseNum = extractVerseNumberFromUrl(anchorId);
+              if (verseNum) {
+                enrichedText += `\nВІРШ ${verseNum}\n`;
+                console.log(`📌 Знайдено номер вірша в anchor (parsed): ${verseNum}`);
+              }
+            });
+
             const cleanText = normalizeText(parsedDoc.body?.textContent || '');
-            console.log(`📄 Section ${sectionsCount} (parsed): ${cleanText.substring(0, 100)}...`);
-            return cleanText;
+            const finalText = enrichedText ? enrichedText + '\n' + cleanText : cleanText;
+            console.log(`📄 Section ${sectionsCount} (parsed): ${finalText.substring(0, 100)}...`);
+            return finalText;
           }
           
           return '';

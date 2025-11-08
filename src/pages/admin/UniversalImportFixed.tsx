@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { getMaxVerseFromChapter } from "@/utils/vedabaseParser";
 import { parseVedabaseCC, parseGitabaseCC, mergeVedabaseAndGitabase } from "@/utils/dualSourceParser";
+import { parseVerseNumber, normalizeVerseNumber, extractVerseNumberFromUrl } from "@/utils/vedabaseParsers";
 import {
   parseBhaktivinodaPage,
   parseBhaktivinodaSongPage,
