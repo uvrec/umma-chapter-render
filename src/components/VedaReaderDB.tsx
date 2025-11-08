@@ -216,7 +216,14 @@ export const VedaReaderDB = () => {
       if (!chapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("*")
+        .select(`
+          *,
+          is_composite,
+          start_verse,
+          end_verse,
+          verse_count,
+          sort_key
+        `)
         .eq("chapter_id", chapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -233,7 +240,14 @@ export const VedaReaderDB = () => {
       if (!fallbackChapter?.id) return [] as any[];
       const { data, error } = await supabase
         .from("verses")
-        .select("*")
+        .select(`
+          *,
+          is_composite,
+          start_verse,
+          end_verse,
+          verse_count,
+          sort_key
+        `)
         .eq("chapter_id", fallbackChapter.id)
         .order("verse_number_sort", { ascending: true });
       if (error) throw error;
@@ -885,8 +899,8 @@ export const VedaReaderDB = () => {
           <div className="space-y-8">
             {verses.map(verse => {
               const verseIdx = getDisplayVerseNumber(verse.verse_number);
-              const fullVerseNumber = isCantoMode 
-                ? `${cantoNumber}.${chapterNumber}.${verseIdx}` 
+              const fullVerseNumber = isCantoMode
+                ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
                 : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
               return (
                 <VerseCard
@@ -900,6 +914,10 @@ export const VedaReaderDB = () => {
                   translation={language === "ua" ? (verse as any).translation_ua || "" : (verse as any).translation_en || ""}
                   commentary={language === "ua" ? (verse as any).commentary_ua || "" : (verse as any).commentary_en || ""}
                   audioUrl={(verse as any).audio_url || ""}
+                  is_composite={(verse as any).is_composite}
+                  start_verse={(verse as any).start_verse}
+                  end_verse={(verse as any).end_verse}
+                  verse_count={(verse as any).verse_count}
                   textDisplaySettings={textDisplaySettings}
                   isAdmin={isAdmin}
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
@@ -955,6 +973,10 @@ export const VedaReaderDB = () => {
                         translation={(currentVerse as any).translation_ua || ""}
                         commentary={(currentVerse as any).commentary_ua || ""}
                         audioUrl={currentVerse.audio_url || ""}
+                        is_composite={(currentVerse as any).is_composite}
+                        start_verse={(currentVerse as any).start_verse}
+                        end_verse={(currentVerse as any).end_verse}
+                        verse_count={(currentVerse as any).verse_count}
                         textDisplaySettings={textDisplaySettings}
                         isAdmin={isAdmin}
                         onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
@@ -979,6 +1001,10 @@ export const VedaReaderDB = () => {
                         translation={(currentVerse as any).translation_en || ""}
                         commentary={(currentVerse as any).commentary_en || ""}
                         audioUrl={currentVerse.audio_url || ""}
+                        is_composite={(currentVerse as any).is_composite}
+                        start_verse={(currentVerse as any).start_verse}
+                        end_verse={(currentVerse as any).end_verse}
+                        verse_count={(currentVerse as any).verse_count}
                         textDisplaySettings={textDisplaySettings}
                         isAdmin={isAdmin}
                         onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
@@ -1005,6 +1031,10 @@ export const VedaReaderDB = () => {
                       translation={language === "ua" ? (currentVerse as any).translation_ua || "" : (currentVerse as any).translation_en || ""}
                       commentary={language === "ua" ? (currentVerse as any).commentary_ua || "" : (currentVerse as any).commentary_en || ""}
                       audioUrl={currentVerse.audio_url || ""}
+                      is_composite={(currentVerse as any).is_composite}
+                      start_verse={(currentVerse as any).start_verse}
+                      end_verse={(currentVerse as any).end_verse}
+                      verse_count={(currentVerse as any).verse_count}
                       textDisplaySettings={textDisplaySettings}
                       isAdmin={isAdmin}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}

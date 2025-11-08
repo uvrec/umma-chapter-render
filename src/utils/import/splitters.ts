@@ -1,4 +1,5 @@
 import { ParsedChapter, ParsedVerse, ImportTemplate, ChapterType } from '@/types/book-import';
+import { normalizeVerseNumber as normalizeCompositeVerse } from '@/utils/vedabaseParsers';
 
 // Ukrainian number words to numeric mapping (extended)
 const ukrainianNumberWords: Record<string, number> = {
@@ -314,13 +315,21 @@ function normalizeVerseNumber(raw: string): string {
   // First check if it's a Ukrainian word
   const normalized = raw.trim().replace(/['ʼ`]/g, "'").toUpperCase();
   const numericValue = ukrainianNumberWords[normalized];
-  
+
   if (numericValue !== undefined) {
     return numericValue.toString();
   }
-  
-  // Otherwise extract numeric value
-  return raw.replace(/[^\d.-]/g, '').trim();
+
+  // ✅ ОНОВЛЕНО: Підтримка складених віршів (діапазонів)
+  // Перевіряємо чи є це діапазон (наприклад, "256-266", "Verses 10-15")
+  const rangeMatch = raw.match(/(\d+)\s*[-–—]\s*(\d+)/);
+  if (rangeMatch) {
+    // Повертаємо діапазон у нормалізованому форматі "start-end"
+    return `${rangeMatch[1]}-${rangeMatch[2]}`;
+  }
+
+  // Otherwise extract numeric value (зберігаємо тільки цифри і дефіс)
+  return raw.replace(/[^\d-]/g, '').trim();
 }
 
 function parseVerse(
