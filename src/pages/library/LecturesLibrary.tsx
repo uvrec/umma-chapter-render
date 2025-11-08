@@ -59,7 +59,7 @@ export const LecturesLibrary = () => {
   const { data: lectures = [], isLoading } = useQuery({
     queryKey: ["lectures"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("lectures")
         .select("*")
         .order("lecture_date", { ascending: false });

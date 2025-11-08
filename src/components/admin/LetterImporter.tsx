@@ -29,8 +29,8 @@ import {
   importLettersBatch,
   parseLetterJSON,
   parseLettersJSONBatch,
-  type LetterImportData,
 } from "@/utils/import/letterImporter";
+import type { LetterImportData } from "@/types/letter";
 
 export const LetterImporter = () => {
   const [isProcessing, setIsProcessing] = useState(false);

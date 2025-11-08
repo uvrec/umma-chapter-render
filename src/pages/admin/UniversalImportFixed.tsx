@@ -33,6 +33,8 @@ import { extractTextFromDOCX } from "@/utils/import/docx";
 import { splitIntoChapters } from "@/utils/import/splitters";
 import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
 import { VEDABASE_BOOKS, getBookConfigByVedabaseSlug } from "@/utils/Vedabase-books";
+import { LectureImporter } from "@/components/admin/LectureImporter";
+import { LetterImporter } from "@/components/admin/LetterImporter";
 
 // 🐍 ЛОКАЛЬНИЙ PYTHON PARSER (для обходу обмежень Puppeteer в Supabase Edge Functions)
 // Встановіть true щоб використовувати parse_server.py для Gitabase (потребує запущеного сервера на порту 5003)
@@ -1413,6 +1415,12 @@ export default function UniversalImportFixed() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Додаткові імпортери: Лекції та Листи (без зміни існуючого UI) */}
+              <div className="mt-8 space-y-8">
+                <LectureImporter />
+                <LetterImporter />
               </div>
             </TabsContent>
 

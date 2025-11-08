@@ -37,20 +37,20 @@ export default function LectureImport() {
     queryFn: async () => {
       // NOTE: Це буде працювати тільки після застосування міграції
       try {
-        const { count: totalLectures } = await supabase
+        const { count: totalLectures } = await (supabase as any)
           .from("lectures")
           .select("*", { count: "exact", head: true });
 
-        const { count: totalParagraphs } = await supabase
+        const { count: totalParagraphs } = await (supabase as any)
           .from("lecture_paragraphs")
           .select("*", { count: "exact", head: true });
 
-        const { data: types } = await supabase
+        const { data: types } = await (supabase as any)
           .from("lectures")
           .select("lecture_type")
           .order("lecture_type");
 
-        const { data: locations } = await supabase
+        const { data: locations } = await (supabase as any)
           .from("lectures")
           .select("location_en")
           .order("location_en");

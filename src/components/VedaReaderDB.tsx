@@ -393,10 +393,14 @@ export const VedaReaderDB = () => {
   });
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const cantoTitle = canto ? language === "ua" ? canto.title_ua : canto.title_en : null;
-  const chapterTitle = chapter ? language === "ua" ? chapter.title_ua : chapter.title_en : null;
+  const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
+  const chapterTitle = chapter ? (language === "ua" ? chapter.title_ua : chapter.title_en) : null;
   const currentChapterIndex = allChapters.findIndex(ch => ch.id === chapter?.id);
   const currentVerse = verses[currentVerseIndex];
+
+  // Optional chapter summaries (present if DB has columns or via view)
+  const summaryUa: string | undefined = (chapter as any)?.summary_ua;
+  const summaryEn: string | undefined = (chapter as any)?.summary_en;
 
   // 🆕 Bookmark функція
   const toggleBookmark = () => {
@@ -707,7 +711,7 @@ export const VedaReaderDB = () => {
         </div>
 
         {/* Summary блок (короткий зміст глави) */}
-        {(chapter.summary_ua || chapter.summary_en) && (
+        {(summaryUa || summaryEn) && (
           dualLanguageMode ? (
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
               <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6`}>
@@ -715,7 +719,7 @@ export const VedaReaderDB = () => {
                   Короткий зміст
                 </p>
                 <div className="prose dark:prose-invert max-w-none">
-                  <p className="text-foreground whitespace-pre-wrap">{chapter.summary_ua || ''}</p>
+                  <p className="text-foreground whitespace-pre-wrap">{summaryUa || ''}</p>
                 </div>
               </Card>
               <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6`}>
@@ -723,19 +727,19 @@ export const VedaReaderDB = () => {
                   Summary
                 </p>
                 <div className="prose dark:prose-invert max-w-none">
-                  <p className="text-foreground whitespace-pre-wrap">{chapter.summary_en || ''}</p>
+                  <p className="text-foreground whitespace-pre-wrap">{summaryEn || ''}</p>
                 </div>
               </Card>
             </div>
           ) : (
-            (language === "ua" ? chapter.summary_ua : chapter.summary_en) && (
+            (language === "ua" ? summaryUa : summaryEn) && (
               <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6 mb-8`}>
                 <div className="prose prose-lg max-w-none dark:prose-invert">
                   <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
                     {t("Короткий зміст", "Summary")}
                   </p>
                   <div className="text-foreground whitespace-pre-wrap">
-                    {language === "ua" ? chapter.summary_ua : chapter.summary_en}
+                    {language === "ua" ? summaryUa : summaryEn}
                   </div>
                 </div>
               </Card>
