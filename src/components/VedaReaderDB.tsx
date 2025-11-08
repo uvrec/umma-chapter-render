@@ -250,7 +250,7 @@ export const VedaReaderDB = () => {
           sort_key
         `)
         .eq("chapter_id", chapter.id)
-        .order("verse_number_sort", { ascending: true });
+        .order("sort_key", { ascending: true });
       if (error) throw error;
       return (data || []) as any[];
     }
@@ -274,7 +274,7 @@ export const VedaReaderDB = () => {
           sort_key
         `)
         .eq("chapter_id", fallbackChapter.id)
-        .order("verse_number_sort", { ascending: true });
+        .order("sort_key", { ascending: true });
       if (error) throw error;
       return (data || []) as any[];
     }
