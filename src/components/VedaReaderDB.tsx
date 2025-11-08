@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
@@ -18,6 +18,8 @@ import { toast } from "@/hooks/use-toast";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { HighlightDialog } from "@/components/HighlightDialog";
 import { useHighlights } from "@/hooks/useHighlights";
+import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
+import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 
 export const VedaReaderDB = () => {
   const {
@@ -48,6 +50,9 @@ export const VedaReaderDB = () => {
   const [highlightDialogOpen, setHighlightDialogOpen] = useState(false);
   const [selectedTextForHighlight, setSelectedTextForHighlight] = useState("");
   const [selectionContext, setSelectionContext] = useState({ before: "", after: "" });
+
+  // Keyboard shortcuts state
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
 
   // Читаємо налаштування з localStorage і слухаємо зміни
   const [fontSize, setFontSize] = useState(() => {
@@ -615,6 +620,132 @@ export const VedaReaderDB = () => {
     return () => document.removeEventListener("mouseup", handleMouseUp);
   }, [handleTextSelection]);
 
+  // Визначити всі keyboard shortcuts
+  const shortcuts: KeyboardShortcut[] = [
+    // Navigation
+    {
+      key: 'j',
+      description: t('Наступний вірш', 'Next verse'),
+      handler: handleNextVerse,
+      category: 'navigation',
+    },
+    {
+      key: 'k',
+      description: t('Попередній вірш', 'Previous verse'),
+      handler: handlePrevVerse,
+      category: 'navigation',
+    },
+    {
+      key: '[',
+      description: t('Попередня глава', 'Previous chapter'),
+      handler: handlePrevChapter,
+      category: 'navigation',
+    },
+    {
+      key: ']',
+      description: t('Наступна глава', 'Next chapter'),
+      handler: handleNextChapter,
+      category: 'navigation',
+    },
+    // Display toggles
+    {
+      key: '1',
+      description: t('Показати/Сховати Санскрит', 'Toggle Sanskrit'),
+      handler: () => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: !prev.showSanskrit })),
+      category: 'display',
+    },
+    {
+      key: '2',
+      description: t('Показати/Сховати Транслітерацію', 'Toggle Transliteration'),
+      handler: () => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: !prev.showTransliteration })),
+      category: 'display',
+    },
+    {
+      key: '3',
+      description: t('Показати/Сховати Послівний переклад', 'Toggle Synonyms'),
+      handler: () => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: !prev.showSynonyms })),
+      category: 'display',
+    },
+    {
+      key: '4',
+      description: t('Показати/Сховати Переклад', 'Toggle Translation'),
+      handler: () => setTextDisplaySettings(prev => ({ ...prev, showTranslation: !prev.showTranslation })),
+      category: 'display',
+    },
+    {
+      key: '5',
+      description: t('Показати/Сховати Пояснення', 'Toggle Commentary'),
+      handler: () => setTextDisplaySettings(prev => ({ ...prev, showCommentary: !prev.showCommentary })),
+      category: 'display',
+    },
+    // Font controls
+    {
+      key: '}',
+      description: t('Збільшити шрифт', 'Increase font size'),
+      handler: () => {
+        const newSize = Math.min(fontSize + 2, 32);
+        setFontSize(newSize);
+        localStorage.setItem("vv_reader_fontSize", String(newSize));
+      },
+      category: 'font',
+    },
+    {
+      key: '{',
+      description: t('Зменшити шрифт', 'Decrease font size'),
+      handler: () => {
+        const newSize = Math.max(fontSize - 2, 12);
+        setFontSize(newSize);
+        localStorage.setItem("vv_reader_fontSize", String(newSize));
+      },
+      category: 'font',
+    },
+    // Modes
+    {
+      key: 'd',
+      description: t('Двомовний режим', 'Dual language mode'),
+      handler: () => {
+        const newMode = !dualLanguageMode;
+        setDualLanguageMode(newMode);
+        localStorage.setItem("vv_reader_dualMode", String(newMode));
+      },
+      category: 'modes',
+    },
+    {
+      key: 'c',
+      description: t('Безперервне читання', 'Continuous reading'),
+      handler: () => setContinuousReadingSettings(prev => ({ ...prev, enabled: !prev.enabled })),
+      category: 'modes',
+    },
+    {
+      key: 'p',
+      description: t('Режим крафт-паперу', 'Craft paper mode'),
+      handler: () => setCraftPaperMode(prev => !prev),
+      category: 'modes',
+    },
+    // Help
+    {
+      key: '?',
+      description: t('Показати клавіатурні скорочення', 'Show keyboard shortcuts'),
+      handler: () => setShowKeyboardShortcuts(prev => !prev),
+      category: 'help',
+    },
+    {
+      key: 'Escape',
+      description: t('Закрити модальне вікно', 'Close modal'),
+      handler: () => {
+        setShowKeyboardShortcuts(false);
+        setSettingsOpen(false);
+      },
+      category: 'help',
+    },
+  ];
+
+  // Активувати keyboard shortcuts
+  useKeyboardShortcuts({
+    enabled: true,
+    shortcuts,
+  });
+
   // Скелетон-завантаження
   if (isLoading) {
     return <div className="min-h-screen bg-background">
@@ -681,10 +812,10 @@ export const VedaReaderDB = () => {
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
               </Button>
               {isAdmin && (
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => navigate("/admin/highlights")} 
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/admin/highlights")}
                   title={t("Виділення", "Highlights")}
                 >
                   <Highlighter className="h-5 w-5" />
@@ -696,6 +827,9 @@ export const VedaReaderDB = () => {
               <Button variant="ghost" size="icon" onClick={handleDownload} title={t("Завантажити", "Download")}>
                 <Download className="h-5 w-5" />
               </Button>
+              <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
+                <HelpCircle className="h-5 w-5" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} title={t("Налаштування", "Settings")}>
                 <Settings className="h-5 w-5" />
               </Button>
@@ -705,46 +839,78 @@ export const VedaReaderDB = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8" style={readerStyle} data-reader-root="true">
-        {/* Заголовок */}
-        <div className="mb-8">
-          <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
-        </div>
-
-        {/* Summary блок (короткий зміст глави) */}
-        {(summaryUa || summaryEn) && (
+        {/* Summary Section - Vedabase Style (no Card, clean layout) */}
+        {(summaryUa || summaryEn) ? (
           dualLanguageMode ? (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 mb-8">
-              <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6`}>
-                <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                  Короткий зміст
+            // Dual Language Mode - Side by Side
+            <div className="mt-8 mb-12">
+              {/* Chapter labels */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
+                  {t("ГЛАВА", "CHAPTER")} {chapter.chapter_number}
                 </p>
-                <div className="prose dark:prose-invert max-w-none">
-                  <p className="text-foreground whitespace-pre-wrap">{summaryUa || ''}</p>
-                </div>
-              </Card>
-              <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6`}>
-                <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                  Summary
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">
+                  CHAPTER {chapter.chapter_number}
                 </p>
-                <div className="prose dark:prose-invert max-w-none">
-                  <p className="text-foreground whitespace-pre-wrap">{summaryEn || ''}</p>
+              </div>
+
+              {/* Chapter titles */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 mb-8">
+                <h2 className="text-3xl font-bold leading-tight">
+                  {chapter.title_ua}
+                </h2>
+                <h2 className="text-3xl font-bold leading-tight">
+                  {chapter.title_en}
+                </h2>
+              </div>
+
+              {/* Summary text - synchronized paragraphs */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
+                {/* Ukrainian column */}
+                <div className="space-y-4">
+                  {(summaryUa || '').split('\n\n').filter(p => p.trim()).map((para, idx) => (
+                    <p key={`ua-${idx}`} className="leading-relaxed text-base">
+                      {para}
+                    </p>
+                  ))}
                 </div>
-              </Card>
+
+                {/* English column */}
+                <div className="space-y-4">
+                  {(summaryEn || '').split('\n\n').filter(p => p.trim()).map((para, idx) => (
+                    <p key={`en-${idx}`} className="leading-relaxed text-base">
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
-            (language === "ua" ? summaryUa : summaryEn) && (
-              <Card className={`${craftPaperMode ? 'verse-surface' : 'bg-muted/50'} p-6 mb-8`}>
-                <div className="prose prose-lg max-w-none dark:prose-invert">
-                  <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-2">
-                    {t("Короткий зміст", "Summary")}
-                  </p>
-                  <div className="text-foreground whitespace-pre-wrap">
-                    {language === "ua" ? summaryUa : summaryEn}
-                  </div>
-                </div>
-              </Card>
-            )
+            // Single Language Mode
+            <div className="mt-8 mb-12">
+              <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70 mb-2">
+                {language === 'ua' ? 'ГЛАВА' : 'CHAPTER'} {chapter.chapter_number}
+              </p>
+              <h2 className="text-3xl font-bold leading-tight mb-8">
+                {language === 'ua' ? chapter.title_ua : chapter.title_en}
+              </h2>
+              <div className="space-y-4">
+                {(language === 'ua' ? summaryUa : summaryEn)
+                  ?.split('\n\n')
+                  .filter(p => p.trim())
+                  .map((para, idx) => (
+                    <p key={idx} className="leading-relaxed text-base">
+                      {para}
+                    </p>
+                  ))}
+              </div>
+            </div>
           )
+        ) : (
+          // If no summary, show title only
+          <div className="mt-8 mb-8">
+            <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
+          </div>
         )}
 
         {/* Intro/preface block (render above verses if present) */}
@@ -950,12 +1116,18 @@ export const VedaReaderDB = () => {
       </div>
 
       <GlobalSettingsPanel />
-      
+
       <HighlightDialog
         isOpen={highlightDialogOpen}
         onClose={() => setHighlightDialogOpen(false)}
         onSave={handleSaveHighlight}
         selectedText={selectedTextForHighlight}
+      />
+
+      <KeyboardShortcutsModal
+        isOpen={showKeyboardShortcuts}
+        onClose={() => setShowKeyboardShortcuts(false)}
+        shortcuts={shortcuts}
       />
     </div>
   );
