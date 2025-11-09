@@ -38,18 +38,48 @@ function extractVedabaseContent(html: string) {
   };
 
   try {
-    // САНСКРИТ (спільний для обох мов)
-    const devanagariMatch = html.match(/[\u0900-\u097F।॥\s]+/g);
-    const bengaliMatch = html.match(/[\u0980-\u09FF।॥\s]+/g);
+    // САНСКРИТ/БЕНГАЛІ (спільний для обох мов)
+    // Спочатку пробуємо знайти блоки з класом av-bengali або av-devanagari
+    const classBasedRegex = /<div[^>]*class="[^"]*av-(?:bengali|devanagari)[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+    const classBasedMatches = [...html.matchAll(classBasedRegex)];
 
-    const allMatches = [...(devanagariMatch || []), ...(bengaliMatch || [])];
-    const longest = allMatches
-      .map((s) => s.trim())
-      .filter((s) => s.length > 10)
-      .sort((a, b) => b.length - a.length)[0];
+    if (classBasedMatches.length > 0) {
+      // Витягуємо текст з кожного блоку
+      const texts = classBasedMatches.map(match => {
+        return match[1]
+          .replace(/<[^>]+>/g, ' ')  // Видаляємо HTML теги
+          .replace(/\s+/g, ' ')       // Нормалізуємо пробіли
+          .trim();
+      }).filter(text => text.length > 10);
 
-    if (longest) {
-      result.sanskrit = longest;
+      // Об'єднуємо всі блоки з подвійним переносом рядка
+      if (texts.length > 0) {
+        if (texts.length > 1) {
+          console.log(`[Vedabase Parser] Found ${texts.length} Bengali/Devanagari blocks (combined verse)`);
+        }
+        result.sanskrit = texts.join('\n\n');
+      }
+    } else {
+      // Fallback: використовуємо старий метод з покращенням
+      const devanagariMatch = html.match(/[\u0900-\u097F।॥\s]+/g);
+      const bengaliMatch = html.match(/[\u0980-\u09FF।॥\s]+/g);
+
+      const allMatches = [...(devanagariMatch || []), ...(bengaliMatch || [])];
+      const validBlocks = allMatches
+        .map((s) => s.trim())
+        .filter((s) => s.length > 10);
+
+      // Шукаємо блоки з номерами віршів (॥ २२२ ॥, ॥ २२९ ॥ тощо)
+      const blocksWithVerseNumbers = validBlocks.filter(block => /॥\s*[\u0966-\u096F२]+\s*॥/.test(block));
+
+      // Якщо знайдено кілька блоків з номерами віршів - це об'єднаний вірш
+      if (blocksWithVerseNumbers.length > 1) {
+        console.log(`[Vedabase Parser] Found ${blocksWithVerseNumbers.length} verse blocks with numbers (combined verse, fallback method)`);
+        result.sanskrit = blocksWithVerseNumbers.join('\n\n');
+      } else if (validBlocks.length > 0) {
+        // Інакше беремо найдовший блок
+        result.sanskrit = validBlocks.sort((a, b) => b.length - a.length)[0];
+      }
     }
 
     // ТРАНСЛІТЕРАЦІЯ (IAST)
@@ -62,7 +92,20 @@ function extractVedabaseContent(html: string) {
       );
 
       if (withDiacritics.length > 0) {
-        result.transliteration = withDiacritics.sort((a, b) => b.length - a.length)[0].trim();
+        // Сортуємо за довжиною
+        const sorted = withDiacritics.sort((a, b) => b.length - a.length);
+
+        // Перевіряємо, чи є це об'єднаний вірш (другий блок > 40% від першого)
+        if (sorted.length > 1 && sorted[1].length > sorted[0].length * 0.4) {
+          // Об'єднуємо перші 2-3 найдовші блоки
+          const blocksToJoin = sorted.slice(0, Math.min(3, sorted.length))
+            .filter(block => block.length > sorted[0].length * 0.3);
+          console.log(`[Vedabase Parser] Found ${blocksToJoin.length} transliteration blocks (combined verse)`);
+          result.transliteration = blocksToJoin.map(s => s.trim()).join('\n\n');
+        } else {
+          // Звичайний вірш - беремо найдовший блок
+          result.transliteration = sorted[0].trim();
+        }
       }
     }
 
