@@ -79,42 +79,72 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
     let translation_raw = '';
     let purport_raw = '';
 
-    // 1. ТРАНСЛІТЕРАЦІЯ - перший блок (IAST латиниця)
+    // 1. ТРАНСЛІТЕРАЦІЯ - ✅ ВИПРАВЛЕНО: збираємо ВСІ блоки (для composite verses)
     // Розпізнаємо по латинських літерах з діакритикою
-    for (let i = 0; i < textBlocks.length; i++) {
+    const transliterationParts: string[] = [];
+    for (let i = textBlocks.length - 1; i >= 0; i--) {
       const block = textBlocks[i];
       if (/[āīūṛṣṭḍṇśñṅṁḥ]/.test(block) && /^[a-zA-Zāīūṛṣṭḍṇśñṅṁḥ\s\-'']+$/.test(block)) {
-        transliteration_raw = block;
+        transliterationParts.unshift(block); // Додаємо на початок щоб зберегти порядок
         textBlocks.splice(i, 1); // Видаляємо з масиву
-        break;
       }
     }
+    transliteration_raw = transliterationParts.join('\n');
+    if (transliterationParts.length > 1) {
+      console.log(`📝 Знайдено ${transliterationParts.length} блоків транслітерації (composite verse)`);
+    }
 
-    // 2. ПОСЛІВНИЙ - другий блок (містить — з тире)
-    for (let i = 0; i < textBlocks.length; i++) {
+    // 2. ПОСЛІВНИЙ - ✅ ВИПРАВЛЕНО: збираємо ВСІ блоки (для composite verses)
+    const synonymsParts: string[] = [];
+    for (let i = textBlocks.length - 1; i >= 0; i--) {
       const block = textBlocks[i];
       if (block.includes(' — ') && block.length < 500) {
-        synonyms_raw = block;
+        synonymsParts.unshift(block); // Додаємо на початок щоб зберегти порядок
         textBlocks.splice(i, 1);
-        break;
       }
     }
+    synonyms_raw = synonymsParts.join('; ');
+    if (synonymsParts.length > 1) {
+      console.log(`📖 Знайдено ${synonymsParts.length} блоків синонімів (composite verse)`);
+    }
 
-    // 3. ПЕРЕКЛАД - шукаємо "Текст" (заголовок) або короткий блок
+    // 3. ПЕРЕКЛАД - ✅ ВИПРАВЛЕНО: збираємо ВСІ блоки перекладу (для composite verses)
     const textIndex = textBlocks.findIndex(b => b === 'Текст' || b.trim() === 'Текст');
-    if (textIndex !== -1 && textIndex + 1 < textBlocks.length) {
-      translation_raw = textBlocks[textIndex + 1];
-      textBlocks.splice(textIndex, 2); // Видаляємо заголовок і текст
-    } else {
-      // Якщо немає заголовка, шукаємо короткий блок (100-600 символів)
-      for (let i = 0; i < textBlocks.length; i++) {
-        const block = textBlocks[i];
-        if (block.length > 100 && block.length < 600) {
-          translation_raw = block;
-          textBlocks.splice(i, 1);
+    const translationParts: string[] = [];
+
+    if (textIndex !== -1) {
+      // Після заголовка "Текст" можуть бути декілька блоків перекладу
+      textBlocks.splice(textIndex, 1); // Видаляємо заголовок
+
+      // Збираємо всі короткі блоки після заголовка (до наступного заголовка)
+      while (textBlocks.length > 0) {
+        const block = textBlocks[0];
+        // Якщо це новий заголовок - зупиняємось
+        if (block === 'Комментарий' || block.includes('Комментарий')) {
+          break;
+        }
+        // Якщо це схоже на переклад (100-1000 символів) - додаємо
+        if (block.length > 100 && block.length < 1000) {
+          translationParts.push(block);
+          textBlocks.splice(0, 1);
+        } else {
           break;
         }
       }
+    } else {
+      // Fallback: шукаємо короткі блоки (100-600 символів)
+      for (let i = textBlocks.length - 1; i >= 0; i--) {
+        const block = textBlocks[i];
+        if (block.length > 100 && block.length < 600) {
+          translationParts.unshift(block);
+          textBlocks.splice(i, 1);
+        }
+      }
+    }
+
+    translation_raw = translationParts.join(' '); // Об'єднуємо через пробіл
+    if (translationParts.length > 1) {
+      console.log(`📄 Знайдено ${translationParts.length} блоків перекладу (composite verse)`);
     }
 
     // 4. ПОЯСНЕННЯ - шукаємо "Комментарий" або решта тексту (довгий)

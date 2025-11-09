@@ -40,15 +40,23 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
 
     // 1. BENGALI TEXT - ВИПРАВЛЕНИЙ СЕЛЕКТОР ДЛЯ CC
     let bengali = '';
-    // Bengali/Sanskrit для CC знаходиться в .av-bengali div.text-center
-    const bengaliContainer = doc.querySelector('.av-bengali div.text-center');
-    if (bengaliContainer) {
-      bengali = bengaliContainer.innerHTML
-        .replace(/<br\s*\/?>/g, '\n')
-        .replace(/<[^>]*>/g, '')
-        .trim();
+    // ✅ ВИПРАВЛЕНО: Для composite verses беремо ВСІ блоки Bengali/Sanskrit
+    const bengaliContainers = doc.querySelectorAll('.av-bengali div.text-center');
+    if (bengaliContainers.length > 0) {
+      const bengaliParts: string[] = [];
+      bengaliContainers.forEach(container => {
+        const text = container.innerHTML
+          .replace(/<br\s*\/?>/g, '\n')
+          .replace(/<[^>]*>/g, '')
+          .trim();
+        if (text) {
+          bengaliParts.push(text);
+        }
+      });
+      bengali = bengaliParts.join('\n');
+      console.log(`📖 Знайдено ${bengaliContainers.length} блоків бенгалі/санскриту`);
     }
-    
+
     // Fallback на старі селектори для інших текстів
     if (!bengali) {
       const bengaliSelectors = ['.r-verse', '.r-bengali', '.r-verse-bengali', '.r-original'];
@@ -63,14 +71,21 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
 
     // 2. TRANSLITERATION - РЕАЛЬНА структура: .av-verse_text .text-center.italic em
     let transliteration = '';
-    const translitElement = doc.querySelector('.av-verse_text .text-center.italic em');
-    if (translitElement) {
-      // Збираємо всі <em> теги і текстові вузли всередині, зберігаючи <br> як переноси рядків
-      const html = translitElement.innerHTML;
-      transliteration = html
-        .replace(/<br\s*\/?>/gi, '\n')  // <br> -> перенос рядка
-        .replace(/<[^>]+>/g, '')         // видаляємо всі інші теги
-        .trim();
+    // ✅ ВИПРАВЛЕНО: Для composite verses беремо ВСІ блоки транслітерації
+    const translitElements = doc.querySelectorAll('.av-verse_text .text-center.italic em');
+    if (translitElements.length > 0) {
+      const translitParts: string[] = [];
+      translitElements.forEach(element => {
+        const text = element.innerHTML
+          .replace(/<br\s*\/?>/gi, '\n')  // <br> -> перенос рядка
+          .replace(/<[^>]+>/g, '')         // видаляємо всі інші теги
+          .trim();
+        if (text) {
+          translitParts.push(text);
+        }
+      });
+      transliteration = translitParts.join('\n');
+      console.log(`📝 Знайдено ${translitElements.length} блоків транслітерації`);
     }
 
     // 3. SYNONYMS - РЕАЛЬНА структура: .av-synonyms .text-justify span.inline
