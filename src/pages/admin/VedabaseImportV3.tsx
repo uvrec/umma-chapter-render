@@ -83,28 +83,54 @@ function extractVedabaseContent(html: string) {
     }
 
     // ТРАНСЛІТЕРАЦІЯ (IAST)
-    const iastPattern = /\b[a-zA-Zāīūṛṝḷḹēōṃḥśṣṇṭḍñṅ\s\-']+\b/g;
-    const iastMatches = html.match(iastPattern);
+    // Спочатку пробуємо знайти блоки з класом av-verse_text
+    const verseTextRegex = /<div[^>]*class="[^"]*av-verse_text[^"]*"[^>]*>([\s\S]*?)<\/div>/gi;
+    const verseTextMatches = [...html.matchAll(verseTextRegex)];
 
-    if (iastMatches) {
-      const withDiacritics = iastMatches.filter(
-        (text) => /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
-      );
+    if (verseTextMatches.length > 0) {
+      // Витягуємо текст з кожного блоку
+      const texts = verseTextMatches.map(match => {
+        return match[1]
+          .replace(/<[^>]+>/g, ' ')  // Видаляємо HTML теги
+          .replace(/\s+/g, ' ')       // Нормалізуємо пробіли
+          .trim();
+      }).filter(text => {
+        // Фільтруємо блоки з IAST діакритикою та достатньою довжиною
+        return /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text) && text.split(/\s+/).length > 2;
+      });
 
-      if (withDiacritics.length > 0) {
-        // Сортуємо за довжиною
-        const sorted = withDiacritics.sort((a, b) => b.length - a.length);
+      // Об'єднуємо всі блоки з подвійним переносом рядка
+      if (texts.length > 0) {
+        if (texts.length > 1) {
+          console.log(`[Vedabase Parser] Found ${texts.length} transliteration blocks via av-verse_text (combined verse)`);
+        }
+        result.transliteration = texts.join('\n\n');
+      }
+    } else {
+      // Fallback: використовуємо regex IAST
+      const iastPattern = /\b[a-zA-Zāīūṛṝḷḹēōṃḥśṣṇṭḍñṅ\s\-']+\b/g;
+      const iastMatches = html.match(iastPattern);
 
-        // Перевіряємо, чи є це об'єднаний вірш (другий блок > 40% від першого)
-        if (sorted.length > 1 && sorted[1].length > sorted[0].length * 0.4) {
-          // Об'єднуємо перші 2-3 найдовші блоки
-          const blocksToJoin = sorted.slice(0, Math.min(3, sorted.length))
-            .filter(block => block.length > sorted[0].length * 0.3);
-          console.log(`[Vedabase Parser] Found ${blocksToJoin.length} transliteration blocks (combined verse)`);
-          result.transliteration = blocksToJoin.map(s => s.trim()).join('\n\n');
-        } else {
-          // Звичайний вірш - беремо найдовший блок
-          result.transliteration = sorted[0].trim();
+      if (iastMatches) {
+        const withDiacritics = iastMatches.filter(
+          (text) => /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text) && text.trim().split(/\s+/).length > 3,
+        );
+
+        if (withDiacritics.length > 0) {
+          // Сортуємо за довжиною
+          const sorted = withDiacritics.sort((a, b) => b.length - a.length);
+
+          // Перевіряємо, чи є це об'єднаний вірш (другий блок > 40% від першого)
+          if (sorted.length > 1 && sorted[1].length > sorted[0].length * 0.4) {
+            // Об'єднуємо перші 2-3 найдовші блоки
+            const blocksToJoin = sorted.slice(0, Math.min(3, sorted.length))
+              .filter(block => block.length > sorted[0].length * 0.3);
+            console.log(`[Vedabase Parser] Found ${blocksToJoin.length} transliteration blocks via regex (combined verse, fallback)`);
+            result.transliteration = blocksToJoin.map(s => s.trim()).join('\n\n');
+          } else {
+            // Звичайний вірш - беремо найдовший блок
+            result.transliteration = sorted[0].trim();
+          }
         }
       }
     }
