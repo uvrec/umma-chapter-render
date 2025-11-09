@@ -41,20 +41,34 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     // 1. BENGALI TEXT - ВИПРАВЛЕНИЙ СЕЛЕКТОР ДЛЯ CC
     let bengali = '';
     // ✅ ВИПРАВЛЕНО: Для composite verses беремо ВСІ блоки Bengali/Sanskrit
-    const bengaliContainers = doc.querySelectorAll('.av-bengali div.text-center');
-    if (bengaliContainers.length > 0) {
-      const bengaliParts: string[] = [];
-      bengaliContainers.forEach(container => {
-        const text = container.innerHTML
-          .replace(/<br\s*\/?>/g, '\n')
-          .replace(/<[^>]*>/g, '')
-          .trim();
-        if (text) {
-          bengaliParts.push(text);
-        }
-      });
-      bengali = bengaliParts.join('\n');
-      console.log(`📖 Знайдено ${bengaliContainers.length} блоків бенгалі/санскриту`);
+
+    // Спочатку пробуємо знайти контейнер .av-bengali
+    const mainBengaliContainer = doc.querySelector('.av-bengali');
+    if (mainBengaliContainer) {
+      // Шукаємо всі div.text-center всередині
+      const bengaliContainers = mainBengaliContainer.querySelectorAll('div.text-center');
+
+      if (bengaliContainers.length > 0) {
+        const bengaliParts: string[] = [];
+        bengaliContainers.forEach((container, index) => {
+          const text = container.innerHTML
+            .replace(/<br\s*\/?>/g, '\n')
+            .replace(/<[^>]*>/g, '')
+            .trim();
+          if (text) {
+            bengaliParts.push(text);
+            console.log(`📖 Блок ${index + 1}: ${text.substring(0, 50)}...`);
+          }
+        });
+
+        // Об'єднуємо блоки з порожнім рядком між ними для composite verses
+        bengali = bengaliParts.join('\n\n');
+        console.log(`📖 Знайдено ${bengaliContainers.length} блоків бенгалі/санскриту`);
+      } else {
+        // Fallback: якщо немає div.text-center, беремо весь текст контейнера
+        bengali = mainBengaliContainer.textContent?.trim() || '';
+        console.log(`📖 Використано fallback для .av-bengali (весь текст)`);
+      }
     }
 
     // Fallback на старі селектори для інших текстів
@@ -64,7 +78,10 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
         const el = doc.querySelector(sel);
         if (el) {
           bengali = el.textContent?.trim() || '';
-          if (bengali) break;
+          if (bengali) {
+            console.log(`📖 Використано fallback селектор: ${sel}`);
+            break;
+          }
         }
       }
     }
@@ -72,20 +89,66 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     // 2. TRANSLITERATION - РЕАЛЬНА структура: .av-verse_text .text-center.italic em
     let transliteration = '';
     // ✅ ВИПРАВЛЕНО: Для composite verses беремо ВСІ блоки транслітерації
-    const translitElements = doc.querySelectorAll('.av-verse_text .text-center.italic em');
-    if (translitElements.length > 0) {
-      const translitParts: string[] = [];
-      translitElements.forEach(element => {
-        const text = element.innerHTML
-          .replace(/<br\s*\/?>/gi, '\n')  // <br> -> перенос рядка
-          .replace(/<[^>]+>/g, '')         // видаляємо всі інші теги
-          .trim();
-        if (text) {
-          translitParts.push(text);
-        }
-      });
-      transliteration = translitParts.join('\n');
-      console.log(`📝 Знайдено ${translitElements.length} блоків транслітерації`);
+
+    // Спочатку пробуємо знайти контейнер .av-verse_text
+    const mainTranslitContainer = doc.querySelector('.av-verse_text');
+    if (mainTranslitContainer) {
+      // Шукаємо всі .text-center.italic всередині
+      const translitContainers = mainTranslitContainer.querySelectorAll('.text-center.italic');
+
+      if (translitContainers.length > 0) {
+        const translitParts: string[] = [];
+        translitContainers.forEach((container, index) => {
+          // Беремо текст з em елементів або весь текст контейнера
+          const emElements = container.querySelectorAll('em');
+          let text = '';
+
+          if (emElements.length > 0) {
+            const emTexts: string[] = [];
+            emElements.forEach(em => {
+              const emText = em.innerHTML
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<[^>]+>/g, '')
+                .trim();
+              if (emText) emTexts.push(emText);
+            });
+            text = emTexts.join('\n');
+          } else {
+            text = container.innerHTML
+              .replace(/<br\s*\/?>/gi, '\n')
+              .replace(/<[^>]+>/g, '')
+              .trim();
+          }
+
+          if (text) {
+            translitParts.push(text);
+            console.log(`📝 Блок транслітерації ${index + 1}: ${text.substring(0, 50)}...`);
+          }
+        });
+
+        // Об'єднуємо блоки з порожнім рядком між ними для composite verses
+        transliteration = translitParts.join('\n\n');
+        console.log(`📝 Знайдено ${translitContainers.length} блоків транслітерації`);
+      }
+    }
+
+    // Fallback на старий селектор
+    if (!transliteration) {
+      const translitElements = doc.querySelectorAll('.av-verse_text .text-center.italic em');
+      if (translitElements.length > 0) {
+        const translitParts: string[] = [];
+        translitElements.forEach(element => {
+          const text = element.innerHTML
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/<[^>]+>/g, '')
+            .trim();
+          if (text) {
+            translitParts.push(text);
+          }
+        });
+        transliteration = translitParts.join('\n\n');
+        console.log(`📝 Fallback: знайдено ${translitElements.length} em елементів`);
+      }
     }
 
     // 3. SYNONYMS - РЕАЛЬНА структура: .av-synonyms .text-justify span.inline
