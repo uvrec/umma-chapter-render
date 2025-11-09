@@ -398,16 +398,16 @@ function removeGitabaseArtifacts(text: string): string {
  */
 function fixApostropheAfterN(text: string): string {
   if (!text) return text;
-  
+
   // Виключення - слова де апостроф після н правильний
   const exceptions = [
     "ачар'я", "Ачар'я",
     "антар'ямі", "Антар'ямі",
     "антар'ям", "Антар'ям",
   ];
-  
+
   let result = text;
-  
+
   // Зберігаємо виключення (заміняємо тимчасовим placeholder)
   const placeholders: Record<string, string> = {};
   exceptions.forEach((exception, idx) => {
@@ -417,16 +417,77 @@ function fixApostropheAfterN(text: string): string {
       result = result.split(exception).join(placeholder);
     }
   });
-  
+
   // Тепер робимо заміну н' → нь
   result = result.replace(/н'/g, 'нь').replace(/Н'/g, 'Нь');
-  
+
   // Відновлюємо виключення
   Object.entries(placeholders).forEach(([placeholder, original]) => {
     result = result.split(placeholder).join(original);
   });
-  
+
   return result;
+}
+
+/**
+ * Видаляє дублікати речень з тексту
+ * Зберігає тільки перше входження кожного унікального речення
+ *
+ * @param text - текст для обробки
+ * @returns текст без дублікатів речень
+ *
+ * @example
+ * removeDuplicateSentences("First sentence. First sentence. Second sentence.")
+ * // => "First sentence. Second sentence."
+ */
+function removeDuplicateSentences(text: string): string {
+  if (!text) return text;
+
+  // Розбиваємо текст на речення за крапкою/знаком оклику/питання,
+  // після яких йде пробіл або кінець рядка
+  // Це уникає розбиття на речення в посиланнях типу (10.30.36-38)
+  const sentencePattern = /[.!?](?=\s|$)/g;
+
+  // Знаходимо всі позиції розділювачів
+  const splitPositions: number[] = [];
+  let match;
+  while ((match = sentencePattern.exec(text)) !== null) {
+    splitPositions.push(match.index + 1); // позиція після розділювача
+  }
+
+  // Розбиваємо текст на речення
+  const sentences: string[] = [];
+  let start = 0;
+  for (const pos of splitPositions) {
+    const sentence = text.substring(start, pos).trim();
+    if (sentence) {
+      sentences.push(sentence);
+    }
+    start = pos;
+  }
+
+  // Додаємо залишок тексту, якщо є
+  const remainder = text.substring(start).trim();
+  if (remainder) {
+    sentences.push(remainder);
+  }
+
+  if (sentences.length === 0) return text;
+
+  // Використовуємо Set для відстеження унікальних речень
+  const seen = new Set<string>();
+  const uniqueSentences: string[] = [];
+
+  sentences.forEach(sentence => {
+    const normalized = sentence.trim();
+
+    if (normalized && !seen.has(normalized)) {
+      seen.add(normalized);
+      uniqueSentences.push(normalized);
+    }
+  });
+
+  return uniqueSentences.join(' ');
 }
 
 // ============================================================================
@@ -459,6 +520,14 @@ export function normalizeVerseField(text: string, fieldType: string): string {
 
     case "synonyms":
     case "translation":
+      result = normalizeDiacritics(result);
+      result = normalizeWordReplacements(result);
+      result = fixApostropheAfterN(result); // ✅ ТІЛЬКИ для українського тексту!
+      for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
+        result = result.split(old).join(newVal);
+      }
+      break;
+
     case "commentary":
       result = normalizeDiacritics(result);
       result = normalizeWordReplacements(result);
@@ -466,6 +535,7 @@ export function normalizeVerseField(text: string, fieldType: string): string {
       for (const [old, newVal] of Object.entries(CONSONANT_CLUSTERS)) {
         result = result.split(old).join(newVal);
       }
+      result = removeDuplicateSentences(result); // ✅ Видаляємо дублікати речень
       break;
   }
 
