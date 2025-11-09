@@ -132,20 +132,35 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Bengali/Sanskrit text - correct selector for all CC lilas
+    // Bengali/Sanskrit text - support for combined verses (e.g., CC Madhya 17.228-229)
     let bengali = '';
-    // Bengali is in .av-bengali container with text-center class
-    const bengaliContainer = doc.querySelector('.av-bengali div.text-center');
-    if (bengaliContainer && bengaliContainer.textContent) {
-      bengali = bengaliContainer.innerHTML
-        .replace(/<br\s*\/?>/g, '\n')
-        .replace(/<[^>]*>/g, '')
-        .trim();
-      console.log(`✅ Bengali знайдено: ${bengali.substring(0, 50)}...`);
+
+    // Шукаємо всі блоки .av-bengali (може бути кілька для об'єднаних віршів)
+    const bengaliContainers = doc.querySelectorAll('.av-bengali div.text-center');
+    if (bengaliContainers.length > 0) {
+      const bengaliBlocks: string[] = [];
+      bengaliContainers.forEach(container => {
+        if (container.textContent && container.textContent.trim().length > 10) {
+          const block = container.innerHTML
+            .replace(/<br\s*\/?>/g, '\n')
+            .replace(/<[^>]*>/g, '')
+            .trim();
+          bengaliBlocks.push(block);
+        }
+      });
+
+      if (bengaliBlocks.length > 0) {
+        bengali = bengaliBlocks.join('\n\n');
+        if (bengaliBlocks.length > 1) {
+          console.log(`✅ Bengali знайдено: ${bengaliBlocks.length} blocks (combined verse)`);
+        } else {
+          console.log(`✅ Bengali знайдено: ${bengali.substring(0, 50)}...`);
+        }
+      }
     } else {
       console.warn('⚠️ Bengali НЕ знайдено на сторінці');
     }
-    
+
     // Якщо не знайшли через селектори - шукаємо <r class="verse">
     if (!bengali) {
       const rTags = doc.querySelectorAll('r.verse, r[class*="verse"]');
@@ -157,14 +172,29 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
       }
     }
 
-    // Transliteration (IAST)
+    // Transliteration (IAST) - support for combined verses
     let transliteration_en = '';
-    const translitElement = doc.querySelector('.av-verse_text .text-center.italic em');
-    if (translitElement) {
-      transliteration_en = translitElement.innerHTML
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<[^>]+>/g, '')
-        .trim();
+
+    // Шукаємо всі блоки .av-verse_text (може бути кілька для об'єднаних віршів)
+    const translitContainers = doc.querySelectorAll('.av-verse_text .text-center.italic em');
+    if (translitContainers.length > 0) {
+      const translitBlocks: string[] = [];
+      translitContainers.forEach(element => {
+        const block = element.innerHTML
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/<[^>]+>/g, '')
+          .trim();
+        if (block && block.split(/\s+/).length > 2) {
+          translitBlocks.push(block);
+        }
+      });
+
+      if (translitBlocks.length > 0) {
+        transliteration_en = translitBlocks.join('\n\n');
+        if (translitBlocks.length > 1) {
+          console.log(`✅ Transliteration знайдено: ${translitBlocks.length} blocks (combined verse)`);
+        }
+      }
     }
 
     // Synonyms (IAST + English)
