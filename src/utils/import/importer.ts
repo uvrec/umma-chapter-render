@@ -1,6 +1,7 @@
 // src/utils/import/importer.ts
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
+import { processVerseLineBreaks } from "./lineBreaker";
 
 /** Санітизація HTML на імпорті (додатковий “пояс безпеки” до DOMPurify на рендері) */
 export const safeHtml = (html?: string) => {
@@ -251,23 +252,40 @@ export async function replaceChapterVerses(
 
   if (!verses?.length) return;
 
-  const rows = verses.map((v) => ({
-    chapter_id: chapterId,
-    verse_number: v.verse_number,
-    sanskrit: v.sanskrit ?? null,
-    transliteration: (v as any).transliteration_en ?? v.transliteration ?? null,
-    transliteration_en: (v as any).transliteration_en ?? null,
-    transliteration_ua: (v as any).transliteration_ua ?? null,
-    synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
-    // Fallback to generic EN keys when Python parser returns {synonyms, translation, purport}
-    synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
-    translation_ua: (v as any).translation_ua ?? null,
-    translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
-    commentary_ua: safeHtml(stripSectionLabel((v as any).commentary_ua ?? "")),
-    commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
-    // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
-    audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
-  }));
+  const rows = verses.map((v) => {
+    // ✅ АВТОМАТИЧНА НОРМАЛІЗАЦІЯ розривів рядків за дандами (।, ॥)
+    const sanskrit = v.sanskrit ?? null;
+    const transliteration = (v as any).transliteration_en ?? v.transliteration ?? null;
+
+    // Застосовуємо нормалізацію тільки якщо санскрит БЕЗ розривів рядків
+    let normalizedSanskrit = sanskrit;
+    let normalizedTranslit = transliteration;
+
+    if (sanskrit && !sanskrit.includes('\n')) {
+      const fixed = processVerseLineBreaks({ sanskrit, transliteration });
+      normalizedSanskrit = fixed.sanskrit ?? sanskrit;
+      normalizedTranslit = fixed.transliteration ?? transliteration;
+      console.log(`📝 Додано розриви рядків для вірша ${v.verse_number}`);
+    }
+
+    return {
+      chapter_id: chapterId,
+      verse_number: v.verse_number,
+      sanskrit: normalizedSanskrit,
+      transliteration: normalizedTranslit,
+      transliteration_en: (v as any).transliteration_en ?? null,
+      transliteration_ua: (v as any).transliteration_ua ?? null,
+      synonyms_ua: normalizeSynonymsSoft((v as any).synonyms_ua ?? ""),
+      // Fallback to generic EN keys when Python parser returns {synonyms, translation, purport}
+      synonyms_en: (v as any).synonyms_en ?? (v as any).synonyms ?? null,
+      translation_ua: (v as any).translation_ua ?? null,
+      translation_en: (v as any).translation_en ?? (v as any).translation ?? null,
+      commentary_ua: safeHtml(stripSectionLabel((v as any).commentary_ua ?? "")),
+      commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
+      // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
+      audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
+    };
+  });
 
   const { error: insErr } = await supabase.from("verses").insert(rows);
   if (insErr) {
@@ -302,12 +320,27 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
       verse_number: v.verse_number,
     };
 
+    // ✅ АВТОМАТИЧНА НОРМАЛІЗАЦІЯ розривів рядків за дандами (।, ॥)
+    let sanskritToUse = incoming.sanskrit;
+    let translitToUse = incoming.transliteration;
+
+    // Застосовуємо нормалізацію якщо є санскрит БЕЗ розривів рядків
+    if (hasText(incoming.sanskrit) && !incoming.sanskrit.includes('\n')) {
+      const fixed = processVerseLineBreaks({
+        sanskrit: incoming.sanskrit,
+        transliteration: incoming.transliteration
+      });
+      sanskritToUse = fixed.sanskrit ?? incoming.sanskrit;
+      translitToUse = fixed.transliteration ?? incoming.transliteration;
+      console.log(`📝 Додано розриви рядків для вірша ${v.verse_number} (upsert)`);
+    }
+
     // Preserve existing Bengali/Sanskrit if incoming is missing; set null only for new rows
-    if (hasText(incoming.sanskrit)) row.sanskrit = incoming.sanskrit;
+    if (hasText(sanskritToUse)) row.sanskrit = sanskritToUse;
     else if (!existing) row.sanskrit = null;
 
     // Transliteration fields - update only when provided
-    if (hasText(incoming.transliteration)) row.transliteration = incoming.transliteration;
+    if (hasText(translitToUse)) row.transliteration = translitToUse;
     if (hasText(incoming.transliteration_en)) row.transliteration_en = incoming.transliteration_en;
     if (hasText(incoming.transliteration_ua)) row.transliteration_ua = incoming.transliteration_ua;
 
