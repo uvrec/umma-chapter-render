@@ -150,6 +150,7 @@ export default function AddEditVerse() {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
+        verse_number_sort: parseInt(verseNumber) || 0,
         sanskrit: sanskrit || null,
         transliteration: transliteration || null,
         synonyms_ua: synonymsUa || null,
@@ -159,6 +160,7 @@ export default function AddEditVerse() {
         commentary_ua: commentaryUa || null,
         commentary_en: commentaryEn || null,
         audio_url: audioUrl || null,
+        is_published: true,
       };
 
       if (id) {
