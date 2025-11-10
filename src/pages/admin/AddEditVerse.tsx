@@ -150,7 +150,6 @@ export default function AddEditVerse() {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
-        verse_number_sort: parseInt(verseNumber) || 0,
         sanskrit: sanskrit || null,
         transliteration: transliteration || null,
         synonyms_ua: synonymsUa || null,
