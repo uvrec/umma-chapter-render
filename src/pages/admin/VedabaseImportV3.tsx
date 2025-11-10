@@ -717,6 +717,7 @@ export default function VedabaseImportV3() {
           {
             chapter_id: chapterId,
             verse_number: verseNum,
+            verse_number_sort: parseInt(verseNum) || 0,
             sanskrit,
             transliteration: transliterationEN || null,
             transliteration_ua: transliterationUA || null,
@@ -726,6 +727,7 @@ export default function VedabaseImportV3() {
             synonyms_ua: synonymsUA || null,
             translation_ua: translationUA || null,
             commentary_ua: purportUA || null,
+            is_published: true,
           },
           { onConflict: "chapter_id,verse_number" },
         );

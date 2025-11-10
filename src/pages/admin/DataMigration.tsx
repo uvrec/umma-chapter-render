@@ -77,6 +77,7 @@ export default function DataMigration() {
         const payload = batch.map((v) => ({
           chapter_id: chapter.id,
           verse_number: v.number,
+          verse_number_sort: parseInt(v.number) || 0,
           sanskrit: v.sanskrit || null,
           transliteration: v.transliteration || null,
           synonyms_ua: v.synonyms || null,
@@ -86,6 +87,7 @@ export default function DataMigration() {
           commentary_ua: v.commentary || null,
           commentary_en: null,
           audio_url: v.audioUrl || null,
+          is_published: true,
         }));
 
         // Використовуємо UPSERT, щоб уникати дублікатів

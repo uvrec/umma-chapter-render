@@ -271,6 +271,7 @@ export async function replaceChapterVerses(
     return {
       chapter_id: chapterId,
       verse_number: v.verse_number,
+      verse_number_sort: parseInt(v.verse_number) || 0,
       sanskrit: normalizedSanskrit,
       transliteration: normalizedTranslit,
       transliteration_en: (v as any).transliteration_en ?? null,
@@ -284,6 +285,7 @@ export async function replaceChapterVerses(
       commentary_en: safeHtml(stripSectionLabel((v as any).commentary_en ?? (v as any).purport ?? "")),
       // підтримуємо і audioUrl (camelCase), і audio_url (snake_case)
       audio_url: (v as any).audio_url ?? (v as any).audioUrl ?? null,
+      is_published: true,
     };
   });
 
@@ -318,6 +320,8 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
     const row: any = {
       chapter_id: chapterId,
       verse_number: v.verse_number,
+      verse_number_sort: parseInt(v.verse_number) || 0,
+      is_published: true,
     };
 
     // ✅ АВТОМАТИЧНА НОРМАЛІЗАЦІЯ розривів рядків за дандами (।, ॥)
