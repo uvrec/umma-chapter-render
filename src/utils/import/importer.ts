@@ -271,7 +271,6 @@ export async function replaceChapterVerses(
     return {
       chapter_id: chapterId,
       verse_number: v.verse_number,
-      verse_number_sort: parseInt(v.verse_number) || 0,
       sanskrit: normalizedSanskrit,
       transliteration: normalizedTranslit,
       transliteration_en: (v as any).transliteration_en ?? null,
@@ -320,7 +319,6 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
     const row: any = {
       chapter_id: chapterId,
       verse_number: v.verse_number,
-      verse_number_sort: parseInt(v.verse_number) || 0,
       is_published: true,
     };
 

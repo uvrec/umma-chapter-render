@@ -77,7 +77,6 @@ export default function DataMigration() {
         const payload = batch.map((v) => ({
           chapter_id: chapter.id,
           verse_number: v.number,
-          verse_number_sort: parseInt(v.number) || 0,
           sanskrit: v.sanskrit || null,
           transliteration: v.transliteration || null,
           synonyms_ua: v.synonyms || null,
