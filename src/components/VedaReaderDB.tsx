@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
+import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
@@ -986,64 +987,30 @@ export const VedaReaderDB = () => {
                   </div>
 
                   {dualLanguageMode ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      <VerseCard
-                        key={`${currentVerse.id}-ua`}
-                        verseId={currentVerse.id}
-                        verseNumber={fullVerseNumber}
-                        bookName={chapterTitle}
-                        sanskritText={(currentVerse as any).sanskrit || ""}
-                        transliteration={(currentVerse as any).transliteration_ua || ""}
-                        synonyms={(currentVerse as any).synonyms_ua || ""}
-                        translation={(currentVerse as any).translation_ua || ""}
-                        commentary={(currentVerse as any).commentary_ua || ""}
-                        audioUrl={currentVerse.audio_url || ""}
-                        is_composite={(currentVerse as any).is_composite}
-                        start_verse={(currentVerse as any).start_verse}
-                        end_verse={(currentVerse as any).end_verse}
-                        verse_count={(currentVerse as any).verse_count}
-                        textDisplaySettings={textDisplaySettings}
-                        isAdmin={isAdmin}
-                        onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
-                          verseId,
-                          updates: {
-                            sanskrit: updates.sanskrit,
-                            transliteration_ua: updates.transliteration,
-                            synonyms_ua: updates.synonyms,
-                            translation_ua: updates.translation,
-                            commentary_ua: updates.commentary
-                          }
-                        })}
-                      />
-                      <VerseCard
-                        key={`${currentVerse.id}-en`}
-                        verseId={currentVerse.id}
-                        verseNumber={fullVerseNumber}
-                        bookName={chapterTitle}
-                        sanskritText={(currentVerse as any).sanskrit || ""}
-                        transliteration={(currentVerse as any).transliteration_en || ""}
-                        synonyms={(currentVerse as any).synonyms_en || ""}
-                        translation={(currentVerse as any).translation_en || ""}
-                        commentary={(currentVerse as any).commentary_en || ""}
-                        audioUrl={currentVerse.audio_url || ""}
-                        is_composite={(currentVerse as any).is_composite}
-                        start_verse={(currentVerse as any).start_verse}
-                        end_verse={(currentVerse as any).end_verse}
-                        verse_count={(currentVerse as any).verse_count}
-                        textDisplaySettings={textDisplaySettings}
-                        isAdmin={isAdmin}
-                        onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
-                          verseId,
-                          updates: {
-                            sanskrit: updates.sanskrit,
-                            transliteration_en: updates.transliteration,
-                            synonyms_en: updates.synonyms,
-                            translation_en: updates.translation,
-                            commentary_en: updates.commentary
-                          }
-                        })}
-                      />
-                    </div>
+                    <DualLanguageVerseCard
+                      key={currentVerse.id}
+                      verseId={currentVerse.id}
+                      verseNumber={fullVerseNumber}
+                      bookNameUa={chapterTitle}
+                      bookNameEn={chapterTitle}
+                      sanskritText={(currentVerse as any).sanskrit || ""}
+                      transliterationUa={(currentVerse as any).transliteration_ua || ""}
+                      synonymsUa={(currentVerse as any).synonyms_ua || ""}
+                      translationUa={(currentVerse as any).translation_ua || ""}
+                      commentaryUa={(currentVerse as any).commentary_ua || ""}
+                      transliterationEn={(currentVerse as any).transliteration_en || ""}
+                      synonymsEn={(currentVerse as any).synonyms_en || ""}
+                      translationEn={(currentVerse as any).translation_en || ""}
+                      commentaryEn={(currentVerse as any).commentary_en || ""}
+                      audioUrl={currentVerse.audio_url || ""}
+                      is_composite={(currentVerse as any).is_composite}
+                      start_verse={(currentVerse as any).start_verse}
+                      end_verse={(currentVerse as any).end_verse}
+                      verse_count={(currentVerse as any).verse_count}
+                      textDisplaySettings={textDisplaySettings}
+                      isAdmin={isAdmin}
+                      onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
+                    />
                   ) : (
                     <VerseCard
                       key={currentVerse.id}
