@@ -709,11 +709,148 @@ export default function UniversalImportFixed() {
             }
           }
 
-          // Fallback: browser парсинг (спрощена версія)
+          // Fallback: browser парсинг (повна версія)
           if (!result) {
-            // Тут мала б бути повна логіка browser парсингу
-            // Для спрощення можемо пропустити або викликати спрощену версію
-            throw new Error("Browser fallback not implemented for batch import");
+            console.log(`🌐 Browser parsing для глави ${chapterNum}`);
+
+            const [start, end] = verseRanges.includes("-")
+              ? verseRanges.split("-").map(Number)
+              : [parseInt(verseRanges, 10), parseInt(verseRanges, 10)];
+
+            const verses: any[] = [];
+
+            // 1) Знімаємо індекс посилань з сторінки глави
+            try {
+              const chapterUrl = bookInfo.isMultiVolume
+                ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+                : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+
+              const { data: chapterHtml } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
+              const map: Array<{ lastPart: string; from: number; to: number }> = [];
+
+              if (chapterHtml?.html) {
+                const dp = new DOMParser();
+                const doc = dp.parseFromString(chapterHtml.html, "text/html");
+
+                const hrefPattern = bookInfo.isMultiVolume
+                  ? `/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+                  : `/${vedabaseBook}/${chapterNum}/`;
+
+                const anchors = Array.from(doc.querySelectorAll(`a[href*="${hrefPattern}"]`));
+                anchors.forEach((a) => {
+                  const href = a.getAttribute("href") || "";
+                  const seg = href.split("/").filter(Boolean).pop() || "";
+                  if (!seg) return;
+                  if (/^\d+(?:-\d+)?$/.test(seg)) {
+                    if (seg.includes("-")) {
+                      const [s, e] = seg.split("-").map((n) => parseInt(n, 10));
+                      if (!Number.isNaN(s) && !Number.isNaN(e)) map.push({ lastPart: seg, from: s, to: e });
+                    } else {
+                      const n = parseInt(seg, 10);
+                      if (!Number.isNaN(n)) map.push({ lastPart: seg, from: n, to: n });
+                    }
+                  }
+                });
+
+                const unique = new Map<string, { lastPart: string; from: number; to: number }>();
+                map
+                  .filter((m) => !(m.to < start || m.from > end))
+                  .sort((a, b) => a.from - b.from)
+                  .forEach((m) => unique.set(m.lastPart, m));
+
+                const targets = Array.from(unique.values());
+
+                // 2) Парсимо кожен вірш
+                for (const t of targets) {
+                  try {
+                    const vedabaseUrl = bookInfo.isMultiVolume
+                      ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${t.lastPart}`
+                      : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${t.lastPart}`;
+
+                    const requests: Promise<any>[] = [
+                      supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
+                    ];
+
+                    if (bookInfo.hasGitabaseUA) {
+                      const gitabaseUrl = bookInfo.isMultiVolume
+                        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
+                      requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
+                    }
+
+                    const results = await Promise.allSettled(requests);
+                    const vedabaseRes = results[0];
+                    const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
+
+                    let parsedEN: any = null;
+                    let parsedUA: any = null;
+
+                    if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
+                      parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+                    }
+
+                    if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+                      const gitabaseUrl = bookInfo.isMultiVolume
+                        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
+                      parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                    }
+
+                    const merged = mergeVedabaseAndGitabase(
+                      parsedEN,
+                      parsedUA,
+                      vedabaseCanto,
+                      chapterNum,
+                      t.lastPart,
+                      vedabaseUrl,
+                      bookInfo.hasGitabaseUA
+                        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                        : "",
+                    );
+
+                    if (merged) {
+                      verses.push({
+                        verse_number: t.lastPart,
+                        sanskrit: merged.bengali || "",
+                        transliteration_en: merged.transliteration_en || "",
+                        transliteration_ua: merged.transliteration_ua || "",
+                        synonyms_en: merged.synonyms_en || "",
+                        synonyms_ua: merged.synonyms_ua || "",
+                        translation_en: merged.translation_en || "",
+                        translation_ua: merged.translation_ua || "",
+                        commentary_en: merged.purport_en || "",
+                        commentary_ua: merged.purport_ua || "",
+                      });
+                    }
+                  } catch (e: any) {
+                    console.warn(`⚠️ Failed verse ${t.lastPart}:`, e.message);
+                  }
+                }
+              }
+            } catch (err: any) {
+              throw new Error(`Browser parsing failed: ${err.message}`);
+            }
+
+            // Нормалізуємо транслітерацію
+            verses.forEach((v: any) => {
+              if (v.transliteration_en) {
+                v.transliteration_en = normalizeTransliteration(v.transliteration_en);
+              }
+              if (v.transliteration_ua) {
+                v.transliteration_ua = normalizeTransliteration(v.transliteration_ua);
+              }
+            });
+
+            // Формуємо результат
+            result = {
+              chapter_number: chapterNum,
+              chapter_type: "verses",
+              title_en: "",
+              title_ua: "",
+              verses: verses,
+            };
+
+            console.log(`✅ Browser parsing завершено: ${verses.length} віршів`);
           }
 
           // Нормалізуємо та зберігаємо
