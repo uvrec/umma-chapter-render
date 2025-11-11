@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Settings, X, Globe, Palette, Minus, Plus } from "lucide-react";
+import { Settings, Globe, Palette, Minus, Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -13,6 +13,22 @@ const MIN_FONT = 12;
 const MAX_FONT = 24;
 const MIN_LH = 1.3;
 const MAX_LH = 2.0;
+
+// Початкові значення
+const DEFAULTS = {
+  fontSize: 18,
+  lineHeight: 1.6,
+  dualMode: false,
+  showNumbers: true,
+  flowMode: false,
+  blocks: {
+    sanskrit: true,
+    translit: true,
+    synonyms: true,
+    translation: true,
+    commentary: true,
+  },
+};
 
 const LS_KEYS = {
   fontSize: "vv_reader_fontSize",
@@ -54,11 +70,11 @@ export const GlobalSettingsPanel = () => {
 
   const [fontSize, setFontSize] = useState<number>(() => {
     const s = localStorage.getItem(LS_KEYS.fontSize);
-    return s ? Number(s) : 18;
+    return s ? Number(s) : DEFAULTS.fontSize;
   });
   const [lineHeight, setLineHeight] = useState<number>(() => {
     const s = localStorage.getItem(LS_KEYS.lineHeight);
-    return s ? Number(s) : 1.6;
+    return s ? Number(s) : DEFAULTS.lineHeight;
   });
   const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
@@ -69,35 +85,26 @@ export const GlobalSettingsPanel = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
 
+  // Об'єднаний useEffect для збереження всіх налаштувань
   useEffect(() => {
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
-    bumpReader();
-  }, [fontSize]);
-
-  useEffect(() => {
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
-    bumpReader();
-  }, [lineHeight]);
-
-  useEffect(() => {
     localStorage.setItem(LS_KEYS.dual, String(dualMode));
-    bumpReader();
-  }, [dualMode]);
-
-  useEffect(() => {
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
-    bumpReader();
-  }, [blocks]);
-
-  useEffect(() => {
     localStorage.setItem(LS_KEYS.showNumbers, String(showNumbers));
-    bumpReader();
-  }, [showNumbers]);
-
-  useEffect(() => {
     localStorage.setItem(LS_KEYS.flowMode, String(flowMode));
     bumpReader();
-  }, [flowMode]);
+  }, [fontSize, lineHeight, dualMode, blocks, showNumbers, flowMode]);
+
+  // Функція скидання до початкових значень
+  const resetToDefaults = () => {
+    setFontSize(DEFAULTS.fontSize);
+    setLineHeight(DEFAULTS.lineHeight);
+    setDualMode(DEFAULTS.dualMode);
+    setBlocks(DEFAULTS.blocks);
+    setShowNumbers(DEFAULTS.showNumbers);
+    setFlowMode(DEFAULTS.flowMode);
+  };
 
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
   const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
@@ -121,13 +128,8 @@ export const GlobalSettingsPanel = () => {
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="right" className="w-96 overflow-y-auto">
-          <SheetHeader className="pb-4 sticky top-0 bg-background z-10">
-            <div className="flex items-center justify-between">
-              <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
-              <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} aria-label={t("Закрити", "Close")}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+          <SheetHeader className="pb-4">
+            <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
           </SheetHeader>
 
           <div className="space-y-6 pb-6">
@@ -174,10 +176,10 @@ export const GlobalSettingsPanel = () => {
 
             {/* Налаштування читання */}
             <div>
-              <h3 className="text-lg font-semibold mb-2">Відображення тексту</h3>
+              <h3 className="text-lg font-semibold mb-2">{t("Відображення тексту", "Text Display")}</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label>Розмір шрифта</Label>
+                  <Label>{t("Розмір шрифта", "Font Size")}</Label>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -202,7 +204,7 @@ export const GlobalSettingsPanel = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label>Міжряддя</Label>
+                  <Label>{t("Міжряддя", "Line Height")}</Label>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -227,17 +229,17 @@ export const GlobalSettingsPanel = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="dual-language">Двомовний режим</Label>
+                  <Label htmlFor="dual-language">{t("Двомовний режим", "Dual Language Mode")}</Label>
                   <Switch id="dual-language" checked={dualMode} onCheckedChange={(v) => setDualMode(v)} />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="show-numbers">Показувати номери віршів</Label>
+                  <Label htmlFor="show-numbers">{t("Показувати номери віршів", "Show Verse Numbers")}</Label>
                   <Switch id="show-numbers" checked={showNumbers} onCheckedChange={(v) => setShowNumbers(v)} />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="flow-mode">Суцільний текст (без рамок)</Label>
+                  <Label htmlFor="flow-mode">{t("Суцільний текст (без рамок)", "Continuous Text (No Borders)")}</Label>
                   <Switch id="flow-mode" checked={flowMode} onCheckedChange={(v) => setFlowMode(v)} />
                 </div>
               </div>
@@ -272,6 +274,20 @@ export const GlobalSettingsPanel = () => {
                   onChange={(v) => setBlocks({ ...blocks, commentary: v })}
                 />
               </div>
+            </div>
+
+            <Separator />
+
+            {/* Скидання налаштувань */}
+            <div>
+              <Button
+                variant="outline"
+                onClick={resetToDefaults}
+                className="w-full gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                {t("Скинути до початкових", "Reset to Defaults")}
+              </Button>
             </div>
           </div>
         </SheetContent>
