@@ -21,7 +21,8 @@ interface DualLanguageVerseCardProps {
   verseNumber: string;
   bookNameUa?: string;
   bookNameEn?: string;
-  sanskritText: string; // однаковий для обох мов
+  sanskritTextUa: string; // Окремий для української версії
+  sanskritTextEn: string; // Окремий для англійської версії
 
   // Українська версія
   transliterationUa: string;
@@ -176,7 +177,8 @@ export const DualLanguageVerseCard = ({
   verseNumber,
   bookNameUa,
   bookNameEn,
-  sanskritText,
+  sanskritTextUa,
+  sanskritTextEn,
   transliterationUa,
   synonymsUa,
   translationUa,
@@ -211,7 +213,8 @@ export const DualLanguageVerseCard = ({
   const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
   const [edited, setEdited] = useState({
-    sanskrit: sanskritText,
+    sanskritUa: sanskritTextUa,
+    sanskritEn: sanskritTextEn,
     transliterationUa,
     synonymsUa,
     translationUa,
@@ -255,7 +258,8 @@ export const DualLanguageVerseCard = ({
 
   const startEdit = () => {
     setEdited({
-      sanskrit: sanskritText,
+      sanskritUa: sanskritTextUa,
+      sanskritEn: sanskritTextEn,
       transliterationUa,
       synonymsUa,
       translationUa,
@@ -275,7 +279,8 @@ export const DualLanguageVerseCard = ({
   const saveEdit = () => {
     if (onVerseUpdate && verseId) {
       onVerseUpdate(verseId, {
-        sanskrit: edited.sanskrit,
+        sanskrit_ua: edited.sanskritUa,
+        sanskrit_en: edited.sanskritEn,
         transliteration_ua: edited.transliterationUa,
         synonyms_ua: edited.synonymsUa,
         translation_ua: edited.translationUa,
@@ -345,31 +350,60 @@ export const DualLanguageVerseCard = ({
           </div>
         </div>
 
-        {/* САНСКРИТ - однаковий для обох мов */}
-        {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
+        {/* САНСКРИТ - два стовпці для кожної мови */}
+        {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUa || sanskritTextEn) && (
           <div className="mb-10">
-            <div className="mb-4 flex justify-center">
-              <button
-                onClick={() => playSection("Санскрит", audioSanskrit)}
-                disabled={!audioSanskrit && !audioUrl}
-                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Слухати санскрит"
-              >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-              </button>
-            </div>
+            <div className="grid grid-cols-2 gap-6">
+              {/* UA */}
+              <div>
+                <div className="mb-4 flex justify-center">
+                  <button
+                    onClick={() => playSection("Санскрит UA", audioSanskrit)}
+                    disabled={!audioSanskrit && !audioUrl}
+                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Слухати санскрит UA"
+                  >
+                    <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={edited.sanskritUa}
+                    onChange={e => setEdited(p => ({ ...p, sanskritUa: e.target.value }))}
+                    className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground"
+                  />
+                ) : (
+                  <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                    {sanskritTextUa}
+                  </p>
+                )}
+              </div>
 
-            {isEditing ? (
-              <Textarea
-                value={edited.sanskrit}
-                onChange={e => setEdited(p => ({ ...p, sanskrit: e.target.value }))}
-                className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground"
-              />
-            ) : (
-              <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
-                {sanskritText}
-              </p>
-            )}
+              {/* EN */}
+              <div>
+                <div className="mb-4 flex justify-center">
+                  <button
+                    onClick={() => playSection("Sanskrit EN", audioSanskrit)}
+                    disabled={!audioSanskrit && !audioUrl}
+                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Listen to Sanskrit EN"
+                  >
+                    <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={edited.sanskritEn}
+                    onChange={e => setEdited(p => ({ ...p, sanskritEn: e.target.value }))}
+                    className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground"
+                  />
+                ) : (
+                  <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                    {sanskritTextEn}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

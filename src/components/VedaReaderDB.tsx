@@ -993,7 +993,8 @@ export const VedaReaderDB = () => {
                       verseNumber={fullVerseNumber}
                       bookNameUa={chapterTitle}
                       bookNameEn={chapterTitle}
-                      sanskritText={(currentVerse as any).sanskrit || ""}
+                      sanskritTextUa={(currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || ""}
+                      sanskritTextEn={(currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || ""}
                       transliterationUa={(currentVerse as any).transliteration_ua || ""}
                       synonymsUa={(currentVerse as any).synonyms_ua || ""}
                       translationUa={(currentVerse as any).translation_ua || ""}
