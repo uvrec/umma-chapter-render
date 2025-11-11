@@ -59,7 +59,8 @@ export default function BlogPost() {
   } = useQuery({
     queryKey: ["blog-post", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Спочатку пробуємо завантажити з новими полями (якщо міграція вже запущена)
+      let { data, error } = await supabase
         .from("blog_posts")
         .select(
           `
@@ -112,6 +113,51 @@ export default function BlogPost() {
         .eq("is_published", true)
         .lte("published_at", new Date().toISOString())
         .maybeSingle();
+
+      // Fallback: якщо помилка (міграція ще не запущена), завантажуємо без нових полів
+      if (error && error.message?.includes("column")) {
+        const fallback = await supabase
+          .from("blog_posts")
+          .select(
+            `
+            id,
+            title_ua,
+            title_en,
+            slug,
+            content_ua,
+            content_en,
+            excerpt_ua,
+            excerpt_en,
+            cover_image_url,
+            featured_image,
+            video_url,
+            audio_url,
+            instagram_embed_url,
+            telegram_embed_url,
+            substack_embed_url,
+            meta_description_ua,
+            meta_description_en,
+            is_published,
+            published_at,
+            created_at,
+            updated_at,
+            view_count,
+            read_time,
+            category_id,
+            author_display_name,
+            display_blocks,
+            category:blog_categories(name_ua, name_en),
+            tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
+          `,
+          )
+          .eq("slug", slug)
+          .eq("is_published", true)
+          .lte("published_at", new Date().toISOString())
+          .maybeSingle();
+
+        data = fallback.data;
+        error = fallback.error;
+      }
 
       if (error) throw error;
       return data;
