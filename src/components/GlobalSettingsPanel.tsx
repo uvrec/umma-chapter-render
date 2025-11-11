@@ -30,7 +30,6 @@ const DEFAULTS = {
   },
   continuousReading: {
     enabled: false,
-    showVerseNumbers: true,
     showSanskrit: false,
     showTransliteration: false,
     showTranslation: true,
@@ -58,7 +57,6 @@ type BlocksState = {
 
 export type ContinuousReadingState = {
   enabled: boolean;
-  showVerseNumbers: boolean;
   showSanskrit: boolean;
   showTransliteration: boolean;
   showTranslation: boolean;
@@ -322,15 +320,6 @@ export const GlobalSettingsPanel = () => {
 
                 {continuousReading.enabled && (
                   <div className="ml-4 space-y-3 border-l-2 border-muted pl-4">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="cont-verse-numbers">{t("Номери віршів", "Verse Numbers")}</Label>
-                      <Switch
-                        id="cont-verse-numbers"
-                        checked={continuousReading.showVerseNumbers}
-                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showVerseNumbers: v })}
-                      />
-                    </div>
-
                     <div className="flex items-center justify-between">
                       <Label htmlFor="cont-sanskrit">{t("Санскрит", "Sanskrit")}</Label>
                       <Switch
