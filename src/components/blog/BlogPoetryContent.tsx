@@ -26,6 +26,12 @@ interface BlogPoetryContentProps {
   language: "ua" | "en";
 }
 
+// Функція для відкриття глосарію з пошуком по терміну
+function openGlossary(term: string) {
+  const url = `/glossary?search=${encodeURIComponent(term)}`;
+  window.open(url, "_blank");
+}
+
 export function BlogPoetryContent({
   sanskrit,
   transliteration,
@@ -121,7 +127,7 @@ export function BlogPoetryContent({
         </div>
       )}
 
-      {/* Word-by-word Translation (Synonyms) */}
+      {/* Word-by-word Translation (Synonyms) - з посиланнями на глосарій */}
       {showSynonyms && synonyms && (
         <div className="p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center justify-between mb-2">
@@ -141,19 +147,33 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="text-4xl leading-relaxed space-y-2">
-            {parseSynonyms(synonyms).map((item, idx) => (
-              <div key={idx}>
-                <span className="font-semibold">{item.term}</span>
-                {item.meaning && (
-                  <>
-                    {" — "}
-                    <span>{item.meaning}</span>
-                  </>
-                )}
-                {idx < parseSynonyms(synonyms).length - 1 && <span className="text-muted-foreground">;</span>}
-              </div>
-            ))}
+          <div className="text-4xl leading-relaxed">
+            {parseSynonyms(synonyms).map((pair, i) => {
+              // Розбиваємо термін на окремі слова для посилань на глосарій
+              const words = pair.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
+
+              return (
+                <span key={i}>
+                  {words.map((w, wi) => (
+                    <span key={wi}>
+                      <span
+                        role="link"
+                        tabIndex={0}
+                        onClick={() => openGlossary(w)}
+                        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                        className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        title="Відкрити у глосарії"
+                      >
+                        {w}
+                      </span>
+                      {wi < words.length - 1 && " "}
+                    </span>
+                  ))}
+                  {pair.meaning && <span> — {pair.meaning}</span>}
+                  {i < parseSynonyms(synonyms).length - 1 && <span>; </span>}
+                </span>
+              );
+            })}
           </div>
         </div>
       )}
