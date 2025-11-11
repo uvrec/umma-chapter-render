@@ -978,7 +978,7 @@ export const VedaReaderDB = () => {
                   end_verse={(verse as any).end_verse}
                   verse_count={(verse as any).verse_count}
                   textDisplaySettings={contSettings}
-                  showNumbers={continuousReadingFromGlobal.showVerseNumbers}
+                  showNumbers={showNumbers}
                   fontSize={fontSize}
                   lineHeight={lineHeight}
                   flowMode={true}
