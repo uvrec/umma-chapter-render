@@ -21,7 +21,6 @@ import LectureImport from "@/pages/admin/LectureImport";
 import LetterImport from "@/pages/admin/LetterImport";
 
 import { NewHome } from "./pages/NewHome";
-import VedaReader from "./pages/VedaReader"; // ← тепер існує
 import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";

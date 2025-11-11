@@ -68,6 +68,24 @@ export const VedaReaderDB = () => {
   const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
   const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
 
+  // Continuous Reading Mode з localStorage
+  const readContinuousReading = () => {
+    try {
+      const raw = localStorage.getItem("vv_reader_continuousReading");
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {
+      enabled: false,
+      showVerseNumbers: true,
+      showSanskrit: false,
+      showTransliteration: false,
+      showTranslation: true,
+      showCommentary: false,
+    };
+  };
+
+  const [continuousReadingFromGlobal, setContinuousReadingFromGlobal] = useState(readContinuousReading);
+
   // Читаємо блоки з localStorage
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
     try {
@@ -110,6 +128,10 @@ export const VedaReaderDB = () => {
       const newFlowMode = localStorage.getItem("vv_reader_flowMode") === "true";
       setFlowMode(newFlowMode);
 
+      // Continuous Reading з GlobalSettingsPanel
+      const newContinuousReading = readContinuousReading();
+      setContinuousReadingFromGlobal(newContinuousReading);
+
       try {
         const blocksStr = localStorage.getItem("vv_reader_blocks");
         if (blocksStr) {
@@ -130,14 +152,6 @@ export const VedaReaderDB = () => {
   
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
-  const [continuousReadingSettings, setContinuousReadingSettings] = useState({
-    enabled: false,
-    showVerseNumbers: true,
-    showSanskrit: true,
-    showTransliteration: true,
-    showTranslation: true,
-    showCommentary: true
-  });
 
   const getDisplayVerseNumber = (verseNumber: string): string => {
     const parts = verseNumber.split(/[\s.]+/);
@@ -929,13 +943,23 @@ export const VedaReaderDB = () => {
               </Button>
             </div>
           </Card>
-        ) : continuousReadingSettings.enabled ? (
+        ) : continuousReadingFromGlobal.enabled ? (
           <div className="space-y-8">
             {verses.map(verse => {
               const verseIdx = getDisplayVerseNumber(verse.verse_number);
               const fullVerseNumber = isCantoMode
                 ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
                 : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+
+              // Налаштування відображення для continuous mode
+              const contSettings = {
+                showSanskrit: continuousReadingFromGlobal.showSanskrit,
+                showTransliteration: continuousReadingFromGlobal.showTransliteration,
+                showSynonyms: false, // Завжди false в continuous mode
+                showTranslation: continuousReadingFromGlobal.showTranslation,
+                showCommentary: continuousReadingFromGlobal.showCommentary,
+              };
+
               return (
                 <VerseCard
                   key={verse.id}
@@ -952,7 +976,11 @@ export const VedaReaderDB = () => {
                   start_verse={(verse as any).start_verse}
                   end_verse={(verse as any).end_verse}
                   verse_count={(verse as any).verse_count}
-                  textDisplaySettings={textDisplaySettings}
+                  textDisplaySettings={contSettings}
+                  showNumbers={continuousReadingFromGlobal.showVerseNumbers}
+                  fontSize={fontSize}
+                  lineHeight={lineHeight}
+                  flowMode={true}
                   isAdmin={isAdmin}
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                 />
