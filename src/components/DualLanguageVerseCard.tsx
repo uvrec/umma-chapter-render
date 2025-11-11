@@ -60,6 +60,7 @@ interface DualLanguageVerseCardProps {
     showCommentary: boolean;
   };
 
+  showNumbers?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (verseId: string, updates: any) => void;
   onVerseNumberUpdate?: () => void;
@@ -206,6 +207,7 @@ export const DualLanguageVerseCard = ({
     showTranslation: true,
     showCommentary: true
   },
+  showNumbers = true,
   isAdmin = false,
   onVerseUpdate,
   onVerseNumberUpdate
@@ -301,16 +303,18 @@ export const DualLanguageVerseCard = ({
         <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-3">
-              {isAdmin && verseId ? (
-                <VerseNumberEditor
-                  verseId={verseId}
-                  currentNumber={verseNumber}
-                  onUpdate={onVerseNumberUpdate}
-                />
-              ) : (
-                <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-                  <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-                </div>
+              {showNumbers && (
+                isAdmin && verseId ? (
+                  <VerseNumberEditor
+                    verseId={verseId}
+                    currentNumber={verseNumber}
+                    onUpdate={onVerseNumberUpdate}
+                  />
+                ) : (
+                  <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+                    <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+                  </div>
+                )
               )}
 
               {/* Індикатор складених віршів */}
