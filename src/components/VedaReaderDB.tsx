@@ -65,6 +65,7 @@ export const VedaReaderDB = () => {
     return saved ? Number(saved) : 1.6;
   });
   const [dualLanguageMode, setDualLanguageMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+  const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
 
   // Читаємо блоки з localStorage
   const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
@@ -101,6 +102,9 @@ export const VedaReaderDB = () => {
 
       const newDualMode = localStorage.getItem("vv_reader_dualMode") === "true";
       setDualLanguageMode(newDualMode);
+
+      const newShowNumbers = localStorage.getItem("vv_reader_showNumbers") !== "false";
+      setShowNumbers(newShowNumbers);
 
       try {
         const blocksStr = localStorage.getItem("vv_reader_blocks");
@@ -1009,6 +1013,7 @@ export const VedaReaderDB = () => {
                       end_verse={(currentVerse as any).end_verse}
                       verse_count={(currentVerse as any).verse_count}
                       textDisplaySettings={textDisplaySettings}
+                      showNumbers={showNumbers}
                       isAdmin={isAdmin}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                     />
@@ -1029,6 +1034,7 @@ export const VedaReaderDB = () => {
                       end_verse={(currentVerse as any).end_verse}
                       verse_count={(currentVerse as any).verse_count}
                       textDisplaySettings={textDisplaySettings}
+                      showNumbers={showNumbers}
                       isAdmin={isAdmin}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
                     />

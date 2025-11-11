@@ -44,6 +44,7 @@ interface VerseCardProps {
     showTranslation: boolean;
     showCommentary: boolean;
   };
+  showNumbers?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (verseId: string, updates: {
     sanskrit: string;
@@ -130,6 +131,7 @@ export const VerseCard = ({
     showTranslation: true,
     showCommentary: true
   },
+  showNumbers = true,
   isAdmin = false,
   onVerseUpdate,
   onVerseNumberUpdate,
@@ -217,9 +219,11 @@ export const VerseCard = ({
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-3">
               {/* Якщо адмін — показуємо VerseNumberEditor */}
-              {isAdmin && verseId ? <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} /> : <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-                  <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-                </div>}
+              {showNumbers && (
+                isAdmin && verseId ? <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} /> : <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+                    <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+                  </div>
+              )}
 
               {/* ✅ ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
               {isAdmin && is_composite && verse_count && start_verse && end_verse && (
