@@ -318,12 +318,21 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          audio_commentary_en_url: string | null
+          audio_commentary_ua_url: string | null
+          audio_poetry_translation_en_url: string | null
+          audio_poetry_translation_ua_url: string | null
+          audio_sanskrit_url: string | null
+          audio_synonyms_en_url: string | null
+          audio_synonyms_ua_url: string | null
+          audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
           author_id: string
           author_name: string
           category_id: string
           content_en: string
+          content_mode: string | null
           content_ua: string
           cover_image_url: string | null
           created_at: string
@@ -336,6 +345,8 @@ export type Database = {
           is_published: boolean | null
           meta_description_en: string | null
           meta_description_ua: string | null
+          poetry_translation_en: string | null
+          poetry_translation_ua: string | null
           published_at: string | null
           read_time: number | null
           sanskrit: string | null
@@ -357,12 +368,21 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          audio_commentary_en_url?: string | null
+          audio_commentary_ua_url?: string | null
+          audio_poetry_translation_en_url?: string | null
+          audio_poetry_translation_ua_url?: string | null
+          audio_sanskrit_url?: string | null
+          audio_synonyms_en_url?: string | null
+          audio_synonyms_ua_url?: string | null
+          audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
           author_id: string
           author_name?: string
           category_id: string
           content_en: string
+          content_mode?: string | null
           content_ua: string
           cover_image_url?: string | null
           created_at?: string
@@ -375,6 +395,8 @@ export type Database = {
           is_published?: boolean | null
           meta_description_en?: string | null
           meta_description_ua?: string | null
+          poetry_translation_en?: string | null
+          poetry_translation_ua?: string | null
           published_at?: string | null
           read_time?: number | null
           sanskrit?: string | null
@@ -396,12 +418,21 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          audio_commentary_en_url?: string | null
+          audio_commentary_ua_url?: string | null
+          audio_poetry_translation_en_url?: string | null
+          audio_poetry_translation_ua_url?: string | null
+          audio_sanskrit_url?: string | null
+          audio_synonyms_en_url?: string | null
+          audio_synonyms_ua_url?: string | null
+          audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
           author_id?: string
           author_name?: string
           category_id?: string
           content_en?: string
+          content_mode?: string | null
           content_ua?: string
           cover_image_url?: string | null
           created_at?: string
@@ -414,6 +445,8 @@ export type Database = {
           is_published?: boolean | null
           meta_description_en?: string | null
           meta_description_ua?: string | null
+          poetry_translation_en?: string | null
+          poetry_translation_ua?: string | null
           published_at?: string | null
           read_time?: number | null
           sanskrit?: string | null

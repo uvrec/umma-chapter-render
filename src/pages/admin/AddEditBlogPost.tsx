@@ -33,6 +33,7 @@ export default function AddEditBlogPost() {
   const [titleUa, setTitleUa] = useState("");
   const [titleEn, setTitleEn] = useState("");
   const [slug, setSlug] = useState("");
+  const [contentMode, setContentMode] = useState<"text" | "poetry">("text");
   const [contentUa, setContentUa] = useState("");
   const [contentEn, setContentEn] = useState("");
   const [excerptUa, setExcerptUa] = useState("");
@@ -48,6 +49,24 @@ export default function AddEditBlogPost() {
   const [substackUrl, setSubstackUrl] = useState("");
   const [metaDescUa, setMetaDescUa] = useState("");
   const [metaDescEn, setMetaDescEn] = useState("");
+
+  // ——— поля для режиму поезії
+  const [sanskrit, setSanskrit] = useState("");
+  const [transliteration, setTransliteration] = useState("");
+  const [synonymsUa, setSynonymsUa] = useState("");
+  const [synonymsEn, setSynonymsEn] = useState("");
+  const [poetryTranslationUa, setPoetryTranslationUa] = useState("");
+  const [poetryTranslationEn, setPoetryTranslationEn] = useState("");
+
+  // ——— аудіо URL для кожної секції в режимі поезії
+  const [audioSanskritUrl, setAudioSanskritUrl] = useState("");
+  const [audioTransliterationUrl, setAudioTransliterationUrl] = useState("");
+  const [audioSynonymsUaUrl, setAudioSynonymsUaUrl] = useState("");
+  const [audioSynonymsEnUrl, setAudioSynonymsEnUrl] = useState("");
+  const [audioPoetryTranslationUaUrl, setAudioPoetryTranslationUaUrl] = useState("");
+  const [audioPoetryTranslationEnUrl, setAudioPoetryTranslationEnUrl] = useState("");
+  const [audioCommentaryUaUrl, setAudioCommentaryUaUrl] = useState("");
+  const [audioCommentaryEnUrl, setAudioCommentaryEnUrl] = useState("");
 
   // ——— автор
   const [authorName, setAuthorName] = useState("Аніруддга дас");
@@ -84,6 +103,7 @@ export default function AddEditBlogPost() {
       setTitleUa(post.title_ua || "");
       setTitleEn(post.title_en || "");
       setSlug(post.slug || "");
+      setContentMode((post.content_mode as "text" | "poetry") || "text");
       setContentUa(post.content_ua || "");
       setContentEn(post.content_en || "");
       setExcerptUa(post.excerpt_ua || "");
@@ -100,6 +120,24 @@ export default function AddEditBlogPost() {
       setMetaDescUa(post.meta_description_ua || "");
       setMetaDescEn(post.meta_description_en || "");
       setAuthorName(post.author_name || "Аніруддга дас");
+
+      // Poetry mode fields
+      setSanskrit(post.sanskrit || "");
+      setTransliteration(post.transliteration || "");
+      setSynonymsUa(post.synonyms_ua || "");
+      setSynonymsEn(post.synonyms_en || "");
+      setPoetryTranslationUa(post.poetry_translation_ua || "");
+      setPoetryTranslationEn(post.poetry_translation_en || "");
+
+      // Poetry audio URLs
+      setAudioSanskritUrl(post.audio_sanskrit_url || "");
+      setAudioTransliterationUrl(post.audio_transliteration_url || "");
+      setAudioSynonymsUaUrl(post.audio_synonyms_ua_url || "");
+      setAudioSynonymsEnUrl(post.audio_synonyms_en_url || "");
+      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_ua_url || "");
+      setAudioPoetryTranslationEnUrl(post.audio_poetry_translation_en_url || "");
+      setAudioCommentaryUaUrl(post.audio_commentary_ua_url || "");
+      setAudioCommentaryEnUrl(post.audio_commentary_en_url || "");
     }
   }, [post]);
 
@@ -120,6 +158,7 @@ export default function AddEditBlogPost() {
         title_ua: titleUa,
         title_en: titleEn,
         slug,
+        content_mode: contentMode,
         content_ua: contentUa,
         content_en: contentEn,
         excerpt_ua: excerptUa,
@@ -138,6 +177,22 @@ export default function AddEditBlogPost() {
         read_time: readTime,
         author_name: authorName || "Аніруддга дас",
         author_display_name: authorName || "Аніруддга дас",
+        // Poetry fields
+        sanskrit,
+        transliteration,
+        synonyms_ua: synonymsUa,
+        synonyms_en: synonymsEn,
+        poetry_translation_ua: poetryTranslationUa,
+        poetry_translation_en: poetryTranslationEn,
+        // Poetry audio URLs
+        audio_sanskrit_url: audioSanskritUrl,
+        audio_transliteration_url: audioTransliterationUrl,
+        audio_synonyms_ua_url: audioSynonymsUaUrl,
+        audio_synonyms_en_url: audioSynonymsEnUrl,
+        audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+        audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
+        audio_commentary_ua_url: audioCommentaryUaUrl,
+        audio_commentary_en_url: audioCommentaryEnUrl,
       };
 
       await supabase.from("blog_posts").update(postData).eq("id", id);
@@ -153,6 +208,7 @@ export default function AddEditBlogPost() {
     titleUa,
     titleEn,
     slug,
+    contentMode,
     contentUa,
     contentEn,
     excerptUa,
@@ -169,6 +225,20 @@ export default function AddEditBlogPost() {
     metaDescUa,
     metaDescEn,
     authorName,
+    sanskrit,
+    transliteration,
+    synonymsUa,
+    synonymsEn,
+    poetryTranslationUa,
+    poetryTranslationEn,
+    audioSanskritUrl,
+    audioTransliterationUrl,
+    audioSynonymsUaUrl,
+    audioSynonymsEnUrl,
+    audioPoetryTranslationUaUrl,
+    audioPoetryTranslationEnUrl,
+    audioCommentaryUaUrl,
+    audioCommentaryEnUrl,
   ]);
 
   // Trigger auto-save when content changes
@@ -273,6 +343,7 @@ export default function AddEditBlogPost() {
       title_ua: titleUa,
       title_en: titleEn,
       slug,
+      content_mode: contentMode,
       content_ua: contentUa,
       content_en: contentEn,
       excerpt_ua: excerptUa,
@@ -292,6 +363,22 @@ export default function AddEditBlogPost() {
       read_time: readTime,
       author_name: authorName || "Аніруддга дас",
       author_display_name: authorName || "Аніруддга дас",
+      // Poetry fields
+      sanskrit,
+      transliteration,
+      synonyms_ua: synonymsUa,
+      synonyms_en: synonymsEn,
+      poetry_translation_ua: poetryTranslationUa,
+      poetry_translation_en: poetryTranslationEn,
+      // Poetry audio URLs
+      audio_sanskrit_url: audioSanskritUrl,
+      audio_transliteration_url: audioTransliterationUrl,
+      audio_synonyms_ua_url: audioSynonymsUaUrl,
+      audio_synonyms_en_url: audioSynonymsEnUrl,
+      audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+      audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
+      audio_commentary_ua_url: audioCommentaryUaUrl,
+      audio_commentary_en_url: audioCommentaryEnUrl,
     };
 
     try {
@@ -331,6 +418,58 @@ export default function AddEditBlogPost() {
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Ліва колонка — контент */}
         <div className="lg:col-span-2">
+          {contentMode === "poetry" && (
+            <div className="mb-6 p-4 border rounded-lg space-y-4 bg-muted/30">
+              <h3 className="font-semibold text-lg">Оригінальний текст (спільний для обох мов)</h3>
+
+              <div>
+                <Label htmlFor="sanskrit">Санскрит / Бенгалі (деванагарі/бенгальський шрифт)</Label>
+                <Textarea
+                  id="sanskrit"
+                  value={sanskrit}
+                  onChange={(e) => setSanskrit(e.target.value)}
+                  rows={3}
+                  placeholder="मधुर प्रेम..."
+                  className="font-sanskrit text-2xl"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="transliteration">Транслітерація</Label>
+                <Textarea
+                  id="transliteration"
+                  value={transliteration}
+                  onChange={(e) => setTransliteration(e.target.value)}
+                  rows={3}
+                  placeholder="madhura prema..."
+                  className="font-sanskrit-italic text-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="audio-sanskrit">Аудіо URL для санскриту</Label>
+                  <Input
+                    id="audio-sanskrit"
+                    value={audioSanskritUrl}
+                    onChange={(e) => setAudioSanskritUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="audio-transliteration">Аудіо URL для транслітерації</Label>
+                  <Input
+                    id="audio-transliteration"
+                    value={audioTransliterationUrl}
+                    onChange={(e) => setAudioTransliterationUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           <Tabs defaultValue="ua" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
               <TabsTrigger value="ua">Українська</TabsTrigger>
@@ -348,10 +487,72 @@ export default function AddEditBlogPost() {
                 <Textarea id="excerpt-ua" value={excerptUa} onChange={(e) => setExcerptUa(e.target.value)} rows={3} />
               </div>
 
-              <div>
-                <Label>Контент *</Label>
-                <TiptapEditor content={contentUa} onChange={setContentUa} placeholder="Почніть писати українською..." />
-              </div>
+              {contentMode === "text" ? (
+                <div>
+                  <Label>Контент *</Label>
+                  <TiptapEditor content={contentUa} onChange={setContentUa} placeholder="Почніть писати українською..." />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="synonyms-ua">Послівний переклад (формат: "слово1 — значення1; слово2 — значення2")</Label>
+                    <Textarea
+                      id="synonyms-ua"
+                      value={synonymsUa}
+                      onChange={(e) => setSynonymsUa(e.target.value)}
+                      rows={4}
+                      placeholder="мадхура — солодкий; према — любов..."
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="poetry-translation-ua">Літературний переклад вірша</Label>
+                    <Textarea
+                      id="poetry-translation-ua"
+                      value={poetryTranslationUa}
+                      onChange={(e) => setPoetryTranslationUa(e.target.value)}
+                      rows={3}
+                      placeholder="Український літературний переклад вірша..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Пояснення (Commentary/Purport)</Label>
+                    <TiptapEditor content={contentUa} onChange={setContentUa} placeholder="Пояснення та коментарі українською..." />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="audio-synonyms-ua">Аудіо URL для послівного перекладу</Label>
+                    <Input
+                      id="audio-synonyms-ua"
+                      value={audioSynonymsUaUrl}
+                      onChange={(e) => setAudioSynonymsUaUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="audio-poetry-translation-ua">Аудіо URL для літературного перекладу</Label>
+                    <Input
+                      id="audio-poetry-translation-ua"
+                      value={audioPoetryTranslationUaUrl}
+                      onChange={(e) => setAudioPoetryTranslationUaUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="audio-commentary-ua">Аудіо URL для пояснення</Label>
+                    <Input
+                      id="audio-commentary-ua"
+                      value={audioCommentaryUaUrl}
+                      onChange={(e) => setAudioCommentaryUaUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <Label htmlFor="meta-desc-ua">Meta опис (SEO)</Label>
@@ -377,10 +578,72 @@ export default function AddEditBlogPost() {
                 <Textarea id="excerpt-en" value={excerptEn} onChange={(e) => setExcerptEn(e.target.value)} rows={3} />
               </div>
 
-              <div>
-                <Label>Content *</Label>
-                <TiptapEditor content={contentEn} onChange={setContentEn} placeholder="Start writing in English..." />
-              </div>
+              {contentMode === "text" ? (
+                <div>
+                  <Label>Content *</Label>
+                  <TiptapEditor content={contentEn} onChange={setContentEn} placeholder="Start writing in English..." />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="synonyms-en">Word-by-word translation (format: "word1 — meaning1; word2 — meaning2")</Label>
+                    <Textarea
+                      id="synonyms-en"
+                      value={synonymsEn}
+                      onChange={(e) => setSynonymsEn(e.target.value)}
+                      rows={4}
+                      placeholder="madhura — sweet; prema — love..."
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="poetry-translation-en">Literary translation</Label>
+                    <Textarea
+                      id="poetry-translation-en"
+                      value={poetryTranslationEn}
+                      onChange={(e) => setPoetryTranslationEn(e.target.value)}
+                      rows={3}
+                      placeholder="English literary translation of the verse..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Purport/Commentary</Label>
+                    <TiptapEditor content={contentEn} onChange={setContentEn} placeholder="Purport and commentary in English..." />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="audio-synonyms-en">Audio URL for word-by-word translation</Label>
+                    <Input
+                      id="audio-synonyms-en"
+                      value={audioSynonymsEnUrl}
+                      onChange={(e) => setAudioSynonymsEnUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="audio-poetry-translation-en">Audio URL for literary translation</Label>
+                    <Input
+                      id="audio-poetry-translation-en"
+                      value={audioPoetryTranslationEnUrl}
+                      onChange={(e) => setAudioPoetryTranslationEnUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="audio-commentary-en">Audio URL for purport/commentary</Label>
+                    <Input
+                      id="audio-commentary-en"
+                      value={audioCommentaryEnUrl}
+                      onChange={(e) => setAudioCommentaryEnUrl(e.target.value)}
+                      placeholder="https://..."
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <Label htmlFor="meta-desc-en">Meta description (SEO)</Label>
@@ -459,6 +722,24 @@ export default function AddEditBlogPost() {
                 </SelectContent>
               </Select>
               {!categoryId && <p className="text-xs text-destructive mt-1">Категорія обов'язкова</p>}
+            </div>
+
+            <div>
+              <Label htmlFor="content-mode">Режим контенту</Label>
+              <Select value={contentMode} onValueChange={(value: "text" | "poetry") => setContentMode(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Оберіть режим" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="text">Текст (звичайний пост)</SelectItem>
+                  <SelectItem value="poetry">Поезія (структурований вірш)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {contentMode === "poetry"
+                  ? "Віршовий режим: санскрит, транслітерація, переклади та пояснення"
+                  : "Текстовий режим: звичайний пост з rich-text редактором"}
+              </p>
             </div>
           </div>
 

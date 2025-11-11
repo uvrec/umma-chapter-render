@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { BlogPoetryContent } from "@/components/blog/BlogPoetryContent";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { VideoEmbed } from "@/components/blog/VideoEmbed";
 import { AudioEmbed } from "@/components/blog/AudioEmbed";
@@ -66,6 +67,7 @@ export default function BlogPost() {
           title_ua,
           title_en,
           slug,
+          content_mode,
           content_ua,
           content_en,
           excerpt_ua,
@@ -88,6 +90,20 @@ export default function BlogPost() {
           category_id,
           author_display_name,
           display_blocks,
+          sanskrit,
+          transliteration,
+          synonyms_ua,
+          synonyms_en,
+          poetry_translation_ua,
+          poetry_translation_en,
+          audio_sanskrit_url,
+          audio_transliteration_url,
+          audio_synonyms_ua_url,
+          audio_synonyms_en_url,
+          audio_poetry_translation_ua_url,
+          audio_poetry_translation_en_url,
+          audio_commentary_ua_url,
+          audio_commentary_en_url,
           category:blog_categories(name_ua, name_en),
           tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
         `,
@@ -369,7 +385,22 @@ export default function BlogPost() {
 
                 <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                   {hasContentUa ? (
-                    isAdmin ? (
+                    post.content_mode === "poetry" ? (
+                      <BlogPoetryContent
+                        sanskrit={post.sanskrit}
+                        transliteration={post.transliteration}
+                        synonyms={post.synonyms_ua}
+                        poetryTranslation={post.poetry_translation_ua}
+                        commentary={contentUa}
+                        audioSanskritUrl={post.audio_sanskrit_url}
+                        audioTransliterationUrl={post.audio_transliteration_url}
+                        audioSynonymsUrl={post.audio_synonyms_ua_url}
+                        audioPoetryTranslationUrl={post.audio_poetry_translation_ua_url}
+                        audioCommentaryUrl={post.audio_commentary_ua_url}
+                        displayBlocks={displayBlocks}
+                        language="ua"
+                      />
+                    ) : isAdmin ? (
                       <InlineTiptapEditor
                         content={contentUa}
                         onChange={(value) => handleContentUpdate("content_ua", value)}
@@ -421,7 +452,22 @@ export default function BlogPost() {
 
                 <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                   {hasContentEn ? (
-                    isAdmin ? (
+                    post.content_mode === "poetry" ? (
+                      <BlogPoetryContent
+                        sanskrit={post.sanskrit}
+                        transliteration={post.transliteration}
+                        synonyms={post.synonyms_en}
+                        poetryTranslation={post.poetry_translation_en}
+                        commentary={contentEn}
+                        audioSanskritUrl={post.audio_sanskrit_url}
+                        audioTransliterationUrl={post.audio_transliteration_url}
+                        audioSynonymsUrl={post.audio_synonyms_en_url}
+                        audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
+                        audioCommentaryUrl={post.audio_commentary_en_url}
+                        displayBlocks={displayBlocks}
+                        language="en"
+                      />
+                    ) : isAdmin ? (
                       <InlineTiptapEditor
                         content={contentEn}
                         onChange={(value) => handleContentUpdate("content_en", value)}
@@ -489,15 +535,30 @@ export default function BlogPost() {
               <div className="blog-body prose prose-lg prose-slate dark:prose-invert max-w-none">
                 {language === "ua" ? (
                   hasContentUa ? (
-                    isAdmin ? (
+                    post.content_mode === "poetry" ? (
+                      <BlogPoetryContent
+                        sanskrit={post.sanskrit}
+                        transliteration={post.transliteration}
+                        synonyms={post.synonyms_ua}
+                        poetryTranslation={post.poetry_translation_ua}
+                        commentary={contentUa}
+                        audioSanskritUrl={post.audio_sanskrit_url}
+                        audioTransliterationUrl={post.audio_transliteration_url}
+                        audioSynonymsUrl={post.audio_synonyms_ua_url}
+                        audioPoetryTranslationUrl={post.audio_poetry_translation_ua_url}
+                        audioCommentaryUrl={post.audio_commentary_ua_url}
+                        displayBlocks={displayBlocks}
+                        language="ua"
+                      />
+                    ) : isAdmin ? (
                       <InlineTiptapEditor
                         content={contentUa}
                         onChange={(value) => handleContentUpdate("content_ua", value)}
                         label="Контент (UA)"
                       />
-                  ) : (
-                    <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
-                  )
+                    ) : (
+                      <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
+                    )
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
                       <p className="text-lg">Контент поста ще не додано</p>
@@ -505,7 +566,22 @@ export default function BlogPost() {
                     </div>
                   )
                 ) : hasContentEn ? (
-                  isAdmin ? (
+                  post.content_mode === "poetry" ? (
+                    <BlogPoetryContent
+                      sanskrit={post.sanskrit}
+                      transliteration={post.transliteration}
+                      synonyms={post.synonyms_en}
+                      poetryTranslation={post.poetry_translation_en}
+                      commentary={contentEn}
+                      audioSanskritUrl={post.audio_sanskrit_url}
+                      audioTransliterationUrl={post.audio_transliteration_url}
+                      audioSynonymsUrl={post.audio_synonyms_en_url}
+                      audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
+                      audioCommentaryUrl={post.audio_commentary_en_url}
+                      displayBlocks={displayBlocks}
+                      language="en"
+                    />
+                  ) : isAdmin ? (
                     <InlineTiptapEditor
                       content={contentEn}
                       onChange={(value) => handleContentUpdate("content_en", value)}
