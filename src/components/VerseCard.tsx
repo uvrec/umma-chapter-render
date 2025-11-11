@@ -45,6 +45,9 @@ interface VerseCardProps {
     showCommentary: boolean;
   };
   showNumbers?: boolean;
+  fontSize?: number;
+  lineHeight?: number;
+  flowMode?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (verseId: string, updates: {
     sanskrit: string;
@@ -132,6 +135,9 @@ export const VerseCard = ({
     showCommentary: true
   },
   showNumbers = true,
+  fontSize = 18,
+  lineHeight = 1.6,
+  flowMode = false,
   isAdmin = false,
   onVerseUpdate,
   onVerseNumberUpdate,
@@ -212,8 +218,8 @@ export const VerseCard = ({
     }
   };
   const synonymPairs = textDisplaySettings.showSynonyms ? parseSynonyms(isEditing ? edited.synonyms : synonyms) : [];
-  return <Card className="verse-surface w-full animate-fade-in border-gray-100 bg-card shadow-sm dark:border-border">
-      <div className="p-6">
+  return <Card className={`verse-surface w-full animate-fade-in ${flowMode ? 'border-0 shadow-none' : 'border-gray-100 shadow-sm dark:border-border'} bg-card`}>
+      <div className={flowMode ? "py-6" : "p-6"} style={{ fontSize: `${fontSize}px`, lineHeight }}>
         {/* 🆕 STICKY HEADER - Верхня панель: номер/книга + кнопка редагування */}
         <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
           <div className="flex items-center justify-between">
