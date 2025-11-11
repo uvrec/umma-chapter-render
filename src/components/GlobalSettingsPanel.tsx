@@ -28,6 +28,14 @@ const DEFAULTS = {
     translation: true,
     commentary: true,
   },
+  continuousReading: {
+    enabled: false,
+    showVerseNumbers: true,
+    showSanskrit: false,
+    showTransliteration: false,
+    showTranslation: true,
+    showCommentary: false,
+  },
 };
 
 const LS_KEYS = {
@@ -37,6 +45,7 @@ const LS_KEYS = {
   blocks: "vv_reader_blocks",
   showNumbers: "vv_reader_showNumbers",
   flowMode: "vv_reader_flowMode",
+  continuousReading: "vv_reader_continuousReading",
 };
 
 type BlocksState = {
@@ -45,6 +54,15 @@ type BlocksState = {
   synonyms: boolean;
   translation: boolean;
   commentary: boolean;
+};
+
+export type ContinuousReadingState = {
+  enabled: boolean;
+  showVerseNumbers: boolean;
+  showSanskrit: boolean;
+  showTransliteration: boolean;
+  showTranslation: boolean;
+  showCommentary: boolean;
 };
 
 function readBlocks(): BlocksState {
@@ -61,6 +79,14 @@ function readBlocks(): BlocksState {
       };
   } catch {}
   return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
+}
+
+function readContinuousReading(): ContinuousReadingState {
+  try {
+    const raw = localStorage.getItem(LS_KEYS.continuousReading);
+    if (raw) return { ...DEFAULTS.continuousReading, ...JSON.parse(raw) };
+  } catch {}
+  return DEFAULTS.continuousReading;
 }
 
 export const GlobalSettingsPanel = () => {
@@ -80,6 +106,7 @@ export const GlobalSettingsPanel = () => {
   const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
   const [showNumbers, setShowNumbers] = useState<boolean>(() => localStorage.getItem(LS_KEYS.showNumbers) !== "false");
   const [flowMode, setFlowMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.flowMode) === "true");
+  const [continuousReading, setContinuousReading] = useState<ContinuousReadingState>(() => readContinuousReading());
 
   const bumpReader = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
@@ -93,8 +120,9 @@ export const GlobalSettingsPanel = () => {
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
     localStorage.setItem(LS_KEYS.showNumbers, String(showNumbers));
     localStorage.setItem(LS_KEYS.flowMode, String(flowMode));
+    localStorage.setItem(LS_KEYS.continuousReading, JSON.stringify(continuousReading));
     bumpReader();
-  }, [fontSize, lineHeight, dualMode, blocks, showNumbers, flowMode]);
+  }, [fontSize, lineHeight, dualMode, blocks, showNumbers, flowMode, continuousReading]);
 
   // Функція скидання до початкових значень
   const resetToDefaults = () => {
@@ -104,6 +132,7 @@ export const GlobalSettingsPanel = () => {
     setBlocks(DEFAULTS.blocks);
     setShowNumbers(DEFAULTS.showNumbers);
     setFlowMode(DEFAULTS.flowMode);
+    setContinuousReading(DEFAULTS.continuousReading);
   };
 
   const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
@@ -273,6 +302,72 @@ export const GlobalSettingsPanel = () => {
                   checked={blocks.commentary}
                   onChange={(v) => setBlocks({ ...blocks, commentary: v })}
                 />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Continuous Reading Mode */}
+            <div>
+              <h3 className="text-lg font-semibold mb-2">{t("Режим неперервного читання", "Continuous Reading Mode")}</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="continuous-enabled">{t("Увімкнути режим", "Enable Mode")}</Label>
+                  <Switch
+                    id="continuous-enabled"
+                    checked={continuousReading.enabled}
+                    onCheckedChange={(v) => setContinuousReading({ ...continuousReading, enabled: v })}
+                  />
+                </div>
+
+                {continuousReading.enabled && (
+                  <div className="ml-4 space-y-3 border-l-2 border-muted pl-4">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cont-verse-numbers">{t("Номери віршів", "Verse Numbers")}</Label>
+                      <Switch
+                        id="cont-verse-numbers"
+                        checked={continuousReading.showVerseNumbers}
+                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showVerseNumbers: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cont-sanskrit">{t("Санскрит", "Sanskrit")}</Label>
+                      <Switch
+                        id="cont-sanskrit"
+                        checked={continuousReading.showSanskrit}
+                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showSanskrit: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cont-transliteration">{t("Транслітерація", "Transliteration")}</Label>
+                      <Switch
+                        id="cont-transliteration"
+                        checked={continuousReading.showTransliteration}
+                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showTransliteration: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cont-translation">{t("Переклад", "Translation")}</Label>
+                      <Switch
+                        id="cont-translation"
+                        checked={continuousReading.showTranslation}
+                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showTranslation: v })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="cont-commentary">{t("Пояснення", "Purport")}</Label>
+                      <Switch
+                        id="cont-commentary"
+                        checked={continuousReading.showCommentary}
+                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showCommentary: v })}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
