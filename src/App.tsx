@@ -98,8 +98,6 @@ const App = () => (
                   <Route path="/" element={<NewHome />} />
 
                   {/* Читалка */}
-                  <Route path="/verses" element={<VedaReader />} />
-                  <Route path="/verses/:bookId" element={<VedaReader />} />
                   <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
 
                   {/* Нові маршрути читання БД */}
