@@ -16,6 +16,18 @@ import DOMPurify from "dompurify";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { toast } from "@/hooks/use-toast";
 
+// Type for chapter with summary fields
+interface ChapterWithSummary {
+  id: string;
+  chapter_number: number;
+  title_ua: string | null;
+  title_en: string | null;
+  content_ua: string | null;
+  content_en: string | null;
+  summary_ua?: string | null;
+  summary_en?: string | null;
+}
+
 export const ChapterVersesList = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
   const { language } = useLanguage();
@@ -220,8 +232,8 @@ export const ChapterVersesList = () => {
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
-  const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj && 'title_ua' in effectiveChapterObj
+  const effectiveChapterObj = (chapter ?? fallbackChapter) as ChapterWithSummary | null;
+  const chapterTitle = effectiveChapterObj
     ? language === "ua"
       ? effectiveChapterObj.title_ua
       : effectiveChapterObj.title_en
@@ -230,7 +242,7 @@ export const ChapterVersesList = () => {
   // Save chapter content mutation
   const saveContentMutation = useMutation({
     mutationFn: async () => {
-      if (!effectiveChapterObj || !('id' in effectiveChapterObj)) return;
+      if (!effectiveChapterObj?.id) return;
       const { error } = await supabase
         .from("chapters")
         .update({
@@ -253,7 +265,7 @@ export const ChapterVersesList = () => {
   // Save chapter summary mutation
   const saveSummaryMutation = useMutation({
     mutationFn: async () => {
-      if (!effectiveChapterObj || !('id' in effectiveChapterObj)) return;
+      if (!effectiveChapterObj?.id) return;
       const { error } = await supabase
         .from("chapters")
         .update({
@@ -278,8 +290,8 @@ export const ChapterVersesList = () => {
     if (effectiveChapterObj) {
       setEditedContentUa(effectiveChapterObj.content_ua || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
-      setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
-      setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
+      setEditedSummaryUa(effectiveChapterObj.summary_ua || "");
+      setEditedSummaryEn(effectiveChapterObj.summary_en || "");
     }
   }, [effectiveChapterObj]);
 
@@ -366,7 +378,7 @@ export const ChapterVersesList = () => {
           </div>
 
           {/* Summary блок - Vedabase style */}
-          {(effectiveChapterObj && ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en)) && (
+          {(effectiveChapterObj && (effectiveChapterObj.summary_ua || effectiveChapterObj.summary_en)) && (
             <div className="mb-8 rounded-lg border border-border bg-card p-6">
               {user && !isEditingSummary && (
                 <div className="mb-4 flex justify-end">
@@ -417,8 +429,8 @@ export const ChapterVersesList = () => {
                       variant="outline"
                       onClick={() => {
                         setIsEditingSummary(false);
-                        setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
-                        setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
+                        setEditedSummaryUa(effectiveChapterObj?.summary_ua || "");
+                        setEditedSummaryEn(effectiveChapterObj?.summary_en || "");
                       }}
                       className="gap-2"
                     >
@@ -437,7 +449,7 @@ export const ChapterVersesList = () => {
                         </p>
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize((effectiveChapterObj as any).summary_ua || "")
+                            __html: DOMPurify.sanitize(effectiveChapterObj?.summary_ua || "")
                           }}
                         />
                       </div>
@@ -447,7 +459,7 @@ export const ChapterVersesList = () => {
                         </p>
                         <div
                           dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize((effectiveChapterObj as any).summary_en || "")
+                            __html: DOMPurify.sanitize(effectiveChapterObj?.summary_en || "")
                           }}
                         />
                       </div>
@@ -461,8 +473,8 @@ export const ChapterVersesList = () => {
                         dangerouslySetInnerHTML={{
                           __html: DOMPurify.sanitize(
                             language === "ua"
-                              ? ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || "")
-                              : ((effectiveChapterObj as any).summary_en || (effectiveChapterObj as any).summary_ua || "")
+                              ? (effectiveChapterObj?.summary_ua || effectiveChapterObj?.summary_en || "")
+                              : (effectiveChapterObj?.summary_en || effectiveChapterObj?.summary_ua || "")
                           )
                         }}
                       />
