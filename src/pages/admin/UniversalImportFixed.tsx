@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { getMaxVerseFromChapter } from "@/utils/vedabaseParser";
 import { parseVedabaseCC, parseGitabaseCC, mergeVedabaseAndGitabase } from "@/utils/dualSourceParser";
+import { parseNoIVedabase, parseNoIGitabase } from "@/utils/noiParser";
 import { parseVerseNumber, normalizeVerseNumber, extractVerseNumberFromUrl } from "@/utils/vedabaseParsers";
 import {
   parseBhaktivinodaPage,
@@ -331,12 +332,20 @@ export default function UniversalImportFixed() {
                 let parsedEN: any = null;
                 let parsedUA: any = null;
 
+                // ✅ NoI має спеціалізований парсер через іншу HTML структуру
+                const useNoIParser = (bookInfo as any).hasSpecialStructure;
+
                 if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
-                  parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
-                  console.log(`✅ Vedabase parsed for ${t.lastPart}:`, {
-                    hasSynonyms: !!parsedEN?.synonyms_en,
-                    hasTranslation: !!parsedEN?.translation_en,
-                  });
+                  if (useNoIParser) {
+                    parsedEN = parseNoIVedabase(vedabaseRes.value.data.html, vedabaseUrl);
+                    console.log(`✅ [NoI] Vedabase parsed for ${t.lastPart}`);
+                  } else {
+                    parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+                    console.log(`✅ Vedabase parsed for ${t.lastPart}:`, {
+                      hasSynonyms: !!parsedEN?.synonyms_en,
+                      hasTranslation: !!parsedEN?.translation_en,
+                    });
+                  }
                 }
 
                 // ✅ Парсимо UA тільки якщо робили запит
@@ -344,14 +353,22 @@ export default function UniversalImportFixed() {
                   // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   const gitabaseUrl = bookInfo.isMultiVolume
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
+                    : (bookInfo as any).hasSpecialStructure
+                      ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${t.lastPart}`
+                      : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
                   console.log(`🇺🇦 Parsing Gitabase for ${t.lastPart}:`, gitabaseUrl);
-                  parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
-                  console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
-                    hasSynonyms: !!parsedUA?.synonyms_ua,
-                    hasTranslation: !!parsedUA?.translation_ua,
-                    synonymsPreview: parsedUA?.synonyms_ua?.substring(0, 50),
-                  });
+
+                  if (useNoIParser) {
+                    parsedUA = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
+                    console.log(`✅ [NoI] Gitabase parsed for ${t.lastPart}`);
+                  } else {
+                    parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                    console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
+                      hasSynonyms: !!parsedUA?.synonyms_ua,
+                      hasTranslation: !!parsedUA?.translation_ua,
+                      synonymsPreview: parsedUA?.synonyms_ua?.substring(0, 50),
+                    });
+                  }
                 } else {
                   console.warn(`⚠️ Gitabase skipped for ${t.lastPart}:`, {
                     hasGitabaseUA: bookInfo.hasGitabaseUA,
@@ -447,8 +464,15 @@ export default function UniversalImportFixed() {
               let parsedEN: any = null;
               let parsedUA: any = null;
 
+              // ✅ NoI має спеціалізований парсер
+              const useNoIParser = (bookInfo as any).hasSpecialStructure;
+
               if (vedabaseRes.status === "fulfilled" && vedabaseRes.value.data) {
-                parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+                if (useNoIParser) {
+                  parsedEN = parseNoIVedabase(vedabaseRes.value.data.html, vedabaseUrl);
+                } else {
+                  parsedEN = parseVedabaseCC(vedabaseRes.value.data.html, vedabaseUrl);
+                }
               }
 
               // ✅ Парсимо UA тільки якщо робили запит
@@ -460,7 +484,12 @@ export default function UniversalImportFixed() {
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${v}`
                     : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 console.log(`🇺🇦 [Fallback] Parsing Gitabase for ${v}:`, gitabaseUrl);
-                parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+
+                if (useNoIParser) {
+                  parsedUA = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
+                } else {
+                  parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                }
               } else {
                 console.warn(`⚠️ [Fallback] Gitabase skipped for ${v}:`, {
                   hasGitabaseUA: bookInfo.hasGitabaseUA,
