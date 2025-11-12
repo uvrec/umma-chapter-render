@@ -155,7 +155,7 @@ export default function BlogPost() {
           .lte("published_at", new Date().toISOString())
           .maybeSingle();
 
-        data = fallback.data;
+        data = fallback.data as any;
         error = fallback.error;
       }
 

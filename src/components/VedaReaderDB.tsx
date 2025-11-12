@@ -772,7 +772,12 @@ export const VedaReaderDB = () => {
     {
       key: 'c',
       description: t('Безперервне читання', 'Continuous reading'),
-      handler: () => setContinuousReadingSettings(prev => ({ ...prev, enabled: !prev.enabled })),
+      handler: () => {
+        const newSettings = { ...readContinuousReading(), enabled: !readContinuousReading().enabled };
+        localStorage.setItem("vv_reader_continuousReading", JSON.stringify(newSettings));
+        setContinuousReadingFromGlobal(newSettings);
+        window.dispatchEvent(new Event("vv-reader-prefs-changed"));
+      },
       category: 'modes',
     },
     {

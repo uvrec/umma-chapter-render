@@ -64,7 +64,7 @@ export async function importLecture(
           lecture_date: data.metadata.lecture_date,
           location_en: data.metadata.location_en,
           location_ua: data.metadata.location_ua,
-          lecture_type: data.metadata.lecture_type,
+          lecture_type: data.metadata.lecture_type as any,
           audio_url: data.metadata.audio_url,
           book_slug: data.metadata.book_slug,
           chapter_number: data.metadata.chapter_number,
@@ -84,20 +84,20 @@ export async function importLecture(
         .eq("lecture_id", lectureId);
     } else {
       // Створити нову лекцію
-      const { data: created, error: createError } = await supabase
+      const { data: created, error: createError} = await supabase
         .from("lectures")
         .insert({
-          slug: data.metadata.slug,
           title_en: data.metadata.title_en,
           title_ua: data.metadata.title_ua,
           lecture_date: data.metadata.lecture_date,
           location_en: data.metadata.location_en,
           location_ua: data.metadata.location_ua,
-          lecture_type: data.metadata.lecture_type,
+          lecture_type: data.metadata.lecture_type as any,
           audio_url: data.metadata.audio_url,
           book_slug: data.metadata.book_slug,
           chapter_number: data.metadata.chapter_number,
           verse_number: data.metadata.verse_number,
+          slug: data.metadata.slug,
         })
         .select("id")
         .single();

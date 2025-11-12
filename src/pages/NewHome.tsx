@@ -372,6 +372,89 @@ function LatestContent() {
   );
 }
 
+// --- Featured Books Section ---
+function FeaturedBooks() {
+  const { language } = useLanguage();
+  
+  const { data: books = [], isLoading } = useQuery({
+    queryKey: ['featured-books'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('books')
+        .select('id, slug, title_ua, title_en, cover_image_url')
+        .eq('is_published', true)
+        .order('display_order')
+        .limit(4);
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="mx-auto w-full max-w-6xl px-4 py-10">
+        <h2 className="mb-6 font-serif text-3xl font-semibold">Бібліотека</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="space-y-2">
+              <div className="aspect-[2/3] w-full rounded-lg bg-muted animate-pulse" />
+              <div className="h-4 w-3/4 mx-auto bg-muted animate-pulse rounded" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mx-auto w-full max-w-6xl px-4 py-10">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="font-serif text-3xl font-semibold">Бібліотека</h2>
+        <Button variant="outline" size="sm" asChild>
+          <a href="/library">
+            <BookOpen className="mr-2 h-4 w-4" />
+            Усі книги
+          </a>
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        {books.map((book) => (
+          <a
+            key={book.id}
+            href={`/veda-reader/${book.slug}`}
+            className="group cursor-pointer"
+          >
+            {/* Book Cover */}
+            <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
+              {book.cover_image_url ? (
+                <img
+                  src={book.cover_image_url}
+                  alt={language === 'ua' ? book.title_ua : book.title_en}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                  <span className="text-5xl opacity-50">📖</span>
+                </div>
+              )}
+
+              {/* Overlay on hover */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+            </div>
+
+            {/* Book Title */}
+            <h3 className="mt-3 text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
+              {language === 'ua' ? book.title_ua : book.title_en}
+            </h3>
+          </a>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // --- Quick Access Playlists ---
 function Playlists() {
   const featuredPlaylists = [
@@ -431,6 +514,7 @@ export const NewHome = () => {
         <Hero />
         <SearchStrip />
         <LatestContent />
+        <FeaturedBooks />
         <Playlists />
         <SupportSection />
       </main>

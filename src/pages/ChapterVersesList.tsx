@@ -88,7 +88,7 @@ export const ChapterVersesList = () => {
 
       const base = supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, summary_ua, summary_en")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
         .eq("chapter_number", parseInt(effectiveChapterParam as string));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
@@ -134,7 +134,7 @@ export const ChapterVersesList = () => {
       if (error) throw error;
       return data || [];
     },
-    enabled: !!chapter?.id,
+    enabled: !!chapter?.id && 'id' in chapter,
   });
 
   const { data: versesFallback = [], isLoading: isLoadingVersesFallback } = useQuery({
@@ -217,7 +217,7 @@ export const ChapterVersesList = () => {
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj
+  const chapterTitle = effectiveChapterObj && 'title_ua' in effectiveChapterObj
     ? language === "ua"
       ? effectiveChapterObj.title_ua
       : effectiveChapterObj.title_en
@@ -226,7 +226,7 @@ export const ChapterVersesList = () => {
   // Save chapter content mutation
   const saveContentMutation = useMutation({
     mutationFn: async () => {
-      if (!effectiveChapterObj?.id) return;
+      if (!effectiveChapterObj || !('id' in effectiveChapterObj)) return;
       const { error } = await supabase
         .from("chapters")
         .update({
@@ -246,28 +246,28 @@ export const ChapterVersesList = () => {
     }
   });
 
-  // Save chapter summary mutation
-  const saveSummaryMutation = useMutation({
-    mutationFn: async () => {
-      if (!effectiveChapterObj?.id) return;
-      const { error } = await supabase
-        .from("chapters")
-        .update({
-          summary_ua: editedSummaryUa,
-          summary_en: editedSummaryEn
-        })
-        .eq("id", effectiveChapterObj.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["chapter"] });
-      setIsEditingSummary(false);
-      toast({ title: language === "ua" ? "Summary збережено" : "Summary saved" });
-    },
-    onError: () => {
-      toast({ title: language === "ua" ? "Помилка збереження" : "Save error", variant: "destructive" });
-    }
-  });
+  // Save chapter summary mutation (DISABLED - summary fields don't exist in DB)
+  // const saveSummaryMutation = useMutation({
+  //   mutationFn: async () => {
+  //     if (!effectiveChapterObj?.id) return;
+  //     const { error } = await supabase
+  //       .from("chapters")
+  //       .update({
+  //         summary_ua: editedSummaryUa,
+  //         summary_en: editedSummaryEn
+  //       })
+  //       .eq("id", effectiveChapterObj.id);
+  //     if (error) throw error;
+  //   },
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["chapter"] });
+  //     setIsEditingSummary(false);
+  //     toast({ title: language === "ua" ? "Summary збережено" : "Summary saved" });
+  //   },
+  //   onError: () => {
+  //     toast({ title: language === "ua" ? "Помилка збереження" : "Save error", variant: "destructive" });
+  //   }
+  // });
 
   // Initialize edited content when chapter loads
   useEffect(() => {
@@ -392,8 +392,8 @@ export const ChapterVersesList = () => {
                   />
                   <div className="flex gap-2">
                     <Button
-                      onClick={() => saveSummaryMutation.mutate()}
-                      disabled={saveSummaryMutation.isPending}
+                      onClick={() => {/* saveSummaryMutation.mutate() */}}
+                      disabled={true}
                       className="gap-2"
                     >
                       <Save className="h-4 w-4" />
