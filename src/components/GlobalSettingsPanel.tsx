@@ -110,17 +110,41 @@ export const GlobalSettingsPanel = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
 
-  // Об'єднаний useEffect для збереження всіх налаштувань
+  // Окремі useEffect для кожного налаштування - для кращої синхронізації
   useEffect(() => {
     localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
+    bumpReader();
+  }, [fontSize]);
+
+  useEffect(() => {
     localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
+    bumpReader();
+  }, [lineHeight]);
+
+  useEffect(() => {
     localStorage.setItem(LS_KEYS.dual, String(dualMode));
+    bumpReader();
+  }, [dualMode]);
+
+  useEffect(() => {
     localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
+    bumpReader();
+  }, [blocks]);
+
+  useEffect(() => {
     localStorage.setItem(LS_KEYS.showNumbers, String(showNumbers));
+    bumpReader();
+  }, [showNumbers]);
+
+  useEffect(() => {
     localStorage.setItem(LS_KEYS.flowMode, String(flowMode));
+    bumpReader();
+  }, [flowMode]);
+
+  useEffect(() => {
     localStorage.setItem(LS_KEYS.continuousReading, JSON.stringify(continuousReading));
     bumpReader();
-  }, [fontSize, lineHeight, dualMode, blocks, showNumbers, flowMode, continuousReading]);
+  }, [continuousReading]);
 
   // Функція скидання до початкових значень
   const resetToDefaults = () => {
