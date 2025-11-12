@@ -122,6 +122,10 @@ export const VEDABASE_BOOKS = [
     sourceUrl: undefined as string | undefined,
     author: undefined as string | undefined,
     author_ua: undefined as string | undefined,
+    // ⚠️ ОСОБЛИВА СТРУКТУРА: NoI не має глав, тільки 11 текстів
+    // URL: /noi/{textNumber}/ (не /noi/{chapter}/{verse}/)
+    // Для імпорту: chapter=1 (фіксована), verse=1-11 (номери текстів)
+    hasSpecialStructure: true as boolean | undefined,
   },
   {
     slug: 'nod',

@@ -157,9 +157,12 @@ export default function UniversalImportFixed() {
       if (!verseRanges) {
         try {
           // ✅ Формуємо URL залежно від типу книги
+          // ⚠️ Для NoI: використовуємо /noi/ (без chapter), парсимо список текстів з головної сторінки
           const chapterUrl = bookInfo.isMultiVolume
             ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
-            : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+            : (bookInfo as any).hasSpecialStructure
+              ? `https://vedabase.io/en/library/${vedabaseBook}/`  // NoI: головна сторінка
+              : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
           const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
           const maxVerse = getMaxVerseFromChapter(chapterData.html);
@@ -171,13 +174,18 @@ export default function UniversalImportFixed() {
       }
 
       // ✅ Формуємо базові URL залежно від типу книги
+      // ⚠️ Для NoI (hasSpecialStructure): URL без глави - /noi/{verseNumber}/
       const vedabase_base = bookInfo.isMultiVolume
         ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
-        : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+        : (bookInfo as any).hasSpecialStructure
+          ? `https://vedabase.io/en/library/${vedabaseBook}/`  // NoI: /noi/{verseNumber}/
+          : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
       const gitabase_base = bookInfo.isMultiVolume
         ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}`
-        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}`;
+        : (bookInfo as any).hasSpecialStructure
+          ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/`  // NoI: /NoI/{verseNumber}
+          : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}`;
 
       let result: any = null;
 
@@ -286,9 +294,12 @@ export default function UniversalImportFixed() {
             for (const t of targets) {
               try {
                 // ✅ Формуємо URL залежно від типу книги
+                // ⚠️ Для NoI (hasSpecialStructure): /noi/{verseNumber}/ замість /noi/{chapter}/{verseNumber}/
                 const vedabaseUrl = bookInfo.isMultiVolume
                   ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${t.lastPart}`
-                  : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${t.lastPart}`;
+                  : (bookInfo as any).hasSpecialStructure
+                    ? `https://vedabase.io/en/library/${vedabaseBook}/${t.lastPart}`  // NoI: /noi/{verseNumber}/
+                    : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${t.lastPart}`;
 
                 // ✅ Gitabase тільки для CC та NoI
                 const requests: Promise<any>[] = [
@@ -297,9 +308,12 @@ export default function UniversalImportFixed() {
 
                 if (bookInfo.hasGitabaseUA) {
                   // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
+                  // ⚠️ Для NoI (hasSpecialStructure): /NoI/{verseNumber} замість /NoI/{chapter}/{verseNumber}
                   const gitabaseUrl = bookInfo.isMultiVolume
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
+                    : (bookInfo as any).hasSpecialStructure
+                      ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${t.lastPart}`  // NoI: /NoI/{verseNumber}
+                      : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`;
                   requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
                 }
 
@@ -356,7 +370,12 @@ export default function UniversalImportFixed() {
                   vedabaseUrl,
                   bookInfo.hasGitabaseUA
                     // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
-                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                    // ⚠️ Для NoI (hasSpecialStructure): /NoI/{verseNumber} замість /NoI/{chapter}/{verseNumber}
+                    ? bookInfo.isMultiVolume
+                      ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${t.lastPart}`
+                      : (bookInfo as any).hasSpecialStructure
+                        ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${t.lastPart}`
+                        : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${t.lastPart}`
                     : "",
                 );
 
@@ -393,9 +412,12 @@ export default function UniversalImportFixed() {
           for (let v = start; v <= end; v++) {
             try {
               // ✅ Формуємо URL залежно від типу книги
+              // ⚠️ Для NoI (hasSpecialStructure): /noi/{v}/ замість /noi/{chapter}/{v}/
               const vedabaseUrl = bookInfo.isMultiVolume
                 ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/${v}`
-                : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${v}`;
+                : (bookInfo as any).hasSpecialStructure
+                  ? `https://vedabase.io/en/library/${vedabaseBook}/${v}`  // NoI: /noi/{v}/
+                  : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/${v}`;
 
               // ✅ Gitabase тільки для CC та NoI
               const requests: Promise<any>[] = [
@@ -405,7 +427,9 @@ export default function UniversalImportFixed() {
               if (bookInfo.hasGitabaseUA) {
                 const gitabaseUrl = bookInfo.isMultiVolume
                   ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                  : (bookInfo as any).hasSpecialStructure
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${v}`  // NoI: /NoI/{v}
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 requests.push(supabase.functions.invoke("fetch-html", { body: { url: gitabaseUrl } }));
               }
 
@@ -429,9 +453,12 @@ export default function UniversalImportFixed() {
 
               // ✅ Парсимо UA тільки якщо робили запит
               if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+                // ⚠️ Для NoI (hasSpecialStructure): /NoI/{v} замість /NoI/{chapter}/{v}
                 const gitabaseUrl = bookInfo.isMultiVolume
                   ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                  : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
+                  : (bookInfo as any).hasSpecialStructure
+                    ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${v}`
+                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`;
                 console.log(`🇺🇦 [Fallback] Parsing Gitabase for ${v}:`, gitabaseUrl);
                 parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
               } else {
@@ -451,9 +478,12 @@ export default function UniversalImportFixed() {
                 String(v), // verse number
                 vedabaseUrl,
                 bookInfo.hasGitabaseUA
+                  // ⚠️ Для NoI (hasSpecialStructure): /NoI/{v} замість /NoI/{chapter}/{v}
                   ? bookInfo.isMultiVolume
                     ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${lilaNum}/${chapterNum}/${v}`
-                    : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`
+                    : (bookInfo as any).hasSpecialStructure
+                      ? `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${v}`
+                      : `https://gitabase.com/ukr/${vedabaseBook.toUpperCase()}/${chapterNum}/${v}`
                   : "",
               );
 
