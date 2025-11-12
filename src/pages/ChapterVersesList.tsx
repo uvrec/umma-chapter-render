@@ -92,7 +92,7 @@ export const ChapterVersesList = () => {
 
       const base = supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, summary_ua, summary_en")
         .eq("chapter_number", parseInt(effectiveChapterParam as string));
 
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
@@ -111,7 +111,7 @@ export const ChapterVersesList = () => {
       if (!book?.id || !effectiveChapterParam) return null;
       const { data, error } = await supabase
         .from("chapters")
-        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en, summary_ua, summary_en")
         .eq("book_id", book.id)
         .eq("chapter_number", parseInt(effectiveChapterParam as string))
         .is("canto_id", null)
@@ -250,28 +250,28 @@ export const ChapterVersesList = () => {
     }
   });
 
-  // Save chapter summary mutation (DISABLED - summary fields don't exist in DB)
-  // const saveSummaryMutation = useMutation({
-  //   mutationFn: async () => {
-  //     if (!effectiveChapterObj?.id) return;
-  //     const { error } = await supabase
-  //       .from("chapters")
-  //       .update({
-  //         summary_ua: editedSummaryUa,
-  //         summary_en: editedSummaryEn
-  //       })
-  //       .eq("id", effectiveChapterObj.id);
-  //     if (error) throw error;
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ["chapter"] });
-  //     setIsEditingSummary(false);
-  //     toast({ title: language === "ua" ? "Summary збережено" : "Summary saved" });
-  //   },
-  //   onError: () => {
-  //     toast({ title: language === "ua" ? "Помилка збереження" : "Save error", variant: "destructive" });
-  //   }
-  // });
+  // Save chapter summary mutation
+  const saveSummaryMutation = useMutation({
+    mutationFn: async () => {
+      if (!effectiveChapterObj || !('id' in effectiveChapterObj)) return;
+      const { error } = await supabase
+        .from("chapters")
+        .update({
+          summary_ua: editedSummaryUa,
+          summary_en: editedSummaryEn
+        })
+        .eq("id", effectiveChapterObj.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapter"] });
+      setIsEditingSummary(false);
+      toast({ title: "Зміни збережено" });
+    },
+    onError: () => {
+      toast({ title: "Помилка збереження", variant: "destructive" });
+    }
+  });
 
   // Initialize edited content when chapter loads
   useEffect(() => {
@@ -365,10 +365,9 @@ export const ChapterVersesList = () => {
             <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
           </div>
 
-          {/* Summary блок - Vedabase style (показується тільки якщо є дані) */}
+          {/* Summary блок - Vedabase style */}
           {(effectiveChapterObj && ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en)) && (
             <div className="mb-8 rounded-lg border border-border bg-card p-6">
-              {/* ❌ ВІДКЛЮЧЕНО: Редагування summary - поля не існують в БД
               {user && !isEditingSummary && (
                 <div className="mb-4 flex justify-end">
                   <Button
@@ -378,17 +377,61 @@ export const ChapterVersesList = () => {
                     className="gap-2"
                   >
                     <Edit className="h-4 w-4" />
-                    {language === "ua" ? "Редагувати summary" : "Edit summary"}
+                    {language === "ua" ? "Редагувати короткий зміст" : "Edit summary"}
                   </Button>
                 </div>
               )}
-              */}
 
-              {/* Відображення summary (тільки для читання) */}
-              <div className="prose prose-slate dark:prose-invert max-w-none">
+              {isEditingSummary ? (
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                      {language === "ua" ? "Короткий зміст" : "Summary"} (UA)
+                    </p>
+                    <InlineTiptapEditor
+                      content={editedSummaryUa}
+                      onChange={setEditedSummaryUa}
+                      label="Українська"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
+                      Summary (EN)
+                    </p>
+                    <InlineTiptapEditor
+                      content={editedSummaryEn}
+                      onChange={setEditedSummaryEn}
+                      label="English"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => saveSummaryMutation.mutate()}
+                      disabled={saveSummaryMutation.isPending}
+                      className="gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {language === "ua" ? "Зберегти" : "Save"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingSummary(false);
+                        setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
+                        setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
+                      }}
+                      className="gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      {language === "ua" ? "Скасувати" : "Cancel"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div>
                   {dualMode ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <div>
+                      <div className="prose prose-slate dark:prose-invert max-w-none">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                           {language === "ua" ? "Короткий зміст" : "Summary"} (UA)
                         </p>
@@ -398,7 +441,7 @@ export const ChapterVersesList = () => {
                           }}
                         />
                       </div>
-                      <div>
+                      <div className="prose prose-slate dark:prose-invert max-w-none">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                           Summary (EN)
                         </p>
@@ -410,7 +453,7 @@ export const ChapterVersesList = () => {
                       </div>
                     </div>
                   ) : (
-                    <div>
+                    <div className="prose prose-slate dark:prose-invert max-w-none">
                       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
                         {language === "ua" ? "Короткий зміст" : "Summary"}
                       </p>
@@ -426,6 +469,7 @@ export const ChapterVersesList = () => {
                     </div>
                   )}
                 </div>
+              )}
             </div>
           )}
 
