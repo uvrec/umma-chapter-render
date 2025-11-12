@@ -45,6 +45,10 @@ export const ChapterVersesList = () => {
       setShowNumbers(localStorage.getItem("vv_reader_showNumbers") !== "false");
       setFlowMode(localStorage.getItem("vv_reader_flowMode") === "true");
     };
+
+    // Викликаємо одразу щоб застосувати поточні значення
+    handler();
+
     window.addEventListener("vv-reader-prefs-changed", handler);
     return () => window.removeEventListener("vv-reader-prefs-changed", handler);
   }, []);
@@ -361,9 +365,10 @@ export const ChapterVersesList = () => {
             <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
           </div>
 
-          {/* Summary блок - Vedabase style */}
-          {(effectiveChapterObj && ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || user)) && (
+          {/* Summary блок - Vedabase style (показується тільки якщо є дані) */}
+          {(effectiveChapterObj && ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en)) && (
             <div className="mb-8 rounded-lg border border-border bg-card p-6">
+              {/* ❌ ВІДКЛЮЧЕНО: Редагування summary - поля не існують в БД
               {user && !isEditingSummary && (
                 <div className="mb-4 flex justify-end">
                   <Button
@@ -377,44 +382,10 @@ export const ChapterVersesList = () => {
                   </Button>
                 </div>
               )}
+              */}
 
-              {isEditingSummary ? (
-                <div className="space-y-4">
-                  <InlineTiptapEditor
-                    content={editedSummaryUa}
-                    onChange={setEditedSummaryUa}
-                    label={language === "ua" ? "Український summary" : "Ukrainian summary"}
-                  />
-                  <InlineTiptapEditor
-                    content={editedSummaryEn}
-                    onChange={setEditedSummaryEn}
-                    label={language === "ua" ? "English summary" : "English summary"}
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {/* saveSummaryMutation.mutate() */}}
-                      disabled={true}
-                      className="gap-2"
-                    >
-                      <Save className="h-4 w-4" />
-                      {language === "ua" ? "Зберегти" : "Save"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditingSummary(false);
-                        setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
-                        setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
-                      }}
-                      className="gap-2"
-                    >
-                      <X className="h-4 w-4" />
-                      {language === "ua" ? "Скасувати" : "Cancel"}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="prose prose-slate dark:prose-invert max-w-none">
+              {/* Відображення summary (тільки для читання) */}
+              <div className="prose prose-slate dark:prose-invert max-w-none">
                   {dualMode ? (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                       <div>
@@ -455,7 +426,6 @@ export const ChapterVersesList = () => {
                     </div>
                   )}
                 </div>
-              )}
             </div>
           )}
 
