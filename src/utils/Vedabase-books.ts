@@ -196,6 +196,30 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
+    slug: 'bs',
+    name: 'Brahma-saṁhitā',
+    vedabaseSlug: 'bs',
+    our_slug: 'bs',
+    name_ua: 'Брахма-самгіта',
+    name_en: 'Brahma-saṁhitā',
+    // Структура книги
+    isMultiVolume: false,
+    has_cantos: false,
+    volumeLabel: 'Вірш',
+    cantos: undefined,
+    // Парсинг
+    templateId: 'default',
+    // Gitabase
+    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    gitabase_available: false,
+    gitabaseSlug: null,
+    // Джерело (опціонально)
+    source: undefined as string | undefined,
+    sourceUrl: undefined as string | undefined,
+    author: undefined as string | undefined,
+    author_ua: undefined as string | undefined,
+  },
+  {
     slug: 'transcripts',
     name: 'Transcripts',
     vedabaseSlug: 'transcripts',
