@@ -158,10 +158,10 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
         }
       }
     } else {
-      console.warn('⚠️ Bengali НЕ знайдено на сторінці');
+      console.warn('⚠️ Bengali НЕ знайдено через .av-bengali div.text-center');
     }
 
-    // Якщо не знайшли через селектори - шукаємо <r class="verse">
+    // Якщо не знайшли через .av-bengali - шукаємо <r class="verse">
     if (!bengali) {
       const rTags = doc.querySelectorAll('r.verse, r[class*="verse"]');
       if (rTags.length > 0) {
@@ -170,6 +170,21 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
           console.log(`✅ Bengali знайдено через <r> тег`);
         }
       }
+    }
+
+    // ⚠️ NoI FIX: Якщо все ще не знайшли - шукаємо просто .av-bengali (без вкладеного div)
+    if (!bengali) {
+      const bengaliDirect = doc.querySelector('.av-bengali');
+      if (bengaliDirect) {
+        bengali = bengaliDirect.textContent?.trim() || '';
+        if (bengali) {
+          console.log(`✅ Bengali знайдено через .av-bengali (NoI structure)`);
+        }
+      }
+    }
+
+    if (!bengali) {
+      console.warn('⚠️ Bengali НЕ знайдено на сторінці');
     }
 
     // Transliteration (IAST) - support for combined verses
@@ -240,16 +255,26 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
     let purport_en = '';
     const purportContainer = doc.querySelector('.av-purport');
     if (purportContainer) {
-      const paragraphs = purportContainer.querySelectorAll('p, div');
+      // ✅ FIX: Беремо тільки прямі дочірні <p> щоб уникнути дублювання
+      // querySelectorAll(':scope > p') - тільки direct children
+      let paragraphs = purportContainer.querySelectorAll(':scope > p');
+
+      // Якщо немає прямих <p>, пробуємо взяти всі <p> (fallback для різних структур)
+      if (paragraphs.length === 0) {
+        paragraphs = purportContainer.querySelectorAll('p');
+      }
+
       const parts: string[] = [];
-      
+      const seen = new Set<string>(); // Додаткова перевірка на дублікати
+
       paragraphs.forEach(p => {
         const text = p.textContent?.trim();
-        if (text && text.length > 10) {
+        if (text && text.length > 10 && !seen.has(text)) {
+          seen.add(text);
           parts.push(text);
         }
       });
-      
+
       purport_en = parts.join('\n\n');
     }
 
@@ -351,19 +376,29 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     // 3. ПОЯСНЕННЯ - ТОЧНИЙ контейнер, всі параграфи
     const commentaryContainer = doc.querySelector('div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)');
     if (commentaryContainer) {
-      const paragraphs = Array.from(commentaryContainer.querySelectorAll('p'));
+      // ✅ FIX: Беремо тільки прямі дочірні <p> щоб уникнути дублювання
+      let paragraphs = Array.from(commentaryContainer.querySelectorAll(':scope > p'));
+
+      // Якщо немає прямих <p>, беремо всі <p> (fallback)
+      if (paragraphs.length === 0) {
+        paragraphs = Array.from(commentaryContainer.querySelectorAll('p'));
+      }
+
       console.log(`[Gitabase] Found commentary container with ${paragraphs.length} paragraphs`);
 
       const parts: string[] = [];
+      const seen = new Set<string>(); // Додаткова перевірка на дублікати
+
       paragraphs.forEach(p => {
         const text = p.textContent?.trim() || '';
-        if (text.length > 50) {
+        if (text.length > 50 && !seen.has(text)) {
+          seen.add(text);
           parts.push(text);
         }
       });
 
       purport_ua = parts.join('\n\n');
-      console.log(`[Gitabase] Found purport_ua from EXACT selector (${purport_ua.length} chars total)`);
+      console.log(`[Gitabase] Found purport_ua from EXACT selector (${purport_ua.length} chars total, ${parts.length} unique paragraphs)`);
     } else {
       console.warn('[Gitabase] EXACT commentary selector NOT FOUND, trying fallback div.row');
 
@@ -372,11 +407,14 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       console.log(`[Gitabase] Fallback: Found ${rows.length} div.row elements`);
 
       const commentaryParts: string[] = [];
+      const seen = new Set<string>(); // Перевірка на дублікати
+
       for (const row of rows) {
         const paragraphs = Array.from(row.querySelectorAll('p'));
         for (const p of paragraphs) {
           const text = p.textContent?.trim() || '';
-          if (text.length > 100 && text !== translation_ua && text !== synonyms_ua) {
+          if (text.length > 100 && text !== translation_ua && text !== synonyms_ua && !seen.has(text)) {
+            seen.add(text);
             commentaryParts.push(text);
           }
         }
@@ -384,7 +422,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
 
       if (commentaryParts.length > 0) {
         purport_ua = commentaryParts.join('\n\n');
-        console.log(`[Gitabase] Found purport_ua via fallback (${purport_ua.length} chars)`);
+        console.log(`[Gitabase] Found purport_ua via fallback (${purport_ua.length} chars, ${commentaryParts.length} unique paragraphs)`);
       }
     }
 
