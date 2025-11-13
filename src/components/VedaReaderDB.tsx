@@ -517,7 +517,12 @@ export const VedaReaderDB = () => {
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
-  const chapterTitle = chapter ? (language === "ua" ? chapter.title_ua : chapter.title_en) : null;
+  
+  // Special handling for NOI: display "Text X" instead of chapter title
+  let chapterTitle = chapter ? (language === "ua" ? chapter.title_ua : chapter.title_en) : null;
+  if (bookId === 'noi' && routeVerseNumber) {
+    chapterTitle = language === 'ua' ? `Текст ${routeVerseNumber}` : `Text ${routeVerseNumber}`;
+  }
   const currentChapterIndex = allChapters.findIndex(ch => ch.id === chapter?.id);
   const currentVerse = verses[currentVerseIndex];
 
@@ -626,10 +631,13 @@ export const VedaReaderDB = () => {
         const urlVerseNumber = String(prevVerse.verse_number).includes('-') 
           ? String(prevVerse.verse_number).split('-')[0] 
           : prevVerse.verse_number;
-        const path = isCantoMode 
+      // Special handling for NOI navigation
+      const path = bookId === 'noi' 
+        ? `/veda-reader/noi/${urlVerseNumber}`
+        : isCantoMode 
           ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
           : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
-        navigate(path);
+      navigate(path);
         window.scrollTo({
           top: 0,
           behavior: "smooth"
@@ -640,9 +648,11 @@ export const VedaReaderDB = () => {
         const urlVerseNumber = String(nextVerse.verse_number).includes('-') 
           ? String(nextVerse.verse_number).split('-')[0] 
           : nextVerse.verse_number;
-        const path = isCantoMode 
-          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
-          : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+        const path = bookId === 'noi' 
+          ? `/veda-reader/noi/${urlVerseNumber}`
+          : isCantoMode 
+            ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+            : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
         navigate(path);
         window.scrollTo({
           top: 0,
@@ -660,9 +670,11 @@ export const VedaReaderDB = () => {
       const urlVerseNumber = String(prevVerse.verse_number).includes('-') 
         ? String(prevVerse.verse_number).split('-')[0] 
         : prevVerse.verse_number;
-      const path = isCantoMode 
-        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
-        : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+      const path = bookId === 'noi' 
+        ? `/veda-reader/noi/${urlVerseNumber}`
+        : isCantoMode 
+          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+          : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (currentChapterIndex > 0) {
@@ -677,9 +689,11 @@ export const VedaReaderDB = () => {
       const urlVerseNumber = String(nextVerse.verse_number).includes('-') 
         ? String(nextVerse.verse_number).split('-')[0] 
         : nextVerse.verse_number;
-      const path = isCantoMode 
-        ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
-        : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+      const path = bookId === 'noi' 
+        ? `/veda-reader/noi/${urlVerseNumber}`
+        : isCantoMode 
+          ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}`
+          : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else if (currentChapterIndex < allChapters.length - 1) {
