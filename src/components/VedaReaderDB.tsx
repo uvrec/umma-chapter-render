@@ -114,11 +114,22 @@ export const VedaReaderDB = () => {
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handlePrefsChanged = () => {
+      // Використовуємо functional updates для уникнення stale closures
       const newFontSize = localStorage.getItem("vv_reader_fontSize");
-      if (newFontSize) setFontSize(Number(newFontSize));
+      if (newFontSize) {
+        const parsed = Number(newFontSize);
+        if (Number.isFinite(parsed)) {
+          setFontSize(parsed);
+        }
+      }
 
       const newLineHeight = localStorage.getItem("vv_reader_lineHeight");
-      if (newLineHeight) setLineHeight(Number(newLineHeight));
+      if (newLineHeight) {
+        const parsed = Number(newLineHeight);
+        if (Number.isFinite(parsed)) {
+          setLineHeight(parsed);
+        }
+      }
 
       const newDualMode = localStorage.getItem("vv_reader_dualMode") === "true";
       setDualLanguageMode(newDualMode);
@@ -145,8 +156,14 @@ export const VedaReaderDB = () => {
             showCommentary: blocks.commentary ?? true
           });
         }
-      } catch {}
+      } catch (e) {
+        console.error('[VedaReaderDB] Error parsing blocks:', e);
+      }
     };
+
+    // Викликаємо одразу щоб застосувати поточні значення
+    handlePrefsChanged();
+
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
     return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
   }, []);
