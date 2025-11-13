@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
 import { Header } from "@/components/Header";
@@ -13,6 +13,7 @@ export const BookOverview = () => {
   const { bookId, slug } = useParams();
   const bookSlug = slug || bookId;
   const { language, t } = useLanguage();
+  const navigate = useNavigate();
 
   // Читаємо dualMode з localStorage
   const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
@@ -85,6 +86,13 @@ export const BookOverview = () => {
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const bookDescription = language === "ua" ? book?.description_ua : book?.description_en;
+
+  // Special handling for NOI - redirect to introduction
+  useEffect(() => {
+    if (bookSlug === 'noi' && !isLoading) {
+      navigate(`/veda-reader/noi/0`);
+    }
+  }, [bookSlug, isLoading, navigate]);
 
   if (isLoading) {
     return (

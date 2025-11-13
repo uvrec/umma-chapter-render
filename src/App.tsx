@@ -102,6 +102,8 @@ const App = () => (
                   <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
 
                   {/* Нові маршрути читання БД */}
+                  {/* Redirect NOI to introduction */}
+                  <Route path="/veda-reader/noi" element={<Navigate to="/veda-reader/noi/0" replace />} />
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                   <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
