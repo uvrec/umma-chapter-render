@@ -23,9 +23,34 @@ export interface NoIVerseDataUA {
  * Парсить NoI вірш з Vedabase (EN)
  */
 export function parseNoIVedabase(html: string, url: string): NoIVerseData | null {
+  console.log(`🔍 [NoI Vedabase] parseNoIVedabase called for: ${url}`);
+  console.log(`📄 [NoI Vedabase] HTML length: ${html?.length || 0} characters`);
+
+  if (!html || html.length < 100) {
+    console.error(`❌ [NoI Vedabase] HTML is empty or too short (${html?.length || 0} chars)`);
+    console.log(`📄 [NoI Debug] HTML content:`, html);
+    return null;
+  }
+
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+
+    // Check for parsing errors
+    const parserError = doc.querySelector('parsererror');
+    if (parserError) {
+      console.error(`❌ [NoI Vedabase] DOMParser error:`, parserError.textContent);
+      return null;
+    }
+
+    // Debug: показуємо які класи доступні
+    const allClasses = new Set<string>();
+    doc.querySelectorAll('[class]').forEach(el => {
+      el.classList.forEach(cls => allClasses.add(cls));
+    });
+    console.log(`[NoI Debug] Total unique classes in HTML:`, allClasses.size);
+    const avClasses = Array.from(allClasses).filter(c => c.startsWith('av-'));
+    console.log(`[NoI Debug] Classes starting with 'av-':`, avClasses);
 
     let bengali = '';
     let transliteration_en = '';
@@ -35,11 +60,12 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
 
     // 1. SANSKRIT/BENGALI - NoI використовує просто .av-bengali (без вкладеного div)
     const bengaliEl = doc.querySelector('.av-bengali');
+    console.log(`[NoI Debug] querySelector('.av-bengali'):`, bengaliEl ? 'FOUND' : 'NOT FOUND');
     if (bengaliEl) {
       bengali = bengaliEl.textContent?.trim() || '';
-      console.log(`✅ [NoI] Found bengali (${bengali.length} chars)`);
+      console.log(`✅ [NoI] Found bengali (${bengali.length} chars): "${bengali.substring(0, 60)}..."`);
     } else {
-      console.warn('⚠️ [NoI] Bengali not found');
+      console.warn('⚠️ [NoI] Bengali not found with .av-bengali selector');
     }
 
     // 2. TRANSLITERATION - шукаємо .av-verse_text або схоже
@@ -125,6 +151,14 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
     // Перевірка: хоча б щось повинно бути
     if (!bengali && !transliteration_en && !translation_en) {
       console.error(`❌ [NoI] No content found for ${url}`);
+      console.log(`📄 [NoI Debug] HTML sample (first 2000 chars):`, html.substring(0, 2000));
+      console.log(`📄 [NoI Debug] Document body classes:`, doc.body?.className || 'none');
+      console.log(`📄 [NoI Debug] Document body id:`, doc.body?.id || 'none');
+
+      // Try to find ANY text content to see if page loaded
+      const bodyText = doc.body?.textContent?.trim().substring(0, 200) || '';
+      console.log(`📄 [NoI Debug] Body text sample:`, bodyText);
+
       return null;
     }
 
