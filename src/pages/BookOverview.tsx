@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
@@ -65,31 +66,39 @@ export const BookOverview = () => {
     enabled: !!book?.id && book?.has_cantos !== true,
   });
 
-  // Special handling for NoI: fetch verses from chapter 1 to show as list
+  // Special handling for NoI: fetch ALL verses (from all chapters) to show as list
   const { data: noiVerses = [], isLoading: noiVersesLoading } = useQuery({
     queryKey: ["noi-verses", book?.id],
     queryFn: async () => {
       if (!book?.id || bookSlug !== 'noi') return [];
 
-      // NoI має всі тексти в главі 1
-      const { data: chapter1, error: chapterError } = await supabase
+      // NoI: отримуємо ВСІ вірші з усіх глав цієї книги
+      const { data: allChapters, error: chaptersError } = await supabase
         .from("chapters")
         .select("id")
-        .eq("book_id", book.id)
-        .eq("chapter_number", 1)
-        .maybeSingle();
+        .eq("book_id", book.id);
 
-      if (chapterError || !chapter1) return [];
+      if (chaptersError || !allChapters || allChapters.length === 0) {
+        console.log('[NoI] No chapters found for book:', book.id);
+        return [];
+      }
+
+      const chapterIds = allChapters.map(ch => ch.id);
 
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, translation_ua, translation_en")
-        .eq("chapter_id", chapter1.id)
+        .select("id, verse_number, translation_ua, translation_en, chapter_id, is_published")
+        .in("chapter_id", chapterIds)
         .is("deleted_at", null)
-        .eq("is_published", true)
+        // ✅ Показуємо ВСІ вірші, навіть неопубліковані (для адміна)
         .order("verse_number_sort");
 
-      if (error) throw error;
+      if (error) {
+        console.error('[NoI] Error fetching verses:', error);
+        throw error;
+      }
+
+      console.log('[NoI] Found verses:', data?.length || 0);
       return data || [];
     },
     enabled: !!book?.id && bookSlug === 'noi',
@@ -217,8 +226,9 @@ export const BookOverview = () => {
                   );
                 })
               : // NoI: show verses as list, otherwise chapters
-                bookSlug === 'noi' && noiVerses.length > 0
-                ? noiVerses.map((verse) => {
+                bookSlug === 'noi'
+                ? noiVerses.length > 0
+                  ? noiVerses.map((verse) => {
                     const titleUa = verse.translation_ua ? `${verse.verse_number}. ${verse.translation_ua.substring(0, 80)}...` : `Текст ${verse.verse_number}`;
                     const titleEn = verse.translation_en ? `${verse.verse_number}. ${verse.translation_en.substring(0, 80)}...` : `Text ${verse.verse_number}`;
 
@@ -260,6 +270,23 @@ export const BookOverview = () => {
                       </Link>
                     );
                   })
+                  : // NoI немає віршів - показуємо повідомлення
+                    <div className="py-12 text-center">
+                      <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                      <p className="mb-2 text-lg font-medium text-foreground">
+                        {language === "ua" ? "Нектар настанов ще не імпортовано" : "Nectar of Instruction not yet imported"}
+                      </p>
+                      <p className="mb-4 text-sm text-muted-foreground">
+                        {language === "ua"
+                          ? "Імпортуйте тексти через /admin/universal-import"
+                          : "Import texts via /admin/universal-import"}
+                      </p>
+                      <Link to="/admin/universal-import">
+                        <Button variant="outline">
+                          {language === "ua" ? "Перейти до імпорту" : "Go to Import"}
+                        </Button>
+                      </Link>
+                    </div>
                 : // Regular chapters
                   chapters.map((chapter) => {
                   const chapterTitleUa = chapter.title_ua;
