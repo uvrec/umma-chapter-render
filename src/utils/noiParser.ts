@@ -52,6 +52,24 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
     const avClasses = Array.from(allClasses).filter(c => c.startsWith('av-'));
     console.log(`[NoI Debug] Classes starting with 'av-':`, avClasses);
 
+    // Додаткова діагностика
+    const bodyClasses = doc.body?.className || '';
+    console.log(`[NoI Debug] Body classes:`, bodyClasses);
+    console.log(`[NoI Debug] Total divs:`, doc.querySelectorAll('div').length);
+    console.log(`[NoI Debug] Total paragraphs:`, doc.querySelectorAll('p').length);
+
+    // Перевірка чи це React app що не завантажився
+    const reactRoot = doc.querySelector('#root, #app, [data-reactroot], .react-root');
+    console.log(`[NoI Debug] React root found:`, !!reactRoot);
+    if (reactRoot) {
+      const rootContent = reactRoot.textContent?.trim() || '';
+      console.log(`[NoI Debug] React root content length:`, rootContent.length);
+      if (rootContent.length < 100) {
+        console.error(`❌ [NoI Debug] React root is nearly empty (${rootContent.length} chars) - JavaScript may not have executed!`);
+        console.log(`[NoI Debug] Root content:`, rootContent);
+      }
+    }
+
     let bengali = '';
     let transliteration_en = '';
     let synonyms_en = '';
@@ -226,22 +244,68 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
       console.warn('⚠️ [NoI UA] Translation not found');
     }
 
-    // 3. PURPORT - всі <p> після translation (виключаючи synonyms та translation)
-    const allParagraphs = doc.querySelectorAll('p');
+    // 3. PURPORT - шукаємо специфічний контейнер або фільтруємо параграфи
+    // Спроба 1: Точний контейнер як у CC (можливо NoI має таку ж структуру)
+    let purportContainer = doc.querySelector('div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)');
+
+    // Спроба 2: Будь-який div.row після translation що містить багато <p>
+    if (!purportContainer) {
+      const rows = Array.from(doc.querySelectorAll('div.row'));
+      for (const row of rows) {
+        const paragraphs = row.querySelectorAll('p');
+        if (paragraphs.length >= 3) { // Purport зазвичай має кілька параграфів
+          purportContainer = row;
+          console.log(`[NoI UA] Found purport container via fallback (${paragraphs.length} paragraphs)`);
+          break;
+        }
+      }
+    }
+
     const parts: string[] = [];
     const seen = new Set<string>();
+
+    // Функція для перевірки чи містить текст транслітерацію (IAST символи)
+    const hasTransliteration = (text: string): boolean => {
+      // IAST діакритичні символи
+      const iastPattern = /[āīūṛṝḷḹṁṃḥṅñṭḍṇśṣ]/i;
+      return iastPattern.test(text);
+    };
+
+    // Функція для перевірки чи це synonyms (містить багато " — ")
+    const isSynonyms = (text: string): boolean => {
+      const dashCount = (text.match(/ — /g) || []).length;
+      return dashCount >= 3; // Synonyms зазвичай мають багато " — "
+    };
+
+    let allParagraphs: NodeListOf<HTMLElement>;
+    if (purportContainer) {
+      // Беремо параграфи з контейнера
+      allParagraphs = purportContainer.querySelectorAll('p');
+      console.log(`[NoI UA] Using purport container with ${allParagraphs.length} paragraphs`);
+    } else {
+      // Fallback: всі <p> на сторінці, але з жорсткою фільтрацією
+      allParagraphs = doc.querySelectorAll('p');
+      console.log(`[NoI UA] Using all <p> tags (${allParagraphs.length}) with strict filtering`);
+    }
 
     allParagraphs.forEach(p => {
       const text = p.textContent?.trim() || '';
 
-      // Пропускаємо короткі, дублікати, та text що вже є в synonyms/translation
+      // Пропускаємо:
+      // - Короткі (< 50 chars)
+      // - Дублікати
+      // - Те що вже є в synonyms/translation
+      // - Текст з транслітерацією (це не purport, а transliteration блок)
+      // - Synonyms-подібний текст (багато " — ")
       if (text.length > 50 &&
           !seen.has(text) &&
           text !== synonyms_ua &&
-          text !== translation_ua) {
+          text !== translation_ua &&
+          !hasTransliteration(text) &&
+          !isSynonyms(text)) {
         seen.add(text);
 
-        // Нормалізація кожного параграфу
+        // Нормалізація: прибирає зайві пробіли, фіксить цитати, транслітерацію всередині
         const normalized = normalizeVerseField(text, 'commentary');
         parts.push(normalized);
       }
