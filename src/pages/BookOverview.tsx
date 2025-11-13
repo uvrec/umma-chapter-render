@@ -65,6 +65,36 @@ export const BookOverview = () => {
     enabled: !!book?.id && book?.has_cantos !== true,
   });
 
+  // Special handling for NoI: fetch verses from chapter 1 to show as list
+  const { data: noiVerses = [], isLoading: noiVersesLoading } = useQuery({
+    queryKey: ["noi-verses", book?.id],
+    queryFn: async () => {
+      if (!book?.id || bookSlug !== 'noi') return [];
+
+      // NoI має всі тексти в главі 1
+      const { data: chapter1, error: chapterError } = await supabase
+        .from("chapters")
+        .select("id")
+        .eq("book_id", book.id)
+        .eq("chapter_number", 1)
+        .maybeSingle();
+
+      if (chapterError || !chapter1) return [];
+
+      const { data, error } = await supabase
+        .from("verses")
+        .select("id, verse_number, translation_ua, translation_en")
+        .eq("chapter_id", chapter1.id)
+        .is("deleted_at", null)
+        .eq("is_published", true)
+        .order("verse_number_sort");
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!book?.id && bookSlug === 'noi',
+  });
+
   // Fetch intro chapters
   const { data: introChapters = [], isLoading: introLoading } = useQuery({
     queryKey: ["intro-chapters", book?.id],
@@ -81,7 +111,7 @@ export const BookOverview = () => {
     enabled: !!book?.id,
   });
 
-  const isLoading = cantosLoading || chaptersLoading || introLoading;
+  const isLoading = cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const bookDescription = language === "ua" ? book?.description_ua : book?.description_en;
@@ -186,8 +216,52 @@ export const BookOverview = () => {
                     </Link>
                   );
                 })
-              : // Chapters як список
-                chapters.map((chapter) => {
+              : // NoI: show verses as list, otherwise chapters
+                bookSlug === 'noi' && noiVerses.length > 0
+                ? noiVerses.map((verse) => {
+                    const titleUa = verse.translation_ua ? `${verse.verse_number}. ${verse.translation_ua.substring(0, 80)}...` : `Текст ${verse.verse_number}`;
+                    const titleEn = verse.translation_en ? `${verse.verse_number}. ${verse.translation_en.substring(0, 80)}...` : `Text ${verse.verse_number}`;
+
+                    return dualMode ? (
+                      <Link
+                        key={verse.id}
+                        to={`/veda-reader/noi/${verse.verse_number}`}
+                        className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
+                      >
+                        <div className="grid gap-8 md:grid-cols-2">
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg font-bold text-primary whitespace-nowrap">
+                              {verse.verse_number}
+                            </span>
+                            <span className="text-lg text-foreground line-clamp-2">{titleUa}</span>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <span className="text-lg font-bold text-primary whitespace-nowrap">
+                              {verse.verse_number}
+                            </span>
+                            <span className="text-lg text-foreground line-clamp-2">{titleEn}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    ) : (
+                      <Link
+                        key={verse.id}
+                        to={`/veda-reader/noi/${verse.verse_number}`}
+                        className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-primary">
+                            {language === "ua" ? `Текст ${verse.verse_number}` : `Text ${verse.verse_number}`}
+                          </span>
+                          <span className="text-lg text-foreground line-clamp-2">
+                            {language === "ua" ? titleUa : titleEn}
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })
+                : // Regular chapters
+                  chapters.map((chapter) => {
                   const chapterTitleUa = chapter.title_ua;
                   const chapterTitleEn = chapter.title_en;
 
