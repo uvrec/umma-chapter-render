@@ -108,6 +108,10 @@ const App = () => (
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
                     element={<VedaReaderDB />}
                   />
+
+                  {/* Special route for NoI: /veda-reader/noi/1 → VedaReaderDB (not ChapterVersesList) */}
+                  <Route path="/veda-reader/noi/:verseNumber" element={<VedaReaderDB />} />
+
                   <Route path="/veda-reader/:bookId/:chapterId" element={<ChapterVersesList />} />
                   <Route path="/veda-reader/:bookId/:chapterId/:verseNumber" element={<VedaReaderDB />} />
                   <Route

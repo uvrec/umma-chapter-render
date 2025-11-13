@@ -33,11 +33,6 @@ export const ChapterVersesList = () => {
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
 
-  // Summary editing state
-  const [isEditingSummary, setIsEditingSummary] = useState(false);
-  const [editedSummaryUa, setEditedSummaryUa] = useState("");
-  const [editedSummaryEn, setEditedSummaryEn] = useState("");
-
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handler = () => {
@@ -274,8 +269,6 @@ export const ChapterVersesList = () => {
     if (effectiveChapterObj) {
       setEditedContentUa(effectiveChapterObj.content_ua || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
-      setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
-      setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
     }
   }, [effectiveChapterObj]);
 
@@ -360,104 +353,6 @@ export const ChapterVersesList = () => {
             </div>
             <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
           </div>
-
-          {/* Summary блок - Vedabase style */}
-          {(effectiveChapterObj && ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || user)) && (
-            <div className="mb-8 rounded-lg border border-border bg-card p-6">
-              {user && !isEditingSummary && (
-                <div className="mb-4 flex justify-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditingSummary(true)}
-                    className="gap-2"
-                  >
-                    <Edit className="h-4 w-4" />
-                    {language === "ua" ? "Редагувати summary" : "Edit summary"}
-                  </Button>
-                </div>
-              )}
-
-              {isEditingSummary ? (
-                <div className="space-y-4">
-                  <InlineTiptapEditor
-                    content={editedSummaryUa}
-                    onChange={setEditedSummaryUa}
-                    label={language === "ua" ? "Український summary" : "Ukrainian summary"}
-                  />
-                  <InlineTiptapEditor
-                    content={editedSummaryEn}
-                    onChange={setEditedSummaryEn}
-                    label={language === "ua" ? "English summary" : "English summary"}
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => {/* saveSummaryMutation.mutate() */}}
-                      disabled={true}
-                      className="gap-2"
-                    >
-                      <Save className="h-4 w-4" />
-                      {language === "ua" ? "Зберегти" : "Save"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditingSummary(false);
-                        setEditedSummaryUa((effectiveChapterObj as any).summary_ua || "");
-                        setEditedSummaryEn((effectiveChapterObj as any).summary_en || "");
-                      }}
-                      className="gap-2"
-                    >
-                      <X className="h-4 w-4" />
-                      {language === "ua" ? "Скасувати" : "Cancel"}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                  {dualMode ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                          {language === "ua" ? "Короткий зміст" : "Summary"} (UA)
-                        </p>
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize((effectiveChapterObj as any).summary_ua || "")
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                          Summary (EN)
-                        </p>
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize((effectiveChapterObj as any).summary_en || "")
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-3">
-                        {language === "ua" ? "Короткий зміст" : "Summary"}
-                      </p>
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: DOMPurify.sanitize(
-                            language === "ua"
-                              ? ((effectiveChapterObj as any).summary_ua || (effectiveChapterObj as any).summary_en || "")
-                              : ((effectiveChapterObj as any).summary_en || (effectiveChapterObj as any).summary_ua || "")
-                          )
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
 
           {/* Огляд глави */}
           {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (

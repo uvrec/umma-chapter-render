@@ -185,7 +185,13 @@ export const VedaReaderDB = () => {
   };
 
   const isCantoMode = !!cantoNumber;
-  const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
+
+  // Special handling for NoI: /veda-reader/noi/1 → chapter=1, verse=1
+  // NoI має всі тексти в главі 1, URL /noi/1 означає "текст 1"
+  let effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
+  if (bookId === 'noi' && !chapterId && routeVerseNumber) {
+    effectiveChapterParam = '1'; // Всі NoI тексти завжди в главі 1
+  }
 
   // BOOK
   const {
@@ -360,14 +366,18 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // Мутація для оновлення вірша
+  // Мутація для оновлення/створення вірша (upsert)
   const updateVerseMutation = useMutation({
     mutationFn: async ({
       verseId,
-      updates
+      updates,
+      chapterId,
+      verseNumber
     }: {
-      verseId: string;
+      verseId?: string;
       updates: any;
+      chapterId?: string;
+      verseNumber?: string;
     }) => {
       const payload: any = {
         sanskrit: updates.sanskrit
@@ -437,10 +447,38 @@ export const VedaReaderDB = () => {
         }
       }
 
-      const {
-        error
-      } = await supabase.from("verses").update(payload).eq("id", verseId);
-      if (error) throw error;
+      // ✅ UPSERT logic: update existing or create new verse
+      if (verseId) {
+        // Has verseId - simple update
+        const result = await supabase.from("verses").update(payload).eq("id", verseId);
+        if (result.error) throw result.error;
+      } else {
+        // No verseId - try to find by chapter_id + verse_number, or create new
+        if (!chapterId || !verseNumber) {
+          throw new Error("Cannot upsert verse without chapter_id and verse_number");
+        }
+
+        const { data: existingVerse } = await supabase
+          .from("verses")
+          .select("id")
+          .eq("chapter_id", chapterId)
+          .eq("verse_number", verseNumber)
+          .maybeSingle();
+
+        if (existingVerse) {
+          // Verse exists, update it
+          const result = await supabase.from("verses").update(payload).eq("id", existingVerse.id);
+          if (result.error) throw result.error;
+        } else {
+          // Verse doesn't exist, create new one
+          const result = await supabase.from("verses").insert({
+            ...payload,
+            chapter_id: chapterId,
+            verse_number: verseNumber,
+          });
+          if (result.error) throw result.error;
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -988,7 +1026,12 @@ export const VedaReaderDB = () => {
                   lineHeight={lineHeight}
                   flowMode={true}
                   isAdmin={isAdmin}
-                  onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
+                  onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                    verseId,
+                    updates,
+                    chapterId: chapter?.id,
+                    verseNumber: verse.verse_number
+                  })}
                 />
               );
             })}
@@ -1056,7 +1099,12 @@ export const VedaReaderDB = () => {
                       lineHeight={lineHeight}
                       flowMode={flowMode}
                       isAdmin={isAdmin}
-                      onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
+                      onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                        verseId,
+                        updates,
+                        chapterId: chapter?.id,
+                        verseNumber: currentVerse.verse_number
+                      })}
                     />
                   ) : (
                     <VerseCard
@@ -1080,7 +1128,12 @@ export const VedaReaderDB = () => {
                       lineHeight={lineHeight}
                       flowMode={flowMode}
                       isAdmin={isAdmin}
-                      onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({ verseId, updates })}
+                      onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                        verseId,
+                        updates,
+                        chapterId: chapter?.id,
+                        verseNumber: currentVerse.verse_number
+                      })}
                     />
                   )}
 
