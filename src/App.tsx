@@ -78,6 +78,7 @@ import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
+import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import Highlights from "./pages/admin/Highlights";
 
@@ -199,6 +200,7 @@ const App = () => (
                   <Route path="/admin/pages/new" element={<EditPage />} />
                   <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
                   <Route path="/admin/static-pages" element={<StaticPages />} />
+                  <Route path="/admin/merge-noi" element={<MergeNoiChapters />} />
                   <Route path="/admin/highlights" element={<Highlights />} />
                   <Route path="/admin/lecture-import" element={<LectureImport />} />
                   <Route path="/admin/letter-import" element={<LetterImport />} />

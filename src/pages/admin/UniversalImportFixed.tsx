@@ -156,19 +156,20 @@ export default function UniversalImportFixed() {
       // ✅ FIX: NoI не має глав, всі 11 текстів мають бути в одній главі
       // Для hasSpecialStructure книг (NoI): завжди створюємо chapter_number = 1
       // А номер що ввів користувач (1-11) буде verse_number
+      let verseRangesOverride = vedabaseVerse;
       if ((bookInfo as any).hasSpecialStructure) {
         console.log(`[NoI] Book has special structure - forcing chapter_number = 1 (user entered ${chapterNum} as verse range)`);
         // Якщо користувач ввів номер в поле "Глава" - це насправді номер тексту
         // Переносимо його в verseRanges якщо verse field порожнє
         if (!vedabaseVerse && chapterNum >= 1 && chapterNum <= 11) {
           console.log(`[NoI] Moving chapter ${chapterNum} to verse_number`);
-          vedabaseVerse = String(chapterNum);
+          verseRangesOverride = String(chapterNum);
         }
         chapterNum = 1; // Всі NoI тексти в главі 1
       }
 
       // Автоматично визначаємо максимальний вірш якщо не вказано
-      let verseRanges = vedabaseVerse;
+      let verseRanges = verseRangesOverride;
       if (!verseRanges) {
         try {
           // ✅ Формуємо URL залежно від типу книги
