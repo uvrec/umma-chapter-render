@@ -24,6 +24,70 @@ const ALLOWED_HOSTS = new Set([
   "i0.wp.com"
 ]);
 
+/**
+ * Fetch with retry logic and exponential backoff
+ * Returns 200 status even on failure (with retriable flag) to allow client-side handling
+ */
+async function fetchWithRetry(url: string, host: string, maxAttempts = 3, timeoutMs = 15000) {
+  const delays = [500, 1000, 2000];
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    const startTime = Date.now();
+
+    try {
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "VedavoiceFetcher/1.0 (+https://vedavoice.app)",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Connection": "close"
+        },
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+      const duration = Date.now() - startTime;
+
+      if (!res.ok) {
+        console.log(`[fetch-html] ${host}: Attempt ${attempt}/${maxAttempts} - ${res.status} (${duration}ms)`);
+
+        if (res.status === 404) {
+          return { success: false, notFound: true, error: "Not found" };
+        }
+
+        if (attempt < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, delays[attempt - 1]));
+          continue;
+        }
+
+        return { success: false, error: `Upstream ${res.status}`, retriable: true };
+      }
+
+      const html = await res.text();
+      console.log(`[fetch-html] ${host}: Attempt ${attempt}/${maxAttempts} - Success (${duration}ms, ${html.length} bytes)`);
+      return { success: true, html };
+
+    } catch (e) {
+      clearTimeout(timeoutId);
+      const duration = Date.now() - startTime;
+      const errorMsg = e instanceof Error ? e.message : "Unknown error";
+      const isTimeout = errorMsg.includes("abort") || errorMsg.includes("timeout");
+
+      console.log(`[fetch-html] ${host}: Attempt ${attempt}/${maxAttempts} - ${isTimeout ? "Timeout" : "Error"}: ${errorMsg} (${duration}ms)`);
+
+      if (attempt < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, delays[attempt - 1]));
+        continue;
+      }
+
+      return { success: false, error: errorMsg, retriable: true };
+    }
+  }
+
+  return { success: false, error: "Max retries exceeded", retriable: true };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -48,19 +112,34 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Domain not allowed", host }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
 
-    console.log(`[fetch-html] Fetching: ${rawUrl} (host: ${host})`);
+    console.log(`[fetch-html] ${host}: Starting fetch for ${rawUrl}`);
 
-    const res = await fetch(rawUrl, { headers: { "User-Agent": "VedavoiceFetcher/1.0 (+https://vedavoice.app)" } });
-    if (!res.ok) {
-      // Always return 200 with notFound flag for client-side handling
-      return new Response(JSON.stringify({ error: `Upstream ${res.status}`, notFound: res.status === 404 }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    const result = await fetchWithRetry(rawUrl, host);
+
+    if (!result.success) {
+      // Always return 200 with error details for client-side handling
+      return new Response(
+        JSON.stringify({
+          error: result.error || "Failed to fetch",
+          notFound: result.notFound || false,
+          retriable: result.retriable || false
+        }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
-    const html = await res.text();
 
-    return new Response(JSON.stringify({ html }), { headers: { "Content-Type": "application/json", ...corsHeaders } });
+    return new Response(
+      JSON.stringify({ html: result.html }),
+      { headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+
   } catch (e) {
     const errorMessage = e instanceof Error ? e.message : "Unknown error";
-    console.error('[fetch-html] Error:', errorMessage);
-    return new Response(JSON.stringify({ error: errorMessage }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    console.error('[fetch-html] Unexpected error:', errorMessage);
+    // Return 200 with retriable flag even for unexpected errors
+    return new Response(
+      JSON.stringify({ error: errorMessage, retriable: true }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
   }
 });

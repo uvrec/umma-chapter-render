@@ -80,6 +80,69 @@ const PARSE_ENDPOINT = import.meta.env.VITE_PARSER_URL
   ? `${import.meta.env.VITE_PARSER_URL}/admin/parse-web-chapter`
   : null;
 
+/**
+ * Invoke fetch-html with retry logic and exponential backoff
+ * Handles retriable errors from Edge function
+ */
+async function invokeWithRetry(
+  supabase: any,
+  url: string,
+  maxRetries = 3,
+  backoffMs = [800, 1500, 2500]
+): Promise<{ html?: string; error?: string; notFound?: boolean }> {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-html", {
+        body: { url },
+      });
+
+      if (error) {
+        console.warn(`[invokeWithRetry] Attempt ${attempt + 1}/${maxRetries} error:`, error);
+        if (attempt < maxRetries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, backoffMs[attempt]));
+          continue;
+        }
+        return { error: error.message || "Unknown error" };
+      }
+
+      if (data?.html) {
+        return { html: data.html };
+      }
+
+      if (data?.notFound) {
+        return { notFound: true };
+      }
+
+      if (data?.retriable) {
+        console.warn(`[invokeWithRetry] Attempt ${attempt + 1}/${maxRetries} retriable error:`, data.error);
+        if (attempt < maxRetries - 1) {
+          await new Promise((resolve) => setTimeout(resolve, backoffMs[attempt]));
+          continue;
+        }
+        return { error: data.error || "Retriable error exhausted" };
+      }
+
+      return { error: "No HTML returned" };
+    } catch (e) {
+      console.error(`[invokeWithRetry] Attempt ${attempt + 1}/${maxRetries} exception:`, e);
+      if (attempt < maxRetries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, backoffMs[attempt]));
+        continue;
+      }
+      return { error: e instanceof Error ? e.message : "Unknown exception" };
+    }
+  }
+
+  return { error: "Max retries exceeded" };
+}
+
+/**
+ * Sleep helper for throttling requests
+ */
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export default function UniversalImportFixed() {
   const [currentStep, setCurrentStep] = useState<Step>("source");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -107,6 +170,10 @@ export default function UniversalImportFixed() {
   const [selectedTemplate, setSelectedTemplate] = useState<string>("bhagavad-gita");
   const [parsedChapters, setParsedChapters] = useState<any[]>([]);
   const [selectedChapterIndex, setSelectedChapterIndex] = useState<number>(0);
+
+  // Wisdomlib import
+  const [wisdomlibThrottle, setWisdomlibThrottle] = useState(1000); // ms between requests
+  const [skippedUrls, setSkippedUrls] = useState<Array<{ url: string; reason: string }>>([]);
 
   const navigate = useNavigate();
 
@@ -909,6 +976,7 @@ export default function UniversalImportFixed() {
 
       setIsProcessing(true);
       setProgress(10);
+      setSkippedUrls([]); // Reset skipped URLs for new import
 
       try {
         toast({ title: "Завантаження...", description: `Отримання сторінки khaṇḍa: ${sourceUrl}` });
@@ -961,18 +1029,23 @@ export default function UniversalImportFixed() {
             description: `Завантаження: ${chapterItem.title}`,
           });
 
-          // Fetch chapter page
-          const { data: chapterData, error: chapterError } = await supabase.functions.invoke("fetch-html", {
-            body: { url: chapterItem.url },
-          });
+          // Fetch chapter page with retry logic
+          const result = await invokeWithRetry(supabase, chapterItem.url, 3);
 
-          if (chapterError || !chapterData?.html) {
-            console.warn(`Не вдалося завантажити главу: ${chapterItem.url}`, chapterError);
+          if (result.notFound) {
+            console.warn(`Глава не знайдена (404): ${chapterItem.url}`);
+            setSkippedUrls(prev => [...prev, { url: chapterItem.url, reason: "404 Not Found" }]);
+            continue;
+          }
+
+          if (result.error || !result.html) {
+            console.warn(`Не вдалося завантажити главу після 3 спроб: ${chapterItem.url}`, result.error);
+            setSkippedUrls(prev => [...prev, { url: chapterItem.url, reason: result.error || "No HTML" }]);
             continue;
           }
 
           // Parse chapter
-          const chapter = parseWisdomlibChapterPage(chapterData.html, chapterItem.url, khandaInfo.name);
+          const chapter = parseWisdomlibChapterPage(result.html, chapterItem.url, khandaInfo.name);
           if (chapter && chapter.verses.length > 0) {
             chapter.chapter_number = chapterItem.chapterNumber;
             chapter.title_en = chapterItem.title;
@@ -980,6 +1053,11 @@ export default function UniversalImportFixed() {
           }
 
           setProgress(20 + Math.round((i + 1) * progressStep));
+
+          // Throttle between requests to avoid overwhelming the server
+          if (i < chapterList.length - 1) {
+            await sleep(wisdomlibThrottle);
+          }
         }
 
         if (allChapters.length === 0) {
@@ -1028,7 +1106,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
-    [vedabaseBook, vedabaseCanto, importData],
+    [vedabaseBook, vedabaseCanto, importData, wisdomlibThrottle],
   );
 
   /** Імпорт з Bhaktivinoda Institute */
@@ -1725,17 +1803,65 @@ export default function UniversalImportFixed() {
               )}
 
               {currentBookInfo?.source === "wisdomlib" && (
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                  <p className="text-sm text-purple-900 dark:text-purple-100">
-                    <strong>ℹ️ WisdomLib.org:</strong> Імпортується <strong>Bengali</strong> текст, транслітерація з бенгалі,
-                    переклад англійською та Gaudiya-bhāṣya коментарі. Оберіть khaṇḍa (adi/madhya/antya) для імпорту всіх глав.
-                  </p>
-                  {currentBookInfo?.sourceUrl && (
-                    <p className="text-xs text-purple-700 dark:text-purple-300 mt-2">
-                      Джерело: {currentBookInfo.sourceUrl}
+                <>
+                  <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <p className="text-sm text-purple-900 dark:text-purple-100">
+                      <strong>ℹ️ WisdomLib.org:</strong> Імпортується <strong>Bengali</strong> текст, транслітерація з бенгалі,
+                      переклад англійською та Gaudiya-bhāṣya коментарі. Оберіть khaṇḍa (adi/madhya/antya) для імпорту всіх глав.
                     </p>
+                    {currentBookInfo?.sourceUrl && (
+                      <p className="text-xs text-purple-700 dark:text-purple-300 mt-2">
+                        Джерело: {currentBookInfo.sourceUrl}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="p-4 bg-gray-50 dark:bg-gray-900/20 rounded-lg border border-gray-200 dark:border-gray-800">
+                    <Label htmlFor="wisdomlib-throttle" className="text-sm font-medium mb-2 block">
+                      ⏱️ Затримка між запитами (мс)
+                    </Label>
+                    <Input
+                      id="wisdomlib-throttle"
+                      type="number"
+                      value={wisdomlibThrottle}
+                      onChange={(e) => setWisdomlibThrottle(Number(e.target.value))}
+                      min={500}
+                      max={3000}
+                      step={100}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Рекомендовано: 1000-1500 мс для уникнення timeout. Більше значення = повільніше, але надійніше.
+                    </p>
+                  </div>
+
+                  {skippedUrls.length > 0 && (
+                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                      <h4 className="text-sm font-semibold text-yellow-900 dark:text-yellow-100 mb-2">
+                        ⚠️ Пропущено {skippedUrls.length} глав
+                      </h4>
+                      <div className="space-y-1 max-h-40 overflow-y-auto">
+                        {skippedUrls.map((item, idx) => (
+                          <div key={idx} className="text-xs">
+                            <span className="text-yellow-700 dark:text-yellow-300 font-mono">{item.url}</span>
+                            <span className="text-yellow-600 dark:text-yellow-400 ml-2">({item.reason})</span>
+                          </div>
+                        ))}
+                      </div>
+                      <Button
+                        onClick={() => {
+                          toast({ title: "Функція у розробці", description: "Повтор пропущених URL буде додано в наступній версії" });
+                        }}
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        disabled
+                      >
+                        Повторити пропущені
+                      </Button>
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </TabsContent>
 
