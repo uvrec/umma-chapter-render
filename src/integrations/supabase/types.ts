@@ -707,6 +707,8 @@ export type Database = {
           created_at: string
           id: string
           is_published: boolean | null
+          summary_en: string | null
+          summary_ua: string | null
           title_en: string
           title_ua: string
         }
@@ -722,6 +724,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_published?: boolean | null
+          summary_en?: string | null
+          summary_ua?: string | null
           title_en: string
           title_ua: string
         }
@@ -737,6 +741,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_published?: boolean | null
+          summary_en?: string | null
+          summary_ua?: string | null
           title_en?: string
           title_ua?: string
         }
@@ -1279,12 +1285,16 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           display_blocks: Json | null
+          end_verse: number | null
           id: string
+          is_composite: boolean | null
           is_published: boolean | null
           sanskrit: string | null
           sanskrit_en: string | null
           sanskrit_ua: string | null
           search_vector: unknown
+          sort_key: number | null
+          start_verse: number | null
           synonyms_en: string | null
           synonyms_ua: string | null
           translation_en: string | null
@@ -1292,6 +1302,7 @@ export type Database = {
           transliteration: string | null
           transliteration_en: string | null
           transliteration_ua: string | null
+          verse_count: number | null
           verse_end: number | null
           verse_number: string
           verse_number_sort: number | null
@@ -1306,12 +1317,16 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
+          end_verse?: number | null
           id?: string
+          is_composite?: boolean | null
           is_published?: boolean | null
           sanskrit?: string | null
           sanskrit_en?: string | null
           sanskrit_ua?: string | null
           search_vector?: unknown
+          sort_key?: number | null
+          start_verse?: number | null
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -1319,6 +1334,7 @@ export type Database = {
           transliteration?: string | null
           transliteration_en?: string | null
           transliteration_ua?: string | null
+          verse_count?: number | null
           verse_end?: number | null
           verse_number: string
           verse_number_sort?: number | null
@@ -1333,12 +1349,16 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
+          end_verse?: number | null
           id?: string
+          is_composite?: boolean | null
           is_published?: boolean | null
           sanskrit?: string | null
           sanskrit_en?: string | null
           sanskrit_ua?: string | null
           search_vector?: unknown
+          sort_key?: number | null
+          start_verse?: number | null
           synonyms_en?: string | null
           synonyms_ua?: string | null
           translation_en?: string | null
@@ -1346,6 +1366,7 @@ export type Database = {
           transliteration?: string | null
           transliteration_en?: string | null
           transliteration_ua?: string | null
+          verse_count?: number | null
           verse_end?: number | null
           verse_number?: string
           verse_number_sort?: number | null
@@ -1735,6 +1756,61 @@ export type Database = {
           },
         ]
       }
+      verses_with_metadata: {
+        Row: {
+          audio_url: string | null
+          book_slug: string | null
+          chapter_id: string | null
+          chapter_number: number | null
+          chapter_title_en: string | null
+          chapter_title_ua: string | null
+          commentary_en: string | null
+          commentary_ua: string | null
+          created_at: string | null
+          deleted_at: string | null
+          display_blocks: Json | null
+          end_verse: number | null
+          id: string | null
+          is_composite: boolean | null
+          is_published: boolean | null
+          sanskrit: string | null
+          sanskrit_en: string | null
+          sanskrit_ua: string | null
+          search_vector: unknown
+          sort_key: number | null
+          start_verse: number | null
+          synonyms_en: string | null
+          synonyms_ua: string | null
+          translation_en: string | null
+          translation_ua: string | null
+          transliteration: string | null
+          transliteration_en: string | null
+          transliteration_ua: string | null
+          verse_count: number | null
+          verse_end: number | null
+          verse_number: string | null
+          verse_number_sort: number | null
+          verse_start: number | null
+          verse_suffix: string | null
+          verse_type_display: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verses_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verses_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["chapter_id"]
+          },
+        ]
+      }
       verses_with_structure: {
         Row: {
           chapter_id: string | null
@@ -1809,12 +1885,21 @@ export type Database = {
           _video_url?: string
         }
         Returns: {
+          audio_commentary_en_url: string | null
+          audio_commentary_ua_url: string | null
+          audio_poetry_translation_en_url: string | null
+          audio_poetry_translation_ua_url: string | null
+          audio_sanskrit_url: string | null
+          audio_synonyms_en_url: string | null
+          audio_synonyms_ua_url: string | null
+          audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
           author_id: string
           author_name: string
           category_id: string
           content_en: string
+          content_mode: string | null
           content_ua: string
           cover_image_url: string | null
           created_at: string
@@ -1827,6 +1912,8 @@ export type Database = {
           is_published: boolean | null
           meta_description_en: string | null
           meta_description_ua: string | null
+          poetry_translation_en: string | null
+          poetry_translation_ua: string | null
           published_at: string | null
           read_time: number | null
           sanskrit: string | null
@@ -1893,6 +1980,26 @@ export type Database = {
               title: string
             }[]
           }
+      get_chapter_verses: {
+        Args: { p_chapter_id: string }
+        Returns: {
+          audio_url: string
+          commentary_en: string
+          commentary_ua: string
+          end_verse: number
+          id: string
+          is_composite: boolean
+          sanskrit: string
+          start_verse: number
+          synonyms_en: string
+          synonyms_ua: string
+          translation_en: string
+          translation_ua: string
+          transliteration: string
+          verse_count: number
+          verse_number: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
