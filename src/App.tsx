@@ -84,6 +84,7 @@ import { NoIRedirect } from "./pages/NoIRedirect";
 import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import Highlights from "./pages/admin/Highlights";
+import NumCal from "./pages/admin/NumCal";
 
 const App = () => (
   <ErrorBoundary>
@@ -206,6 +207,7 @@ const App = () => (
                   <Route path="/admin/highlights" element={<Highlights />} />
                   <Route path="/admin/lecture-import" element={<LectureImport />} />
                   <Route path="/admin/letter-import" element={<LetterImport />} />
+                  <Route path="/admin/numcal" element={<NumCal />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />
