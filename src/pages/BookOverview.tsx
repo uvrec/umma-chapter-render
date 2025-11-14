@@ -128,100 +128,6 @@ export const BookOverview = () => {
     );
   }
 
-  // Special rendering for NoI - beautiful overview page
-  if (bookSlug === 'noi' && !isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="container mx-auto px-4 py-8 pt-24 max-w-7xl">
-          <Breadcrumb
-            items={[
-              { label: t("Бібліотека", "Library"), href: "/library" },
-              { label: bookTitle || "" },
-            ]}
-          />
-
-          <div className="mt-8 mb-12 text-center">
-            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent" 
-                style={{ fontFamily: "var(--font-primary)" }}>
-              {bookTitle}
-            </h1>
-            {bookDescription && (
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                {bookDescription}
-              </p>
-            )}
-          </div>
-
-          {/* Introduction Card */}
-          {introChapters.length > 0 && (
-            <div className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4 text-foreground" style={{ fontFamily: "var(--font-ui)" }}>
-                {language === "ua" ? "Передмова" : "Introduction"}
-              </h2>
-              <Link to={`/veda-reader/noi/0`}>
-                <Card className="hover:shadow-lg transition-all duration-300 hover:border-primary/50 bg-card border-border group">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors" 
-                            style={{ fontFamily: "var(--font-primary)" }}>
-                          {language === "ua" ? introChapters[0].title_ua : introChapters[0].title_en}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {language === "ua" 
-                            ? (introChapters[0].content_ua || "").replace(/<[^>]*>/g, '').substring(0, 150) + "..."
-                            : (introChapters[0].content_en || "").replace(/<[^>]*>/g, '').substring(0, 150) + "..."}
-                        </p>
-                      </div>
-                      <BookOpen className="w-8 h-8 text-primary/60 group-hover:text-primary transition-colors flex-shrink-0" />
-                    </div>
-                  </CardHeader>
-                </Card>
-              </Link>
-            </div>
-          )}
-
-          {/* 11 Texts Grid */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold mb-4 text-foreground" style={{ fontFamily: "var(--font-ui)" }}>
-              {language === "ua" ? "Одинадцять настанов" : "Eleven Instructions"}
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {noiVerses.map((verse) => {
-              const verseNum = verse.verse_number;
-              const translation = (dualMode 
-                ? `${verse.translation_ua || ''}\n\n${verse.translation_en || ''}`
-                : (language === "ua" ? verse.translation_ua : verse.translation_en)) || "";
-              const excerpt = translation.substring(0, 120) + (translation.length > 120 ? "..." : "");
-
-              return (
-                <Link key={verse.id} to={`/veda-reader/noi/${verseNum}`}>
-                  <Card className="h-full hover:shadow-lg transition-all duration-300 hover:border-primary/50 bg-card border-border group">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <Badge variant="secondary" className="text-sm font-semibold">
-                          {language === "ua" ? `Текст ${verseNum}` : `Text ${verseNum}`}
-                        </Badge>
-                        <BookOpen className="w-5 h-5 text-primary/60 group-hover:text-primary transition-colors flex-shrink-0" />
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
-                        {excerpt}
-                      </p>
-                    </CardContent>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -234,7 +140,7 @@ export const BookOverview = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Book info */}
             <div className="flex-1">
-              <h1 className="text-4xl font-bold mb-4">{bookTitle}</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent" style={{ fontFamily: "var(--font-primary)" }}>{bookTitle}</h1>
               {bookDescription && <p className="text-lg text-muted-foreground mb-6">{bookDescription}</p>}
 
               {/* Intro chapters links */}

@@ -78,6 +78,7 @@ import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
+import { NoIRedirect } from "./pages/NoIRedirect";
 import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import Highlights from "./pages/admin/Highlights";
@@ -110,8 +111,8 @@ const App = () => (
                     element={<VedaReaderDB />}
                   />
 
-                  {/* Special route for NoI: /veda-reader/noi/1 → VedaReaderDB (not ChapterVersesList) */}
-                  <Route path="/veda-reader/noi/:verseNumber" element={<VedaReaderDB />} />
+                  {/* Special route for NoI: redirect to explicit chapter 1 */}
+                  <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
 
                   <Route path="/veda-reader/:bookId/:chapterId" element={<ChapterVersesList />} />
                   <Route path="/veda-reader/:bookId/:chapterId/:verseNumber" element={<VedaReaderDB />} />
