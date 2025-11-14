@@ -16,7 +16,7 @@ import { Calendar } from "lucide-react";
  * Розраховує 4 числа за датою народження
  */
 const Numerology = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   const [birthDate, setBirthDate] = useState<string>("");
@@ -24,10 +24,15 @@ const Numerology = () => {
 
   // ⚠️ КРИТИЧНО: Перевірка авторизації - тільки для залогінених користувачів
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       navigate("/auth");
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
+
+  // Показуємо loading під час перевірки авторизації
+  if (loading) {
+    return null;
+  }
 
   const handleCalculate = () => {
     if (!birthDate) {
