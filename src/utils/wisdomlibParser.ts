@@ -99,15 +99,19 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     };
 
     // Strategy: Look for specific sections marked by headers or classes
-    // Bengali/Sanskrit text - usually in a specific div or with a class
-    const bengaliEl = doc.querySelector('.verse-text, .sanskrit, .bengali, .devanagari') ||
+    // Bengali/Sanskrit text - wisdomlib uses specific structure
+    // For Chaitanya Bhagavata: #scontent > blockquote:nth-child(1) > p:nth-child(2)
+    const bengaliEl = doc.querySelector('#scontent > blockquote:nth-child(1) > p:nth-child(2)') ||
+                     doc.querySelector('.verse-text, .sanskrit, .bengali, .devanagari') ||
                      doc.querySelector('[lang="sa"], [lang="bn"]');
     if (bengaliEl) {
       verse.sanskrit = bengaliEl.textContent?.trim() || '';
     }
 
-    // Transliteration - usually marked
-    const translitEl = doc.querySelector('.transliteration, .roman') ||
+    // Transliteration - wisdomlib uses specific structure
+    // For Chaitanya Bhagavata: #scontent > blockquote:nth-child(1) > p:nth-child(4)
+    const translitEl = doc.querySelector('#scontent > blockquote:nth-child(1) > p:nth-child(4)') ||
+                      doc.querySelector('.transliteration, .roman') ||
                       Array.from(doc.querySelectorAll('p, div')).find(el =>
                         el.textContent?.match(/^[a-z\-ā ī ū ṛ ṝ ḷ ṅ ñ ṭ ḍ ṇ ś ṣ]+$/i)
                       );
@@ -116,16 +120,25 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     }
 
     // Synonyms (word-for-word)
+    // Only look for explicit synonyms sections - don't use broad fallback
+    // Word-for-word format typically has multiple '—' (3+) in a specific pattern
     const synonymsEl = doc.querySelector('.synonyms, .word-for-word') ||
-                      Array.from(doc.querySelectorAll('p, div')).find(el =>
-                        el.textContent?.includes('—') && el.textContent?.includes(';')
-                      );
+                      Array.from(doc.querySelectorAll('p, div')).find(el => {
+                        const text = el.textContent || '';
+                        // Check for word-for-word pattern: multiple occurrences of '—' with semicolons
+                        const dashCount = (text.match(/—/g) || []).length;
+                        const semiCount = (text.match(/;/g) || []).length;
+                        // Word-for-word should have at least 3 dashes and 2 semicolons
+                        return dashCount >= 3 && semiCount >= 2;
+                      });
     if (synonymsEl) {
       verse.synonyms_en = synonymsEl.textContent?.trim() || '';
     }
 
-    // Translation
-    const translationEl = doc.querySelector('.translation') ||
+    // Translation - wisdomlib uses specific structure
+    // For Chaitanya Bhagavata: #scontent > p:nth-child(3)
+    const translationEl = doc.querySelector('#scontent > p:nth-child(3)') ||
+                         doc.querySelector('.translation') ||
                          Array.from(doc.querySelectorAll('p')).find(el => {
                            const text = el.textContent || '';
                            return text.length > 50 && text.match(/^[A-Z]/) && !text.includes('—');
