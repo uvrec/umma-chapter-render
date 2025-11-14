@@ -1065,32 +1065,67 @@ export default function UniversalImportFixed() {
 
           // Parse chapter
           const chapter = parseWisdomlibChapterPage(result.html, chapterItem.url, khandaInfo.name);
-          if (chapter && chapter.verses.length > 0) {
+
+          if (chapter) {
             chapter.chapter_number = chapterItem.chapterNumber;
             chapter.title_en = chapterItem.title;
 
-            // Filter verses if specific range provided
-            if (vedabaseVerse) {
-              const [start, end] = vedabaseVerse.includes("-")
-                ? vedabaseVerse.split("-").map(Number)
-                : [parseInt(vedabaseVerse, 10), parseInt(vedabaseVerse, 10)];
+            // Check if this chapter has individual verse URLs (e.g., Chaitanya Bhagavata)
+            if (chapter.verseUrls && chapter.verseUrls.length > 0) {
+              console.log(`[Wisdomlib] Chapter has ${chapter.verseUrls.length} individual verse pages`);
 
-              const originalCount = chapter.verses.length;
-              chapter.verses = chapter.verses.filter((v) => {
-                const verseNum = parseInt(v.verse_number, 10);
-                return verseNum >= start && verseNum <= end;
-              });
+              // Filter verse URLs if specific range provided
+              let verseUrlsToFetch = chapter.verseUrls;
+              if (vedabaseVerse) {
+                const [start, end] = vedabaseVerse.includes("-")
+                  ? vedabaseVerse.split("-").map(Number)
+                  : [parseInt(vedabaseVerse, 10), parseInt(vedabaseVerse, 10)];
 
-              console.log(`[Wisdomlib] Filtered verses ${start}-${end}: ${originalCount} → ${chapter.verses.length}`);
+                verseUrlsToFetch = chapter.verseUrls.filter((v) => {
+                  const verseNum = parseInt(v.verseNumber, 10);
+                  return verseNum >= start && verseNum <= end;
+                });
 
-              if (chapter.verses.length === 0) {
-                console.warn(`Немає віршів у діапазоні ${start}-${end} для глави ${chapterItem.chapterNumber}`);
-                setSkippedUrls(prev => [...prev, { url: chapterItem.url, reason: `Немає віршів ${start}-${end}` }]);
-                continue;
+                console.log(`[Wisdomlib] Filtered verses ${start}-${end}: ${chapter.verseUrls.length} → ${verseUrlsToFetch.length}`);
               }
+
+              // Fetch each verse page
+              for (let j = 0; j < verseUrlsToFetch.length; j++) {
+                const verseItem = verseUrlsToFetch[j];
+
+                try {
+                  const verseResult = await invokeWithRetry(supabase, verseItem.url, 3);
+
+                  if (verseResult.error || !verseResult.html) {
+                    console.warn(`Failed to fetch verse ${verseItem.verseNumber}:`, verseResult.error);
+                    continue;
+                  }
+
+                  const verse = parseWisdomlibVersePage(verseResult.html, verseItem.url);
+                  if (verse) {
+                    verse.verse_number = verseItem.verseNumber;
+                    chapter.verses.push(verse);
+                  }
+
+                  // Throttle between verse requests
+                  if (j < verseUrlsToFetch.length - 1) {
+                    await sleep(wisdomlibThrottle);
+                  }
+                } catch (e) {
+                  console.warn(`Error parsing verse ${verseItem.verseNumber}:`, e);
+                }
+              }
+
+              console.log(`[Wisdomlib] Fetched ${chapter.verses.length} verses for chapter ${chapterItem.chapterNumber}`);
             }
 
-            allChapters.push(chapter);
+            // Only add chapter if it has verses
+            if (chapter.verses.length > 0) {
+              allChapters.push(chapter);
+            } else if (!chapter.verseUrls) {
+              // If no verses and no verseUrls, this is an error
+              console.warn(`Chapter ${chapterItem.chapterNumber} has no verses`);
+            }
           }
 
           setProgress(20 + Math.round((i + 1) * progressStep));
