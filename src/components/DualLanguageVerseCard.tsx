@@ -73,17 +73,29 @@ interface DualLanguageVerseCardProps {
    Допоміжні функції
    ========================= */
 
-// Розбиття тексту на параграфи
+// Розбиття тексту на параграфи (НЕ ділити кожен <p> як окремий параграф)
 function splitIntoParagraphs(text: string): string[] {
   if (!text) return [];
 
-  // Розбиваємо за подвійними переносами рядків або тегами <p>
-  const paragraphs = text
-    .split(/\n\n+|<\/p>\s*<p>/)
+  // Нормалізуємо перенос рядків
+  let html = text.replace(/\r\n/g, "\n");
+
+  // Позначаємо явні розриви параграфів:
+  // - подвійні (і більше) \n
+  // - порожні HTML-параграфи: <p><br></p>, <p>&nbsp;</p>, <p> </p>
+  const DELIM = "[[PARA_BREAK]]";
+  html = html
+    .replace(/\n{2,}/g, DELIM)
+    .replace(/<p>\s*(?:<br\s*\/?>(?:\s*)?|&nbsp;|\u00A0|\s*)\s*<\/p>/gi, DELIM);
+
+  // ВАЖЛИВО: не розбиваємо на кожному </p><p>, щоб цитати з кількох рядків (у трансліті всередині пояснення)
+  // не вважались окремими параграфами кожен рядок.
+  const parts = html
+    .split(DELIM)
     .map(p => p.trim())
     .filter(Boolean);
 
-  return paragraphs.length > 0 ? paragraphs : [text];
+  return parts.length > 0 ? parts : [text.trim()];
 }
 
 // Парсинг синонімів
