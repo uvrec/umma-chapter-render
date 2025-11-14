@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,27 +10,12 @@ import { toast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
 
 /**
- * NumCal - Нумерологічний калькулятор (ТІЛЬКИ для авторизованих користувачів)
+ * NumCal - Нумерологічний калькулятор
  * Розраховує 4 числа за датою народження
  */
 const Numerology = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
   const [birthDate, setBirthDate] = useState<string>("");
   const [result, setResult] = useState<NumCalResult | null>(null);
-
-  // ⚠️ КРИТИЧНО: Перевірка авторизації - тільки для залогінених користувачів
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate("/auth");
-    }
-  }, [user, loading, navigate]);
-
-  // Показуємо loading під час перевірки авторизації
-  if (loading) {
-    return null;
-  }
 
   const handleCalculate = () => {
     if (!birthDate) {
@@ -70,7 +53,7 @@ const Numerology = () => {
       <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
         <h1 className="text-3xl font-bold mb-2">NumCal - Нумерологічний калькулятор</h1>
         <p className="text-muted-foreground mb-8">
-          Розрахунок чисел за датою народження (доступ тільки для авторизованих користувачів)
+          Розрахунок чисел за датою народження
         </p>
 
         {/* Форма вводу */}
