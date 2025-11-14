@@ -374,6 +374,3 @@ export function wisdomlibChapterToStandardChapter(chapter: WisdomlibChapter): an
     })),
   };
 }
-
-// Експорт
-export { WisdomlibVerse, WisdomlibChapter, wisdomlibChapterToStandardChapter };
