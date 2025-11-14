@@ -117,7 +117,7 @@ const NumCal = () => {
               <CardHeader>
                 <CardTitle>Результат</CardTitle>
                 <CardDescription>
-                  Дата народження: {formatDate(new Date(birthDate))}
+                  Дата народження: {birthDate.split('-').reverse().join('.')}
                 </CardDescription>
               </CardHeader>
               <CardContent>

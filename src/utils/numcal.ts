@@ -92,12 +92,22 @@ function getEnergyCycle(num: number): EnergyCycle {
  * @returns об'єкт з усіма розрахованими числами
  */
 export function calculateNumCal(birthDate: Date | string): NumCalResult {
-  const date = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
+  let day: number;
+  let month: number;
+  let year: number;
 
-  // Отримуємо компоненти дати
-  const day = date.getDate();
-  const month = date.getMonth() + 1; // getMonth() повертає 0-11
-  const year = date.getFullYear();
+  if (typeof birthDate === 'string') {
+    // Розбираємо рядок вручну, щоб уникнути проблем з часовими поясами
+    const parts = birthDate.split('-');
+    year = parseInt(parts[0], 10);
+    month = parseInt(parts[1], 10);
+    day = parseInt(parts[2], 10);
+  } else {
+    // Якщо це Date об'єкт
+    day = birthDate.getDate();
+    month = birthDate.getMonth() + 1; // getMonth() повертає 0-11
+    year = birthDate.getFullYear();
+  }
 
   // 1. Число Розуму (Свідомості) - день народження, зведений до однієї цифри
   const mindNumber = reduceToSingleDigit(day);
