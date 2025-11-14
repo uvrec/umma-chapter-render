@@ -49,7 +49,7 @@ import { Audiobooks } from "./pages/audio/Audiobooks";
 import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
 import TransliterationTool from "./pages/TransliterationTool";
-import NumerologyCalculator from "./pages/tools/NumerologyCalculator";
+import Numerology from "./pages/tools/Numerology";
 import Dashboard from "./pages/admin/Dashboard";
 import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
@@ -85,6 +85,7 @@ import { NoIRedirect } from "./pages/NoIRedirect";
 import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import Highlights from "./pages/admin/Highlights";
+import NumCal from "./pages/admin/NumCal";
 
 const App = () => (
   <ErrorBoundary>
@@ -158,7 +159,7 @@ const App = () => (
                   <Route path="/glossary" element={<GlossaryDB />} />
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/tools/transliteration" element={<TransliterationTool />} />
-                  <Route path="/tools/numerology" element={<NumerologyCalculator />} />
+                  <Route path="/tools/numerology" element={<Numerology />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
@@ -208,6 +209,7 @@ const App = () => (
                   <Route path="/admin/highlights" element={<Highlights />} />
                   <Route path="/admin/lecture-import" element={<LectureImport />} />
                   <Route path="/admin/letter-import" element={<LetterImport />} />
+                  <Route path="/admin/numcal" element={<NumCal />} />
 
                   {/* Сторінки з CMS */}
                   <Route path="/:slug" element={<PageView />} />
