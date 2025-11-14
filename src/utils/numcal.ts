@@ -14,6 +14,22 @@ export interface EnergyCycle {
   description: string;
 }
 
+/**
+ * Грошовий код - 4-цифровий особистий код для фінансового успіху
+ */
+export interface MoneyCode {
+  /** Цифра 1: День народження (зведений) */
+  digit1: number;
+  /** Цифра 2: Місяць народження (зведений) */
+  digit2: number;
+  /** Цифра 3: Рік народження (зведений) */
+  digit3: number;
+  /** Цифра 4: Сума перших трьох цифр (зведена) */
+  digit4: number;
+  /** Повний код у форматі рядка */
+  code: string;
+}
+
 export interface NumCalResult {
   /** Число Розуму (Свідомості) - день народження */
   mindNumber: number;
@@ -25,6 +41,8 @@ export interface NumCalResult {
   resultNumber: number;
   /** Двозначне число перед зведенням до однієї цифри (для детального аналізу) */
   resultNumberDouble?: number;
+  /** Остання цифра року народження - життєве завдання */
+  lastYearDigit: number;
   /** Формат запису: X-X-X-X */
   formatted: string;
   /** Цикли розвитку для кожного числа */
@@ -34,6 +52,16 @@ export interface NumCalResult {
     realization: EnergyCycle;
     result: EnergyCycle;
   };
+  /** Грошовий код - 4-цифровий особистий код */
+  moneyCode: MoneyCode;
+  /** Персональне число (день + місяць зведені) */
+  personalNumber: number;
+  /** Персональний рік - енергія поточного року */
+  personalYear: number;
+  /** Персональний місяць - енергія поточного місяця */
+  personalMonth: number;
+  /** Персональний день - енергія сьогоднішнього дня */
+  personalDay: number;
 }
 
 /**
@@ -87,6 +115,87 @@ function getEnergyCycle(num: number): EnergyCycle {
 }
 
 /**
+ * Розраховує грошовий код з дати народження
+ * @param day - день народження
+ * @param month - місяць народження
+ * @param year - рік народження
+ * @returns об'єкт з грошовим кодом
+ */
+function calculateMoneyCode(day: number, month: number, year: number): MoneyCode {
+  const digit1 = reduceToSingleDigit(day);
+  const digit2 = reduceToSingleDigit(month);
+  const digit3 = reduceToSingleDigit(year);
+  const digit4 = reduceToSingleDigit(digit1 + digit2 + digit3);
+
+  return {
+    digit1,
+    digit2,
+    digit3,
+    digit4,
+    code: `${digit1}${digit2}${digit3}${digit4}`
+  };
+}
+
+/**
+ * Розраховує персональний рік
+ * Формула: Персональне число (день + місяць) + загальне число поточного року
+ * @param day - день народження
+ * @param month - місяць народження
+ * @param currentYear - поточний рік (за замовчуванням - поточна дата)
+ * @returns число персонального року (1-9)
+ */
+function calculatePersonalYear(day: number, month: number, currentYear?: number): number {
+  const personalNumber = reduceToSingleDigit(day + month);
+  const year = currentYear || new Date().getFullYear();
+  const generalYearNumber = reduceToSingleDigit(year);
+
+  return reduceToSingleDigit(personalNumber + generalYearNumber);
+}
+
+/**
+ * Розраховує персональний місяць
+ * Формула: Персональне число (день + місяць) + поточний місяць + поточний рік
+ * @param day - день народження
+ * @param month - місяць народження
+ * @param currentMonth - поточний місяць (1-12)
+ * @param currentYear - поточний рік
+ * @returns число персонального місяця (1-9)
+ */
+function calculatePersonalMonth(day: number, month: number, currentMonth?: number, currentYear?: number): number {
+  const personalNumber = reduceToSingleDigit(day + month);
+  const now = new Date();
+  const monthNum = currentMonth || (now.getMonth() + 1);
+  const yearNum = currentYear || now.getFullYear();
+
+  return reduceToSingleDigit(personalNumber + monthNum + yearNum);
+}
+
+/**
+ * Розраховує персональний день
+ * Різні методи для днів 1-9 та 10-31
+ * @param birthDay - день народження
+ * @param currentDay - поточний день місяця
+ * @returns число персонального дня (1-9)
+ */
+function calculatePersonalDay(birthDay: number, currentDay?: number): number {
+  const day = currentDay || new Date().getDate();
+
+  if (day >= 1 && day <= 9) {
+    // Для днів 1-9: додаємо цифру дня народження до кожної цифри поточного дня окремо
+    const birthDayDigit = reduceToSingleDigit(birthDay);
+    return reduceToSingleDigit(birthDayDigit + day);
+  } else {
+    // Для днів 10-31: складання стовпчиком з зведенням
+    const dayDigits = day.toString().split('').map(d => parseInt(d, 10));
+    const birthDayDigit = reduceToSingleDigit(birthDay);
+
+    // Додаємо цифру дня народження до кожної цифри поточного дня
+    const sum = dayDigits.reduce((acc, digit) => acc + digit, 0) + birthDayDigit;
+    return reduceToSingleDigit(sum);
+  }
+}
+
+/**
  * Розраховує всі нумерологічні числа за датою народження
  * @param birthDate - дата народження (Date або рядок у форматі YYYY-MM-DD)
  * @returns об'єкт з усіма розрахованими числами
@@ -128,6 +237,9 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
   // Зберігаємо двозначне число Підсумку для детального аналізу (якщо воно було двозначним)
   const resultNumberDouble = resultSum > 9 ? resultSum : undefined;
 
+  // Остання цифра року народження - вказує на життєве завдання
+  const lastYearDigit = year % 10;
+
   // Формат запису: X-X-X-X
   const formatted = `${mindNumber}-${actionNumber}-${realizationNumber}-${resultNumber}`;
 
@@ -139,14 +251,27 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
     result: getEnergyCycle(resultNumber),
   };
 
+  // Розраховуємо додаткові числа
+  const moneyCode = calculateMoneyCode(day, month, year);
+  const personalNumber = reduceToSingleDigit(day + month);
+  const personalYear = calculatePersonalYear(day, month);
+  const personalMonth = calculatePersonalMonth(day, month);
+  const personalDay = calculatePersonalDay(day);
+
   return {
     mindNumber,
     actionNumber,
     realizationNumber,
     resultNumber,
     resultNumberDouble,
+    lastYearDigit,
     formatted,
     cycles,
+    moneyCode,
+    personalNumber,
+    personalYear,
+    personalMonth,
+    personalDay,
   };
 }
 
