@@ -26,6 +26,14 @@ import {
   BhaktivinodaSong,
 } from "@/utils/bhaktivinodaParser";
 import { extractKKSongUrls, deriveKKSongUrls, parseKKSongComplete } from "@/utils/kksongsParser";
+import {
+  extractWisdomlibChapterUrls,
+  parseWisdomlibChapterPage,
+  parseWisdomlibVersePage,
+  determineKhandaFromUrl,
+  wisdomlibChapterToStandardChapter,
+  WisdomlibChapter,
+} from "@/utils/wisdomlibParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -888,6 +896,133 @@ export default function UniversalImportFixed() {
     }
   }, [vedabaseBook, vedabaseCanto, vedabaseChapter, lilaNum, currentBookInfo, navigate]);
 
+  /** Імпорт з Wisdomlib.org (Chaitanya Bhagavata) */
+  const handleWisdomlibImport = useCallback(
+    async (url?: string) => {
+      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
+      const sourceUrl = url || (bookInfo as any).khandaUrls?.[vedabaseCanto.toLowerCase()];
+
+      if (!sourceUrl) {
+        toast({ title: "Помилка", description: "URL не вказано. Оберіть khaṇḍa (adi/madhya/antya)", variant: "destructive" });
+        return;
+      }
+
+      setIsProcessing(true);
+      setProgress(10);
+
+      try {
+        toast({ title: "Завантаження...", description: "Отримання сторінки khaṇḍa..." });
+
+        // Step 1: Fetch khaṇḍa page (list of chapters)
+        const { data, error } = await supabase.functions.invoke("fetch-html", {
+          body: { url: sourceUrl },
+        });
+
+        if (error || !data?.html) {
+          throw new Error(error?.message || "Не вдалося отримати HTML");
+        }
+
+        setProgress(20);
+        toast({ title: "Парсинг...", description: "Витягування посилань на глави..." });
+
+        // Step 2: Extract chapter URLs from khaṇḍa page
+        const chapterList = extractWisdomlibChapterUrls(data.html, sourceUrl);
+
+        console.log(`[Wisdomlib] Found ${chapterList.length} chapters in ${vedabaseCanto}`);
+
+        if (!chapterList || chapterList.length === 0) {
+          throw new Error("Не знайдено жодної глави на сторінці khaṇḍa");
+        }
+
+        toast({
+          title: `Знайдено глав: ${chapterList.length}`,
+          description: `${vedabaseCanto} khaṇḍa`,
+        });
+
+        // Step 3: Fetch and parse all chapters
+        const allChapters: WisdomlibChapter[] = [];
+        const progressStep = 70 / chapterList.length;
+
+        const khandaInfo = determineKhandaFromUrl(sourceUrl);
+
+        for (let i = 0; i < chapterList.length; i++) {
+          const chapterItem = chapterList[i];
+
+          toast({
+            title: `Глава ${i + 1}/${chapterList.length}`,
+            description: `Завантаження: ${chapterItem.title}`,
+          });
+
+          // Fetch chapter page
+          const { data: chapterData, error: chapterError } = await supabase.functions.invoke("fetch-html", {
+            body: { url: chapterItem.url },
+          });
+
+          if (chapterError || !chapterData?.html) {
+            console.warn(`Не вдалося завантажити главу: ${chapterItem.url}`, chapterError);
+            continue;
+          }
+
+          // Parse chapter
+          const chapter = parseWisdomlibChapterPage(chapterData.html, chapterItem.url, khandaInfo.name);
+          if (chapter && chapter.verses.length > 0) {
+            chapter.chapter_number = chapterItem.chapterNumber;
+            chapter.title_en = chapterItem.title;
+            allChapters.push(chapter);
+          }
+
+          setProgress(20 + Math.round((i + 1) * progressStep));
+        }
+
+        if (allChapters.length === 0) {
+          throw new Error("Не вдалося розпарсити жодної глави");
+        }
+
+        setProgress(95);
+
+        // Convert to standard chapter format
+        const chapters = allChapters.map(ch => wisdomlibChapterToStandardChapter(ch));
+
+        // Create import data
+        const newImport: ImportData = {
+          ...importData,
+          source: "bhaktivinoda", // Використовуємо існуючий тип
+          rawText: data.html.substring(0, 1000), // Preview
+          processedText: JSON.stringify(allChapters, null, 2),
+          chapters: chapters,
+          metadata: {
+            ...importData.metadata,
+            title_en: `${bookInfo.name_en} - ${vedabaseCanto} khaṇḍa`,
+            title_ua: `${bookInfo.name_ua} - ${vedabaseCanto}`,
+            author: bookInfo.author || "Vrindavan Das Thakur",
+            book_slug: bookInfo.our_slug,
+            source_url: sourceUrl,
+            canto: khandaInfo.number.toString(),
+            volume: vedabaseCanto,
+          },
+        };
+
+        setImportData(newImport);
+        setProgress(100);
+
+        toast({
+          title: "✅ Успішно!",
+          description: `Імпортовано ${chapters.length} глав (${chapters.reduce((acc, ch) => acc + ch.verses.length, 0)} віршів)`,
+        });
+
+        // Auto-save to database
+        await saveToDatabase(newImport);
+      } catch (e: any) {
+        console.error("Wisdomlib import error:", e);
+        toast({ title: "Помилка", description: e.message, variant: "destructive" });
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
+      }
+    },
+    [vedabaseBook, vedabaseCanto, importData],
+  );
+
   /** Імпорт з Bhaktivinoda Institute */
   const handleBhaktivinodaImport = useCallback(
     async (url?: string) => {
@@ -1536,10 +1671,19 @@ export default function UniversalImportFixed() {
                       : "Імпортувати з Bhaktivinoda Institute"}
                   </Button>
                 )}
+
+                {currentBookInfo?.source === "wisdomlib" && (
+                  <Button onClick={() => handleWisdomlibImport()} disabled={isProcessing} variant="secondary">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Імпортувати з WisdomLib.org
+                  </Button>
+                )}
               </div>
 
               {/* Інфо про масовий імпорт */}
-              {currentBookInfo?.source !== "bhaktivinodainstitute" && currentBookInfo?.source !== "kksongs" && (
+              {currentBookInfo?.source !== "bhaktivinodainstitute" &&
+               currentBookInfo?.source !== "kksongs" &&
+               currentBookInfo?.source !== "wisdomlib" && (
                 <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                   <p className="text-sm text-green-900 dark:text-green-100">
                     <strong>💡 Порада:</strong> Кнопка "Імпортувати всі глави" автоматично визначить кількість глав
@@ -1566,6 +1710,20 @@ export default function UniversalImportFixed() {
                   </p>
                   {currentBookInfo?.sourceUrl && (
                     <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                      Джерело: {currentBookInfo.sourceUrl}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {currentBookInfo?.source === "wisdomlib" && (
+                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <p className="text-sm text-purple-900 dark:text-purple-100">
+                    <strong>ℹ️ WisdomLib.org:</strong> Імпортується <strong>Bengali</strong> текст, транслітерація з бенгалі,
+                    переклад англійською та Gaudiya-bhāṣya коментарі. Оберіть khaṇḍa (adi/madhya/antya) для імпорту всіх глав.
+                  </p>
+                  {currentBookInfo?.sourceUrl && (
+                    <p className="text-xs text-purple-700 dark:text-purple-300 mt-2">
                       Джерело: {currentBookInfo.sourceUrl}
                     </p>
                   )}
