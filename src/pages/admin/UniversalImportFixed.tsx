@@ -911,15 +911,23 @@ export default function UniversalImportFixed() {
       setProgress(10);
 
       try {
-        toast({ title: "Завантаження...", description: "Отримання сторінки khaṇḍa..." });
+        toast({ title: "Завантаження...", description: `Отримання сторінки khaṇḍa: ${sourceUrl}` });
+        console.log(`[Wisdomlib] Fetching URL: ${sourceUrl}`);
 
         // Step 1: Fetch khaṇḍa page (list of chapters)
         const { data, error } = await supabase.functions.invoke("fetch-html", {
           body: { url: sourceUrl },
         });
 
-        if (error || !data?.html) {
-          throw new Error(error?.message || "Не вдалося отримати HTML");
+        console.log(`[Wisdomlib] Fetch result:`, { hasData: !!data, hasHtml: !!data?.html, error });
+
+        if (error) {
+          console.error(`[Wisdomlib] Fetch error:`, error);
+          throw new Error(`Edge Function помилка: ${JSON.stringify(error)}`);
+        }
+
+        if (!data?.html) {
+          throw new Error(`Не вдалося отримати HTML. Response: ${JSON.stringify(data)}`);
         }
 
         setProgress(20);
