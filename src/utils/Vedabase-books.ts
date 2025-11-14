@@ -307,6 +307,41 @@ export const VEDABASE_BOOKS = [
     gitabase_available: false,
     gitabaseSlug: null,
   },
+  // ========== CHAITANYA BHAGAVATA (WISDOMLIB.ORG) ==========
+  {
+    slug: 'scb',
+    name: 'Chaitanya Bhagavata',
+    vedabaseSlug: null,
+    our_slug: 'scb',
+    name_ua: 'Шрі Чайтанья-бгаґавата',
+    name_en: 'Sri Chaitanya Bhagavata',
+    // Автор
+    author: 'Vrindavan Das Thakur',
+    author_ua: 'Вріндаван Дас Тхакур',
+    // Джерело
+    source: 'wisdomlib',
+    sourceUrl: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata',
+    // Структура книги
+    isMultiVolume: true,
+    has_cantos: true, // ✅ 3 khaṇḍas: Ādi, Madhya, Antya
+    volumeLabel: 'Khaṇḍa', // Розділ
+    cantos: ['adi', 'madhya', 'antya'],
+    // Парсинг
+    templateId: 'default',
+    // Gitabase
+    hasGitabaseUA: false, // ❌ Імпортується з wisdomlib.org (Bengali + EN)
+    gitabase_available: false,
+    gitabaseSlug: null,
+    // Specific URLs for each khaṇḍa
+    khandaUrls: {
+      adi: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1092508.html',
+      madhya: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1098648.html',
+      antya: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1108871.html',
+      intro: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1112454.html',
+      gaudiya_bhasya_1: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1112455.html',
+      gaudiya_bhasya_2: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1095577.html',
+    } as Record<string, string> | undefined,
+  },
 ] as const;
 
 // Типи для TypeScript
