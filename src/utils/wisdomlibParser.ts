@@ -1,12 +1,11 @@
-// Parser for wisdomlib.org - Chaitanya Bhagavata
-// Structure: Book -> Khaṇḍa (Adi/Madhya/Antya) -> Chapters -> Verses
-// Each verse has Bengali, transliteration, translation, synonyms, and Gaudiya-bhāṣya commentary
-
-import { BhaktivinodaSong, BhaktivinodaVerse } from './bhaktivinodaParser';
+// ============================================================================
+// WISDOM LIBRARY PARSER - Chaitanya Bhagavata
+// Виправлена версія з правильними селекторами для структури HTML
+// ============================================================================
 
 export interface WisdomlibVerse {
   verse_number: string;
-  sanskrit?: string; // Bengali text
+  bengali?: string; // Bengali text
   transliteration_en?: string;
   synonyms_en?: string;
   translation_en?: string;
@@ -16,421 +15,341 @@ export interface WisdomlibVerse {
 export interface WisdomlibChapter {
   chapter_number: number;
   title_en?: string;
-  title_ua?: string;
   verses: WisdomlibVerse[];
   khanda: string; // adi, madhya, antya
-  intro_en?: string;
-  verseUrls?: Array<{ url: string; verseNumber: string }>; // For chapters where each verse has its own page
+  verseUrls?: Array<{ url: string; verseNumber: string }>;
 }
 
 /**
- * Extract chapter URLs from a khaṇḍa page (e.g., Ādi-khaṇḍa index)
- * Returns array of chapter URLs
- */
-export function extractWisdomlibChapterUrls(html: string, baseUrl: string): Array<{ url: string; title: string; chapterNumber: number }> {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const chapters: Array<{ url: string; title: string; chapterNumber: number }> = [];
-
-    // Find all chapter links - wisdomlib uses specific patterns
-    // Look for links in the chapter list (usually in a specific section)
-    const links = doc.querySelectorAll('a[href*="/d/doc"]');
-
-    links.forEach((link, index) => {
-      const href = link.getAttribute('href');
-      if (!href) return;
-
-      const text = link.textContent?.trim() || '';
-
-      // Skip if this is not a chapter link (e.g., it's an intro or commentary)
-      if (text.toLowerCase().includes('introduction') ||
-          text.toLowerCase().includes('preface') ||
-          text.toLowerCase().includes('index')) {
-        return;
-      }
-
-      // Extract chapter number from text (e.g., "Chapter 1", "Adhyāya 1")
-      const chapterMatch = text.match(/(?:chapter|adhyāya)\s+(\d+)/i);
-      const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : index + 1;
-
-      let fullUrl = href;
-      if (href.startsWith('/')) {
-        const base = new URL(baseUrl);
-        fullUrl = base.origin + href;
-      } else if (!href.startsWith('http')) {
-        fullUrl = baseUrl.replace(/\/$/, '') + '/' + href;
-      }
-
-      chapters.push({
-        url: fullUrl,
-        title: text,
-        chapterNumber
-      });
-    });
-
-    return chapters;
-  } catch (error) {
-    console.error('Error extracting wisdomlib chapter URLs:', error);
-    return [];
-  }
-}
-
-/**
- * Parse a single verse page from wisdomlib.org
- * wisdomlib structure typically has:
- * - Bengali text (Devanagari/Bengali script)
- * - Transliteration (Roman script)
- * - Synonyms (word-for-word)
- * - Translation (English)
- * - Gaudiya-bhāṣya commentary
+ * Парсинг окремої сторінки вірша
+ *
+ * Структура Wisdom Library для Chaitanya Bhagavata:
+ * 1. Bengali text (4 рядки) - в blockquote > p:nth-child(2)
+ * 2. English translation - в #scontent > p:nth-child(3)
+ * 3. Commentary - починається з #scontent > p:nth-child(5) і далі
  */
 export function parseWisdomlibVersePage(html: string, verseUrl: string): WisdomlibVerse | null {
   try {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = parser.parseFromString(html, "text/html");
 
-    console.log('[Wisdomlib] Parsing verse page:', verseUrl);
-
-    // Extract verse number from URL or page
-    const verseMatch = verseUrl.match(/verse[_-]?(\d+(?:-\d+)?)/i) ||
-                       verseUrl.match(/(\d+(?:-\d+)?)\.html?$/);
-    const verseNumber = verseMatch ? verseMatch[1] : '1';
+    // Витягуємо номер вірша з URL
+    const verseMatch = verseUrl.match(/doc(\d+)\.html/);
+    const verseNumber = verseMatch ? verseMatch[1] : "1";
 
     const verse: WisdomlibVerse = {
-      verse_number: verseNumber
+      verse_number: verseNumber,
     };
 
-    // Strategy: Look for specific sections marked by headers or classes
-    // Bengali/Sanskrit text - wisdomlib uses specific structure
-    // For Chaitanya Bhagavata: #scontent > blockquote:nth-child(1) > p:nth-child(2)
-    const bengaliEl = doc.querySelector('#scontent > blockquote:nth-child(1) > p:nth-child(2)') ||
-                     doc.querySelector('.verse-text, .sanskrit, .bengali, .devanagari') ||
-                     doc.querySelector('[lang="sa"], [lang="bn"]');
-    if (bengaliEl) {
-      verse.sanskrit = bengaliEl.textContent?.trim() || '';
-      console.log('[Wisdomlib] Found Bengali text:', verse.sanskrit.substring(0, 50) + '...');
-    } else {
-      console.warn('[Wisdomlib] No Bengali text found');
-    }
+    // 1. BENGALI TEXT - в blockquote (4 рядки разом)
+    // Селектор: #scontent > blockquote:nth-child(1)
+    const blockquote = doc.querySelector("#scontent > blockquote:first-of-type");
+    if (blockquote) {
+      // Витягуємо всі параграфи з blockquote
+      const paragraphs = blockquote.querySelectorAll("p");
+      const bengaliLines: string[] = [];
 
-    // Transliteration - wisdomlib uses specific structure
-    // For Chaitanya Bhagavata: #scontent > blockquote:nth-child(1) > p:nth-child(4)
-    const translitEl = doc.querySelector('#scontent > blockquote:nth-child(1) > p:nth-child(4)') ||
-                      doc.querySelector('.transliteration, .roman') ||
-                      Array.from(doc.querySelectorAll('p, div')).find(el =>
-                        el.textContent?.match(/^[a-z\-ā ī ū ṛ ṝ ḷ ṅ ñ ṭ ḍ ṇ ś ṣ]+$/i)
-                      );
-    if (translitEl) {
-      verse.transliteration_en = translitEl.textContent?.trim() || '';
-      console.log('[Wisdomlib] Found transliteration:', verse.transliteration_en.substring(0, 50) + '...');
-    } else {
-      console.warn('[Wisdomlib] No transliteration found');
-    }
-
-    // Synonyms (word-for-word)
-    // Only look for explicit synonyms sections - don't use broad fallback
-    // Word-for-word format typically has multiple '—' (3+) in a specific pattern
-    const synonymsEl = doc.querySelector('.synonyms, .word-for-word') ||
-                      Array.from(doc.querySelectorAll('p, div')).find(el => {
-                        const text = el.textContent || '';
-                        // Check for word-for-word pattern: multiple occurrences of '—' with semicolons
-                        const dashCount = (text.match(/—/g) || []).length;
-                        const semiCount = (text.match(/;/g) || []).length;
-                        // Word-for-word should have at least 3 dashes and 2 semicolons
-                        return dashCount >= 3 && semiCount >= 2;
-                      });
-    if (synonymsEl) {
-      verse.synonyms_en = synonymsEl.textContent?.trim() || '';
-    }
-
-    // Translation - wisdomlib uses specific structure
-    // For Chaitanya Bhagavata: #scontent > p:nth-child(3)
-    const translationEl = doc.querySelector('#scontent > p:nth-child(3)') ||
-                         doc.querySelector('.translation') ||
-                         Array.from(doc.querySelectorAll('p')).find(el => {
-                           const text = el.textContent || '';
-                           return text.length > 50 && text.match(/^[A-Z]/) && !text.includes('—');
-                         });
-    if (translationEl) {
-      verse.translation_en = translationEl.textContent?.trim() || '';
-      console.log('[Wisdomlib] Found translation:', verse.translation_en.substring(0, 50) + '...');
-    } else {
-      console.warn('[Wisdomlib] No translation found');
-    }
-
-    // Commentary (Gaudiya-bhāṣya) - wisdomlib uses specific structure
-    // For Chaitanya Bhagavata: #scontent > p:nth-child(5) and following siblings
-    const commentaryEl = doc.querySelector('.commentary, .purport, .gaudiya-bhasya');
-    if (commentaryEl) {
-      verse.commentary_en = commentaryEl.textContent?.trim() || '';
-      console.log('[Wisdomlib] Found commentary (direct):', verse.commentary_en.substring(0, 50) + '...');
-    } else {
-      // Try to find commentary starting from nth-child(5) in #scontent
-      const scontent = doc.querySelector('#scontent');
-      if (scontent) {
-        // Get all paragraphs starting from nth-child(5)
-        const commentaryParagraphs = Array.from(scontent.querySelectorAll('p')).filter((p, index) => {
-          // nth-child is 1-indexed, but we also have blockquote children
-          // So we need to check actual position among all children
-          const allChildren = Array.from(scontent.children);
-          const pIndex = allChildren.indexOf(p);
-          // Start from position 4 (5th child, 0-indexed) - this should be after translation at position 2 (3rd child)
-          return pIndex >= 4;
-        });
-
-        if (commentaryParagraphs.length > 0) {
-          verse.commentary_en = commentaryParagraphs
-            .map(p => p.textContent?.trim())
-            .filter(Boolean)
-            .join('\n\n');
-          console.log(`[Wisdomlib] Found commentary (${commentaryParagraphs.length} paragraphs):`, verse.commentary_en.substring(0, 50) + '...');
-        } else {
-          console.warn('[Wisdomlib] No commentary paragraphs found in #scontent');
+      paragraphs.forEach((p) => {
+        const text = p.textContent?.trim() || "";
+        // Bengali текст містить специфічні символи
+        if (text && /[\u0980-\u09FF]/.test(text)) {
+          bengaliLines.push(text);
         }
-      } else {
-        console.warn('[Wisdomlib] No #scontent element found, trying fallback');
-        // Fallback: find commentary in paragraphs after the translation
-        const paragraphs = Array.from(doc.querySelectorAll('p'));
-        const commentaryParagraphs = paragraphs.slice(
-          paragraphs.findIndex(p => p === translationEl) + 1
-        );
-        if (commentaryParagraphs.length > 0) {
-          verse.commentary_en = commentaryParagraphs
-            .map(p => p.textContent?.trim())
-            .filter(Boolean)
-            .join('\n\n');
-          console.log(`[Wisdomlib] Found commentary (fallback, ${commentaryParagraphs.length} paragraphs):`, verse.commentary_en.substring(0, 50) + '...');
-        } else {
-          console.warn('[Wisdomlib] No commentary found at all');
+      });
+
+      if (bengaliLines.length > 0) {
+        verse.bengali = bengaliLines.join("\n");
+      }
+    }
+
+    // 2. ENGLISH TRANSLATION - перший параграф після blockquote
+    // Селектор: #scontent > p:nth-child(3)
+    const scontent = doc.querySelector("#scontent");
+    if (scontent) {
+      const allChildren = Array.from(scontent.children);
+
+      // Знаходимо індекс blockquote
+      const blockquoteIndex = allChildren.findIndex((el) => el.tagName === "BLOCKQUOTE");
+
+      if (blockquoteIndex >= 0) {
+        // Перший <p> після blockquote - це переклад
+        const translationP = allChildren.find((el, idx) => idx > blockquoteIndex && el.tagName === "P") as
+          | HTMLElement
+          | undefined;
+
+        if (translationP) {
+          const text = translationP.textContent?.trim() || "";
+          // Переклад зазвичай починається з великої літери і не містить "—"
+          if (text.length > 30 && !text.includes("Commentary:")) {
+            verse.translation_en = text;
+          }
         }
       }
     }
 
-    // Return null if no meaningful content
-    if (!verse.sanskrit && !verse.transliteration_en && !verse.translation_en) {
+    // 3. COMMENTARY - всі параграфи після перекладу до кінця
+    // Починається після заголовка "Commentary: Gauḍīya-bhāṣya..."
+    if (scontent) {
+      const allParagraphs = Array.from(scontent.querySelectorAll("p"));
+      let commentaryStarted = false;
+      const commentaryParagraphs: string[] = [];
+
+      allParagraphs.forEach((p) => {
+        const text = p.textContent?.trim() || "";
+
+        // Шукаємо початок коментаря
+        if (text.includes("Commentary:") || text.includes("Gauḍīya-bhāṣya")) {
+          commentaryStarted = true;
+          // Якщо в тому ж параграфі є текст після "Commentary:", додаємо його
+          const afterCommentary = text.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/)[1];
+          if (afterCommentary) {
+            commentaryParagraphs.push(afterCommentary.trim());
+          }
+          return;
+        }
+
+        // Якщо коментар почався, додаємо всі наступні параграфи
+        if (commentaryStarted && text.length > 0) {
+          // Виключаємо навігаційні елементи
+          if (!text.includes("Previous") && !text.includes("Next") && !text.includes("Like what you read?")) {
+            commentaryParagraphs.push(text);
+          }
+        }
+      });
+
+      if (commentaryParagraphs.length > 0) {
+        verse.commentary_en = commentaryParagraphs.join("\n\n");
+      }
+    }
+
+    // 4. TRANSLITERATION - якщо є, зазвичай в blockquote після Bengali
+    if (blockquote) {
+      const paragraphs = Array.from(blockquote.querySelectorAll("p"));
+      paragraphs.forEach((p) => {
+        const text = p.textContent?.trim() || "";
+        // Транслітерація містить діакритичні знаки IAST
+        if (text && /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text)) {
+          if (!verse.transliteration_en) {
+            verse.transliteration_en = text;
+          }
+        }
+      });
+    }
+
+    // 5. SYNONYMS - слова через "—" та ";"
+    // Зазвичай після transliteration, але до translation
+    if (scontent) {
+      const allParagraphs = Array.from(scontent.querySelectorAll("p, blockquote p"));
+
+      for (const p of allParagraphs) {
+        const text = p.textContent?.trim() || "";
+
+        // Synonyms мають характерний патерн: слово—переклад; слово—переклад
+        const dashCount = (text.match(/—/g) || []).length;
+        const semiCount = (text.match(/;/g) || []).length;
+
+        // Має бути мінімум 3 тире і 2 крапки з комою
+        if (dashCount >= 3 && semiCount >= 2 && text.length > 50) {
+          verse.synonyms_en = text;
+          break;
+        }
+      }
+    }
+
+    console.log("✅ Wisdomlib verse parsed:", {
+      verse_number: verse.verse_number,
+      bengali: verse.bengali ? `${verse.bengali.substring(0, 50)}...` : "MISSING",
+      translation: verse.translation_en ? `${verse.translation_en.substring(0, 50)}...` : "MISSING",
+      commentary: verse.commentary_en ? `${verse.commentary_en.length} chars` : "MISSING",
+    });
+
+    // Повертаємо null якщо нема ключового контенту
+    if (!verse.bengali && !verse.translation_en && !verse.commentary_en) {
+      console.warn("⚠️ No content found for verse:", verseNumber);
       return null;
     }
 
     return verse;
   } catch (error) {
-    console.error('Error parsing wisdomlib verse:', error);
+    console.error("❌ Wisdomlib parse error:", error);
     return null;
   }
 }
 
 /**
- * Extract verse URLs from a chapter page
- * For Chaitanya Bhagavata, each verse has its own page (e.g., /d/doc1095577.html)
+ * Витягує URLs віршів зі сторінки глави
+ * Приклад: https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1092507.html
  */
-export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Array<{ url: string; verseNumber: string }> {
+export function extractWisdomlibVerseUrls(
+  html: string,
+  chapterUrl: string,
+): Array<{ url: string; verseNumber: string }> {
   try {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = parser.parseFromString(html, "text/html");
     const verseUrls: Array<{ url: string; verseNumber: string }> = [];
 
-    // Look for the main content area first (more specific)
-    const contentArea = doc.querySelector('#scontent, .content, main');
-    const searchArea = contentArea || doc;
+    // Wisdom Library має список віршів як нумеровані посилання
+    // Зазвичай в <ol> або <ul> списку
+    const contentArea = doc.querySelector("#scontent, .content, main") || doc;
 
-    console.log('[Wisdomlib] Extracting verse URLs from:', chapterUrl);
+    // Шукаємо всі посилання на сторінки віршів (pattern: /d/doc[digits].html)
+    const links = contentArea.querySelectorAll('a[href*="/d/doc"]');
 
-    // Look for links to verse pages (pattern: /d/doc[digits].html)
-    // Only within a list or specific container to avoid navigation links
-    const links = searchArea.querySelectorAll('ol a[href*="/d/doc"], ul a[href*="/d/doc"], .verse-list a[href*="/d/doc"]');
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href) return;
 
-    console.log(`[Wisdomlib] Found ${links.length} links in lists`);
+      const text = link.textContent?.trim() || "";
 
-    // If no links found in lists, try direct children of content area
-    if (links.length === 0) {
-      const directLinks = searchArea.querySelectorAll('a[href*="/d/doc"]');
-      console.log(`[Wisdomlib] Found ${directLinks.length} direct links, filtering...`);
+      // Фільтруємо тільки числові посилання (номери віршів)
+      if (!text.match(/^\d+$/) && !text.match(/^Verse\s*\d+$/i)) {
+        return;
+      }
 
-      // Filter to only include links that look like verse numbers (text is just a number)
-      directLinks.forEach((link, index) => {
-        const href = link.getAttribute('href');
-        if (!href) return;
+      // Будуємо повний URL
+      let fullUrl = href;
+      if (href.startsWith("/")) {
+        const base = new URL(chapterUrl);
+        fullUrl = base.origin + href;
+      } else if (!href.startsWith("http")) {
+        const base = new URL(chapterUrl);
+        fullUrl = base.origin + "/" + href;
+      }
 
-        const text = link.textContent?.trim() || '';
+      // Витягуємо номер вірша
+      const verseMatch = text.match(/(\d+)/);
+      const verseNumber = verseMatch ? verseMatch[1] : "";
 
-        // Debug: log first few links to see what we're getting
-        if (index < 5) {
-          console.log(`[Wisdomlib] Link ${index}: text="${text}", href="${href}"`);
-        }
+      if (verseNumber) {
+        verseUrls.push({ url: fullUrl, verseNumber });
+      }
+    });
 
-        // Only include if link text is purely numeric (verse number) or contains "Verse"
-        if (!text.match(/^Verse\s*\d+$/i) && !text.match(/^\d+$/)) {
-          return;
-        }
-
-        // Build full URL
-        let fullUrl = href;
-        if (href.startsWith('/')) {
-          const base = new URL(chapterUrl);
-          fullUrl = base.origin + href;
-        } else if (!href.startsWith('http')) {
-          const base = new URL(chapterUrl);
-          fullUrl = base.origin + '/' + href;
-        }
-
-        // Extract verse number from link text
-        const verseMatch = text.match(/(\d+)/);
-        const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
-
-        verseUrls.push({
-          url: fullUrl,
-          verseNumber
-        });
-      });
-    } else {
-      // Process links from lists
-      links.forEach((link, index) => {
-        const href = link.getAttribute('href');
-        if (!href) return;
-
-        const text = link.textContent?.trim() || '';
-
-        // Debug: log first few links
-        if (index < 5) {
-          console.log(`[Wisdomlib] List link ${index}: text="${text}", href="${href}"`);
-        }
-
-        // Build full URL
-        let fullUrl = href;
-        if (href.startsWith('/')) {
-          const base = new URL(chapterUrl);
-          fullUrl = base.origin + href;
-        } else if (!href.startsWith('http')) {
-          const base = new URL(chapterUrl);
-          fullUrl = base.origin + '/' + href;
-        }
-
-        // Extract verse number from link text or use index
-        const verseMatch = text.match(/(\d+)/);
-        const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
-
-        verseUrls.push({
-          url: fullUrl,
-          verseNumber
-        });
-      });
-    }
-
-    console.log(`[Wisdomlib] Extracted ${verseUrls.length} verse URLs`);
-    if (verseUrls.length > 0 && verseUrls.length <= 5) {
-      console.log('[Wisdomlib] Verse URLs:', verseUrls);
-    } else if (verseUrls.length > 5) {
-      console.log('[Wisdomlib] First 5 verse URLs:', verseUrls.slice(0, 5));
-      console.log('[Wisdomlib] Last 5 verse URLs:', verseUrls.slice(-5));
-    }
-
+    console.log(`✅ Found ${verseUrls.length} verse URLs in chapter`);
     return verseUrls;
   } catch (error) {
-    console.error('Error extracting wisdomlib verse URLs:', error);
+    console.error("❌ Error extracting verse URLs:", error);
     return [];
   }
 }
 
 /**
- * Parse a chapter page that contains multiple verses
+ * Парсинг сторінки глави (отримує список URLs віршів)
  */
 export function parseWisdomlibChapterPage(html: string, chapterUrl: string, khanda: string): WisdomlibChapter | null {
   try {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+    const doc = parser.parseFromString(html, "text/html");
 
-    // Extract chapter number
-    const chapterMatch = chapterUrl.match(/chapter[_-]?(\d+)/i) ||
-                        chapterUrl.match(/adhyaya[_-]?(\d+)/i);
+    // Витягуємо номер глави з URL
+    const chapterMatch = chapterUrl.match(/chapter[_-]?(\d+)/i) || chapterUrl.match(/doc(\d+)/);
     const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : 1;
 
-    // Extract title
-    const titleEl = doc.querySelector('h1, h2, .chapter-title');
+    // Витягуємо заголовок
+    const titleEl = doc.querySelector("h1, h2, .chapter-title, #scontent > h2");
     const title = titleEl?.textContent?.trim() || `Chapter ${chapterNumber}`;
 
-    // First, check if this chapter page has links to individual verse pages
-    // (e.g., Chaitanya Bhagavata where each verse is on a separate page)
+    // Витягуємо URLs віршів
     const verseUrls = extractWisdomlibVerseUrls(html, chapterUrl);
 
-    if (verseUrls.length > 0) {
-      console.log(`[Wisdomlib] Found ${verseUrls.length} verse URLs for chapter ${chapterNumber}`);
-      // Return chapter metadata with verse URLs to be fetched separately
-      return {
-        chapter_number: chapterNumber,
-        title_en: title,
-        verses: [],
-        khanda,
-        verseUrls
-      };
-    }
-
-    // If no verse URLs found, try to parse verses directly from the chapter page
-    const verses: WisdomlibVerse[] = [];
-
-    // Find verse sections - wisdomlib usually has each verse in a separate container
-    const verseSections = doc.querySelectorAll('.verse-container, .verse, article');
-
-    if (verseSections.length > 0) {
-      verseSections.forEach((section, index) => {
-        const verseHtml = section.outerHTML;
-        const verse = parseWisdomlibVersePage(verseHtml, `${chapterUrl}#verse-${index + 1}`);
-        if (verse) {
-          verse.verse_number = (index + 1).toString();
-          verses.push(verse);
-        }
-      });
-    } else {
-      // Fallback: try to parse the whole page as one section
-      const verse = parseWisdomlibVersePage(html, chapterUrl);
-      if (verse) {
-        verses.push(verse);
-      }
-    }
+    console.log(`✅ Chapter ${chapterNumber} parsed:`, {
+      title,
+      khanda,
+      verseCount: verseUrls.length,
+    });
 
     return {
       chapter_number: chapterNumber,
       title_en: title,
-      verses,
-      khanda
+      verses: [],
+      khanda,
+      verseUrls,
     };
   } catch (error) {
-    console.error('Error parsing wisdomlib chapter:', error);
+    console.error("❌ Chapter parse error:", error);
     return null;
   }
 }
 
 /**
- * Determine khaṇḍa from URL
+ * Визначає khaṇḍa з URL
  */
 export function determineKhandaFromUrl(url: string): { name: string; number: number } {
   const urlLower = url.toLowerCase();
-  if (urlLower.includes('adi')) {
-    return { name: 'adi', number: 1 };
-  } else if (urlLower.includes('madhya')) {
-    return { name: 'madhya', number: 2 };
-  } else if (urlLower.includes('antya')) {
-    return { name: 'antya', number: 3 };
+  if (urlLower.includes("adi")) {
+    return { name: "adi", number: 1 };
+  } else if (urlLower.includes("madhya")) {
+    return { name: "madhya", number: 2 };
+  } else if (urlLower.includes("antya")) {
+    return { name: "antya", number: 3 };
   }
-  return { name: 'adi', number: 1 }; // default
+  return { name: "adi", number: 1 };
 }
 
 /**
- * Convert wisdomlib chapter to our standard chapter format
+ * Витягує URLs глав з головної сторінки книги
  */
-export function wisdomlibChapterToStandardChapter(chapter: WisdomlibChapter): any {
-  return {
-    chapter_number: chapter.chapter_number,
-    title_en: chapter.title_en,
-    title_ua: chapter.title_ua,
-    chapter_type: 'verses' as const,
-    verses: chapter.verses.map(v => ({
-      verse_number: v.verse_number,
-      sanskrit: v.sanskrit || '',
-      transliteration_en: v.transliteration_en || '',
-      synonyms_en: v.synonyms_en || '',
-      translation_en: v.translation_en || '',
-      commentary_en: v.commentary_en || '',
-    })),
-    intro_en: chapter.intro_en,
-  };
+export function extractWisdomlibChapterUrls(
+  html: string,
+  baseUrl: string,
+): Array<{ url: string; title: string; chapterNumber: number; khanda: string }> {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const chapters: Array<{ url: string; title: string; chapterNumber: number; khanda: string }> = [];
+
+    // Шукаємо всі посилання на глави
+    const links = doc.querySelectorAll('a[href*="/d/doc"]');
+
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href) return;
+
+      const text = link.textContent?.trim() || "";
+
+      // Пропускаємо не-глави (вступи, передмови тощо)
+      if (
+        text.toLowerCase().includes("introduction") ||
+        text.toLowerCase().includes("preface") ||
+        text.toLowerCase().includes("index")
+      ) {
+        return;
+      }
+
+      // Витягуємо номер глави
+      const chapterMatch = text.match(/(?:chapter|adhyāya)\s+(\d+)/i);
+      if (!chapterMatch) return;
+
+      const chapterNumber = parseInt(chapterMatch[1], 10);
+
+      // Визначаємо khaṇḍa
+      const khanda = determineKhandaFromUrl(href).name;
+
+      // Будуємо повний URL
+      let fullUrl = href;
+      if (href.startsWith("/")) {
+        const base = new URL(baseUrl);
+        fullUrl = base.origin + href;
+      } else if (!href.startsWith("http")) {
+        fullUrl = baseUrl.replace(/\/$/, "") + "/" + href;
+      }
+
+      chapters.push({
+        url: fullUrl,
+        title: text,
+        chapterNumber,
+        khanda,
+      });
+    });
+
+    console.log(`✅ Found ${chapters.length} chapters`);
+    return chapters;
+  } catch (error) {
+    console.error("❌ Error extracting chapter URLs:", error);
+    return [];
+  }
 }
+
+// Експорт
+export { WisdomlibVerse, WisdomlibChapter };
