@@ -25,11 +25,6 @@ const Numerology = () => {
   // ⚠️ КРИТИЧНО: Перевірка авторизації - тільки для залогінених користувачів
   useEffect(() => {
     if (!user) {
-      toast({
-        title: "Доступ заборонено",
-        description: "Цей інструмент доступний тільки авторизованим користувачам",
-        variant: "destructive",
-      });
       navigate("/auth");
     }
   }, [user, navigate]);
@@ -48,7 +43,7 @@ const Numerology = () => {
     if (!isValidBirthDate(date)) {
       toast({
         title: "Помилка",
-        description: "Неправильна дата народження",
+        description: "Неправільна дата народження",
         variant: "destructive",
       });
       return;
@@ -62,11 +57,6 @@ const Numerology = () => {
       description: `Ваші числа: ${calculatedResult.formatted}`,
     });
   };
-
-  // Якщо користувач не авторизований, не показуємо вміст
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
