@@ -42,7 +42,7 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     };
 
     // 1. BENGALI TEXT - в blockquote (всі рядки разом)
-    const blockquote = doc.querySelector("#scontent > blockquote:first-of-type");
+    const blockquote = doc.querySelector("#scontent blockquote, #pageContent blockquote");
     if (blockquote) {
       const paragraphs = blockquote.querySelectorAll("p");
       const bengaliLines: string[] = [];
@@ -60,43 +60,36 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       }
     }
 
-    // 2. ENGLISH TRANSLATION - перший <p> після blockquote або після мітки "English translation"
+    // 2. ENGLISH TRANSLATION - robust: search by label or numbered pattern within subtree
     const scontent = doc.querySelector("#scontent, #pageContent");
     if (scontent) {
-      const allChildren = Array.from(scontent.children);
-
-      // Знаходимо індекс blockquote
-      const blockquoteIndex = allChildren.findIndex((el) => el.tagName === "BLOCKQUOTE");
-
-      // Спробуємо знайти спеціальну мітку перекладу
-      const translationLabelIndex = allChildren.findIndex((el) => {
-        const t = el.textContent?.trim() || "";
-        return /english\s+translation/i.test(t);
-      });
-
-      const pickFirstValidParagraph = (startIdx: number) => {
-        for (let i = startIdx + 1; i < allChildren.length; i++) {
-          const el = allChildren[i] as HTMLElement;
-          if (el.tagName !== "P") continue;
-          const text = el.textContent?.trim() || "";
-          // Пропускаємо службові мітки та навігацію
-          if (/english\s+translation/i.test(text)) continue;
-          if (text.length > 20 && !/Commentary:/i.test(text)) {
-            return text;
-          }
-        }
-        return "";
-      };
+      const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
 
       let translation = "";
 
-      if (translationLabelIndex >= 0) {
-        translation = pickFirstValidParagraph(translationLabelIndex);
+      // Find explicit "English translation" label and take the next meaningful paragraph
+      const labelIdx = ps.findIndex((p) => /english\s*translation\s*:?/i.test((p.textContent || "").trim()));
+      const isValidText = (t: string) =>
+        t.length > 20 &&
+        !/english\s*translation/i.test(t) &&
+        !/Previous|Next|Like what you read\?/i.test(t) &&
+        !/Buy now/i.test(t) &&
+        !/Chaitanya Bhagavata/i.test(t);
+
+      if (labelIdx >= 0) {
+        for (let i = labelIdx + 1; i < ps.length; i++) {
+          const t = (ps[i].textContent || "").trim();
+          if (isValidText(t)) {
+            translation = t;
+            break;
+          }
+        }
       }
 
-      if (!translation && blockquoteIndex >= 0) {
-        // fallback: перший валідний <p> після blockquote
-        translation = pickFirstValidParagraph(blockquoteIndex);
+      // Fallback: paragraph that starts with a numbered marker like "(198)"
+      if (!translation) {
+        const cand = ps.find((p) => /^\(\d+\)\s+/.test((p.textContent || "").trim()));
+        if (cand) translation = (cand.textContent || "").trim();
       }
 
       if (translation) {
@@ -106,41 +99,31 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
 
     // 3. COMMENTARY - абзаци після заголовка "Commentary: Gauḍīya-bhāṣya..."
     if (scontent) {
-      const nodes = Array.from(scontent.children) as HTMLElement[];
-      const isCommentaryHeader = (el: HTMLElement) => /Commentary:|Gauḍīya-bhāṣya/i.test(el.textContent || "");
-
-      // Шукаємо початок блоку коментаря серед будь-яких елементів (p/h2/h3...)
-      let startIdx = nodes.findIndex((el) => isCommentaryHeader(el));
-      const commentaryParagraphs: string[] = [];
+      const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
+      const startIdx = ps.findIndex((p) => /Commentary:|Gauḍīya-bhāṣya/i.test((p.textContent || "")));
 
       if (startIdx >= 0) {
-        // Якщо заголовок містить текст після двокрапки — додамо його
-        const headerText = nodes[startIdx].textContent?.trim() || "";
+        const commentaryParagraphs: string[] = [];
+
+        // If header line contains text after the colon, include it
+        const headerText = (ps[startIdx].textContent || "").trim();
         const afterHeader = headerText.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/i)[1];
         if (afterHeader && afterHeader.trim()) {
           commentaryParagraphs.push(afterHeader.trim());
         }
 
-        // Збираємо наступні <p> до наступного заголовка або навігаційних елементів
-        for (let i = startIdx + 1; i < nodes.length; i++) {
-          const el = nodes[i];
-          const tag = el.tagName;
-          const text = el.textContent?.trim() || "";
-
-          // Зупиняємося на наступному великому заголовку
-          if (/^H[1-6]$/.test(tag)) break;
-
-          // Беремо тільки параграфи з нетехнічним текстом
-          if (tag === "P" && text.length > 0) {
-            if (!/Previous|Next|Like what you read\?/i.test(text)) {
-              commentaryParagraphs.push(text);
-            }
-          }
+        for (let i = startIdx + 1; i < ps.length; i++) {
+          const text = (ps[i].textContent || "").trim();
+          if (!text) continue;
+          // Stop at navigation/other sections
+          if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+          if (/^English translation/i.test(text)) break;
+          commentaryParagraphs.push(text);
         }
-      }
 
-      if (commentaryParagraphs.length > 0) {
-        verse.commentary_en = commentaryParagraphs.join("\n\n");
+        if (commentaryParagraphs.length > 0) {
+          verse.commentary_en = commentaryParagraphs.join("\n\n");
+        }
       }
     }
 
