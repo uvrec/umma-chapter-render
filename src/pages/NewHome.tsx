@@ -70,7 +70,10 @@ function Hero() {
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
       const { data, error } = await (supabase as any).from("site_settings").select("value").eq("key", "home_hero").single();
-      if (error) throw error;
+      if (error) {
+        console.error("Failed to load home hero settings:", error);
+        return null; // Return null instead of throwing
+      }
       return (data as any)?.value as {
         background_image: string;
         logo_image: string;
