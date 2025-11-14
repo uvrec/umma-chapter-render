@@ -221,8 +221,8 @@ export const BookOverview = () => {
               : // NoI: show verses as list, otherwise chapters
                 bookSlug === 'noi' && noiVerses.length > 0
                 ? noiVerses.map((verse) => {
-                    const titleUa = verse.translation_ua ? `${verse.verse_number}. ${verse.translation_ua.substring(0, 80)}...` : `Текст ${verse.verse_number}`;
-                    const titleEn = verse.translation_en ? `${verse.verse_number}. ${verse.translation_en.substring(0, 80)}...` : `Text ${verse.verse_number}`;
+                    const titleUa = verse.translation_ua ? `${verse.verse_number}. ${verse.translation_ua}` : `Текст ${verse.verse_number}`;
+                    const titleEn = verse.translation_en ? `${verse.verse_number}. ${verse.translation_en}` : `Text ${verse.verse_number}`;
 
                     return dualMode ? (
                       <Link
@@ -235,13 +235,13 @@ export const BookOverview = () => {
                             <span className="text-lg font-bold text-primary whitespace-nowrap">
                               {verse.verse_number}
                             </span>
-                            <span className="text-lg text-foreground line-clamp-2">{titleUa}</span>
+                            <span className="text-lg text-foreground">{titleUa}</span>
                           </div>
                           <div className="flex items-start gap-3">
                             <span className="text-lg font-bold text-primary whitespace-nowrap">
                               {verse.verse_number}
                             </span>
-                            <span className="text-lg text-foreground line-clamp-2">{titleEn}</span>
+                            <span className="text-lg text-foreground">{titleEn}</span>
                           </div>
                         </div>
                       </Link>
@@ -255,7 +255,7 @@ export const BookOverview = () => {
                           <span className="text-lg font-bold text-primary">
                             {language === "ua" ? `Текст ${verse.verse_number}` : `Text ${verse.verse_number}`}
                           </span>
-                          <span className="text-lg text-foreground line-clamp-2">
+                          <span className="text-lg text-foreground">
                             {language === "ua" ? titleUa : titleEn}
                           </span>
                         </div>
