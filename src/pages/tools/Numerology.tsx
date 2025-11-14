@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
-import { numberDescriptions } from "@/utils/numberDescriptions";
+import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions } from "@/utils/numberDescriptions";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
 
@@ -436,7 +436,7 @@ const Numerology = () => {
               )}
 
               {/* Число Дії */}
-              {numberDescriptions[result.actionNumber] && (
+              {actionNumberDescriptions[result.actionNumber] && (
                 <Card className="border-l-4 border-l-green-500">
                   <CardHeader>
                     <CardTitle className="text-xl text-green-600 dark:text-green-400">
@@ -445,14 +445,14 @@ const Numerology = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="whitespace-pre-line">{numberDescriptions[result.actionNumber].mainDescription}</p>
+                      <p className="whitespace-pre-line">{actionNumberDescriptions[result.actionNumber].mainDescription}</p>
                     </div>
 
-                    {numberDescriptions[result.actionNumber].positiveQualities && (
+                    {actionNumberDescriptions[result.actionNumber].positiveQualities && (
                       <div>
                         <h4 className="font-semibold mb-2">Позитивні якості:</h4>
                         <div className="flex flex-wrap gap-2">
-                          {numberDescriptions[result.actionNumber].positiveQualities?.map((quality, idx) => (
+                          {actionNumberDescriptions[result.actionNumber].positiveQualities?.map((quality, idx) => (
                             <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
                               {quality}
                             </span>
@@ -461,11 +461,11 @@ const Numerology = () => {
                       </div>
                     )}
 
-                    {numberDescriptions[result.actionNumber].negativeQualities && (
+                    {actionNumberDescriptions[result.actionNumber].negativeQualities && (
                       <div>
                         <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
                         <div className="flex flex-wrap gap-2">
-                          {numberDescriptions[result.actionNumber].negativeQualities?.map((quality, idx) => (
+                          {actionNumberDescriptions[result.actionNumber].negativeQualities?.map((quality, idx) => (
                             <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
                               {quality}
                             </span>
@@ -478,7 +478,7 @@ const Numerology = () => {
               )}
 
               {/* Число Реалізації */}
-              {numberDescriptions[result.realizationNumber] && (
+              {realizationNumberDescriptions[result.realizationNumber] && (
                 <Card className="border-l-4 border-l-purple-500">
                   <CardHeader>
                     <CardTitle className="text-xl text-purple-600 dark:text-purple-400">
@@ -487,14 +487,14 @@ const Numerology = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="whitespace-pre-line">{numberDescriptions[result.realizationNumber].mainDescription}</p>
+                      <p className="whitespace-pre-line">{realizationNumberDescriptions[result.realizationNumber].mainDescription}</p>
                     </div>
 
-                    {numberDescriptions[result.realizationNumber].positiveQualities && (
+                    {realizationNumberDescriptions[result.realizationNumber].positiveQualities && (
                       <div>
                         <h4 className="font-semibold mb-2">Позитивні якості:</h4>
                         <div className="flex flex-wrap gap-2">
-                          {numberDescriptions[result.realizationNumber].positiveQualities?.map((quality, idx) => (
+                          {realizationNumberDescriptions[result.realizationNumber].positiveQualities?.map((quality, idx) => (
                             <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
                               {quality}
                             </span>
@@ -503,11 +503,11 @@ const Numerology = () => {
                       </div>
                     )}
 
-                    {numberDescriptions[result.realizationNumber].negativeQualities && (
+                    {realizationNumberDescriptions[result.realizationNumber].negativeQualities && (
                       <div>
                         <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
                         <div className="flex flex-wrap gap-2">
-                          {numberDescriptions[result.realizationNumber].negativeQualities?.map((quality, idx) => (
+                          {realizationNumberDescriptions[result.realizationNumber].negativeQualities?.map((quality, idx) => (
                             <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
                               {quality}
                             </span>
@@ -520,7 +520,7 @@ const Numerology = () => {
               )}
 
               {/* Число Підсумку */}
-              {numberDescriptions[result.resultNumber] && (
+              {resultNumberDescriptions[result.resultNumber] && (
                 <Card className="border-l-4 border-l-amber-500">
                   <CardHeader>
                     <CardTitle className="text-xl text-amber-600 dark:text-amber-400">
@@ -529,14 +529,14 @@ const Numerology = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <p className="whitespace-pre-line">{numberDescriptions[result.resultNumber].mainDescription}</p>
+                      <p className="whitespace-pre-line">{resultNumberDescriptions[result.resultNumber].mainDescription}</p>
                     </div>
 
-                    {numberDescriptions[result.resultNumber].positiveQualities && (
+                    {resultNumberDescriptions[result.resultNumber].positiveQualities && (
                       <div>
                         <h4 className="font-semibold mb-2">Позитивні якості:</h4>
                         <div className="flex flex-wrap gap-2">
-                          {numberDescriptions[result.resultNumber].positiveQualities?.map((quality, idx) => (
+                          {resultNumberDescriptions[result.resultNumber].positiveQualities?.map((quality, idx) => (
                             <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
                               {quality}
                             </span>
@@ -545,11 +545,11 @@ const Numerology = () => {
                       </div>
                     )}
 
-                    {numberDescriptions[result.resultNumber].negativeQualities && (
+                    {resultNumberDescriptions[result.resultNumber].negativeQualities && (
                       <div>
                         <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
                         <div className="flex flex-wrap gap-2">
-                          {numberDescriptions[result.resultNumber].negativeQualities?.map((quality, idx) => (
+                          {resultNumberDescriptions[result.resultNumber].negativeQualities?.map((quality, idx) => (
                             <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
                               {quality}
                             </span>
