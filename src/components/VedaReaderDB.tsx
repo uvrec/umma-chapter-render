@@ -396,9 +396,23 @@ export const VedaReaderDB = () => {
       chapterId?: string;
       verseNumber?: string;
     }) => {
-      const payload: any = {
-        sanskrit: updates.sanskrit
-      };
+      const payload: any = {};
+
+      // Sanskrit - зберігати у відповідні поля
+      if (updates.sanskrit_ua !== undefined) {
+        payload.sanskrit_ua = updates.sanskrit_ua;
+      }
+      if (updates.sanskrit_en !== undefined) {
+        payload.sanskrit_en = updates.sanskrit_en;
+      }
+      // Fallback для single mode
+      if (updates.sanskrit !== undefined && updates.sanskrit_ua === undefined && updates.sanskrit_en === undefined) {
+        if (language === "ua") {
+          payload.sanskrit_ua = updates.sanskrit;
+        } else {
+          payload.sanskrit_en = updates.sanskrit;
+        }
+      }
 
       // Transliteration - зберігати в правильне поле
       if (updates.transliteration_ua !== undefined) {
