@@ -191,11 +191,14 @@ export function extractWisdomlibVerseUrls(
       if (!href) return;
 
       const text = link.textContent?.trim() || "";
+      const title = link.getAttribute("title") || "";
 
-      // Фільтруємо тільки числові посилання (номери віршів)
-      if (!text.match(/^\d+$/) && !text.match(/^Verse\s*\d+$/i)) {
-        return;
-      }
+      // Шукаємо номер вірша: "1", "1.1", "1.1.1", "Verse 1", "Verse 1.1.1", тощо
+      const verseMatch =
+        text.match(/^(?:Verse\s*)?(\d+(?:\.\d+){0,2})\b/i) ||
+        title.match(/(?:Verse\s*)?(\d+(?:\.\d+){0,2})/i);
+      if (!verseMatch) return;
+      const verseNumber = verseMatch[1];
 
       // Будуємо повний URL
       let fullUrl = href;
@@ -207,13 +210,19 @@ export function extractWisdomlibVerseUrls(
         fullUrl = base.origin + "/" + href;
       }
 
-      // Витягуємо номер вірша
-      const verseMatch = text.match(/(\d+)/);
-      const verseNumber = verseMatch ? verseMatch[1] : "";
+      verseUrls.push({ url: fullUrl, verseNumber });
+    });
 
-      if (verseNumber) {
-        verseUrls.push({ url: fullUrl, verseNumber });
+    // Сортуємо за номером вірша (підтримка крапкових номерів)
+    verseUrls.sort((a, b) => {
+      const aParts = a.verseNumber.split('.').map(Number);
+      const bParts = b.verseNumber.split('.').map(Number);
+      for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+        const av = aParts[i] ?? 0;
+        const bv = bParts[i] ?? 0;
+        if (av !== bv) return av - bv;
       }
+      return 0;
     });
 
     console.log(`✅ Found ${verseUrls.length} verse URLs in chapter`);
@@ -299,22 +308,28 @@ export function extractWisdomlibChapterUrls(
       const text = link.textContent?.trim() || "";
 
       // Пропускаємо не-глави
-      if (
-        text.toLowerCase().includes("introduction") ||
-        text.toLowerCase().includes("preface") ||
-        text.toLowerCase().includes("index")
-      ) {
-        return;
+      const lower = text.toLowerCase();
+      if (lower.includes("introduction") || lower.includes("preface") || lower.includes("index")) return;
+
+      // Беремо контекст з батьківського елемента (li, p, div) — там часто є номер
+      const parent = link.closest("li, p, div");
+      const context = parent?.textContent?.trim() || "";
+
+      // Варіанти визначення номера глави:
+      // 1) "Chapter 1" або "Adhyāya 1"
+      // 2) "1. ..." або "1 – ..." на початку рядка
+      let chapterNumber: number | null = null;
+      const r1 = text.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i) || context.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i);
+      if (r1) {
+        chapterNumber = parseInt(r1[1], 10);
+      } else {
+        const r2 = text.match(/^\s*(\d+)\s*[.:\-–]\s+/) || context.match(/^\s*(\d+)\s*[.:\-–]\s+/);
+        if (r2) chapterNumber = parseInt(r2[1], 10);
       }
+      if (chapterNumber === null) return;
 
-      // Витягуємо номер глави
-      const chapterMatch = text.match(/(?:chapter|adhyāya)\s+(\d+)/i);
-      if (!chapterMatch) return;
-
-      const chapterNumber = parseInt(chapterMatch[1], 10);
-
-      // Визначаємо khaṇḍa
-      const khanda = determineKhandaFromUrl(href).name;
+      // Визначаємо khaṇḍa з baseUrl (href = /d/doc... не містить adi/madhya/antya)
+      const khanda = determineKhandaFromUrl(baseUrl).name;
 
       // Будуємо повний URL
       let fullUrl = href;
@@ -325,13 +340,11 @@ export function extractWisdomlibChapterUrls(
         fullUrl = baseUrl.replace(/\/$/, "") + "/" + href;
       }
 
-      chapters.push({
-        url: fullUrl,
-        title: text,
-        chapterNumber,
-        khanda,
-      });
+      chapters.push({ url: fullUrl, title: text, chapterNumber, khanda });
     });
+
+    // Сортуємо за номером глави
+    chapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
 
     console.log(`✅ Found ${chapters.length} chapters`);
     return chapters;
