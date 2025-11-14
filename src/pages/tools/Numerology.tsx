@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
-import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions, lastYearDigitDescriptions } from "@/utils/numberDescriptions";
+import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions, lastYearDigitDescriptions, personalYearDescriptions, personalMonthDescriptions, personalDayDescriptions } from "@/utils/numberDescriptions";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
 
@@ -368,6 +368,160 @@ const Numerology = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Грошовий код */}
+            <Card className="border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 mt-6">
+              <CardHeader>
+                <CardTitle className="text-2xl text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                  <span className="text-3xl">💰</span>
+                  Ваш Грошовий Код
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Особистий 4-цифровий код для фінансового успіху
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center p-6 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                  <h3 className="text-5xl font-bold text-emerald-600 dark:text-emerald-400 mb-4 tracking-wider">
+                    {result.moneyCode.code}
+                  </h3>
+                  <p className="text-lg text-muted-foreground mb-2">
+                    Цей код розраховано з вашої дати народження
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
+                    <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                      {result.moneyCode.digit1}
+                    </div>
+                    <p className="text-xs text-muted-foreground">День народження</p>
+                  </div>
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
+                    <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                      {result.moneyCode.digit2}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Місяць народження</p>
+                  </div>
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
+                    <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                      {result.moneyCode.digit3}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Рік народження</p>
+                  </div>
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800 text-center">
+                    <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                      {result.moneyCode.digit4}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Сума перших трьох</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                  <h4 className="font-semibold text-emerald-700 dark:text-emerald-300 mb-2 flex items-center gap-2">
+                    <span>💡</span> Як використовувати грошовий код?
+                  </h4>
+                  <ul className="text-sm space-y-1 list-disc list-inside">
+                    <li>Використовуйте як PIN-код для банківських карток</li>
+                    <li>Встановіть як пароль для фінансових додатків</li>
+                    <li>Використовуйте в номерах телефонів або адресах</li>
+                    <li>Медитуйте на ці цифри під час фінансових рішень</li>
+                  </ul>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Персональні цикли */}
+            <Card className="border-2 border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 mt-6">
+              <CardHeader>
+                <CardTitle className="text-2xl text-violet-700 dark:text-violet-300 flex items-center gap-2">
+                  <span className="text-3xl">🌟</span>
+                  Ваші Персональні Цикли
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Енергія поточного року, місяця та дня
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Персональний рік */}
+                <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-semibold text-violet-700 dark:text-violet-300">
+                      Персональний Рік: {result.personalYear}
+                    </h3>
+                    <span className="text-3xl font-bold text-violet-600 dark:text-violet-400">
+                      {result.personalYear}
+                    </span>
+                  </div>
+                  <h4 className="font-semibold text-lg mb-2">
+                    {personalYearDescriptions[result.personalYear].title}
+                  </h4>
+                  <p className="text-sm mb-3 whitespace-pre-line">
+                    {personalYearDescriptions[result.personalYear].description}
+                  </p>
+                  <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                    <h5 className="font-semibold text-sm mb-1">Рекомендації:</h5>
+                    <p className="text-sm">{personalYearDescriptions[result.personalYear].recommendations}</p>
+                  </div>
+                </div>
+
+                {/* Персональний місяць */}
+                <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-semibold text-violet-700 dark:text-violet-300">
+                      Персональний Місяць: {result.personalMonth}
+                    </h3>
+                    <span className="text-3xl font-bold text-violet-600 dark:text-violet-400">
+                      {result.personalMonth}
+                    </span>
+                  </div>
+                  <h4 className="font-semibold text-lg mb-2">
+                    {personalMonthDescriptions[result.personalMonth].title}
+                  </h4>
+                  <p className="text-sm mb-3 whitespace-pre-line">
+                    {personalMonthDescriptions[result.personalMonth].description}
+                  </p>
+                  <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                    <h5 className="font-semibold text-sm mb-1">Рекомендації:</h5>
+                    <p className="text-sm">{personalMonthDescriptions[result.personalMonth].recommendations}</p>
+                  </div>
+                </div>
+
+                {/* Персональний день */}
+                <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-violet-200 dark:border-violet-800">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-semibold text-violet-700 dark:text-violet-300">
+                      Персональний День: {result.personalDay}
+                    </h3>
+                    <span className="text-3xl font-bold text-violet-600 dark:text-violet-400">
+                      {result.personalDay}
+                    </span>
+                  </div>
+                  <h4 className="font-semibold text-lg mb-2">
+                    {personalDayDescriptions[result.personalDay].title}
+                  </h4>
+                  <p className="text-sm mb-3 whitespace-pre-line">
+                    {personalDayDescriptions[result.personalDay].description}
+                  </p>
+                  <div className="p-3 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                    <h5 className="font-semibold text-sm mb-1">Рекомендації на сьогодні:</h5>
+                    <p className="text-sm">{personalDayDescriptions[result.personalDay].recommendations}</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-violet-50 dark:bg-violet-950/30 rounded-lg border border-violet-200 dark:border-violet-800">
+                  <h4 className="font-semibold text-violet-700 dark:text-violet-300 mb-2 flex items-center gap-2">
+                    <span>💡</span> Про персональні цикли
+                  </h4>
+                  <p className="text-sm">
+                    Кожен рік, місяць та день має свою унікальну енергію, яка впливає на ваше життя.
+                    Персональний рік показує загальну енергію всього року (цикл з 9 років).
+                    Персональний місяць показує енергію поточного місяця в контексті вашого року.
+                    Персональний день показує енергію сьогоднішнього дня та підказує, чим краще займатися.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Детальні описи чисел */}
             <div className="space-y-6 mt-8">
