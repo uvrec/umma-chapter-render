@@ -90,6 +90,8 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
+    console.log('[Wisdomlib] Parsing verse page:', verseUrl);
+
     // Extract verse number from URL or page
     const verseMatch = verseUrl.match(/verse[_-]?(\d+(?:-\d+)?)/i) ||
                        verseUrl.match(/(\d+(?:-\d+)?)\.html?$/);
@@ -107,6 +109,9 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
                      doc.querySelector('[lang="sa"], [lang="bn"]');
     if (bengaliEl) {
       verse.sanskrit = bengaliEl.textContent?.trim() || '';
+      console.log('[Wisdomlib] Found Bengali text:', verse.sanskrit.substring(0, 50) + '...');
+    } else {
+      console.warn('[Wisdomlib] No Bengali text found');
     }
 
     // Transliteration - wisdomlib uses specific structure
@@ -118,6 +123,9 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
                       );
     if (translitEl) {
       verse.transliteration_en = translitEl.textContent?.trim() || '';
+      console.log('[Wisdomlib] Found transliteration:', verse.transliteration_en.substring(0, 50) + '...');
+    } else {
+      console.warn('[Wisdomlib] No transliteration found');
     }
 
     // Synonyms (word-for-word)
@@ -146,6 +154,9 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
                          });
     if (translationEl) {
       verse.translation_en = translationEl.textContent?.trim() || '';
+      console.log('[Wisdomlib] Found translation:', verse.translation_en.substring(0, 50) + '...');
+    } else {
+      console.warn('[Wisdomlib] No translation found');
     }
 
     // Commentary (Gaudiya-bhāṣya) - wisdomlib uses specific structure
@@ -153,6 +164,7 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     const commentaryEl = doc.querySelector('.commentary, .purport, .gaudiya-bhasya');
     if (commentaryEl) {
       verse.commentary_en = commentaryEl.textContent?.trim() || '';
+      console.log('[Wisdomlib] Found commentary (direct):', verse.commentary_en.substring(0, 50) + '...');
     } else {
       // Try to find commentary starting from nth-child(5) in #scontent
       const scontent = doc.querySelector('#scontent');
@@ -172,8 +184,12 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
             .map(p => p.textContent?.trim())
             .filter(Boolean)
             .join('\n\n');
+          console.log(`[Wisdomlib] Found commentary (${commentaryParagraphs.length} paragraphs):`, verse.commentary_en.substring(0, 50) + '...');
+        } else {
+          console.warn('[Wisdomlib] No commentary paragraphs found in #scontent');
         }
       } else {
+        console.warn('[Wisdomlib] No #scontent element found, trying fallback');
         // Fallback: find commentary in paragraphs after the translation
         const paragraphs = Array.from(doc.querySelectorAll('p'));
         const commentaryParagraphs = paragraphs.slice(
@@ -184,6 +200,9 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
             .map(p => p.textContent?.trim())
             .filter(Boolean)
             .join('\n\n');
+          console.log(`[Wisdomlib] Found commentary (fallback, ${commentaryParagraphs.length} paragraphs):`, verse.commentary_en.substring(0, 50) + '...');
+        } else {
+          console.warn('[Wisdomlib] No commentary found at all');
         }
       }
     }
@@ -214,13 +233,18 @@ export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Arr
     const contentArea = doc.querySelector('#scontent, .content, main');
     const searchArea = contentArea || doc;
 
+    console.log('[Wisdomlib] Extracting verse URLs from:', chapterUrl);
+
     // Look for links to verse pages (pattern: /d/doc[digits].html)
     // Only within a list or specific container to avoid navigation links
     const links = searchArea.querySelectorAll('ol a[href*="/d/doc"], ul a[href*="/d/doc"], .verse-list a[href*="/d/doc"]');
 
+    console.log(`[Wisdomlib] Found ${links.length} links in lists`);
+
     // If no links found in lists, try direct children of content area
     if (links.length === 0) {
       const directLinks = searchArea.querySelectorAll('a[href*="/d/doc"]');
+      console.log(`[Wisdomlib] Found ${directLinks.length} direct links, filtering...`);
 
       // Filter to only include links that look like verse numbers (text is just a number)
       directLinks.forEach((link, index) => {
@@ -228,6 +252,12 @@ export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Arr
         if (!href) return;
 
         const text = link.textContent?.trim() || '';
+
+        // Debug: log first few links to see what we're getting
+        if (index < 5) {
+          console.log(`[Wisdomlib] Link ${index}: text="${text}", href="${href}"`);
+        }
+
         // Only include if link text is purely numeric (verse number) or contains "Verse"
         if (!text.match(/^Verse\s*\d+$/i) && !text.match(/^\d+$/)) {
           return;
@@ -258,6 +288,13 @@ export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Arr
         const href = link.getAttribute('href');
         if (!href) return;
 
+        const text = link.textContent?.trim() || '';
+
+        // Debug: log first few links
+        if (index < 5) {
+          console.log(`[Wisdomlib] List link ${index}: text="${text}", href="${href}"`);
+        }
+
         // Build full URL
         let fullUrl = href;
         if (href.startsWith('/')) {
@@ -269,7 +306,6 @@ export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Arr
         }
 
         // Extract verse number from link text or use index
-        const text = link.textContent?.trim() || '';
         const verseMatch = text.match(/(\d+)/);
         const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
 
@@ -280,7 +316,14 @@ export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Arr
       });
     }
 
-    console.log(`[Wisdomlib] Found ${verseUrls.length} verse URLs`);
+    console.log(`[Wisdomlib] Extracted ${verseUrls.length} verse URLs`);
+    if (verseUrls.length > 0 && verseUrls.length <= 5) {
+      console.log('[Wisdomlib] Verse URLs:', verseUrls);
+    } else if (verseUrls.length > 5) {
+      console.log('[Wisdomlib] First 5 verse URLs:', verseUrls.slice(0, 5));
+      console.log('[Wisdomlib] Last 5 verse URLs:', verseUrls.slice(-5));
+    }
+
     return verseUrls;
   } catch (error) {
     console.error('Error extracting wisdomlib verse URLs:', error);
