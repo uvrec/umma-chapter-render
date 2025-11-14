@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
+import { numberDescriptions } from "@/utils/numberDescriptions";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
 
@@ -313,82 +314,253 @@ const Numerology = () => {
               </CardContent>
             </Card>
 
-            {/* Детальне пояснення циклів */}
-            <Card className="border-l-4 border-l-amber-500 mt-6">
-              <CardHeader>
-                <CardTitle className="text-lg">Розвиток через цикли: практичне застосування</CardTitle>
-                <CardDescription>
-                  Приклади того, як набуття якостей інших чисел у циклі допомагає розкрити потенціал
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                {/* Приклад з Числом Дії 8 */}
-                <div className="p-4 border-l-4 border-l-green-500 bg-green-50/50 dark:bg-green-950/20 rounded-r">
-                  <h5 className="font-semibold mb-2 text-green-800 dark:text-green-300">
-                    Приклад: Розвиток Числа Дії 8 → 2 → 5 → 8
-                  </h5>
-                  <p className="mb-2">
-                    <strong>Початкова проблема:</strong> Людина з Числом Дії 8 часто має проблеми з контролем,
-                    не хоче ділитися ресурсами та роботою з іншими людьми, намагається все робити сама через
-                    недовіру до людей. Це призводить до трудоголізму та зниження ефективності.
-                  </p>
-                  <p className="mb-2">
-                    <strong>Шлях розвитку:</strong> Щоб розвинути своє Число Дії, потрібно набути:
-                  </p>
-                  <ul className="list-disc ml-6 mb-2 space-y-1">
-                    <li><strong>Якості числа 2:</strong> довіра та делегування</li>
-                    <li><strong>Якості числа 5:</strong> комунікація та розширення</li>
-                  </ul>
-                  <p>
-                    <strong>Результат:</strong> З допомогою цих якостей людина може створити сильну команду,
-                    що приведе до розширення та багаторазового зростання доходів. Розкриваються найкращі
-                    якості Числа Дії 8: успіх у матеріальному світі, грамотний контроль, стратегія та управління.
-                  </p>
-                </div>
+            {/* Детальні описи чисел */}
+            <div className="space-y-6 mt-8">
+              <h2 className="text-2xl font-bold">Детальний опис ваших чисел</h2>
 
-                {/* Приклад з Числом Реалізації 6 */}
-                <div className="p-4 border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20 rounded-r">
-                  <h5 className="font-semibold mb-2 text-purple-800 dark:text-purple-300">
-                    Приклад: Розвиток Числа Реалізації 6 → 9 → 3 → 6
-                  </h5>
-                  <p className="mb-2">
-                    <strong>Початкова проблема:</strong> Людина з Числом Реалізації 6 може мати великі проблеми
-                    з доведенням справ до кінця, а через тягу до постійних задоволень життя може бути погано
-                    організоване.
-                  </p>
-                  <p className="mb-2">
-                    <strong>Шлях розвитку:</strong> Щоб правильно розвивати свою реалізацію, потрібно набути:
-                  </p>
-                  <ul className="list-disc ml-6 mb-2 space-y-1">
-                    <li><strong>Якості числа 9:</strong> доведення справ до кінця та дисципліна</li>
-                    <li><strong>Якості числа 3:</strong> отримання нових знань та організованість</li>
-                  </ul>
-                  <p>
-                    <strong>Результат:</strong> Тільки в цьому випадку мудрі та творчі ідеї Числа Реалізації 6
-                    будуть втілені в життя, і людина зможе задовольнятися результатами своїх дій
-                    (тобто стане реалізованим творцем).
-                  </p>
-                </div>
+              {/* Число Розуму (Свідомості) */}
+              {numberDescriptions[result.mindNumber] && (
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-blue-600 dark:text-blue-400">
+                      Число Розуму (Свідомості) {result.mindNumber}
+                    </CardTitle>
+                    <CardDescription>
+                      {numberDescriptions[result.mindNumber].birthDates}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="whitespace-pre-line">{numberDescriptions[result.mindNumber].mainDescription}</p>
+                    </div>
 
-                {/* Важливе застереження */}
-                <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
-                  <h5 className="font-semibold mb-2 text-destructive">⚠️ Важливо: позитивний VS негативний розвиток</h5>
-                  <p className="mb-2">
-                    Ваші цикли можуть розвиватися <strong>позитивно</strong> або <strong>негативно</strong>.
-                  </p>
-                  <p className="mb-2">
-                    <strong>Негативний приклад:</strong> Число Розуму 7 може піти в самотність та відстороненість
-                    (негативні якості цифри 1), що призводить до емоційного руйнування та депресії
-                    (негативні якості цифри 4).
-                  </p>
-                  <p className="font-semibold">
-                    Якщо людина не розвивається всередині циклу через позитивні якості, вона автоматично
-                    розкриває негативні якості кожної цифри. Тому так важливо знати свої цикли свідомості,
-                    дії та реалізації — у Вас з'являється здатність самостійно контролювати події у своєму житті.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                    {/* Опис конкретної дати народження */}
+                    {numberDescriptions[result.mindNumber].specificDates && (
+                      (() => {
+                        const birthDay = new Date(birthDate).getDate();
+                        const specificDate = numberDescriptions[result.mindNumber].specificDates?.find(
+                          (d) => d.date === birthDay
+                        );
+                        if (specificDate) {
+                          return (
+                            <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                              <h4 className="font-semibold mb-2">Народжені {specificDate.date} числа:</h4>
+                              <p className="whitespace-pre-line">{specificDate.description}</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()
+                    )}
+
+                    {numberDescriptions[result.mindNumber].planet && (
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-semibold mb-2">Планета-покровитель:</h4>
+                          <p>{numberDescriptions[result.mindNumber].planet}</p>
+                        </div>
+                        {numberDescriptions[result.mindNumber].luckyDay && (
+                          <div>
+                            <h4 className="font-semibold mb-2">Щасливий день:</h4>
+                            <p>{numberDescriptions[result.mindNumber].luckyDay}</p>
+                          </div>
+                        )}
+                        {numberDescriptions[result.mindNumber].luckyStone && (
+                          <div>
+                            <h4 className="font-semibold mb-2">Щасливий камінь:</h4>
+                            <p>{numberDescriptions[result.mindNumber].luckyStone}</p>
+                          </div>
+                        )}
+                        {numberDescriptions[result.mindNumber].luckyColor && (
+                          <div>
+                            <h4 className="font-semibold mb-2">Щасливий колір:</h4>
+                            <p>{numberDescriptions[result.mindNumber].luckyColor}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.mindNumber].karmicTasks && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Кармічні завдання:</h4>
+                        <p>{numberDescriptions[result.mindNumber].karmicTasks}</p>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.mindNumber].positiveQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Позитивні якості:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.mindNumber].positiveQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.mindNumber].negativeQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.mindNumber].negativeQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.mindNumber].professions && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Сприятливі професії та сфери діяльності:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.mindNumber].professions?.map((profession, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-sm">
+                              {profession}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.mindNumber].additionalInfo && (
+                      <div className="p-4 bg-muted rounded-lg">
+                        <p className="whitespace-pre-line">{numberDescriptions[result.mindNumber].additionalInfo}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Число Дії */}
+              {numberDescriptions[result.actionNumber] && (
+                <Card className="border-l-4 border-l-green-500">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-green-600 dark:text-green-400">
+                      Число Дії {result.actionNumber}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="whitespace-pre-line">{numberDescriptions[result.actionNumber].mainDescription}</p>
+                    </div>
+
+                    {numberDescriptions[result.actionNumber].positiveQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Позитивні якості:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.actionNumber].positiveQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.actionNumber].negativeQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.actionNumber].negativeQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Число Реалізації */}
+              {numberDescriptions[result.realizationNumber] && (
+                <Card className="border-l-4 border-l-purple-500">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-purple-600 dark:text-purple-400">
+                      Число Реалізації {result.realizationNumber}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="whitespace-pre-line">{numberDescriptions[result.realizationNumber].mainDescription}</p>
+                    </div>
+
+                    {numberDescriptions[result.realizationNumber].positiveQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Позитивні якості:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.realizationNumber].positiveQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.realizationNumber].negativeQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.realizationNumber].negativeQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Число Підсумку */}
+              {numberDescriptions[result.resultNumber] && (
+                <Card className="border-l-4 border-l-amber-500">
+                  <CardHeader>
+                    <CardTitle className="text-xl text-amber-600 dark:text-amber-400">
+                      Число Підсумку {result.resultNumber}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="whitespace-pre-line">{numberDescriptions[result.resultNumber].mainDescription}</p>
+                    </div>
+
+                    {numberDescriptions[result.resultNumber].positiveQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Позитивні якості:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.resultNumber].positiveQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {numberDescriptions[result.resultNumber].negativeQualities && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Негативні якості (які треба опрацьовувати):</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {numberDescriptions[result.resultNumber].negativeQualities?.map((quality, idx) => (
+                            <span key={idx} className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm">
+                              {quality}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </>
         )}
       </main>
