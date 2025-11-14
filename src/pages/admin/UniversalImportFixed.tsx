@@ -33,7 +33,7 @@ import {
   determineKhandaFromUrl,
   wisdomlibChapterToStandardChapter,
   WisdomlibChapter,
-} from "@/utils/wisdomlibParser_FIXED";
+} from "@/utils/wisdomlibParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
