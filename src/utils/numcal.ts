@@ -2,6 +2,18 @@
  * NumCal - Нумерологічний калькулятор для розрахунку чисел за датою народження
  */
 
+/**
+ * Цикл розвитку енергії - кожне число належить до одного з трьох циклів
+ */
+export interface EnergyCycle {
+  /** Номер циклу (1, 2 або 3) */
+  cycleNumber: 1 | 2 | 3;
+  /** Числа в циклі розвитку */
+  numbers: [number, number, number];
+  /** Опис циклу */
+  description: string;
+}
+
 export interface NumCalResult {
   /** Число Розуму (Свідомості) - день народження */
   mindNumber: number;
@@ -15,6 +27,13 @@ export interface NumCalResult {
   resultNumberDouble?: number;
   /** Формат запису: X-X-X-X */
   formatted: string;
+  /** Цикли розвитку для кожного числа */
+  cycles: {
+    mind: EnergyCycle;
+    action: EnergyCycle;
+    realization: EnergyCycle;
+    result: EnergyCycle;
+  };
 }
 
 /**
@@ -27,6 +46,44 @@ function reduceToSingleDigit(num: number): number {
     num = num.toString().split('').reduce((sum, digit) => sum + parseInt(digit, 10), 0);
   }
   return num;
+}
+
+/**
+ * Визначає цикл розвитку енергії для числа
+ * Кожне число розвивається через додавання +3 тричі:
+ * Наприклад: 7 → 1 (7+3=10→1) → 4 (1+3=4) → 7 (4+3=7)
+ * @param num - число (1-9)
+ * @returns об'єкт з інформацією про цикл розвитку
+ */
+function getEnergyCycle(num: number): EnergyCycle {
+  // Перший крок: додаємо +3 до початкового числа
+  const step1 = reduceToSingleDigit(num + 3);
+  // Другий крок: додаємо +3 до першого кроку
+  const step2 = reduceToSingleDigit(step1 + 3);
+  // Третій крок повертає нас до початкового числа
+  // const step3 = reduceToSingleDigit(step2 + 3); // це буде = num
+
+  // Визначаємо тип циклу за залишком від ділення на 3
+  const remainder = num % 3;
+  let cycleNumber: 1 | 2 | 3;
+  let cycleType: string;
+
+  if (remainder === 1) {
+    cycleNumber = 1;
+    cycleType = 'Лідерства та Дисципліни';
+  } else if (remainder === 2) {
+    cycleNumber = 2;
+    cycleType = 'Балансу та Матеріальності';
+  } else {
+    cycleNumber = 3;
+    cycleType = 'Творчості та Служіння';
+  }
+
+  return {
+    cycleNumber,
+    numbers: [num, step1, step2] as [number, number, number],
+    description: `Цикл ${cycleType}: ${num} → ${step1} → ${step2} → ${num}`
+  };
 }
 
 /**
@@ -64,6 +121,14 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
   // Формат запису: X-X-X-X
   const formatted = `${mindNumber}-${actionNumber}-${realizationNumber}-${resultNumber}`;
 
+  // Визначаємо цикли розвитку для кожного числа
+  const cycles = {
+    mind: getEnergyCycle(mindNumber),
+    action: getEnergyCycle(actionNumber),
+    realization: getEnergyCycle(realizationNumber),
+    result: getEnergyCycle(resultNumber),
+  };
+
   return {
     mindNumber,
     actionNumber,
@@ -71,6 +136,7 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
     resultNumber,
     resultNumberDouble,
     formatted,
+    cycles,
   };
 }
 

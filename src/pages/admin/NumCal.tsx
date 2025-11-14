@@ -230,6 +230,128 @@ const NumCal = () => {
               </Card>
             </div>
 
+            {/* Цикли розвитку енергії */}
+            <Card className="border-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="text-xl">Цикли розвитку енергії</CardTitle>
+                <CardDescription>
+                  Кожна енергія розвивається через проходження трьох етапів (+3 на кожному кроці)
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {/* Цикл Розуму */}
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                    <h4 className="font-semibold mb-2">Цикл розвитку Розуму</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {result.cycles.mind.numbers[0]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {result.cycles.mind.numbers[1]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {result.cycles.mind.numbers[2]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {result.cycles.mind.numbers[0]}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {result.cycles.mind.description}
+                    </p>
+                  </div>
+
+                  {/* Цикл Дії */}
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                    <h4 className="font-semibold mb-2">Цикл розвитку Дії</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        {result.cycles.action.numbers[0]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        {result.cycles.action.numbers[1]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        {result.cycles.action.numbers[2]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                        {result.cycles.action.numbers[0]}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {result.cycles.action.description}
+                    </p>
+                  </div>
+
+                  {/* Цикл Реалізації */}
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                    <h4 className="font-semibold mb-2">Цикл розвитку Реалізації</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {result.cycles.realization.numbers[0]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {result.cycles.realization.numbers[1]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {result.cycles.realization.numbers[2]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                        {result.cycles.realization.numbers[0]}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {result.cycles.realization.description}
+                    </p>
+                  </div>
+
+                  {/* Цикл Підсумку */}
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950 dark:to-amber-900">
+                    <h4 className="font-semibold mb-2">Цикл розвитку Підсумку</h4>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        {result.cycles.result.numbers[0]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        {result.cycles.result.numbers[1]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        {result.cycles.result.numbers[2]}
+                      </span>
+                      <span className="text-lg">→</span>
+                      <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                        {result.cycles.result.numbers[0]}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {result.cycles.result.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-4 bg-muted rounded-lg">
+                  <p className="text-sm">
+                    <strong>Як працюють цикли:</strong> Кожна енергія розвивається, проходячи три етапи.
+                    На кожному етапі до числа додається +3, і результат зводиться до однієї цифри.
+                    Після третього кроку цикл повертається до початкового числа, але вже з новими якостями,
+                    набутими на попередніх етапах.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Приклад інтерпретації */}
             <Card className="bg-muted/50">
               <CardHeader>
