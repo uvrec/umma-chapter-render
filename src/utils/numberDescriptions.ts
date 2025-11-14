@@ -16,6 +16,14 @@ export interface NumberDescription {
   specificDates?: SpecificDateInfo[];
   additionalInfo?: string;
   recommendations?: string;
+  planet?: string;
+  luckyDay?: string;
+  luckyStone?: string;
+  luckyColor?: string;
+  karmicTasks?: string;
+  positiveQualities?: string[];
+  negativeQualities?: string[];
+  professions?: string[];
 }
 
 export const numberDescriptions: Record<number, NumberDescription> = {
@@ -68,7 +76,49 @@ export const numberDescriptions: Record<number, NumberDescription> = {
 - Вивчайте психологію та напрацьовуйте енергію розуміння інших людей
 - Завжди прагніть до розуміння
 - Напрацьовуйте енергію віддачі та цілепокладання
-- Навчіться правильно ставити цілі`
+- Навчіться правильно ставити цілі`,
+    planet: "Сонце",
+    luckyDay: "неділя",
+    luckyStone: "рубін",
+    luckyColor: "червоний",
+    karmicTasks: "самопізнання та знаходження себе",
+    positiveQualities: [
+      "оригінальність",
+      "незалежність",
+      "індивідуальність",
+      "созидательність",
+      "самостійність",
+      "діяльність",
+      "лідерство",
+      "пробивна сила",
+      "впевненість у собі",
+      "великодушність",
+      "уміння розраховувати тільки на себе",
+      "продуктивність",
+      "чесність",
+      "творчість"
+    ],
+    negativeQualities: [
+      "егоцентризм",
+      "марнославство",
+      "зарозумілість",
+      "різкість",
+      "дратівливість",
+      "неприйняття критики",
+      "авторитарність",
+      "пихатість",
+      "капризність"
+    ],
+    professions: [
+      "Власний бізнес",
+      "Менеджер",
+      "Адміністратор",
+      "Банкір",
+      "Лікар",
+      "Медицина",
+      "Режисер",
+      "Актор"
+    ]
   },
 
   2: {
