@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
-import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions } from "@/utils/numberDescriptions";
+import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions, lastYearDigitDescriptions } from "@/utils/numberDescriptions";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "lucide-react";
 
@@ -313,6 +313,61 @@ const Numerology = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Життєве завдання - Остання цифра року */}
+            {lastYearDigitDescriptions[result.lastYearDigit] && (
+              <Card className="border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 mt-6">
+                <CardHeader>
+                  <CardTitle className="text-2xl text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
+                    <span className="text-3xl">🎯</span>
+                    Ваше Життєве Завдання
+                  </CardTitle>
+                  <CardDescription className="text-base">
+                    Остання цифра року народження: <strong>{result.lastYearDigit}</strong>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="text-center p-6 bg-white/50 dark:bg-black/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <h3 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
+                      {lastYearDigitDescriptions[result.lastYearDigit].title}
+                    </h3>
+                    <p className="text-lg text-muted-foreground">
+                      {lastYearDigitDescriptions[result.lastYearDigit].mainDescription}
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                      <h4 className="font-semibold text-green-700 dark:text-green-300 mb-2 flex items-center gap-2">
+                        <span>✨</span> Позитивні аспекти
+                      </h4>
+                      <p className="text-sm">{lastYearDigitDescriptions[result.lastYearDigit].positiveAspects}</p>
+                    </div>
+
+                    <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800">
+                      <h4 className="font-semibold text-red-700 dark:text-red-300 mb-2 flex items-center gap-2">
+                        <span>⚠️</span> Негативні аспекти
+                      </h4>
+                      <p className="text-sm">{lastYearDigitDescriptions[result.lastYearDigit].negativeAspects}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2">
+                      <span>📖</span> Життєвий урок
+                    </h4>
+                    <p className="text-sm">{lastYearDigitDescriptions[result.lastYearDigit].lifeLesson}</p>
+                  </div>
+
+                  <div className="p-4 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <h4 className="font-semibold text-amber-700 dark:text-amber-300 mb-2 flex items-center gap-2">
+                      <span>💡</span> Підказка для гармонізації
+                    </h4>
+                    <p className="text-sm italic">{lastYearDigitDescriptions[result.lastYearDigit].nextStepHint}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Детальні описи чисел */}
             <div className="space-y-6 mt-8">

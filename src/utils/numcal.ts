@@ -25,6 +25,8 @@ export interface NumCalResult {
   resultNumber: number;
   /** Двозначне число перед зведенням до однієї цифри (для детального аналізу) */
   resultNumberDouble?: number;
+  /** Остання цифра року народження - життєве завдання */
+  lastYearDigit: number;
   /** Формат запису: X-X-X-X */
   formatted: string;
   /** Цикли розвитку для кожного числа */
@@ -128,6 +130,9 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
   // Зберігаємо двозначне число Підсумку для детального аналізу (якщо воно було двозначним)
   const resultNumberDouble = resultSum > 9 ? resultSum : undefined;
 
+  // Остання цифра року народження - вказує на життєве завдання
+  const lastYearDigit = year % 10;
+
   // Формат запису: X-X-X-X
   const formatted = `${mindNumber}-${actionNumber}-${realizationNumber}-${resultNumber}`;
 
@@ -145,6 +150,7 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
     realizationNumber,
     resultNumber,
     resultNumberDouble,
+    lastYearDigit,
     formatted,
     cycles,
   };
