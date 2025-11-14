@@ -61,27 +61,39 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     }
 
     // 2. ENGLISH TRANSLATION - robust: search by label or numbered pattern within subtree
-    const scontent = doc.querySelector("#scontent, #pageContent");
+    // Prefer #scontent (content area) and fallback to #pageContent only if missing
+    const scontent = doc.querySelector("#scontent") || doc.querySelector("#pageContent");
     if (scontent) {
       const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
 
       let translation = "";
 
-      // Find explicit "English translation" label and take the next meaningful paragraph
-      const labelIdx = ps.findIndex((p) => /english\s*translation\s*:?/i.test((p.textContent || "").trim()));
+      const normalize = (t: string) => t.replace(/\s+/g, " ").trim();
       const isValidText = (t: string) =>
         t.length > 20 &&
         !/english\s*translation/i.test(t) &&
+        !/^Bengali text.*transliteration/i.test(t) &&
         !/Previous|Next|Like what you read\?/i.test(t) &&
         !/Buy now/i.test(t) &&
         !/Chaitanya Bhagavata/i.test(t);
 
-      if (labelIdx >= 0) {
-        for (let i = labelIdx + 1; i < ps.length; i++) {
-          const t = (ps[i].textContent || "").trim();
-          if (isValidText(t)) {
-            translation = t;
-            break;
+      // Find explicit "English translation" label
+      const labelP = ps.find((p) => /english\s*translation\s*:?/i.test((p.textContent || "")));
+      if (labelP) {
+        const labelText = normalize(labelP.textContent || "");
+        // If translation is on the same line after the colon, grab it
+        const sameLine = labelText.match(/english\s*translation\s*:?\s*(.+)$/i);
+        if (sameLine && sameLine[1] && sameLine[1].length > 10) {
+          translation = sameLine[1];
+        } else {
+          // Otherwise take the next meaningful paragraph AFTER the label
+          const idx = ps.indexOf(labelP);
+          for (let i = idx + 1; i < ps.length; i++) {
+            const t = normalize(ps[i].textContent || "");
+            if (isValidText(t)) {
+              translation = t;
+              break;
+            }
           }
         }
       }
@@ -89,7 +101,13 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       // Fallback: paragraph that starts with a numbered marker like "(198)"
       if (!translation) {
         const cand = ps.find((p) => /^\(\d+\)\s+/.test((p.textContent || "").trim()));
-        if (cand) translation = (cand.textContent || "").trim();
+        if (cand) translation = normalize(cand.textContent || "");
+      }
+
+      // Final fallback: first non-blockquote, meaningful paragraph
+      if (!translation) {
+        const cand = ps.find((p) => !p.closest("blockquote") && isValidText(normalize(p.textContent || "")));
+        if (cand) translation = normalize(cand.textContent || "");
       }
 
       if (translation) {
@@ -97,33 +115,65 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       }
     }
 
-    // 3. COMMENTARY - абзаци після заголовка "Commentary: Gauḍīya-bhāṣya..."
+    // 3. COMMENTARY - paragraphs after the "Commentary: Gauḍīya-bhāṣya" heading
     if (scontent) {
-      const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
-      const startIdx = ps.findIndex((p) => /Commentary:|Gauḍīya-bhāṣya/i.test((p.textContent || "")));
+      const commentaryParts: string[] = [];
 
-      if (startIdx >= 0) {
-        const commentaryParagraphs: string[] = [];
+      // Prefer heading elements (h2/h3/h4) labeled as Commentary
+      const headers = Array.from(scontent.querySelectorAll("h2, h3, h4"));
+      const headerEl = headers.find((h) => /Commentary:|Gauḍīya-bhāṣya/i.test((h.textContent || "")) ) || null;
 
-        // If header line contains text after the colon, include it
-        const headerText = (ps[startIdx].textContent || "").trim();
-        const afterHeader = headerText.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/i)[1];
-        if (afterHeader && afterHeader.trim()) {
-          commentaryParagraphs.push(afterHeader.trim());
-        }
+      if (headerEl) {
+        let el: Element | null = headerEl.nextElementSibling;
+        while (el) {
+          const text = (el.textContent || "").trim();
+          if (!text) { el = el.nextElementSibling; continue; }
 
-        for (let i = startIdx + 1; i < ps.length; i++) {
-          const text = (ps[i].textContent || "").trim();
-          if (!text) continue;
-          // Stop at navigation/other sections
-          if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+          // Stop at navigation/other sections or next major heading
           if (/^English translation/i.test(text)) break;
-          commentaryParagraphs.push(text);
-        }
+          if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+          if (/^Commentary:/i.test(text) && el !== headerEl) break;
+          if (/^Verse\s+\d/i.test(text)) break;
+          if (/^(References|Notes|Further reading)/i.test(text)) break;
 
-        if (commentaryParagraphs.length > 0) {
-          verse.commentary_en = commentaryParagraphs.join("\n\n");
+          const tag = el.tagName.toLowerCase();
+          if (tag === 'p') {
+            commentaryParts.push(text);
+          } else if (tag === 'ul' || tag === 'ol') {
+            const lis = Array.from(el.querySelectorAll('li')).map(li => (li.textContent || '').trim()).filter(Boolean);
+            if (lis.length) commentaryParts.push(lis.join('\n'));
+          }
+
+          const next = el.nextElementSibling;
+          if (next && /^(H2|H3|H4)$/.test(next.tagName)) {
+            const nextText = (next.textContent || '').trim();
+            if (/^\s*(Translation|Commentary|References|Notes)\b/i.test(nextText)) break;
+          }
+
+          el = el.nextElementSibling;
         }
+      } else {
+        // Fallback: header as a paragraph containing "Commentary:"
+        const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
+        const startIdx = ps.findIndex((p) => /Commentary:|Gauḍīya-bhāṣya/i.test((p.textContent || "")));
+        if (startIdx >= 0) {
+          const headerText = (ps[startIdx].textContent || '').trim();
+          const afterHeader = headerText.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/i)[1];
+          if (afterHeader && afterHeader.trim()) commentaryParts.push(afterHeader.trim());
+
+          for (let i = startIdx + 1; i < ps.length; i++) {
+            const text = (ps[i].textContent || '').trim();
+            if (!text) continue;
+            if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+            if (/^English translation/i.test(text)) break;
+            if (/^Commentary:/i.test(text)) break;
+            commentaryParts.push(text);
+          }
+        }
+      }
+
+      if (commentaryParts.length > 0) {
+        verse.commentary_en = commentaryParts.join("\n\n");
       }
     }
 
