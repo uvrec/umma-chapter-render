@@ -210,34 +210,77 @@ export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Arr
     const doc = parser.parseFromString(html, 'text/html');
     const verseUrls: Array<{ url: string; verseNumber: string }> = [];
 
+    // Look for the main content area first (more specific)
+    const contentArea = doc.querySelector('#scontent, .content, main');
+    const searchArea = contentArea || doc;
+
     // Look for links to verse pages (pattern: /d/doc[digits].html)
-    const links = doc.querySelectorAll('a[href*="/d/doc"]');
+    // Only within a list or specific container to avoid navigation links
+    const links = searchArea.querySelectorAll('ol a[href*="/d/doc"], ul a[href*="/d/doc"], .verse-list a[href*="/d/doc"]');
 
-    links.forEach((link, index) => {
-      const href = link.getAttribute('href');
-      if (!href) return;
+    // If no links found in lists, try direct children of content area
+    if (links.length === 0) {
+      const directLinks = searchArea.querySelectorAll('a[href*="/d/doc"]');
 
-      // Build full URL
-      let fullUrl = href;
-      if (href.startsWith('/')) {
-        const base = new URL(chapterUrl);
-        fullUrl = base.origin + href;
-      } else if (!href.startsWith('http')) {
-        const base = new URL(chapterUrl);
-        fullUrl = base.origin + '/' + href;
-      }
+      // Filter to only include links that look like verse numbers (text is just a number)
+      directLinks.forEach((link, index) => {
+        const href = link.getAttribute('href');
+        if (!href) return;
 
-      // Extract verse number from link text or use index
-      const text = link.textContent?.trim() || '';
-      const verseMatch = text.match(/(\d+)/);
-      const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
+        const text = link.textContent?.trim() || '';
+        // Only include if link text is purely numeric (verse number) or contains "Verse"
+        if (!text.match(/^Verse\s*\d+$/i) && !text.match(/^\d+$/)) {
+          return;
+        }
 
-      verseUrls.push({
-        url: fullUrl,
-        verseNumber
+        // Build full URL
+        let fullUrl = href;
+        if (href.startsWith('/')) {
+          const base = new URL(chapterUrl);
+          fullUrl = base.origin + href;
+        } else if (!href.startsWith('http')) {
+          const base = new URL(chapterUrl);
+          fullUrl = base.origin + '/' + href;
+        }
+
+        // Extract verse number from link text
+        const verseMatch = text.match(/(\d+)/);
+        const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
+
+        verseUrls.push({
+          url: fullUrl,
+          verseNumber
+        });
       });
-    });
+    } else {
+      // Process links from lists
+      links.forEach((link, index) => {
+        const href = link.getAttribute('href');
+        if (!href) return;
 
+        // Build full URL
+        let fullUrl = href;
+        if (href.startsWith('/')) {
+          const base = new URL(chapterUrl);
+          fullUrl = base.origin + href;
+        } else if (!href.startsWith('http')) {
+          const base = new URL(chapterUrl);
+          fullUrl = base.origin + '/' + href;
+        }
+
+        // Extract verse number from link text or use index
+        const text = link.textContent?.trim() || '';
+        const verseMatch = text.match(/(\d+)/);
+        const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
+
+        verseUrls.push({
+          url: fullUrl,
+          verseNumber
+        });
+      });
+    }
+
+    console.log(`[Wisdomlib] Found ${verseUrls.length} verse URLs`);
     return verseUrls;
   } catch (error) {
     console.error('Error extracting wisdomlib verse URLs:', error);
