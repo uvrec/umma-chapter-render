@@ -147,21 +147,43 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       verse.translation_en = translationEl.textContent?.trim() || '';
     }
 
-    // Commentary (Gaudiya-bhāṣya)
+    // Commentary (Gaudiya-bhāṣya) - wisdomlib uses specific structure
+    // For Chaitanya Bhagavata: #scontent > p:nth-child(5) and following siblings
     const commentaryEl = doc.querySelector('.commentary, .purport, .gaudiya-bhasya');
     if (commentaryEl) {
       verse.commentary_en = commentaryEl.textContent?.trim() || '';
     } else {
-      // Try to find commentary in paragraphs after the translation
-      const paragraphs = Array.from(doc.querySelectorAll('p'));
-      const commentaryParagraphs = paragraphs.slice(
-        paragraphs.findIndex(p => p === translationEl) + 1
-      );
-      if (commentaryParagraphs.length > 0) {
-        verse.commentary_en = commentaryParagraphs
-          .map(p => p.textContent?.trim())
-          .filter(Boolean)
-          .join('\n\n');
+      // Try to find commentary starting from nth-child(5) in #scontent
+      const scontent = doc.querySelector('#scontent');
+      if (scontent) {
+        // Get all paragraphs starting from nth-child(5)
+        const commentaryParagraphs = Array.from(scontent.querySelectorAll('p')).filter((p, index) => {
+          // nth-child is 1-indexed, but we also have blockquote children
+          // So we need to check actual position among all children
+          const allChildren = Array.from(scontent.children);
+          const pIndex = allChildren.indexOf(p);
+          // Start from position 4 (5th child, 0-indexed) - this should be after translation at position 2 (3rd child)
+          return pIndex >= 4;
+        });
+
+        if (commentaryParagraphs.length > 0) {
+          verse.commentary_en = commentaryParagraphs
+            .map(p => p.textContent?.trim())
+            .filter(Boolean)
+            .join('\n\n');
+        }
+      } else {
+        // Fallback: find commentary in paragraphs after the translation
+        const paragraphs = Array.from(doc.querySelectorAll('p'));
+        const commentaryParagraphs = paragraphs.slice(
+          paragraphs.findIndex(p => p === translationEl) + 1
+        );
+        if (commentaryParagraphs.length > 0) {
+          verse.commentary_en = commentaryParagraphs
+            .map(p => p.textContent?.trim())
+            .filter(Boolean)
+            .join('\n\n');
+        }
       }
     }
 
