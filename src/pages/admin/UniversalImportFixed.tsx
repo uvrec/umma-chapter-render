@@ -979,8 +979,12 @@ export default function UniversalImportFixed() {
       setSkippedUrls([]); // Reset skipped URLs for new import
 
       try {
-        toast({ title: "Завантаження...", description: `Отримання сторінки khaṇḍa: ${sourceUrl}` });
-        console.log(`[Wisdomlib] Fetching URL: ${sourceUrl}`);
+        const importDesc = vedabaseChapter
+          ? `Глава ${vedabaseChapter}${vedabaseVerse ? `, вірші ${vedabaseVerse}` : ''} з ${vedabaseCanto} khaṇḍa`
+          : `Всі глави з ${vedabaseCanto} khaṇḍa`;
+
+        toast({ title: "Завантаження...", description: importDesc });
+        console.log(`[Wisdomlib] Import: ${importDesc}`);
 
         // Step 1: Fetch khaṇḍa page (list of chapters)
         const { data, error } = await supabase.functions.invoke("fetch-html", {
@@ -1002,7 +1006,7 @@ export default function UniversalImportFixed() {
         toast({ title: "Парсинг...", description: "Витягування посилань на глави..." });
 
         // Step 2: Extract chapter URLs from khaṇḍa page
-        const chapterList = extractWisdomlibChapterUrls(data.html, sourceUrl);
+        let chapterList = extractWisdomlibChapterUrls(data.html, sourceUrl);
 
         console.log(`[Wisdomlib] Found ${chapterList.length} chapters in ${vedabaseCanto}`);
 
@@ -1010,9 +1014,24 @@ export default function UniversalImportFixed() {
           throw new Error("Не знайдено жодної глави на сторінці khaṇḍa");
         }
 
+        // Filter by specific chapter number if provided
+        if (vedabaseChapter) {
+          const targetChapter = parseInt(vedabaseChapter, 10);
+          const filtered = chapterList.filter(ch => ch.chapterNumber === targetChapter);
+
+          if (filtered.length === 0) {
+            throw new Error(`Глава ${targetChapter} не знайдена в ${vedabaseCanto} khaṇḍa. Доступні глави: ${chapterList.map(ch => ch.chapterNumber).join(', ')}`);
+          }
+
+          chapterList = filtered;
+          console.log(`[Wisdomlib] Filtered to chapter ${targetChapter}`);
+        }
+
         toast({
           title: `Знайдено глав: ${chapterList.length}`,
-          description: `${vedabaseCanto} khaṇḍa`,
+          description: vedabaseChapter
+            ? `Глава ${vedabaseChapter} з ${vedabaseCanto} khaṇḍa`
+            : `${vedabaseCanto} khaṇḍa (всі глави)`,
         });
 
         // Step 3: Fetch and parse all chapters
@@ -1049,6 +1068,28 @@ export default function UniversalImportFixed() {
           if (chapter && chapter.verses.length > 0) {
             chapter.chapter_number = chapterItem.chapterNumber;
             chapter.title_en = chapterItem.title;
+
+            // Filter verses if specific range provided
+            if (vedabaseVerse) {
+              const [start, end] = vedabaseVerse.includes("-")
+                ? vedabaseVerse.split("-").map(Number)
+                : [parseInt(vedabaseVerse, 10), parseInt(vedabaseVerse, 10)];
+
+              const originalCount = chapter.verses.length;
+              chapter.verses = chapter.verses.filter((v) => {
+                const verseNum = parseInt(v.verse_number, 10);
+                return verseNum >= start && verseNum <= end;
+              });
+
+              console.log(`[Wisdomlib] Filtered verses ${start}-${end}: ${originalCount} → ${chapter.verses.length}`);
+
+              if (chapter.verses.length === 0) {
+                console.warn(`Немає віршів у діапазоні ${start}-${end} для глави ${chapterItem.chapterNumber}`);
+                setSkippedUrls(prev => [...prev, { url: chapterItem.url, reason: `Немає віршів ${start}-${end}` }]);
+                continue;
+              }
+            }
+
             allChapters.push(chapter);
           }
 
@@ -1106,7 +1147,7 @@ export default function UniversalImportFixed() {
         setProgress(0);
       }
     },
-    [vedabaseBook, vedabaseCanto, importData, wisdomlibThrottle],
+    [vedabaseBook, vedabaseCanto, vedabaseChapter, vedabaseVerse, importData, wisdomlibThrottle],
   );
 
   /** Імпорт з Bhaktivinoda Institute */
