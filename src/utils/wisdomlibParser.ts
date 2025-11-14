@@ -257,7 +257,16 @@ export function extractWisdomlibVerseUrls(
         text.match(/^(?:Verse\s*)?(\d+(?:\.\d+){0,2})\b/i) ||
         title.match(/(?:Verse\s*)?(\d+(?:\.\d+){0,2})/i);
       if (!verseMatch) return;
-      const verseNumber = verseMatch[1];
+
+      // ✅ FIX: Витягуємо тільки останнє число з формату "1.1.73" → "73"
+      // Це запобігає створенню дублікатів з неправильними номерами
+      let verseNumber = verseMatch[1];
+      const parts = verseNumber.split('.');
+      if (parts.length > 1) {
+        const originalNumber = verseNumber;
+        verseNumber = parts[parts.length - 1]; // Беремо останню частину
+        console.log(`📝 [WisdomLib] Normalized verse number: "${originalNumber}" → "${verseNumber}"`);
+      }
 
       // Будуємо повний URL
       let fullUrl = href;
