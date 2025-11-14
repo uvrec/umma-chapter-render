@@ -20,6 +20,7 @@ export interface WisdomlibChapter {
   verses: WisdomlibVerse[];
   khanda: string; // adi, madhya, antya
   intro_en?: string;
+  verseUrls?: Array<{ url: string; verseNumber: string }>; // For chapters where each verse has its own page
 }
 
 /**
@@ -200,6 +201,51 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
 }
 
 /**
+ * Extract verse URLs from a chapter page
+ * For Chaitanya Bhagavata, each verse has its own page (e.g., /d/doc1095577.html)
+ */
+export function extractWisdomlibVerseUrls(html: string, chapterUrl: string): Array<{ url: string; verseNumber: string }> {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const verseUrls: Array<{ url: string; verseNumber: string }> = [];
+
+    // Look for links to verse pages (pattern: /d/doc[digits].html)
+    const links = doc.querySelectorAll('a[href*="/d/doc"]');
+
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      // Build full URL
+      let fullUrl = href;
+      if (href.startsWith('/')) {
+        const base = new URL(chapterUrl);
+        fullUrl = base.origin + href;
+      } else if (!href.startsWith('http')) {
+        const base = new URL(chapterUrl);
+        fullUrl = base.origin + '/' + href;
+      }
+
+      // Extract verse number from link text or use index
+      const text = link.textContent?.trim() || '';
+      const verseMatch = text.match(/(\d+)/);
+      const verseNumber = verseMatch ? verseMatch[1] : String(index + 1);
+
+      verseUrls.push({
+        url: fullUrl,
+        verseNumber
+      });
+    });
+
+    return verseUrls;
+  } catch (error) {
+    console.error('Error extracting wisdomlib verse URLs:', error);
+    return [];
+  }
+}
+
+/**
  * Parse a chapter page that contains multiple verses
  */
 export function parseWisdomlibChapterPage(html: string, chapterUrl: string, khanda: string): WisdomlibChapter | null {
@@ -216,7 +262,23 @@ export function parseWisdomlibChapterPage(html: string, chapterUrl: string, khan
     const titleEl = doc.querySelector('h1, h2, .chapter-title');
     const title = titleEl?.textContent?.trim() || `Chapter ${chapterNumber}`;
 
-    // Extract verses
+    // First, check if this chapter page has links to individual verse pages
+    // (e.g., Chaitanya Bhagavata where each verse is on a separate page)
+    const verseUrls = extractWisdomlibVerseUrls(html, chapterUrl);
+
+    if (verseUrls.length > 0) {
+      console.log(`[Wisdomlib] Found ${verseUrls.length} verse URLs for chapter ${chapterNumber}`);
+      // Return chapter metadata with verse URLs to be fetched separately
+      return {
+        chapter_number: chapterNumber,
+        title_en: title,
+        verses: [],
+        khanda,
+        verseUrls
+      };
+    }
+
+    // If no verse URLs found, try to parse verses directly from the chapter page
     const verses: WisdomlibVerse[] = [];
 
     // Find verse sections - wisdomlib usually has each verse in a separate container
