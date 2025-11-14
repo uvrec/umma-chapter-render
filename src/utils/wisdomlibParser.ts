@@ -60,58 +60,84 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       }
     }
 
-    // 2. ENGLISH TRANSLATION - перший <p> після blockquote
-    const scontent = doc.querySelector("#scontent");
+    // 2. ENGLISH TRANSLATION - перший <p> після blockquote або після мітки "English translation"
+    const scontent = doc.querySelector("#scontent, #pageContent");
     if (scontent) {
       const allChildren = Array.from(scontent.children);
 
       // Знаходимо індекс blockquote
       const blockquoteIndex = allChildren.findIndex((el) => el.tagName === "BLOCKQUOTE");
 
-      if (blockquoteIndex >= 0) {
-        // Перший <p> після blockquote - це переклад
-        const translationP = allChildren.find((el, idx) => idx > blockquoteIndex && el.tagName === "P") as
-          | HTMLElement
-          | undefined;
+      // Спробуємо знайти спеціальну мітку перекладу
+      const translationLabelIndex = allChildren.findIndex((el) => {
+        const t = el.textContent?.trim() || "";
+        return /english\s+translation/i.test(t);
+      });
 
-        if (translationP) {
-          const text = translationP.textContent?.trim() || "";
-          // Переклад зазвичай починається з великої літери і не містить "Commentary:"
-          if (text.length > 30 && !text.includes("Commentary:")) {
-            verse.translation_en = text;
+      const pickFirstValidParagraph = (startIdx: number) => {
+        for (let i = startIdx + 1; i < allChildren.length; i++) {
+          const el = allChildren[i] as HTMLElement;
+          if (el.tagName !== "P") continue;
+          const text = el.textContent?.trim() || "";
+          // Пропускаємо службові мітки та навігацію
+          if (/english\s+translation/i.test(text)) continue;
+          if (text.length > 20 && !/Commentary:/i.test(text)) {
+            return text;
           }
         }
+        return "";
+      };
+
+      let translation = "";
+
+      if (translationLabelIndex >= 0) {
+        translation = pickFirstValidParagraph(translationLabelIndex);
+      }
+
+      if (!translation && blockquoteIndex >= 0) {
+        // fallback: перший валідний <p> після blockquote
+        translation = pickFirstValidParagraph(blockquoteIndex);
+      }
+
+      if (translation) {
+        verse.translation_en = translation;
       }
     }
 
-    // 3. COMMENTARY - всі параграфи після "Commentary: Gauḍīya-bhāṣya..."
+    // 3. COMMENTARY - абзаци після заголовка "Commentary: Gauḍīya-bhāṣya..."
     if (scontent) {
-      const allParagraphs = Array.from(scontent.querySelectorAll("p"));
-      let commentaryStarted = false;
+      const nodes = Array.from(scontent.children) as HTMLElement[];
+      const isCommentaryHeader = (el: HTMLElement) => /Commentary:|Gauḍīya-bhāṣya/i.test(el.textContent || "");
+
+      // Шукаємо початок блоку коментаря серед будь-яких елементів (p/h2/h3...)
+      let startIdx = nodes.findIndex((el) => isCommentaryHeader(el));
       const commentaryParagraphs: string[] = [];
 
-      allParagraphs.forEach((p) => {
-        const text = p.textContent?.trim() || "";
-
-        // Шукаємо початок коментаря
-        if (text.includes("Commentary:") || text.includes("Gauḍīya-bhāṣya")) {
-          commentaryStarted = true;
-          // Якщо в тому ж параграфі є текст після "Commentary:", додаємо його
-          const afterCommentary = text.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/)[1];
-          if (afterCommentary && afterCommentary.trim()) {
-            commentaryParagraphs.push(afterCommentary.trim());
-          }
-          return;
+      if (startIdx >= 0) {
+        // Якщо заголовок містить текст після двокрапки — додамо його
+        const headerText = nodes[startIdx].textContent?.trim() || "";
+        const afterHeader = headerText.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/i)[1];
+        if (afterHeader && afterHeader.trim()) {
+          commentaryParagraphs.push(afterHeader.trim());
         }
 
-        // Якщо коментар почався, додаємо всі наступні параграфи
-        if (commentaryStarted && text.length > 0) {
-          // Виключаємо навігаційні елементи
-          if (!text.includes("Previous") && !text.includes("Next") && !text.includes("Like what you read?")) {
-            commentaryParagraphs.push(text);
+        // Збираємо наступні <p> до наступного заголовка або навігаційних елементів
+        for (let i = startIdx + 1; i < nodes.length; i++) {
+          const el = nodes[i];
+          const tag = el.tagName;
+          const text = el.textContent?.trim() || "";
+
+          // Зупиняємося на наступному великому заголовку
+          if (/^H[1-6]$/.test(tag)) break;
+
+          // Беремо тільки параграфи з нетехнічним текстом
+          if (tag === "P" && text.length > 0) {
+            if (!/Previous|Next|Like what you read\?/i.test(text)) {
+              commentaryParagraphs.push(text);
+            }
           }
         }
-      });
+      }
 
       if (commentaryParagraphs.length > 0) {
         verse.commentary_en = commentaryParagraphs.join("\n\n");
