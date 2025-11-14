@@ -126,7 +126,7 @@ const NumCal = () => {
                     {result.formatted}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Число Ума - Число Действия - Число Реализации - Число Итога
+                    Число Розуму - Число Дії - Число Реалізації - Число Підсумку
                   </div>
                 </div>
               </CardContent>
@@ -136,7 +136,7 @@ const NumCal = () => {
             <div className="grid md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Число Ума (Сознания)</CardTitle>
+                  <CardTitle className="text-lg">Число Розуму (Свідомості)</CardTitle>
                   <CardDescription>
                     Як людина мислить, її бажання та базові характеристики
                   </CardDescription>
@@ -147,7 +147,7 @@ const NumCal = () => {
                   </div>
                   <div className="mt-4 text-sm text-muted-foreground">
                     <p>
-                      Число Ума визначає Ваше мировоззрение, желания і сприйняття себе
+                      Число Розуму визначає Ваш світогляд, бажання і сприйняття себе
                       та навколишнього світу. Воно відображає Ваші вроджені таланти,
                       схильності та унікальні якості особистості.
                     </p>
@@ -157,7 +157,7 @@ const NumCal = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Число Действия</CardTitle>
+                  <CardTitle className="text-lg">Число Дії</CardTitle>
                   <CardDescription>
                     Як людина діє та досягає результатів
                   </CardDescription>
@@ -168,7 +168,7 @@ const NumCal = () => {
                   </div>
                   <div className="mt-4 text-sm text-muted-foreground">
                     <p>
-                      Число Действия показує, як Ви проявляєте себе в соціумі та
+                      Число Дії показує, як Ви проявляєте себе в соціумі та
                       взаємодієте з людьми і обставинами для досягнення своїх цілей.
                       Це Ваша головна життєва енергія.
                     </p>
@@ -178,7 +178,7 @@ const NumCal = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Число Реализации</CardTitle>
+                  <CardTitle className="text-lg">Число Реалізації</CardTitle>
                   <CardDescription>
                     Сфери максимального успіху та реалізації
                   </CardDescription>
@@ -189,7 +189,7 @@ const NumCal = () => {
                   </div>
                   <div className="mt-4 text-sm text-muted-foreground">
                     <p>
-                      Число Реализації розкриває Ваше істинне призначення та місію в
+                      Число Реалізації розкриває Ваше істинне призначення та місію в
                       цьому житті. Воно вказує на ті сфери діяльності та напрямки,
                       в яких Ви можете найбільш повно реалізувати свої таланти.
                     </p>
@@ -199,7 +199,7 @@ const NumCal = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Число Итога</CardTitle>
+                  <CardTitle className="text-lg">Число Підсумку</CardTitle>
                   <CardDescription>
                     Головний життєвий урок та мудрість
                   </CardDescription>
@@ -215,7 +215,7 @@ const NumCal = () => {
                   </div>
                   <div className="mt-4 text-sm text-muted-foreground">
                     <p>
-                      Число Итога — це Ваш головний життєвий урок та ключ до обретення
+                      Число Підсумку — це Ваш головний життєвий урок та ключ до здобуття
                       мудрості. Воно відображає ту сферу життя, яка викликатиме у Вас
                       найбільший інтерес. Активізується після 40 років.
                     </p>
@@ -252,7 +252,7 @@ const NumCal = () => {
                   реалізується через енергію числа {result.realizationNumber}.
                 </p>
                 <p>
-                  <strong>Итог ({result.resultNumber}):</strong> Життя постійно повертає
+                  <strong>Підсумок ({result.resultNumber}):</strong> Життя постійно повертає
                   до теми числа {result.resultNumber}, розвиваючи відповідні якості.
                 </p>
                 <p className="text-xs text-muted-foreground mt-4">

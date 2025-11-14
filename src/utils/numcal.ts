@@ -3,13 +3,13 @@
  */
 
 export interface NumCalResult {
-  /** Число Ума (Сознания) - день народження */
+  /** Число Розуму (Свідомості) - день народження */
   mindNumber: number;
-  /** Число Действия - сума всіх цифр дати */
+  /** Число Дії - сума всіх цифр дати */
   actionNumber: number;
-  /** Число Реализации - сума Числа Ума та Числа Действия */
+  /** Число Реалізації - сума Числа Розуму та Числа Дії */
   realizationNumber: number;
-  /** Число Итога - сума всіх трьох чисел */
+  /** Число Підсумку - сума всіх трьох чисел */
   resultNumber: number;
   /** Двозначне число перед зведенням до однієї цифри (для детального аналізу) */
   resultNumberDouble?: number;
@@ -42,23 +42,23 @@ export function calculateNumCal(birthDate: Date | string): NumCalResult {
   const month = date.getMonth() + 1; // getMonth() повертає 0-11
   const year = date.getFullYear();
 
-  // 1. Число Ума (Сознания) - день народження, зведений до однієї цифри
+  // 1. Число Розуму (Свідомості) - день народження, зведений до однієї цифри
   const mindNumber = reduceToSingleDigit(day);
 
-  // 2. Число Действия - сума всіх цифр дати народження
+  // 2. Число Дії - сума всіх цифр дати народження
   const allDigits = `${day}${month}${year}`.split('').map(d => parseInt(d, 10));
   const sumOfAllDigits = allDigits.reduce((sum, digit) => sum + digit, 0);
   const actionNumber = reduceToSingleDigit(sumOfAllDigits);
 
-  // 3. Число Реализации - сума Числа Ума та Числа Действия
+  // 3. Число Реалізації - сума Числа Розуму та Числа Дії
   const realizationSum = mindNumber + actionNumber;
   const realizationNumber = reduceToSingleDigit(realizationSum);
 
-  // 4. Число Итога - сума всіх трьох чисел
+  // 4. Число Підсумку - сума всіх трьох чисел
   const resultSum = mindNumber + actionNumber + realizationNumber;
   const resultNumber = reduceToSingleDigit(resultSum);
 
-  // Зберігаємо двозначне число Итога для детального аналізу (якщо воно було двозначним)
+  // Зберігаємо двозначне число Підсумку для детального аналізу (якщо воно було двозначним)
   const resultNumberDouble = resultSum > 9 ? resultSum : undefined;
 
   // Формат запису: X-X-X-X
