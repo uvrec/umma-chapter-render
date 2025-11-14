@@ -3,7 +3,7 @@
 // Кожен тип блоку (sanskrit, transliteration, synonyms, translation, commentary)
 // відображається в окремому рядку з двома колонками для синхронного читання
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Edit, Save, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -72,31 +72,6 @@ interface DualLanguageVerseCardProps {
 /* =========================
    Допоміжні функції
    ========================= */
-
-// Розбиття тексту на параграфи (НЕ ділити кожен <p> як окремий параграф)
-function splitIntoParagraphs(text: string): string[] {
-  if (!text) return [];
-
-  // Нормалізуємо перенос рядків
-  let html = text.replace(/\r\n/g, "\n");
-
-  // Позначаємо явні розриви параграфів:
-  // - подвійні (і більше) \n
-  // - порожні HTML-параграфи: <p><br></p>, <p>&nbsp;</p>, <p> </p>
-  const DELIM = "[[PARA_BREAK]]";
-  html = html
-    .replace(/\n{2,}/g, DELIM)
-    .replace(/<p>\s*(?:<br\s*\/?>(?:\s*)?|&nbsp;|\u00A0|\s*)\s*<\/p>/gi, DELIM);
-
-  // ВАЖЛИВО: не розбиваємо на кожному </p><p>, щоб цитати з кількох рядків (у трансліті всередині пояснення)
-  // не вважались окремими параграфами кожен рядок.
-  const parts = html
-    .split(DELIM)
-    .map(p => p.trim())
-    .filter(Boolean);
-
-  return parts.length > 0 ? parts : [text.trim()];
-}
 
 // Парсинг синонімів
 function parseSynonyms(raw: string): Array<{ term: string; meaning: string }> {
@@ -244,20 +219,6 @@ export const DualLanguageVerseCard = ({
     translationEn,
     commentaryEn
   });
-
-  // Розбиваємо commentary на параграфи
-  const commentaryParagraphsUa = useMemo(() =>
-    splitIntoParagraphs(isEditing ? edited.commentaryUa : commentaryUa),
-    [commentaryUa, edited.commentaryUa, isEditing]
-  );
-
-  const commentaryParagraphsEn = useMemo(() =>
-    splitIntoParagraphs(isEditing ? edited.commentaryEn : commentaryEn),
-    [commentaryEn, edited.commentaryEn, isEditing]
-  );
-
-  // Синхронізація кількості параграфів (беремо максимум)
-  const maxParagraphs = Math.max(commentaryParagraphsUa.length, commentaryParagraphsEn.length);
 
   // Функція для відтворення аудіо
   const playSection = (section: string, audioSrc?: string) => {
@@ -608,7 +569,7 @@ export const DualLanguageVerseCard = ({
               </div>
             </div>
 
-            {/* Параграфи синхронізовані */}
+            {/* Текст пояснення */}
             {isEditing ? (
               <div className="grid grid-cols-2 gap-6">
                 <InlineTiptapEditor
@@ -623,28 +584,16 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <div className="space-y-4">
-                {Array.from({ length: maxParagraphs }).map((_, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-6 border-b border-border/50 pb-4 last:border-b-0">
-                    {/* UA параграф */}
-                    <div className="text-4xl leading-relaxed">
-                      {commentaryParagraphsUa[index] ? (
-                        <TiptapRenderer content={commentaryParagraphsUa[index]} />
-                      ) : (
-                        <p className="text-muted-foreground italic text-sm">Немає тексту</p>
-                      )}
-                    </div>
+              <div className="grid grid-cols-2 gap-6">
+                {/* UA коментар */}
+                <div className="text-4xl leading-relaxed">
+                  <TiptapRenderer content={commentaryUa} />
+                </div>
 
-                    {/* EN параграф */}
-                    <div className="text-4xl leading-relaxed">
-                      {commentaryParagraphsEn[index] ? (
-                        <TiptapRenderer content={commentaryParagraphsEn[index]} />
-                      ) : (
-                        <p className="text-muted-foreground italic text-sm">No text</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                {/* EN коментар */}
+                <div className="text-4xl leading-relaxed">
+                  <TiptapRenderer content={commentaryEn} />
+                </div>
               </div>
             )}
           </div>
