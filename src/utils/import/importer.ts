@@ -3,7 +3,33 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
 import { processVerseLineBreaks } from "./lineBreaker";
 
-/** Санітизація HTML на імпорті (додатковий “пояс безпеки” до DOMPurify на рендері) */
+/**
+ * Нормалізує номер вірша: видаляє префікси типу "1.1." з формату WisdomLib
+ *
+ * @example
+ * normalizeVerseNumberForDB("1.1.73-74") // → "73-74"
+ * normalizeVerseNumberForDB("2.17.48") // → "48"
+ * normalizeVerseNumberForDB("73-74") // → "73-74" (без змін)
+ * normalizeVerseNumberForDB("42") // → "42" (без змін)
+ */
+export const normalizeVerseNumberForDB = (verseNum: string): string => {
+  if (!verseNum) return verseNum;
+
+  const trimmed = verseNum.trim();
+
+  // Видаляємо префікси формату "N.N." на початку
+  // Regex: починається з цифр, крапка, цифри, крапка → видаляємо
+  const normalized = trimmed.replace(/^\d+\.\d+\./, '');
+
+  // Якщо номер змінився - логуємо для діагностики
+  if (normalized !== trimmed) {
+    console.warn(`⚠️ [Importer] Normalized verse number: "${trimmed}" → "${normalized}"`);
+  }
+
+  return normalized;
+};
+
+/** Санітизація HTML на імпорті (додатковий "пояс безпеки" до DOMPurify на рендері) */
 export const safeHtml = (html?: string) => {
   const s = html ?? "";
 
@@ -270,7 +296,7 @@ export async function replaceChapterVerses(
 
     return {
       chapter_id: chapterId,
-      verse_number: v.verse_number,
+      verse_number: normalizeVerseNumberForDB(v.verse_number), // ✅ Нормалізуємо номер
       sanskrit: normalizedSanskrit,
       transliteration: normalizedTranslit,
       transliteration_en: (v as any).transliteration_en ?? null,
@@ -315,10 +341,11 @@ export async function upsertChapterVerses(supabase: SupabaseClient, chapterId: s
 
   const rows = verses.map((v) => {
     const incoming: any = v as any;
-    const existing = byNum.get(String(v.verse_number));
+    const normalizedVerseNum = normalizeVerseNumberForDB(v.verse_number); // ✅ Нормалізуємо
+    const existing = byNum.get(String(normalizedVerseNum));
     const row: any = {
       chapter_id: chapterId,
-      verse_number: v.verse_number,
+      verse_number: normalizedVerseNum, // ✅ Використовуємо нормалізований номер
       is_published: true,
     };
 

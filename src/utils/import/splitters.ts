@@ -328,8 +328,13 @@ function normalizeVerseNumber(raw: string): string {
     return `${rangeMatch[1]}-${rangeMatch[2]}`;
   }
 
+  // ✅ FIX: Видаляємо префікси типу "1.1." (формат WisdomLib)
+  // "1.1.73" → "73", "2.17.48-49" → "48-49"
+  let cleaned = raw.trim();
+  cleaned = cleaned.replace(/^\d+\.\d+\./, '');
+
   // Otherwise extract numeric value (зберігаємо тільки цифри і дефіс)
-  return raw.replace(/[^\d-]/g, '').trim();
+  return cleaned.replace(/[^\d-]/g, '').trim();
 }
 
 function parseVerse(
