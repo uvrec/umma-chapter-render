@@ -18,6 +18,9 @@ const ALLOWED_HOSTS = new Set([
   "www.bhaktivinodainstitute.org",
   "kksongs.org",
   "www.kksongs.org",
+  // WisdomLib (HTML chapters and articles)
+  "wisdomlib.org",
+  "www.wisdomlib.org",
   // WordPress CDN occasionally used in content links
   "i0.wp.com"
 ]);
