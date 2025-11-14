@@ -351,5 +351,29 @@ export function extractWisdomlibChapterUrls(
   }
 }
 
+/**
+ * Конвертує главу Wisdomlib у стандартний формат для імпорту в БД
+ */
+export function wisdomlibChapterToStandardChapter(chapter: WisdomlibChapter): any {
+  return {
+    chapter_number: chapter.chapter_number,
+    title_en: chapter.title_en,
+    title_ua: chapter.title_en, // Поки що немає UA перекладів з Wisdomlib
+    chapter_type: "verses" as const,
+    verses: chapter.verses.map((v) => ({
+      verse_number: v.verse_number,
+      sanskrit: v.bengali || "", // Bengali текст
+      transliteration_en: v.transliteration_en || "",
+      transliteration_ua: "", // Немає UA транслітерації
+      synonyms_en: v.synonyms_en || "",
+      synonyms_ua: "", // Немає UA synonyms
+      translation_en: v.translation_en || "",
+      translation_ua: "", // Немає UA перекладу
+      commentary_en: v.commentary_en || "",
+      commentary_ua: "", // Немає UA коментарів
+    })),
+  };
+}
+
 // Експорт
-export { WisdomlibVerse, WisdomlibChapter };
+export { WisdomlibVerse, WisdomlibChapter, wisdomlibChapterToStandardChapter };
