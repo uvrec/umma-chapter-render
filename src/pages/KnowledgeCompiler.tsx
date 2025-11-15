@@ -131,7 +131,9 @@ export default function KnowledgeCompiler() {
     setIsSearching(true);
 
     try {
-      // Call the search function
+      console.log('Starting search with query:', searchQuery);
+
+      // Try to call the advanced search function
       const { data, error } = await supabase.rpc('search_verses_fulltext', {
         search_query: searchQuery,
         language_code: language,
@@ -144,11 +146,120 @@ export default function KnowledgeCompiler() {
         limit_count: limitCount
       });
 
-      if (error) {
-        console.error('Search error:', error);
-        toast.error(language === 'ua' ? "Помилка пошуку" : "Search error");
+      // If function doesn't exist, use fallback simple search
+      if (error && (error.code === '42883' || error.message?.includes('function') || error.message?.includes('does not exist'))) {
+        console.warn('Advanced search function not found, using fallback search');
+        toast.info(
+          language === 'ua'
+            ? 'Використовується простий пошук (функції бази даних ще не застосовані)'
+            : 'Using simple search (database functions not yet applied)'
+        );
+
+        // Fallback: simple search using ILIKE
+        const searchPattern = `%${searchQuery}%`;
+        const query = supabase
+          .from('verses')
+          .select(`
+            id,
+            verse_number,
+            chapter_id,
+            sanskrit,
+            transliteration,
+            synonyms_ua,
+            synonyms_en,
+            translation_ua,
+            translation_en,
+            commentary_ua,
+            commentary_en,
+            chapters!inner(
+              id,
+              chapter_number,
+              title_ua,
+              title_en,
+              book_id,
+              books!inner(
+                id,
+                slug,
+                title_ua,
+                title_en
+              )
+            )
+          `)
+          .eq('is_published', true)
+          .limit(limitCount);
+
+        // Add search conditions
+        if (language === 'ua') {
+          query.or(`translation_ua.ilike.${searchPattern},commentary_ua.ilike.${searchPattern},synonyms_ua.ilike.${searchPattern}`);
+        } else {
+          query.or(`translation_en.ilike.${searchPattern},commentary_en.ilike.${searchPattern},synonyms_en.ilike.${searchPattern}`);
+        }
+
+        const { data: fallbackData, error: fallbackError } = await query;
+
+        if (fallbackError) {
+          console.error('Fallback search error:', fallbackError);
+          toast.error(language === 'ua' ? "Помилка пошуку" : "Search error");
+          return;
+        }
+
+        // Transform fallback data to match expected format
+        const transformedData = fallbackData?.map((verse: any) => ({
+          verse_id: verse.id,
+          verse_number: verse.verse_number,
+          chapter_id: verse.chapter_id,
+          chapter_number: verse.chapters?.chapter_number || 0,
+          chapter_title: language === 'ua' ? verse.chapters?.title_ua : verse.chapters?.title_en,
+          book_id: verse.chapters?.books?.id,
+          book_title: language === 'ua' ? verse.chapters?.books?.title_ua : verse.chapters?.books?.title_en,
+          book_slug: verse.chapters?.books?.slug,
+          canto_id: null,
+          canto_number: null,
+          canto_title: null,
+          sanskrit: verse.sanskrit,
+          transliteration: verse.transliteration,
+          synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+          translation: language === 'ua' ? verse.translation_ua : verse.translation_en,
+          commentary: language === 'ua' ? verse.commentary_ua : verse.commentary_en,
+          relevance_rank: 1.0,
+          matched_in: ['translation'],
+          search_snippet: (language === 'ua' ? verse.translation_ua : verse.translation_en)?.substring(0, 150) || ''
+        })) || [];
+
+        setSearchResults(transformedData);
+
+        if (transformedData.length > 0) {
+          toast.success(
+            language === 'ua'
+              ? `Знайдено ${transformedData.length} віршів`
+              : `Found ${transformedData.length} verses`
+          );
+        } else {
+          toast.info(
+            language === 'ua'
+              ? "Нічого не знайдено. Спробуйте інший запит."
+              : "No results found. Try a different query."
+          );
+        }
         return;
       }
+
+      if (error) {
+        console.error('Search error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        toast.error(
+          language === 'ua'
+            ? `Помилка пошуку: ${error.message}`
+            : `Search error: ${error.message}`
+        );
+        return;
+      }
+
+      console.log('Search results:', data);
 
       setSearchResults(data || []);
 
@@ -160,6 +271,10 @@ export default function KnowledgeCompiler() {
 
       if (!statsError) {
         setTopicStats(statsData || []);
+      } else {
+        console.warn('Topic statistics function not available:', statsError);
+        // Skip statistics if function doesn't exist
+        setTopicStats([]);
       }
 
       if (data && data.length > 0) {
