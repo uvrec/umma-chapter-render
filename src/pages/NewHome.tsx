@@ -127,7 +127,7 @@ function Hero() {
           </div>
 
           {/* Subtitle */}
-          <p className="mb-8 text-xl md:text-2xl font-semibold font-mono text-yellow-200 text-center">{subtitle}</p>
+          
 
           {/* Daily Quote Banner - замінює стару статичну цитату */}
           <div className="mb-8">
@@ -459,7 +459,7 @@ export const NewHome = () => {
       <Header />
       <main>
         <Hero />
-        <SearchStrip />
+        
         <LatestContent />
         <FeaturedBooks />
         <Playlists />
