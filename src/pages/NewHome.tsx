@@ -1,6 +1,7 @@
 // src/pages/NewHome.tsx
 // Оновлена домашня сторінка з Hero + "Продовжити прослуховування", SearchStrip, Latest, Playlists, Support
 // Інтегровано з GlobalAudioPlayer (useAudio) і динамічним Hero з БД (site_settings.home_hero)
+// + DailyQuoteBanner для відображення щоденних цитат
 
 import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +12,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
 import { useNavigate } from "react-router-dom";
 import {
   Headphones,
@@ -58,8 +60,6 @@ type AudioTrack = {
   verseNumber?: string | number;
 };
 
-
-
 // --- Hero Section (динамічний, з карткою "Продовжити") ---
 function Hero() {
   const { currentTrack, isPlaying, togglePlay, currentTime, duration } = useAudio();
@@ -69,7 +69,11 @@ function Hero() {
   const { data: settingsData } = useQuery({
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from("site_settings").select("value").eq("key", "home_hero").single();
+      const { data, error } = await (supabase as any)
+        .from("site_settings")
+        .select("value")
+        .eq("key", "home_hero")
+        .single();
       if (error) {
         console.error("Failed to load home hero settings:", error);
         return null; // Return null instead of throwing
@@ -79,10 +83,6 @@ function Hero() {
         logo_image: string;
         subtitle_ua: string;
         subtitle_en: string;
-        quote_ua: string;
-        quote_en: string;
-        quote_author_ua: string;
-        quote_author_en: string;
       };
     },
   });
@@ -93,12 +93,6 @@ function Hero() {
     logo_image: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png",
     subtitle_ua: "Бібліотека ведичних аудіокниг",
     subtitle_en: "Library of Vedic audiobooks",
-    quote_ua:
-      "За моєї відсутності читайте книжки. Все, про що я говорю, я написав у книжках. Ви можете підтримувати зв'язок зі мною через мої книги.",
-    quote_en:
-      "In my absence, read the books. Everything I speak is written in the books. You can associate with me through my books.",
-    quote_author_ua: "Шріла Прабгупада",
-    quote_author_en: "Srila Prabhupada",
   };
 
   // Формат часу
@@ -110,8 +104,6 @@ function Hero() {
   };
 
   const subtitle = language === "ua" ? settings.subtitle_ua : settings.subtitle_en;
-  const quote = language === "ua" ? settings.quote_ua : settings.quote_en;
-  const author = language === "ua" ? settings.quote_author_ua : settings.quote_author_en;
 
   return (
     <section
@@ -132,10 +124,9 @@ function Hero() {
           {/* Subtitle */}
           <p className="mb-8 text-xl font-medium text-white/90 md:text-2xl">{subtitle}</p>
 
-          {/* Quote */}
-          <div className="mb-8 rounded-lg border border-white/20 bg-black/20 p-6 backdrop-blur-sm">
-            <p className="mb-4 text-base leading-relaxed text-white/90 md:text-lg">{quote}</p>
-            <p className="text-sm italic text-white/70">— {author}</p>
+          {/* Daily Quote Banner - замінює стару статичну цитату */}
+          <div className="mb-8">
+            <DailyQuoteBanner />
           </div>
 
           {/* Continue Listening Card */}
@@ -149,18 +140,18 @@ function Hero() {
                   </div>
 
                   <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0 flex-1 text-left">
-                        <div className="mb-1 truncate text-base font-semibold text-foreground">
-                          {currentTrack.title_ua || currentTrack.title}
-                        </div>
-                        <div className="truncate text-sm text-muted-foreground">
-                          {currentTrack.artist || currentTrack.album || "Vedavoice · Аудіо"}
-                        </div>
-                        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          {isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}
-                        </div>
+                    <div className="min-w-0 flex-1 text-left">
+                      <div className="mb-1 truncate text-base font-semibold text-foreground">
+                        {currentTrack.title_ua || currentTrack.title}
                       </div>
+                      <div className="truncate text-sm text-muted-foreground">
+                        {currentTrack.artist || currentTrack.album || "Vedavoice · Аудіо"}
+                      </div>
+                      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}
+                      </div>
+                    </div>
 
                     <Button size="sm" onClick={togglePlay} className="gap-2">
                       {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
@@ -219,13 +210,13 @@ function SearchStrip() {
 // --- Latest Content ---
 function LatestContent() {
   const { playTrack } = useAudio();
-  
+
   const handlePlayTrack = (item: ContentItem) => {
     if (item.type === "audio" && item.audioData) {
       playTrack(item.audioData);
     }
   };
-  
+
   // Останні треки
   const { data: audioTracks } = useQuery({
     queryKey: ["latest-audio"],
@@ -292,10 +283,10 @@ function LatestContent() {
         title_ua: track.title_ua,
         title_en: track.title_en,
         subtitle: track.audio_playlists?.title_ua,
-        artist: 'Шріла Прабгупада', // За замовчанням автор
-        src: track.audio_url || '',
+        artist: "Шріла Прабгупада", // За замовчанням автор
+        src: track.audio_url || "",
         duration: track.duration,
-        coverImage: '/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png', // Логотип як обкладинка за замовчанням
+        coverImage: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png", // Логотип як обкладинка за замовчанням
       },
     })) || []),
     ...(blogPosts?.map((post: any) => ({
@@ -378,15 +369,15 @@ function LatestContent() {
 // --- Featured Books Section ---
 function FeaturedBooks() {
   const { language } = useLanguage();
-  
+
   const { data: books = [], isLoading } = useQuery({
-    queryKey: ['featured-books'],
+    queryKey: ["featured-books"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('books')
-        .select('id, slug, title_ua, title_en, cover_image_url')
-        .eq('is_published', true)
-        .order('display_order')
+        .from("books")
+        .select("id, slug, title_ua, title_en, cover_image_url")
+        .eq("is_published", true)
+        .order("display_order")
         .limit(4);
       if (error) throw error;
       return data;
@@ -423,17 +414,13 @@ function FeaturedBooks() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {books.map((book) => (
-          <a
-            key={book.id}
-            href={`/veda-reader/${book.slug}`}
-            className="group cursor-pointer"
-          >
+          <a key={book.id} href={`/veda-reader/${book.slug}`} className="group cursor-pointer">
             {/* Book Cover */}
             <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
               {book.cover_image_url ? (
                 <img
                   src={book.cover_image_url}
-                  alt={language === 'ua' ? book.title_ua : book.title_en}
+                  alt={language === "ua" ? book.title_ua : book.title_en}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
@@ -449,7 +436,7 @@ function FeaturedBooks() {
 
             {/* Book Title */}
             <h3 className="mt-3 text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
-              {language === 'ua' ? book.title_ua : book.title_en}
+              {language === "ua" ? book.title_ua : book.title_en}
             </h3>
           </a>
         ))}
