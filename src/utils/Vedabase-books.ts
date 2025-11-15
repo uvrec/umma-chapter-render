@@ -307,6 +307,32 @@ export const VEDABASE_BOOKS = [
     gitabase_available: false,
     gitabaseSlug: null,
   },
+  // ========== RAJA VIDYA (VEDABASE) ==========
+  {
+    slug: 'rv',
+    name: 'Raja Vidya',
+    vedabaseSlug: 'rv',
+    our_slug: 'rvs',
+    name_ua: 'Раджа відья',
+    name_en: 'Raja Vidya - The King of Knowledge',
+    // Автор
+    author: 'A. C. Bhaktivedanta Swami Prabhupada',
+    author_ua: 'А. Ч. Бгактіведанта Свамі Прабгупада',
+    // Структура книги
+    isMultiVolume: false,
+    has_cantos: false,
+    volumeLabel: 'Глава',
+    cantos: undefined,
+    // Парсинг
+    templateId: 'raja-vidya',
+    // Gitabase
+    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase (українську беремо з файлу)
+    gitabase_available: false,
+    gitabaseSlug: null,
+    // Джерело
+    source: 'vedabase',
+    sourceUrl: 'https://vedabase.io/en/library/rv/',
+  },
   // ========== CHAITANYA BHAGAVATA (WISDOMLIB.ORG) ==========
   {
     slug: 'scb',

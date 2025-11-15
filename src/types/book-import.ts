@@ -84,4 +84,15 @@ export const BOOK_TEMPLATES: ImportTemplate[] = [
     commentaryPattern: /^(ПОЯСНЕННЯ|КОМЕНТАР):/im,
     chapterPattern: /^(?:ГЛАВА\s+(?:[А-ЯІЇЄҐ''\- ]+|\d+)|ПЕРЕДМОВА(?:\s+ДО\s+АНГЛІЙСЬКОГО\s+ВИДАННЯ)?|ВСТУП|НАРИС\s+ЖИТТЯ\s+І\s+ПОВЧАНЬ)/im,
   },
+  {
+    id: "raja-vidya",
+    name: "Раджа відья (текстова)",
+    // Для текстової книги - не парсимо окремі вірші, а просто розділяємо по главах
+    versePattern: /(?!.*)/im, // Не шукати вірші (negative lookahead)
+    synonymsPattern: /(?!.*)/im,
+    translationPattern: /(?!.*)/im,
+    commentaryPattern: /(?!.*)/im,
+    // Розпізнаємо глави: "ГЛАВА ПЕРША", "ГЛАВА ДРУГА" тощо
+    chapterPattern: /^(?:ГЛАВА\s+(?:ПЕРША|ДРУГА|ТРЕТЯ|ЧЕТВЕРТА|П'ЯТА|ШОСТА|СЬОМА|ВОСЬМА|\d+))/im,
+  },
 ];
