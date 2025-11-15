@@ -43,10 +43,11 @@ import {
 } from "@/components/ui/collapsible";
 
 // Helper function to create highlighted snippet
-function createHighlightedSnippet(text: string, searchQuery: string, maxLength: number = 200): string {
+function createHighlightedSnippet(text: string, searchQuery: string, maxLength: number = 250): string {
   if (!text || !searchQuery) return text?.substring(0, maxLength) || '';
 
-  const searchTerms = searchQuery.toLowerCase().split(/\s+/).filter(term => term.length > 2);
+  // Split search query into terms (min 2 chars to avoid highlighting small words)
+  const searchTerms = searchQuery.toLowerCase().split(/\s+/).filter(term => term.length >= 2);
   const lowerText = text.toLowerCase();
 
   // Find the first occurrence of any search term
@@ -61,13 +62,15 @@ function createHighlightedSnippet(text: string, searchQuery: string, maxLength: 
     }
   }
 
+  // If no match found, return beginning of text
   if (firstIndex === -1) {
-    return text.substring(0, maxLength) + '...';
+    const preview = text.substring(0, maxLength);
+    return preview + (text.length > maxLength ? '...' : '');
   }
 
   // Calculate snippet bounds with context
-  const contextBefore = 100;
-  const contextAfter = 100;
+  const contextBefore = 80;
+  const contextAfter = 150;
   const start = Math.max(0, firstIndex - contextBefore);
   const end = Math.min(text.length, firstIndex + foundTerm.length + contextAfter);
 
@@ -77,10 +80,15 @@ function createHighlightedSnippet(text: string, searchQuery: string, maxLength: 
   if (start > 0) snippet = '...' + snippet;
   if (end < text.length) snippet = snippet + '...';
 
-  // Highlight all search terms in the snippet
+  // Escape special regex characters in search terms
+  const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Highlight all search terms in the snippet (case-insensitive, whole words or parts)
   searchTerms.forEach(term => {
-    const regex = new RegExp(`(${term})`, 'gi');
-    snippet = snippet.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-900">$1</mark>');
+    const escapedTerm = escapeRegex(term);
+    // Match the term as part of a word (useful for Ukrainian word forms)
+    const regex = new RegExp(`(${escapedTerm}[а-яієїґ]*)`, 'gi');
+    snippet = snippet.replace(regex, '<mark style="background-color: #fef08a; padding: 2px 4px; border-radius: 2px; font-weight: 600;">$1</mark>');
   });
 
   return snippet;
@@ -347,7 +355,30 @@ export default function KnowledgeCompiler() {
 
       console.log('Search results:', data);
 
-      setSearchResults(data || []);
+      // Add highlighting to snippets from database results
+      const enhancedResults = data?.map((verse: any) => {
+        const translation = language === 'ua' ? verse.translation : verse.translation;
+        const commentary = language === 'ua' ? verse.commentary : verse.commentary;
+
+        // Create highlighted snippet from the field that contains the match
+        let snippetSource = '';
+        if (verse.matched_in?.includes('commentary') && commentary) {
+          snippetSource = commentary;
+        } else if (verse.matched_in?.includes('translation') && translation) {
+          snippetSource = translation;
+        } else if (translation) {
+          snippetSource = translation;
+        } else if (commentary) {
+          snippetSource = commentary;
+        }
+
+        return {
+          ...verse,
+          search_snippet: createHighlightedSnippet(snippetSource, searchQuery, 250)
+        };
+      }) || [];
+
+      setSearchResults(enhancedResults);
 
       // Also get topic statistics
       const { data: statsData, error: statsError } = await supabase.rpc('get_topic_statistics', {
@@ -935,11 +966,18 @@ export default function KnowledgeCompiler() {
                           </CardContent>
                         )}
 
-                        {!isExpanded && verse.search_snippet && (
-                          <CardContent className="pt-0">
-                            <p className="text-sm text-muted-foreground italic"
-                               dangerouslySetInnerHTML={{ __html: verse.search_snippet }}
-                            />
+                        {!isExpanded && (
+                          <CardContent className="pt-0 space-y-2">
+                            {verse.search_snippet && (
+                              <div className="bg-muted/50 p-3 rounded-md border border-border">
+                                <p className="text-xs text-muted-foreground mb-1 font-semibold">
+                                  {language === 'ua' ? 'Знайдено:' : 'Found:'}
+                                </p>
+                                <p className="text-sm"
+                                   dangerouslySetInnerHTML={{ __html: verse.search_snippet }}
+                                />
+                              </div>
+                            )}
                           </CardContent>
                         )}
                       </Card>
