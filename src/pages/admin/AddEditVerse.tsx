@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Upload, X } from "lucide-react";
@@ -26,8 +25,10 @@ export default function AddEditVerse() {
   const [selectedCantoId, setSelectedCantoId] = useState("");
   const [chapterId, setChapterId] = useState(searchParams.get("chapterId") || "");
   const [verseNumber, setVerseNumber] = useState("");
-  const [sanskrit, setSanskrit] = useState("");
-  const [transliteration, setTransliteration] = useState("");
+  const [sanskritUa, setSanskritUa] = useState("");
+  const [sanskritEn, setSanskritEn] = useState("");
+  const [transliterationUa, setTransliterationUa] = useState("");
+  const [transliterationEn, setTransliterationEn] = useState("");
   const [synonymsUa, setSynonymsUa] = useState("");
   const [synonymsEn, setSynonymsEn] = useState("");
   const [translationUa, setTranslationUa] = useState("");
@@ -133,8 +134,10 @@ export default function AddEditVerse() {
     if (verse) {
       setChapterId(verse.chapter_id);
       setVerseNumber(verse.verse_number);
-      setSanskrit(verse.sanskrit || "");
-      setTransliteration(verse.transliteration || "");
+      setSanskritUa(verse.sanskrit_ua || "");
+      setSanskritEn(verse.sanskrit_en || "");
+      setTransliterationUa(verse.transliteration_ua || "");
+      setTransliterationEn(verse.transliteration_en || "");
       setSynonymsUa(verse.synonyms_ua || "");
       setSynonymsEn(verse.synonyms_en || "");
       setTranslationUa(verse.translation_ua || "");
@@ -150,8 +153,10 @@ export default function AddEditVerse() {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
-        sanskrit: sanskrit || null,
-        transliteration: transliteration || null,
+        sanskrit_ua: sanskritUa || null,
+        sanskrit_en: sanskritEn || null,
+        transliteration_ua: transliterationUa || null,
+        transliteration_en: transliterationEn || null,
         synonyms_ua: synonymsUa || null,
         synonyms_en: synonymsEn || null,
         translation_ua: translationUa || null,
@@ -369,35 +374,33 @@ export default function AddEditVerse() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="sanskrit">Санскрит</Label>
-              <Textarea
-                id="sanskrit"
-                value={sanskrit}
-                onChange={(e) => setSanskrit(e.target.value)}
-                placeholder="ॐ नमो भगवते वासुदेवाय..."
-                rows={3}
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Українська колонка */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
 
-            <div>
-              <Label htmlFor="transliteration">Транслітерація</Label>
-              <Textarea
-                id="transliteration"
-                value={transliteration}
-                onChange={(e) => setTransliteration(e.target.value)}
-                placeholder="ом̇ намо бгаґавате ва̄судева̄йа..."
-                rows={3}
-              />
-            </div>
+                <div>
+                  <Label htmlFor="sanskritUa">Санскрит</Label>
+                  <Textarea
+                    id="sanskritUa"
+                    value={sanskritUa}
+                    onChange={(e) => setSanskritUa(e.target.value)}
+                    placeholder="ॐ नमो भगवते वासुदेवाय..."
+                    rows={3}
+                  />
+                </div>
 
-            <Tabs defaultValue="ua" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="ua">Українська</TabsTrigger>
-                <TabsTrigger value="en">English</TabsTrigger>
-              </TabsList>
+                <div>
+                  <Label htmlFor="transliterationUa">Транслітерація</Label>
+                  <Textarea
+                    id="transliterationUa"
+                    value={transliterationUa}
+                    onChange={(e) => setTransliterationUa(e.target.value)}
+                    placeholder="ом̇ намо бгаґавате ва̄судева̄йа..."
+                    rows={3}
+                  />
+                </div>
 
-              <TabsContent value="ua" className="space-y-4">
                 <div>
                   <Label htmlFor="synonymsUa">Синоніми</Label>
                   <Textarea
@@ -408,6 +411,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="translationUa">Переклад</Label>
                   <Textarea
@@ -418,6 +422,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="commentaryUa">Коментар</Label>
                   <InlineTiptapEditor
@@ -426,9 +431,34 @@ export default function AddEditVerse() {
                     label="Коментар українською..."
                   />
                 </div>
-              </TabsContent>
+              </div>
 
-              <TabsContent value="en" className="space-y-4">
+              {/* English колонка */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">English</h3>
+
+                <div>
+                  <Label htmlFor="sanskritEn">Sanskrit</Label>
+                  <Textarea
+                    id="sanskritEn"
+                    value={sanskritEn}
+                    onChange={(e) => setSanskritEn(e.target.value)}
+                    placeholder="ॐ नमो भगवते वासुदेवाय..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="transliterationEn">Transliteration</Label>
+                  <Textarea
+                    id="transliterationEn"
+                    value={transliterationEn}
+                    onChange={(e) => setTransliterationEn(e.target.value)}
+                    placeholder="oṁ namo bhagavate vāsudevāya..."
+                    rows={3}
+                  />
+                </div>
+
                 <div>
                   <Label htmlFor="synonymsEn">Synonyms</Label>
                   <Textarea
@@ -439,6 +469,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="translationEn">Translation</Label>
                   <Textarea
@@ -449,6 +480,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="commentaryEn">Commentary</Label>
                   <InlineTiptapEditor
@@ -457,8 +489,8 @@ export default function AddEditVerse() {
                     label="Commentary in English..."
                   />
                 </div>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
 
             <div>
               <Label htmlFor="audioUrl">Аудіо файл</Label>
