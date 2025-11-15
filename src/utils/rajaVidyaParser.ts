@@ -121,7 +121,7 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
       const title = titleEl?.textContent?.trim() || `Глава ${chapterNumber}`;
       console.log(`📝 [Raja Vidya UA] Chapter ${chapterNumber} title: "${title}"`);
 
-      // Збираємо весь контент глави до наступного маркера глави
+      // ✅ Збираємо весь контент глави зі збереженням HTML форматування
       const contentParts: string[] = [];
       let currentEl = titleEl?.nextElementSibling || headerNumberEl.nextElementSibling;
 
@@ -137,26 +137,33 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
           }
         }
 
-        // Збираємо всі параграфи та div-и з текстом
+        // ✅ Збираємо HTML замість простого тексту
         if (text && text.length > 5) {
+          const innerHTML = currentEl.innerHTML.trim();
+
           // Спеціальна обробка віршів (div.quoted-anustubh або схоже)
           if (currentEl.matches('div[class*="quoted"], div[class*="verse"]')) {
-            contentParts.push(`\n${text}\n`);
+            contentParts.push(`<div class="verse">${innerHTML}</div>`);
           }
           // Посилання (p.reference або схоже)
           else if (currentEl.matches('p[class*="reference"], [class*="source"]') || /^\{[A-Z]+/.test(text)) {
-            contentParts.push(`[${text}]`);
+            contentParts.push(`<p class="reference">${innerHTML}</p>`);
           }
           // Звичайний параграф
-          else if (currentEl.matches('p, div')) {
-            contentParts.push(text);
+          else if (currentEl.matches('p')) {
+            contentParts.push(`<p>${innerHTML}</p>`);
+          }
+          // Інший div
+          else if (currentEl.matches('div')) {
+            contentParts.push(`<div>${innerHTML}</div>`);
           }
         }
 
         currentEl = currentEl.nextElementSibling;
       }
 
-      const content = contentParts.join('\n\n').trim();
+      // ✅ Об'єднуємо HTML
+      const content = contentParts.join('\n').trim();
       console.log(`✅ [Raja Vidya UA] Chapter ${chapterNumber} content: ${content.length} chars`);
 
       if (content) {
@@ -192,39 +199,92 @@ export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChap
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
+    // Діагностика: які класи є
+    const allClasses = new Set<string>();
+    doc.querySelectorAll('[class]').forEach(el => {
+      el.classList.forEach(cls => allClasses.add(cls));
+    });
+    console.log(`📊 [Raja Vidya EN] Унікальних класів: ${allClasses.size}`);
+    console.log(`📋 [Raja Vidya EN] Класи (перші 30):`, Array.from(allClasses).slice(0, 30).join(', '));
+
     // Витягуємо номер глави з URL: https://vedabase.io/en/library/rv/1/ -> 1
     const chapterMatch = url.match(/\/rv\/(\d+)/);
     const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : 1;
 
     // Знаходимо заголовок глави
     let title = '';
-    const titleEl = doc.querySelector('h1, .r-title, .chapter-title');
+    const titleEl = doc.querySelector('h1, h2, .r-title, .chapter-title, [class*="title"]');
     if (titleEl) {
       title = titleEl.textContent?.trim() || '';
       console.log(`📝 [Raja Vidya EN] Chapter ${chapterNumber} title: "${title}"`);
     }
 
-    // Збираємо весь текстовий контент
-    // Vedabase зазвичай використовує .r-verse, .r-paragraph, або .r-text
+    // ✅ ПОКРАЩЕНО: Збираємо HTML замість простого тексту для збереження форматування
     const contentParts: string[] = [];
 
-    // Спробуємо знайти основний контент-контейнер
-    const contentContainer = doc.querySelector('.r-body, .r-content, article, main') || doc.body;
+    // Шукаємо основний контент-контейнер з різними варіантами
+    const possibleContainers = [
+      '.r-body',
+      '.r-content',
+      '.r-chapter',
+      'article',
+      'main',
+      '#content',
+      '.content',
+      '.entry-content',
+      '[role="main"]'
+    ];
 
-    if (contentContainer) {
-      // Збираємо всі параграфи
-      const paragraphs = contentContainer.querySelectorAll('p, .r-paragraph, .r-text');
-      paragraphs.forEach((p) => {
-        const text = p.textContent?.trim() || '';
-        if (text && text.length > 10) {
-          // Ігноруємо дуже короткі тексти
-          contentParts.push(text);
-        }
-      });
+    let contentContainer = null;
+    for (const selector of possibleContainers) {
+      contentContainer = doc.querySelector(selector);
+      if (contentContainer) {
+        console.log(`✅ [Raja Vidya EN] Знайдено контейнер: ${selector}`);
+        break;
+      }
     }
 
-    const content = contentParts.join('\n\n').trim();
-    console.log(`✅ [Raja Vidya EN] Chapter ${chapterNumber} content: ${content.length} chars`);
+    if (!contentContainer) {
+      console.log(`⚠️ [Raja Vidya EN] Не знайдено спеціального контейнера, використовую body`);
+      contentContainer = doc.body;
+    }
+
+    if (contentContainer) {
+      // ✅ Збираємо параграфи зі збереженням HTML структури
+      const paragraphs = contentContainer.querySelectorAll('p, div.verse, div.text, .r-paragraph, .r-text');
+      console.log(`📊 [Raja Vidya EN] Знайдено параграфів: ${paragraphs.length}`);
+
+      paragraphs.forEach((p, index) => {
+        // Пропускаємо заголовки та навігацію
+        if (p.closest('nav, header, footer, .navigation, .menu')) {
+          return;
+        }
+
+        const text = p.textContent?.trim() || '';
+        if (text && text.length > 10) {
+          // Зберігаємо innerHTML для збереження форматування
+          const innerHTML = p.innerHTML.trim();
+          contentParts.push(`<p>${innerHTML}</p>`);
+
+          if (index < 3) {
+            console.log(`  [${index}] ${text.substring(0, 80)}...`);
+          }
+        }
+      });
+
+      // Якщо не знайдено параграфів, спробуємо взяти весь innerHTML контейнера
+      if (contentParts.length === 0) {
+        console.log(`⚠️ [Raja Vidya EN] Параграфів не знайдено, беру весь innerHTML контейнера`);
+        const containerHTML = contentContainer.innerHTML.trim();
+        if (containerHTML) {
+          contentParts.push(containerHTML);
+        }
+      }
+    }
+
+    // ✅ Об'єднуємо з HTML тегами для збереження форматування
+    const content = contentParts.join('\n').trim();
+    console.log(`✅ [Raja Vidya EN] Chapter ${chapterNumber} content: ${content.length} chars (HTML)`);
 
     if (!content) {
       console.warn(`⚠️ [Raja Vidya EN] No content found for chapter ${chapterNumber}`);
