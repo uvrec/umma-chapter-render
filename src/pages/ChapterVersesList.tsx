@@ -125,7 +125,7 @@ export const ChapterVersesList = () => {
         .eq("chapter_id", chapter.id)
         .is("deleted_at", null)
         .eq("is_published", true)
-        .order("verse_number_sort", { ascending: true });
+        .order("sort_key", { ascending: true });
       if (error) throw error;
       return data || [];
     },
@@ -144,7 +144,7 @@ export const ChapterVersesList = () => {
         .eq("chapter_id", fallbackChapter.id)
         .is("deleted_at", null)
         .eq("is_published", true)
-        .order("verse_number_sort", { ascending: true });
+        .order("sort_key", { ascending: true });
       if (error) throw error;
       return data || [];
     },

@@ -88,7 +88,7 @@ export const BookOverview = () => {
         .eq("chapter_id", chapter1.id)
         .is("deleted_at", null)
         .eq("is_published", true)
-        .order("verse_number_sort");
+        .order("sort_key", { ascending: true });
 
       if (error) throw error;
       return data || [];

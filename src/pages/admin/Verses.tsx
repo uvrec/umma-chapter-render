@@ -99,7 +99,7 @@ const Verses = () => {
         .select("*")
         .eq("chapter_id", selectedChapterId)
         .is("deleted_at", null)
-        .order("verse_number_sort", { ascending: true });
+        .order("sort_key", { ascending: true });
       if (error) throw error;
       return data || [];
     },
