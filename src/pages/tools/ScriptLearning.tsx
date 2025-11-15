@@ -14,6 +14,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { extractAllTerms, calculateTermUsage, GlossaryTerm } from "@/utils/glossaryParser";
 import { getLearningWords, saveLearningWords, removeLearningWord, LearningWord } from "@/utils/learningWords";
 import { getLearningVerses, saveLearningVerses, removeLearningVerse, LearningVerse } from "@/utils/learningVerses";
+import { calculateNextReview, sortByReviewPriority, getDueItems, getReviewStats, formatTimeUntilReview } from "@/utils/spacedRepetition";
+import {
+  getLearningProgress,
+  updateStreak,
+  recordReview,
+  checkAchievements,
+  getTodaysDailyGoal,
+  updateDailyGoal,
+  Achievement,
+  LearningProgress
+} from "@/utils/achievements";
 import {
   Volume2,
   RefreshCw,
@@ -27,7 +38,11 @@ import {
   RotateCcw,
   Download,
   ListPlus,
-  Trash2
+  Trash2,
+  Clock,
+  Target,
+  Award,
+  Zap
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -206,6 +221,10 @@ export default function ScriptLearning() {
   const [importedWords, setImportedWords] = useState<WordCard[]>([]);
   const [learningVerses, setLearningVerses] = useState<LearningVerse[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [srsReviewMode, setSrsReviewMode] = useState(false); // SRS review mode toggle
+  const [learningProgress, setLearningProgress] = useState<LearningProgress>(getLearningProgress());
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
   const [stats, setStats] = useState<LearningStats>({
     correct: 0,
     incorrect: 0,
@@ -346,9 +365,24 @@ export default function ScriptLearning() {
       streak: prev.streak + 1,
       bestStreak: Math.max(prev.bestStreak, prev.streak + 1)
     }));
+
+    // Update consecutive correct count
+    setConsecutiveCorrect(prev => prev + 1);
+
+    // Update SRS metadata (quality: 4 = correct)
+    updateItemSRS(4);
+
+    // Record review and update daily goal
+    const newProgress = recordReview(true);
+    setLearningProgress(newProgress);
+    updateDailyGoal(1);
+
+    // Check for new achievements
+    checkAndShowAchievements();
+
     handleNext();
   };
-  
+
   const handleIncorrect = () => {
     setStats(prev => ({
       ...prev,
@@ -356,7 +390,71 @@ export default function ScriptLearning() {
       total: prev.total + 1,
       streak: 0
     }));
+
+    // Reset consecutive correct count
+    setConsecutiveCorrect(0);
+
+    // Update SRS metadata (quality: 1 = incorrect)
+    updateItemSRS(1);
+
+    // Record review
+    const newProgress = recordReview(false);
+    setLearningProgress(newProgress);
+
     handleNext();
+  };
+
+  // Check and show new achievements
+  const checkAndShowAchievements = () => {
+    const newUnlocked = checkAchievements(learningProgress, {
+      wordCount: importedWords.length,
+      verseCount: learningVerses.length,
+      currentStreak: learningProgress.currentStreak,
+      consecutiveCorrect,
+      masteredCount: srsStats.mastered,
+    });
+
+    if (newUnlocked.length > 0) {
+      setNewAchievements(newUnlocked);
+
+      // Show toast for each new achievement
+      newUnlocked.forEach(achievement => {
+        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.ua, achievement.title.en)}`, {
+          description: t(achievement.description.ua, achievement.description.en),
+          duration: 5000,
+        });
+      });
+
+      // Update state with new achievements
+      setLearningProgress(getLearningProgress());
+    }
+  };
+
+  // Update SRS metadata for current item
+  const updateItemSRS = (quality: number) => {
+    if (learningMode === "words" && currentItem && 'iast' in currentItem) {
+      setImportedWords(prev => {
+        const index = prev.findIndex(w => w.iast === currentItem.iast);
+        if (index === -1) return prev;
+
+        const updated = [...prev];
+        const newSRS = calculateNextReview(quality, updated[index].srs);
+        updated[index] = { ...updated[index], srs: newSRS };
+
+        return updated;
+      });
+    } else if (learningMode === "slokas" && currentItem && 'verseId' in currentItem) {
+      setLearningVerses(prev => {
+        const index = prev.findIndex(v => v.verseId === currentItem.verseId);
+        if (index === -1) return prev;
+
+        const updated = [...prev];
+        const newSRS = calculateNextReview(quality, updated[index].srs);
+        updated[index] = { ...updated[index], srs: newSRS };
+
+        return updated;
+      });
+    }
   };
   
   const resetStats = () => {
@@ -408,9 +506,35 @@ export default function ScriptLearning() {
     if (learningMode === "alphabet") {
       return getCurrentAlphabet();
     } else if (learningMode === "words") {
-      return importedWords.length > 0 ? importedWords : topGlossaryWords.slice(0, 20);
+      let words = importedWords.length > 0 ? importedWords : topGlossaryWords.slice(0, 20);
+
+      // Apply SRS filtering and sorting for imported words only
+      if (srsReviewMode && importedWords.length > 0) {
+        words = getDueItems(importedWords);
+        if (words.length === 0) {
+          toast.info(t("Немає слів для повторення сьогодні! 🎉", "No words due for review today! 🎉"));
+          setSrsReviewMode(false);
+          return importedWords;
+        }
+        words = sortByReviewPriority(words);
+      }
+
+      return words;
     } else if (learningMode === "slokas") {
-      return learningVerses;
+      let verses = learningVerses;
+
+      // Apply SRS filtering and sorting
+      if (srsReviewMode && verses.length > 0) {
+        verses = getDueItems(verses);
+        if (verses.length === 0) {
+          toast.info(t("Немає віршів для повторення сьогодні! 🎉", "No verses due for review today! 🎉"));
+          setSrsReviewMode(false);
+          return learningVerses;
+        }
+        verses = sortByReviewPriority(verses);
+      }
+
+      return verses;
     } else if (learningMode === "custom") {
       return customWords;
     }
@@ -423,7 +547,17 @@ export default function ScriptLearning() {
   const currentItem = currentLearningItems[currentLetterIndex];
 
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-  
+
+  // Calculate SRS stats
+  const srsStats = useMemo(() => {
+    if (learningMode === "words" && importedWords.length > 0) {
+      return getReviewStats(importedWords);
+    } else if (learningMode === "slokas" && learningVerses.length > 0) {
+      return getReviewStats(learningVerses);
+    }
+    return { total: 0, dueToday: 0, dueThisWeek: 0, learned: 0, mastered: 0 };
+  }, [learningMode, importedWords, learningVerses]);
+
   // Load data from LocalStorage on mount
   useEffect(() => {
     try {
@@ -444,10 +578,21 @@ export default function ScriptLearning() {
       if (savedStats) {
         setStats(JSON.parse(savedStats));
       }
+
+      // Update streak on mount
+      const updatedProgress = updateStreak(learningProgress);
+      setLearningProgress(updatedProgress);
     } catch (error) {
       console.error('Error loading from LocalStorage:', error);
     }
   }, []);
+
+  // Check achievements when counts change
+  useEffect(() => {
+    if (importedWords.length > 0 || learningVerses.length > 0) {
+      checkAndShowAchievements();
+    }
+  }, [importedWords.length, learningVerses.length]);
 
   // Save imported words to LocalStorage using utility
   useEffect(() => {
@@ -667,7 +812,7 @@ export default function ScriptLearning() {
                 </div>
 
                 {learningVerses.length > 0 && (
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       size="sm"
                       variant={mode === "flashcards" ? "default" : "outline"}
@@ -683,6 +828,14 @@ export default function ScriptLearning() {
                     >
                       <Languages className="w-4 h-4 mr-1" />
                       {t("Практика", "Practice")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={srsReviewMode ? "default" : "outline"}
+                      onClick={() => setSrsReviewMode(!srsReviewMode)}
+                    >
+                      <Clock className="w-4 h-4 mr-1" />
+                      {t("SRS Режим", "SRS Mode")}
                     </Button>
                     <Button
                       onClick={() => {
@@ -768,7 +921,7 @@ export default function ScriptLearning() {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"
                     variant={mode === "flashcards" ? "default" : "outline"}
@@ -785,11 +938,154 @@ export default function ScriptLearning() {
                     <Languages className="w-4 h-4 mr-1" />
                     {t("Практика", "Practice")}
                   </Button>
+                  <Button
+                    size="sm"
+                    variant={srsReviewMode ? "default" : "outline"}
+                    onClick={() => setSrsReviewMode(!srsReviewMode)}
+                  >
+                    <Clock className="w-4 h-4 mr-1" />
+                    {t("SRS Режим", "SRS Mode")}
+                  </Button>
                 </div>
               </div>
             </Card>
           )}
           
+          {/* SRS Статистика */}
+          {(learningMode === "words" || learningMode === "slokas") && srsStats.total > 0 && (
+            <Card className="p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  {t("Розумне повторення", "Spaced Repetition")}
+                </h3>
+                {srsReviewMode && (
+                  <Badge variant="default" className="bg-green-600">
+                    {t("Активний", "Active")}
+                  </Badge>
+                )}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-red-600">
+                    {srsStats.dueToday}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Сьогодні", "Today")}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {srsStats.dueThisWeek}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Цього тижня", "This Week")}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {srsStats.learned}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Вивчено", "Learned")}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {srsStats.mastered}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Освоєно", "Mastered")}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-600">
+                    {srsStats.total}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {t("Всього", "Total")}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Досягнення та щоденні цілі */}
+          <Card className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950">
+            <div className="space-y-3">
+              {/* Streak та щоденна ціль */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {/* Streak */}
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-orange-500" />
+                    <div>
+                      <div className="text-2xl font-bold text-orange-600">
+                        {learningProgress.currentStreak}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t("День поспіль", "Day Streak")}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Daily Goal */}
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-green-500" />
+                    <div>
+                      <div className="text-2xl font-bold text-green-600">
+                        {getTodaysDailyGoal().completed} / {getTodaysDailyGoal().target}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {t("Щоденна ціль", "Daily Goal")}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Achievement count */}
+                <div className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-purple-500" />
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {learningProgress.achievements.length}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {t("Досягнень", "Achievements")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress bar for daily goal */}
+              {getTodaysDailyGoal().target > 0 && (
+                <div>
+                  <Progress
+                    value={(getTodaysDailyGoal().completed / getTodaysDailyGoal().target) * 100}
+                    className="h-2"
+                  />
+                </div>
+              )}
+
+              {/* Recent achievements */}
+              {learningProgress.achievements.length > 0 && (
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {learningProgress.achievements.slice(-5).reverse().map((achievement) => (
+                    <Badge
+                      key={achievement.id}
+                      variant="secondary"
+                      className="flex items-center gap-1 whitespace-nowrap"
+                      title={t(achievement.description.ua, achievement.description.en)}
+                    >
+                      <span>{achievement.icon}</span>
+                      <span className="text-xs">{t(achievement.title.ua, achievement.title.en)}</span>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+
           {/* Статистика */}
           {stats.total > 0 && (
             <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
