@@ -340,6 +340,116 @@ export default function ScriptLearning() {
     return alphabet.filter(l => l.type === letterType);
   }, [scriptType, letterType]);
 
+  // Get current learning items based on mode
+  const getCurrentLearningItems = () => {
+    if (learningMode === "alphabet") {
+      return getCurrentAlphabet();
+    } else if (learningMode === "words") {
+      let words = importedWords.length > 0 ? importedWords : topGlossaryWords.slice(0, 20);
+
+      // Apply SRS filtering and sorting for imported words only
+      if (srsReviewMode && importedWords.length > 0) {
+        words = getDueItems(importedWords);
+        if (words.length === 0) {
+          toast.info(t("Немає слів для повторення сьогодні! 🎉", "No words due for review today! 🎉"));
+          setSrsReviewMode(false);
+          return importedWords;
+        }
+        words = sortByReviewPriority(words);
+      }
+
+      return words;
+    } else if (learningMode === "slokas") {
+      let verses = learningVerses;
+
+      // Apply SRS filtering and sorting
+      if (srsReviewMode && verses.length > 0) {
+        verses = getDueItems(verses);
+        if (verses.length === 0) {
+          toast.info(t("Немає віршів для повторення сьогодні! 🎉", "No verses due for review today! 🎉"));
+          setSrsReviewMode(false);
+          return learningVerses;
+        }
+        verses = sortByReviewPriority(verses);
+      }
+
+      return verses;
+    } else if (learningMode === "custom") {
+      return customWords;
+    }
+    return [];
+  };
+
+  const currentLearningItems = getCurrentLearningItems();
+  const currentAlphabet = getCurrentAlphabet();
+  const currentLetter = currentAlphabet[currentLetterIndex];
+  const currentItem = currentLearningItems[currentLetterIndex];
+
+  const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+
+  // Calculate SRS stats
+  const srsStats = useMemo(() => {
+    if (learningMode === "words" && importedWords.length > 0) {
+      return getReviewStats(importedWords);
+    } else if (learningMode === "slokas" && learningVerses.length > 0) {
+      return getReviewStats(learningVerses);
+    }
+    return { total: 0, dueToday: 0, dueThisWeek: 0, learned: 0, mastered: 0 };
+  }, [learningMode, importedWords, learningVerses]);
+
+  // Update SRS metadata for current item
+  const updateItemSRS = useCallback((quality: number) => {
+    if (learningMode === "words" && currentItem && 'iast' in currentItem) {
+      setImportedWords(prev => {
+        const index = prev.findIndex(w => w.iast === currentItem.iast);
+        if (index === -1) return prev;
+
+        const updated = [...prev];
+        const newSRS = calculateNextReview(quality, updated[index].srs);
+        updated[index] = { ...updated[index], srs: newSRS };
+
+        return updated;
+      });
+    } else if (learningMode === "slokas" && currentItem && 'verseId' in currentItem) {
+      setLearningVerses(prev => {
+        const index = prev.findIndex(v => v.verseId === currentItem.verseId);
+        if (index === -1) return prev;
+
+        const updated = [...prev];
+        const newSRS = calculateNextReview(quality, updated[index].srs);
+        updated[index] = { ...updated[index], srs: newSRS };
+
+        return updated;
+      });
+    }
+  }, [learningMode, currentItem]);
+
+  // Check and show new achievements
+  const checkAndShowAchievements = useCallback(() => {
+    const newUnlocked = checkAchievements(learningProgress, {
+      wordCount: importedWords.length,
+      verseCount: learningVerses.length,
+      currentStreak: learningProgress.currentStreak,
+      consecutiveCorrect,
+      masteredCount: srsStats.mastered,
+    });
+
+    if (newUnlocked.length > 0) {
+      setNewAchievements(newUnlocked);
+
+      // Show toast for each new achievement
+      newUnlocked.forEach(achievement => {
+        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.ua, achievement.title.en)}`, {
+          description: t(achievement.description.ua, achievement.description.en),
+          duration: 5000,
+        });
+      });
+
+      // Update state with new achievements
+      setLearningProgress(getLearningProgress());
+    }
+  }, [learningProgress, importedWords.length, learningVerses.length, consecutiveCorrect, srsStats.mastered, t]);
+
   // Навігація
   const handleNext = () => {
     setCurrentLetterIndex((prev) => (prev + 1) % currentLearningItems.length);
@@ -404,59 +514,6 @@ export default function ScriptLearning() {
     handleNext();
   };
 
-  // Check and show new achievements
-  const checkAndShowAchievements = useCallback(() => {
-    const newUnlocked = checkAchievements(learningProgress, {
-      wordCount: importedWords.length,
-      verseCount: learningVerses.length,
-      currentStreak: learningProgress.currentStreak,
-      consecutiveCorrect,
-      masteredCount: srsStats.mastered,
-    });
-
-    if (newUnlocked.length > 0) {
-      setNewAchievements(newUnlocked);
-
-      // Show toast for each new achievement
-      newUnlocked.forEach(achievement => {
-        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.ua, achievement.title.en)}`, {
-          description: t(achievement.description.ua, achievement.description.en),
-          duration: 5000,
-        });
-      });
-
-      // Update state with new achievements
-      setLearningProgress(getLearningProgress());
-    }
-  }, [learningProgress, importedWords.length, learningVerses.length, consecutiveCorrect, srsStats.mastered, t]);
-
-  // Update SRS metadata for current item
-  const updateItemSRS = useCallback((quality: number) => {
-    if (learningMode === "words" && currentItem && 'iast' in currentItem) {
-      setImportedWords(prev => {
-        const index = prev.findIndex(w => w.iast === currentItem.iast);
-        if (index === -1) return prev;
-
-        const updated = [...prev];
-        const newSRS = calculateNextReview(quality, updated[index].srs);
-        updated[index] = { ...updated[index], srs: newSRS };
-
-        return updated;
-      });
-    } else if (learningMode === "slokas" && currentItem && 'verseId' in currentItem) {
-      setLearningVerses(prev => {
-        const index = prev.findIndex(v => v.verseId === currentItem.verseId);
-        if (index === -1) return prev;
-
-        const updated = [...prev];
-        const newSRS = calculateNextReview(quality, updated[index].srs);
-        updated[index] = { ...updated[index], srs: newSRS };
-
-        return updated;
-      });
-    }
-  }, [learningMode, currentItem]);
-  
   const resetStats = () => {
     setStats({
       correct: 0,
@@ -500,63 +557,6 @@ export default function ScriptLearning() {
     setImportedWords(prev => prev.filter((word) => word.iast !== iast));
     toast.success(t("Слово видалено", "Word removed"));
   };
-
-  // Get current learning items based on mode
-  const getCurrentLearningItems = () => {
-    if (learningMode === "alphabet") {
-      return getCurrentAlphabet();
-    } else if (learningMode === "words") {
-      let words = importedWords.length > 0 ? importedWords : topGlossaryWords.slice(0, 20);
-
-      // Apply SRS filtering and sorting for imported words only
-      if (srsReviewMode && importedWords.length > 0) {
-        words = getDueItems(importedWords);
-        if (words.length === 0) {
-          toast.info(t("Немає слів для повторення сьогодні! 🎉", "No words due for review today! 🎉"));
-          setSrsReviewMode(false);
-          return importedWords;
-        }
-        words = sortByReviewPriority(words);
-      }
-
-      return words;
-    } else if (learningMode === "slokas") {
-      let verses = learningVerses;
-
-      // Apply SRS filtering and sorting
-      if (srsReviewMode && verses.length > 0) {
-        verses = getDueItems(verses);
-        if (verses.length === 0) {
-          toast.info(t("Немає віршів для повторення сьогодні! 🎉", "No verses due for review today! 🎉"));
-          setSrsReviewMode(false);
-          return learningVerses;
-        }
-        verses = sortByReviewPriority(verses);
-      }
-
-      return verses;
-    } else if (learningMode === "custom") {
-      return customWords;
-    }
-    return [];
-  };
-
-  const currentLearningItems = getCurrentLearningItems();
-  const currentAlphabet = getCurrentAlphabet();
-  const currentLetter = currentAlphabet[currentLetterIndex];
-  const currentItem = currentLearningItems[currentLetterIndex];
-
-  const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-
-  // Calculate SRS stats
-  const srsStats = useMemo(() => {
-    if (learningMode === "words" && importedWords.length > 0) {
-      return getReviewStats(importedWords);
-    } else if (learningMode === "slokas" && learningVerses.length > 0) {
-      return getReviewStats(learningVerses);
-    }
-    return { total: 0, dueToday: 0, dueThisWeek: 0, learned: 0, mastered: 0 };
-  }, [learningMode, importedWords, learningVerses]);
 
   // Load data from LocalStorage on mount
   useEffect(() => {

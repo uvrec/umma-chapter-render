@@ -468,6 +468,7 @@ export default function DailyQuotes() {
             </DialogContent>
           </Dialog>
         </div>
+      </div>
 
         {/* Список цитат */}
         {isLoading ? (

@@ -854,6 +854,85 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_quotes: {
+        Row: {
+          author_en: string | null
+          author_ua: string | null
+          created_at: string | null
+          created_by: string | null
+          display_count: number | null
+          id: string
+          is_active: boolean | null
+          last_displayed_at: string | null
+          priority: number | null
+          quote_en: string | null
+          quote_type: Database["public"]["Enums"]["daily_quote_type"]
+          quote_ua: string | null
+          source_en: string | null
+          source_ua: string | null
+          updated_at: string | null
+          verse_id: string | null
+        }
+        Insert: {
+          author_en?: string | null
+          author_ua?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_displayed_at?: string | null
+          priority?: number | null
+          quote_en?: string | null
+          quote_type: Database["public"]["Enums"]["daily_quote_type"]
+          quote_ua?: string | null
+          source_en?: string | null
+          source_ua?: string | null
+          updated_at?: string | null
+          verse_id?: string | null
+        }
+        Update: {
+          author_en?: string | null
+          author_ua?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_displayed_at?: string | null
+          priority?: number | null
+          quote_en?: string | null
+          quote_type?: Database["public"]["Enums"]["daily_quote_type"]
+          quote_ua?: string | null
+          source_en?: string | null
+          source_ua?: string | null
+          updated_at?: string | null
+          verse_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_structure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       highlights: {
         Row: {
           book_id: string
@@ -2032,6 +2111,7 @@ export type Database = {
       app_role: "admin" | "editor" | "user"
       audio_event_type: "play" | "pause" | "complete" | "skip"
       chapter_type: "verses" | "text"
+      daily_quote_type: "verse" | "custom"
       lecture_type:
         | "Conversation"
         | "Walk"
@@ -2181,6 +2261,7 @@ export const Constants = {
       app_role: ["admin", "editor", "user"],
       audio_event_type: ["play", "pause", "complete", "skip"],
       chapter_type: ["verses", "text"],
+      daily_quote_type: ["verse", "custom"],
       lecture_type: [
         "Conversation",
         "Walk",
