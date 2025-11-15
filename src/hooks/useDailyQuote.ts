@@ -7,7 +7,6 @@ export type DailyQuote = {
   id: string;
   quote_type: 'verse' | 'custom';
   
-  // Якщо тип = verse
   verse_id?: string;
   verse?: {
     verse_number: string;
@@ -18,16 +17,15 @@ export type DailyQuote = {
     chapter?: {
       chapter_number: number;
       title_ua: string;
-      title_en: string;
+      title_en?: string;
       book?: {
         slug: string;
         title_ua: string;
-        title_en: string;
+        title_en?: string;
       };
     };
   };
   
-  // Якщо тип = custom
   quote_ua?: string;
   quote_en?: string;
   author_ua?: string;
@@ -35,10 +33,13 @@ export type DailyQuote = {
   source_ua?: string;
   source_en?: string;
   
-  // Метадані
   priority: number;
   display_count: number;
   last_displayed_at?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+  created_by?: string;
 };
 
 /**
@@ -113,9 +114,8 @@ export function useDailyQuote() {
         return data[randomIndex] as DailyQuote;
       } else {
         // Sequential або custom - беремо першу
-        query = query.limit(1).single();
-        const { data, error } = await query;
-        if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+        const { data, error } = await query.limit(1).single();
+        if (error && error.code !== 'PGRST116') throw error;
         return data as DailyQuote | null;
       }
     },
@@ -125,10 +125,20 @@ export function useDailyQuote() {
   // Оновлюємо статистику показу цитати
   const updateDisplayStats = useMutation({
     mutationFn: async (quoteId: string) => {
+      // Отримуємо поточне значення
+      const { data: currentQuote } = await supabase
+        .from("daily_quotes")
+        .select("display_count")
+        .eq("id", quoteId)
+        .single();
+
+      const newCount = (currentQuote?.display_count || 0) + 1;
+
+      // Оновлюємо
       const { error } = await supabase
         .from("daily_quotes")
         .update({
-          display_count: supabase.raw('display_count + 1'),
+          display_count: newCount,
           last_displayed_at: new Date().toISOString(),
         })
         .eq("id", quoteId);
@@ -192,9 +202,11 @@ export function useDailyQuotesAdmin() {
             chapter:chapters (
               chapter_number,
               title_ua,
+              title_en,
               book:books (
                 slug,
-                title_ua
+                title_ua,
+                title_en
               )
             )
           )
@@ -210,9 +222,12 @@ export function useDailyQuotesAdmin() {
   // Створення нової цитати
   const createQuote = useMutation({
     mutationFn: async (quote: Partial<DailyQuote>) => {
+      // Видаляємо nested objects перед вставкою
+      const { verse, ...quoteData } = quote;
+      
       const { data, error } = await supabase
         .from("daily_quotes")
-        .insert(quote)
+        .insert(quoteData as any)
         .select()
         .single();
 
