@@ -27,6 +27,8 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import {
   Select,
   SelectContent,
@@ -39,6 +41,79 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+
+// Helper function to create highlighted snippet
+function createHighlightedSnippet(text: string, searchQuery: string, maxLength: number = 250): string {
+  if (!text || !searchQuery) return text?.substring(0, maxLength) || '';
+
+  // Split search query into terms (min 2 chars to avoid highlighting small words)
+  const searchTerms = searchQuery.toLowerCase().split(/\s+/).filter(term => term.length >= 2);
+  const lowerText = text.toLowerCase();
+
+  // Find the first occurrence of any search term
+  let firstIndex = -1;
+  let foundTerm = '';
+
+  for (const term of searchTerms) {
+    const index = lowerText.indexOf(term);
+    if (index !== -1 && (firstIndex === -1 || index < firstIndex)) {
+      firstIndex = index;
+      foundTerm = term;
+    }
+  }
+
+  // If no match found, return beginning of text
+  if (firstIndex === -1) {
+    const preview = text.substring(0, maxLength);
+    return preview + (text.length > maxLength ? '...' : '');
+  }
+
+  // Calculate snippet bounds with context
+  const contextBefore = 80;
+  const contextAfter = 150;
+  const start = Math.max(0, firstIndex - contextBefore);
+  const end = Math.min(text.length, firstIndex + foundTerm.length + contextAfter);
+
+  let snippet = text.substring(start, end);
+
+  // Add ellipsis
+  if (start > 0) snippet = '...' + snippet;
+  if (end < text.length) snippet = snippet + '...';
+
+  // Escape special regex characters in search terms
+  const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  // Highlight all search terms in the snippet (case-insensitive, whole words or parts)
+  searchTerms.forEach(term => {
+    const escapedTerm = escapeRegex(term);
+    // Match the term as part of a word (useful for Ukrainian word forms)
+    const regex = new RegExp(`(${escapedTerm}[а-яієїґ]*)`, 'gi');
+    snippet = snippet.replace(regex, '<mark style="background-color: #fef08a; padding: 2px 4px; border-radius: 2px; font-weight: 600;">$1</mark>');
+  });
+
+  return snippet;
+}
+
+// Helper function to find which field contains the match
+function findMatchedFields(verse: any, searchQuery: string): string[] {
+  const matched: string[] = [];
+  const searchLower = searchQuery.toLowerCase();
+
+  if (verse.translation_ua?.toLowerCase().includes(searchLower) ||
+      verse.translation_en?.toLowerCase().includes(searchLower)) {
+    matched.push('translation');
+  }
+  if (verse.commentary_ua?.toLowerCase().includes(searchLower) ||
+      verse.commentary_en?.toLowerCase().includes(searchLower)) {
+    matched.push('commentary');
+  }
+  if (verse.synonyms_ua?.toLowerCase().includes(searchLower) ||
+      verse.synonyms_en?.toLowerCase().includes(searchLower)) {
+    matched.push('synonyms');
+  }
+
+  return matched.length > 0 ? matched : ['translation'];
+}
 
 interface SearchResult {
   verse_id: string;
@@ -204,27 +279,46 @@ export default function KnowledgeCompiler() {
         }
 
         // Transform fallback data to match expected format
-        const transformedData = fallbackData?.map((verse: any) => ({
-          verse_id: verse.id,
-          verse_number: verse.verse_number,
-          chapter_id: verse.chapter_id,
-          chapter_number: verse.chapters?.chapter_number || 0,
-          chapter_title: language === 'ua' ? verse.chapters?.title_ua : verse.chapters?.title_en,
-          book_id: verse.chapters?.books?.id,
-          book_title: language === 'ua' ? verse.chapters?.books?.title_ua : verse.chapters?.books?.title_en,
-          book_slug: verse.chapters?.books?.slug,
-          canto_id: null,
-          canto_number: null,
-          canto_title: null,
-          sanskrit: verse.sanskrit,
-          transliteration: verse.transliteration,
-          synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
-          translation: language === 'ua' ? verse.translation_ua : verse.translation_en,
-          commentary: language === 'ua' ? verse.commentary_ua : verse.commentary_en,
-          relevance_rank: 1.0,
-          matched_in: ['translation'],
-          search_snippet: (language === 'ua' ? verse.translation_ua : verse.translation_en)?.substring(0, 150) || ''
-        })) || [];
+        const transformedData = fallbackData?.map((verse: any) => {
+          const translation = language === 'ua' ? verse.translation_ua : verse.translation_en;
+          const commentary = language === 'ua' ? verse.commentary_ua : verse.commentary_en;
+          const synonyms = language === 'ua' ? verse.synonyms_ua : verse.synonyms_en;
+
+          // Find which field has the match and create snippet from it
+          const matchedFields = findMatchedFields(verse, searchQuery);
+          let snippetText = translation || '';
+
+          // Prefer creating snippet from the field that actually contains the match
+          if (matchedFields.includes('commentary') && commentary) {
+            snippetText = commentary;
+          } else if (matchedFields.includes('translation') && translation) {
+            snippetText = translation;
+          } else if (matchedFields.includes('synonyms') && synonyms) {
+            snippetText = synonyms;
+          }
+
+          return {
+            verse_id: verse.id,
+            verse_number: verse.verse_number,
+            chapter_id: verse.chapter_id,
+            chapter_number: verse.chapters?.chapter_number || 0,
+            chapter_title: language === 'ua' ? verse.chapters?.title_ua : verse.chapters?.title_en,
+            book_id: verse.chapters?.books?.id,
+            book_title: language === 'ua' ? verse.chapters?.books?.title_ua : verse.chapters?.books?.title_en,
+            book_slug: verse.chapters?.books?.slug,
+            canto_id: null,
+            canto_number: null,
+            canto_title: null,
+            sanskrit: verse.sanskrit,
+            transliteration: verse.transliteration,
+            synonyms,
+            translation,
+            commentary,
+            relevance_rank: 1.0,
+            matched_in: matchedFields,
+            search_snippet: createHighlightedSnippet(snippetText, searchQuery, 250)
+          };
+        }) || [];
 
         setSearchResults(transformedData);
 
@@ -261,7 +355,30 @@ export default function KnowledgeCompiler() {
 
       console.log('Search results:', data);
 
-      setSearchResults(data || []);
+      // Add highlighting to snippets from database results
+      const enhancedResults = data?.map((verse: any) => {
+        const translation = language === 'ua' ? verse.translation : verse.translation;
+        const commentary = language === 'ua' ? verse.commentary : verse.commentary;
+
+        // Create highlighted snippet from the field that contains the match
+        let snippetSource = '';
+        if (verse.matched_in?.includes('commentary') && commentary) {
+          snippetSource = commentary;
+        } else if (verse.matched_in?.includes('translation') && translation) {
+          snippetSource = translation;
+        } else if (translation) {
+          snippetSource = translation;
+        } else if (commentary) {
+          snippetSource = commentary;
+        }
+
+        return {
+          ...verse,
+          search_snippet: createHighlightedSnippet(snippetSource, searchQuery, 250)
+        };
+      }) || [];
+
+      setSearchResults(enhancedResults);
 
       // Also get topic statistics
       const { data: statsData, error: statsError } = await supabase.rpc('get_topic_statistics', {
@@ -328,60 +445,218 @@ export default function KnowledgeCompiler() {
     });
   };
 
-  // Export compilation as text
-  const exportAsText = () => {
+  // Export compilation as PDF
+  const exportAsPDF = () => {
     if (compilation.length === 0) {
       toast.error(language === 'ua' ? "Збірка порожня" : "Compilation is empty");
       return;
     }
 
-    let text = `${compilationTitle || (language === 'ua' ? 'Тематична Збірка' : 'Thematic Compilation')}\n`;
-    text += `${language === 'ua' ? 'Тема' : 'Topic'}: ${searchQuery}\n`;
-    text += `${language === 'ua' ? 'Створено' : 'Created'}: ${new Date().toLocaleDateString()}\n`;
-    text += `${'='.repeat(80)}\n\n`;
+    try {
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-    compilation.forEach((verse, index) => {
-      const reference = verse.canto_number
-        ? `${verse.book_title}, Пісня ${verse.canto_number}, Розділ ${verse.chapter_number}, Вірш ${verse.verse_number}`
-        : `${verse.book_title}, Розділ ${verse.chapter_number}, Вірш ${verse.verse_number}`;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - (margin * 2);
+      let yPosition = margin;
 
-      text += `${index + 1}. ${reference}\n\n`;
+      // Helper to add new page if needed
+      const checkPageBreak = (neededSpace: number) => {
+        if (yPosition + neededSpace > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+        }
+      };
 
-      if (verse.sanskrit) {
-        text += `${verse.sanskrit}\n\n`;
+      // Helper to wrap and add text
+      const addWrappedText = (text: string, fontSize: number, fontStyle: string = 'normal', color: number[] = [0, 0, 0]) => {
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', fontStyle);
+        doc.setTextColor(color[0], color[1], color[2]);
+
+        const lines = doc.splitTextToSize(text, maxWidth);
+        const lineHeight = fontSize * 0.5;
+
+        checkPageBreak(lines.length * lineHeight);
+
+        lines.forEach((line: string) => {
+          doc.text(line, margin, yPosition);
+          yPosition += lineHeight;
+        });
+      };
+
+      // Title page
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(40, 40, 40);
+      const title = compilationTitle || (language === 'ua' ? 'Тематична Збірка' : 'Thematic Compilation');
+      doc.text(title, pageWidth / 2, 40, { align: 'center' });
+
+      yPosition = 60;
+
+      // Metadata
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(80, 80, 80);
+      doc.text(`${language === 'ua' ? 'Тема' : 'Topic'}: ${searchQuery}`, margin, yPosition);
+      yPosition += 7;
+      doc.text(`${language === 'ua' ? 'Дата створення' : 'Created'}: ${new Date().toLocaleDateString()}`, margin, yPosition);
+      yPosition += 7;
+      doc.text(`${language === 'ua' ? 'Кількість віршів' : 'Number of verses'}: ${compilation.length}`, margin, yPosition);
+      yPosition += 15;
+
+      // Separator line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 10;
+
+      // Add each verse
+      compilation.forEach((verse, index) => {
+        checkPageBreak(40);
+
+        // Verse number and reference
+        const reference = verse.canto_number
+          ? `${verse.book_title}, ${language === 'ua' ? 'Пісня' : 'Canto'} ${verse.canto_number}, ${language === 'ua' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${verse.verse_number}`
+          : `${verse.book_title}, ${language === 'ua' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${verse.verse_number}`;
+
+        // Verse header with background
+        doc.setFillColor(245, 245, 245);
+        doc.rect(margin - 2, yPosition - 5, maxWidth + 4, 10, 'F');
+
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(40, 40, 40);
+        doc.text(`${index + 1}. ${reference}`, margin, yPosition);
+        yPosition += 12;
+
+        // Sanskrit (if exists)
+        if (verse.sanskrit) {
+          checkPageBreak(15);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(100, 60, 60);
+          const sanskritLines = doc.splitTextToSize(verse.sanskrit, maxWidth);
+          sanskritLines.forEach((line: string) => {
+            doc.text(line, margin, yPosition);
+            yPosition += 5;
+          });
+          yPosition += 3;
+        }
+
+        // Transliteration (if exists)
+        if (verse.transliteration) {
+          checkPageBreak(15);
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(120, 120, 120);
+          const translitLines = doc.splitTextToSize(verse.transliteration, maxWidth);
+          translitLines.forEach((line: string) => {
+            doc.text(line, margin, yPosition);
+            yPosition += 4.5;
+          });
+          yPosition += 3;
+        }
+
+        // Synonyms (if exists)
+        if (verse.synonyms) {
+          checkPageBreak(20);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(60, 60, 60);
+          doc.text(language === 'ua' ? 'Синоніми:' : 'Synonyms:', margin, yPosition);
+          yPosition += 5;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(80, 80, 80);
+          const synonymLines = doc.splitTextToSize(verse.synonyms, maxWidth);
+          synonymLines.forEach((line: string) => {
+            checkPageBreak(5);
+            doc.text(line, margin, yPosition);
+            yPosition += 4;
+          });
+          yPosition += 3;
+        }
+
+        // Translation
+        if (verse.translation) {
+          checkPageBreak(20);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(60, 60, 60);
+          doc.text(language === 'ua' ? 'Переклад:' : 'Translation:', margin, yPosition);
+          yPosition += 5;
+
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(0, 0, 0);
+          const translationLines = doc.splitTextToSize(verse.translation, maxWidth);
+          translationLines.forEach((line: string) => {
+            checkPageBreak(5);
+            doc.text(line, margin, yPosition);
+            yPosition += 5;
+          });
+          yPosition += 3;
+        }
+
+        // Commentary (if exists)
+        if (verse.commentary) {
+          checkPageBreak(20);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(60, 60, 60);
+          doc.text(language === 'ua' ? 'Коментар:' : 'Commentary:', margin, yPosition);
+          yPosition += 5;
+
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(40, 40, 40);
+          const commentaryLines = doc.splitTextToSize(verse.commentary, maxWidth);
+          commentaryLines.forEach((line: string) => {
+            checkPageBreak(4.5);
+            doc.text(line, margin, yPosition);
+            yPosition += 4.5;
+          });
+          yPosition += 5;
+        }
+
+        // Separator between verses
+        if (index < compilation.length - 1) {
+          checkPageBreak(5);
+          doc.setDrawColor(220, 220, 220);
+          doc.line(margin, yPosition, pageWidth - margin, yPosition);
+          yPosition += 8;
+        }
+      });
+
+      // Footer on each page
+      const totalPages = doc.internal.pages.length - 1;
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `${language === 'ua' ? 'Сторінка' : 'Page'} ${i} ${language === 'ua' ? 'з' : 'of'} ${totalPages}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        );
       }
 
-      if (verse.transliteration) {
-        text += `${verse.transliteration}\n\n`;
-      }
+      // Save PDF
+      const fileName = `${compilationTitle || 'збірка'}_${searchQuery.substring(0, 20)}.pdf`;
+      doc.save(fileName);
 
-      if (verse.synonyms) {
-        text += `Синоніми:\n${verse.synonyms}\n\n`;
-      }
-
-      if (verse.translation) {
-        text += `Переклад:\n${verse.translation}\n\n`;
-      }
-
-      if (verse.commentary) {
-        text += `Коментар:\n${verse.commentary}\n\n`;
-      }
-
-      text += `${'-'.repeat(80)}\n\n`;
-    });
-
-    // Create and download file
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${compilationTitle || 'збірка'}_${searchQuery}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast.success(language === 'ua' ? "Збірку експортовано" : "Compilation exported");
+      toast.success(language === 'ua' ? "PDF експортовано успішно" : "PDF exported successfully");
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast.error(language === 'ua' ? "Помилка при експорті PDF" : "Error exporting PDF");
+    }
   };
 
   return (
@@ -691,11 +966,18 @@ export default function KnowledgeCompiler() {
                           </CardContent>
                         )}
 
-                        {!isExpanded && verse.search_snippet && (
-                          <CardContent className="pt-0">
-                            <p className="text-sm text-muted-foreground italic"
-                               dangerouslySetInnerHTML={{ __html: verse.search_snippet }}
-                            />
+                        {!isExpanded && (
+                          <CardContent className="pt-0 space-y-2">
+                            {verse.search_snippet && (
+                              <div className="bg-muted/50 p-3 rounded-md border border-border">
+                                <p className="text-xs text-muted-foreground mb-1 font-semibold">
+                                  {language === 'ua' ? 'Знайдено:' : 'Found:'}
+                                </p>
+                                <p className="text-sm"
+                                   dangerouslySetInnerHTML={{ __html: verse.search_snippet }}
+                                />
+                              </div>
+                            )}
                           </CardContent>
                         )}
                       </Card>
@@ -736,9 +1018,9 @@ export default function KnowledgeCompiler() {
 
                 {/* Export Button */}
                 {compilation.length > 0 && (
-                  <Button onClick={exportAsText} className="w-full" size="lg">
+                  <Button onClick={exportAsPDF} className="w-full" size="lg">
                     <Download className="w-4 h-4 mr-2" />
-                    {language === 'ua' ? 'Експортувати як текст' : 'Export as Text'}
+                    {language === 'ua' ? 'Експортувати як PDF' : 'Export as PDF'}
                   </Button>
                 )}
 
