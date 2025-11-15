@@ -20,7 +20,18 @@ export const IntroChapter = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { fontSize, lineHeight, dualLanguageMode } = useReaderSettings();
+  const { fontSize, lineHeight } = useReaderSettings();
+  const [dualMode, setDualMode] = useState(() => 
+    localStorage.getItem("vv_reader_dualMode") === "true"
+  );
+
+  useEffect(() => {
+    const handler = () => {
+      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+    };
+    window.addEventListener("vv-reader-prefs-changed", handler);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
+  }, []);
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -113,27 +124,6 @@ export const IntroChapter = () => {
     }
   });
 
-  // Function to split content into paragraphs
-  const splitIntoParagraphs = (content: string): string[] => {
-    if (!content) return [];
-    return content
-      .split(/\n\n+/)
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-  };
-
-  // Parse paragraphs for dual mode
-  const uaParagraphs = useMemo(() =>
-    splitIntoParagraphs(introChapter?.content_ua || ""),
-    [introChapter?.content_ua]
-  );
-
-  const enParagraphs = useMemo(() =>
-    splitIntoParagraphs(introChapter?.content_en || ""),
-    [introChapter?.content_en]
-  );
-
-  const maxLength = Math.max(uaParagraphs.length, enParagraphs.length);
 
   if (isLoading) {
     return (
@@ -236,41 +226,31 @@ export const IntroChapter = () => {
             </div>
           ) : (
             // Reading mode
-            dualLanguageMode ? (
-              // Dual mode - two columns synchronized
-              <div className="grid gap-6 md:grid-cols-2">
+            dualMode ? (
+              // Dual mode - two columns with full HTML
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
                 {/* Ukrainian column */}
-                <div className="space-y-4">
-                  {Array.from({ length: maxLength }).map((_, idx) => (
-                    <p
-                      key={`ua-${idx}`}
-                      className="text-foreground"
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(uaParagraphs[idx] || "")
-                      }}
-                    />
-                  ))}
-                </div>
-
+                <div 
+                  className="prose prose-slate dark:prose-invert max-w-none"
+                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(introChapter?.content_ua || "")
+                  }}
+                />
+                
                 {/* English column */}
-                <div className="space-y-4 border-l border-border pl-6">
-                  {Array.from({ length: maxLength }).map((_, idx) => (
-                    <p
-                      key={`en-${idx}`}
-                      className="text-foreground"
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(enParagraphs[idx] || "")
-                      }}
-                    />
-                  ))}
-                </div>
+                <div 
+                  className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
+                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(introChapter?.content_en || "")
+                  }}
+                />
               </div>
             ) : (
               // Single mode - one language
               <div
-                className="prose prose-lg max-w-none dark:prose-invert"
+                className="prose prose-slate dark:prose-invert max-w-none"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
