@@ -36,16 +36,15 @@ export default function AddEditVerse() {
   const [commentaryUa, setCommentaryUa] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
 
-  // Audio URLs for each section
+  // Audio URLs - simplified structure (4 fields)
   const [audioUrl, setAudioUrl] = useState(""); // Legacy field
-  const [audioSanskritUrl, setAudioSanskritUrl] = useState("");
-  const [audioTransliterationUrl, setAudioTransliterationUrl] = useState("");
-  const [audioSynonymsUaUrl, setAudioSynonymsUaUrl] = useState("");
-  const [audioSynonymsEnUrl, setAudioSynonymsEnUrl] = useState("");
-  const [audioTranslationUaUrl, setAudioTranslationUaUrl] = useState("");
-  const [audioTranslationEnUrl, setAudioTranslationEnUrl] = useState("");
-  const [audioCommentaryUaUrl, setAudioCommentaryUaUrl] = useState("");
-  const [audioCommentaryEnUrl, setAudioCommentaryEnUrl] = useState("");
+  const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState(""); // PRIMARY: complete verse (95% use case)
+  const [recitationAudioUrl, setRecitationAudioUrl] = useState(""); // Sanskrit + Transliteration
+  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState(""); // Synonyms + Translation + Commentary UA
+  const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState(""); // EN version
+
+  // UI state for collapsible advanced audio section
+  const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -156,15 +155,16 @@ export default function AddEditVerse() {
       // Legacy audio field
       setAudioUrl(verse.audio_url || "");
 
-      // New dual audio fields
-      setAudioSanskritUrl(verse.audio_sanskrit_url || "");
-      setAudioTransliterationUrl(verse.audio_transliteration_url || "");
-      setAudioSynonymsUaUrl(verse.audio_synonyms_ua_url || "");
-      setAudioSynonymsEnUrl(verse.audio_synonyms_en_url || "");
-      setAudioTranslationUaUrl(verse.audio_translation_ua_url || "");
-      setAudioTranslationEnUrl(verse.audio_translation_en_url || "");
-      setAudioCommentaryUaUrl(verse.audio_commentary_ua_url || "");
-      setAudioCommentaryEnUrl(verse.audio_commentary_en_url || "");
+      // Simplified dual audio fields (4 fields)
+      setFullVerseAudioUrl(verse.full_verse_audio_url || "");
+      setRecitationAudioUrl(verse.recitation_audio_url || "");
+      setExplanationUaAudioUrl(verse.explanation_ua_audio_url || "");
+      setExplanationEnAudioUrl(verse.explanation_en_audio_url || "");
+
+      // Auto-expand advanced section if any secondary audio exists
+      if (verse.recitation_audio_url || verse.explanation_ua_audio_url || verse.explanation_en_audio_url) {
+        setShowAdvancedAudio(true);
+      }
     }
   }, [verse]);
 
@@ -184,16 +184,12 @@ export default function AddEditVerse() {
         commentary_ua: commentaryUa || null,
         commentary_en: commentaryEn || null,
 
-        // Audio URLs
-        audio_url: audioUrl || null, // Legacy field
-        audio_sanskrit_url: audioSanskritUrl || null,
-        audio_transliteration_url: audioTransliterationUrl || null,
-        audio_synonyms_ua_url: audioSynonymsUaUrl || null,
-        audio_synonyms_en_url: audioSynonymsEnUrl || null,
-        audio_translation_ua_url: audioTranslationUaUrl || null,
-        audio_translation_en_url: audioTranslationEnUrl || null,
-        audio_commentary_ua_url: audioCommentaryUaUrl || null,
-        audio_commentary_en_url: audioCommentaryEnUrl || null,
+        // Audio URLs - simplified structure
+        audio_url: audioUrl || null, // Legacy field (kept for compatibility)
+        full_verse_audio_url: fullVerseAudioUrl || null, // PRIMARY audio
+        recitation_audio_url: recitationAudioUrl || null, // Sanskrit + Transliteration
+        explanation_ua_audio_url: explanationUaAudioUrl || null, // UA explanation
+        explanation_en_audio_url: explanationEnAudioUrl || null, // EN explanation
 
         is_published: true,
       };
@@ -450,81 +446,81 @@ export default function AddEditVerse() {
 
             {/* Audio Files Section */}
             <div className="space-y-6 border-t pt-6">
-              <h3 className="text-lg font-semibold">Аудіо файли</h3>
-              <p className="text-sm text-muted-foreground -mt-4">
-                Завантажте окремі аудіо для кожної секції або вставте посилання вручну
-              </p>
-
-              {/* Shared Audio (Sanskrit & Transliteration) */}
-              <div className="space-y-4">
-                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide border-b pb-2">
-                  Спільні
-                </h4>
-
-                <AudioUploader
-                  label="Аудіо санскриту/бенгалі"
-                  value={audioSanskritUrl}
-                  onChange={setAudioSanskritUrl}
-                />
-
-                <AudioUploader
-                  label="Аудіо транслітерації"
-                  value={audioTransliterationUrl}
-                  onChange={setAudioTransliterationUrl}
-                />
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Аудіо файли</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Основне аудіо вірша (лекція/запис)
+                  </p>
+                </div>
               </div>
 
-              {/* Ukrainian & English Audio */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Ukrainian Audio */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide border-b pb-2">
-                    Українська
-                  </h4>
+              {/* PRIMARY AUDIO - Always visible, prominent */}
+              <AudioUploader
+                label="Повний вірш (лекція)"
+                value={fullVerseAudioUrl}
+                onChange={setFullVerseAudioUrl}
+                primary={true}
+              />
 
-                  <AudioUploader
-                    label="Аудіо синонімів"
-                    value={audioSynonymsUaUrl}
-                    onChange={setAudioSynonymsUaUrl}
-                  />
+              {/* ADVANCED AUDIO - Collapsible section */}
+              <div className="space-y-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAdvancedAudio(!showAdvancedAudio)}
+                  className="w-full justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Додаткові аудіо записи
+                    </span>
+                    {(recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                        {[recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {showAdvancedAudio ? "Приховати" : "Показати"}
+                  </span>
+                </Button>
 
-                  <AudioUploader
-                    label="Аудіо перекладу"
-                    value={audioTranslationUaUrl}
-                    onChange={setAudioTranslationUaUrl}
-                  />
+                {showAdvancedAudio && (
+                  <div className="space-y-4 pl-4 border-l-2 border-border">
+                    <p className="text-xs text-muted-foreground">
+                      Окремі аудіо для різних частин вірша (студійні записи)
+                    </p>
 
-                  <AudioUploader
-                    label="Аудіо коментаря"
-                    value={audioCommentaryUaUrl}
-                    onChange={setAudioCommentaryUaUrl}
-                  />
-                </div>
+                    <AudioUploader
+                      label="Читання санскриту/бенгалі"
+                      value={recitationAudioUrl}
+                      onChange={setRecitationAudioUrl}
+                      compact={true}
+                    />
 
-                {/* English Audio */}
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wide border-b pb-2">
-                    English
-                  </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <AudioUploader
+                        label="Пояснення (українською)"
+                        value={explanationUaAudioUrl}
+                        onChange={setExplanationUaAudioUrl}
+                        compact={true}
+                      />
 
-                  <AudioUploader
-                    label="Audio for Synonyms"
-                    value={audioSynonymsEnUrl}
-                    onChange={setAudioSynonymsEnUrl}
-                  />
+                      <AudioUploader
+                        label="Explanation (English)"
+                        value={explanationEnAudioUrl}
+                        onChange={setExplanationEnAudioUrl}
+                        compact={true}
+                      />
+                    </div>
 
-                  <AudioUploader
-                    label="Audio for Translation"
-                    value={audioTranslationEnUrl}
-                    onChange={setAudioTranslationEnUrl}
-                  />
-
-                  <AudioUploader
-                    label="Audio for Commentary"
-                    value={audioCommentaryEnUrl}
-                    onChange={setAudioCommentaryEnUrl}
-                  />
-                </div>
+                    <p className="text-xs text-muted-foreground italic">
+                      Примітка: Пояснення включає послівний переклад, літературний переклад та коментар
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Legacy Audio Field */}

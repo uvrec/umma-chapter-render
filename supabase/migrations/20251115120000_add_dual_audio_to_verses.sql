@@ -1,34 +1,29 @@
 -- Add dual audio functionality to verses table
--- Allows separate audio files for each section (sanskrit, transliteration, synonyms, translation, commentary)
--- Matches blog_posts structure for consistency
+-- Simplified structure: 4 audio fields instead of 8
+-- Prioritizes primary use case (full verse audio) while supporting advanced scenarios
 
 -- Add new audio columns
 ALTER TABLE verses
-ADD COLUMN audio_sanskrit_url TEXT,
-ADD COLUMN audio_transliteration_url TEXT,
-ADD COLUMN audio_synonyms_ua_url TEXT,
-ADD COLUMN audio_synonyms_en_url TEXT,
-ADD COLUMN audio_translation_ua_url TEXT,
-ADD COLUMN audio_translation_en_url TEXT,
-ADD COLUMN audio_commentary_ua_url TEXT,
-ADD COLUMN audio_commentary_en_url TEXT,
-ADD COLUMN audio_metadata JSONB;
+ADD COLUMN full_verse_audio_url TEXT,         -- PRIMARY: Complete verse recording (95% use case)
+ADD COLUMN recitation_audio_url TEXT,          -- Sanskrit/Bengali + Transliteration recitation
+ADD COLUMN explanation_ua_audio_url TEXT,      -- Ukrainian: Synonyms + Translation + Commentary
+ADD COLUMN explanation_en_audio_url TEXT,      -- English: Synonyms + Translation + Commentary
+ADD COLUMN audio_metadata JSONB;                -- Duration, file size, format, timestamps, etc.
 
--- Migrate existing audio_url to audio_commentary_ua_url (most complete content)
--- This preserves backward compatibility
+-- Migrate existing audio_url to full_verse_audio_url (correct semantics)
+-- Old audio_url contains COMPLETE verse recordings (lectures), not just commentary
 UPDATE verses
-SET audio_commentary_ua_url = audio_url
+SET full_verse_audio_url = audio_url
 WHERE audio_url IS NOT NULL
-  AND audio_commentary_ua_url IS NULL;
+  AND full_verse_audio_url IS NULL;
 
--- Add comment for documentation
-COMMENT ON COLUMN verses.audio_sanskrit_url IS 'Audio recording of sanskrit/bengali text only';
-COMMENT ON COLUMN verses.audio_transliteration_url IS 'Audio recording of transliteration';
-COMMENT ON COLUMN verses.audio_synonyms_ua_url IS 'Audio recording of Ukrainian word-by-word translation';
-COMMENT ON COLUMN verses.audio_synonyms_en_url IS 'Audio recording of English word-by-word translation';
-COMMENT ON COLUMN verses.audio_translation_ua_url IS 'Audio recording of Ukrainian literary translation';
-COMMENT ON COLUMN verses.audio_translation_en_url IS 'Audio recording of English literary translation';
-COMMENT ON COLUMN verses.audio_commentary_ua_url IS 'Audio recording of Ukrainian commentary/purport';
-COMMENT ON COLUMN verses.audio_commentary_en_url IS 'Audio recording of English commentary/purport';
-COMMENT ON COLUMN verses.audio_metadata IS 'JSON metadata: duration, size, format, etc.';
-COMMENT ON COLUMN verses.audio_url IS 'Legacy field - kept for backward compatibility';
+-- Add column comments for documentation
+COMMENT ON COLUMN verses.full_verse_audio_url IS 'Primary audio: complete verse recording/lecture (most common use case)';
+COMMENT ON COLUMN verses.recitation_audio_url IS 'Audio of sanskrit/bengali text and transliteration only';
+COMMENT ON COLUMN verses.explanation_ua_audio_url IS 'Ukrainian: word-by-word, translation, and commentary combined';
+COMMENT ON COLUMN verses.explanation_en_audio_url IS 'English: word-by-word, translation, and commentary combined';
+COMMENT ON COLUMN verses.audio_metadata IS 'JSONB metadata: {duration, file_size, format, uploaded_at, etc.}';
+COMMENT ON COLUMN verses.audio_url IS 'LEGACY: kept for backward compatibility, use full_verse_audio_url instead';
+
+-- Create index for audio metadata queries (optional, for future features)
+CREATE INDEX IF NOT EXISTS idx_verses_audio_metadata ON verses USING GIN (audio_metadata);

@@ -15,6 +15,8 @@ interface AudioUploaderProps {
   accept?: string;
   maxSizeMB?: number;
   showManualInput?: boolean;
+  compact?: boolean; // Compact mode for secondary audio fields
+  primary?: boolean; // Highlight primary audio field
 }
 
 export function AudioUploader({
@@ -25,6 +27,8 @@ export function AudioUploader({
   accept = "audio/*",
   maxSizeMB = 50,
   showManualInput = true,
+  compact = false,
+  primary = false,
 }: AudioUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -157,12 +161,12 @@ export function AudioUploader({
   };
 
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
+    <div className={`space-y-2 ${primary ? "p-4 border-2 border-primary/20 rounded-lg bg-primary/5" : ""}`}>
+      <Label className={primary ? "text-base font-semibold" : ""}>{label}</Label>
 
       {value ? (
         // Preview with audio player
-        <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
+        <div className={`flex items-center gap-2 p-3 border rounded-lg bg-muted/50 ${primary ? "border-primary/40" : ""}`}>
           <audio src={value} controls className="flex-1 h-10" />
           <Button
             type="button"
@@ -178,8 +182,14 @@ export function AudioUploader({
       ) : (
         // Upload zone
         <div
-          className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-            isDragging ? "border-primary bg-primary/5" : "border-border"
+          className={`border-2 border-dashed rounded-lg text-center transition-colors ${
+            compact ? "p-3" : "p-6"
+          } ${
+            isDragging
+              ? "border-primary bg-primary/5"
+              : primary
+                ? "border-primary/40"
+                : "border-border"
           }`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -195,19 +205,21 @@ export function AudioUploader({
           />
           <Label
             htmlFor={`audio-upload-${label}`}
-            className="cursor-pointer flex flex-col items-center gap-2"
+            className={`cursor-pointer flex ${compact ? "flex-row" : "flex-col"} items-center gap-2`}
           >
             {isUploading ? (
-              <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+              <Loader2 className={`${compact ? "h-5 w-5" : "h-8 w-8"} text-muted-foreground animate-spin`} />
             ) : (
-              <Upload className="h-8 w-8 text-muted-foreground" />
+              <Upload className={`${compact ? "h-5 w-5" : "h-8 w-8"} text-muted-foreground`} />
             )}
-            <span className="text-sm text-muted-foreground">
-              {isUploading ? "Завантаження..." : "Натисніть або перетягніть аудіо"}
+            <span className={`${compact ? "text-xs" : "text-sm"} text-muted-foreground`}>
+              {isUploading ? "Завантаження..." : compact ? "Завантажити" : "Натисніть або перетягніть аудіо"}
             </span>
-            <span className="text-xs text-muted-foreground">
-              MP3, M4A, WAV, OGG, FLAC (макс. {maxSizeMB}MB)
-            </span>
+            {!compact && (
+              <span className="text-xs text-muted-foreground">
+                MP3, M4A, WAV, OGG, FLAC (макс. {maxSizeMB}MB)
+              </span>
+            )}
           </Label>
         </div>
       )}

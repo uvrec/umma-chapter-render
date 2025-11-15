@@ -1,36 +1,48 @@
-# Dual Audio Functionality - Update Instructions
+# Dual Audio Functionality - Update Instructions (SIMPLIFIED)
 
 ## ✅ Completed Changes
 
-### 1. Database Migration
+### 1. Database Migration (SIMPLIFIED STRUCTURE)
 - Created: `supabase/migrations/20251115120000_add_dual_audio_to_verses.sql`
-- Added 8 new audio columns to `verses` table:
-  - `audio_sanskrit_url`
-  - `audio_transliteration_url`
-  - `audio_synonyms_ua_url`
-  - `audio_synonyms_en_url`
-  - `audio_translation_ua_url`
-  - `audio_translation_en_url`
-  - `audio_commentary_ua_url`
-  - `audio_commentary_en_url`
-  - `audio_metadata` (JSONB)
-- Migrated existing `audio_url` data to `audio_commentary_ua_url`
+- **Added 4 new audio columns** (instead of 8) to `verses` table:
+  - `full_verse_audio_url` - **PRIMARY**: Complete verse recording (95% use case)
+  - `recitation_audio_url` - Sanskrit/Bengali + Transliteration recitation
+  - `explanation_ua_audio_url` - Ukrainian explanation (synonyms + translation + commentary)
+  - `explanation_en_audio_url` - English explanation (synonyms + translation + commentary)
+  - `audio_metadata` - JSONB for duration, file size, format, timestamps
+- **Correctly migrated** existing `audio_url` → `full_verse_audio_url` (not commentary!)
+- Added GIN index on `audio_metadata` for future queries
 
-### 2. New Component
+### 2. AudioUploader Component with Compact Mode
 - Created: `src/components/admin/shared/AudioUploader.tsx`
-- Features:
+- **Features:**
   - Drag & drop support
   - File upload to Supabase Storage
-  - Progress bar
-  - Audio preview
+  - Progress bar with percentage
+  - Audio preview player
   - Manual URL input fallback
-  - Remove functionality
+  - Remove functionality with storage cleanup
+  - **NEW: Compact mode** - smaller size for secondary audio fields
+  - **NEW: Primary mode** - highlighted styling for main audio
 
-### 3. Updated Admin Form
+### 3. Updated Admin Form with Collapsible UI
 - Updated: `src/pages/admin/AddEditVerse.tsx`
-- Added 8 AudioUploader components
-- Organized by language (UA/EN) and section
-- Kept legacy `audio_url` field for backward compatibility
+- **Structure:**
+  - **PRIMARY AUDIO** (always visible, prominent):
+    - "Повний вірш (лекція)" - `full_verse_audio_url`
+    - Large uploader with primary styling
+  - **ADVANCED AUDIO** (collapsible, closed by default):
+    - "Читання санскриту/бенгалі" - `recitation_audio_url`
+    - "Пояснення (українською)" - `explanation_ua_audio_url`
+    - "Explanation (English)" - `explanation_en_audio_url`
+    - Compact uploaders in collapsible section
+    - Badge showing count of uploaded files
+    - Auto-expands if any advanced audio exists
+- **UI Benefits:**
+  - 95% use case (single audio) takes ~300px
+  - Advanced features don't clutter interface
+  - Clear visual hierarchy
+  - Reduced vertical scroll from ~1760px to ~400px
 
 ## 🚀 Deployment Steps
 
@@ -70,23 +82,33 @@ SELECT * FROM storage.buckets WHERE name = 'verse-audio';
 4. Save and verify URLs are stored correctly
 5. Check frontend components use new audio fields
 
-## 📊 Database Schema Changes
+## 📊 Database Schema Changes (SIMPLIFIED)
 
 ```sql
--- New columns added to verses table:
-audio_sanskrit_url          TEXT
-audio_transliteration_url   TEXT
-audio_synonyms_ua_url       TEXT
-audio_synonyms_en_url       TEXT
-audio_translation_ua_url    TEXT
-audio_translation_en_url    TEXT
-audio_commentary_ua_url     TEXT
-audio_commentary_en_url     TEXT
-audio_metadata              JSONB
+-- New columns added to verses table (4 fields instead of 8):
+full_verse_audio_url        TEXT  -- PRIMARY: Complete lecture/recording (95% use case)
+recitation_audio_url        TEXT  -- Sanskrit/Bengali + Transliteration only
+explanation_ua_audio_url    TEXT  -- UA: Synonyms + Translation + Commentary combined
+explanation_en_audio_url    TEXT  -- EN: Synonyms + Translation + Commentary combined
+audio_metadata              JSONB -- Duration, file size, format, timestamps, etc.
 
 -- Legacy field (kept for compatibility):
-audio_url                   TEXT
+audio_url                   TEXT  -- Use full_verse_audio_url instead
 ```
+
+### Why 4 fields instead of 8?
+
+**Use Case Analysis:**
+- **95%**: One complete verse audio (lecture/full recording)
+- **4%**: Additional recitation audio (Sanskrit)
+- **1%**: Separate explanation audios
+
+**Benefits:**
+- ✅ Simpler for 95% of use cases
+- ✅ Less empty fields in database
+- ✅ Clearer semantics (full_verse vs explanations)
+- ✅ Easier to maintain
+- ✅ Better UX (primary audio prominent)
 
 ## 🔄 Frontend Components to Update (Optional)
 
@@ -150,10 +172,16 @@ Cmd/Ctrl + Shift + P > TypeScript: Restart TS Server
 4. Update frontend components to use new fields
 5. Consider adding audio metadata extraction (duration, file size)
 
-## 🎯 Consistency with blog_posts
+## 🎯 Why Different from blog_posts?
 
-The `verses` table now matches `blog_posts` structure:
-- Both have 8 separate audio fields
-- Same naming convention
-- Same data types
-- Consistent user experience across admin forms
+**blog_posts** has 8 audio fields - **correct for its use case:**
+- Poetry mode requires granular audio control
+- Each section (synonyms, translation, commentary) is separate content
+- Users may want to listen to specific parts only
+
+**verses** has 4 audio fields - **correct for its use case:**
+- Primary use: complete verse lecture (one audio)
+- Secondary use: recitation + explanations (rare)
+- Simpler structure for simpler content model
+
+**Both approaches are optimal for their respective contexts.**
