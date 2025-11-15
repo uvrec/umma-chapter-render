@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useReaderSettings } from '@/hooks/useReaderSettings';
 import { InlineTiptapEditor } from '@/components/InlineTiptapEditor';
 import { toast } from '@/hooks/use-toast';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 
 export const IntroChapter = () => {
@@ -20,7 +20,12 @@ export const IntroChapter = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { fontSize, lineHeight, dualLanguageMode } = useReaderSettings();
+  const { fontSize, lineHeight } = useReaderSettings();
+
+  // Dual mode читаємо з localStorage напряму (як в ChapterVersesList)
+  const [dualMode, setDualMode] = useState(() =>
+    localStorage.getItem("vv_reader_dualMode") === "true"
+  );
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -82,6 +87,15 @@ export const IntroChapter = () => {
   const prevChapter = currentIndex > 0 ? allIntroChapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < allIntroChapters.length - 1 ? allIntroChapters[currentIndex + 1] : null;
 
+  // Слухаємо зміни з GlobalSettingsPanel
+  useEffect(() => {
+    const handler = () => {
+      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
+    };
+    window.addEventListener("vv-reader-prefs-changed", handler);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
+  }, []);
+
   // Initialize edited content when intro chapter loads
   useEffect(() => {
     if (introChapter) {
@@ -112,28 +126,6 @@ export const IntroChapter = () => {
       toast({ title: "Помилка збереження", variant: "destructive" });
     }
   });
-
-  // Function to split content into paragraphs
-  const splitIntoParagraphs = (content: string): string[] => {
-    if (!content) return [];
-    return content
-      .split(/\n\n+/)
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-  };
-
-  // Parse paragraphs for dual mode
-  const uaParagraphs = useMemo(() =>
-    splitIntoParagraphs(introChapter?.content_ua || ""),
-    [introChapter?.content_ua]
-  );
-
-  const enParagraphs = useMemo(() =>
-    splitIntoParagraphs(introChapter?.content_en || ""),
-    [introChapter?.content_en]
-  );
-
-  const maxLength = Math.max(uaParagraphs.length, enParagraphs.length);
 
   if (isLoading) {
     return (
@@ -236,42 +228,29 @@ export const IntroChapter = () => {
             </div>
           ) : (
             // Reading mode
-            dualLanguageMode ? (
+            dualMode ? (
               // Dual mode - two columns synchronized
               <div className="grid gap-6 md:grid-cols-2">
-                {/* Ukrainian column */}
-                <div className="space-y-4">
-                  {Array.from({ length: maxLength }).map((_, idx) => (
-                    <p
-                      key={`ua-${idx}`}
-                      className="text-foreground"
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(uaParagraphs[idx] || "")
-                      }}
-                    />
-                  ))}
-                </div>
+                {/* Українська колонка */}
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(introChapter?.content_ua || "")
+                  }}
+                />
 
-                {/* English column */}
-                <div className="space-y-4 border-l border-border pl-6">
-                  {Array.from({ length: maxLength }).map((_, idx) => (
-                    <p
-                      key={`en-${idx}`}
-                      className="text-foreground"
-                      style={{ fontSize: `${fontSize}px`, lineHeight }}
-                      dangerouslySetInnerHTML={{
-                        __html: DOMPurify.sanitize(enParagraphs[idx] || "")
-                      }}
-                    />
-                  ))}
-                </div>
+                {/* English колонка */}
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(introChapter?.content_en || "")
+                  }}
+                />
               </div>
             ) : (
               // Single mode - one language
               <div
-                className="prose prose-lg max-w-none dark:prose-invert"
-                style={{ fontSize: `${fontSize}px`, lineHeight }}
+                className="prose prose-slate dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     language === 'ua'
