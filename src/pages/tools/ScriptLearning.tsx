@@ -1,5 +1,5 @@
 // src/pages/tools/ScriptLearning.tsx
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { extractAllTerms, calculateTermUsage, GlossaryTerm } from "@/utils/glossaryParser";
 import { getLearningWords, saveLearningWords, removeLearningWord, LearningWord } from "@/utils/learningWords";
 import { getLearningVerses, saveLearningVerses, removeLearningVerse, LearningVerse } from "@/utils/learningVerses";
-import { calculateNextReview, sortByReviewPriority, getDueItems, getReviewStats, formatTimeUntilReview } from "@/utils/spacedRepetition";
+import { calculateNextReview, sortByReviewPriority, getDueItems, getReviewStats, formatTimeUntilReview, SRSMetadata } from "@/utils/spacedRepetition";
 import {
   getLearningProgress,
   updateStreak,
@@ -68,6 +68,8 @@ interface WordCard {
   meaning: string;
   usageCount?: number;
   book?: string;
+  verseReference?: string;
+  srs?: SRSMetadata;
 }
 
 interface LearningStats {

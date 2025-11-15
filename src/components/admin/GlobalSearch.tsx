@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   CommandDialog,
   CommandEmpty,
@@ -27,6 +28,7 @@ interface GlobalSearchProps {
 
 export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -121,15 +123,15 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
       // Search audio playlists
       const { data: playlists } = await supabase
         .from("audio_playlists")
-        .select("id, title")
-        .ilike("title", `%${searchQuery}%`)
+        .select("id, title_ua, title_en")
+        .or(`title_ua.ilike.%${searchQuery}%,title_en.ilike.%${searchQuery}%`)
         .limit(5);
 
       playlists?.forEach((playlist) => {
         searchResults.push({
           type: "playlist",
           id: playlist.id,
-          title: playlist.title,
+          title: language === 'ua' ? playlist.title_ua : playlist.title_en,
           subtitle: "Аудіо плейліст",
           href: `/admin/audio-playlists/${playlist.id}`,
         });
