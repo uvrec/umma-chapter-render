@@ -16,6 +16,7 @@ import {
   EyeOff,
   Trash2,
   ExternalLink,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
