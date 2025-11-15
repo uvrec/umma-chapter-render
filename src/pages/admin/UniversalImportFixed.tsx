@@ -43,7 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
 import { extractTextFromPDF } from "@/utils/import/pdf";
-import { extractTextFromEPUB } from "@/utils/import/epub";
+import { extractTextFromEPUB, extractHTMLFromEPUB } from "@/utils/import/epub";
 import { extractTextFromDOCX } from "@/utils/import/docx";
 import { splitIntoChapters } from "@/utils/import/splitters";
 import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
@@ -1394,7 +1394,13 @@ export default function UniversalImportFixed() {
           extractedText = await extractTextFromPDF(file);
         } else if (file.type === "application/epub+zip" || ext === "epub") {
           toast({ title: "Обробка EPUB..." });
-          extractedText = await extractTextFromEPUB(file);
+          // ✅ Для Raja Vidya використовуємо extractHTMLFromEPUB (зберігає структуру)
+          if (selectedTemplate === "raja-vidya") {
+            extractedText = await extractHTMLFromEPUB(file);
+            console.log("📚 [Raja Vidya] Використано extractHTMLFromEPUB для збереження HTML структури");
+          } else {
+            extractedText = await extractTextFromEPUB(file);
+          }
         } else if (
           ext === "docx" ||
           file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"

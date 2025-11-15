@@ -56,9 +56,41 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
 
     const chapters: RajaVidyaChapterUA[] = [];
 
+    // Діагностика: дивимось які класи є в документі
+    const allClasses = new Set<string>();
+    doc.querySelectorAll('[class]').forEach(el => {
+      el.classList.forEach(cls => allClasses.add(cls));
+    });
+    console.log(`📊 [Raja Vidya UA] Унікальних класів у HTML: ${allClasses.size}`);
+    console.log(`📋 [Raja Vidya UA] Класи:`, Array.from(allClasses).slice(0, 20).join(', '));
+
+    // Діагностика: які заголовки є
+    const allH1 = doc.querySelectorAll('h1');
+    console.log(`📌 [Raja Vidya UA] Знайдено h1 елементів: ${allH1.length}`);
+    allH1.forEach((h1, i) => {
+      console.log(`  h1[${i}]: class="${h1.className}" text="${h1.textContent?.substring(0, 50)}"`);
+    });
+
     // Знаходимо всі h1.header-number (маркери початку глав)
-    const chapterHeaders = doc.querySelectorAll('h1.header-number');
-    console.log(`📚 [Raja Vidya UA] Found ${chapterHeaders.length} chapter headers`);
+    let chapterHeaders = doc.querySelectorAll('h1.header-number');
+    console.log(`📚 [Raja Vidya UA] Found ${chapterHeaders.length} h1.header-number elements`);
+
+    // Fallback 1: якщо не знайдено h1.header-number, шукаємо просто h1 з текстом "глава"
+    if (chapterHeaders.length === 0) {
+      console.log(`⚠️ [Raja Vidya UA] Fallback: шукаємо h1 з текстом "глава"`);
+      chapterHeaders = Array.from(allH1).filter(h1 => /глава/i.test(h1.textContent || '')) as any;
+      console.log(`📚 [Raja Vidya UA] Fallback знайшов ${chapterHeaders.length} глав`);
+    }
+
+    // Fallback 2: якщо все ще нічого, шукаємо будь-які h1/h2 з українськими числівниками
+    if (chapterHeaders.length === 0) {
+      console.log(`⚠️ [Raja Vidya UA] Fallback 2: шукаємо h1/h2 з числівниками`);
+      const allHeadings = doc.querySelectorAll('h1, h2');
+      chapterHeaders = Array.from(allHeadings).filter(h =>
+        /(перша|друга|третя|четверта|п'ята|шоста|сьома|восьма)/i.test(h.textContent || '')
+      ) as any;
+      console.log(`📚 [Raja Vidya UA] Fallback 2 знайшов ${chapterHeaders.length} глав`);
+    }
 
     chapterHeaders.forEach((headerNumberEl, index) => {
       // Отримуємо номер глави з тексту (наприклад, "глава перша")
@@ -72,48 +104,51 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
 
       console.log(`✅ [Raja Vidya UA] Chapter word: "${chapterWord}" -> number: ${chapterNumber}`);
 
-      // Знаходимо наступний елемент - h1.header з назвою глави
+      // Знаходимо наступний елемент - назву глави
+      // Спробуємо h1.header, але якщо не знайдено - візьмемо будь-який наступний h1/h2
       let titleEl = headerNumberEl.nextElementSibling;
-      while (titleEl && !titleEl.matches('h1.header')) {
+      let titleFound = false;
+
+      // Спробуємо знайти h1.header
+      while (titleEl && !titleFound) {
+        if (titleEl.matches('h1.header, h1, h2')) {
+          titleFound = true;
+          break;
+        }
         titleEl = titleEl.nextElementSibling;
       }
 
       const title = titleEl?.textContent?.trim() || `Глава ${chapterNumber}`;
       console.log(`📝 [Raja Vidya UA] Chapter ${chapterNumber} title: "${title}"`);
 
-      // Збираємо весь контент глави до наступного h1.header-number
+      // Збираємо весь контент глави до наступного маркера глави
       const contentParts: string[] = [];
-      let currentEl = titleEl?.nextElementSibling;
+      let currentEl = titleEl?.nextElementSibling || headerNumberEl.nextElementSibling;
 
       while (currentEl) {
-        // Зупиняємося на наступній главі
-        if (currentEl.matches('h1.header-number')) {
-          break;
+        const text = currentEl.textContent?.trim() || '';
+
+        // Зупиняємося на наступній главі (h1 з "глава" або числівником)
+        if (currentEl.matches('h1, h2')) {
+          const heading = text.toLowerCase();
+          if (/(глава|перша|друга|третя|четверта|п'ята|шоста|сьома|восьма)/i.test(heading)) {
+            console.log(`🛑 [Raja Vidya UA] Зупинка на наступній главі: "${text.substring(0, 50)}"`);
+            break;
+          }
         }
 
-        // Збираємо різні типи контенту
-        if (currentEl.matches('div.quoted-anustubh')) {
-          // Вірш (українська транслітерація)
-          const verseText = currentEl.textContent?.trim() || '';
-          if (verseText) {
-            contentParts.push(`\n${verseText}\n`);
+        // Збираємо всі параграфи та div-и з текстом
+        if (text && text.length > 5) {
+          // Спеціальна обробка віршів (div.quoted-anustubh або схоже)
+          if (currentEl.matches('div[class*="quoted"], div[class*="verse"]')) {
+            contentParts.push(`\n${text}\n`);
           }
-        } else if (currentEl.matches('p.reference')) {
-          // Посилання на джерело {BG 9.1}
-          const refText = currentEl.textContent?.trim() || '';
-          if (refText) {
-            contentParts.push(`[${refText}]`);
+          // Посилання (p.reference або схоже)
+          else if (currentEl.matches('p[class*="reference"], [class*="source"]') || /^\{[A-Z]+/.test(text)) {
+            contentParts.push(`[${text}]`);
           }
-        } else if (currentEl.matches('p.paragraph')) {
-          // Основний текст
-          const paraText = currentEl.textContent?.trim() || '';
-          if (paraText) {
-            contentParts.push(paraText);
-          }
-        } else if (currentEl.matches('p')) {
-          // Будь-який інший параграф
-          const text = currentEl.textContent?.trim() || '';
-          if (text) {
+          // Звичайний параграф
+          else if (currentEl.matches('p, div')) {
             contentParts.push(text);
           }
         }

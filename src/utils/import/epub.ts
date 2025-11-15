@@ -2,6 +2,68 @@ import ePub from 'epubjs';
 import { normalizeText } from './normalizers';
 import { extractVerseNumberFromUrl } from '@/utils/vedabaseParsers';
 
+/**
+ * Витягує HTML з EPUB файлу (зберігає структуру з класами та тегами)
+ * Використовується для книг, де важлива HTML структура (наприклад, Raja Vidya)
+ */
+export async function extractHTMLFromEPUB(file: File): Promise<string> {
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const book = ePub(arrayBuffer);
+
+    await book.ready;
+
+    const sectionPromises: Promise<string>[] = [];
+    let sectionsCount = 0;
+
+    book.spine.each((section: any) => {
+      sectionsCount++;
+      const sectionPromise = (async () => {
+        try {
+          const doc = await book.load(section.href);
+
+          // Повертаємо HTML замість тексту
+          if (doc instanceof Document && doc.body) {
+            return doc.body.innerHTML;
+          }
+
+          // Fallback: якщо це вже string HTML
+          if (typeof doc === 'string') {
+            const parser = new DOMParser();
+            const parsedDoc = parser.parseFromString(doc, 'text/html');
+            return parsedDoc.body?.innerHTML || '';
+          }
+
+          return '';
+        } catch (err) {
+          console.warn(`Error loading section ${section.href}:`, err);
+          return '';
+        }
+      })();
+
+      sectionPromises.push(sectionPromise);
+    });
+
+    console.log(`Processing ${sectionsCount} EPUB sections (HTML mode)`);
+
+    const sections = await Promise.all(sectionPromises);
+    const fullHTML = sections
+      .filter(html => html.trim().length > 0)
+      .join('\n\n');
+
+    console.log(`EPUB HTML extraction complete: ${sections.length} sections, ${fullHTML.length} characters`);
+
+    if (fullHTML.trim().length === 0) {
+      throw new Error('EPUB файл порожній або має непідтримуваний формат');
+    }
+
+    return fullHTML;
+  } catch (error) {
+    console.error('Error extracting EPUB HTML:', error);
+    throw new Error('Не вдалося обробити EPUB файл: ' + (error as Error).message);
+  }
+}
+
 export async function extractTextFromEPUB(file: File): Promise<string> {
   try {
     const arrayBuffer = await file.arrayBuffer();
