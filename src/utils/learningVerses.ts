@@ -1,6 +1,8 @@
 // Utility functions for managing learning verses (slokas)
 // Used to save entire verses for learning in ScriptLearning tool
 
+import { SRSMetadata } from './spacedRepetition';
+
 export interface LearningVerse {
   verseId: string;
   verseNumber: string;
@@ -22,6 +24,7 @@ export interface LearningVerse {
 
   // Metadata
   addedAt?: number;
+  srs?: SRSMetadata; // Spaced repetition metadata
 }
 
 const STORAGE_KEY = 'scriptLearning_verses';

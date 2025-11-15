@@ -1,6 +1,8 @@
 // Utility functions for managing learning words
 // Used to save words from verses for learning in ScriptLearning tool
 
+import { SRSMetadata } from './spacedRepetition';
+
 export interface LearningWord {
   script: string;
   iast: string;
@@ -10,6 +12,7 @@ export interface LearningWord {
   book?: string;
   verseReference?: string;
   addedAt?: number;
+  srs?: SRSMetadata; // Spaced repetition metadata
 }
 
 const STORAGE_KEY = 'scriptLearning_importedWords';
