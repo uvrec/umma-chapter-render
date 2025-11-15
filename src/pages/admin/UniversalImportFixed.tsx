@@ -1657,7 +1657,7 @@ export default function UniversalImportFixed() {
       setIsProcessing(false);
       setProgress(0);
     }
-  }, [parsedChapters, importData, supabase]);
+  }, [parsedChapters, saveToDatabase]);
 
   /** Імпорт розділу з файлу */
   const handleFileChapterImport = useCallback(async () => {

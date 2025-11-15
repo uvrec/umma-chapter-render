@@ -406,13 +406,34 @@ export const ChapterVersesList = () => {
                     </Button>
                   </div>
                 </div>
+              ) : dualMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+                /* ✅ Двомовний режим для текстових глав - side-by-side */
+                <div className="grid gap-6 md:grid-cols-2">
+                  {/* Українська */}
+                  <div
+                    className="prose prose-slate dark:prose-invert max-w-none"
+                    style={{ fontSize: '200%' }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(effectiveChapterObj.content_ua || "")
+                    }}
+                  />
+                  {/* Англійська */}
+                  <div
+                    className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
+                    style={{ fontSize: '200%' }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(effectiveChapterObj.content_en || "")
+                    }}
+                  />
+                </div>
               ) : (
-                <div 
+                /* Одномовний режим */
+                <div
                   className="prose prose-slate dark:prose-invert max-w-none"
                   style={{ fontSize: '200%' }}
-                  dangerouslySetInnerHTML={{ 
+                  dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
-                      language === "ua" 
+                      language === "ua"
                         ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
                         : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
                     )
