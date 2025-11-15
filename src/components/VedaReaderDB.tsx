@@ -1102,11 +1102,7 @@ export const VedaReaderDB = () => {
                       {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
                     </Button>
 
-                    <div className="text-sm text-muted-foreground">
-                      {t("Вірш", "Verse")} {currentVerseIndex + 1} {t("з", "of")} {verses.length}
-                    </div>
-
-                    <Button 
+                    <Button
                       variant="outline" 
                       onClick={handleNextVerse} 
                       disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}
