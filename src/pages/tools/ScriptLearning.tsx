@@ -405,7 +405,7 @@ export default function ScriptLearning() {
   };
 
   // Check and show new achievements
-  const checkAndShowAchievements = () => {
+  const checkAndShowAchievements = useCallback(() => {
     const newUnlocked = checkAchievements(learningProgress, {
       wordCount: importedWords.length,
       verseCount: learningVerses.length,
@@ -428,10 +428,10 @@ export default function ScriptLearning() {
       // Update state with new achievements
       setLearningProgress(getLearningProgress());
     }
-  };
+  }, [learningProgress, importedWords.length, learningVerses.length, consecutiveCorrect, srsStats.mastered, t]);
 
   // Update SRS metadata for current item
-  const updateItemSRS = (quality: number) => {
+  const updateItemSRS = useCallback((quality: number) => {
     if (learningMode === "words" && currentItem && 'iast' in currentItem) {
       setImportedWords(prev => {
         const index = prev.findIndex(w => w.iast === currentItem.iast);
@@ -455,7 +455,7 @@ export default function ScriptLearning() {
         return updated;
       });
     }
-  };
+  }, [learningMode, currentItem]);
   
   const resetStats = () => {
     setStats({
@@ -580,7 +580,8 @@ export default function ScriptLearning() {
       }
 
       // Update streak on mount
-      const updatedProgress = updateStreak(learningProgress);
+      const currentProgress = getLearningProgress();
+      const updatedProgress = updateStreak(currentProgress);
       setLearningProgress(updatedProgress);
     } catch (error) {
       console.error('Error loading from LocalStorage:', error);
@@ -592,7 +593,7 @@ export default function ScriptLearning() {
     if (importedWords.length > 0 || learningVerses.length > 0) {
       checkAndShowAchievements();
     }
-  }, [importedWords.length, learningVerses.length]);
+  }, [importedWords.length, learningVerses.length, checkAndShowAchievements]);
 
   // Save imported words to LocalStorage using utility
   useEffect(() => {
@@ -1364,12 +1365,12 @@ export default function ScriptLearning() {
                 <Button onClick={handlePrev} variant="outline" size="lg">
                   ← {t("Попередня", "Previous")}
                 </Button>
-                
+
                 <Button onClick={handleShuffle} variant="outline" size="icon">
                   <Shuffle className="w-4 h-4" />
                 </Button>
-                
-                {mode === "practice" && showAnswer && (
+
+                {mode === "practice" && (
                   <>
                     <Button onClick={handleIncorrect} variant="destructive" size="lg">
                       <XCircle className="w-5 h-5 mr-2" />
@@ -1381,7 +1382,7 @@ export default function ScriptLearning() {
                     </Button>
                   </>
                 )}
-                
+
                 <Button onClick={handleNext} variant="outline" size="lg">
                   {t("Наступна", "Next")} →
                 </Button>
