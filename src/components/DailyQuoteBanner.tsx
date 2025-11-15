@@ -1,9 +1,10 @@
 // src/components/DailyQuoteBanner.tsx
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDailyQuote } from "@/hooks/useDailyQuote";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Quote } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Quote, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,15 @@ interface DailyQuoteBannerProps {
 
 export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
   const { quote, isLoading, updateDisplayStats, rawQuote } = useDailyQuote();
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Анімація появи
+  useEffect(() => {
+    if (quote?.text) {
+      const timer = setTimeout(() => setIsVisible(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [quote?.text]);
 
   // Оновлюємо статистику при першому завантаженні
   useEffect(() => {
@@ -25,7 +35,7 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
     return (
       <div className={cn("animate-pulse", className)}>
         <Card className="p-8 bg-gradient-to-br from-amber-50/50 via-background to-orange-50/30 dark:from-amber-950/20 dark:via-background dark:to-orange-950/10">
-          <div className="h-32 bg-muted/50 rounded" />
+          <div className="h-40 bg-muted/50 rounded" />
         </Card>
       </div>
     );
@@ -34,13 +44,17 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
   if (!quote?.text) return null;
 
   return (
-    <Card 
+    <Card
       className={cn(
-        "relative overflow-hidden backdrop-blur-sm",
-        "bg-gradient-to-br from-amber-50/80 via-background/95 to-orange-50/60",
-        "dark:from-amber-950/30 dark:via-background/95 dark:to-orange-950/20",
-        "border-2 border-amber-200/50 dark:border-amber-800/30",
-        "shadow-2xl hover:shadow-3xl transition-all duration-500",
+        "relative overflow-hidden backdrop-blur-sm group",
+        "bg-gradient-to-br from-amber-50/90 via-orange-50/80 to-background/95",
+        "dark:from-amber-950/40 dark:via-orange-950/30 dark:to-background/95",
+        "border-3 border-amber-300/60 dark:border-amber-700/40",
+        "shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(251,191,36,0.4)]",
+        "dark:hover:shadow-[0_20px_60px_-15px_rgba(251,191,36,0.2)]",
+        "transition-all duration-700 ease-out",
+        "transform hover:scale-[1.02]",
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
         className
       )}
     >
@@ -53,21 +67,36 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
         />
       </div>
 
-      <div className="relative p-6 md:p-10">
-        {/* Іконка лапок */}
-        <div className="absolute top-4 left-4 text-amber-300/30 dark:text-amber-700/30">
-          <Quote className="w-16 h-16 md:w-20 md:h-20" strokeWidth={1.5} />
+      <div className="relative p-8 md:p-12">
+        {/* Іконка лапок з блиском */}
+        <div className="absolute top-6 left-6 text-amber-400/20 dark:text-amber-600/20 transition-all duration-500 group-hover:text-amber-400/30 dark:group-hover:text-amber-600/30">
+          <Quote className="w-20 h-20 md:w-24 md:h-24" strokeWidth={1.5} />
         </div>
 
-        <div className="relative z-10 space-y-6 max-w-4xl mx-auto">
+        {/* Іконка зірочки (для акценту) */}
+        <div className="absolute top-6 right-6 text-amber-400/30 dark:text-amber-500/30 animate-pulse">
+          <Sparkles className="w-6 h-6 md:w-8 md:h-8" />
+        </div>
+
+        <div className="relative z-10 space-y-7 max-w-4xl mx-auto">
+          {/* Заголовок "Цитата дня" */}
+          <div className="text-center">
+            <Badge
+              variant="outline"
+              className="bg-amber-100/50 dark:bg-amber-900/30 border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 px-4 py-1.5 text-sm font-semibold tracking-wide"
+            >
+              {quote.sanskrit ? "ШЛОКА ДНЯ" : "ЦИТАТА ДНЯ"}
+            </Badge>
+          </div>
+
           {/* Санскрит/Транслітерація (якщо вірш) */}
           {quote.sanskrit && (
-            <div className="text-center space-y-2 pb-4 border-b border-amber-200/30 dark:border-amber-800/30">
-              <p className="text-lg md:text-xl font-sanskrit text-amber-800 dark:text-amber-200 leading-relaxed">
+            <div className="text-center space-y-3 pb-6 border-b-2 border-amber-300/40 dark:border-amber-700/40">
+              <p className="text-xl md:text-2xl lg:text-3xl font-sanskrit text-amber-900 dark:text-amber-100 leading-relaxed font-semibold">
                 {quote.sanskrit}
               </p>
               {quote.transliteration && (
-                <p className="text-sm md:text-base text-amber-700/80 dark:text-amber-300/80 italic">
+                <p className="text-base md:text-lg text-amber-700 dark:text-amber-300 italic font-medium">
                   {quote.transliteration}
                 </p>
               )}
@@ -75,39 +104,43 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
           )}
 
           {/* Основна цитата */}
-          <blockquote className="space-y-4">
+          <blockquote className="space-y-6">
             <p className={cn(
               "text-center leading-relaxed",
-              quote.sanskrit 
-                ? "text-xl md:text-2xl lg:text-3xl" // Менший текст якщо є санскрит
-                : "text-2xl md:text-3xl lg:text-4xl", // Більший якщо тільки цитата
-              "font-serif font-medium",
-              "text-foreground/90 dark:text-foreground/95",
-              "tracking-wide"
+              quote.sanskrit
+                ? "text-2xl md:text-3xl lg:text-4xl" // Більший текст для віршів
+                : "text-3xl md:text-4xl lg:text-5xl", // Ще більший для звичайних цитат
+              "font-serif font-bold",
+              "text-foreground dark:text-foreground",
+              "tracking-tight",
+              "drop-shadow-sm"
             )}>
-              "{quote.text}"
+              <span className="relative inline-block">
+                <span className="absolute -inset-1 bg-gradient-to-r from-amber-400/20 to-orange-400/20 dark:from-amber-600/20 dark:to-orange-600/20 blur-sm" />
+                <span className="relative">"{quote.text}"</span>
+              </span>
             </p>
 
             {/* Автор і джерело */}
-            <footer className="flex flex-col items-center gap-2 pt-4">
+            <footer className="flex flex-col items-center gap-3 pt-6">
               {quote.author && (
-                <cite className="not-italic text-base md:text-lg font-semibold text-amber-800 dark:text-amber-200">
+                <cite className="not-italic text-lg md:text-xl lg:text-2xl font-bold text-amber-900 dark:text-amber-100 tracking-wide">
                   — {quote.author}
                 </cite>
               )}
-              
+
               {quote.source && (
-                <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground">
+                <div className="flex items-center gap-3 text-base md:text-lg text-amber-700 dark:text-amber-300 font-medium">
                   <span>{quote.source}</span>
                   {quote.link && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       asChild
-                      className="h-7 text-amber-700 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100"
+                      className="h-8 text-amber-700 hover:text-amber-900 dark:text-amber-300 dark:hover:text-amber-100 hover:bg-amber-100/50 dark:hover:bg-amber-900/30 transition-colors"
                     >
                       <Link to={quote.link}>
-                        <ExternalLink className="w-4 h-4" />
+                        <ExternalLink className="w-5 h-5" />
                       </Link>
                     </Button>
                   )}
@@ -118,8 +151,8 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
         </div>
       </div>
 
-      {/* Нижня декоративна смуга */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+      {/* Нижня декоративна смуга з анімацією */}
+      <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-500/70 to-transparent group-hover:via-amber-500/90 transition-all duration-500" />
     </Card>
   );
 }
