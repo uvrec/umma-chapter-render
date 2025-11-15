@@ -1,5 +1,6 @@
 // src/pages/tools/ScriptLearning.tsx
 import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
@@ -9,17 +10,21 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { convertIASTtoUkrainian, devanagariToIAST, bengaliToIAST } from "@/utils/textNormalizer";
-import { 
-  Volume2, 
-  RefreshCw, 
-  CheckCircle2, 
+import { supabase } from "@/integrations/supabase/client";
+import { extractAllTerms, calculateTermUsage, GlossaryTerm } from "@/utils/glossaryParser";
+import {
+  Volume2,
+  RefreshCw,
+  CheckCircle2,
   XCircle,
   BookOpen,
   Languages,
   Trophy,
   Star,
   Shuffle,
-  RotateCcw
+  RotateCcw,
+  Download,
+  ListPlus
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -28,6 +33,7 @@ import { toast } from "sonner";
 type ScriptType = "devanagari" | "bengali";
 type LetterType = "vowel" | "consonant";
 type DifficultyLevel = "beginner" | "intermediate" | "advanced";
+type LearningMode = "alphabet" | "words" | "custom";
 
 interface Letter {
   script: string;
@@ -35,6 +41,15 @@ interface Letter {
   ukrainian: string;
   audio?: string;
   type: LetterType;
+}
+
+interface WordCard {
+  script: string;
+  iast: string;
+  ukrainian: string;
+  meaning: string;
+  usageCount?: number;
+  book?: string;
 }
 
 interface LearningStats {
@@ -177,12 +192,16 @@ const COMMON_WORDS = {
 
 export default function ScriptLearning() {
   const { t, language } = useLanguage();
-  
+
   const [scriptType, setScriptType] = useState<ScriptType>("devanagari");
   const [letterType, setLetterType] = useState<LetterType | "all">("all");
+  const [learningMode, setLearningMode] = useState<LearningMode>("alphabet");
   const [mode, setMode] = useState<"flashcards" | "quiz" | "practice">("flashcards");
   const [currentLetterIndex, setCurrentLetterIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [customWords, setCustomWords] = useState<WordCard[]>([]);
+  const [importedWords, setImportedWords] = useState<WordCard[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [stats, setStats] = useState<LearningStats>({
     correct: 0,
     incorrect: 0,
@@ -190,6 +209,103 @@ export default function ScriptLearning() {
     streak: 0,
     bestStreak: 0
   });
+
+  // Web Speech API for pronunciation
+  const speak = useCallback((text: string, lang: string = 'hi-IN') => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = lang; // hi-IN for Hindi/Sanskrit, bn-IN for Bengali
+      utterance.rate = 0.8; // Slower for learning
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
+      utterance.onerror = () => {
+        setIsPlaying(false);
+        toast.error(t("Помилка відтворення звуку", "Error playing audio"));
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } else {
+      toast.error(t("Ваш браузер не підтримує синтез мовлення", "Your browser doesn't support speech synthesis"));
+    }
+  }, [t]);
+
+  // Play pronunciation for current item
+  const playPronunciation = () => {
+    if (learningMode === "alphabet" && currentLetter) {
+      const lang = scriptType === "devanagari" ? "hi-IN" : "bn-IN";
+      speak(currentLetter.script, lang);
+    } else if (learningMode === "words" && currentItem && 'script' in currentItem) {
+      // Determine language based on script content
+      const lang = "hi-IN"; // Default to Sanskrit/Hindi
+      speak(currentItem.script, lang);
+    }
+  };
+
+  // Fetch glossary terms from Supabase
+  const { data: versesData = [], isLoading: isLoadingGlossary } = useQuery({
+    queryKey: ['learning-glossary', language],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('verses')
+        .select(`
+          *,
+          chapters!inner(
+            chapter_number,
+            book_id,
+            canto_id,
+            books(
+              title_ua,
+              title_en,
+              slug
+            ),
+            cantos(
+              canto_number,
+              books(
+                title_ua,
+                title_en,
+                slug
+              )
+            )
+          )
+        `);
+
+      if (error) throw error;
+
+      return data.map(verse => ({
+        ...verse,
+        book: language === 'ua'
+          ? (verse.chapters.cantos?.books?.title_ua || verse.chapters.books?.title_ua)
+          : (verse.chapters.cantos?.books?.title_en || verse.chapters.books?.title_en),
+        synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+        verse_number: verse.verse_number
+      }));
+    }
+  });
+
+  // Process glossary terms
+  const allGlossaryTerms = extractAllTerms(versesData);
+  const termsWithUsage = calculateTermUsage(allGlossaryTerms);
+
+  // Convert top glossary terms to WordCards
+  const topGlossaryWords: WordCard[] = termsWithUsage
+    .slice(0, 100) // Top 100 most used terms
+    .map(termData => {
+      const firstOccurrence = termData.allOccurrences[0];
+      return {
+        script: firstOccurrence.term,
+        iast: firstOccurrence.term,
+        ukrainian: firstOccurrence.meaning,
+        meaning: firstOccurrence.meaning,
+        usageCount: termData.usageCount,
+        book: firstOccurrence.book
+      };
+    });
   
   // Отримати поточний алфавіт
   const getCurrentAlphabet = useCallback((): Letter[] => {
@@ -200,20 +316,21 @@ export default function ScriptLearning() {
   
   const currentAlphabet = getCurrentAlphabet();
   const currentLetter = currentAlphabet[currentLetterIndex];
-  
+  const currentItem = currentLearningItems[currentLetterIndex];
+
   // Навігація
   const handleNext = () => {
-    setCurrentLetterIndex((prev) => (prev + 1) % currentAlphabet.length);
+    setCurrentLetterIndex((prev) => (prev + 1) % currentLearningItems.length);
     setShowAnswer(false);
   };
-  
+
   const handlePrev = () => {
-    setCurrentLetterIndex((prev) => (prev - 1 + currentAlphabet.length) % currentAlphabet.length);
+    setCurrentLetterIndex((prev) => (prev - 1 + currentLearningItems.length) % currentLearningItems.length);
     setShowAnswer(false);
   };
-  
+
   const handleShuffle = () => {
-    const randomIndex = Math.floor(Math.random() * currentAlphabet.length);
+    const randomIndex = Math.floor(Math.random() * currentLearningItems.length);
     setCurrentLetterIndex(randomIndex);
     setShowAnswer(false);
   };
@@ -249,14 +366,108 @@ export default function ScriptLearning() {
     });
     toast.success(t("Статистику скинуто", "Stats reset"));
   };
-  
+
+  // Import top N words from glossary
+  const importTopWords = (count: number = 50) => {
+    const wordsToImport = topGlossaryWords.slice(0, count);
+    setImportedWords(prev => {
+      const newWords = wordsToImport.filter(
+        word => !prev.some(w => w.iast === word.iast)
+      );
+      if (newWords.length > 0) {
+        toast.success(t(
+          `Імпортовано ${newWords.length} нових слів`,
+          `Imported ${newWords.length} new words`
+        ));
+      } else {
+        toast.info(t("Всі ці слова вже імпортовані", "All these words are already imported"));
+      }
+      return [...prev, ...newWords];
+    });
+    setLearningMode("words");
+  };
+
+  // Add custom word
+  const addCustomWord = (word: WordCard) => {
+    setCustomWords(prev => [...prev, word]);
+    toast.success(t("Слово додано", "Word added"));
+  };
+
+  // Remove word from imported
+  const removeImportedWord = (index: number) => {
+    setImportedWords(prev => prev.filter((_, i) => i !== index));
+    toast.success(t("Слово видалено", "Word removed"));
+  };
+
+  // Get current learning items based on mode
+  const getCurrentLearningItems = () => {
+    if (learningMode === "alphabet") {
+      return getCurrentAlphabet();
+    } else if (learningMode === "words") {
+      return importedWords.length > 0 ? importedWords : topGlossaryWords.slice(0, 20);
+    } else if (learningMode === "custom") {
+      return customWords;
+    }
+    return [];
+  };
+
+  const currentLearningItems = getCurrentLearningItems();
+
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
   
+  // Load data from LocalStorage on mount
+  useEffect(() => {
+    try {
+      const savedImportedWords = localStorage.getItem('scriptLearning_importedWords');
+      const savedCustomWords = localStorage.getItem('scriptLearning_customWords');
+      const savedStats = localStorage.getItem('scriptLearning_stats');
+
+      if (savedImportedWords) {
+        setImportedWords(JSON.parse(savedImportedWords));
+      }
+      if (savedCustomWords) {
+        setCustomWords(JSON.parse(savedCustomWords));
+      }
+      if (savedStats) {
+        setStats(JSON.parse(savedStats));
+      }
+    } catch (error) {
+      console.error('Error loading from LocalStorage:', error);
+    }
+  }, []);
+
+  // Save imported words to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('scriptLearning_importedWords', JSON.stringify(importedWords));
+    } catch (error) {
+      console.error('Error saving imported words to LocalStorage:', error);
+    }
+  }, [importedWords]);
+
+  // Save custom words to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('scriptLearning_customWords', JSON.stringify(customWords));
+    } catch (error) {
+      console.error('Error saving custom words to LocalStorage:', error);
+    }
+  }, [customWords]);
+
+  // Save stats to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('scriptLearning_stats', JSON.stringify(stats));
+    } catch (error) {
+      console.error('Error saving stats to LocalStorage:', error);
+    }
+  }, [stats]);
+
   // Скинути індекс при зміні фільтрів
   useEffect(() => {
     setCurrentLetterIndex(0);
     setShowAnswer(false);
-  }, [scriptType, letterType]);
+  }, [scriptType, letterType, learningMode, importedWords.length, customWords.length]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -277,77 +488,185 @@ export default function ScriptLearning() {
               )}
             </p>
           </div>
-          
-          {/* Налаштування */}
-          <Card className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
-              {/* Вибір письма */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("Письмо", "Script")}
-                </label>
-                <div className="flex gap-2">
-                  <Button
-                    variant={scriptType === "devanagari" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setScriptType("devanagari")}
-                  >
-                    {t("Деванагарі", "Devanagari")}
-                  </Button>
-                  <Button
-                    variant={scriptType === "bengali" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setScriptType("bengali")}
-                  >
-                    {t("Бенгалі", "Bengali")}
-                  </Button>
+
+          {/* Вибір режиму навчання */}
+          <Tabs value={learningMode} onValueChange={(v) => setLearningMode(v as LearningMode)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="alphabet">
+                <BookOpen className="w-4 h-4 mr-2" />
+                {t("Алфавіт", "Alphabet")}
+              </TabsTrigger>
+              <TabsTrigger value="words">
+                <Languages className="w-4 h-4 mr-2" />
+                {t("Слова", "Words")}
+                {importedWords.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">{importedWords.length}</Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {/* Налаштування для алфавіту */}
+          {learningMode === "alphabet" && (
+            <Card className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                {/* Вибір письма */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {t("Письмо", "Script")}
+                  </label>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={scriptType === "devanagari" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setScriptType("devanagari")}
+                    >
+                      {t("Деванагарі", "Devanagari")}
+                    </Button>
+                    <Button
+                      variant={scriptType === "bengali" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setScriptType("bengali")}
+                    >
+                      {t("Бенгалі", "Bengali")}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Вибір типу літер */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {t("Тип літер", "Letter Type")}
+                  </label>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={letterType === "all" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setLetterType("all")}
+                    >
+                      {t("Всі", "All")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={letterType === "vowel" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setLetterType("vowel")}
+                    >
+                      {t("Голосні", "Vowels")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={letterType === "consonant" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setLetterType("consonant")}
+                    >
+                      {t("Приголосні", "Consonants")}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Вибір режиму */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {t("Режим", "Mode")}
+                  </label>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={mode === "flashcards" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setMode("flashcards")}
+                    >
+                      <BookOpen className="w-4 h-4 mr-1" />
+                      {t("Картки", "Cards")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={mode === "practice" ? "default" : "outline"}
+                      className="flex-1"
+                      onClick={() => setMode("practice")}
+                    >
+                      <Languages className="w-4 h-4 mr-1" />
+                      {t("Практика", "Practice")}
+                    </Button>
+                  </div>
                 </div>
               </div>
-              
-              {/* Вибір типу літер */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("Тип літер", "Letter Type")}
-                </label>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant={letterType === "all" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setLetterType("all")}
-                  >
-                    {t("Всі", "All")}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={letterType === "vowel" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setLetterType("vowel")}
-                  >
-                    {t("Голосні", "Vowels")}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={letterType === "consonant" ? "default" : "outline"}
-                    className="flex-1"
-                    onClick={() => setLetterType("consonant")}
-                  >
-                    {t("Приголосні", "Consonants")}
-                  </Button>
+            </Card>
+          )}
+
+          {/* Імпорт слів з глосарію */}
+          {learningMode === "words" && (
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {t("Імпорт слів з глосарію", "Import Words from Glossary")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {isLoadingGlossary ? (
+                        t("Завантаження...", "Loading...")
+                      ) : (
+                        t(
+                          `Доступно ${termsWithUsage.length} унікальних термінів`,
+                          `${termsWithUsage.length} unique terms available`
+                        )
+                      )}
+                    </p>
+                  </div>
+                  {importedWords.length > 0 && (
+                    <Badge variant="default" className="text-lg px-4 py-2">
+                      {importedWords.length} {t("слів", "words")}
+                    </Badge>
+                  )}
                 </div>
-              </div>
-              
-              {/* Вибір режиму */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("Режим", "Mode")}
-                </label>
+
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    onClick={() => importTopWords(20)}
+                    disabled={isLoadingGlossary}
+                    variant="default"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {t("Топ 20 слів", "Top 20 Words")}
+                  </Button>
+                  <Button
+                    onClick={() => importTopWords(50)}
+                    disabled={isLoadingGlossary}
+                    variant="default"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {t("Топ 50 слів", "Top 50 Words")}
+                  </Button>
+                  <Button
+                    onClick={() => importTopWords(100)}
+                    disabled={isLoadingGlossary}
+                    variant="default"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {t("Топ 100 слів", "Top 100 Words")}
+                  </Button>
+                  {importedWords.length > 0 && (
+                    <Button
+                      onClick={() => {
+                        setImportedWords([]);
+                        toast.info(t("Список слів очищено", "Word list cleared"));
+                      }}
+                      variant="outline"
+                    >
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      {t("Очистити", "Clear")}
+                    </Button>
+                  )}
+                </div>
+
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant={mode === "flashcards" ? "default" : "outline"}
-                    className="flex-1"
                     onClick={() => setMode("flashcards")}
                   >
                     <BookOpen className="w-4 h-4 mr-1" />
@@ -356,7 +675,6 @@ export default function ScriptLearning() {
                   <Button
                     size="sm"
                     variant={mode === "practice" ? "default" : "outline"}
-                    className="flex-1"
                     onClick={() => setMode("practice")}
                   >
                     <Languages className="w-4 h-4 mr-1" />
@@ -364,8 +682,8 @@ export default function ScriptLearning() {
                   </Button>
                 </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          )}
           
           {/* Статистика */}
           {stats.total > 0 && (
@@ -429,55 +747,140 @@ export default function ScriptLearning() {
           )}
           
           {/* Основна картка */}
-          <Card className="p-8">
-            <div className="space-y-6">
-              
-              {/* Прогрес */}
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
-                <span>
-                  {currentLetterIndex + 1} / {currentAlphabet.length}
-                </span>
-                <Badge variant="outline">
-                  {currentLetter?.type === "vowel" ? t("Голосна", "Vowel") : t("Приголосна", "Consonant")}
-                </Badge>
-              </div>
-              
-              {/* Літера */}
-              <div className="text-center space-y-4">
-                <div className={`text-9xl font-bold ${scriptType === "devanagari" ? "devanagari-text" : "bengali-text"}`}>
-                  {currentLetter?.script}
+          {currentLearningItems.length > 0 && (
+            <Card className="p-8">
+              <div className="space-y-6">
+
+                {/* Прогрес */}
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  <span>
+                    {currentLetterIndex + 1} / {currentLearningItems.length}
+                  </span>
+                  {learningMode === "alphabet" && currentLetter && (
+                    <Badge variant="outline">
+                      {currentLetter?.type === "vowel" ? t("Голосна", "Vowel") : t("Приголосна", "Consonant")}
+                    </Badge>
+                  )}
+                  {learningMode === "words" && currentItem && 'usageCount' in currentItem && (
+                    <Badge variant="outline">
+                      {t("Використань", "Uses")}: {currentItem.usageCount}
+                    </Badge>
+                  )}
                 </div>
-                
-                {mode === "flashcards" && (
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowAnswer(!showAnswer)}
-                  >
-                    {showAnswer 
-                      ? t("Сховати відповідь", "Hide Answer")
-                      : t("Показати відповідь", "Show Answer")
-                    }
-                  </Button>
-                )}
-              </div>
-              
-              {/* Відповідь */}
-              {(showAnswer || mode === "practice") && (
-                <div className="space-y-4 animate-fade-in">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">IAST</div>
-                      <div className="text-2xl font-semibold iast-text">{currentLetter?.iast}</div>
-                    </div>
-                    <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
-                      <div className="text-sm text-muted-foreground mb-1">
-                        {t("Українська", "Ukrainian")}
+
+                {/* Відображення контенту залежно від режиму */}
+                {learningMode === "alphabet" && currentLetter && (
+                  <>
+                    {/* Літера */}
+                    <div className="text-center space-y-4">
+                      <div className={`text-9xl font-bold ${scriptType === "devanagari" ? "devanagari-text" : "bengali-text"}`}>
+                        {currentLetter.script}
                       </div>
-                      <div className="text-2xl font-semibold">{currentLetter?.ukrainian}</div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="default"
+                          size="lg"
+                          onClick={playPronunciation}
+                          disabled={isPlaying}
+                        >
+                          <Volume2 className={`w-5 h-5 mr-2 ${isPlaying ? "animate-pulse" : ""}`} />
+                          {isPlaying ? t("Відтворюється...", "Playing...") : t("Прослухати", "Listen")}
+                        </Button>
+
+                        {mode === "flashcards" && (
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            onClick={() => setShowAnswer(!showAnswer)}
+                          >
+                            {showAnswer
+                              ? t("Сховати відповідь", "Hide Answer")
+                              : t("Показати відповідь", "Show Answer")
+                            }
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+
+                    {/* Відповідь для літери */}
+                    {(showAnswer || mode === "practice") && (
+                      <div className="space-y-4 animate-fade-in">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                            <div className="text-sm text-muted-foreground mb-1">IAST</div>
+                            <div className="text-2xl font-semibold iast-text">{currentLetter.iast}</div>
+                          </div>
+                          <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                            <div className="text-sm text-muted-foreground mb-1">
+                              {t("Українська", "Ukrainian")}
+                            </div>
+                            <div className="text-2xl font-semibold">{currentLetter.ukrainian}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {learningMode === "words" && currentItem && 'meaning' in currentItem && (
+                  <>
+                    {/* Слово */}
+                    <div className="text-center space-y-4">
+                      <div className="text-6xl font-bold sanskrit-text">
+                        {currentItem.script}
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="default"
+                          size="lg"
+                          onClick={playPronunciation}
+                          disabled={isPlaying}
+                        >
+                          <Volume2 className={`w-5 h-5 mr-2 ${isPlaying ? "animate-pulse" : ""}`} />
+                          {isPlaying ? t("Відтворюється...", "Playing...") : t("Прослухати", "Listen")}
+                        </Button>
+
+                        {mode === "flashcards" && (
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            onClick={() => setShowAnswer(!showAnswer)}
+                          >
+                            {showAnswer
+                              ? t("Сховати відповідь", "Hide Answer")
+                              : t("Показати відповідь", "Show Answer")
+                            }
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Відповідь для слова */}
+                    {(showAnswer || mode === "practice") && (
+                      <div className="space-y-4 animate-fade-in">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                            <div className="text-sm text-muted-foreground mb-1">IAST</div>
+                            <div className="text-2xl font-semibold iast-text">{currentItem.iast}</div>
+                          </div>
+                          <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                            <div className="text-sm text-muted-foreground mb-1">
+                              {t("Переклад", "Translation")}
+                            </div>
+                            <div className="text-2xl font-semibold">{currentItem.meaning}</div>
+                          </div>
+                        </div>
+                        {currentItem.book && (
+                          <div className="text-center text-sm text-muted-foreground">
+                            {t("Джерело", "Source")}: {currentItem.book}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               
               {/* Кнопки навігації */}
               <div className="flex items-center justify-center gap-3 pt-4">
@@ -508,62 +911,106 @@ export default function ScriptLearning() {
               </div>
             </div>
           </Card>
-          
-          {/* Таблиця алфавіту */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              {t("Повний алфавіт", "Full Alphabet")}
-            </h3>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
-              {currentAlphabet.map((letter, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentLetterIndex(index)}
-                  className={`
-                    p-3 rounded-lg border-2 transition-all hover:scale-105
-                    ${index === currentLetterIndex 
-                      ? "border-primary bg-primary/10" 
-                      : "border-border hover:border-primary/50"
-                    }
-                  `}
-                >
-                  <div className={`text-3xl ${scriptType === "devanagari" ? "devanagari-text" : "bengali-text"}`}>
-                    {letter.script}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1 iast-text">
-                    {letter.iast}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </Card>
-          
-          {/* Популярні слова */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              {t("Популярні слова для практики", "Common Words for Practice")}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {COMMON_WORDS[scriptType].map((word, index) => (
-                <div key={index} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                  <div className={`text-3xl font-bold mb-2 ${scriptType === "devanagari" ? "devanagari-text" : "bengali-text"}`}>
-                    {word.script}
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div className="iast-text text-muted-foreground">
-                      IAST: {word.iast}
+          )}
+
+          {/* Таблиця алфавіту - тільки для режиму алфавіту */}
+          {learningMode === "alphabet" && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">
+                {t("Повний алфавіт", "Full Alphabet")}
+              </h3>
+              <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+                {currentAlphabet.map((letter, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentLetterIndex(index)}
+                    className={`
+                      p-3 rounded-lg border-2 transition-all hover:scale-105
+                      ${index === currentLetterIndex
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                      }
+                    `}
+                  >
+                    <div className={`text-3xl ${scriptType === "devanagari" ? "devanagari-text" : "bengali-text"}`}>
+                      {letter.script}
                     </div>
-                    <div className="font-medium">
-                      {t("Українська", "Ukrainian")}: {word.ukrainian}
+                    <div className="text-xs text-muted-foreground mt-1 iast-text">
+                      {letter.iast}
                     </div>
-                    <div className="text-muted-foreground">
-                      {word.meaning}
+                  </button>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Список імпортованих слів - тільки для режиму слів */}
+          {learningMode === "words" && importedWords.length > 0 && (
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">
+                  {t("Імпортовані слова", "Imported Words")}
+                </h3>
+                <Badge variant="secondary">{importedWords.length} {t("слів", "words")}</Badge>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
+                {importedWords.map((word, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentLetterIndex(index)}
+                    className={`
+                      p-3 rounded-lg border-2 transition-all hover:scale-105 text-left
+                      ${index === currentLetterIndex
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                      }
+                    `}
+                  >
+                    <div className="text-2xl font-bold sanskrit-text">
+                      {word.script}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1 iast-text">
+                      {word.iast}
+                    </div>
+                    {word.usageCount && (
+                      <div className="text-xs text-muted-foreground">
+                        {t("Використань", "Uses")}: {word.usageCount}
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Популярні слова - тільки для режиму алфавіту */}
+          {learningMode === "alphabet" && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">
+                {t("Популярні слова для практики", "Common Words for Practice")}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {COMMON_WORDS[scriptType].map((word, index) => (
+                  <div key={index} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className={`text-3xl font-bold mb-2 ${scriptType === "devanagari" ? "devanagari-text" : "bengali-text"}`}>
+                      {word.script}
+                    </div>
+                    <div className="space-y-1 text-sm">
+                      <div className="iast-text text-muted-foreground">
+                        IAST: {word.iast}
+                      </div>
+                      <div className="font-medium">
+                        {t("Українська", "Ukrainian")}: {word.ukrainian}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {word.meaning}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </Card>
+                ))}
+              </div>
+            </Card>
+          )}
           
         </div>
       </main>

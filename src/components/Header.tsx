@@ -12,6 +12,7 @@ import {
   FileText,
   User,
   Plus,
+  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
@@ -69,6 +70,13 @@ export const Header = () => {
               <Link to="/tools/transliteration" aria-label="Транслітерація">
                 <Languages className="mr-2 h-4 w-4" />
                 Транслітерація
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild className={navBtn}>
+              <Link to="/tools/learning" aria-label="Вивчення мов">
+                <GraduationCap className="mr-2 h-4 w-4" />
+                Вивчення
               </Link>
             </Button>
 
@@ -216,6 +224,15 @@ export const Header = () => {
                 >
                   <Languages className="h-5 w-5" />
                   <span>Транслітерація</span>
+                </Link>
+
+                <Link
+                  to="/tools/learning"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
+                  onClick={() => setOpen(false)}
+                >
+                  <GraduationCap className="h-5 w-5" />
+                  <span>Вивчення мов</span>
                 </Link>
 
                 <Link

@@ -50,6 +50,7 @@ import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
 import TransliterationTool from "./pages/TransliterationTool";
 import Numerology from "./pages/tools/Numerology";
+import ScriptLearning from "./pages/tools/ScriptLearning";
 import Dashboard from "./pages/admin/Dashboard";
 import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
@@ -161,6 +162,7 @@ const App = () => (
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/tools/transliteration" element={<TransliterationTool />} />
                   <Route path="/tools/numerology" element={<Numerology />} />
+                  <Route path="/tools/learning" element={<ScriptLearning />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
