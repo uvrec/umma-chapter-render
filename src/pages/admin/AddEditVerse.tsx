@@ -9,10 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
-import { Progress } from "@/components/ui/progress";
+import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -35,9 +35,16 @@ export default function AddEditVerse() {
   const [translationEn, setTranslationEn] = useState("");
   const [commentaryUa, setCommentaryUa] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
-  const [audioUrl, setAudioUrl] = useState("");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
+
+  // Audio URLs - simplified structure (4 fields)
+  const [audioUrl, setAudioUrl] = useState(""); // Legacy field
+  const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState(""); // PRIMARY: complete verse (95% use case)
+  const [recitationAudioUrl, setRecitationAudioUrl] = useState(""); // Sanskrit + Transliteration
+  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState(""); // Synonyms + Translation + Commentary UA
+  const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState(""); // EN version
+
+  // UI state for collapsible advanced audio section
+  const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -144,7 +151,20 @@ export default function AddEditVerse() {
       setTranslationEn(verse.translation_en || "");
       setCommentaryUa(verse.commentary_ua || "");
       setCommentaryEn(verse.commentary_en || "");
+
+      // Legacy audio field
       setAudioUrl(verse.audio_url || "");
+
+      // Simplified dual audio fields (4 fields)
+      setFullVerseAudioUrl(verse.full_verse_audio_url || "");
+      setRecitationAudioUrl(verse.recitation_audio_url || "");
+      setExplanationUaAudioUrl(verse.explanation_ua_audio_url || "");
+      setExplanationEnAudioUrl(verse.explanation_en_audio_url || "");
+
+      // Auto-expand advanced section if any secondary audio exists
+      if (verse.recitation_audio_url || verse.explanation_ua_audio_url || verse.explanation_en_audio_url) {
+        setShowAdvancedAudio(true);
+      }
     }
   }, [verse]);
 
@@ -163,7 +183,14 @@ export default function AddEditVerse() {
         translation_en: translationEn || null,
         commentary_ua: commentaryUa || null,
         commentary_en: commentaryEn || null,
-        audio_url: audioUrl || null,
+
+        // Audio URLs - simplified structure
+        audio_url: audioUrl || null, // Legacy field (kept for compatibility)
+        full_verse_audio_url: fullVerseAudioUrl || null, // PRIMARY audio
+        recitation_audio_url: recitationAudioUrl || null, // Sanskrit + Transliteration
+        explanation_ua_audio_url: explanationUaAudioUrl || null, // UA explanation
+        explanation_en_audio_url: explanationEnAudioUrl || null, // EN explanation
+
         is_published: true,
       };
 
@@ -191,81 +218,6 @@ export default function AddEditVerse() {
       });
     },
   });
-
-  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ["audio/mpeg", "audio/mp3", "audio/mp4", "audio/m4a", "audio/wav", "audio/ogg", "audio/webm"];
-    if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: "Помилка",
-        description: "Підтримуються тільки аудіо файли (MP3, M4A, WAV, OGG)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      setUploadProgress(0);
-
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage.from("verse-audio").upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("verse-audio").getPublicUrl(filePath);
-
-      setAudioUrl(publicUrl);
-      setUploadProgress(100);
-
-      toast({
-        title: "Успіх",
-        description: "Аудіо файл успішно завантажено",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Помилка завантаження",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleRemoveAudio = async () => {
-    if (!audioUrl) return;
-
-    try {
-      const urlParts = audioUrl.split("/verse-audio/");
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        await supabase.storage.from("verse-audio").remove([filePath]);
-      }
-
-      setAudioUrl("");
-      toast({
-        title: "Успіх",
-        description: "Аудіо файл видалено",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Помилка",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -492,55 +444,99 @@ export default function AddEditVerse() {
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="audioUrl">Аудіо файл</Label>
-              <div className="space-y-3">
-                {audioUrl ? (
-                  <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
-                    <audio src={audioUrl} controls className="flex-1" />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveAudio}
-                      aria-label="Видалити аудіо"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                    <Input
-                      id="audioFile"
-                      type="file"
-                      accept="audio/*"
-                      className="hidden"
-                      onChange={handleAudioUpload}
-                      disabled={isUploading}
-                    />
-                    <Label htmlFor="audioFile" className="cursor-pointer flex flex-col items-center gap-2">
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Натисніть, щоб завантажити аудіо</span>
-                      <span className="text-xs text-muted-foreground">MP3, M4A, WAV, OGG (макс. 50MB)</span>
-                    </Label>
-                  </div>
-                )}
-
-                {isUploading && (
-                  <div className="space-y-2">
-                    <Progress value={uploadProgress} />
-                    <p className="text-sm text-muted-foreground text-center">Завантаження... {uploadProgress}%</p>
-                  </div>
-                )}
-
-                <div className="text-xs text-muted-foreground">Або вставте URL:</div>
-                <Input
-                  id="audioUrlInput"
-                  value={audioUrl}
-                  onChange={(e) => setAudioUrl(e.target.value)}
-                  placeholder="https://example.com/audio.mp3"
-                />
+            {/* Audio Files Section */}
+            <div className="space-y-6 border-t pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Аудіо файли</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Основне аудіо вірша (лекція/запис)
+                  </p>
+                </div>
               </div>
+
+              {/* PRIMARY AUDIO - Always visible, prominent */}
+              <AudioUploader
+                label="Повний вірш (лекція)"
+                value={fullVerseAudioUrl}
+                onChange={setFullVerseAudioUrl}
+                primary={true}
+              />
+
+              {/* ADVANCED AUDIO - Collapsible section */}
+              <div className="space-y-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAdvancedAudio(!showAdvancedAudio)}
+                  className="w-full justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Додаткові аудіо записи
+                    </span>
+                    {(recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                        {[recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {showAdvancedAudio ? "Приховати" : "Показати"}
+                  </span>
+                </Button>
+
+                {showAdvancedAudio && (
+                  <div className="space-y-4 pl-4 border-l-2 border-border">
+                    <p className="text-xs text-muted-foreground">
+                      Окремі аудіо для різних частин вірша (студійні записи)
+                    </p>
+
+                    <AudioUploader
+                      label="Читання санскриту/бенгалі"
+                      value={recitationAudioUrl}
+                      onChange={setRecitationAudioUrl}
+                      compact={true}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <AudioUploader
+                        label="Пояснення (українською)"
+                        value={explanationUaAudioUrl}
+                        onChange={setExplanationUaAudioUrl}
+                        compact={true}
+                      />
+
+                      <AudioUploader
+                        label="Explanation (English)"
+                        value={explanationEnAudioUrl}
+                        onChange={setExplanationEnAudioUrl}
+                        compact={true}
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground italic">
+                      Примітка: Пояснення включає послівний переклад, літературний переклад та коментар
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Legacy Audio Field */}
+              {audioUrl && (
+                <div className="mt-4 p-4 bg-muted/30 border border-dashed rounded-lg">
+                  <Label className="text-xs text-muted-foreground">
+                    Застаріле поле (для сумісності)
+                  </Label>
+                  <Input
+                    value={audioUrl}
+                    onChange={(e) => setAudioUrl(e.target.value)}
+                    placeholder="https://example.com/audio.mp3"
+                    className="mt-2"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4">
