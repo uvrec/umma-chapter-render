@@ -3,8 +3,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
 import { numberDescriptions, actionNumberDescriptions, realizationNumberDescriptions, resultNumberDescriptions, lastYearDigitDescriptions, personalYearDescriptions, personalMonthDescriptions, personalDayDescriptions } from "@/utils/numberDescriptions";
 import { toast } from "@/hooks/use-toast";
@@ -15,24 +15,48 @@ import { Calendar } from "lucide-react";
  * Розраховує 4 числа за датою народження
  */
 const Numerology = () => {
-  const [birthDate, setBirthDate] = useState<string>("");
+  const [day, setDay] = useState<string>("");
+  const [month, setMonth] = useState<string>("");
+  const [year, setYear] = useState<string>("");
   const [result, setResult] = useState<NumCalResult | null>(null);
 
+  // Генеруємо масиви для селекторів
+  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const months = [
+    { value: "1", label: "Січень" },
+    { value: "2", label: "Лютий" },
+    { value: "3", label: "Березень" },
+    { value: "4", label: "Квітень" },
+    { value: "5", label: "Травень" },
+    { value: "6", label: "Червень" },
+    { value: "7", label: "Липень" },
+    { value: "8", label: "Серпень" },
+    { value: "9", label: "Вересень" },
+    { value: "10", label: "Жовтень" },
+    { value: "11", label: "Листопад" },
+    { value: "12", label: "Грудень" },
+  ];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 120 }, (_, i) => currentYear - i);
+
   const handleCalculate = () => {
-    if (!birthDate) {
+    if (!day || !month || !year) {
       toast({
         title: "Помилка",
-        description: "Будь ласка, введіть дату народження",
+        description: "Будь ласка, оберіть день, місяць та рік народження",
         variant: "destructive",
       });
       return;
     }
 
+    // Створюємо дату у форматі YYYY-MM-DD
+    const birthDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     const date = new Date(birthDate);
+
     if (!isValidBirthDate(date)) {
       toast({
         title: "Помилка",
-        description: "Неправільна дата народження",
+        description: "Неправильна дата народження",
         variant: "destructive",
       });
       return;
@@ -62,26 +86,69 @@ const Numerology = () => {
           <CardHeader>
             <CardTitle>Введіть дату народження</CardTitle>
             <CardDescription>
-              Оберіть дату для розрахунку нумерологічних чисел
+              Оберіть день, місяць та рік для розрахунку нумерологічних чисел
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4 items-end">
-              <div className="flex-1">
-                <Label htmlFor="birthDate">Дата народження</Label>
-                <Input
-                  id="birthDate"
-                  type="date"
-                  value={birthDate}
-                  onChange={(e) => setBirthDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
-                  className="mt-2"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              {/* День */}
+              <div>
+                <Label htmlFor="day">День</Label>
+                <Select value={day} onValueChange={setDay}>
+                  <SelectTrigger id="day" className="mt-2">
+                    <SelectValue placeholder="День" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {days.map((d) => (
+                      <SelectItem key={d} value={d.toString()}>
+                        {d}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <Button onClick={handleCalculate} size="lg">
-                <Calendar className="mr-2 h-4 w-4" />
-                Розрахувати
-              </Button>
+
+              {/* Місяць */}
+              <div>
+                <Label htmlFor="month">Місяць</Label>
+                <Select value={month} onValueChange={setMonth}>
+                  <SelectTrigger id="month" className="mt-2">
+                    <SelectValue placeholder="Місяць" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {months.map((m) => (
+                      <SelectItem key={m.value} value={m.value}>
+                        {m.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Рік */}
+              <div>
+                <Label htmlFor="year">Рік</Label>
+                <Select value={year} onValueChange={setYear}>
+                  <SelectTrigger id="year" className="mt-2">
+                    <SelectValue placeholder="Рік" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {years.map((y) => (
+                      <SelectItem key={y} value={y.toString()}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Кнопка */}
+              <div>
+                <Button onClick={handleCalculate} size="lg" className="w-full">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  Розрахувати
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -93,7 +160,7 @@ const Numerology = () => {
               <CardHeader>
                 <CardTitle>Результат</CardTitle>
                 <CardDescription>
-                  Дата народження: {birthDate.split('-').reverse().join('.')}
+                  Дата народження: {day.padStart(2, '0')}.{month.padStart(2, '0')}.{year}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -546,7 +613,7 @@ const Numerology = () => {
                     {/* Опис конкретної дати народження */}
                     {numberDescriptions[result.mindNumber].specificDates && (
                       (() => {
-                        const birthDay = new Date(birthDate).getDate();
+                        const birthDay = parseInt(day, 10);
                         const specificDate = numberDescriptions[result.mindNumber].specificDates?.find(
                           (d) => d.date === birthDay
                         );
