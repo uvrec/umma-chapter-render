@@ -13,6 +13,7 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
+import { Breadcrumbs, BreadcrumbItem } from "@/components/admin/Breadcrumbs";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -21,8 +22,8 @@ export default function AddEditVerse() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
-  const [selectedBookId, setSelectedBookId] = useState("");
-  const [selectedCantoId, setSelectedCantoId] = useState("");
+  const [selectedBookId, setSelectedBookId] = useState(searchParams.get("bookId") || "");
+  const [selectedCantoId, setSelectedCantoId] = useState(searchParams.get("cantoId") || "");
   const [chapterId, setChapterId] = useState(searchParams.get("chapterId") || "");
   const [verseNumber, setVerseNumber] = useState("");
   const [sanskritUa, setSanskritUa] = useState("");
@@ -208,7 +209,13 @@ export default function AddEditVerse() {
         title: id ? "Вірш оновлено" : "Вірш додано",
         description: "Зміни успішно збережено",
       });
-      navigate("/admin/verses");
+
+      // Navigate back with context preserved
+      const params = new URLSearchParams();
+      if (selectedBookId) params.set("bookId", selectedBookId);
+      if (selectedCantoId) params.set("cantoId", selectedCantoId);
+      if (chapterId) params.set("chapterId", chapterId);
+      navigate(`/admin/verses?${params.toString()}`);
     },
     onError: (error) => {
       toast({
@@ -234,12 +241,45 @@ export default function AddEditVerse() {
 
   if (!user || !isAdmin) return null;
 
+  // Build breadcrumbs
+  const breadcrumbs: BreadcrumbItem[] = [{ label: "Вірші", href: "/admin/verses" }];
+
+  const selectedBookData = books?.find((b) => b.id === selectedBookId);
+  if (selectedBookData) {
+    breadcrumbs.push({ label: selectedBookData.title_ua });
+  }
+
+  const selectedCantoData = cantos?.find((c) => c.id === selectedCantoId);
+  if (selectedCantoData) {
+    breadcrumbs.push({ label: `Пісня ${selectedCantoData.canto_number}` });
+  }
+
+  const selectedChapterData = chapters?.find((ch) => ch.id === chapterId);
+  if (selectedChapterData) {
+    breadcrumbs.push({ label: `Розділ ${selectedChapterData.chapter_number}` });
+  }
+
+  breadcrumbs.push({ label: id ? `Редагувати вірш ${verseNumber || ""}` : "Новий вірш" });
+
   return (
     <div className="container mx-auto p-6 max-w-4xl pb-32">
-      <Button variant="ghost" onClick={() => navigate("/admin/verses")} className="mb-4">
+      <Button
+        variant="ghost"
+        onClick={() => {
+          const params = new URLSearchParams();
+          if (selectedBookId) params.set("bookId", selectedBookId);
+          if (selectedCantoId) params.set("cantoId", selectedCantoId);
+          if (chapterId) params.set("chapterId", chapterId);
+          navigate(`/admin/verses?${params.toString()}`);
+        }}
+        className="mb-4"
+      >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Назад до віршів
       </Button>
+
+      {/* Breadcrumbs */}
+      {breadcrumbs.length > 1 && <Breadcrumbs items={breadcrumbs} />}
 
       <Card>
         <CardHeader>

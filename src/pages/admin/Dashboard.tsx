@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlobalSearch } from "@/components/admin/GlobalSearch";
 import {
   BookOpen,
   FileText,
@@ -17,6 +18,7 @@ import {
   Music,
   WrapText,
   FileEdit,
+  Search,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
@@ -26,6 +28,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const [booksList, setBooksList] = useState<QuickBook[]>([]);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -33,6 +36,19 @@ const Dashboard = () => {
       return;
     }
   }, [user, isAdmin, navigate]);
+
+  // Keyboard shortcut: Ctrl+K or Cmd+K to open search
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
 
   // завантаження книг для “Швидкого переходу”
   useEffect(() => {
@@ -82,13 +98,30 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
+
       <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center gap-4">
           <h1 className="text-2xl font-bold">Адмін-панель</h1>
-          <Button onClick={handleSignOut} variant="outline">
-            <LogOut className="w-4 h-4 mr-2" />
-            Вийти
-          </Button>
+
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setSearchOpen(true)}
+              variant="outline"
+              className="hidden md:flex"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Швидкий пошук
+              <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>K
+              </kbd>
+            </Button>
+
+            <Button onClick={handleSignOut} variant="outline">
+              <LogOut className="w-4 h-4 mr-2" />
+              Вийти
+            </Button>
+          </div>
         </div>
       </header>
 
