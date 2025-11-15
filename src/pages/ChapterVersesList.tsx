@@ -409,6 +409,7 @@ export const ChapterVersesList = () => {
               ) : (
                 <div 
                   className="prose prose-slate dark:prose-invert max-w-none"
+                  style={{ fontSize: '200%' }}
                   dangerouslySetInnerHTML={{ 
                     __html: DOMPurify.sanitize(
                       language === "ua" 
@@ -424,7 +425,7 @@ export const ChapterVersesList = () => {
           {/* Список віршів */}
           {flowMode ? (
             /* Режим суцільного тексту - без контейнерів, номерів, рамок */
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none" style={{ fontSize: '200%' }}>
               {versesFiltered.map((verse, idx) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
@@ -456,7 +457,7 @@ export const ChapterVersesList = () => {
                               ВІРШ {verse.verse_number}
                             </Link>
                           )}
-                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground">
+                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: '200%' }}>
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
@@ -471,7 +472,7 @@ export const ChapterVersesList = () => {
                               TEXT {verse.verse_number}
                             </Link>
                           )}
-                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground">
+                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: '200%' }}>
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
@@ -487,7 +488,7 @@ export const ChapterVersesList = () => {
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                           </Link>
                         )}
-                        <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground">
+                        <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: '200%' }}>
                           {language === "ua"
                             ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
                             : translationEn || <span className="italic text-muted-foreground">No translation</span>}
