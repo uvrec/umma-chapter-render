@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDailyQuotesAdmin } from "@/hooks/useDailyQuote";
+import { VerseSelector } from "@/components/admin/VerseSelector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,9 +13,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Quote, BookOpen, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Quote, BookOpen, Settings, Shuffle, ListOrdered, MousePointer } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 type QuoteFormData = {
   quote_type: 'verse' | 'custom';
@@ -36,12 +40,47 @@ export default function DailyQuotes() {
   const { quotes, isLoading, createQuote, updateQuote, deleteQuote, updateSettings } = useDailyQuotesAdmin();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [editingQuote, setEditingQuote] = useState<any>(null);
   const [formData, setFormData] = useState<QuoteFormData>({
     quote_type: 'custom',
     priority: 50,
     is_active: true,
   });
+
+  // Завантажуємо налаштування
+  const { data: settings, refetch: refetchSettings } = useQuery({
+    queryKey: ["verse_of_the_day_settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "verse_of_the_day")
+        .single();
+
+      if (error) throw error;
+      return data?.value as {
+        enabled: boolean;
+        rotation_mode: 'sequential' | 'random' | 'custom';
+        current_index: number;
+        last_updated: string | null;
+      };
+    },
+  });
+
+  const [settingsForm, setSettingsForm] = useState({
+    enabled: true,
+    rotation_mode: 'sequential' as 'sequential' | 'random' | 'custom',
+  });
+
+  useEffect(() => {
+    if (settings) {
+      setSettingsForm({
+        enabled: settings.enabled ?? true,
+        rotation_mode: settings.rotation_mode ?? 'sequential',
+      });
+    }
+  }, [settings]);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -62,6 +101,15 @@ export default function DailyQuotes() {
         });
         return;
       }
+    } else if (formData.quote_type === 'verse') {
+      if (!formData.verse_id) {
+        toast({
+          title: "Помилка",
+          description: "Оберіть вірш з бази даних",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     if (editingQuote) {
@@ -74,6 +122,20 @@ export default function DailyQuotes() {
 
     setIsDialogOpen(false);
     resetForm();
+  };
+
+  const handleSettingsSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    updateSettings({
+      ...settings,
+      ...settingsForm,
+      last_updated: new Date().toISOString(),
+    });
+
+    toast({ title: "Успіх", description: "Налаштування збережено" });
+    setIsSettingsOpen(false);
+    refetchSettings();
   };
 
   const resetForm = () => {
@@ -130,13 +192,124 @@ export default function DailyQuotes() {
             </p>
           </div>
 
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="w-4 h-4 mr-2" />
-                Додати цитату
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            {/* Кнопка налаштувань */}
+            <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Налаштування
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Налаштування відображення</DialogTitle>
+                  <DialogDescription>
+                    Налаштуйте режим ротації цитат на головній сторінці
+                  </DialogDescription>
+                </DialogHeader>
+
+                <form onSubmit={handleSettingsSubmit} className="space-y-6">
+                  {/* Увімкнено/Вимкнено */}
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="enabled">Показувати банер цитат</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Відображати банер з цитатою на головній сторінці
+                      </p>
+                    </div>
+                    <Switch
+                      id="enabled"
+                      checked={settingsForm.enabled}
+                      onCheckedChange={(checked) =>
+                        setSettingsForm({ ...settingsForm, enabled: checked })
+                      }
+                    />
+                  </div>
+
+                  {/* Режим ротації */}
+                  <div className="space-y-3">
+                    <Label>Режим ротації</Label>
+                    <div className="grid gap-3">
+                      <Card
+                        className={`cursor-pointer transition-colors ${
+                          settingsForm.rotation_mode === 'sequential'
+                            ? 'border-primary border-2'
+                            : 'hover:border-primary/50'
+                        }`}
+                        onClick={() => setSettingsForm({ ...settingsForm, rotation_mode: 'sequential' })}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <ListOrdered className="w-5 h-5" />
+                            <CardTitle className="text-base">Послідовно</CardTitle>
+                          </div>
+                          <CardDescription className="text-xs">
+                            Показувати цитати по черзі, від найстарішої до найновішої
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+
+                      <Card
+                        className={`cursor-pointer transition-colors ${
+                          settingsForm.rotation_mode === 'random'
+                            ? 'border-primary border-2'
+                            : 'hover:border-primary/50'
+                        }`}
+                        onClick={() => setSettingsForm({ ...settingsForm, rotation_mode: 'random' })}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <Shuffle className="w-5 h-5" />
+                            <CardTitle className="text-base">Випадково</CardTitle>
+                          </div>
+                          <CardDescription className="text-xs">
+                            Випадковий вибір з топ-10 цитат з найвищим пріоритетом
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+
+                      <Card
+                        className={`cursor-pointer transition-colors ${
+                          settingsForm.rotation_mode === 'custom'
+                            ? 'border-primary border-2'
+                            : 'hover:border-primary/50'
+                        }`}
+                        onClick={() => setSettingsForm({ ...settingsForm, rotation_mode: 'custom' })}
+                      >
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center gap-2">
+                            <MousePointer className="w-5 h-5" />
+                            <CardTitle className="text-base">Вибірково</CardTitle>
+                          </div>
+                          <CardDescription className="text-xs">
+                            Показувати лише цитату з найвищим пріоритетом
+                          </CardDescription>
+                        </CardHeader>
+                      </Card>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsSettingsOpen(false)}>
+                      Скасувати
+                    </Button>
+                    <Button type="submit">
+                      Зберегти
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Кнопка додати цитату */}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button onClick={resetForm}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Додати цитату
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
@@ -251,10 +424,10 @@ export default function DailyQuotes() {
                 {formData.quote_type === 'verse' && (
                   <div className="space-y-2">
                     <Label>Вірш з бази даних</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Функція вибору вірша буде додана в наступній версії.
-                      Поки що можна додавати ID вірша вручну через SQL.
-                    </p>
+                    <VerseSelector
+                      selectedVerseId={formData.verse_id}
+                      onVerseSelect={(verseId) => setFormData({ ...formData, verse_id: verseId })}
+                    />
                   </div>
                 )}
 
