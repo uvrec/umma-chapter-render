@@ -45,13 +45,15 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
       return;
     }
 
-    setIsLoading(true);
-    supabase
-      .from("verses")
-      .select("*")
-      .eq("id", verseId)
-      .single()
-      .then(({ data, error }) => {
+    const loadVerse = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from("verses")
+          .select("*")
+          .eq("id", verseId)
+          .single();
+
         if (error) {
           toast({
             title: "Помилка",
@@ -67,8 +69,12 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
         setTransliterationUa(data.transliteration_ua || "");
         setTranslationUa(data.translation_ua || "");
         setCommentaryUa(data.commentary_ua || "");
-      })
-      .finally(() => setIsLoading(false));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadVerse();
   }, [verseId]);
 
   const updateMutation = useMutation({
