@@ -54,6 +54,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
+import ScriptureManager from "./pages/admin/ScriptureManager";
 import Chapters from "./pages/admin/Chapters";
 import AddEditBook from "./pages/admin/AddEditBook";
 import AddEditVerse from "./pages/admin/AddEditVerse";
@@ -188,6 +189,7 @@ const App = () => (
                   <Route path="/admin/verses" element={<Verses />} />
                   <Route path="/admin/verses/new" element={<AddEditVerse />} />
                   <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
+                  <Route path="/admin/scripture" element={<ScriptureManager />} />
                   <Route path="/admin/data-migration" element={<DataMigration />} />
                   <Route path="/admin/import-wizard" element={<ImportWizard />} />
                   <Route path="/admin/universal-import" element={<UniversalImportFixed />} />

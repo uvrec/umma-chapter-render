@@ -255,9 +255,15 @@ const Dashboard = () => {
               <CardTitle>Вірші</CardTitle>
               <CardDescription>Управління віршами</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-2">
               <Button asChild className="w-full">
-                <Link to="/admin/verses">Переглянути вірші</Link>
+                <Link to="/admin/scripture">
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Scripture Manager
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/verses">Класичний режим</Link>
               </Button>
             </CardContent>
           </Card>
