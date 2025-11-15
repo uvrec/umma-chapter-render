@@ -7,8 +7,10 @@ import React, { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -66,7 +68,7 @@ function Hero() {
   const { language } = useLanguage();
 
   // Завантаження налаштувань з БД
-  const { data: settingsData } = useQuery({
+  const { data: settingsData, refetch } = useQuery({
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
       const { data, error } = await (supabase as any)
@@ -105,6 +107,18 @@ function Hero() {
 
   const subtitle = language === "ua" ? settings.subtitle_ua : settings.subtitle_en;
 
+  const { isAdmin } = useAuth();
+  const inlineSettings = {
+    background_image: settings.background_image || "",
+    logo_image: settings.logo_image || "",
+    subtitle_ua: settings.subtitle_ua || "",
+    subtitle_en: settings.subtitle_en || "",
+    quote_ua: (settingsData as any)?.quote_ua || "",
+    quote_en: (settingsData as any)?.quote_en || "",
+    quote_author_ua: (settingsData as any)?.quote_author_ua || "",
+    quote_author_en: (settingsData as any)?.quote_author_en || "",
+  };
+
   return (
     <section
       className="relative min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
@@ -128,6 +142,10 @@ function Hero() {
           <div className="mb-8">
             <DailyQuoteBanner />
           </div>
+
+          {isAdmin && (
+            <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />
+          )}
 
           {/* Continue Listening Card */}
           {currentTrack && (
