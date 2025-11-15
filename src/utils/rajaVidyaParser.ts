@@ -251,24 +251,71 @@ export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChap
 
     if (contentContainer) {
       // ✅ Збираємо параграфи зі збереженням HTML структури
-      const paragraphs = contentContainer.querySelectorAll('p, div.verse, div.text, .r-paragraph, .r-text');
-      console.log(`📊 [Raja Vidya EN] Знайдено параграфів: ${paragraphs.length}`);
+      // Розширюємо список селекторів для більшої гнучкості
+      const paragraphSelectors = [
+        'p',
+        'div.verse',
+        'div.text',
+        'div.paragraph',
+        '.r-paragraph',
+        '.r-text',
+        '.r-verse',
+        'div[class*="text"]',
+        'div[class*="paragraph"]',
+        'div[class*="content"]',
+        // Vedabase може використовувати div без класів
+        'div > p',
+        'section p',
+        'article p'
+      ];
+
+      let paragraphs: Element[] = [];
+      for (const selector of paragraphSelectors) {
+        const found = contentContainer.querySelectorAll(selector);
+        if (found.length > 0) {
+          console.log(`📊 [Raja Vidya EN] Знайдено ${found.length} елементів за селектором: ${selector}`);
+          paragraphs = Array.from(found);
+          break;
+        }
+      }
+
+      if (paragraphs.length === 0) {
+        // Fallback: візьмемо всі div та p без фільтрації
+        console.log(`⚠️ [Raja Vidya EN] Стандартні селектори не спрацювали, беру всі div та p`);
+        paragraphs = Array.from(contentContainer.querySelectorAll('div, p'));
+      }
+
+      console.log(`📊 [Raja Vidya EN] Всього знайдено елементів: ${paragraphs.length}`);
 
       paragraphs.forEach((p, index) => {
         // Пропускаємо заголовки та навігацію
-        if (p.closest('nav, header, footer, .navigation, .menu')) {
+        if (p.closest('nav, header, footer, .navigation, .menu, .breadcrumb')) {
           return;
         }
 
+        // Пропускаємо елементи без тексту або дуже короткі
         const text = p.textContent?.trim() || '';
-        if (text && text.length > 10) {
-          // Зберігаємо innerHTML для збереження форматування
-          const innerHTML = p.innerHTML.trim();
-          contentParts.push(`<p>${innerHTML}</p>`);
+        if (!text || text.length < 10) {
+          return;
+        }
 
-          if (index < 3) {
-            console.log(`  [${index}] ${text.substring(0, 80)}...`);
-          }
+        // Пропускаємо скрипти, стилі, мета-інформацію
+        if (p.matches('script, style, meta, link, noscript')) {
+          return;
+        }
+
+        // Зберігаємо innerHTML для збереження форматування
+        const innerHTML = p.innerHTML.trim();
+
+        // Пропускаємо якщо innerHTML порожній або містить лише whitespace
+        if (!innerHTML || innerHTML.replace(/<[^>]*>/g, '').trim().length < 10) {
+          return;
+        }
+
+        contentParts.push(`<p>${innerHTML}</p>`);
+
+        if (index < 5) {
+          console.log(`  [${index}] ${text.substring(0, 80)}...`);
         }
       });
 
@@ -276,8 +323,21 @@ export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChap
       if (contentParts.length === 0) {
         console.log(`⚠️ [Raja Vidya EN] Параграфів не знайдено, беру весь innerHTML контейнера`);
         const containerHTML = contentContainer.innerHTML.trim();
-        if (containerHTML) {
+        const containerText = contentContainer.textContent?.trim() || '';
+
+        console.log(`📊 [Raja Vidya EN] Container HTML length: ${containerHTML.length}`);
+        console.log(`📊 [Raja Vidya EN] Container text length: ${containerText.length}`);
+        console.log(`📝 [Raja Vidya EN] First 500 chars of container text:`, containerText.substring(0, 500));
+
+        if (containerHTML && containerHTML.length > 100) {
           contentParts.push(containerHTML);
+        } else if (containerText && containerText.length > 100) {
+          // Якщо є текст але немає HTML - створюємо параграфи з тексту
+          console.log(`⚠️ [Raja Vidya EN] Створюю параграфи з простого тексту`);
+          const textParagraphs = containerText.split(/\n\n+/).filter(p => p.trim().length > 10);
+          textParagraphs.forEach(para => {
+            contentParts.push(`<p>${para.trim()}</p>`);
+          });
         }
       }
     }
