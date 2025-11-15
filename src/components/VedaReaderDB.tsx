@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
@@ -16,6 +16,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
+import { addLearningVerse, isVerseInLearningList } from "@/utils/learningVerses";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { HighlightDialog } from "@/components/HighlightDialog";
 import { useHighlights } from "@/hooks/useHighlights";
@@ -574,6 +576,51 @@ export const VedaReaderDB = () => {
     });
   };
 
+  // 🆕 Add verse to learning
+  const handleAddToLearning = () => {
+    if (!currentVerse) {
+      sonnerToast.error(t("Немає поточного вірша", "No current verse"));
+      return;
+    }
+
+    // Check if already in learning list
+    if (isVerseInLearningList(currentVerse.id)) {
+      sonnerToast.info(t("Вірш вже в списку для вивчення", "Verse already in learning list"));
+      return;
+    }
+
+    // Determine full verse number
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const fullVerseNumber = isCantoMode
+      ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
+      : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+
+    // Create learning verse object
+    const learningVerse = {
+      verseId: currentVerse.id,
+      verseNumber: fullVerseNumber,
+      bookName: bookTitle || "",
+      bookSlug: bookId,
+      cantoNumber: cantoNumber,
+      chapterNumber: isCantoMode ? chapterNumber : chapter?.chapter_number?.toString(),
+      sanskritText: currentVerse.text || "",
+      transliteration: currentVerse.transliteration || undefined,
+      translation: language === 'ua' ? (currentVerse.translation_ua || "") : (currentVerse.translation_en || ""),
+      commentary: language === 'ua' ? (currentVerse.commentary_ua || undefined) : (currentVerse.commentary_en || undefined),
+      audioUrl: currentVerse.audio_url || undefined,
+      audioSanskrit: currentVerse.audio_sanskrit || undefined,
+      audioTranslation: currentVerse.audio_translation || undefined,
+    };
+
+    const added = addLearningVerse(learningVerse);
+
+    if (added) {
+      sonnerToast.success(t(`Додано до вивчення: ${fullVerseNumber}`, `Added to learning: ${fullVerseNumber}`));
+    } else {
+      sonnerToast.error(t("Помилка додавання вірша", "Error adding verse"));
+    }
+  };
+
   // 🆕 Text selection handler with checks
   const handleTextSelection = useCallback(() => {
     // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
@@ -955,6 +1002,15 @@ export const VedaReaderDB = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAddToLearning}
+                disabled={!currentVerse}
+                title={t("Додати до вивчення", "Add to learning")}
+              >
+                <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
+              </Button>
               <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
               </Button>
