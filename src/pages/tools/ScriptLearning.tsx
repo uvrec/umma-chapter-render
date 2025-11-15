@@ -13,6 +13,7 @@ import { convertIASTtoUkrainian, devanagariToIAST, bengaliToIAST } from "@/utils
 import { supabase } from "@/integrations/supabase/client";
 import { extractAllTerms, calculateTermUsage, GlossaryTerm } from "@/utils/glossaryParser";
 import { getLearningWords, saveLearningWords, removeLearningWord, LearningWord } from "@/utils/learningWords";
+import { getLearningVerses, saveLearningVerses, removeLearningVerse, LearningVerse } from "@/utils/learningVerses";
 import {
   Volume2,
   RefreshCw,
@@ -35,7 +36,7 @@ import { toast } from "sonner";
 type ScriptType = "devanagari" | "bengali";
 type LetterType = "vowel" | "consonant";
 type DifficultyLevel = "beginner" | "intermediate" | "advanced";
-type LearningMode = "alphabet" | "words" | "custom";
+type LearningMode = "alphabet" | "words" | "slokas" | "custom";
 
 interface Letter {
   script: string;
@@ -203,6 +204,7 @@ export default function ScriptLearning() {
   const [showAnswer, setShowAnswer] = useState(false);
   const [customWords, setCustomWords] = useState<WordCard[]>([]);
   const [importedWords, setImportedWords] = useState<WordCard[]>([]);
+  const [learningVerses, setLearningVerses] = useState<LearningVerse[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [stats, setStats] = useState<LearningStats>({
     correct: 0,
@@ -246,6 +248,9 @@ export default function ScriptLearning() {
       // Determine language based on script content
       const lang = "hi-IN"; // Default to Sanskrit/Hindi
       speak(currentItem.script, lang);
+    } else if (learningMode === "slokas" && currentItem && 'sanskritText' in currentItem) {
+      // Speak the Sanskrit text of the verse
+      speak(currentItem.sanskritText, "hi-IN");
     }
   };
 
@@ -315,10 +320,6 @@ export default function ScriptLearning() {
     if (letterType === "all") return alphabet;
     return alphabet.filter(l => l.type === letterType);
   }, [scriptType, letterType]);
-  
-  const currentAlphabet = getCurrentAlphabet();
-  const currentLetter = currentAlphabet[currentLetterIndex];
-  const currentItem = currentLearningItems[currentLetterIndex];
 
   // Навігація
   const handleNext = () => {
@@ -408,6 +409,8 @@ export default function ScriptLearning() {
       return getCurrentAlphabet();
     } else if (learningMode === "words") {
       return importedWords.length > 0 ? importedWords : topGlossaryWords.slice(0, 20);
+    } else if (learningMode === "slokas") {
+      return learningVerses;
     } else if (learningMode === "custom") {
       return customWords;
     }
@@ -415,6 +418,9 @@ export default function ScriptLearning() {
   };
 
   const currentLearningItems = getCurrentLearningItems();
+  const currentAlphabet = getCurrentAlphabet();
+  const currentLetter = currentAlphabet[currentLetterIndex];
+  const currentItem = currentLearningItems[currentLetterIndex];
 
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
   
@@ -470,11 +476,32 @@ export default function ScriptLearning() {
     }
   }, [stats]);
 
+  // Load learning verses from LocalStorage on mount
+  useEffect(() => {
+    try {
+      const savedVerses = getLearningVerses();
+      if (savedVerses.length > 0) {
+        setLearningVerses(savedVerses);
+      }
+    } catch (error) {
+      console.error('Error loading learning verses from LocalStorage:', error);
+    }
+  }, []);
+
+  // Save learning verses to LocalStorage
+  useEffect(() => {
+    try {
+      saveLearningVerses(learningVerses);
+    } catch (error) {
+      console.error('Error saving learning verses to LocalStorage:', error);
+    }
+  }, [learningVerses]);
+
   // Скинути індекс при зміні фільтрів
   useEffect(() => {
     setCurrentLetterIndex(0);
     setShowAnswer(false);
-  }, [scriptType, letterType, learningMode, importedWords.length, customWords.length]);
+  }, [scriptType, letterType, learningMode, importedWords.length, customWords.length, learningVerses.length]);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -498,7 +525,7 @@ export default function ScriptLearning() {
 
           {/* Вибір режиму навчання */}
           <Tabs value={learningMode} onValueChange={(v) => setLearningMode(v as LearningMode)} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="alphabet">
                 <BookOpen className="w-4 h-4 mr-2" />
                 {t("Алфавіт", "Alphabet")}
@@ -508,6 +535,13 @@ export default function ScriptLearning() {
                 {t("Слова", "Words")}
                 {importedWords.length > 0 && (
                   <Badge variant="secondary" className="ml-2">{importedWords.length}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="slokas">
+                <BookOpen className="w-4 h-4 mr-2" />
+                {t("Шлоки", "Slokas")}
+                {learningVerses.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">{learningVerses.length}</Badge>
                 )}
               </TabsTrigger>
             </TabsList>
@@ -600,6 +634,70 @@ export default function ScriptLearning() {
                     </Button>
                   </div>
                 </div>
+              </div>
+            </Card>
+          )}
+
+          {/* Інформація про шлоки */}
+          {learningMode === "slokas" && (
+            <Card className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      {t("Вивчення шлок", "Learning Slokas")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {learningVerses.length === 0
+                        ? t(
+                            "Додайте вірші зі сторінок читання для практики",
+                            "Add verses from reading pages for practice"
+                          )
+                        : t(
+                            `У вас ${learningVerses.length} ${learningVerses.length === 1 ? 'вірш' : learningVerses.length < 5 ? 'вірші' : 'віршів'} для вивчення`,
+                            `You have ${learningVerses.length} verse${learningVerses.length === 1 ? '' : 's'} to learn`
+                          )}
+                    </p>
+                  </div>
+                  {learningVerses.length > 0 && (
+                    <Badge variant="default" className="text-lg px-4 py-2">
+                      {learningVerses.length}
+                    </Badge>
+                  )}
+                </div>
+
+                {learningVerses.length > 0 && (
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant={mode === "flashcards" ? "default" : "outline"}
+                      onClick={() => setMode("flashcards")}
+                    >
+                      <BookOpen className="w-4 h-4 mr-1" />
+                      {t("Картки", "Cards")}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={mode === "practice" ? "default" : "outline"}
+                      onClick={() => setMode("practice")}
+                    >
+                      <Languages className="w-4 h-4 mr-1" />
+                      {t("Практика", "Practice")}
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setLearningVerses([]);
+                        toast.info(t("Список віршів очищено", "Verse list cleared"));
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="ml-auto"
+                    >
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      {t("Очистити", "Clear")}
+                    </Button>
+                  </div>
+                )}
               </div>
             </Card>
           )}
@@ -888,7 +986,83 @@ export default function ScriptLearning() {
                     )}
                   </>
                 )}
-              
+
+                {learningMode === "slokas" && currentItem && 'sanskritText' in currentItem && (
+                  <>
+                    {/* Вірш */}
+                    <div className="text-center space-y-4">
+                      <div className="text-sm text-muted-foreground">
+                        {currentItem.verseNumber} {currentItem.bookName && `— ${currentItem.bookName}`}
+                      </div>
+
+                      <div className="text-4xl font-bold sanskrit-text leading-relaxed">
+                        {currentItem.sanskritText}
+                      </div>
+
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="default"
+                          size="lg"
+                          onClick={playPronunciation}
+                          disabled={isPlaying}
+                        >
+                          <Volume2 className={`w-5 h-5 mr-2 ${isPlaying ? "animate-pulse" : ""}`} />
+                          {isPlaying ? t("Відтворюється...", "Playing...") : t("Прослухати", "Listen")}
+                        </Button>
+
+                        {mode === "flashcards" && (
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            onClick={() => setShowAnswer(!showAnswer)}
+                          >
+                            {showAnswer
+                              ? t("Сховати відповідь", "Hide Answer")
+                              : t("Показати відповідь", "Show Answer")
+                            }
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Відповідь для вірша */}
+                    {(showAnswer || mode === "practice") && (
+                      <div className="space-y-4 animate-fade-in">
+                        {currentItem.transliteration && (
+                          <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                            <div className="text-sm text-muted-foreground mb-2">
+                              {t("Транслітерація", "Transliteration")}
+                            </div>
+                            <div className="text-lg font-medium iast-text leading-relaxed">
+                              {currentItem.transliteration}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                          <div className="text-sm text-muted-foreground mb-2">
+                            {t("Переклад", "Translation")}
+                          </div>
+                          <div className="text-lg leading-relaxed">
+                            {currentItem.translation}
+                          </div>
+                        </div>
+
+                        {currentItem.commentary && (
+                          <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
+                            <div className="text-sm text-muted-foreground mb-2">
+                              {t("Коментар", "Commentary")}
+                            </div>
+                            <div className="text-sm leading-relaxed line-clamp-6">
+                              {currentItem.commentary}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+
               {/* Кнопки навігації */}
               <div className="flex items-center justify-center gap-3 pt-4">
                 <Button onClick={handlePrev} variant="outline" size="lg">
@@ -1009,6 +1183,66 @@ export default function ScriptLearning() {
                     >
                       <Trash2 className="h-3 w-3 text-red-600 dark:text-red-400" />
                     </button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {/* Список збережених віршів - тільки для режиму шлок */}
+          {learningMode === "slokas" && learningVerses.length > 0 && (
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">
+                  {t("Збережені вірші", "Saved Verses")}
+                </h3>
+                <Badge variant="secondary">{learningVerses.length}</Badge>
+              </div>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {learningVerses.map((verse, index) => (
+                  <div
+                    key={verse.verseId}
+                    className={`
+                      relative p-4 rounded-lg border-2 transition-all group cursor-pointer
+                      ${index === currentLetterIndex
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                      }
+                    `}
+                    onClick={() => setCurrentLetterIndex(index)}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="font-semibold text-sm text-muted-foreground">
+                            {verse.verseNumber}
+                          </div>
+                          <div className="text-lg sanskrit-text font-medium mt-1 line-clamp-2">
+                            {verse.sanskritText}
+                          </div>
+                          {verse.bookName && (
+                            <div className="text-xs text-blue-600 mt-1">
+                              {verse.bookName}
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeLearningVerse(verse.verseId);
+                            setLearningVerses(prev => prev.filter(v => v.verseId !== verse.verseId));
+                            toast.success(t("Вірш видалено", "Verse removed"));
+                          }}
+                          className="p-1 rounded-md bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                          title={t("Видалити", "Remove")}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        </button>
+                      </div>
+                      <div className="text-sm text-muted-foreground line-clamp-2">
+                        {verse.translation}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
