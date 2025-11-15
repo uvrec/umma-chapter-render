@@ -1344,17 +1344,6 @@ export default function ScriptLearning() {
                             {currentItem.translation}
                           </div>
                         </div>
-
-                        {currentItem.commentary && (
-                          <div className="p-4 bg-amber-50 dark:bg-amber-950 rounded-lg">
-                            <div className="text-sm text-muted-foreground mb-2">
-                              {t("Коментар", "Commentary")}
-                            </div>
-                            <div className="text-sm leading-relaxed line-clamp-6">
-                              {currentItem.commentary}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
                   </>
