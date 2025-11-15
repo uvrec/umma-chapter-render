@@ -185,6 +185,7 @@ export function parseRajaVidyaEPUB(html: string): RajaVidyaChapterUA[] {
 
 /**
  * Парсить англійську версію Raja Vidya з Vedabase
+ * Використовує метод з parseVedabaseCC - витягує тільки .av-purport (пояснення)
  */
 export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChapterEN | null {
   console.log(`🔍 [Raja Vidya EN] parseRajaVidyaVedabase called for: ${url}`);
@@ -199,154 +200,64 @@ export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChap
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Діагностика: які класи є
-    const allClasses = new Set<string>();
-    doc.querySelectorAll('[class]').forEach(el => {
-      el.classList.forEach(cls => allClasses.add(cls));
-    });
-    console.log(`📊 [Raja Vidya EN] Унікальних класів: ${allClasses.size}`);
-    console.log(`📋 [Raja Vidya EN] Класи (перші 30):`, Array.from(allClasses).slice(0, 30).join(', '));
-
     // Витягуємо номер глави з URL: https://vedabase.io/en/library/rv/1/ -> 1
     const chapterMatch = url.match(/\/rv\/(\d+)/);
     const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : 1;
 
     // Знаходимо заголовок глави
     let title = '';
-    const titleEl = doc.querySelector('h1, h2, .r-title, .chapter-title, [class*="title"]');
+    const titleEl = doc.querySelector('h1, h2, .av-title, .r-title');
     if (titleEl) {
       title = titleEl.textContent?.trim() || '';
       console.log(`📝 [Raja Vidya EN] Chapter ${chapterNumber} title: "${title}"`);
     }
 
-    // ✅ ПОКРАЩЕНО: Збираємо HTML замість простого тексту для збереження форматування
-    const contentParts: string[] = [];
+    // ✅ ТОЧНО ЯК В parseVedabaseCC: Витягуємо .av-purport (пояснення)
+    let content_en = '';
+    const purportContainer = doc.querySelector('.av-purport');
 
-    // Шукаємо основний контент-контейнер з різними варіантами
-    const possibleContainers = [
-      '.r-body',
-      '.r-content',
-      '.r-chapter',
-      'article',
-      'main',
-      '#content',
-      '.content',
-      '.entry-content',
-      '[role="main"]'
-    ];
+    if (purportContainer) {
+      console.log(`✅ [Raja Vidya EN] Знайдено .av-purport контейнер`);
 
-    let contentContainer = null;
-    for (const selector of possibleContainers) {
-      contentContainer = doc.querySelector(selector);
-      if (contentContainer) {
-        console.log(`✅ [Raja Vidya EN] Знайдено контейнер: ${selector}`);
-        break;
-      }
-    }
+      // ✅ Беремо тільки прямі дочірні <p> щоб уникнути дублювання
+      let paragraphs = purportContainer.querySelectorAll(':scope > p');
 
-    if (!contentContainer) {
-      console.log(`⚠️ [Raja Vidya EN] Не знайдено спеціального контейнера, використовую body`);
-      contentContainer = doc.body;
-    }
-
-    if (contentContainer) {
-      // ✅ Збираємо параграфи зі збереженням HTML структури
-      // Розширюємо список селекторів для більшої гнучкості
-      const paragraphSelectors = [
-        'p',
-        'div.verse',
-        'div.text',
-        'div.paragraph',
-        '.r-paragraph',
-        '.r-text',
-        '.r-verse',
-        'div[class*="text"]',
-        'div[class*="paragraph"]',
-        'div[class*="content"]',
-        // Vedabase може використовувати div без класів
-        'div > p',
-        'section p',
-        'article p'
-      ];
-
-      let paragraphs: Element[] = [];
-      for (const selector of paragraphSelectors) {
-        const found = contentContainer.querySelectorAll(selector);
-        if (found.length > 0) {
-          console.log(`📊 [Raja Vidya EN] Знайдено ${found.length} елементів за селектором: ${selector}`);
-          paragraphs = Array.from(found);
-          break;
-        }
-      }
-
+      // Якщо немає прямих <p>, пробуємо взяти всі <p> (fallback для різних структур)
       if (paragraphs.length === 0) {
-        // Fallback: візьмемо всі div та p без фільтрації
-        console.log(`⚠️ [Raja Vidya EN] Стандартні селектори не спрацювали, беру всі div та p`);
-        paragraphs = Array.from(contentContainer.querySelectorAll('div, p'));
+        console.log(`⚠️ [Raja Vidya EN] Немає прямих <p>, шукаю всі <p> в .av-purport`);
+        paragraphs = purportContainer.querySelectorAll('p');
       }
 
-      console.log(`📊 [Raja Vidya EN] Всього знайдено елементів: ${paragraphs.length}`);
+      console.log(`📊 [Raja Vidya EN] Знайдено параграфів у .av-purport: ${paragraphs.length}`);
+
+      const parts: string[] = [];
+      const seen = new Set<string>(); // Додаткова перевірка на дублікати
 
       paragraphs.forEach((p, index) => {
-        // Пропускаємо заголовки та навігацію
-        if (p.closest('nav, header, footer, .navigation, .menu, .breadcrumb')) {
-          return;
-        }
+        const text = p.textContent?.trim();
+        if (text && text.length > 10 && !seen.has(text)) {
+          seen.add(text);
 
-        // Пропускаємо елементи без тексту або дуже короткі
-        const text = p.textContent?.trim() || '';
-        if (!text || text.length < 10) {
-          return;
-        }
+          // Зберігаємо innerHTML для збереження форматування (курсив, bold тощо)
+          const innerHTML = p.innerHTML.trim();
+          parts.push(`<p>${innerHTML}</p>`);
 
-        // Пропускаємо скрипти, стилі, мета-інформацію
-        if (p.matches('script, style, meta, link, noscript')) {
-          return;
-        }
-
-        // Зберігаємо innerHTML для збереження форматування
-        const innerHTML = p.innerHTML.trim();
-
-        // Пропускаємо якщо innerHTML порожній або містить лише whitespace
-        if (!innerHTML || innerHTML.replace(/<[^>]*>/g, '').trim().length < 10) {
-          return;
-        }
-
-        contentParts.push(`<p>${innerHTML}</p>`);
-
-        if (index < 5) {
-          console.log(`  [${index}] ${text.substring(0, 80)}...`);
+          // Логуємо перші 3 параграфи для діагностики
+          if (index < 3) {
+            console.log(`  [${index}] ${text.substring(0, 80)}...`);
+          }
         }
       });
 
-      // Якщо не знайдено параграфів, спробуємо взяти весь innerHTML контейнера
-      if (contentParts.length === 0) {
-        console.log(`⚠️ [Raja Vidya EN] Параграфів не знайдено, беру весь innerHTML контейнера`);
-        const containerHTML = contentContainer.innerHTML.trim();
-        const containerText = contentContainer.textContent?.trim() || '';
-
-        console.log(`📊 [Raja Vidya EN] Container HTML length: ${containerHTML.length}`);
-        console.log(`📊 [Raja Vidya EN] Container text length: ${containerText.length}`);
-        console.log(`📝 [Raja Vidya EN] First 500 chars of container text:`, containerText.substring(0, 500));
-
-        if (containerHTML && containerHTML.length > 100) {
-          contentParts.push(containerHTML);
-        } else if (containerText && containerText.length > 100) {
-          // Якщо є текст але немає HTML - створюємо параграфи з тексту
-          console.log(`⚠️ [Raja Vidya EN] Створюю параграфи з простого тексту`);
-          const textParagraphs = containerText.split(/\n\n+/).filter(p => p.trim().length > 10);
-          textParagraphs.forEach(para => {
-            contentParts.push(`<p>${para.trim()}</p>`);
-          });
-        }
-      }
+      content_en = parts.join('\n');
+    } else {
+      console.warn(`⚠️ [Raja Vidya EN] Не знайдено .av-purport контейнер для ${url}`);
+      return null;
     }
 
-    // ✅ Об'єднуємо з HTML тегами для збереження форматування
-    const content = contentParts.join('\n').trim();
-    console.log(`✅ [Raja Vidya EN] Chapter ${chapterNumber} content: ${content.length} chars (HTML)`);
+    console.log(`✅ [Raja Vidya EN] Chapter ${chapterNumber} content: ${content_en.length} chars (HTML)`);
 
-    if (!content) {
+    if (!content_en || content_en.length < 50) {
       console.warn(`⚠️ [Raja Vidya EN] No content found for chapter ${chapterNumber}`);
       return null;
     }
@@ -354,7 +265,7 @@ export function parseRajaVidyaVedabase(html: string, url: string): RajaVidyaChap
     return {
       chapter_number: chapterNumber,
       title_en: title || `Chapter ${chapterNumber}`,
-      content_en: content,
+      content_en: content_en,
     };
   } catch (error) {
     console.error('❌ [Raja Vidya EN] Parse error:', error);
