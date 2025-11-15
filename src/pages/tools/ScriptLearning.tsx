@@ -12,6 +12,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { convertIASTtoUkrainian, devanagariToIAST, bengaliToIAST } from "@/utils/textNormalizer";
 import { supabase } from "@/integrations/supabase/client";
 import { extractAllTerms, calculateTermUsage, GlossaryTerm } from "@/utils/glossaryParser";
+import { getLearningWords, saveLearningWords, removeLearningWord, LearningWord } from "@/utils/learningWords";
 import {
   Volume2,
   RefreshCw,
@@ -24,7 +25,8 @@ import {
   Shuffle,
   RotateCcw,
   Download,
-  ListPlus
+  ListPlus,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -393,9 +395,10 @@ export default function ScriptLearning() {
     toast.success(t("Слово додано", "Word added"));
   };
 
-  // Remove word from imported
-  const removeImportedWord = (index: number) => {
-    setImportedWords(prev => prev.filter((_, i) => i !== index));
+  // Remove word from imported (by iast)
+  const removeImportedWord = (iast: string) => {
+    removeLearningWord(iast);
+    setImportedWords(prev => prev.filter((word) => word.iast !== iast));
     toast.success(t("Слово видалено", "Word removed"));
   };
 
@@ -418,16 +421,20 @@ export default function ScriptLearning() {
   // Load data from LocalStorage on mount
   useEffect(() => {
     try {
-      const savedImportedWords = localStorage.getItem('scriptLearning_importedWords');
-      const savedCustomWords = localStorage.getItem('scriptLearning_customWords');
-      const savedStats = localStorage.getItem('scriptLearning_stats');
-
-      if (savedImportedWords) {
-        setImportedWords(JSON.parse(savedImportedWords));
+      // Use the learning words utility for imported words from verses
+      const savedLearningWords = getLearningWords();
+      if (savedLearningWords.length > 0) {
+        setImportedWords(savedLearningWords);
       }
+
+      // Custom words still use direct localStorage (for now)
+      const savedCustomWords = localStorage.getItem('scriptLearning_customWords');
       if (savedCustomWords) {
         setCustomWords(JSON.parse(savedCustomWords));
       }
+
+      // Stats use direct localStorage
+      const savedStats = localStorage.getItem('scriptLearning_stats');
       if (savedStats) {
         setStats(JSON.parse(savedStats));
       }
@@ -436,10 +443,10 @@ export default function ScriptLearning() {
     }
   }, []);
 
-  // Save imported words to LocalStorage
+  // Save imported words to LocalStorage using utility
   useEffect(() => {
     try {
-      localStorage.setItem('scriptLearning_importedWords', JSON.stringify(importedWords));
+      saveLearningWords(importedWords);
     } catch (error) {
       console.error('Error saving imported words to LocalStorage:', error);
     }
@@ -955,29 +962,54 @@ export default function ScriptLearning() {
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-96 overflow-y-auto">
                 {importedWords.map((word, index) => (
-                  <button
+                  <div
                     key={index}
-                    onClick={() => setCurrentLetterIndex(index)}
                     className={`
-                      p-3 rounded-lg border-2 transition-all hover:scale-105 text-left
+                      relative p-3 rounded-lg border-2 transition-all group
                       ${index === currentLetterIndex
                         ? "border-primary bg-primary/10"
                         : "border-border hover:border-primary/50"
                       }
                     `}
                   >
-                    <div className="text-2xl font-bold sanskrit-text">
-                      {word.script}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1 iast-text">
-                      {word.iast}
-                    </div>
-                    {word.usageCount && (
-                      <div className="text-xs text-muted-foreground">
-                        {t("Використань", "Uses")}: {word.usageCount}
+                    <button
+                      onClick={() => setCurrentLetterIndex(index)}
+                      className="w-full text-left"
+                    >
+                      <div className="text-2xl font-bold sanskrit-text">
+                        {word.script}
                       </div>
-                    )}
-                  </button>
+                      <div className="text-xs text-muted-foreground mt-1 iast-text">
+                        {word.iast}
+                      </div>
+                      {word.usageCount && (
+                        <div className="text-xs text-muted-foreground">
+                          {t("Використань", "Uses")}: {word.usageCount}
+                        </div>
+                      )}
+                      {word.verseReference && (
+                        <div className="text-xs text-green-600 mt-1">
+                          {t("З вірша", "From verse")}: {word.verseReference}
+                        </div>
+                      )}
+                      {word.book && (
+                        <div className="text-xs text-blue-600">
+                          {word.book}
+                        </div>
+                      )}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImportedWord(word.iast);
+                      }}
+                      className="absolute top-1 right-1 p-1 rounded-md bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 opacity-0 group-hover:opacity-100 transition-opacity"
+                      title={t("Видалити", "Remove")}
+                      aria-label={`${t("Видалити", "Remove")} ${word.script}`}
+                    >
+                      <Trash2 className="h-3 w-3 text-red-600 dark:text-red-400" />
+                    </button>
+                  </div>
                 ))}
               </div>
             </Card>

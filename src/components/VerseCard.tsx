@@ -4,7 +4,7 @@
 // + STICKY HEADER для верхньої панелі
 
 import { useState } from "react";
-import { Play, Pause, Edit, Save, X, Volume2 } from "lucide-react";
+import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,8 @@ import { useAudio } from "@/contexts/ModernAudioContext";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
+import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
+import { toast } from "sonner";
 
 /* =========================
    Типи пропсів
@@ -309,14 +311,44 @@ export const VerseCard = ({
         }))} className="min-h-[120px] text-4xl" /> : <p className="leading-relaxed text-foreground text-4xl">
                 {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
             const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
-            return <span key={i}>
-                        {words.map((w, wi) => <span key={wi}>
+
+            // Handler for adding word to learning
+            const handleAddToLearning = (word: string, meaning: string) => {
+              const added = addLearningWord({
+                script: word,
+                iast: word,
+                ukrainian: meaning,
+                meaning: meaning,
+                book: bookName,
+                verseReference: verseNumber
+              });
+
+              if (added) {
+                toast.success(`Додано до вивчення: ${word}`);
+              } else {
+                toast.info(`Слово вже в списку: ${word}`);
+              }
+            };
+
+            return <span key={i} className="inline-flex items-center gap-1 flex-wrap">
+                        {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-1">
                             <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
                               {w}
                             </span>
                             {wi < words.length - 1 && " "}
                           </span>)}
                         {pair.meaning && <span> — {pair.meaning}</span>}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToLearning(pair.term, pair.meaning || "");
+                          }}
+                          className="inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group"
+                          title="Додати до вивчення"
+                          aria-label={`Додати "${pair.term}" до вивчення`}
+                        >
+                          <GraduationCap className={`h-4 w-4 ${isWordInLearningList(pair.term) ? 'text-green-600' : 'text-muted-foreground group-hover:text-primary'}`} />
+                        </button>
                         {i < synonymPairs.length - 1 && <span>; </span>}
                       </span>;
           })}
