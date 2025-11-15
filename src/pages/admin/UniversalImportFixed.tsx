@@ -1657,7 +1657,8 @@ export default function UniversalImportFixed() {
       setIsProcessing(false);
       setProgress(0);
     }
-  }, [parsedChapters, saveToDatabase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parsedChapters]);
 
   /** Імпорт розділу з файлу */
   const handleFileChapterImport = useCallback(async () => {
