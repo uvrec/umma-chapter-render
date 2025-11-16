@@ -317,6 +317,10 @@ body {
 .synonyms-text {
   font-size: var(--synonyms-font-size);
   line-height: var(--synonyms-line-height);
+  text-align: left;
+  word-break: normal;
+  overflow-wrap: break-word; /* prevent overflow but avoid mid-word breaks */
+  hyphens: auto;
 }
 
 .synonyms-pair {
@@ -333,10 +337,23 @@ body {
   margin: 0 0.3em;
 }
 
-/* Пояснення */
+/* Пояснення + Літературний переклад: вирівнювання як на vedabase */
+.translation-text {
+  font-size: var(--vv-reader-font-size);
+  line-height: var(--vv-reader-line-height);
+  text-align: justify;
+  text-indent: 1.25em; /* перший рядок */
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
 .commentary-text {
   font-size: var(--commentary-font-size);
   line-height: var(--commentary-line-height);
+  text-align: justify;
+  text-indent: 1.25em; /* перший рядок */
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 .prose-reader p,
