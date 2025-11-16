@@ -159,9 +159,9 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
         synonymPairs.map((pair, i) => {
           const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
           return (
-            <span key={i}>
+            <span key={i} className="inline-flex items-center gap-1 md:gap-1.5 flex-wrap mr-1">
               {words.map((w, wi) => (
-                <span key={wi}>
+                <span key={wi} className="inline-flex items-center gap-0.5 md:gap-1">
                   <span
                     role="link"
                     tabIndex={0}
@@ -175,8 +175,8 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
                   {wi < words.length - 1 && <span className="hidden md:inline"> </span>}
                 </span>
               ))}
-              {pair.meaning && <span> — {pair.meaning}</span>}
-              {i < synonymPairs.length - 1 && <span>; </span>}
+              {pair.meaning && <span className="mx-1"> — {pair.meaning}</span>}
+              {i < synonymPairs.length - 1 && <span>;</span>}
             </span>
           );
         })
