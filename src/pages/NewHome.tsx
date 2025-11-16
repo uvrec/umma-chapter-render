@@ -121,7 +121,7 @@ function Hero() {
         <div className="mx-auto max-w-4xl">
           {/* Logo */}
           <div className="mb-6 flex flex-col items-center">
-            <div className="mb-4 h-64 w-64 md:h-80 md:w-80">
+            <div className="mb-4 h-80 w-80 md:h-96 md:w-96">
               <img src={settings.logo_image} alt="Прабгупада соловʼїною" className="h-full w-full object-contain" />
             </div>
           </div>
