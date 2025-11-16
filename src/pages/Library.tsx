@@ -25,13 +25,13 @@ export const Library = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Simple title - minimal spacing */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        {/* Simple title - адаптивний */}
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
             {t('Бібліотека', 'Library')}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {t(
               'Повна колекція ведичної літератури з коментарями Його Божественної Милості А. Ч. Бгактіведанти Свамі Прабгупади',
               'Complete collection of Vedic literature with commentaries by His Divine Grace A.C. Bhaktivedanta Swami Prabhupada'
@@ -53,21 +53,21 @@ export const Library = () => {
           </button>
         </div> */}
 
-        {/* Loading skeleton */}
+        {/* Loading skeleton - адаптивна сітка */}
         {isLoading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="space-y-2">
                 <Skeleton className="aspect-[2/3] w-full rounded-lg" />
-                <Skeleton className="h-4 w-3/4 mx-auto" />
+                <Skeleton className="h-3 sm:h-4 w-3/4 mx-auto" />
               </div>
             ))}
           </div>
         )}
 
-        {/* Books Grid - 4 columns on desktop */}
+        {/* Books Grid - адаптивна сітка */}
         {!isLoading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {books.map((book) => (
               <Link
                 key={book.id}
@@ -85,7 +85,7 @@ export const Library = () => {
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                      <span className="text-5xl opacity-50">📖</span>
+                      <span className="text-3xl sm:text-5xl opacity-50">📖</span>
                     </div>
                   )}
 
@@ -93,8 +93,8 @@ export const Library = () => {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
 
-                {/* Book Title */}
-                <h3 className="mt-3 text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
+                {/* Book Title - адаптивний */}
+                <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
                   {language === 'ua' ? book.title_ua : book.title_en}
                 </h3>
               </Link>

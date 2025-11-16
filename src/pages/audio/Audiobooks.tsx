@@ -92,23 +92,23 @@ export const Audiobooks = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="mb-4 sm:mb-6">
           <Link to="/audio">
-            <Button variant="ghost" className="mb-4">
+            <Button variant="ghost" className="mb-4" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад до аудіо
+              <span className="hidden xs:inline">Назад до аудіо</span>
             </Button>
           </Link>
         </div>
 
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
-            <BookOpen className="w-12 h-12 text-primary mr-4" />
-            <h1 className="text-4xl md:text-5xl font-bold">Аудіокниги</h1>
+        {/* Hero - адаптивний */}
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="flex items-center justify-center mb-3 sm:mb-4">
+            <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-primary mr-3 sm:mr-4" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">Аудіокниги</h1>
           </div>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto px-4">
             Слухайте ведичну мудрість у виконанні Його Божественної Милості А.Ч. Бхактіведанти Свамі Прабгупади
           </p>
         </div>
@@ -132,9 +132,9 @@ export const Audiobooks = () => {
           </div>
         )}
 
-        {/* Сітка аудіокниг */}
+        {/* Сітка аудіокниг - адаптивна */}
         {!loading && !catError && !listError && audiobooks && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {audiobooks.map((book) => {
               const trackCount = book.tracks?.[0]?.count || 0;
               const coverUrl = book.cover_image_url?.trim() || FALLBACK_COVER;
