@@ -89,6 +89,13 @@ export const Header = () => {
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
+              <Link to="/tools/synonyms" aria-label="Пошук синонімів">
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Синоніми
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/blog" aria-label="Блог">
                 <FileText className="mr-2 h-4 w-4" />
                 Блог
@@ -250,6 +257,15 @@ export const Header = () => {
                 >
                   <BookMarked className="h-5 w-5" />
                   <span>Збірки знань</span>
+                </Link>
+
+                <Link
+                  to="/tools/synonyms"
+                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
+                  onClick={() => setOpen(false)}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                  <span>Пошук синонімів</span>
                 </Link>
 
                 <Link
