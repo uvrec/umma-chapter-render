@@ -404,10 +404,9 @@ export const DualLanguageVerseCard = ({
                     value={edited.sanskritUa}
                     onChange={e => setEdited(p => ({ ...p, sanskritUa: e.target.value }))}
                     className="min-h-[100px] text-center sanskrit-text"
-                    style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}
                   />
                 ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
+                  <p className="whitespace-pre-line text-center sanskrit-text">
                     {processedSanskritUa}
                   </p>
                 )}
@@ -430,10 +429,9 @@ export const DualLanguageVerseCard = ({
                     value={edited.sanskritEn}
                     onChange={e => setEdited(p => ({ ...p, sanskritEn: e.target.value }))}
                     className="min-h-[100px] text-center sanskrit-text"
-                    style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}
                   />
                 ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
+                  <p className="whitespace-pre-line text-center sanskrit-text">
                     {processedSanskritEn}
                   </p>
                 )}

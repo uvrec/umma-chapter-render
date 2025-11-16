@@ -128,8 +128,18 @@
   /* ⚠️ font-size та line-height визначені в index.css */
 }
 
-/* -------- Санскрит (IAST латиниця) -------- */
+/* -------- Санскрит (Деванагарі) -------- */
 .sanskrit-text,
+.prose-reader .sanskrit {
+  /* Шрифтова сім'я для ДЕВАНАГАРІ (!important для пріоритету) */
+  font-family: "Noto Sans Devanagari", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+
+  /* ⚠️ font-size та line-height визначені в index.css */
+}
+
+/* -------- IAST латиниця (транслітерація) -------- */
 .iast-text,
 .transliteration-output[data-script="iast"],
 textarea.iast-text,
