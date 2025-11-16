@@ -61,14 +61,15 @@ export default function SynonymsSearch() {
 
       setIsLoadingAutocomplete(true);
       try {
-        const { data, error } = await supabase.rpc("get_unique_synonym_terms", {
+        const { data, error } = await (supabase as any).rpc("get_unique_synonym_terms", {
           search_language: lang,
           prefix_filter: term,
           limit_count: 10,
         });
 
         if (error) throw error;
-        setAutocomplete(data || []);
+        const items = (data ?? []) as AutocompleteItem[];
+        setAutocomplete(items);
       } catch (error) {
         console.error("Autocomplete error:", error);
       } finally {
@@ -89,7 +90,7 @@ export default function SynonymsSearch() {
 
     setIsSearching(true);
     try {
-      const { data, error } = await supabase.rpc("search_synonyms", {
+      const { data, error } = await (supabase as any).rpc("search_synonyms", {
         search_term: searchTerm.trim(),
         search_language: searchLanguage,
         search_mode: searchMode,
@@ -99,10 +100,11 @@ export default function SynonymsSearch() {
 
       if (error) throw error;
 
-      setResults(data || []);
-      setTotalResults(data?.length || 0);
+      const rows = (data ?? []) as SynonymSearchResult[];
+      setResults(rows);
+      setTotalResults(rows.length);
 
-      if (!data || data.length === 0) {
+      if (!rows || rows.length === 0) {
         toast.info(
           searchLanguage === "ua" ? "Нічого не знайдено" : "No results found",
           {
@@ -115,8 +117,8 @@ export default function SynonymsSearch() {
       } else {
         toast.success(
           searchLanguage === "ua"
-            ? `Знайдено результатів: ${data.length}`
-            : `Results found: ${data.length}`
+            ? `Знайдено результатів: ${rows.length}`
+            : `Results found: ${rows.length}`
         );
       }
     } catch (error: any) {
