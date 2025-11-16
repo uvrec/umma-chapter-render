@@ -146,13 +146,13 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
       <Textarea
         value={synonyms}
         onChange={e => onEdit?.(e.target.value)}
-        className="min-h-[120px] synonyms-text"
+        className="min-h-[120px] text-4xl"
       />
     );
   }
 
   return (
-    <p className="leading-relaxed text-foreground synonyms-text">
+    <p className="leading-relaxed text-foreground text-4xl">
       {synonymPairs.length === 0 ? (
         <span className="text-muted-foreground">{synonyms}</span>
       ) : (
@@ -176,7 +176,7 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
                 </span>
               ))}
               {pair.meaning && <span> — {pair.meaning}</span>}
-              {i < synonymPairs.length - 1 && "; "}
+              {i < synonymPairs.length - 1 && <span>; </span>}
             </span>
           );
         })
@@ -439,12 +439,12 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.transliterationUa}
                     onChange={e => setEdited(p => ({ ...p, transliterationUa: e.target.value }))}
-                    className="min-h-[80px] text-center iast-text italic text-muted-foreground"
+                    className="min-h-[80px] text-center font-sanskrit-italic italic text-4xl text-muted-foreground"
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="iast-text italic leading-relaxed text-muted-foreground font-semibold">
+                      <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-muted-foreground text-4xl font-semibold">
                         {line}
                       </p>
                     ))}
@@ -458,12 +458,12 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.transliterationEn}
                     onChange={e => setEdited(p => ({ ...p, transliterationEn: e.target.value }))}
-                    className="min-h-[80px] text-center iast-text italic text-muted-foreground"
+                    className="min-h-[80px] text-center font-sanskrit-italic italic text-4xl text-muted-foreground"
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="iast-text italic leading-relaxed text-muted-foreground font-semibold">
+                      <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-muted-foreground text-4xl font-semibold">
                         {line}
                       </p>
                     ))}
@@ -542,10 +542,10 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.translationUa}
                     onChange={e => setEdited(p => ({ ...p, translationUa: e.target.value }))}
-                    className="min-h-[100px] font-semibold"
+                    className="min-h-[100px] text-4xl font-semibold"
                   />
                 ) : (
-                  <p className="leading-relaxed text-foreground font-semibold">{translationUa}</p>
+                  <p className="leading-relaxed text-foreground font-semibold text-4xl">{translationUa}</p>
                 )}
               </div>
 
@@ -566,10 +566,10 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.translationEn}
                     onChange={e => setEdited(p => ({ ...p, translationEn: e.target.value }))}
-                    className="min-h-[100px] font-semibold"
+                    className="min-h-[100px] text-4xl font-semibold"
                   />
                 ) : (
-                  <p className="leading-relaxed text-foreground font-semibold">{translationEn}</p>
+                  <p className="leading-relaxed text-foreground font-semibold text-4xl">{translationEn}</p>
                 )}
               </div>
             </div>
@@ -627,7 +627,7 @@ export const DualLanguageVerseCard = ({
                 {Array.from({ length: maxParagraphs }).map((_, index) => (
                   <div key={index} className="grid grid-cols-2 gap-6 border-b border-border/50 pb-4 last:border-b-0">
                     {/* UA параграф */}
-                    <div className="leading-relaxed">
+                    <div className="text-4xl leading-relaxed">
                       {commentaryParagraphsUa[index] ? (
                         <TiptapRenderer content={commentaryParagraphsUa[index]} />
                       ) : (
@@ -636,7 +636,7 @@ export const DualLanguageVerseCard = ({
                     </div>
 
                     {/* EN параграф */}
-                    <div className="leading-relaxed">
+                    <div className="text-4xl leading-relaxed">
                       {commentaryParagraphsEn[index] ? (
                         <TiptapRenderer content={commentaryParagraphsEn[index]} />
                       ) : (

@@ -278,7 +278,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.sanskrit} onChange={e => setEdited(p => ({
           ...p,
           sanskrit: e.target.value
-        }))} className="min-h-[100px] text-center sanskrit-text" /> : <p className="whitespace-pre-line text-center sanskrit-text">
+        }))} className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground" /> : <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
                 {sanskritText}
               </p>}
           </div>}
@@ -288,8 +288,8 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.transliteration} onChange={e => setEdited(p => ({
           ...p,
           transliteration: e.target.value
-        }))} className="min-h-[80px] text-center iast-text italic text-muted-foreground" /> : <div className="space-y-1 text-center">
-                {transliteration.split("\n").map((line, idx) => <p key={idx} className="iast-text italic leading-relaxed text-muted-foreground font-semibold">
+        }))} className="min-h-[80px] text-center font-sanskrit-italic italic text-4xl text-muted-foreground" /> : <div className="space-y-1 text-center">
+                {transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-muted-foreground text-4xl font-semibold">
                     {line}
                   </p>)}
               </div>}
@@ -308,7 +308,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.synonyms} onChange={e => setEdited(p => ({
           ...p,
           synonyms: e.target.value
-        }))} className="min-h-[120px] synonyms-text" /> : <p className="leading-relaxed text-foreground synonyms-text">
+        }))} className="min-h-[120px] text-4xl" /> : <p className="leading-relaxed text-foreground text-4xl">
                 {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
             const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
 
@@ -330,8 +330,8 @@ export const VerseCard = ({
               }
             };
 
-            return <span key={i}>
-                        {words.map((w, wi) => <span key={wi}>
+            return <span key={i} className="inline-flex items-center gap-1 flex-wrap">
+                        {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-1">
                             <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
                               {w}
                             </span>
@@ -343,13 +343,13 @@ export const VerseCard = ({
                             e.stopPropagation();
                             handleAddToLearning(pair.term, pair.meaning || "");
                           }}
-                          className="inline-flex items-center justify-center align-middle ml-1 p-0.5 md:p-1 rounded-md hover:bg-primary/10 transition-colors group"
+                          className="inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group"
                           title="Додати до вивчення"
                           aria-label={`Додати "${pair.term}" до вивчення`}
                         >
-                          <GraduationCap className={`h-3 w-3 md:h-4 md:w-4 ${isWordInLearningList(pair.term) ? 'text-green-600' : 'text-muted-foreground group-hover:text-primary'}`} />
+                          <GraduationCap className={`h-4 w-4 ${isWordInLearningList(pair.term) ? 'text-green-600' : 'text-muted-foreground group-hover:text-primary'}`} />
                         </button>
-                        {i < synonymPairs.length - 1 && "; "}
+                        {i < synonymPairs.length - 1 && <span>; </span>}
                       </span>;
           })}
               </p>}
@@ -368,7 +368,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] font-semibold" /> : <p className="leading-relaxed text-foreground font-semibold translation-text">{translation}</p>}
+        }))} className="min-h-[100px] text-4xl font-semibold" /> : <p className="leading-relaxed text-foreground font-semibold text-4xl">{translation}</p>}
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
@@ -384,7 +384,7 @@ export const VerseCard = ({
             {isEditing ? <InlineTiptapEditor content={edited.commentary} onChange={html => setEdited(p => ({
           ...p,
           commentary: html
-        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="leading-relaxed commentary-text" />}
+        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="text-4xl leading-relaxed" />}
           </div>}
       </div>
     </Card>;

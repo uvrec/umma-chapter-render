@@ -32,25 +32,25 @@
    РОЗМІРИ ЧИТАЛКИ
    ========================= */
 :root {
-  /* Базовий текст - оригінальні розміри для десктопу */
-  --vv-reader-font-size: 18px; /* Стандарт для десктопу */
-  --vv-reader-line-height: 1.75;
-  --vv-reader-max-width: 48rem;
+  /* Базовий текст - оптимізовано для читання на всіх пристроях */
+  --vv-reader-font-size: 16px; /* 16px = стандарт для мобільних */
+  --vv-reader-line-height: 1.6;
+  --vv-reader-max-width: 45rem;
 
-  /* Санскрит/Бенгалі - оригінальні розміри */
-  --sanskrit-font-size: 30px; /* Оригінальний розмір для десктопу */
+  /* Санскрит/Бенгалі - зменшено для комфорту */
+  --sanskrit-font-size: 22px; /* було 30px */
   --sanskrit-line-height: 1.5;
 
   /* Трансліт */
-  --translit-font-size: 17px; /* Оригінальний розмір */
+  --translit-font-size: 15px; /* було 17px */
   --translit-line-height: 1.6;
 
   /* Послівний */
-  --synonyms-font-size: 16px; /* Оригінальний розмір */
+  --synonyms-font-size: 15px; /* було 16px */
   --synonyms-line-height: 1.6;
 
   /* Пояснення */
-  --commentary-font-size: 18px; /* Оригінальний розмір */
+  --commentary-font-size: 16px; /* було 18px */
   --commentary-line-height: 1.7;
 
   /* Радіуси */
@@ -317,10 +317,6 @@ body {
 .synonyms-text {
   font-size: var(--synonyms-font-size);
   line-height: var(--synonyms-line-height);
-  text-align: left;
-  word-break: normal;
-  overflow-wrap: break-word; /* prevent overflow but avoid mid-word breaks */
-  hyphens: auto;
 }
 
 .synonyms-pair {
@@ -337,23 +333,10 @@ body {
   margin: 0 0.3em;
 }
 
-/* Пояснення + Літературний переклад: вирівнювання як на vedabase */
-.translation-text {
-  font-size: var(--vv-reader-font-size);
-  line-height: var(--vv-reader-line-height);
-  text-align: justify;
-  text-indent: 1.25em; /* перший рядок */
-  hyphens: auto;
-  overflow-wrap: break-word;
-}
-
+/* Пояснення */
 .commentary-text {
   font-size: var(--commentary-font-size);
   line-height: var(--commentary-line-height);
-  text-align: justify;
-  text-indent: 1.25em; /* перший рядок */
-  hyphens: auto;
-  overflow-wrap: break-word;
 }
 
 .prose-reader p,
