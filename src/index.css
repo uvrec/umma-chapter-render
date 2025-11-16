@@ -418,8 +418,8 @@ body {
   padding: 0 !important;
 }
 
-/* Знеактивовуємо border-t / border-b */
-.prose-reader [class*="border-t"],
+/* Знеактивовуємо border-t / border-b - ВИМКНЕНО для коректного відображення секцій */
+/* .prose-reader [class*="border-t"],
 .verse-surface [class*="border-t"],
 [data-reader-root="true"] [class*="border-t"],
 .prose-reader [class*="border-b"],
@@ -428,7 +428,7 @@ body {
   border-top-width: 0 !important;
   border-bottom-width: 0 !important;
   border-color: transparent !important;
-}
+} */
 
 /* Вимикаємо divide-y */
 .prose-reader .divide-y > :not([hidden]) ~ :not([hidden]),

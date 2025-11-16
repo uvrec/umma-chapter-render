@@ -99,7 +99,7 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="font-sanskrit text-[1.78em] leading-relaxed whitespace-pre-wrap">{sanskrit}</div>
+          <div className="sanskrit-text whitespace-pre-wrap">{sanskrit}</div>
         </div>
       )}
 
@@ -123,7 +123,7 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="font-sanskrit-italic text-4xl leading-relaxed whitespace-pre-wrap">{transliteration}</div>
+          <div className="iast-text whitespace-pre-wrap">{transliteration}</div>
         </div>
       )}
 
@@ -147,7 +147,7 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="text-4xl leading-relaxed">
+          <div className="synonyms-text">
             {parseSynonyms(synonyms).map((pair, i) => {
               // Розбиваємо термін на окремі слова для посилань на глосарій
               const words = pair.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
@@ -198,7 +198,7 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="text-4xl font-semibold leading-relaxed whitespace-pre-wrap">{poetryTranslation}</div>
+          <div className="prose-reader font-semibold whitespace-pre-wrap">{poetryTranslation}</div>
         </div>
       )}
 
@@ -223,7 +223,7 @@ export function BlogPoetryContent({
             )}
           </div>
           <div className="prose prose-lg prose-slate dark:prose-invert max-w-none">
-            <TiptapRenderer content={commentary} displayBlocks={{}} className="!max-w-none text-4xl leading-relaxed" />
+            <TiptapRenderer content={commentary} displayBlocks={{}} className="!max-w-none commentary-text" />
           </div>
         </div>
       )}
