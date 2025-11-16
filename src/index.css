@@ -37,8 +37,8 @@
   --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
   --vv-reader-max-width: 48rem;
 
-  /* Санскрит/Деванагарі - em-text-lg (1.125em) */
-  --sanskrit-font-size: 1.125em; /* 1.125 * 18px = 20.25px */
+  /* Санскрит/Деванагарі - em-text-2xl (1.5em) як на Vedabase.io */
+  --sanskrit-font-size: 1.5em; /* 1.5 * 18px = 27px */
   --sanskrit-line-height: 1.618; /* golden ratio */
 
   /* Трансліт - em-text-base (1em) */
@@ -52,6 +52,10 @@
   /* Пояснення - text-base (1rem) */
   --commentary-font-size: 1rem; /* 18px */
   --commentary-line-height: 1.75;
+
+  /* Заголовки секцій - text-xl → lg:text-2xl */
+  --section-header-font-size: 1.25rem; /* 20px на mobile */
+  --section-header-font-size-lg: 1.5rem; /* 24px на desktop */
 
   /* Радіуси */
   --radius: 0.75rem;
@@ -339,6 +343,15 @@ body {
   line-height: var(--commentary-line-height);
 }
 
+/* Параграфи в коментарях - згідно Vedabase.io */
+.commentary-text p {
+  margin-bottom: 1rem; /* mb-4 між параграфами */
+}
+
+.commentary-text p:last-child {
+  margin-bottom: 0;
+}
+
 .prose-reader p,
 .prose-reader li {
   margin: 0.5em 0;
@@ -386,12 +399,20 @@ body {
   text-align: center;
 }
 
-/* Заголовки секцій */
+/* Заголовки секцій - згідно Vedabase.io */
 .section-header {
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-  font-size: 1.1em;
+  margin-top: 2.5rem; /* mt-10 */
+  margin-bottom: 1rem; /* mb-4 */
+  font-weight: 700; /* font-bold */
+  font-size: var(--section-header-font-size);
+  text-align: center;
   font-family: var(--font-ui);
+}
+
+@media (min-width: 1024px) {
+  .section-header {
+    font-size: var(--section-header-font-size-lg);
+  }
 }
 
 /* =========================
@@ -462,10 +483,11 @@ body {
 @media (min-width: 1024px) {
   :root {
     --vv-reader-font-size: 20px; /* збільшено для десктопу */
-    --sanskrit-font-size: 1.25em; /* 1.25 * 20px = 25px */
-    --translit-font-size: 1em; /* 20px */
+    --sanskrit-font-size: 1.65em; /* 1.65 * 20px = 33px - більше для десктопу */
+    --translit-font-size: 1.1em; /* 22px */
     --synonyms-font-size: 1.125rem; /* lg:text-lg = 22.5px */
     --commentary-font-size: 1.125rem; /* lg:text-lg = 22.5px */
+    --section-header-font-size-lg: 1.5rem; /* 30px для заголовків */
     --vv-reader-line-height: 1.75;
     --vv-reader-max-width: 48rem;
   }
@@ -479,10 +501,11 @@ body {
 @media (min-width: 640px) and (max-width: 1023px) {
   :root {
     --vv-reader-font-size: 18px; /* базовий */
-    --sanskrit-font-size: 1.125em; /* 20.25px */
+    --sanskrit-font-size: 1.5em; /* 27px */
     --translit-font-size: 1em; /* 18px */
     --synonyms-font-size: 1rem; /* 18px */
     --commentary-font-size: 1rem; /* 18px */
+    --section-header-font-size: 1.25rem; /* 22.5px */
     --vv-reader-line-height: 1.75;
   }
 
@@ -495,10 +518,11 @@ body {
 @media (max-width: 639px) {
   :root {
     --vv-reader-font-size: 16px; /* трохи менше для мобільних */
-    --sanskrit-font-size: 1.125em; /* 18px */
-    --translit-font-size: 0.9375em; /* 15px */
+    --sanskrit-font-size: 1.375em; /* 22px - більше ніж було */
+    --translit-font-size: 1em; /* 16px */
     --synonyms-font-size: 1rem; /* 16px */
     --commentary-font-size: 1rem; /* 16px */
+    --section-header-font-size: 1.125rem; /* 18px */
     --vv-reader-line-height: 1.75;
   }
 
@@ -530,10 +554,11 @@ body {
 @media (max-width: 419px) {
   :root {
     --vv-reader-font-size: 15px;
-    --sanskrit-font-size: 1em; /* 15px */
-    --translit-font-size: 0.875em; /* 13.125px */
+    --sanskrit-font-size: 1.25em; /* 18.75px - більше */
+    --translit-font-size: 0.9375em; /* 14px */
     --synonyms-font-size: 0.9375rem; /* 14px */
     --commentary-font-size: 0.9375rem; /* 14px */
+    --section-header-font-size: 1.0625rem; /* 16px */
   }
 
   .verse-surface {
