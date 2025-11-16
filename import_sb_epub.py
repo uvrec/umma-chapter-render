@@ -355,11 +355,11 @@ def parse_chapter_range(chapters_arg: str) -> Tuple[int, int]:
         return num, num
 
 
-def find_chapter_file(book: epub.EpubBook, chapter_number: int) -> Optional[str]:
+def find_chapter_file(book: epub.EpubBook, canto_number: int, chapter_number: int) -> Optional[str]:
     """Знаходить XHTML файл глави за її номером"""
-    # Формат файлів: UKS317XT.xhtml для глави 17
-    # UKS3 + chapter_number (2 digits) + XT.xhtml
-    filename = f"UKS3{chapter_number:02d}XT.xhtml"
+    # Формат файлів: UKS317XT.xhtml для Пісні 3, глави 17
+    # UKS{canto}{chapter:02d}XT.xhtml
+    filename = f"UKS{canto_number}{chapter_number:02d}XT.xhtml"
 
     # Перевірити, чи існує файл
     for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
@@ -396,7 +396,7 @@ def main():
     # Парсинг глав
     chapters = []
     for chapter_num in range(start_chapter, end_chapter + 1):
-        chapter_file = find_chapter_file(book, chapter_num)
+        chapter_file = find_chapter_file(book, args.canto, chapter_num)
 
         if not chapter_file:
             print(f"⚠️  Chapter {chapter_num} not found in EPUB")
