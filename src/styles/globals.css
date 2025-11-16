@@ -72,3 +72,54 @@
 .blog-body.prose img {
   @apply rounded-lg shadow-md;
 }
+
+/* ==========================================
+   Стилі для пошуку синонімів
+   ========================================== */
+
+/* Підсвічування знайдених термінів */
+mark {
+  @apply bg-yellow-200 px-1 py-0.5 rounded;
+}
+
+.dark mark {
+  @apply bg-yellow-900 text-yellow-100;
+}
+
+/* Автокомпліт список */
+.autocomplete-dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+/* Адаптивність для мобільних */
+@media (max-width: 640px) {
+  .sanskrit-text {
+    @apply text-lg leading-7;
+  }
+}
+
+/* Стилі для карток результатів */
+.result-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Анімація завантаження */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.loading-pulse {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
