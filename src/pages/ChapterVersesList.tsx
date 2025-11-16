@@ -303,26 +303,26 @@ export const ChapterVersesList = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 bg-background py-8">
-        <div className="container mx-auto max-w-6xl px-4">
-          {/* Навігація */}
-          <div className="mb-6 flex items-center justify-between">
-            <Button variant="ghost" onClick={handleBack} className="gap-2">
+      <main className="flex-1 bg-background py-4 sm:py-8">
+        <div className="container mx-auto max-w-6xl px-3 sm:px-4">
+          {/* Навігація - адаптивна */}
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
+            <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
               <ArrowLeft className="h-4 w-4" />
-              Назад
+              <span className="hidden xs:inline">Назад</span>
             </Button>
             
-            {/* Chapter Navigation */}
-            <div className="flex items-center gap-2">
+            {/* Chapter Navigation - компактна на мобільних */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {adjacentChapters?.prev && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)}
-                  className="gap-2"
+                  className="gap-1 flex-1 sm:flex-none"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  {language === "ua" ? "Попередня" : "Previous"}
+                  <span className="hidden sm:inline">{language === "ua" ? "Попередня" : "Previous"}</span>
                 </Button>
               )}
               {adjacentChapters?.next && (
@@ -330,28 +330,30 @@ export const ChapterVersesList = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => handleNavigate(adjacentChapters.next.chapter_number)}
-                  className="gap-2"
+                  className="gap-1 flex-1 sm:flex-none"
                 >
-                  {language === "ua" ? "Наступна" : "Next"}
+                  <span className="hidden sm:inline">{language === "ua" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
             </div>
           </div>
 
-          {/* Заголовок */}
-          <div className="mb-8">
-            <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
-              <BookOpen className="h-4 w-4" />
-              <span>{bookTitle}</span>
+          {/* Заголовок - адаптивний */}
+          <div className="mb-6 sm:mb-8">
+            <div className="mb-2 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
+              <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
               {cantoTitle && (
                 <>
-                  <span>→</span>
-                  <span>{cantoTitle}</span>
+                  <span className="flex-shrink-0">→</span>
+                  <span className="truncate max-w-[200px] sm:max-w-none">{cantoTitle}</span>
                 </>
               )}
             </div>
-            <h1 className="text-3xl font-bold text-foreground">{chapterTitle || `Глава ${chapter?.chapter_number}`}</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">
+              {chapterTitle || `Глава ${chapter?.chapter_number}`}
+            </h1>
           </div>
 
           {/* Огляд глави */}

@@ -114,14 +114,14 @@ function Hero() {
     quote_author_ua: (settingsData as any)?.quote_author_ua || "",
     quote_author_en: (settingsData as any)?.quote_author_en || ""
   };
-  return <section className="relative min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
+  return <section className="relative min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
     backgroundImage: `linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url(${settings.background_image})`
   }}>
-      <div className="container mx-auto px-4 text-center text-white">
+      <div className="container mx-auto px-3 sm:px-4 text-center text-white">
         <div className="mx-auto max-w-4xl">
-          {/* Logo */}
-          <div className="mb-6 flex flex-col items-center">
-            <div className="mb-4 h-80 w-80 md:h-96 md:w-96">
+          {/* Logo - адаптивний */}
+          <div className="mb-4 sm:mb-6 flex flex-col items-center">
+            <div className="mb-3 sm:mb-4 h-64 w-64 sm:h-80 sm:w-80 md:h-96 md:w-96">
               <img src={settings.logo_image} alt="Прабгупада соловʼїною" className="h-full w-full object-contain" />
             </div>
           </div>
@@ -131,32 +131,32 @@ function Hero() {
 
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
-          {/* Continue Listening Card */}
-          {currentTrack && <div className="mt-8">
+          {/* Continue Listening Card - адаптивний */}
+          {currentTrack && <div className="mt-6 sm:mt-8">
               <Card className="backdrop-blur bg-white/95 dark:bg-gray-900/95">
-                <CardContent className="p-6">
-                  <div className="mb-3 flex items-center gap-2 text-sm text-muted-foreground">
-                    <Headphones className="h-4 w-4" />
-                    Продовжити прослуховування
+                <CardContent className="p-4 sm:p-6">
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                    <Headphones className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="hidden xs:inline">Продовжити прослуховування</span>
                   </div>
 
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-3 sm:gap-4">
                     <div className="min-w-0 flex-1 text-left">
-                      <div className="mb-1 truncate text-base font-semibold text-foreground">
+                      <div className="mb-1 truncate text-sm sm:text-base font-semibold text-foreground">
                         {currentTrack.title_ua || currentTrack.title}
                       </div>
-                      <div className="truncate text-sm text-muted-foreground">
-                        {currentTrack.artist || currentTrack.album || "Vedavoice · Аудіо"}
+                      <div className="truncate text-xs sm:text-sm text-muted-foreground">
+                        {currentTrack.artist || currentTrack.album || "Vedavoice"}
                       </div>
-                      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="mt-1 sm:mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        {isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}
+                        <span className="hidden sm:inline">{isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}</span>
                       </div>
                     </div>
 
-                    <Button size="sm" onClick={togglePlay} className="gap-2">
-                      {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      {isPlaying ? "Пауза" : "Продовжити"}
+                    <Button size="sm" onClick={togglePlay} className="gap-1 sm:gap-2 flex-shrink-0">
+                      {isPlaying ? <Pause className="h-3 w-3 sm:h-4 sm:w-4" /> : <Play className="h-3 w-3 sm:h-4 sm:w-4" />}
+                      <span className="hidden xs:inline">{isPlaying ? "Пауза" : "Продовжити"}</span>
                     </Button>
                   </div>
                 </CardContent>
@@ -164,15 +164,15 @@ function Hero() {
             </div>}
         </div>
 
-        {/* Daily Quote Banner - на всю ширину Hero */}
-        <div className="mt-6 mx-auto max-w-6xl">
+        {/* Daily Quote Banner - адаптивна ширина */}
+        <div className="mt-4 sm:mt-6 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
           <DailyQuoteBanner />
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 transform animate-bounce">
-        <ChevronDown className="h-8 w-8 text-white/70" />
+      {/* Scroll indicator - ховається на малих екранах */}
+      <div className="hidden sm:block absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 transform animate-bounce">
+        <ChevronDown className="h-6 w-6 sm:h-8 sm:w-8 text-white/70" />
       </div>
     </section>;
 }
@@ -377,30 +377,32 @@ function FeaturedBooks() {
       </section>;
   }
   return <section className="mx-auto w-full max-w-6xl px-4 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-serif text-3xl font-semibold">Бібліотека</h2>
+      {/* Responsive header */}
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="font-serif text-2xl font-semibold sm:text-3xl">Бібліотека</h2>
         <Button variant="outline" size="sm" asChild>
-          <a href="/library">
-            <BookOpen className="mr-2 h-4 w-4" />
-            Усі книги
+          <a href="/library" className="flex items-center justify-center">
+            <BookOpen className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Усі книги</span>
           </a>
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      {/* Responsive grid - 2 колонки на мобільних, 3 на планшетах, 4 на десктопах */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {books.map(book => <a key={book.id} href={`/veda-reader/${book.slug}`} className="group cursor-pointer">
             {/* Book Cover */}
             <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
               {book.cover_image_url ? <img src={book.cover_image_url} alt={language === "ua" ? book.title_ua : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                  <span className="text-5xl opacity-50">📖</span>
+                  <span className="text-3xl sm:text-5xl opacity-50">📖</span>
                 </div>}
 
               {/* Overlay on hover */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
             </div>
 
-            {/* Book Title */}
-            <h3 className="mt-3 text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
+            {/* Book Title - адаптивний розмір */}
+            <h3 className="mt-2 sm:mt-3 text-xs sm:text-sm font-medium text-center line-clamp-2 text-foreground group-hover:text-primary transition-colors px-1">
               {language === "ua" ? book.title_ua : book.title_en}
             </h3>
           </a>)}
@@ -435,20 +437,20 @@ function Playlists() {
 
 // --- Support Section ---
 function SupportSection() {
-  return <section className="bg-gradient-to-r from-primary/5 to-primary/10 py-16">
+  return <section className="bg-gradient-to-r from-primary/5 to-primary/10 py-12 sm:py-16">
       <div className="container mx-auto px-4">
         <div className="mx-auto max-w-3xl">
-          <h2 className="mb-6 text-center text-3xl font-bold md:text-4xl">Підтримати проєкт</h2>
-          <p className="mb-8 text-center text-lg text-muted-foreground">
+          <h2 className="mb-4 sm:mb-6 text-center text-2xl sm:text-3xl md:text-4xl font-bold">Підтримати проєкт</h2>
+          <p className="mb-6 sm:mb-8 text-center text-sm sm:text-base md:text-lg text-muted-foreground px-2">
             Якщо ви хочете підтримати цей проект, ви можете зробити це фінансово або допомогти з редагуванням
             аудіозаписів чи перевіркою вже записаного матеріалу. Всі пожертви йдуть на розвиток проєкту.
           </p>
-          <div className="flex justify-center gap-4">
-            <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+            <Button size="lg" onClick={() => openExternal("https://paypal.me/andriiuvarov")} className="gap-2 w-full sm:w-auto">
               PayPal
               <ExternalLink className="h-4 w-4" />
             </Button>
-            <Button size="lg" onClick={() => openExternal("https://send.monobank.ua/jar/YAmYDYgti")} className="gap-2">
+            <Button size="lg" onClick={() => openExternal("https://send.monobank.ua/jar/YAmYDYgti")} className="gap-2 w-full sm:w-auto">
               Monobank
               <ExternalLink className="h-4 w-4" />
             </Button>
