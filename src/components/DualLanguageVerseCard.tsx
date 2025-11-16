@@ -159,24 +159,24 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
         synonymPairs.map((pair, i) => {
           const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
           return (
-            <span key={i} className="inline-flex items-center gap-1 md:gap-1.5 flex-wrap mr-1">
+            <span key={i}>
               {words.map((w, wi) => (
-                <span key={wi} className="inline-flex items-center gap-0.5 md:gap-1">
+                <span key={wi}>
                   <span
                     role="link"
                     tabIndex={0}
                     onClick={() => openGlossary(w)}
                     onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                    className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-[0.95em] md:text-[1em]"
+                    className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
                     title="Відкрити у глосарії"
                   >
                     {w}
                   </span>
-                  {wi < words.length - 1 && <span className="hidden md:inline"> </span>}
+                  {wi < words.length - 1 && " "}
                 </span>
               ))}
-              {pair.meaning && <span className="mx-1"> — {pair.meaning}</span>}
-              {i < synonymPairs.length - 1 && <span>;</span>}
+              {pair.meaning && <span> — {pair.meaning}</span>}
+              {i < synonymPairs.length - 1 && "; "}
             </span>
           );
         })
