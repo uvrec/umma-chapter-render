@@ -223,7 +223,7 @@ export const VerseCard = ({
   return <Card className={`verse-surface w-full animate-fade-in ${flowMode ? 'border-0 shadow-none' : 'border-gray-100 shadow-sm dark:border-border'} bg-card`}>
       <div className={flowMode ? "py-6" : "p-6"} style={{ fontSize: `${fontSize}px`, lineHeight }}>
         {/* 🆕 STICKY HEADER - Верхня панель: номер/книга + кнопка редагування */}
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-3">
               {/* Якщо адмін — показуємо VerseNumberEditor */}
@@ -296,7 +296,7 @@ export const VerseCard = ({
           </div>}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6 border-t border-border pt-6">
+        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6 pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
               <h4 className="text-[1.17em] font-bold text-foreground">{labels.synonyms}</h4>
@@ -356,7 +356,7 @@ export const VerseCard = ({
           </div>}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6 border-t border-border pt-6">
+        {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6 pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
               <h4 className="text-[1.17em] font-bold text-foreground">{labels.translation}</h4>
@@ -372,7 +372,7 @@ export const VerseCard = ({
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (isEditing || commentary) && <div className="border-t border-border pt-6">
+        {textDisplaySettings.showCommentary && (isEditing || commentary) && <div className="pt-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="mb-4 flex items-center justify-center gap-4">
               <h4 className="text-[1.17em] text-foreground font-extrabold">{labels.commentary}</h4>

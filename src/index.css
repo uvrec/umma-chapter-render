@@ -29,29 +29,29 @@
 }
 
 /* =========================
-   РОЗМІРИ ЧИТАЛКИ
+   РОЗМІРИ ЧИТАЛКИ (Vedabase.io standard)
    ========================= */
 :root {
-  /* Базовий текст - оптимізовано для читання на всіх пристроях */
-  --vv-reader-font-size: 16px; /* 16px = стандарт для мобільних */
-  --vv-reader-line-height: 1.6;
-  --vv-reader-max-width: 45rem;
+  /* Базовий текст - згідно Vedabase.io */
+  --vv-reader-font-size: 18px; /* base для всіх текстів */
+  --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
+  --vv-reader-max-width: 48rem;
 
-  /* Санскрит/Бенгалі - зменшено для комфорту */
-  --sanskrit-font-size: 22px; /* було 30px */
-  --sanskrit-line-height: 1.5;
+  /* Санскрит/Деванагарі - em-text-lg (1.125em) */
+  --sanskrit-font-size: 1.125em; /* 1.125 * 18px = 20.25px */
+  --sanskrit-line-height: 1.618; /* golden ratio */
 
-  /* Трансліт */
-  --translit-font-size: 15px; /* було 17px */
-  --translit-line-height: 1.6;
+  /* Трансліт - em-text-base (1em) */
+  --translit-font-size: 1em; /* 1 * 18px = 18px */
+  --translit-line-height: 1.618;
 
-  /* Послівний */
-  --synonyms-font-size: 15px; /* було 16px */
-  --synonyms-line-height: 1.6;
+  /* Послівний - text-base (1rem) */
+  --synonyms-font-size: 1rem; /* 18px */
+  --synonyms-line-height: 1.75;
 
-  /* Пояснення */
-  --commentary-font-size: 16px; /* було 18px */
-  --commentary-line-height: 1.7;
+  /* Пояснення - text-base (1rem) */
+  --commentary-font-size: 1rem; /* 18px */
+  --commentary-line-height: 1.75;
 
   /* Радіуси */
   --radius: 0.75rem;
@@ -458,14 +458,14 @@ body {
    АДАПТИВНІСТЬ
    ========================= */
 
-/* Desktop (>1200px) */
-@media (min-width: 1200px) {
+/* Desktop (>1024px) - lg breakpoint за Vedabase.io */
+@media (min-width: 1024px) {
   :root {
-    --vv-reader-font-size: 18px;
-    --sanskrit-font-size: 28px;
-    --translit-font-size: 17px;
-    --synonyms-font-size: 16px;
-    --commentary-font-size: 18px;
+    --vv-reader-font-size: 20px; /* збільшено для десктопу */
+    --sanskrit-font-size: 1.25em; /* 1.25 * 20px = 25px */
+    --translit-font-size: 1em; /* 20px */
+    --synonyms-font-size: 1.125rem; /* lg:text-lg = 22.5px */
+    --commentary-font-size: 1.125rem; /* lg:text-lg = 22.5px */
     --vv-reader-line-height: 1.75;
     --vv-reader-max-width: 48rem;
   }
@@ -475,15 +475,15 @@ body {
   }
 }
 
-/* Tablet (768-1199px) */
-@media (min-width: 768px) and (max-width: 1199px) {
+/* Tablet (640-1023px) - sm to md breakpoint */
+@media (min-width: 640px) and (max-width: 1023px) {
   :root {
-    --vv-reader-font-size: 17px;
-    --sanskrit-font-size: 24px;
-    --translit-font-size: 16px;
-    --synonyms-font-size: 15px;
-    --commentary-font-size: 17px;
-    --vv-reader-line-height: 1.65;
+    --vv-reader-font-size: 18px; /* базовий */
+    --sanskrit-font-size: 1.125em; /* 20.25px */
+    --translit-font-size: 1em; /* 18px */
+    --synonyms-font-size: 1rem; /* 18px */
+    --commentary-font-size: 1rem; /* 18px */
+    --vv-reader-line-height: 1.75;
   }
 
   .verse-surface {
@@ -491,37 +491,27 @@ body {
   }
 }
 
-/* Mobile (<768px) - стандарт для телефонів */
-@media (max-width: 767px) {
+/* Mobile (<640px) */
+@media (max-width: 639px) {
   :root {
-    --vv-reader-font-size: 15px; /* 15px = оптимально для мобільних */
-    --sanskrit-font-size: 20px; /* 20px замість 26px - комфортніше */
-    --translit-font-size: 14px; /* 14px замість 16px */
-    --synonyms-font-size: 14px;
-    --commentary-font-size: 15px;
-    --vv-reader-line-height: 1.6;
+    --vv-reader-font-size: 16px; /* трохи менше для мобільних */
+    --sanskrit-font-size: 1.125em; /* 18px */
+    --translit-font-size: 0.9375em; /* 15px */
+    --synonyms-font-size: 1rem; /* 16px */
+    --commentary-font-size: 1rem; /* 16px */
+    --vv-reader-line-height: 1.75;
   }
 
   .verse-surface {
-    padding: 1.25rem 0.875rem; /* менше padding для більше контенту */
+    padding: 1.5rem 1rem;
   }
 
   .sanskrit-block {
-    padding: 1.5rem 0.875rem; /* зменшено padding */
+    padding: 1.5rem 1rem;
   }
 
   .translit-block {
-    padding: 1rem 0.875rem 1.5rem;
-  }
-
-  /* Transliterator fields: оптимізовано для мобільних */
-  .iast-text,
-  .translit,
-  .transliteration-output,
-  .devanagari-text,
-  .bengali-text {
-    font-size: 0.9375rem !important; /* 15px */
-    line-height: 1.6 !important;
+    padding: 1rem 1rem 1.5rem;
   }
 
   /* Touch targets - стандарт доступності */
@@ -530,20 +520,20 @@ body {
     min-height: 44px;
   }
 
-  /* Секції між віршами - менше відступів */
+  /* Секції між віршами */
   .verse-section {
     margin-bottom: 1.5rem;
   }
 }
 
-/* Дуже маленькі екрани (<375px) */
-@media (max-width: 374px) {
+/* Дуже маленькі екрани (<420px) - xs breakpoint */
+@media (max-width: 419px) {
   :root {
-    --vv-reader-font-size: 14px;
-    --sanskrit-font-size: 18px;
-    --translit-font-size: 13px;
-    --synonyms-font-size: 13px;
-    --commentary-font-size: 14px;
+    --vv-reader-font-size: 15px;
+    --sanskrit-font-size: 1em; /* 15px */
+    --translit-font-size: 0.875em; /* 13.125px */
+    --synonyms-font-size: 0.9375rem; /* 14px */
+    --commentary-font-size: 0.9375rem; /* 14px */
   }
 
   .verse-surface {
@@ -551,20 +541,7 @@ body {
   }
 
   .sanskrit-block {
-    padding: 1.25rem 0.75rem;
-  }
-}
-
-/* Landscape mobile - горизонтальна орієнтація */
-@media (max-width: 900px) and (orientation: landscape) {
-  :root {
-    --vv-reader-font-size: 14px;
-    --sanskrit-font-size: 18px;
-    --vv-reader-line-height: 1.5;
-  }
-
-  .verse-surface {
-    padding: 1rem 0.875rem;
+    padding: 1rem 0.75rem;
   }
 }
 
