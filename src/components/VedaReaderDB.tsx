@@ -56,6 +56,9 @@ export const VedaReaderDB = () => {
   const [selectedTextForHighlight, setSelectedTextForHighlight] = useState("");
   const [selectionContext, setSelectionContext] = useState({ before: "", after: "" });
 
+  // Keyboard shortcuts state
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+
   // Використовуємо useReaderSettings hook для fontSize/lineHeight
   const { fontSize, lineHeight, increaseFont, decreaseFont } = useReaderSettings();
 
