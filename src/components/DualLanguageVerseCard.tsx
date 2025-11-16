@@ -167,12 +167,12 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
                     tabIndex={0}
                     onClick={() => openGlossary(w)}
                     onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                    className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-[0.95em] md:text-[1em]"
                     title="Відкрити у глосарії"
                   >
                     {w}
                   </span>
-                  {wi < words.length - 1 && " "}
+                  {wi < words.length - 1 && <span className="hidden md:inline"> </span>}
                 </span>
               ))}
               {pair.meaning && <span> — {pair.meaning}</span>}
