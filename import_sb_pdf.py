@@ -170,6 +170,14 @@ def parse_verse_from_pdf(number: str, content: str) -> Verse:
     Parse single verse from PDF content
     ВАЖЛИВО: Витягуємо тільки Sanskrit, Translation_UA та Commentary_UA
     Все інше буде з Vedabase + нормалізація
+
+    Структура PDF:
+    1. Sanskrit (Devanagari/Bengali) - БЕРЕМО
+    2. IAST transliteration - пропускаємо
+    3. UA transliteration - пропускаємо
+    4. Synonyms (мають " – ") - пропускаємо
+    5. Translation (починається з великої літери) - БЕРЕМО
+    6. ПОЯСНЕННЯ: Commentary - БЕРЕМО
     """
     lines = [l.strip() for l in content.split('\n') if l.strip()]
 
@@ -177,44 +185,39 @@ def parse_verse_from_pdf(number: str, content: str) -> Verse:
     translation_ua = ''
     commentary_ua = ''
 
-    current_section = 'sanskrit'
-    translation_started = False
+    in_sanskrit = True
+    in_translation = False
+    in_commentary = False
 
     for line in lines:
-        # 1. Sanskrit (Devanagari/Bengali) - береємо тільки це
-        if is_sanskrit_text(line) and current_section == 'sanskrit':
+        # Commentary marker (найвищий пріоритет)
+        if re.match(r'^ПОЯСНЕННЯ\s*:', line, re.I):
+            in_commentary = True
+            in_translation = False
+            in_sanskrit = False
+            continue
+
+        # Sanskrit (Devanagari/Bengali)
+        if in_sanskrit and is_sanskrit_text(line):
             sanskrit += (' ' if sanskrit else '') + line
             continue
 
-        # 2. IAST transliteration - ПРОПУСКАЄМО (буде з Vedabase)
-        if is_iast_text(line) and not translation_started:
-            current_section = 'skip'
-            continue
+        # Після Sanskrit переходимо до пошуку перекладу
+        if in_sanskrit and not is_sanskrit_text(line):
+            in_sanskrit = False
 
-        # 3. Українська транслітерація - ПРОПУСКАЄМО (генерується з Vedabase IAST)
-        if is_ukrainian_translit(line) and not translation_started:
-            current_section = 'skip'
-            continue
+        # Переклад: рядок починається з великої літери, БЕЗ " – " на початку
+        # і це НЕ синоніми (синоніми містять " – ")
+        if not in_translation and not in_commentary and re.match(r'^[А-ЯҐЄІЇ]', line):
+            # Перевірка: це не синоніми (синоніми мають " – " в першій половині рядка)
+            first_half = line[:len(line)//2] if len(line) > 10 else line
+            if ' – ' not in first_half:
+                in_translation = True
 
-        # 4. Синоніми - ПРОПУСКАЄМО (будуть з Vedabase)
-        if ' – ' in line and current_section != 'commentary':
-            current_section = 'skip'
-            continue
-
-        # 5. Переклад починається з великої літери
-        if not translation_started and re.match(r'^[А-ЯҐЄІЇ]', line):
-            current_section = 'translation'
-            translation_started = True
-
-        # 6. Commentary marker
-        if re.match(r'^ПОЯСНЕННЯ\s*:', line, re.I):
-            current_section = 'commentary'
-            continue
-
-        # 7. Fill sections
-        if current_section == 'translation' and not line.startswith('ПОЯСНЕННЯ'):
+        # Збирання тексту
+        if in_translation:
             translation_ua += (' ' if translation_ua else '') + line
-        elif current_section == 'commentary':
+        elif in_commentary:
             commentary_ua += (' ' if commentary_ua else '') + line
 
     return Verse(
