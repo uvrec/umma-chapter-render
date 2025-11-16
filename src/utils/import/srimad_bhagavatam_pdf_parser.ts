@@ -71,7 +71,13 @@ const CHAPTER_NAMES_UA: Record<string, number> = {
 function extractChapterNumber(title: string): number {
   const normalized = title.toLowerCase().trim();
 
-  for (const [name, num] of Object.entries(CHAPTER_NAMES_UA)) {
+  // Sort by length DESC to match longer names first
+  // Це важливо бо "вісімнадцята" містить "сімнадцята" як підрядок
+  const sortedEntries = Object.entries(CHAPTER_NAMES_UA).sort(
+    (a, b) => b[0].length - a[0].length
+  );
+
+  for (const [name, num] of sortedEntries) {
     if (normalized.includes(name)) {
       return num;
     }
@@ -136,6 +142,14 @@ function splitIntoVerses(
  * Парсить один вірш з українського PDF
  * ВАЖЛИВО: Тільки Sanskrit, Translation_UA та Commentary_UA з PDF
  * Все інше (IAST, synonyms_en, translation_en, commentary_en) буде з Vedabase
+ *
+ * Структура PDF:
+ * 1. Sanskrit (Devanagari/Bengali) - БЕРЕМО
+ * 2. IAST transliteration - пропускаємо
+ * 3. UA transliteration - пропускаємо
+ * 4. Synonyms (мають " – ") - пропускаємо
+ * 5. Translation (починається з великої літери) - БЕРЕМО
+ * 6. ПОЯСНЕННЯ: Commentary - БЕРЕМО
  */
 function parseVerse(number: string, content: string): ParsedVerse {
   const lines = content
@@ -147,51 +161,44 @@ function parseVerse(number: string, content: string): ParsedVerse {
   let translation_ua = '';
   let commentary_ua = '';
 
-  let currentSection: 'sanskrit' | 'skip' | 'translation' | 'commentary' =
-    'sanskrit';
-  let translationStarted = false;
+  let inSanskrit = true;
+  let inTranslation = false;
+  let inCommentary = false;
 
   for (const line of lines) {
-    // 1. Sanskrit (Devanagari/Bengali) - береємо тільки це
-    if (isSanskritText(line) && currentSection === 'sanskrit') {
+    // Commentary marker (найвищий пріоритет)
+    if (/^ПОЯСНЕННЯ\s*:/i.test(line)) {
+      inCommentary = true;
+      inTranslation = false;
+      inSanskrit = false;
+      continue;
+    }
+
+    // Sanskrit (Devanagari/Bengali)
+    if (inSanskrit && isSanskritText(line)) {
       sanskrit += (sanskrit ? ' ' : '') + line;
       continue;
     }
 
-    // 2. IAST transliteration - ПРОПУСКАЄМО (буде з Vedabase)
-    if (isIASTText(line) && !translationStarted) {
-      currentSection = 'skip';
-      continue;
+    // Після Sanskrit переходимо до пошуку перекладу
+    if (inSanskrit && !isSanskritText(line)) {
+      inSanskrit = false;
     }
 
-    // 3. Українська транслітерація - ПРОПУСКАЄМО (генерується з Vedabase IAST)
-    if (isUkrainianTranslit(line) && !translationStarted) {
-      currentSection = 'skip';
-      continue;
+    // Переклад: рядок починається з великої літери, БЕЗ " – " на початку
+    // і це НЕ синоніми (синоніми містять " – ")
+    if (!inTranslation && !inCommentary && /^[А-ЯҐЄІЇ]/.test(line)) {
+      // Перевірка: це не синоніми (синоніми мають " – " в першій половині рядка)
+      const firstHalf = line.length > 10 ? line.substring(0, line.length / 2) : line;
+      if (!firstHalf.includes(' – ')) {
+        inTranslation = true;
+      }
     }
 
-    // 4. Синоніми - ПРОПУСКАЄМО (будуть з Vedabase)
-    if (line.includes(' – ') && currentSection !== 'commentary') {
-      currentSection = 'skip';
-      continue;
-    }
-
-    // 5. Переклад починається з великої літери після пропущених секцій
-    if (!translationStarted && /^[А-ЯҐЄІЇ]/.test(line)) {
-      currentSection = 'translation';
-      translationStarted = true;
-    }
-
-    // 6. Маркер ПОЯСНЕННЯ:
-    if (/^ПОЯСНЕННЯ\s*:/i.test(line)) {
-      currentSection = 'commentary';
-      continue;
-    }
-
-    // 7. Наповнення секцій
-    if (currentSection === 'translation' && !line.startsWith('ПОЯСНЕННЯ')) {
+    // Збирання тексту
+    if (inTranslation) {
       translation_ua += (translation_ua ? ' ' : '') + line;
-    } else if (currentSection === 'commentary') {
+    } else if (inCommentary) {
       commentary_ua += (commentary_ua ? ' ' : '') + line;
     }
   }
@@ -222,8 +229,8 @@ export function parseChapterFromPDF(
   pdfText: string,
   cantoNumber: number
 ): ParsedChapter | null {
-  // Знаходимо заголовок глави
-  const chapterHeaderRegex = /ГЛАВА\s+([А-ЯҐЄІЇ'\s]+)/i;
+  // Знаходимо заголовок глави (тільки назва глави, без підзаголовка)
+  const chapterHeaderRegex = /ГЛАВА\s+([А-ЯҐЄІЇ' ]+?)(?:\n|$)/im;
   const match = pdfText.match(chapterHeaderRegex);
 
   if (!match) {
@@ -275,8 +282,8 @@ export function parseAllChaptersFromPDF(
 ): ParsedChapter[] {
   const chapters: ParsedChapter[] = [];
 
-  // Розбиваємо текст на глави за заголовками
-  const chapterRegex = /ГЛАВА\s+[А-ЯҐЄІЇ'\s]+/gi;
+  // Розбиваємо текст на глави за заголовками (тільки назва глави, без підзаголовка)
+  const chapterRegex = /ГЛАВА\s+([А-ЯҐЄІЇ' ]+?)(?:\n|$)/gim;
   const matches = [...pdfText.matchAll(chapterRegex)];
 
   for (let i = 0; i < matches.length; i++) {
