@@ -94,13 +94,13 @@ export const VedaReaderDB = () => {
     try {
       const saved = localStorage.getItem("vv_reader_blocks");
       if (saved) {
+        const blocks = JSON.parse(saved);
         return {
-          showSanskrit: true,
-          showTransliteration: true,
-          showSynonyms: true,
-          showTranslation: true,
-          showCommentary: true,
-          ...JSON.parse(saved)
+          showSanskrit: blocks.sanskrit ?? true,
+          showTransliteration: blocks.translit ?? true,
+          showSynonyms: blocks.synonyms ?? true,
+          showTranslation: blocks.translation ?? true,
+          showCommentary: blocks.commentary ?? true
         };
       }
     } catch {}
