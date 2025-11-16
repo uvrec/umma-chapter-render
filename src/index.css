@@ -30,19 +30,40 @@
 
 /* =========================
    РОЗМІРИ ЧИТАЛКИ (Vedabase.io standard)
+
+   АРХІТЕКТУРА ДИНАМІЧНИХ РОЗМІРІВ:
+
+   1. CSS змінні (цей блок):
+      - Базові розміри для responsive breakpoints
+      - --vv-reader-font-size змінюється на різних екранах
+
+   2. useReaderSettings hook (src/hooks/useReaderSettings.ts):
+      - Керує fontSize (12-24px) та lineHeight (1.3-2.0)
+      - Синхронізує з localStorage
+      - Надає increaseFont/decreaseFont методи
+
+   3. VedaReaderDB компонент:
+      - Отримує fontSize з useReaderSettings
+      - Передає props в VerseCard/DualLanguageVerseCard
+
+   4. Inline styles в компонентах:
+      - Sanskrit: fontSize * 1.5 (наприклад, 18px * 1.5 = 27px)
+      - Transliteration: fontSize * 1.1 (наприклад, 18px * 1.1 = 19.8px)
+      - Перевизначають CSS класи для динамічної зміни
+
    ========================= */
 :root {
   /* Базовий текст - згідно Vedabase.io */
-  --vv-reader-font-size: 18px; /* base для всіх текстів */
+  --vv-reader-font-size: 18px; /* base для всіх текстів, змінюється на різних екранах */
   --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
   --vv-reader-max-width: 48rem;
 
   /* Санскрит/Деванагарі - em-text-2xl (1.5em) як на Vedabase.io */
-  --sanskrit-font-size: 1.5em; /* 1.5 * 18px = 27px */
+  --sanskrit-font-size: 1.5em; /* 1.5 * 18px = 27px (перевизначається inline styles) */
   --sanskrit-line-height: 1.618; /* golden ratio */
 
   /* Трансліт - em-text-base (1em) */
-  --translit-font-size: 1em; /* 1 * 18px = 18px */
+  --translit-font-size: 1em; /* 1 * 18px = 18px (перевизначається inline styles) */
   --translit-line-height: 1.618;
 
   /* Послівний - text-base (1rem) */
@@ -255,66 +276,55 @@ body {
   text-align: left;
 }
 
-/* Санскрит */
+/* Санскрит (IAST латиниця) - базові розміри */
 .sanskrit-text,
 .prose-reader .sanskrit {
-  font-family: var(--font-devanagari);
-  font-size: var(--sanskrit-font-size);
+  /* ⚠️ font-family визначена в fonts.css (Gentium Plus для IAST) */
+  font-size: var(--sanskrit-font-size); /* 1.5em базовий, перевизначається inline styles */
   line-height: var(--sanskrit-line-height);
   text-align: center;
-  font-weight: 500;
-  letter-spacing: 0.01em;
   margin: 0;
 }
 
-/* Бенгалі */
+/* Бенгалі - базові розміри */
 .bengali-text {
-  font-family: var(--font-bengali);
-  font-size: 1rem;
+  /* ⚠️ font-family визначена в fonts.css (Noto Sans Bengali) */
+  font-size: 1rem; /* 16px базовий */
   line-height: 1.6;
   text-align: left;
-  font-weight: 400;
   letter-spacing: 0.01em;
 }
 
-/* Деванагарі для транслітератора */
+/* =========================
+   РОЗМІРИ ШРИФТІВ ДЛЯ ТЕКСТОВИХ БЛОКІВ
+
+   ⚠️ ВАЖЛИВО:
+   - font-family, font-feature-settings тощо визначені в fonts.css
+   - Тут тільки font-size та line-height БЕЗ !important
+   - Це дозволяє inline styles перевизначати розміри динамічно
+   ========================= */
+
+/* Деванагарі */
 .devanagari-text {
-  font-family: var(--font-devanagari);
-  font-size: 1.125rem;
+  font-size: 1.125rem; /* 18px базовий розмір */
   line-height: 1.7;
   text-align: left;
-  font-weight: 400;
   letter-spacing: 0.01em;
 }
 
-/* IAST латиниця з діакритикою */
+/* IAST латиниця (санскрит) */
 .iast-text {
-  font-family: "Gentium Plus", serif !important;
-  font-size: 1.125rem;
+  font-size: 1.125rem; /* 18px базовий розмір, можна перевизначити через inline styles */
   line-height: 1.7;
-  font-style: normal;
-  font-weight: 400 !important;
-  font-variant-ligatures: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: normal;
 }
 
-/* Трансліт */
+/* Трансліт (українська кирилиця з діакритикою) */
 .translit,
 .transliteration-output,
 .prose-reader .translit {
-  font-family: "Gentium Plus", serif !important;
-  font-size: 1.125rem;
+  font-size: 1.125rem; /* 18px базовий розмір */
   line-height: 1.7;
-  font-style: normal;
-  font-weight: 400 !important;
   text-align: left;
-  font-variant-ligatures: none;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: normal;
 }
 
 /* Послівний переклад */
