@@ -330,26 +330,26 @@ export const VerseCard = ({
               }
             };
 
-            return <span key={i} className="inline-flex items-center gap-0.5 md:gap-1 flex-wrap">
+            return <span key={i} className="inline-flex items-center gap-1 md:gap-1.5 flex-wrap">
                         {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-0.5 md:gap-1">
                             <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-[0.95em] md:text-[1em]" title="Відкрити у глосарії">
                               {w}
                             </span>
                             {wi < words.length - 1 && <span className="hidden md:inline"> </span>}
                           </span>)}
-                        {pair.meaning && <span> — {pair.meaning}</span>}
+                        {pair.meaning && <span className="mx-1"> — {pair.meaning}</span>}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddToLearning(pair.term, pair.meaning || "");
                           }}
-                          className="inline-flex items-center justify-center ml-0.5 md:ml-1 p-0.5 md:p-1 rounded-md hover:bg-primary/10 transition-colors group"
+                          className="inline-flex items-center justify-center ml-1 mr-1.5 p-0.5 md:p-1 rounded-md hover:bg-primary/10 transition-colors group"
                           title="Додати до вивчення"
                           aria-label={`Додати "${pair.term}" до вивчення`}
                         >
                           <GraduationCap className={`h-3 w-3 md:h-4 md:w-4 ${isWordInLearningList(pair.term) ? 'text-green-600' : 'text-muted-foreground group-hover:text-primary'}`} />
                         </button>
-                        {i < synonymPairs.length - 1 && <span>; </span>}
+                        {i < synonymPairs.length - 1 && <span className="mr-0.5">;</span>}
                       </span>;
           })}
               </p>}
