@@ -146,13 +146,13 @@ const SynonymsBlock = ({ synonyms, isEditing, onEdit }: {
       <Textarea
         value={synonyms}
         onChange={e => onEdit?.(e.target.value)}
-        className="min-h-[120px] text-4xl"
+        className="min-h-[120px] synonyms-text"
       />
     );
   }
 
   return (
-    <p className="leading-relaxed text-foreground text-4xl">
+    <p className="synonyms-text text-foreground">
       {synonymPairs.length === 0 ? (
         <span className="text-muted-foreground">{synonyms}</span>
       ) : (
@@ -392,10 +392,10 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.sanskritUa}
                     onChange={e => setEdited(p => ({ ...p, sanskritUa: e.target.value }))}
-                    className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground"
+                    className="min-h-[100px] text-center sanskrit-text"
                   />
                 ) : (
-                  <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                  <p className="whitespace-pre-line text-center sanskrit-text">
                     {sanskritTextUa}
                   </p>
                 )}
@@ -417,10 +417,10 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.sanskritEn}
                     onChange={e => setEdited(p => ({ ...p, sanskritEn: e.target.value }))}
-                    className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground"
+                    className="min-h-[100px] text-center sanskrit-text"
                   />
                 ) : (
-                  <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
+                  <p className="whitespace-pre-line text-center sanskrit-text">
                     {sanskritTextEn}
                   </p>
                 )}
@@ -439,12 +439,12 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.transliterationUa}
                     onChange={e => setEdited(p => ({ ...p, transliterationUa: e.target.value }))}
-                    className="min-h-[80px] text-center font-sanskrit-italic italic text-4xl text-muted-foreground"
+                    className="min-h-[80px] text-center iast-text text-muted-foreground"
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-muted-foreground text-4xl font-semibold">
+                      <p key={idx} className="iast-text text-muted-foreground">
                         {line}
                       </p>
                     ))}
@@ -458,12 +458,12 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.transliterationEn}
                     onChange={e => setEdited(p => ({ ...p, transliterationEn: e.target.value }))}
-                    className="min-h-[80px] text-center font-sanskrit-italic italic text-4xl text-muted-foreground"
+                    className="min-h-[80px] text-center iast-text text-muted-foreground"
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-muted-foreground text-4xl font-semibold">
+                      <p key={idx} className="iast-text text-muted-foreground">
                         {line}
                       </p>
                     ))}
@@ -542,10 +542,10 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.translationUa}
                     onChange={e => setEdited(p => ({ ...p, translationUa: e.target.value }))}
-                    className="min-h-[100px] text-4xl font-semibold"
+                    className="min-h-[100px] prose-reader font-semibold"
                   />
                 ) : (
-                  <p className="leading-relaxed text-foreground font-semibold text-4xl">{translationUa}</p>
+                  <p className="prose-reader text-foreground font-semibold">{translationUa}</p>
                 )}
               </div>
 
@@ -566,10 +566,10 @@ export const DualLanguageVerseCard = ({
                   <Textarea
                     value={edited.translationEn}
                     onChange={e => setEdited(p => ({ ...p, translationEn: e.target.value }))}
-                    className="min-h-[100px] text-4xl font-semibold"
+                    className="min-h-[100px] prose-reader font-semibold"
                   />
                 ) : (
-                  <p className="leading-relaxed text-foreground font-semibold text-4xl">{translationEn}</p>
+                  <p className="prose-reader text-foreground font-semibold">{translationEn}</p>
                 )}
               </div>
             </div>
@@ -627,7 +627,7 @@ export const DualLanguageVerseCard = ({
                 {Array.from({ length: maxParagraphs }).map((_, index) => (
                   <div key={index} className="grid grid-cols-2 gap-6 border-b border-border/50 pb-4 last:border-b-0">
                     {/* UA параграф */}
-                    <div className="text-4xl leading-relaxed">
+                    <div className="commentary-text">
                       {commentaryParagraphsUa[index] ? (
                         <TiptapRenderer content={commentaryParagraphsUa[index]} />
                       ) : (
@@ -636,7 +636,7 @@ export const DualLanguageVerseCard = ({
                     </div>
 
                     {/* EN параграф */}
-                    <div className="text-4xl leading-relaxed">
+                    <div className="commentary-text">
                       {commentaryParagraphsEn[index] ? (
                         <TiptapRenderer content={commentaryParagraphsEn[index]} />
                       ) : (
