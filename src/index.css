@@ -32,25 +32,25 @@
    РОЗМІРИ ЧИТАЛКИ
    ========================= */
 :root {
-  /* Базовий текст - оптимізовано для читання на всіх пристроях */
-  --vv-reader-font-size: 16px; /* 16px = стандарт для мобільних */
-  --vv-reader-line-height: 1.6;
-  --vv-reader-max-width: 45rem;
+  /* Базовий текст - оригінальні розміри для десктопу */
+  --vv-reader-font-size: 18px; /* Стандарт для десктопу */
+  --vv-reader-line-height: 1.75;
+  --vv-reader-max-width: 48rem;
 
-  /* Санскрит/Бенгалі - зменшено для комфорту */
-  --sanskrit-font-size: 22px; /* було 30px */
+  /* Санскрит/Бенгалі - оригінальні розміри */
+  --sanskrit-font-size: 30px; /* Оригінальний розмір для десктопу */
   --sanskrit-line-height: 1.5;
 
   /* Трансліт */
-  --translit-font-size: 15px; /* було 17px */
+  --translit-font-size: 17px; /* Оригінальний розмір */
   --translit-line-height: 1.6;
 
   /* Послівний */
-  --synonyms-font-size: 15px; /* було 16px */
+  --synonyms-font-size: 16px; /* Оригінальний розмір */
   --synonyms-line-height: 1.6;
 
   /* Пояснення */
-  --commentary-font-size: 16px; /* було 18px */
+  --commentary-font-size: 18px; /* Оригінальний розмір */
   --commentary-line-height: 1.7;
 
   /* Радіуси */
