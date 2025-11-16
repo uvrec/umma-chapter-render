@@ -1111,8 +1111,16 @@ export const VedaReaderDB = () => {
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
-                  sanskritText={cleanHtml(language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")}
-                  transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""}
+                  sanskritText={cleanHtml(
+                    language === "ua" 
+                      ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" 
+                      : (verse as any).sanskrit_en || (verse as any).sanskrit || ""
+                  )}
+                  transliteration={
+                    language === "ua" 
+                      ? (verse as any).transliteration_ua || (verse as any).transliteration || ""
+                      : (verse as any).transliteration_en || (verse as any).transliteration || ""
+                  }
                   synonyms={getTranslationWithFallback(verse, 'synonyms')}
                   translation={getTranslationWithFallback(verse, 'translation')}
                   commentary={getTranslationWithFallback(verse, 'commentary')}
@@ -1127,6 +1135,7 @@ export const VedaReaderDB = () => {
                   lineHeight={lineHeight}
                   flowMode={true}
                   isAdmin={isAdmin}
+                  language={language}
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                     verseId,
                     updates,
@@ -1209,8 +1218,16 @@ export const VedaReaderDB = () => {
                       verseId={currentVerse.id}
                       verseNumber={fullVerseNumber}
                       bookName={chapterTitle}
-                      sanskritText={cleanHtml((currentVerse as any).sanskrit || "")}
-                      transliteration={language === "ua" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""}
+                      sanskritText={cleanHtml(
+                        language === "ua" 
+                          ? (currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || ""
+                          : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || ""
+                      )}
+                      transliteration={
+                        language === "ua" 
+                          ? (currentVerse as any).transliteration_ua || (currentVerse as any).transliteration || ""
+                          : (currentVerse as any).transliteration_en || (currentVerse as any).transliteration || ""
+                      }
                       synonyms={getTranslationWithFallback(currentVerse, 'synonyms')}
                       translation={getTranslationWithFallback(currentVerse, 'translation')}
                       commentary={getTranslationWithFallback(currentVerse, 'commentary')}
@@ -1225,12 +1242,16 @@ export const VedaReaderDB = () => {
                       lineHeight={lineHeight}
                       flowMode={flowMode}
                       isAdmin={isAdmin}
+                      language={language}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,
                         chapterId: chapter?.id,
                         verseNumber: currentVerse.verse_number
                       })}
+                      onVerseNumberUpdate={() => {
+                        queryClient.invalidateQueries({ queryKey: ["verses"] });
+                      }}
                     />
                   )}
 
