@@ -59,27 +59,18 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
       )}
     >
 
-      <div className="relative p-4 md:p-6">
+      <div className="relative p-3 md:p-4">
         {/* Іконка лапок з блиском */}
         <div className="absolute top-3 left-3 text-white/10 dark:text-white/5 transition-all duration-500 group-hover:text-white/15 dark:group-hover:text-white/10">
-          <Quote className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
+          <Quote className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
         </div>
 
         {/* Іконка зірочки (для акценту) */}
         <div className="absolute top-3 right-3 text-white/15 dark:text-white/10 animate-pulse">
-          <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
+          <Sparkles className="w-4 h-4" />
         </div>
 
-        <div className="relative z-10 space-y-3 max-w-4xl mx-auto">
-          {/* Заголовок "Цитата дня" */}
-          <div className="text-center">
-            <Badge
-              variant="outline"
-              className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-white/95 dark:text-white/90 px-3 py-1 text-xs font-semibold tracking-wide backdrop-blur-sm"
-            >
-              {quote.sanskrit ? "ШЛОКА ДНЯ" : "ЦИТАТА ДНЯ"}
-            </Badge>
-          </div>
+        <div className="relative z-10 space-y-2 max-w-5xl mx-auto">
 
           {/* Санскрит/Транслітерація (якщо вірш) */}
           {quote.sanskrit && (
