@@ -320,8 +320,14 @@ def parse_all_chapters_from_pdf(pdf_text: str, canto_number: int, chapter_range:
 # Vedabase Integration
 # ============================================================================
 
+# Shared session with User-Agent to avoid blocking (like cc_importer_final.py)
+VEDABASE_SESSION = requests.Session()
+VEDABASE_SESSION.headers.update({
+    'User-Agent': 'vedavoice-sb-importer/1.0 (+https://vedavoice.org)'
+})
+
 def fetch_vedabase_verse(canto: int, chapter: int, verse: str) -> Dict[str, str]:
-    """Fetch English data from Vedabase"""
+    """Fetch English data from Vedabase using session with User-Agent"""
     # Handle compound verses like "22-23"
     if '-' in verse:
         verse_num = verse.split('-')[0]  # Use first number
@@ -331,7 +337,7 @@ def fetch_vedabase_verse(canto: int, chapter: int, verse: str) -> Dict[str, str]
     url = f"https://vedabase.io/en/library/sb/{canto}/{chapter}/{verse_num}/"
 
     try:
-        response = requests.get(url, timeout=30)
+        response = VEDABASE_SESSION.get(url, timeout=30)
         if response.status_code != 200:
             print(f"⚠️ Vedabase returned {response.status_code} for verse {verse}")
             return {}
