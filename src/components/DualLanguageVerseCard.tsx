@@ -393,9 +393,10 @@ export const DualLanguageVerseCard = ({
                     value={edited.sanskritUa}
                     onChange={e => setEdited(p => ({ ...p, sanskritUa: e.target.value }))}
                     className="min-h-[100px] text-center sanskrit-text"
+                    style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}
                   />
                 ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text">
+                  <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
                     {sanskritTextUa}
                   </p>
                 )}
@@ -418,9 +419,10 @@ export const DualLanguageVerseCard = ({
                     value={edited.sanskritEn}
                     onChange={e => setEdited(p => ({ ...p, sanskritEn: e.target.value }))}
                     className="min-h-[100px] text-center sanskrit-text"
+                    style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}
                   />
                 ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text">
+                  <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
                     {sanskritTextEn}
                   </p>
                 )}
@@ -440,11 +442,12 @@ export const DualLanguageVerseCard = ({
                     value={edited.transliterationUa}
                     onChange={e => setEdited(p => ({ ...p, transliterationUa: e.target.value }))}
                     className="min-h-[80px] text-center iast-text text-muted-foreground"
+                    style={{ fontSize: `${Math.round(fontSize * 1.1)}px` }}
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="iast-text text-muted-foreground">
+                      <p key={idx} className="iast-text text-muted-foreground" style={{ fontSize: `${Math.round(fontSize * 1.1)}px` }}>
                         {line}
                       </p>
                     ))}
@@ -459,11 +462,12 @@ export const DualLanguageVerseCard = ({
                     value={edited.transliterationEn}
                     onChange={e => setEdited(p => ({ ...p, transliterationEn: e.target.value }))}
                     className="min-h-[80px] text-center iast-text text-muted-foreground"
+                    style={{ fontSize: `${Math.round(fontSize * 1.1)}px` }}
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="iast-text text-muted-foreground">
+                      <p key={idx} className="iast-text text-muted-foreground" style={{ fontSize: `${Math.round(fontSize * 1.1)}px` }}>
                         {line}
                       </p>
                     ))}

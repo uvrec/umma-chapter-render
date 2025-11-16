@@ -24,6 +24,7 @@ import { useHighlights } from "@/hooks/useHighlights";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { cleanHtml } from "@/utils/import/normalizers";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 export const VedaReaderDB = () => {
   const {
@@ -55,18 +56,10 @@ export const VedaReaderDB = () => {
   const [selectedTextForHighlight, setSelectedTextForHighlight] = useState("");
   const [selectionContext, setSelectionContext] = useState({ before: "", after: "" });
 
-  // Keyboard shortcuts state
-  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+  // Використовуємо useReaderSettings hook для fontSize/lineHeight
+  const { fontSize, lineHeight, increaseFont, decreaseFont } = useReaderSettings();
 
   // Читаємо налаштування з localStorage і слухаємо зміни
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_fontSize");
-    return saved ? Number(saved) : 18;
-  });
-  const [lineHeight, setLineHeight] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_lineHeight");
-    return saved ? Number(saved) : 1.6;
-  });
   const [dualLanguageMode, setDualLanguageMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
   const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
   const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
@@ -116,22 +109,7 @@ export const VedaReaderDB = () => {
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handlePrefsChanged = () => {
-      // Використовуємо functional updates для уникнення stale closures
-      const newFontSize = localStorage.getItem("vv_reader_fontSize");
-      if (newFontSize) {
-        const parsed = Number(newFontSize);
-        if (Number.isFinite(parsed)) {
-          setFontSize(parsed);
-        }
-      }
-
-      const newLineHeight = localStorage.getItem("vv_reader_lineHeight");
-      if (newLineHeight) {
-        const parsed = Number(newLineHeight);
-        if (Number.isFinite(parsed)) {
-          setLineHeight(parsed);
-        }
-      }
+      // fontSize та lineHeight тепер керуються useReaderSettings hook
 
       const newDualMode = localStorage.getItem("vv_reader_dualMode") === "true";
       setDualLanguageMode(newDualMode);
@@ -872,9 +850,8 @@ export const VedaReaderDB = () => {
       key: '}',
       description: t('Збільшити шрифт', 'Increase font size'),
       handler: () => {
-        const newSize = Math.min(fontSize + 2, 32);
-        setFontSize(newSize);
-        localStorage.setItem("vv_reader_fontSize", String(newSize));
+        increaseFont();
+        increaseFont(); // +2px як було раніше
       },
       category: 'font',
     },
@@ -882,9 +859,8 @@ export const VedaReaderDB = () => {
       key: '{',
       description: t('Зменшити шрифт', 'Decrease font size'),
       handler: () => {
-        const newSize = Math.max(fontSize - 2, 12);
-        setFontSize(newSize);
-        localStorage.setItem("vv_reader_fontSize", String(newSize));
+        decreaseFont();
+        decreaseFont(); // -2px як було раніше
       },
       category: 'font',
     },

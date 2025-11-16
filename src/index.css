@@ -290,7 +290,7 @@ body {
 /* IAST латиниця з діакритикою */
 .iast-text {
   font-family: "Gentium Plus", serif !important;
-  font-size: 1.125rem !important;
+  font-size: 1.125rem;
   line-height: 1.7;
   font-style: normal;
   font-weight: 400 !important;
@@ -306,7 +306,7 @@ body {
 .transliteration-output,
 .prose-reader .translit {
   font-family: "Gentium Plus", serif !important;
-  font-size: 1.125rem !important;
+  font-size: 1.125rem;
   line-height: 1.7;
   font-style: normal;
   font-weight: 400 !important;
