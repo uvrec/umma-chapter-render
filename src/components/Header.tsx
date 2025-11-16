@@ -5,6 +5,7 @@ import {
   BookOpen,
   Book,
   MessageCircle,
+  MessageSquare,
   Heart,
   Languages,
   ChevronDown,
