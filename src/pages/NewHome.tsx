@@ -292,45 +292,50 @@ function LatestContent() {
     created_at: post.created_at
   })) || [])].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 6);
   return <section className="mx-auto w-full max-w-6xl px-4 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-serif text-3xl font-semibold">Останні додані</h2>
+      {/* Responsive header - стек на мобільних */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="font-serif text-2xl font-semibold sm:text-3xl">Останні додані</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <a href="/audiobooks">
-              <Headphones className="mr-2 h-4 w-4" />
-              Усе аудіо
+          <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
+            <a href="/audiobooks" className="flex items-center justify-center">
+              <Headphones className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Усе аудіо</span>
             </a>
           </Button>
-          <Button variant="outline" size="sm" asChild>
-            <a href="/library">
-              <BookOpen className="mr-2 h-4 w-4" />
-              Усі тексти
+          <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
+            <a href="/library" className="flex items-center justify-center">
+              <BookOpen className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Усі тексти</span>
             </a>
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Responsive grid - 1 колонка на мобільних */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {latestContent.map(item => <Card key={item.id} className="transition-shadow hover:shadow-md">
-            <CardContent className="p-4">
-              <div className="mb-2 flex items-center gap-2 text-base font-semibold">
-                {item.type === "audio" ? <Headphones className="h-4 w-4 flex-shrink-0" /> : <BookOpen className="h-4 w-4 flex-shrink-0" />}
-                <span className="truncate">{item.title}</span>
+            <CardContent className="p-3 sm:p-4">
+              {/* Заголовок з іконкою */}
+              <div className="mb-2 flex items-start gap-2">
+                {item.type === "audio" ? <Headphones className="h-4 w-4 flex-shrink-0 mt-0.5" /> : <BookOpen className="h-4 w-4 flex-shrink-0 mt-0.5" />}
+                <span className="text-sm font-semibold line-clamp-2 sm:text-base">{item.title}</span>
               </div>
 
-              {item.subtitle && <div className="mb-3 line-clamp-2 text-sm text-muted-foreground">{item.subtitle}</div>}
+              {/* Субтайтл */}
+              {item.subtitle && <div className="mb-3 line-clamp-2 text-xs text-muted-foreground sm:text-sm">{item.subtitle}</div>}
 
-              <div className="flex items-center justify-between">
-                {item.type === "audio" ? <Button variant="secondary" size="sm" onClick={() => handlePlayTrack(item)}>
-                    <Play className="mr-2 h-3 w-3" />
-                    Слухати
-                  </Button> : <Button variant="secondary" size="sm" asChild>
+              {/* Кнопки і час */}
+              <div className="flex items-center justify-between gap-2">
+                {item.type === "audio" ? <Button variant="secondary" size="sm" onClick={() => handlePlayTrack(item)} className="flex-shrink-0">
+                    <Play className="h-3 w-3 sm:mr-2" />
+                    <span className="hidden sm:inline">Слухати</span>
+                  </Button> : <Button variant="secondary" size="sm" asChild className="flex-shrink-0">
                     <a href={item.href}>
-                      <ArrowRight className="mr-2 h-3 w-3" />
-                      Читати
+                      <ArrowRight className="h-3 w-3 sm:mr-2" />
+                      <span className="hidden sm:inline">Читати</span>
                     </a>
                   </Button>}
-                {item.duration && <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                {item.duration && <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
                     <Clock className="h-3 w-3" />
                     {item.duration}
                   </div>}
