@@ -129,11 +129,6 @@ function Hero() {
           {/* Subtitle */}
           
 
-          {/* Daily Quote Banner - замінює стару статичну цитату */}
-          <div className="mb-8">
-            <DailyQuoteBanner />
-          </div>
-
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
           {/* Continue Listening Card */}
@@ -167,6 +162,11 @@ function Hero() {
                 </CardContent>
               </Card>
             </div>}
+        </div>
+
+        {/* Daily Quote Banner - на всю ширину Hero */}
+        <div className="mt-6 mx-auto max-w-6xl">
+          <DailyQuoteBanner />
         </div>
       </div>
 
