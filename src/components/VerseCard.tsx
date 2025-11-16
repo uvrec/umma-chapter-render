@@ -278,7 +278,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.sanskrit} onChange={e => setEdited(p => ({
           ...p,
           sanskrit: e.target.value
-        }))} className="min-h-[100px] text-center sanskrit-text" /> : <p className="whitespace-pre-line text-center sanskrit-text">
+        }))} className="min-h-[100px] text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }} /> : <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
                 {sanskritText}
               </p>}
           </div>}
@@ -288,8 +288,8 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.transliteration} onChange={e => setEdited(p => ({
           ...p,
           transliteration: e.target.value
-        }))} className="min-h-[80px] text-center iast-text text-muted-foreground" /> : <div className="space-y-1 text-center">
-                {transliteration.split("\n").map((line, idx) => <p key={idx} className="iast-text text-muted-foreground">
+        }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{ fontSize: `${Math.round(fontSize * 1.1)}px` }} /> : <div className="space-y-1 text-center">
+                {transliteration.split("\n").map((line, idx) => <p key={idx} className="iast-text text-muted-foreground" style={{ fontSize: `${Math.round(fontSize * 1.1)}px` }}>
                     {line}
                   </p>)}
               </div>}
