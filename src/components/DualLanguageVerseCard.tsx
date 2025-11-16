@@ -318,7 +318,7 @@ export const DualLanguageVerseCard = ({
     <Card className={`verse-surface w-full animate-fade-in ${flowMode ? 'border-0 shadow-none' : 'border-gray-100 shadow-sm dark:border-border'} bg-card`}>
       <div className={flowMode ? "py-6" : "p-6"} style={{ fontSize: `${fontSize}px`, lineHeight }}>
         {/* STICKY HEADER - Верхня панель */}
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-3">
               {showNumbers && (
@@ -431,7 +431,7 @@ export const DualLanguageVerseCard = ({
 
         {/* ТРАНСЛІТЕРАЦІЯ - два стовпці */}
         {textDisplaySettings.showTransliteration && (isEditing || transliterationUa || transliterationEn) && (
-          <div className="mb-8 border-t border-border pt-6">
+          <div className="mb-8 pt-6">
             <div className="grid grid-cols-2 gap-6">
               {/* UA */}
               <div>
@@ -476,7 +476,7 @@ export const DualLanguageVerseCard = ({
 
         {/* ПОСЛІВНИЙ ПЕРЕКЛАД - два стовпці */}
         {textDisplaySettings.showSynonyms && (isEditing || synonymsUa || synonymsEn) && (
-          <div className="mb-8 border-t border-border pt-6">
+          <div className="mb-8 pt-6">
             <div className="grid grid-cols-2 gap-6">
               {/* UA */}
               <div>
@@ -523,7 +523,7 @@ export const DualLanguageVerseCard = ({
 
         {/* ЛІТЕРАТУРНИЙ ПЕРЕКЛАД - два стовпці */}
         {textDisplaySettings.showTranslation && (isEditing || translationUa || translationEn) && (
-          <div className="mb-8 border-t border-border pt-6">
+          <div className="mb-8 pt-6">
             <div className="grid grid-cols-2 gap-6">
               {/* UA */}
               <div>
@@ -578,7 +578,7 @@ export const DualLanguageVerseCard = ({
 
         {/* ПОЯСНЕННЯ - два стовпці, розбитий на параграфи */}
         {textDisplaySettings.showCommentary && (isEditing || commentaryUa || commentaryEn) && (
-          <div className="border-t border-border pt-6">
+          <div className="pt-6">
             {/* Заголовки з кнопками аудіо */}
             <div className="mb-6 grid grid-cols-2 gap-6">
               {/* UA */}
@@ -625,7 +625,7 @@ export const DualLanguageVerseCard = ({
             ) : (
               <div className="space-y-4">
                 {Array.from({ length: maxParagraphs }).map((_, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-6 border-b border-border/50 pb-4 last:border-b-0">
+                  <div key={index} className="grid grid-cols-2 gap-6 pb-4">
                     {/* UA параграф */}
                     <div className="commentary-text">
                       {commentaryParagraphsUa[index] ? (
