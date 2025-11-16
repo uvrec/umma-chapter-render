@@ -3,7 +3,7 @@
 // + VerseNumberEditor для мануального редагування номерів віршів адміністратором
 // + STICKY HEADER для верхньої панелі
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
+import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 
 /* =========================
    Типи пропсів
@@ -176,6 +177,12 @@ export const VerseCard = ({
   });
   const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
 
+  // ✨ ВАЖЛИВО: Обробка санскриту для автоматичних розривів рядків
+  // Конвертує | (pipe) на \n для правильного відображення
+  const processedSanskrit = useMemo(() => {
+    return addSanskritLineBreaks(sanskritText);
+  }, [sanskritText]);
+
   // Функція для відтворення конкретної секції
   const playSection = (section: string, audioSrc?: string) => {
     const src = audioSrc || audioUrl;
@@ -279,7 +286,7 @@ export const VerseCard = ({
           ...p,
           sanskrit: e.target.value
         }))} className="min-h-[100px] text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }} /> : <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
-                {sanskritText}
+                {processedSanskrit}
               </p>}
           </div>}
 
