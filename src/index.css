@@ -284,6 +284,9 @@ body {
   line-height: var(--sanskrit-line-height);
   text-align: center;
   margin: 0;
+
+  /* ⚠️ КРИТИЧНО: white-space для збереження розривів рядків */
+  white-space: pre-line; /* Зберігає \n та автоматично переносить довгі рядки */
 }
 
 /* Бенгалі - базові розміри */

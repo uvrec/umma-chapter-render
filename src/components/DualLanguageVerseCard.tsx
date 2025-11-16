@@ -12,6 +12,7 @@ import { useAudio } from "@/contexts/ModernAudioContext";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
+import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 
 /* =========================
    Типи пропсів
@@ -245,6 +246,16 @@ export const DualLanguageVerseCard = ({
     commentaryEn
   });
 
+  // ✨ ВАЖЛИВО: Обробка санскриту для автоматичних розривів рядків
+  // Конвертує | (pipe) на \n для правильного відображення
+  const processedSanskritUa = useMemo(() => {
+    return addSanskritLineBreaks(sanskritTextUa);
+  }, [sanskritTextUa]);
+
+  const processedSanskritEn = useMemo(() => {
+    return addSanskritLineBreaks(sanskritTextEn);
+  }, [sanskritTextEn]);
+
   // Розбиваємо commentary на параграфи
   const commentaryParagraphsUa = useMemo(() =>
     splitIntoParagraphs(isEditing ? edited.commentaryUa : commentaryUa),
@@ -397,7 +408,7 @@ export const DualLanguageVerseCard = ({
                   />
                 ) : (
                   <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
-                    {sanskritTextUa}
+                    {processedSanskritUa}
                   </p>
                 )}
               </div>
@@ -423,7 +434,7 @@ export const DualLanguageVerseCard = ({
                   />
                 ) : (
                   <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${Math.round(fontSize * 1.5)}px` }}>
-                    {sanskritTextEn}
+                    {processedSanskritEn}
                   </p>
                 )}
               </div>
