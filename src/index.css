@@ -58,8 +58,8 @@
   --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
   --vv-reader-max-width: 48rem;
 
-  /* Санскрит/Деванагарі - em-text-2xl (1.5em) як на Vedabase.io */
-  --sanskrit-font-size: 1.5em; /* 1.5 * 18px = 27px (перевизначається inline styles) */
+  /* Деванагарі - згідно Vedabase.io (em-text-lg → em-text-2xl) */
+  --sanskrit-font-size: 1.125em; /* Mobile: em-text-lg (перевизначається на desktop) */
   --sanskrit-line-height: 1.618; /* golden ratio */
 
   /* Трансліт - em-text-base (1em) */
@@ -276,14 +276,15 @@ body {
   text-align: left;
 }
 
-/* Санскрит (IAST латиниця) - базові розміри */
+/* Санскрит (Деванагарі) - базові розміри згідно Vedabase.io */
 .sanskrit-text,
 .prose-reader .sanskrit {
-  /* ⚠️ font-family визначена в fonts.css (Gentium Plus для IAST) */
-  font-size: var(--sanskrit-font-size); /* 1.5em базовий, перевизначається inline styles */
-  line-height: var(--sanskrit-line-height);
+  /* ⚠️ font-family визначена в fonts.css (Noto Sans Devanagari) */
+  font-size: var(--sanskrit-font-size); /* Mobile: 1.125em → Desktop: 1.875em (em-text-3xl) */
+  line-height: var(--sanskrit-line-height); /* 1.618 golden ratio */
   text-align: center;
   margin: 0;
+  margin-bottom: 0.75em; /* em-mb-3 згідно специфікації */
 
   /* ⚠️ КРИТИЧНО: white-space для збереження розривів рядків */
   white-space: pre-line; /* Зберігає \n та автоматично переносить довгі рядки */
@@ -496,8 +497,8 @@ body {
 @media (min-width: 1024px) {
   :root {
     --vv-reader-font-size: 20px; /* збільшено для десктопу */
-    --sanskrit-font-size: 1.65em; /* 1.65 * 20px = 33px - більше для десктопу */
-    --translit-font-size: 1.1em; /* 22px */
+    --sanskrit-font-size: 1.875em; /* Desktop: em-text-3xl (1.875 * 20px = 37.5px) */
+    --translit-font-size: 1.25em; /* Desktop: em-text-xl (1.25 * 20px = 25px) */
     --synonyms-font-size: 1.125rem; /* lg:text-lg = 22.5px */
     --commentary-font-size: 1.125rem; /* lg:text-lg = 22.5px */
     --section-header-font-size-lg: 1.5rem; /* 30px для заголовків */

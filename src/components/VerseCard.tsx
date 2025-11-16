@@ -282,11 +282,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.sanskrit} onChange={e => setEdited(p => ({
           ...p,
           sanskrit: e.target.value
-        }))} className="min-h-[100px] text-center sanskrit-text" style={{
-          fontSize: `${Math.round(fontSize * 1.5)}px`
-        }} /> : <p className="whitespace-pre-line text-center sanskrit-text" style={{
-          fontSize: `${Math.round(fontSize * 1.5)}px`
-        }}>
+        }))} className="min-h-[100px] text-center sanskrit-text" /> : <p className="whitespace-pre-line text-center sanskrit-text">
                 {processedSanskrit}
               </p>}
           </div>}
