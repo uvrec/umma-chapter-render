@@ -125,8 +125,9 @@ def extract_chapter_number(title: str) -> int:
     """Extract chapter number from Ukrainian title"""
     normalized = title.lower().strip()
 
-    # Check Ukrainian names
-    for name, num in CHAPTER_NAMES_UA.items():
+    # Check Ukrainian names (sort by length DESC to match longer names first)
+    # Це важливо бо "вісімнадцята" містить "сімнадцята" як підрядок
+    for name, num in sorted(CHAPTER_NAMES_UA.items(), key=lambda x: len(x[0]), reverse=True):
         if name in normalized:
             return num
 
@@ -235,8 +236,8 @@ def parse_verse_from_pdf(number: str, content: str) -> Verse:
 
 def parse_chapter_from_pdf(pdf_text: str, canto_number: int, chapter_filter: Optional[int] = None) -> Optional[Chapter]:
     """Parse specific chapter from PDF text"""
-    # Find chapter header
-    chapter_regex = re.compile(r'ГЛАВА\s+([А-ЯҐЄІЇ\'\s]+)', re.I)
+    # Find chapter header (тільки назва глави, без підзаголовка)
+    chapter_regex = re.compile(r'ГЛАВА\s+([А-ЯҐЄІЇ\' ]+?)(?:\n|$)', re.I | re.M)
     matches = list(chapter_regex.finditer(pdf_text))
 
     if not matches:
@@ -290,12 +291,12 @@ def parse_all_chapters_from_pdf(pdf_text: str, canto_number: int, chapter_range:
     """Parse all chapters from PDF"""
     chapters = []
 
-    # Split by chapter headers
-    chapter_regex = re.compile(r'ГЛАВА\s+[А-ЯҐЄІЇ\'\s]+', re.I)
+    # Split by chapter headers (тільки назва глави, без підзаголовка)
+    chapter_regex = re.compile(r'ГЛАВА\s+([А-ЯҐЄІЇ\' ]+?)(?:\n|$)', re.I | re.M)
     matches = list(chapter_regex.finditer(pdf_text))
 
     for i, match in enumerate(matches):
-        chapter_title = match.group(0).replace('ГЛАВА', '').strip()
+        chapter_title = match.group(1).strip()
         chapter_number = extract_chapter_number(chapter_title)
 
         # Filter by range if specified
