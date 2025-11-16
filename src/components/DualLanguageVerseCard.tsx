@@ -480,8 +480,8 @@ export const DualLanguageVerseCard = ({
             <div className="grid grid-cols-2 gap-6">
               {/* UA */}
               <div>
-                <div className="mb-4 flex items-center justify-center gap-4">
-                  <h4 className="text-[1.17em] font-bold text-foreground">Послівний переклад</h4>
+                <div className="section-header flex items-center justify-center gap-4">
+                  <h4 className="text-foreground">Послівний переклад</h4>
                   <button
                     onClick={() => playSection("Послівний переклад UA", audioSynonymsUa)}
                     disabled={!audioSynonymsUa && !audioUrl}
@@ -500,8 +500,8 @@ export const DualLanguageVerseCard = ({
 
               {/* EN */}
               <div>
-                <div className="mb-4 flex items-center justify-center gap-4">
-                  <h4 className="text-[1.17em] font-bold text-foreground">Synonyms</h4>
+                <div className="section-header flex items-center justify-center gap-4">
+                  <h4 className="text-foreground">Synonyms</h4>
                   <button
                     onClick={() => playSection("Synonyms EN", audioSynonymsEn)}
                     disabled={!audioSynonymsEn && !audioUrl}
@@ -527,8 +527,8 @@ export const DualLanguageVerseCard = ({
             <div className="grid grid-cols-2 gap-6">
               {/* UA */}
               <div>
-                <div className="mb-4 flex items-center justify-center gap-4">
-                  <h4 className="text-[1.17em] font-bold text-foreground">Літературний переклад</h4>
+                <div className="section-header flex items-center justify-center gap-4">
+                  <h4 className="text-foreground">Літературний переклад</h4>
                   <button
                     onClick={() => playSection("Переклад UA", audioTranslationUa)}
                     disabled={!audioTranslationUa && !audioUrl}
@@ -551,8 +551,8 @@ export const DualLanguageVerseCard = ({
 
               {/* EN */}
               <div>
-                <div className="mb-4 flex items-center justify-center gap-4">
-                  <h4 className="text-[1.17em] font-bold text-foreground">Translation</h4>
+                <div className="section-header flex items-center justify-center gap-4">
+                  <h4 className="text-foreground">Translation</h4>
                   <button
                     onClick={() => playSection("Translation EN", audioTranslationEn)}
                     disabled={!audioTranslationEn && !audioUrl}
@@ -580,10 +580,10 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showCommentary && (isEditing || commentaryUa || commentaryEn) && (
           <div className="pt-6">
             {/* Заголовки з кнопками аудіо */}
-            <div className="mb-6 grid grid-cols-2 gap-6">
+            <div className="section-header grid grid-cols-2 gap-6">
               {/* UA */}
               <div className="flex items-center justify-center gap-4">
-                <h4 className="text-[1.17em] text-foreground font-extrabold">Пояснення</h4>
+                <h4 className="text-foreground">Пояснення</h4>
                 <button
                   onClick={() => playSection("Пояснення UA", audioCommentaryUa)}
                   disabled={!audioCommentaryUa && !audioUrl}
@@ -596,7 +596,7 @@ export const DualLanguageVerseCard = ({
 
               {/* EN */}
               <div className="flex items-center justify-center gap-4">
-                <h4 className="text-[1.17em] text-foreground font-extrabold">Purport</h4>
+                <h4 className="text-foreground">Purport</h4>
                 <button
                   onClick={() => playSection("Purport EN", audioCommentaryEn)}
                   disabled={!audioCommentaryEn && !audioUrl}

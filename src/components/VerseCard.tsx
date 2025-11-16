@@ -296,10 +296,10 @@ export const VerseCard = ({
           </div>}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6 pt-6">
+        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] font-bold text-foreground">{labels.synonyms}</h4>
+            <div className="section-header flex items-center justify-center gap-4">
+              <h4 className="text-foreground">{labels.synonyms}</h4>
               <button onClick={() => playSection("Послівний переклад", audioSynonyms)} disabled={!audioSynonyms && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати послівний переклад">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -356,10 +356,10 @@ export const VerseCard = ({
           </div>}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6 pt-6">
+        {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] font-bold text-foreground">{labels.translation}</h4>
+            <div className="section-header flex items-center justify-center gap-4">
+              <h4 className="text-foreground">{labels.translation}</h4>
               <button onClick={() => playSection("Літературний переклад", audioTranslation)} disabled={!audioTranslation && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати переклад">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -372,10 +372,10 @@ export const VerseCard = ({
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (isEditing || commentary) && <div className="pt-6">
+        {textDisplaySettings.showCommentary && (isEditing || commentary) && <div>
             {/* Заголовок + кнопка Volume2 */}
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] text-foreground font-extrabold">{labels.commentary}</h4>
+            <div className="section-header flex items-center justify-center gap-4">
+              <h4 className="text-foreground">{labels.commentary}</h4>
               <button onClick={() => playSection("Пояснення", audioCommentary)} disabled={!audioCommentary && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати пояснення">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
