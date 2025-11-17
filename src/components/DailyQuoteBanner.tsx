@@ -91,15 +91,15 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
           {quote.sanskrit && (
             <div className="text-center space-y-2 pb-3 border-b border-white/20 dark:border-white/10">
               <p
-                className="font-sanskrit text-white/95 dark:text-white/90 leading-relaxed font-semibold drop-shadow-lg"
-                style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }}
+                className="font-sanskrit leading-relaxed font-semibold drop-shadow-lg"
+                style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)', color: '#F1E1C7' }}
               >
                 {quote.sanskrit}
               </p>
               {quote.transliteration && (
                 <p
-                  className="text-white/80 dark:text-white/75 italic font-medium drop-shadow-md"
-                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
+                  className="italic font-medium drop-shadow-md"
+                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', color: '#F1E1C7' }}
                 >
                   {quote.transliteration}
                 </p>
@@ -110,11 +110,12 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
           {/* Основна цитата */}
           <blockquote className="space-y-3">
             <p
-              className="text-center leading-relaxed font-serif font-semibold text-white/95 dark:text-white/90 tracking-tight drop-shadow-lg"
+              className="text-center leading-relaxed font-serif font-semibold tracking-tight drop-shadow-lg"
               style={{
                 fontSize: quote.sanskrit
                   ? 'clamp(1rem, 3vw, 1.25rem)'      // Для віршів
-                  : 'clamp(1.125rem, 3.5vw, 1.5rem)' // Для звичайних цитат
+                  : 'clamp(1.125rem, 3.5vw, 1.5rem)', // Для звичайних цитат
+                color: '#F1E1C7'
               }}
             >
               <span className="relative inline-block">
@@ -126,8 +127,8 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
             <footer className="flex flex-col items-center gap-2 pt-3">
               {quote.author && (
                 <cite
-                  className="not-italic font-semibold text-white/90 dark:text-white/85 tracking-wide drop-shadow-md"
-                  style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
+                  className="not-italic font-semibold tracking-wide drop-shadow-md"
+                  style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)', color: '#F1E1C7' }}
                 >
                   — {quote.author}
                 </cite>
@@ -135,8 +136,8 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
 
               {quote.source && (
                 <div
-                  className="flex items-center gap-2 text-white/75 dark:text-white/70 font-medium"
-                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
+                  className="flex items-center gap-2 font-medium"
+                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)', color: '#F1E1C7' }}
                 >
                   <span>{quote.source}</span>
                   {quote.link && (
@@ -144,7 +145,8 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
                       variant="ghost"
                       size="sm"
                       asChild
-                      className="h-6 text-white/75 hover:text-white/95 dark:text-white/70 dark:hover:text-white/90 hover:bg-white/10 transition-colors"
+                      className="h-6 hover:bg-white/10 transition-colors"
+                      style={{ color: '#F1E1C7' }}
                     >
                       <Link to={quote.link}>
                         <ExternalLink className="w-4 h-4" />
