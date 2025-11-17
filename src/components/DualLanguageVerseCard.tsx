@@ -388,7 +388,7 @@ export const DualLanguageVerseCard = ({
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => <p key={idx} style={{
                 fontSize: `${Math.round(fontSize * 1.1)}px`
-              }} className="iast-text text-muted-foreground text-3xl">
+              }} className="iast-text text-muted-foreground text-4xl">
                         {line}
                       </p>)}
                   </div>}
@@ -404,7 +404,7 @@ export const DualLanguageVerseCard = ({
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => <p key={idx} style={{
                 fontSize: `${Math.round(fontSize * 1.1)}px`
-              }} className="iast-text text-muted-foreground text-3xl">
+              }} className="iast-text text-muted-foreground text-4xl">
                         {line}
                       </p>)}
                   </div>}
@@ -459,7 +459,7 @@ export const DualLanguageVerseCard = ({
                 {isEditing ? <Textarea value={edited.translationUa} onChange={e => setEdited(p => ({
               ...p,
               translationUa: e.target.value
-            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold">{translationUa}</p>}
+            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold text-justify">{translationUa}</p>}
               </div>
 
               {/* EN */}
@@ -473,7 +473,7 @@ export const DualLanguageVerseCard = ({
                 {isEditing ? <Textarea value={edited.translationEn} onChange={e => setEdited(p => ({
               ...p,
               translationEn: e.target.value
-            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold">{translationEn}</p>}
+            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>}
               </div>
             </div>
           </div>}
