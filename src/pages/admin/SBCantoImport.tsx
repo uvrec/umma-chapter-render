@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { parseChapterFromEPUBHTML } from "@/utils/import/srimad_bhagavatam_epub_parser";
+import { parseChapterFromEPUBHTML, findChapterFileName } from "@/utils/import/srimad_bhagavatam_epub_parser";
 import { mergeSBChapters } from "@/utils/import/srimad_bhagavatam_merger";
 import JSZip from "jszip";
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
@@ -111,7 +111,7 @@ export default function SBCantoImport() {
         is_published: true,
       })
       .select()
-      .single();
+      .maybeSingle();
 
     if (chapterError) throw chapterError;
 
@@ -170,21 +170,28 @@ export default function SBCantoImport() {
         
         try {
           // Витягти HTML з EPUB використовуючи JSZip
-          const chapterFileName = `OEBPS/UKS3${chapterNum}XT.xhtml`;
-          const chapterFile = zip.file(chapterFileName);
-          
+          const chapterPath = `OEBPS/${findChapterFileName(3, chapterNum)}`;
+          let chapterFile = zip.file(chapterPath);
+
+          // Fallback: інколи шлях без OEBPS або різний регістр
           if (!chapterFile) {
-            console.warn(`⚠️ Не знайдено главу ${chapterNum} в EPUB`);
-            toast.warning(`Глава ${chapterNum} не знайдена`);
+            const altName = findChapterFileName(3, chapterNum);
+            chapterFile = zip.file(altName);
+          }
+
+          if (!chapterFile) {
+            console.warn(`⚠️ Не знайдено файл глави в EPUB: ${chapterPath}`);
+            toast.warning(`Глава ${chapterNum} не знайдена в EPUB`);
             importedChapters++;
             setProgress((importedChapters / totalChapters) * 100);
             continue;
           }
 
-          const chapterHTML = await chapterFile.async('text');
+          const rawHTML = await chapterFile.async('text');
+          const chapterHTML = `Глава ${chapterNum}\n` + rawHTML; // Додаємо заголовок для парсера
           console.log(`  📄 HTML глави ${chapterNum}: ${chapterHTML.length} символів`);
 
-          // Парсити українські дані
+          // Парсити українські дані (fallback по заголовку спрацює)
           const uaChapter = parseChapterFromEPUBHTML(chapterHTML, 3);
           
           if (!uaChapter) {
