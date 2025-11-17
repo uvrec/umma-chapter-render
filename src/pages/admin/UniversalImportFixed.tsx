@@ -39,6 +39,8 @@ import {
   parseRajaVidyaVedabase,
   mergeRajaVidyaChapters,
 } from "@/utils/rajaVidyaParser";
+import { parseSrimadBhagavatamEPUB } from "@/utils/import/srimad_bhagavatam_epub_parser";
+import { mergeSBChapters } from "@/utils/import/srimad_bhagavatam_merger";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -1501,6 +1503,19 @@ export default function UniversalImportFixed() {
           }));
 
           console.log(`✅ [Raja Vidya] Розпарсено ${chapters.length} глав`);
+        } else if (template.id === "srimad-bhagavatam") {
+          // ✅ Спеціальна обробка для Śrīmad-Bhāgavatam (EPUB з віршами)
+          console.log("🔍 [Śrīmad-Bhāgavatam] Використовую EPUB parser з підтримкою віршів");
+
+          // Визначаємо canto з коментаря <!-- CANTO:X -->
+          const cantoMatch = textToParse.match(/<!--\s*CANTO:(\d+)\s*-->/);
+          const cantoNumber = cantoMatch ? parseInt(cantoMatch[1]) : 3;
+
+          // Парсимо всі глави що є в EPUB
+          const chapterRange = "1-100"; // Парсер візьме тільки ті що є
+
+          chapters = parseSrimadBhagavatamEPUB(textToParse, cantoNumber, chapterRange);
+          console.log(`✅ [Śrīmad-Bhāgavatam] Розпарсено ${chapters.length} глав з пісні ${cantoNumber}`);
         } else {
           // Стандартний парсинг для інших книг
           chapters = splitIntoChapters(textToParse, template);
@@ -2192,6 +2207,69 @@ export default function UniversalImportFixed() {
 
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Крок 2: Завантажте файл</h3>
+
+                  {/* Швидке завантаження SB з EPUB */}
+                  {selectedTemplate === "srimad-bhagavatam" && (
+                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                        📚 Швидке завантаження Śrīmad-Bhāgavatam
+                      </h4>
+                      <p className="text-xs text-blue-800 dark:text-blue-200 mb-3">
+                        Автоматично завантажити EPUB з сервера (український текст вже в проєкті)
+                      </p>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={async () => {
+                            setIsProcessing(true);
+                            try {
+                              const response = await fetch('/epub/UK_SB_2_epub_r2.epub');
+                              const blob = await response.blob();
+                              const file = new File([blob], 'UK_SB_2_epub_r2.epub', { type: 'application/epub+zip' });
+                              const extractedText = await extractHTMLFromEPUB(file);
+                              // Зберігаємо canto у fileText як коментар для парсера
+                              setFileText(`<!-- CANTO:2 -->\n${extractedText}`);
+                              await parseFileText(`<!-- CANTO:2 -->\n${extractedText}`);
+                              toast({ title: "✅ Пісня 2 завантажена", description: "10 глав розпарсовано" });
+                            } catch (err: any) {
+                              toast({ title: "Помилка", description: err.message, variant: "destructive" });
+                            } finally {
+                              setIsProcessing(false);
+                            }
+                          }}
+                          disabled={isProcessing}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Пісня 2 (10 глав)
+                        </Button>
+                        <Button
+                          onClick={async () => {
+                            setIsProcessing(true);
+                            try {
+                              const response = await fetch('/epub/UK_SB_3_epub_r1.epub');
+                              const blob = await response.blob();
+                              const file = new File([blob], 'UK_SB_3_epub_r1.epub', { type: 'application/epub+zip' });
+                              const extractedText = await extractHTMLFromEPUB(file);
+                              // Зберігаємо canto у fileText як коментар для парсера
+                              setFileText(`<!-- CANTO:3 -->\n${extractedText}`);
+                              await parseFileText(`<!-- CANTO:3 -->\n${extractedText}`);
+                              toast({ title: "✅ Пісня 3 завантажена", description: "33 глави розпарсовано" });
+                            } catch (err: any) {
+                              toast({ title: "Помилка", description: err.message, variant: "destructive" });
+                            } finally {
+                              setIsProcessing(false);
+                            }
+                          }}
+                          disabled={isProcessing}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Пісня 3 (33 глави)
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="rounded-lg border-2 border-dashed p-8 text-center">
                     <Upload className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                     <label className="cursor-pointer">
