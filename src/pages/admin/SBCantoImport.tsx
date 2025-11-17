@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ export default function SBCantoImport() {
   const [startChapter, setStartChapter] = useState(1);
   const [endChapter, setEndChapter] = useState(33);
   const [mergeWithEnglish, setMergeWithEnglish] = useState(true);
+  const [autoStarted, setAutoStarted] = useState(false);
 
   // Функція для отримання HTML з Vedabase через edge function
   const fetchVedabaseHTML = async (url: string): Promise<string> => {
@@ -235,6 +236,16 @@ export default function SBCantoImport() {
       setCurrentChapter(0);
     }
   };
+
+  // Автоматичний запуск імпорту при завантаженні
+  useEffect(() => {
+    if (!autoStarted && !isImporting) {
+      setAutoStarted(true);
+      console.log("🚀 Автоматичний запуск імпорту...");
+      toast.info("Запуск імпорту автоматично...");
+      setTimeout(() => handleImport(), 1000);
+    }
+  }, []);
 
   return (
     <div className="container mx-auto p-6">
