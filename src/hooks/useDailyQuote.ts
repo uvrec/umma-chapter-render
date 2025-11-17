@@ -1,4 +1,5 @@
 // src/hooks/useDailyQuote.ts
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -50,6 +51,9 @@ export function useDailyQuote() {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
 
+  // Генеруємо унікальний ключ один раз при монтуванні компонента
+  const [randomKey] = useState(() => Math.random());
+
   // Завантажуємо налаштування
   const { data: settings } = useQuery({
     queryKey: ["verse_of_the_day_settings"],
@@ -98,7 +102,7 @@ export function useDailyQuote() {
 
   // Завантажуємо поточну цитату (випадковий вірш з книг)
   const { data: quote, isLoading, error } = useQuery({
-    queryKey: ["daily_quote_verse", Date.now()], // Унікальний ключ для кожного запиту
+    queryKey: ["daily_quote_verse", randomKey], // Унікальний ключ, генерується один раз при монтуванні
     queryFn: async () => {
       console.log('[DailyQuote] Завантаження випадкового вірша...');
 
@@ -186,9 +190,10 @@ export function useDailyQuote() {
     },
     enabled: !!settings,
     retry: false,
-    // Не кешуємо - кожен раз новий вірш
-    staleTime: 0,
-    cacheTime: 0,
+    // Кешуємо на весь час життя компонента (щоб не перезавантажувати при ререндерах)
+    staleTime: Infinity,
+    // При демонтуванні видаляємо кеш (щоб наступного разу був новий вірш)
+    gcTime: 0,
   });
 
   // Оновлюємо статистику показу цитати
