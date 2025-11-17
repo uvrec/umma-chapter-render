@@ -253,20 +253,13 @@ export function extractWisdomlibVerseUrls(
       const title = link.getAttribute("title") || "";
 
       // Шукаємо номер вірша: "1", "1.1", "1.1.1", "Verse 1", "Verse 1.1.1", тощо
+      // Перевіряємо text та title
       const verseMatch =
         text.match(/^(?:Verse\s*)?(\d+(?:\.\d+){0,2})\b/i) ||
         title.match(/(?:Verse\s*)?(\d+(?:\.\d+){0,2})/i);
-      if (!verseMatch) return;
 
-      // ✅ FIX: Витягуємо тільки останнє число з формату "1.1.73" → "73"
-      // Це запобігає створенню дублікатів з неправильними номерами
-      let verseNumber = verseMatch[1];
-      const parts = verseNumber.split('.');
-      if (parts.length > 1) {
-        const originalNumber = verseNumber;
-        verseNumber = parts[parts.length - 1]; // Беремо останню частину
-        console.log(`📝 [WisdomLib] Normalized verse number: "${originalNumber}" → "${verseNumber}"`);
-      }
+      if (!verseMatch) return;
+      const verseNumber = verseMatch[1];
 
       // Будуємо повний URL
       let fullUrl = href;
@@ -281,14 +274,14 @@ export function extractWisdomlibVerseUrls(
       verseUrls.push({ url: fullUrl, verseNumber });
     });
 
-    // Сортуємо за номером вірша (підтримка крапкових номерів)
+    // Сортуємо за номером вірша (якщо є крапки, сортуємо як масив чисел)
     verseUrls.sort((a, b) => {
       const aParts = a.verseNumber.split('.').map(Number);
       const bParts = b.verseNumber.split('.').map(Number);
       for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-        const av = aParts[i] ?? 0;
-        const bv = bParts[i] ?? 0;
-        if (av !== bv) return av - bv;
+        const aVal = aParts[i] || 0;
+        const bVal = bParts[i] || 0;
+        if (aVal !== bVal) return aVal - bVal;
       }
       return 0;
     });
@@ -396,7 +389,36 @@ export function extractWisdomlibChapterUrls(
       }
       if (chapterNumber === null) return;
 
-      // Визначаємо khaṇḍa з baseUrl (href = /d/doc... не містить adi/madhya/antya)
+      // Беремо контекст з батьківського елемента (li, p, div)
+      const parent = link.closest("li, p, div");
+      const context = parent?.textContent?.trim() || "";
+
+      // Шукаємо номер глави в різних форматах:
+      // 1) "Chapter N" або "Adhyāya N" в тексті посилання або контексті
+      // 2) "N. ..." або "N – ..." на початку рядка
+      let chapterNumber: number | null = null;
+
+      // Спроба 1: знайти "Chapter N" або "Adhyāya N"
+      const chapterMatch = 
+        text.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i) ||
+        context.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i);
+      
+      if (chapterMatch) {
+        chapterNumber = parseInt(chapterMatch[1], 10);
+      } else {
+        // Спроба 2: знайти "N. ..." або "N – ..." на початку
+        const numberMatch = 
+          text.match(/^\s*(\d+)\s*[.:\-–]\s+/) ||
+          context.match(/^\s*(\d+)\s*[.:\-–]\s+/);
+        
+        if (numberMatch) {
+          chapterNumber = parseInt(numberMatch[1], 10);
+        }
+      }
+
+      if (chapterNumber === null) return;
+
+      // Визначаємо khaṇḍa з baseUrl, а не з href (бо href - це /d/doc...)
       const khanda = determineKhandaFromUrl(baseUrl).name;
 
       // Будуємо повний URL
