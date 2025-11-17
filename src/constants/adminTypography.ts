@@ -21,70 +21,83 @@ export interface AdminTypographyConfig {
   commentary: BlockStyle;
 }
 
-// Доступні шрифти
+// Доступні шрифти (відповідно до Vedabase.io specification)
 export const AVAILABLE_FONTS = {
   sanskrit: [
-    { value: 'var(--font-devanagari)', label: 'Noto Sans Devanagari (default)' },
+    { value: 'var(--font-devanagari)', label: 'Noto Sans Devanagari (Vedabase)' },
+    { value: '"Noto Sans Devanagari", sans-serif', label: 'Noto Sans Devanagari' },
     { value: 'Siddhanta, serif', label: 'Siddhanta' },
     { value: 'Mangal, serif', label: 'Mangal' },
     { value: 'Sanskrit2003, serif', label: 'Sanskrit 2003' },
   ],
   transliteration: [
-    { value: 'var(--font-translit)', label: 'Noto Serif (default)' },
+    { value: 'var(--font-translit)', label: 'Noto Serif (notoSerifVedabase)' },
+    { value: '"Noto Serif", serif', label: 'Noto Serif' },
+    { value: '"Gentium Plus", serif', label: 'Gentium Plus' },
     { value: 'Georgia, serif', label: 'Georgia' },
     { value: 'Times New Roman, serif', label: 'Times New Roman' },
-    { value: 'Palatino, serif', label: 'Palatino' },
+  ],
+  synonyms: [
+    { value: 'var(--font-synonyms)', label: 'Noto Sans (notoSansVedabase)' },
+    { value: '"Noto Sans", sans-serif', label: 'Noto Sans' },
+    { value: 'var(--font-primary)', label: 'Noto Serif' },
+    { value: 'system-ui, sans-serif', label: 'System UI' },
   ],
   text: [
-    { value: 'var(--font-primary)', label: 'UI Font (default)' },
+    { value: 'var(--font-primary)', label: 'Noto Serif variable (Vedabase)' },
+    { value: '"Noto Serif", serif', label: 'Noto Serif' },
+    { value: 'Georgia, serif', label: 'Georgia' },
     { value: 'system-ui, sans-serif', label: 'System UI' },
-    { value: 'Arial, sans-serif', label: 'Arial' },
-    { value: 'Verdana, sans-serif', label: 'Verdana' },
+  ],
+  bengali: [
+    { value: 'var(--font-bengali)', label: 'Noto Serif Bengali weight 500 (Vedabase)' },
+    { value: '"Noto Serif Bengali", serif', label: 'Noto Serif Bengali' },
+    { value: '"Noto Sans Bengali", sans-serif', label: 'Noto Sans Bengali' },
   ],
 };
 
-// Налаштування за замовчуванням
+// Налаштування за замовчуванням (Vedabase.io specification)
 export const DEFAULT_ADMIN_TYPOGRAPHY: AdminTypographyConfig = {
   sanskrit: {
-    fontFamily: 'var(--font-devanagari)',
-    fontSize: 1.5, // 150% від базового
-    fontWeight: 400,
+    fontFamily: 'var(--font-devanagari)', // Noto Sans Devanagari
+    fontSize: 1.5, // 150% від базового (як на Vedabase)
+    fontWeight: 400, // Regular
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
     lineHeight: 1.618, // golden ratio
   },
   transliteration: {
-    fontFamily: 'var(--font-translit)',
+    fontFamily: 'var(--font-translit)', // Noto Serif (notoSerifVedabase custom)
     fontSize: 1.1, // 110% від базового
-    fontWeight: 400,
-    fontStyle: 'italic',
+    fontWeight: 400, // Regular
+    fontStyle: 'normal', // Vedabase uses normal, not italic
     color: 'hsl(var(--muted-foreground))',
-    letterSpacing: '0.02em',
+    letterSpacing: '0em',
     lineHeight: 1.6,
   },
   synonyms: {
-    fontFamily: 'var(--font-primary)',
+    fontFamily: 'var(--font-synonyms)', // Noto Sans (notoSansVedabase custom)
     fontSize: 0.95, // 95% від базового
-    fontWeight: 400,
+    fontWeight: 400, // Regular
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
-    lineHeight: 1.8,
+    lineHeight: 1.75,
   },
   translation: {
-    fontFamily: 'var(--font-primary)',
+    fontFamily: 'var(--font-primary)', // Noto Serif variable 100-900
     fontSize: 1.0, // 100% від базового
-    fontWeight: 400,
+    fontWeight: 400, // Regular (variable font підтримує 100-900)
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
     lineHeight: 1.6,
   },
   commentary: {
-    fontFamily: 'var(--font-primary)',
+    fontFamily: 'var(--font-primary)', // Noto Serif variable 100-900
     fontSize: 1.0, // 100% від базового
-    fontWeight: 400,
+    fontWeight: 400, // Regular (variable font підтримує 100-900)
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',

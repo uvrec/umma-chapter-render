@@ -121,6 +121,8 @@ export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) =>
       ? AVAILABLE_FONTS.sanskrit
       : blockType === 'transliteration'
       ? AVAILABLE_FONTS.transliteration
+      : blockType === 'synonyms'
+      ? AVAILABLE_FONTS.synonyms
       : AVAILABLE_FONTS.text;
 
     return (
