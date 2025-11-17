@@ -8,6 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useTheme } from "@/components/ThemeProvider";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 const MIN_FONT = 12;
 const MAX_FONT = 24;
@@ -92,45 +93,32 @@ export const GlobalSettingsPanel = () => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
 
-  const [fontSize, setFontSize] = useState<number>(() => {
-    const s = localStorage.getItem(LS_KEYS.fontSize);
-    return s ? Number(s) : DEFAULTS.fontSize;
-  });
-  const [lineHeight, setLineHeight] = useState<number>(() => {
-    const s = localStorage.getItem(LS_KEYS.lineHeight);
-    return s ? Number(s) : DEFAULTS.lineHeight;
-  });
-  const [dualMode, setDualMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.dual) === "true");
-  const [blocks, setBlocks] = useState<BlocksState>(() => readBlocks());
+  // ✅ Використовуємо централізовану responsive систему
+  const {
+    fontSize,
+    lineHeight,
+    increaseFont,
+    decreaseFont,
+    increaseLH,
+    decreaseLH,
+    resetTypography,
+    dualLanguageMode,
+    setDualLanguageMode,
+    textDisplaySettings,
+    setTextDisplaySettings,
+    continuousReadingSettings,
+    setContinuousReadingSettings,
+  } = useReaderSettings();
+
+  // Локальні налаштування, які НЕ управляються через useReaderSettings
   const [showNumbers, setShowNumbers] = useState<boolean>(() => localStorage.getItem(LS_KEYS.showNumbers) !== "false");
   const [flowMode, setFlowMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.flowMode) === "true");
-  const [continuousReading, setContinuousReading] = useState<ContinuousReadingState>(() => readContinuousReading());
 
   const bumpReader = () => {
     window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
   };
 
-  // Окремі useEffect для кожного налаштування - для кращої синхронізації
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.fontSize, String(fontSize));
-    bumpReader();
-  }, [fontSize]);
-
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.lineHeight, String(lineHeight));
-    bumpReader();
-  }, [lineHeight]);
-
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.dual, String(dualMode));
-    bumpReader();
-  }, [dualMode]);
-
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.blocks, JSON.stringify(blocks));
-    bumpReader();
-  }, [blocks]);
-
+  // useEffect лише для локальних налаштувань (fontSize/lineHeight тепер в useReaderSettings)
   useEffect(() => {
     localStorage.setItem(LS_KEYS.showNumbers, String(showNumbers));
     bumpReader();
@@ -141,26 +129,20 @@ export const GlobalSettingsPanel = () => {
     bumpReader();
   }, [flowMode]);
 
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.continuousReading, JSON.stringify(continuousReading));
-    bumpReader();
-  }, [continuousReading]);
-
   // Функція скидання до початкових значень
   const resetToDefaults = () => {
-    setFontSize(DEFAULTS.fontSize);
-    setLineHeight(DEFAULTS.lineHeight);
-    setDualMode(DEFAULTS.dualMode);
-    setBlocks(DEFAULTS.blocks);
+    // Скидаємо типографіку через хук
+    resetTypography();
+
+    // Скидаємо інші налаштування
+    setDualLanguageMode(DEFAULTS.dualMode);
+    setTextDisplaySettings(DEFAULTS.blocks);
     setShowNumbers(DEFAULTS.showNumbers);
     setFlowMode(DEFAULTS.flowMode);
-    setContinuousReading(DEFAULTS.continuousReading);
+    setContinuousReadingSettings(DEFAULTS.continuousReading);
   };
 
-  const decreaseFont = () => setFontSize((v) => Math.max(MIN_FONT, v - 1));
-  const increaseFont = () => setFontSize((v) => Math.min(MAX_FONT, v + 1));
-  const decreaseLH = () => setLineHeight((v) => Math.max(MIN_LH, Math.round((v - 0.05) * 100) / 100));
-  const increaseLH = () => setLineHeight((v) => Math.min(MAX_LH, Math.round((v + 0.05) * 100) / 100));
+  // ✅ Функції increaseFont, decreaseFont, increaseLH, decreaseLH тепер з хука useReaderSettings
 
   const craftSwitchChecked = theme === "craft";
 
@@ -254,6 +236,11 @@ export const GlobalSettingsPanel = () => {
                   </div>
                 </div>
 
+                <div className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
+                  ℹ️ {t("Розмір автоматично адаптується до екрану: Mobile (16px) → Tablet (18px) → Desktop (20px)",
+                         "Size automatically adapts to screen: Mobile (16px) → Tablet (18px) → Desktop (20px)")}
+                </div>
+
                 <div className="flex items-center justify-between">
                   <Label>{t("Міжряддя", "Line Height")}</Label>
                   <div className="flex items-center gap-2">
@@ -281,7 +268,7 @@ export const GlobalSettingsPanel = () => {
 
                 <div className="flex items-center justify-between">
                   <Label htmlFor="dual-language">{t("Двомовний режим", "Dual Language Mode")}</Label>
-                  <Switch id="dual-language" checked={dualMode} onCheckedChange={(v) => setDualMode(v)} />
+                  <Switch id="dual-language" checked={dualLanguageMode} onCheckedChange={(v) => setDualLanguageMode(v)} />
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -301,28 +288,28 @@ export const GlobalSettingsPanel = () => {
               <div className="space-y-3">
                 <RowToggle
                   label={t("Санскрит / Деванагарі", "Sanskrit / Devanagari")}
-                  checked={blocks.sanskrit}
-                  onChange={(v) => setBlocks({ ...blocks, sanskrit: v })}
+                  checked={textDisplaySettings.showSanskrit}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSanskrit: v })}
                 />
                 <RowToggle
                   label={t("Транслітерація", "Transliteration")}
-                  checked={blocks.translit}
-                  onChange={(v) => setBlocks({ ...blocks, translit: v })}
+                  checked={textDisplaySettings.showTransliteration}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTransliteration: v })}
                 />
                 <RowToggle
                   label={language === "ua" ? "Послівний переклад" : "Synonyms"}
-                  checked={blocks.synonyms}
-                  onChange={(v) => setBlocks({ ...blocks, synonyms: v })}
+                  checked={textDisplaySettings.showSynonyms}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSynonyms: v })}
                 />
                 <RowToggle
                   label={language === "ua" ? "Літературний переклад" : "Translation"}
-                  checked={blocks.translation}
-                  onChange={(v) => setBlocks({ ...blocks, translation: v })}
+                  checked={textDisplaySettings.showTranslation}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTranslation: v })}
                 />
                 <RowToggle
                   label={language === "ua" ? "Пояснення" : "Purport"}
-                  checked={blocks.commentary}
-                  onChange={(v) => setBlocks({ ...blocks, commentary: v })}
+                  checked={textDisplaySettings.showCommentary}
+                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showCommentary: v })}
                 />
               </div>
             </div>
@@ -337,19 +324,19 @@ export const GlobalSettingsPanel = () => {
                   <Label htmlFor="continuous-enabled">{t("Увімкнути режим", "Enable Mode")}</Label>
                   <Switch
                     id="continuous-enabled"
-                    checked={continuousReading.enabled}
-                    onCheckedChange={(v) => setContinuousReading({ ...continuousReading, enabled: v })}
+                    checked={continuousReadingSettings.enabled}
+                    onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, enabled: v })}
                   />
                 </div>
 
-                {continuousReading.enabled && (
+                {continuousReadingSettings.enabled && (
                   <div className="ml-4 space-y-3 border-l-2 border-muted pl-4">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="cont-sanskrit">{t("Санскрит", "Sanskrit")}</Label>
                       <Switch
                         id="cont-sanskrit"
-                        checked={continuousReading.showSanskrit}
-                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showSanskrit: v })}
+                        checked={continuousReadingSettings.showSanskrit}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showSanskrit: v })}
                       />
                     </div>
 
@@ -357,8 +344,8 @@ export const GlobalSettingsPanel = () => {
                       <Label htmlFor="cont-transliteration">{t("Транслітерація", "Transliteration")}</Label>
                       <Switch
                         id="cont-transliteration"
-                        checked={continuousReading.showTransliteration}
-                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showTransliteration: v })}
+                        checked={continuousReadingSettings.showTransliteration}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showTransliteration: v })}
                       />
                     </div>
 
@@ -366,8 +353,8 @@ export const GlobalSettingsPanel = () => {
                       <Label htmlFor="cont-translation">{t("Переклад", "Translation")}</Label>
                       <Switch
                         id="cont-translation"
-                        checked={continuousReading.showTranslation}
-                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showTranslation: v })}
+                        checked={continuousReadingSettings.showTranslation}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showTranslation: v })}
                       />
                     </div>
 
@@ -375,8 +362,8 @@ export const GlobalSettingsPanel = () => {
                       <Label htmlFor="cont-commentary">{t("Пояснення", "Purport")}</Label>
                       <Switch
                         id="cont-commentary"
-                        checked={continuousReading.showCommentary}
-                        onCheckedChange={(v) => setContinuousReading({ ...continuousReading, showCommentary: v })}
+                        checked={continuousReadingSettings.showCommentary}
+                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showCommentary: v })}
                       />
                     </div>
                   </div>
