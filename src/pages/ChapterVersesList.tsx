@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 
 export const ChapterVersesList = () => {
@@ -375,12 +375,12 @@ export const ChapterVersesList = () => {
 
               {isEditingContent ? (
                 <div className="space-y-4">
-                  <InlineTiptapEditor
+                  <EnhancedInlineEditor
                     content={editedContentUa}
                     onChange={setEditedContentUa}
                     label="Українська"
                   />
-                  <InlineTiptapEditor
+                  <EnhancedInlineEditor
                     content={editedContentEn}
                     onChange={setEditedContentEn}
                     label="English"

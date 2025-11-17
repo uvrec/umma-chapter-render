@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { z } from "zod";
 
 // ——— helpers
@@ -263,7 +263,7 @@ export default function AddEditIntroChapter() {
 
               <div>
                 <Label>Контент (українською)</Label>
-                <InlineTiptapEditor
+                <EnhancedInlineEditor
                   content={form.content_ua}
                   onChange={(html) => setForm((f) => ({ ...f, content_ua: html }))}
                   label="Редагувати контент українською"
@@ -272,7 +272,7 @@ export default function AddEditIntroChapter() {
 
               <div>
                 <Label>Контент (англійською)</Label>
-                <InlineTiptapEditor
+                <EnhancedInlineEditor
                   content={form.content_en}
                   onChange={(html) => setForm((f) => ({ ...f, content_en: html }))}
                   label="Редагувати контент англійською"

@@ -10,7 +10,7 @@ import { PageMeta } from "@/components/PageMeta";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { InlineEditableBlock } from "@/components/InlineEditableBlock";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
@@ -283,7 +283,7 @@ export const PageView = () => {
             )}
 
             {isEditMode ? (
-              <InlineTiptapEditor
+              <EnhancedInlineEditor
                 content={language === "ua" ? editedContentUa : editedContentEn}
                 onChange={language === "ua" ? setEditedContentUa : setEditedContentEn}
                 label={`Контент (${language === "ua" ? "UA" : "EN"})`}

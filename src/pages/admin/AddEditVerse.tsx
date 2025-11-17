@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/admin/Breadcrumbs";
 
@@ -417,7 +417,7 @@ export default function AddEditVerse() {
 
                 <div>
                   <Label htmlFor="commentaryUa">Коментар</Label>
-                  <InlineTiptapEditor
+                  <EnhancedInlineEditor
                     content={commentaryUa}
                     onChange={setCommentaryUa}
                     label="Коментар українською..."
@@ -475,7 +475,7 @@ export default function AddEditVerse() {
 
                 <div>
                   <Label htmlFor="commentaryEn">Commentary</Label>
-                  <InlineTiptapEditor
+                  <EnhancedInlineEditor
                     content={commentaryEn}
                     onChange={setCommentaryEn}
                     label="Commentary in English..."

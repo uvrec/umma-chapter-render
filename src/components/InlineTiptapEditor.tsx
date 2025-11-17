@@ -1,4 +1,4 @@
-// InlineTiptapEditor.tsx — з sticky toolbar
+// EnhancedInlineEditor.tsx — з sticky toolbar
 import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -25,14 +25,14 @@ import {
   Youtube as YoutubeIcon,
 } from "lucide-react";
 
-interface InlineTiptapEditorProps {
+interface EnhancedInlineEditorProps {
   content: string;
   onChange: (content: string) => void;
   label: string;
   editable?: boolean;
 }
 
-export const InlineTiptapEditor = ({ content, onChange, label, editable = true }: InlineTiptapEditorProps) => {
+export const EnhancedInlineEditor = ({ content, onChange, label, editable = true }: EnhancedInlineEditorProps) => {
   const editor = useEditor(
     {
       extensions: [

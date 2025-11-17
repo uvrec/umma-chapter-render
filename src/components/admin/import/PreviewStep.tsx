@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { normalizeSynonyms } from "@/utils/import/normalizers"; // якщо ще десь використовуєте
 import { importSingleChapter, importBook } from "@/utils/import/importer";
 
@@ -368,7 +368,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         <>
           <h3 className="font-semibold">Текст глави</h3>
           <div className="p-4 border rounded-lg">
-            <InlineTiptapEditor
+            <EnhancedInlineEditor
               content={editedChapter.content_ua || ""}
               onChange={(html) => setEditedChapter({ ...editedChapter, content_ua: html })}
               label="Текст українською (форматування зберігається)"
@@ -423,7 +423,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                     </div>
                     <div>
                       <Label className="text-xs">Пояснення (UA)</Label>
-                      <InlineTiptapEditor
+                      <EnhancedInlineEditor
                         content={verse.commentary_ua || ""}
                         onChange={(html) => updateVerse(index, "commentary_ua", html)}
                         label="Пояснення (UA) — форматування зберігається"
