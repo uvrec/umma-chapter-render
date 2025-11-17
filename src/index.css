@@ -380,6 +380,13 @@ body {
   line-height: var(--vv-reader-line-height) !important;
 }
 
+/* Параграфи у всіх space-y блоках (універсальне правило) */
+[class*="space-y-"] > div > p,
+[class*="space-y-"] p {
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
+}
+
 /* =========================
    КАРТКИ ВІРШІВ
    ========================= */
