@@ -151,7 +151,7 @@ export const GlobalSettingsPanel = () => {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+        className="fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
         size="icon"
         aria-label="Open settings"
       >
@@ -234,11 +234,6 @@ export const GlobalSettingsPanel = () => {
                       <Plus className="w-4 h-4" />
                     </Button>
                   </div>
-                </div>
-
-                <div className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-                  ℹ️ {t("Розмір автоматично адаптується до екрану: Mobile (16px) → Tablet (18px) → Desktop (20px)",
-                         "Size automatically adapts to screen: Mobile (16px) → Tablet (18px) → Desktop (20px)")}
                 </div>
 
                 <div className="flex items-center justify-between">
