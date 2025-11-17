@@ -39,8 +39,6 @@ import {
   parseRajaVidyaVedabase,
   mergeRajaVidyaChapters,
 } from "@/utils/rajaVidyaParser";
-import { parseSrimadBhagavatamEPUB } from "@/utils/import/srimad_bhagavatam_epub_parser";
-import { mergeSBChapters } from "@/utils/import/srimad_bhagavatam_merger";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -879,25 +877,11 @@ export default function UniversalImportFixed() {
             }
           }
 
-          // Fallback: browser парсинг через parseVedabaseCC
+          // Fallback: browser парсинг (спрощена версія)
           if (!result) {
-            // Використовуємо існуючий browser парсер
-            const chapterUrl = bookInfo.isMultiVolume
-              ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
-              : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
-
-            const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
-
-            if (!chapterData?.html) {
-              throw new Error("Failed to fetch chapter HTML from Vedabase");
-            }
-
-            // Парсимо Vedabase сторінку
-            result = parseVedabaseCC(chapterData.html, chapterNum, verseRanges);
-
-            if (!result || !result.verses || result.verses.length === 0) {
-              throw new Error("Failed to parse chapter from Vedabase");
-            }
+            // Тут мала б бути повна логіка browser парсингу
+            // Для спрощення можемо пропустити або викликати спрощену версію
+            throw new Error("Browser fallback not implemented for batch import");
           }
 
           // Нормалізуємо та зберігаємо
@@ -1503,19 +1487,6 @@ export default function UniversalImportFixed() {
           }));
 
           console.log(`✅ [Raja Vidya] Розпарсено ${chapters.length} глав`);
-        } else if (template.id === "srimad-bhagavatam") {
-          // ✅ Спеціальна обробка для Śrīmad-Bhāgavatam (EPUB з віршами)
-          console.log("🔍 [Śrīmad-Bhāgavatam] Використовую EPUB parser з підтримкою віршів");
-
-          // Визначаємо canto з коментаря <!-- CANTO:X -->
-          const cantoMatch = textToParse.match(/<!--\s*CANTO:(\d+)\s*-->/);
-          const cantoNumber = cantoMatch ? parseInt(cantoMatch[1]) : 3;
-
-          // Парсимо всі глави що є в EPUB
-          const chapterRange = "1-100"; // Парсер візьме тільки ті що є
-
-          chapters = parseSrimadBhagavatamEPUB(textToParse, cantoNumber, chapterRange);
-          console.log(`✅ [Śrīmad-Bhāgavatam] Розпарсено ${chapters.length} глав з пісні ${cantoNumber}`);
         } else {
           // Стандартний парсинг для інших книг
           chapters = splitIntoChapters(textToParse, template);
@@ -2207,139 +2178,6 @@ export default function UniversalImportFixed() {
 
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Крок 2: Завантажте файл</h3>
-
-                  {/* Швидке завантаження SB з EPUB */}
-                  {selectedTemplate === "srimad-bhagavatam" && (
-                    <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                        📚 Швидке завантаження Śrīmad-Bhāgavatam
-                      </h4>
-                      <p className="text-xs text-blue-800 dark:text-blue-200 mb-3">
-                        Автоматично завантажити EPUB з сервера (український текст вже в проєкті)
-                      </p>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={async () => {
-                            setIsProcessing(true);
-                            try {
-                              const response = await fetch('/epub/UK_SB_2_epub_r2.epub');
-                              const blob = await response.blob();
-                              const file = new File([blob], 'UK_SB_2_epub_r2.epub', { type: 'application/epub+zip' });
-                              const extractedText = await extractHTMLFromEPUB(file);
-                              // Зберігаємо canto у fileText як коментар для парсера
-                              setFileText(`<!-- CANTO:2 -->\n${extractedText}`);
-                              await parseFileText(`<!-- CANTO:2 -->\n${extractedText}`);
-                              toast({ title: "✅ Пісня 2 завантажена", description: "10 глав розпарсовано" });
-                            } catch (err: any) {
-                              toast({ title: "Помилка", description: err.message, variant: "destructive" });
-                            } finally {
-                              setIsProcessing(false);
-                            }
-                          }}
-                          disabled={isProcessing}
-                          variant="outline"
-                          size="sm"
-                        >
-                          Пісня 2 (10 глав)
-                        </Button>
-                        <Button
-                          onClick={async () => {
-                            setIsProcessing(true);
-                            try {
-                              const response = await fetch('/epub/UK_SB_3_epub_r1.epub');
-                              const blob = await response.blob();
-                              const file = new File([blob], 'UK_SB_3_epub_r1.epub', { type: 'application/epub+zip' });
-                              const extractedText = await extractHTMLFromEPUB(file);
-                              // Зберігаємо canto у fileText як коментар для парсера
-                              setFileText(`<!-- CANTO:3 -->\n${extractedText}`);
-                              await parseFileText(`<!-- CANTO:3 -->\n${extractedText}`);
-                              toast({ title: "✅ Пісня 3 завантажена", description: "33 глави розпарсовано" });
-                            } catch (err: any) {
-                              toast({ title: "Помилка", description: err.message, variant: "destructive" });
-                            } finally {
-                              setIsProcessing(false);
-                            }
-                          }}
-                          disabled={isProcessing}
-                          variant="outline"
-                          size="sm"
-                        >
-                          Пісня 3 (33 глави)
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Швидке завантаження BG 1972 з EPUB */}
-                  {selectedTemplate === "bhagavad-gita" && (
-                    <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                      <h4 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
-                        📗 Bhagavad-gītā As It Is (1972 Original Edition)
-                      </h4>
-                      <p className="text-xs text-green-800 dark:text-green-200 mb-3">
-                        Оригінальне видання 1972 року англійською мовою (18 глав)
-                      </p>
-                      <Button
-                        onClick={async () => {
-                          setIsProcessing(true);
-                          try {
-                            const response = await fetch('/epub/EN_BG_1972_epub_r2.epub');
-                            const blob = await response.blob();
-                            const file = new File([blob], 'EN_BG_1972_epub_r2.epub', { type: 'application/epub+zip' });
-                            const extractedText = await extractTextFromEPUB(file);
-                            setFileText(extractedText);
-                            await parseFileText(extractedText);
-                            toast({ title: "✅ BG 1972 завантажена", description: "18 глав розпарсовано" });
-                          } catch (err: any) {
-                            toast({ title: "Помилка", description: err.message, variant: "destructive" });
-                          } finally {
-                            setIsProcessing(false);
-                          }
-                        }}
-                        disabled={isProcessing}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Завантажити BG 1972 (18 глав, EN)
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* Швидке завантаження Chant and Be Happy */}
-                  {selectedTemplate === "default" && (
-                    <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                      <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
-                        🎵 Chant and Be Happy
-                      </h4>
-                      <p className="text-xs text-purple-800 dark:text-purple-200 mb-3">
-                        The Power of Mantra Meditation (10 chapters, EN)
-                      </p>
-                      <Button
-                        onClick={async () => {
-                          setIsProcessing(true);
-                          try {
-                            const response = await fetch('/epub/EN_CABH_ibooks_r3.epub');
-                            const blob = await response.blob();
-                            const file = new File([blob], 'EN_CABH_ibooks_r3.epub', { type: 'application/epub+zip' });
-                            const extractedText = await extractTextFromEPUB(file);
-                            setFileText(extractedText);
-                            await parseFileText(extractedText);
-                            toast({ title: "✅ CABH завантажена", description: "10 розділів розпарсовано" });
-                          } catch (err: any) {
-                            toast({ title: "Помилка", description: err.message, variant: "destructive" });
-                          } finally {
-                            setIsProcessing(false);
-                          }
-                        }}
-                        disabled={isProcessing}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Завантажити Chant and Be Happy (10 chapters, EN)
-                      </Button>
-                    </div>
-                  )}
-
                   <div className="rounded-lg border-2 border-dashed p-8 text-center">
                     <Upload className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                     <label className="cursor-pointer">
