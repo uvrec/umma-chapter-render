@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
@@ -502,11 +502,11 @@ export const DualLanguageVerseCard = ({
 
             {/* Параграфи синхронізовані */}
             {isEditing ? <div className="grid grid-cols-2 gap-6">
-                <InlineTiptapEditor content={edited.commentaryUa} onChange={html => setEdited(p => ({
+                <EnhancedInlineEditor content={edited.commentaryUa} onChange={html => setEdited(p => ({
             ...p,
             commentaryUa: html
           }))} label="Редагувати коментар UA" />
-                <InlineTiptapEditor content={edited.commentaryEn} onChange={html => setEdited(p => ({
+                <EnhancedInlineEditor content={edited.commentaryEn} onChange={html => setEdited(p => ({
             ...p,
             commentaryEn: html
           }))} label="Edit commentary EN" />

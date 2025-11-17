@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useReaderSettings } from '@/hooks/useReaderSettings';
-import { InlineTiptapEditor } from '@/components/InlineTiptapEditor';
+import { EnhancedInlineEditor } from '@/components/EnhancedInlineEditor';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect } from 'react';
 import DOMPurify from 'dompurify';
@@ -189,14 +189,14 @@ export const IntroChapter = () => {
           )}
 
           {isEditingContent ? (
-            // Editing mode - InlineTiptapEditor
+            // Editing mode - EnhancedInlineEditor
             <div className="space-y-4">
-              <InlineTiptapEditor
+              <EnhancedInlineEditor
                 content={editedContentUa}
                 onChange={setEditedContentUa}
                 label="Українська"
               />
-              <InlineTiptapEditor
+              <EnhancedInlineEditor
                 content={editedContentEn}
                 onChange={setEditedContentEn}
                 label="English"

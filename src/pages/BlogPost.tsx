@@ -7,7 +7,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { BlogPoetryContent } from "@/components/blog/BlogPoetryContent";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { VideoEmbed } from "@/components/blog/VideoEmbed";
 import { AudioEmbed } from "@/components/blog/AudioEmbed";
 import { InstagramEmbed } from "@/components/blog/InstagramEmbed";
@@ -447,7 +447,7 @@ export default function BlogPost() {
                         language="ua"
                       />
                     ) : isAdmin ? (
-                      <InlineTiptapEditor
+                      <EnhancedInlineEditor
                         content={contentUa}
                         onChange={(value) => handleContentUpdate("content_ua", value)}
                         label="Контент (UA)"
@@ -514,7 +514,7 @@ export default function BlogPost() {
                         language="en"
                       />
                     ) : isAdmin ? (
-                      <InlineTiptapEditor
+                      <EnhancedInlineEditor
                         content={contentEn}
                         onChange={(value) => handleContentUpdate("content_en", value)}
                         label="Content (EN)"
@@ -597,7 +597,7 @@ export default function BlogPost() {
                         language="ua"
                       />
                     ) : isAdmin ? (
-                      <InlineTiptapEditor
+                      <EnhancedInlineEditor
                         content={contentUa}
                         onChange={(value) => handleContentUpdate("content_ua", value)}
                         label="Контент (UA)"
@@ -628,7 +628,7 @@ export default function BlogPost() {
                       language="en"
                     />
                   ) : isAdmin ? (
-                    <InlineTiptapEditor
+                    <EnhancedInlineEditor
                       content={contentEn}
                       onChange={(value) => handleContentUpdate("content_en", value)}
                       label="Content (EN)"

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
-import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
@@ -383,7 +383,7 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isEditing ? <InlineTiptapEditor content={edited.commentary} onChange={html => setEdited(p => ({
+            {isEditing ? <EnhancedInlineEditor content={edited.commentary} onChange={html => setEdited(p => ({
           ...p,
           commentary: html
         }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="commentary-text" />}
