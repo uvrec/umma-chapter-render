@@ -204,8 +204,8 @@ export default function SBCantoImport() {
           }
 
           const rawHTML = await chapterFile.async('text');
-          // Додаємо явний заголовок і конвертуємо HTML → текст, щоб парсер бачив роздільники
-          const textForParser = htmlToTextForParser(`Глава ${chapterNum}\n` + rawHTML);
+          // Конвертуємо HTML → текст, щоб парсер бачив роздільники (без штучного префіксу заголовка)
+          const textForParser = htmlToTextForParser(rawHTML);
           console.log(`  📄 HTML глави ${chapterNum}: ${textForParser.length} символів (після нормалізації)`);
 
           // Парсити українські дані
@@ -269,6 +269,7 @@ export default function SBCantoImport() {
       }).eq('id', CANTO_3_ID);
 
       toast.success(`Імпорт завершено! ${importedChapters} глав`);
+      navigate(`/veda-reader/bhagavatam/canto/3`);
     } catch (error: any) {
       console.error("Import error:", error);
       toast.error(`Помилка імпорту: ${error.message}`);
