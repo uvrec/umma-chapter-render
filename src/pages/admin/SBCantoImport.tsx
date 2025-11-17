@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { parseChapterFromEPUBHTML } from "@/utils/import/srimad_bhagavatam_epub_parser";
 import { mergeSBChapters } from "@/utils/import/srimad_bhagavatam_merger";
+import JSZip from "jszip";
 import type { ParsedChapter, ParsedVerse } from "@/types/book-import";
 
 const BOOK_ID = "3ab9dbbf-1250-4d3e-84cb-f954baefb0c7"; // Srimad-Bhagavatam
@@ -152,10 +153,9 @@ export default function SBCantoImport() {
       
       const blob = await response.blob();
       const arrayBuffer = await blob.arrayBuffer();
-
-      const EPub = (await import('epubjs')).default;
-      const book = EPub(arrayBuffer);
-      await book.ready;
+      
+      // Завантажити EPUB через JSZip
+      const zip = await JSZip.loadAsync(arrayBuffer);
       
       console.log("✅ EPUB завантажено успішно");
       toast.success("EPUB файл завантажено");
@@ -168,14 +168,11 @@ export default function SBCantoImport() {
         console.log(`\n🔵 Імпорт глави ${chapterNum}/${endChapter}`);
         
         try {
-          let chapterSection: any = null;
-          book.spine.each((section: any) => {
-            if (section.href.includes(`UKS3${chapterNum}XT`)) {
-              chapterSection = section;
-            }
-          });
-
-          if (!chapterSection) {
+          // Витягти HTML з EPUB використовуючи JSZip
+          const chapterFileName = `OEBPS/UKS3${chapterNum}XT.xhtml`;
+          const chapterFile = zip.file(chapterFileName);
+          
+          if (!chapterFile) {
             console.warn(`⚠️ Не знайдено главу ${chapterNum} в EPUB`);
             toast.warning(`Глава ${chapterNum} не знайдена`);
             importedChapters++;
@@ -183,9 +180,11 @@ export default function SBCantoImport() {
             continue;
           }
 
-          const doc = await book.load(chapterSection.href);
-          const chapterHTML = doc.body.innerHTML;
-          const uaChapter = parseChapterFromEPUBHTML(chapterHTML, 3, chapterNum);
+          const chapterHTML = await chapterFile.async('text');
+          console.log(`  📄 HTML глави ${chapterNum}: ${chapterHTML.length} символів`);
+
+          // Парсити українські дані
+          const uaChapter = parseChapterFromEPUBHTML(chapterHTML, 3);
           
           if (!uaChapter) {
             toast.warning(`Глава ${chapterNum}: помилка парсингу`);
