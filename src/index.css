@@ -365,6 +365,8 @@ body {
 /* Параграфи в коментарях - згідно Vedabase.io */
 .commentary-text p {
   margin-bottom: 1rem; /* mb-4 між параграфами */
+  font-size: var(--vv-reader-font-size) !important; /* Такий самий розмір як у prose-reader */
+  line-height: var(--vv-reader-line-height) !important;
 }
 
 .commentary-text p:last-child {

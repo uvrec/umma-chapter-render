@@ -112,7 +112,7 @@ export const TiptapRenderer = ({ content, className = "", displayBlocks }: Tipta
 
   return (
     <div
-      className={`prose prose-lg max-w-none transition-all duration-300 dark:prose-invert
+      className={`prose max-w-none transition-all duration-300 dark:prose-invert
         prose-headings:text-foreground prose-headings:font-bold
         prose-p:text-foreground prose-p:leading-relaxed
         prose-a:text-primary hover:prose-a:text-primary/80
