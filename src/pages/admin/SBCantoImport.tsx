@@ -145,39 +145,89 @@ export default function SBCantoImport() {
     setCurrentChapter(0);
 
     try {
-      toast.info("Завантажуємо EPUB файл...");
+      console.log("📚 Завантаження EPUB файлу...");
       
-      // Завантажити EPUB як blob
-      const epubResponse = await fetch("/epub/UK_SB_3_epub_r1.epub");
-      if (!epubResponse.ok) {
-        throw new Error("Не вдалось завантажити EPUB файл");
-      }
+      const response = await fetch('/epub/UK_SB_3_epub_r1.epub');
+      if (!response.ok) throw new Error(`Не вдалося завантажити EPUB: ${response.status}`);
+      
+      const blob = await response.blob();
+      const arrayBuffer = await blob.arrayBuffer();
+
+      const EPub = (await import('epubjs')).default;
+      const book = EPub(arrayBuffer);
+      await book.ready;
+      
+      console.log("✅ EPUB завантажено успішно");
+      toast.success("EPUB файл завантажено");
 
       const totalChapters = endChapter - startChapter + 1;
       let importedChapters = 0;
-
+      
       for (let chapterNum = startChapter; chapterNum <= endChapter; chapterNum++) {
         setCurrentChapter(chapterNum);
-
+        console.log(`\n🔵 Імпорт глави ${chapterNum}/${endChapter}`);
+        
         try {
-          // ТИМЧАСОВО: використаємо тестовий HTML для демонстрації
-          // В реальності тут буде код для витягування XHTML з EPUB через JSZip
+          let chapterSection: any = null;
+          book.spine.each((section: any) => {
+            if (section.href.includes(`UKS3${chapterNum}XT`)) {
+              chapterSection = section;
+            }
+          });
+
+          if (!chapterSection) {
+            console.warn(`⚠️ Не знайдено главу ${chapterNum} в EPUB`);
+            toast.warning(`Глава ${chapterNum} не знайдена`);
+            importedChapters++;
+            setProgress((importedChapters / totalChapters) * 100);
+            continue;
+          }
+
+          const doc = await book.load(chapterSection.href);
+          const chapterHTML = doc.body.innerHTML;
+          const uaChapter = parseChapterFromEPUBHTML(chapterHTML, 3, chapterNum);
           
-          toast.warning(`Глава ${chapterNum}: Імпорт поки що в розробці. Використайте Python скрипт.`);
+          if (!uaChapter) {
+            toast.warning(`Глава ${chapterNum}: помилка парсингу`);
+            importedChapters++;
+            setProgress((importedChapters / totalChapters) * 100);
+            continue;
+          }
           
-          // Симуляція затримки
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          console.log(`  ✅ UA: ${uaChapter.verses.length} віршів`);
+
+          let mergedChapter = uaChapter;
           
-          // Оновити прогрес
-          importedChapters++;
-          setProgress((importedChapters / totalChapters) * 100);
+          if (mergeWithEnglish) {
+            try {
+              const enChapter = await fetchEnglishChapter(3, chapterNum);
+              if (enChapter) {
+                mergedChapter = mergeSBChapters(uaChapter, enChapter);
+              }
+            } catch (enError) {
+              console.warn(`  ⚠️ Помилка EN даних:`, enError);
+            }
+          }
+
+          const { chapterId, versesCount } = await saveChapterToDB(mergedChapter);
+          toast.success(`Глава ${chapterNum}: ${versesCount} віршів`);
+
         } catch (error: any) {
-          console.error(`Error importing chapter ${chapterNum}:`, error);
+          console.error(`❌ Помилка глави ${chapterNum}:`, error);
           toast.error(`Глава ${chapterNum}: ${error.message}`);
         }
+
+        importedChapters++;
+        setProgress((importedChapters / totalChapters) * 100);
       }
 
-      toast.info(`Для повного імпорту використайте Python скрипт: python3 import_sb_epub.py --epub public/epub/UK_SB_3_epub_r1.epub --canto 3 --chapters 1-33`);
+      await supabase.from('cantos').update({ 
+        is_published: true,
+        title_ua: 'Статус-кво',
+        title_en: 'The Status Quo'
+      }).eq('id', CANTO_3_ID);
+
+      toast.success(`Імпорт завершено! ${importedChapters} глав`);
     } catch (error: any) {
       console.error("Import error:", error);
       toast.error(`Помилка імпорту: ${error.message}`);
