@@ -339,12 +339,12 @@ export const VerseCard = ({
             };
             return <span key={i} className="inline-flex items-center gap-1 flex-wrap">
                         {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-1">
-                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
+                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-justify">
                               {w}
                             </span>
                             {wi < words.length - 1 && " "}
                           </span>)}
-                        {pair.meaning && <span> — {pair.meaning}</span>}
+                        {pair.meaning && <span className="text-justify"> — {pair.meaning}</span>}
                         <button onClick={e => {
                 e.stopPropagation();
                 handleAddToLearning(pair.term, pair.meaning || "");
@@ -370,7 +370,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold font-serif text-center">{translation}</p>}
+        }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold font-serif text-justify">{translation}</p>}
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
