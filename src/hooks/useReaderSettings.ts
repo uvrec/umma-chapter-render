@@ -102,10 +102,12 @@ export function useReaderSettings() {
 
   // Синхронізувати CSS змінні з React state
   useEffect(() => {
+    console.log(`🎨 CSS UPDATE: fontSize=${fontSize}px (base=${baseFontSize} + adj=${fontSizeAdjustment})`);
     document.documentElement.style.setProperty('--vv-reader-font-size', `${fontSize}px`);
     localStorage.setItem(LS.fontSize, String(fontSize));
     localStorage.setItem(LS.fontSizeAdjustment, String(fontSizeAdjustment));
     dispatchPrefs();
+    console.log(`✅ CSS змінна встановлена:`, getComputedStyle(document.documentElement).getPropertyValue('--vv-reader-font-size'));
   }, [fontSize, fontSizeAdjustment, dispatchPrefs]);
 
   // Responsive listener - адаптуватися до зміни розміру екрану
