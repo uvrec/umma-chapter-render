@@ -236,11 +236,6 @@ export const GlobalSettingsPanel = () => {
                   </div>
                 </div>
 
-                <div className="text-xs text-muted-foreground bg-muted/50 px-3 py-2 rounded-md">
-                  ℹ️ {t("Розмір автоматично адаптується до екрану: Mobile (16px) → Tablet (18px) → Desktop (20px)",
-                         "Size automatically adapts to screen: Mobile (16px) → Tablet (18px) → Desktop (20px)")}
-                </div>
-
                 <div className="flex items-center justify-between">
                   <Label>{t("Міжряддя", "Line Height")}</Label>
                   <div className="flex items-center gap-2">
