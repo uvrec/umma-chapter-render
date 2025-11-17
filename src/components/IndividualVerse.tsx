@@ -328,7 +328,7 @@ export const IndividualVerse = () => {
                           tabIndex={0}
                           onClick={() => openGlossary(w)}
                           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                          className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
                           title="Відкрити у глосарії"
                         >
                           {w}

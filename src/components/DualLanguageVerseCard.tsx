@@ -151,12 +151,12 @@ const SynonymsBlock = ({
   if (isEditing) {
     return <Textarea value={synonyms} onChange={e => onEdit?.(e.target.value)} className="min-h-[120px] synonyms-text" />;
   }
-  return <p className="synonyms-text text-foreground">
+  return <p className="synonyms-text text-foreground text-2xl text-center">
       {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
       const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
       return <span key={i}>
               {words.map((w, wi) => <span key={wi}>
-                  <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-lg font-semibold">
+                  <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer font-serif italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-lg font-semibold">
                     {w}
                   </span>
                   {wi < words.length - 1 && " "}
