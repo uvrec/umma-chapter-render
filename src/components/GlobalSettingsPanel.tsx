@@ -151,7 +151,7 @@ export const GlobalSettingsPanel = () => {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+        className="fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
         size="icon"
         aria-label="Open settings"
       >
