@@ -9,20 +9,23 @@
    ========================================== */
 
 /* =========================
-   ШРИФТОВІ СТЕКИ
+   ШРИФТОВІ СТЕКИ (Vedabase.io specification)
    ========================= */
 :root {
-  /* Основний текст (кирилиця + латиниця) */
+  /* Основний текст (кирилиця + латиниця) - Noto Serif variable 100-900 */
   --font-primary: "Noto Serif", "Gentium Plus", Georgia, serif;
 
-  /* Трансліт (IAST + укр. з діакритикою) - simplified stack */
-  --font-translit: "Gentium Plus", serif;
+  /* Транслітерація (verse text) - notoSerifVedabase кастомна версія */
+  --font-translit: "Noto Serif", serif;
 
-  /* Деванагарі */
+  /* Деванагарі (देवनागरी) - Noto Sans з Devanagari підтримкою */
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
 
-  /* Бенгалі */
-  --font-bengali: "Noto Sans Bengali", sans-serif;
+  /* Бенгалі (বাংলা) - Noto Serif Bengali weight 500 */
+  --font-bengali: "Noto Serif Bengali", serif;
+
+  /* Послівний переклад (synonyms) - notoSansVedabase кастомна версія */
+  --font-synonyms: "Noto Sans", sans-serif;
 
   /* UI (інтерфейс) */
   --font-ui: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
