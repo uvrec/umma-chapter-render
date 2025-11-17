@@ -337,7 +337,7 @@ export const VerseCard = ({
                 toast.info(`Слово вже в списку: ${word}`);
               }
             };
-            return <span key={i} className="inline-flex items-center gap-1 flex-wrap">
+            return <span key={i} className="inline-flex items-center gap-1 flex-wrap text-justify">
                         {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-1">
                             <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-justify">
                               {w}
