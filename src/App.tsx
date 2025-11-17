@@ -21,6 +21,7 @@ import AdminBanners from "@/pages/admin/AdminBanners";
 import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
 import LectureImport from "@/pages/admin/LectureImport";
 import LetterImport from "@/pages/admin/LetterImport";
+import SBCantoImport from "@/pages/admin/SBCantoImport";
 
 import { NewHome } from "./pages/NewHome";
 import { IndividualVerse } from "./components/IndividualVerse";
@@ -217,6 +218,7 @@ const App = () => (
                   <Route path="/admin/highlights" element={<Highlights />} />
                   <Route path="/admin/lecture-import" element={<LectureImport />} />
                   <Route path="/admin/letter-import" element={<LetterImport />} />
+                  <Route path="/admin/sb-canto-import" element={<SBCantoImport />} />
                   <Route path="/admin/numcal" element={<NumCal />} />
 
                   {/* Сторінки з CMS */}

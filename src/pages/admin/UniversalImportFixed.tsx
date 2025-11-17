@@ -893,7 +893,7 @@ export default function UniversalImportFixed() {
             }
 
             // Парсимо Vedabase сторінку
-            result = parseVedabaseCC(chapterData.html, chapterNum, verseRanges);
+            result = parseVedabaseCC(chapterData.html, chapterUrl);
 
             if (!result || !result.verses || result.verses.length === 0) {
               throw new Error("Failed to parse chapter from Vedabase");
