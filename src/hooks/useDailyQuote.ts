@@ -96,19 +96,11 @@ export function useDailyQuote() {
     },
   });
 
-  // Обчислюємо індекс вірша на основі дати (для щоденної ротації)
-  const getDayBasedOffset = () => {
-    const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1);
-    const dayOfYear = Math.floor((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
-    return dayOfYear;
-  };
-
-  // Завантажуємо поточну цитату (вірш з книг)
+  // Завантажуємо поточну цитату (випадковий вірш з книг)
   const { data: quote, isLoading, error } = useQuery({
-    queryKey: ["daily_quote_verse", getDayBasedOffset()],
+    queryKey: ["daily_quote_verse", Date.now()], // Унікальний ключ для кожного запиту
     queryFn: async () => {
-      console.log('[DailyQuote] Завантаження вірша дня...');
+      console.log('[DailyQuote] Завантаження випадкового вірша...');
 
       if (!settings?.enabled) {
         console.warn('[DailyQuote] Цитати вимкнено в налаштуваннях');
@@ -130,9 +122,9 @@ export function useDailyQuote() {
 
         console.log('[DailyQuote] Знайдено віршів:', count);
 
-        // Обчислюємо offset на основі дати (циклічно)
-        const offset = getDayBasedOffset() % count;
-        console.log('[DailyQuote] Offset для сьогодні:', offset);
+        // Генеруємо випадковий offset
+        const offset = Math.floor(Math.random() * count);
+        console.log('[DailyQuote] Випадковий offset:', offset);
 
         // Завантажуємо вірш з цим offset
         const { data: verses, error } = await supabase
@@ -170,7 +162,7 @@ export function useDailyQuote() {
         }
 
         const verse = verses[0];
-        console.log('[DailyQuote] Завантажено вірш дня:', verse);
+        console.log('[DailyQuote] Завантажено випадковий вірш:', verse);
 
         // Перетворюємо вірш у формат DailyQuote
         return {
@@ -194,8 +186,9 @@ export function useDailyQuote() {
     },
     enabled: !!settings,
     retry: false,
-    // Кешуємо на 1 годину (щоб не робити запити на кожен рендер)
-    staleTime: 1000 * 60 * 60,
+    // Не кешуємо - кожен раз новий вірш
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   // Оновлюємо статистику показу цитати
