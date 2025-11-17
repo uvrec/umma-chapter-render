@@ -317,7 +317,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.synonyms} onChange={e => setEdited(p => ({
           ...p,
           synonyms: e.target.value
-        }))} className="min-h-[120px] synonyms-text" /> : <p className="synonyms-text text-foreground text-2xl text-center">
+        }))} className="min-h-[120px] synonyms-text" /> : <p className="synonyms-text text-foreground text-center" style={{fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`}}>
                 {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
             const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
 

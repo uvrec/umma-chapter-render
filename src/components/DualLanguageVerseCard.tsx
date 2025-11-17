@@ -151,7 +151,7 @@ const SynonymsBlock = ({
   if (isEditing) {
     return <Textarea value={synonyms} onChange={e => onEdit?.(e.target.value)} className="min-h-[120px] synonyms-text" />;
   }
-  return <p className="synonyms-text text-foreground text-2xl text-center">
+  return <p className="synonyms-text text-foreground text-center" style={{fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`}}>
       {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
       const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
       return <span key={i}>
@@ -389,7 +389,7 @@ export const DualLanguageVerseCard = ({
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => <p key={idx} style={{
                 fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
-              }} className="iast-text text-muted-foreground text-3xl">
+              }} className="iast-text text-muted-foreground">
                         {line}
                       </p>)}
                   </div>}
@@ -405,7 +405,7 @@ export const DualLanguageVerseCard = ({
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => <p key={idx} style={{
                 fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
-              }} className="iast-text text-muted-foreground text-3xl font-sans">
+              }} className="iast-text text-muted-foreground font-sans">
                         {line}
                       </p>)}
                   </div>}
