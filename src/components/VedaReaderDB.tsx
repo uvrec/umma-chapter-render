@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { VerseCard } from "@/components/VerseCard";
@@ -16,12 +16,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { toast as sonnerToast } from "sonner";
+import { addLearningVerse, isVerseInLearningList } from "@/utils/learningVerses";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { HighlightDialog } from "@/components/HighlightDialog";
 import { useHighlights } from "@/hooks/useHighlights";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { cleanHtml } from "@/utils/import/normalizers";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 export const VedaReaderDB = () => {
   const {
@@ -56,15 +59,10 @@ export const VedaReaderDB = () => {
   // Keyboard shortcuts state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
 
+  // Використовуємо useReaderSettings hook для fontSize/lineHeight
+  const { fontSize, lineHeight, increaseFont, decreaseFont } = useReaderSettings();
+
   // Читаємо налаштування з localStorage і слухаємо зміни
-  const [fontSize, setFontSize] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_fontSize");
-    return saved ? Number(saved) : 18;
-  });
-  const [lineHeight, setLineHeight] = useState(() => {
-    const saved = localStorage.getItem("vv_reader_lineHeight");
-    return saved ? Number(saved) : 1.6;
-  });
   const [dualLanguageMode, setDualLanguageMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
   const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
   const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
@@ -92,13 +90,13 @@ export const VedaReaderDB = () => {
     try {
       const saved = localStorage.getItem("vv_reader_blocks");
       if (saved) {
+        const blocks = JSON.parse(saved);
         return {
-          showSanskrit: true,
-          showTransliteration: true,
-          showSynonyms: true,
-          showTranslation: true,
-          showCommentary: true,
-          ...JSON.parse(saved)
+          showSanskrit: blocks.sanskrit ?? true,
+          showTransliteration: blocks.translit ?? true,
+          showSynonyms: blocks.synonyms ?? true,
+          showTranslation: blocks.translation ?? true,
+          showCommentary: blocks.commentary ?? true
         };
       }
     } catch {}
@@ -114,22 +112,7 @@ export const VedaReaderDB = () => {
   // Слухаємо зміни з GlobalSettingsPanel
   useEffect(() => {
     const handlePrefsChanged = () => {
-      // Використовуємо functional updates для уникнення stale closures
-      const newFontSize = localStorage.getItem("vv_reader_fontSize");
-      if (newFontSize) {
-        const parsed = Number(newFontSize);
-        if (Number.isFinite(parsed)) {
-          setFontSize(parsed);
-        }
-      }
-
-      const newLineHeight = localStorage.getItem("vv_reader_lineHeight");
-      if (newLineHeight) {
-        const parsed = Number(newLineHeight);
-        if (Number.isFinite(parsed)) {
-          setLineHeight(parsed);
-        }
-      }
+      // fontSize та lineHeight тепер керуються useReaderSettings hook
 
       const newDualMode = localStorage.getItem("vv_reader_dualMode") === "true";
       setDualLanguageMode(newDualMode);
@@ -574,6 +557,51 @@ export const VedaReaderDB = () => {
     });
   };
 
+  // 🆕 Add verse to learning
+  const handleAddToLearning = () => {
+    if (!currentVerse) {
+      sonnerToast.error(t("Немає поточного вірша", "No current verse"));
+      return;
+    }
+
+    // Check if already in learning list
+    if (isVerseInLearningList(currentVerse.id)) {
+      sonnerToast.info(t("Вірш вже в списку для вивчення", "Verse already in learning list"));
+      return;
+    }
+
+    // Determine full verse number
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const fullVerseNumber = isCantoMode
+      ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
+      : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+
+    // Create learning verse object
+    const learningVerse = {
+      verseId: currentVerse.id,
+      verseNumber: fullVerseNumber,
+      bookName: bookTitle || "",
+      bookSlug: bookId,
+      cantoNumber: cantoNumber,
+      chapterNumber: isCantoMode ? chapterNumber : chapter?.chapter_number?.toString(),
+      sanskritText: currentVerse.text || "",
+      transliteration: currentVerse.transliteration || undefined,
+      translation: language === 'ua' ? (currentVerse.translation_ua || "") : (currentVerse.translation_en || ""),
+      commentary: language === 'ua' ? (currentVerse.commentary_ua || undefined) : (currentVerse.commentary_en || undefined),
+      audioUrl: currentVerse.audio_url || undefined,
+      audioSanskrit: currentVerse.audio_sanskrit || undefined,
+      audioTranslation: currentVerse.audio_translation || undefined,
+    };
+
+    const added = addLearningVerse(learningVerse);
+
+    if (added) {
+      sonnerToast.success(t(`Додано до вивчення: ${fullVerseNumber}`, `Added to learning: ${fullVerseNumber}`));
+    } else {
+      sonnerToast.error(t("Помилка додавання вірша", "Error adding verse"));
+    }
+  };
+
   // 🆕 Text selection handler with checks
   const handleTextSelection = useCallback(() => {
     // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
@@ -825,9 +853,8 @@ export const VedaReaderDB = () => {
       key: '}',
       description: t('Збільшити шрифт', 'Increase font size'),
       handler: () => {
-        const newSize = Math.min(fontSize + 2, 32);
-        setFontSize(newSize);
-        localStorage.setItem("vv_reader_fontSize", String(newSize));
+        increaseFont();
+        increaseFont(); // +2px як було раніше
       },
       category: 'font',
     },
@@ -835,9 +862,8 @@ export const VedaReaderDB = () => {
       key: '{',
       description: t('Зменшити шрифт', 'Decrease font size'),
       handler: () => {
-        const newSize = Math.max(fontSize - 2, 12);
-        setFontSize(newSize);
-        localStorage.setItem("vv_reader_fontSize", String(newSize));
+        decreaseFont();
+        decreaseFont(); // -2px як було раніше
       },
       category: 'font',
     },
@@ -955,6 +981,15 @@ export const VedaReaderDB = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAddToLearning}
+                disabled={!currentVerse}
+                title={t("Додати до вивчення", "Add to learning")}
+              >
+                <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
+              </Button>
               <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
               </Button>
@@ -1055,8 +1090,16 @@ export const VedaReaderDB = () => {
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
-                  sanskritText={cleanHtml(language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")}
-                  transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""}
+                  sanskritText={cleanHtml(
+                    language === "ua" 
+                      ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" 
+                      : (verse as any).sanskrit_en || (verse as any).sanskrit || ""
+                  )}
+                  transliteration={
+                    language === "ua" 
+                      ? (verse as any).transliteration_ua || (verse as any).transliteration || ""
+                      : (verse as any).transliteration_en || (verse as any).transliteration || ""
+                  }
                   synonyms={getTranslationWithFallback(verse, 'synonyms')}
                   translation={getTranslationWithFallback(verse, 'translation')}
                   commentary={getTranslationWithFallback(verse, 'commentary')}
@@ -1071,6 +1114,7 @@ export const VedaReaderDB = () => {
                   lineHeight={lineHeight}
                   flowMode={true}
                   isAdmin={isAdmin}
+                  language={language}
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                     verseId,
                     updates,
@@ -1102,11 +1146,7 @@ export const VedaReaderDB = () => {
                       {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
                     </Button>
 
-                    <div className="text-sm text-muted-foreground">
-                      {t("Вірш", "Verse")} {currentVerseIndex + 1} {t("з", "of")} {verses.length}
-                    </div>
-
-                    <Button 
+                    <Button
                       variant="outline" 
                       onClick={handleNextVerse} 
                       disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}
@@ -1157,8 +1197,16 @@ export const VedaReaderDB = () => {
                       verseId={currentVerse.id}
                       verseNumber={fullVerseNumber}
                       bookName={chapterTitle}
-                      sanskritText={cleanHtml((currentVerse as any).sanskrit || "")}
-                      transliteration={language === "ua" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""}
+                      sanskritText={cleanHtml(
+                        language === "ua" 
+                          ? (currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || ""
+                          : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || ""
+                      )}
+                      transliteration={
+                        language === "ua" 
+                          ? (currentVerse as any).transliteration_ua || (currentVerse as any).transliteration || ""
+                          : (currentVerse as any).transliteration_en || (currentVerse as any).transliteration || ""
+                      }
                       synonyms={getTranslationWithFallback(currentVerse, 'synonyms')}
                       translation={getTranslationWithFallback(currentVerse, 'translation')}
                       commentary={getTranslationWithFallback(currentVerse, 'commentary')}
@@ -1173,12 +1221,16 @@ export const VedaReaderDB = () => {
                       lineHeight={lineHeight}
                       flowMode={flowMode}
                       isAdmin={isAdmin}
+                      language={language}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,
                         chapterId: chapter?.id,
                         verseNumber: currentVerse.verse_number
                       })}
+                      onVerseNumberUpdate={() => {
+                        queryClient.invalidateQueries({ queryKey: ["verses"] });
+                      }}
                     />
                   )}
 
@@ -1192,10 +1244,6 @@ export const VedaReaderDB = () => {
                       <ChevronLeft className="mr-2 h-4 w-4" />
                       {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
                     </Button>
-
-                    <div className="text-sm text-muted-foreground">
-                      {t("Вірш", "Verse")} {currentVerseIndex + 1} {t("з", "of")} {verses.length}
-                    </div>
 
                     <Button 
                       variant="outline" 

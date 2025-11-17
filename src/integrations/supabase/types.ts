@@ -854,6 +854,85 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_quotes: {
+        Row: {
+          author_en: string | null
+          author_ua: string | null
+          created_at: string | null
+          created_by: string | null
+          display_count: number | null
+          id: string
+          is_active: boolean | null
+          last_displayed_at: string | null
+          priority: number | null
+          quote_en: string | null
+          quote_type: Database["public"]["Enums"]["daily_quote_type"]
+          quote_ua: string | null
+          source_en: string | null
+          source_ua: string | null
+          updated_at: string | null
+          verse_id: string | null
+        }
+        Insert: {
+          author_en?: string | null
+          author_ua?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_displayed_at?: string | null
+          priority?: number | null
+          quote_en?: string | null
+          quote_type: Database["public"]["Enums"]["daily_quote_type"]
+          quote_ua?: string | null
+          source_en?: string | null
+          source_ua?: string | null
+          updated_at?: string | null
+          verse_id?: string | null
+        }
+        Update: {
+          author_en?: string | null
+          author_ua?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_displayed_at?: string | null
+          priority?: number | null
+          quote_en?: string | null
+          quote_type?: Database["public"]["Enums"]["daily_quote_type"]
+          quote_ua?: string | null
+          source_en?: string | null
+          source_ua?: string | null
+          updated_at?: string | null
+          verse_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_structure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       highlights: {
         Row: {
           book_id: string
@@ -1286,9 +1365,13 @@ export type Database = {
           deleted_at: string | null
           display_blocks: Json | null
           end_verse: number | null
+          explanation_en_audio_url: string | null
+          explanation_ua_audio_url: string | null
+          full_verse_audio_url: string | null
           id: string
           is_composite: boolean | null
           is_published: boolean | null
+          recitation_audio_url: string | null
           sanskrit: string | null
           sanskrit_en: string | null
           sanskrit_ua: string | null
@@ -1318,9 +1401,13 @@ export type Database = {
           deleted_at?: string | null
           display_blocks?: Json | null
           end_verse?: number | null
+          explanation_en_audio_url?: string | null
+          explanation_ua_audio_url?: string | null
+          full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
           is_published?: boolean | null
+          recitation_audio_url?: string | null
           sanskrit?: string | null
           sanskrit_en?: string | null
           sanskrit_ua?: string | null
@@ -1350,9 +1437,13 @@ export type Database = {
           deleted_at?: string | null
           display_blocks?: Json | null
           end_verse?: number | null
+          explanation_en_audio_url?: string | null
+          explanation_ua_audio_url?: string | null
+          full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
           is_published?: boolean | null
+          recitation_audio_url?: string | null
           sanskrit?: string | null
           sanskrit_en?: string | null
           sanskrit_ua?: string | null
@@ -2000,6 +2091,20 @@ export type Database = {
           verse_number: string
         }[]
       }
+      get_topic_statistics: {
+        Args: {
+          book_ids?: string[]
+          language_code: string
+          search_query: string
+        }
+        Returns: {
+          book_id: string
+          book_slug: string
+          book_title: string
+          sample_verses: string[]
+          verse_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2022,6 +2127,40 @@ export type Database = {
         }[]
       }
       remove_duplicate_words_in_synonyms: { Args: never; Returns: undefined }
+      search_verses_fulltext: {
+        Args: {
+          book_ids?: string[]
+          include_commentary: boolean
+          include_sanskrit: boolean
+          include_synonyms: boolean
+          include_translation: boolean
+          include_transliteration: boolean
+          language_code: string
+          limit_count?: number
+          search_query: string
+        }
+        Returns: {
+          book_id: string
+          book_slug: string
+          book_title: string
+          canto_id: string
+          canto_number: number
+          canto_title: string
+          chapter_id: string
+          chapter_number: number
+          chapter_title: string
+          commentary: string
+          matched_in: string[]
+          relevance_rank: number
+          sanskrit: string
+          search_snippet: string
+          synonyms: string
+          translation: string
+          transliteration: string
+          verse_id: string
+          verse_number: string
+        }[]
+      }
       slugify: { Args: { "": string }; Returns: string }
       update_intro_chapters_order: {
         Args: { p_items: Json }
@@ -2032,6 +2171,7 @@ export type Database = {
       app_role: "admin" | "editor" | "user"
       audio_event_type: "play" | "pause" | "complete" | "skip"
       chapter_type: "verses" | "text"
+      daily_quote_type: "verse" | "custom"
       lecture_type:
         | "Conversation"
         | "Walk"
@@ -2181,6 +2321,7 @@ export const Constants = {
       app_role: ["admin", "editor", "user"],
       audio_event_type: ["play", "pause", "complete", "skip"],
       chapter_type: ["verses", "text"],
+      daily_quote_type: ["verse", "custom"],
       lecture_type: [
         "Conversation",
         "Walk",

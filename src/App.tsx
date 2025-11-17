@@ -50,10 +50,14 @@ import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
 import TransliterationTool from "./pages/TransliterationTool";
 import Numerology from "./pages/tools/Numerology";
+import ScriptLearning from "./pages/tools/ScriptLearning";
+import KnowledgeCompiler from "./pages/KnowledgeCompiler";
+import SynonymsSearch from "./pages/SynonymsSearch";
 import Dashboard from "./pages/admin/Dashboard";
 import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
 import Verses from "./pages/admin/Verses";
+import ScriptureManager from "./pages/admin/ScriptureManager";
 import Chapters from "./pages/admin/Chapters";
 import AddEditBook from "./pages/admin/AddEditBook";
 import AddEditVerse from "./pages/admin/AddEditVerse";
@@ -160,6 +164,9 @@ const App = () => (
                   <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/tools/transliteration" element={<TransliterationTool />} />
                   <Route path="/tools/numerology" element={<Numerology />} />
+                  <Route path="/tools/learning" element={<ScriptLearning />} />
+                  <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
+                  <Route path="/tools/synonyms" element={<SynonymsSearch />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
@@ -188,6 +195,7 @@ const App = () => (
                   <Route path="/admin/verses" element={<Verses />} />
                   <Route path="/admin/verses/new" element={<AddEditVerse />} />
                   <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
+                  <Route path="/admin/scripture" element={<ScriptureManager />} />
                   <Route path="/admin/data-migration" element={<DataMigration />} />
                   <Route path="/admin/import-wizard" element={<ImportWizard />} />
                   <Route path="/admin/universal-import" element={<UniversalImportFixed />} />

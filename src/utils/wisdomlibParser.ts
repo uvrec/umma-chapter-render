@@ -42,7 +42,7 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
     };
 
     // 1. BENGALI TEXT - в blockquote (всі рядки разом)
-    const blockquote = doc.querySelector("#scontent > blockquote:first-of-type");
+    const blockquote = doc.querySelector("#scontent blockquote, #pageContent blockquote");
     if (blockquote) {
       const paragraphs = blockquote.querySelectorAll("p");
       const bengaliLines: string[] = [];
@@ -60,61 +60,120 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       }
     }
 
-    // 2. ENGLISH TRANSLATION - перший <p> після blockquote
-    const scontent = doc.querySelector("#scontent");
+    // 2. ENGLISH TRANSLATION - robust: search by label or numbered pattern within subtree
+    // Prefer #scontent (content area) and fallback to #pageContent only if missing
+    const scontent = doc.querySelector("#scontent") || doc.querySelector("#pageContent");
     if (scontent) {
-      const allChildren = Array.from(scontent.children);
+      const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
 
-      // Знаходимо індекс blockquote
-      const blockquoteIndex = allChildren.findIndex((el) => el.tagName === "BLOCKQUOTE");
+      let translation = "";
 
-      if (blockquoteIndex >= 0) {
-        // Перший <p> після blockquote - це переклад
-        const translationP = allChildren.find((el, idx) => idx > blockquoteIndex && el.tagName === "P") as
-          | HTMLElement
-          | undefined;
+      const normalize = (t: string) => t.replace(/\s+/g, " ").trim();
+      const isValidText = (t: string) =>
+        t.length > 20 &&
+        !/english\s*translation/i.test(t) &&
+        !/^Bengali text.*transliteration/i.test(t) &&
+        !/Previous|Next|Like what you read\?/i.test(t) &&
+        !/Buy now/i.test(t) &&
+        !/Chaitanya Bhagavata/i.test(t);
 
-        if (translationP) {
-          const text = translationP.textContent?.trim() || "";
-          // Переклад зазвичай починається з великої літери і не містить "Commentary:"
-          if (text.length > 30 && !text.includes("Commentary:")) {
-            verse.translation_en = text;
+      // Find explicit "English translation" label
+      const labelP = ps.find((p) => /english\s*translation\s*:?/i.test((p.textContent || "")));
+      if (labelP) {
+        const labelText = normalize(labelP.textContent || "");
+        // If translation is on the same line after the colon, grab it
+        const sameLine = labelText.match(/english\s*translation\s*:?\s*(.+)$/i);
+        if (sameLine && sameLine[1] && sameLine[1].length > 10) {
+          translation = sameLine[1];
+        } else {
+          // Otherwise take the next meaningful paragraph AFTER the label
+          const idx = ps.indexOf(labelP);
+          for (let i = idx + 1; i < ps.length; i++) {
+            const t = normalize(ps[i].textContent || "");
+            if (isValidText(t)) {
+              translation = t;
+              break;
+            }
           }
         }
       }
+
+      // Fallback: paragraph that starts with a numbered marker like "(198)"
+      if (!translation) {
+        const cand = ps.find((p) => /^\(\d+\)\s+/.test((p.textContent || "").trim()));
+        if (cand) translation = normalize(cand.textContent || "");
+      }
+
+      // Final fallback: first non-blockquote, meaningful paragraph
+      if (!translation) {
+        const cand = ps.find((p) => !p.closest("blockquote") && isValidText(normalize(p.textContent || "")));
+        if (cand) translation = normalize(cand.textContent || "");
+      }
+
+      if (translation) {
+        verse.translation_en = translation;
+      }
     }
 
-    // 3. COMMENTARY - всі параграфи після "Commentary: Gauḍīya-bhāṣya..."
+    // 3. COMMENTARY - paragraphs after the "Commentary: Gauḍīya-bhāṣya" heading
     if (scontent) {
-      const allParagraphs = Array.from(scontent.querySelectorAll("p"));
-      let commentaryStarted = false;
-      const commentaryParagraphs: string[] = [];
+      const commentaryParts: string[] = [];
 
-      allParagraphs.forEach((p) => {
-        const text = p.textContent?.trim() || "";
+      // Prefer heading elements (h2/h3/h4) labeled as Commentary
+      const headers = Array.from(scontent.querySelectorAll("h2, h3, h4"));
+      const headerEl = headers.find((h) => /Commentary:|Gauḍīya-bhāṣya/i.test((h.textContent || "")) ) || null;
 
-        // Шукаємо початок коментаря
-        if (text.includes("Commentary:") || text.includes("Gauḍīya-bhāṣya")) {
-          commentaryStarted = true;
-          // Якщо в тому ж параграфі є текст після "Commentary:", додаємо його
-          const afterCommentary = text.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/)[1];
-          if (afterCommentary && afterCommentary.trim()) {
-            commentaryParagraphs.push(afterCommentary.trim());
+      if (headerEl) {
+        let el: Element | null = headerEl.nextElementSibling;
+        while (el) {
+          const text = (el.textContent || "").trim();
+          if (!text) { el = el.nextElementSibling; continue; }
+
+          // Stop at navigation/other sections or next major heading
+          if (/^English translation/i.test(text)) break;
+          if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+          if (/^Commentary:/i.test(text) && el !== headerEl) break;
+          if (/^Verse\s+\d/i.test(text)) break;
+          if (/^(References|Notes|Further reading)/i.test(text)) break;
+
+          const tag = el.tagName.toLowerCase();
+          if (tag === 'p') {
+            commentaryParts.push(text);
+          } else if (tag === 'ul' || tag === 'ol') {
+            const lis = Array.from(el.querySelectorAll('li')).map(li => (li.textContent || '').trim()).filter(Boolean);
+            if (lis.length) commentaryParts.push(lis.join('\n'));
           }
-          return;
-        }
 
-        // Якщо коментар почався, додаємо всі наступні параграфи
-        if (commentaryStarted && text.length > 0) {
-          // Виключаємо навігаційні елементи
-          if (!text.includes("Previous") && !text.includes("Next") && !text.includes("Like what you read?")) {
-            commentaryParagraphs.push(text);
+          const next = el.nextElementSibling;
+          if (next && /^(H2|H3|H4)$/.test(next.tagName)) {
+            const nextText = (next.textContent || '').trim();
+            if (/^\s*(Translation|Commentary|References|Notes)\b/i.test(nextText)) break;
+          }
+
+          el = el.nextElementSibling;
+        }
+      } else {
+        // Fallback: header as a paragraph containing "Commentary:"
+        const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
+        const startIdx = ps.findIndex((p) => /Commentary:|Gauḍīya-bhāṣya/i.test((p.textContent || "")));
+        if (startIdx >= 0) {
+          const headerText = (ps[startIdx].textContent || '').trim();
+          const afterHeader = headerText.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/i)[1];
+          if (afterHeader && afterHeader.trim()) commentaryParts.push(afterHeader.trim());
+
+          for (let i = startIdx + 1; i < ps.length; i++) {
+            const text = (ps[i].textContent || '').trim();
+            if (!text) continue;
+            if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+            if (/^English translation/i.test(text)) break;
+            if (/^Commentary:/i.test(text)) break;
+            commentaryParts.push(text);
           }
         }
-      });
+      }
 
-      if (commentaryParagraphs.length > 0) {
-        verse.commentary_en = commentaryParagraphs.join("\n\n");
+      if (commentaryParts.length > 0) {
+        verse.commentary_en = commentaryParts.join("\n\n");
       }
     }
 
@@ -310,13 +369,25 @@ export function extractWisdomlibChapterUrls(
       const text = link.textContent?.trim() || "";
 
       // Пропускаємо не-глави
-      if (
-        text.toLowerCase().includes("introduction") ||
-        text.toLowerCase().includes("preface") ||
-        text.toLowerCase().includes("index")
-      ) {
-        return;
+      const lower = text.toLowerCase();
+      if (lower.includes("introduction") || lower.includes("preface") || lower.includes("index")) return;
+
+      // Беремо контекст з батьківського елемента (li, p, div) — там часто є номер
+      const parent = link.closest("li, p, div");
+      const context = parent?.textContent?.trim() || "";
+
+      // Варіанти визначення номера глави:
+      // 1) "Chapter 1" або "Adhyāya 1"
+      // 2) "1. ..." або "1 – ..." на початку рядка
+      let chapterNumber: number | null = null;
+      const r1 = text.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i) || context.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i);
+      if (r1) {
+        chapterNumber = parseInt(r1[1], 10);
+      } else {
+        const r2 = text.match(/^\s*(\d+)\s*[.:\-–]\s+/) || context.match(/^\s*(\d+)\s*[.:\-–]\s+/);
+        if (r2) chapterNumber = parseInt(r2[1], 10);
       }
+      if (chapterNumber === null) return;
 
       // Беремо контекст з батьківського елемента (li, p, div)
       const parent = link.closest("li, p, div");
@@ -359,13 +430,11 @@ export function extractWisdomlibChapterUrls(
         fullUrl = baseUrl.replace(/\/$/, "") + "/" + href;
       }
 
-      chapters.push({
-        url: fullUrl,
-        title: text,
-        chapterNumber,
-        khanda,
-      });
+      chapters.push({ url: fullUrl, title: text, chapterNumber, khanda });
     });
+
+    // Сортуємо за номером глави
+    chapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
 
     console.log(`✅ Found ${chapters.length} chapters`);
     return chapters;

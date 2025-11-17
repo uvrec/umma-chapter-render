@@ -3,8 +3,8 @@
 // + VerseNumberEditor для мануального редагування номерів віршів адміністратором
 // + STICKY HEADER для верхньої панелі
 
-import { useState } from "react";
-import { Play, Pause, Edit, Save, X, Volume2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,10 @@ import { useAudio } from "@/contexts/ModernAudioContext";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
+import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
+import { toast } from "sonner";
+import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
    Типи пропсів
@@ -36,7 +40,6 @@ interface VerseCardProps {
   start_verse?: number;
   end_verse?: number;
   verse_count?: number;
-
   textDisplaySettings?: {
     showSanskrit: boolean;
     showTransliteration: boolean;
@@ -148,15 +151,14 @@ export const VerseCard = ({
     ua: {
       synonyms: 'Послівний переклад',
       translation: 'Літературний переклад',
-      commentary: 'Пояснення',
+      commentary: 'Пояснення'
     },
     en: {
       synonyms: 'Synonyms',
       translation: 'Translation',
-      commentary: 'Purport',
-    },
+      commentary: 'Purport'
+    }
   };
-
   const labels = blockLabels[language];
   const {
     playTrack,
@@ -173,6 +175,12 @@ export const VerseCard = ({
     commentary
   });
   const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
+
+  // ✨ ВАЖЛИВО: Обробка санскриту для автоматичних розривів рядків
+  // Конвертує | (pipe) на \n для правильного відображення
+  const processedSanskrit = useMemo(() => {
+    return addSanskritLineBreaks(sanskritText);
+  }, [sanskritText]);
 
   // Функція для відтворення конкретної секції
   const playSection = (section: string, audioSrc?: string) => {
@@ -219,29 +227,28 @@ export const VerseCard = ({
   };
   const synonymPairs = textDisplaySettings.showSynonyms ? parseSynonyms(isEditing ? edited.synonyms : synonyms) : [];
   return <Card className={`verse-surface w-full animate-fade-in ${flowMode ? 'border-0 shadow-none' : 'border-gray-100 shadow-sm dark:border-border'} bg-card`}>
-      <div className={flowMode ? "py-6" : "p-6"} style={{ fontSize: `${fontSize}px`, lineHeight }}>
+      <div className={flowMode ? "py-6" : "p-6"} style={{
+      fontSize: `${fontSize}px`,
+      lineHeight
+    }}>
         {/* 🆕 STICKY HEADER - Верхня панель: номер/книга + кнопка редагування */}
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm border-b border-border pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
+        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-wrap items-center gap-3">
               {/* Якщо адмін — показуємо VerseNumberEditor */}
-              {showNumbers && (
-                isAdmin && verseId ? <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} /> : <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
+              {showNumbers && (isAdmin && verseId ? <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} /> : <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
                     <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-                  </div>
-              )}
+                  </div>)}
 
               {/* ✅ ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
-              {isAdmin && is_composite && verse_count && start_verse && end_verse && (
-                <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
+              {isAdmin && is_composite && verse_count && start_verse && end_verse && <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
                   <span>
                     Складений вірш: {verse_count} {verse_count === 1 ? 'вірш' : verse_count < 5 ? 'вірші' : 'віршів'} ({start_verse}-{end_verse})
                   </span>
-                </div>
-              )}
+                </div>}
 
               {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
             </div>
@@ -276,8 +283,8 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.sanskrit} onChange={e => setEdited(p => ({
           ...p,
           sanskrit: e.target.value
-        }))} className="min-h-[100px] text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground" /> : <p className="whitespace-pre-line text-center font-sanskrit text-[1.78em] leading-[1.8] text-gray-700 dark:text-foreground">
-                {sanskritText}
+        }))} className="min-h-[100px] text-center sanskrit-text" /> : <p className="whitespace-pre-line text-center sanskrit-text">
+                {processedSanskrit}
               </p>}
           </div>}
 
@@ -286,18 +293,22 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.transliteration} onChange={e => setEdited(p => ({
           ...p,
           transliteration: e.target.value
-        }))} className="min-h-[80px] text-center font-sanskrit-italic italic text-4xl text-muted-foreground" /> : <div className="space-y-1 text-center">
-                {transliteration.split("\n").map((line, idx) => <p key={idx} className="font-sanskrit-italic italic leading-relaxed text-muted-foreground text-4xl font-semibold">
+        }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
+          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+        }} /> : <div className="space-y-1 text-center">
+                {transliteration.split("\n").map((line, idx) => <p key={idx} style={{
+            fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+          }} className="iast-text text-muted-foreground">
                     {line}
                   </p>)}
               </div>}
           </div>}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6 border-t border-border pt-6">
+        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] font-bold text-foreground">{labels.synonyms}</h4>
+            <div className="section-header flex items-center justify-center gap-4">
+              <h4 className="text-foreground">{labels.synonyms}</h4>
               <button onClick={() => playSection("Послівний переклад", audioSynonyms)} disabled={!audioSynonyms && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати послівний переклад">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -306,17 +317,40 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.synonyms} onChange={e => setEdited(p => ({
           ...p,
           synonyms: e.target.value
-        }))} className="min-h-[120px] text-4xl" /> : <p className="leading-relaxed text-foreground text-4xl">
+        }))} className="min-h-[120px] synonyms-text" /> : <p className="synonyms-text text-foreground text-2xl text-center">
                 {synonymPairs.length === 0 ? <span className="text-muted-foreground">{synonyms}</span> : synonymPairs.map((pair, i) => {
             const words = pair.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
-            return <span key={i}>
-                        {words.map((w, wi) => <span key={wi}>
-                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
+
+            // Handler for adding word to learning
+            const handleAddToLearning = (word: string, meaning: string) => {
+              const added = addLearningWord({
+                script: word,
+                iast: word,
+                ukrainian: meaning,
+                meaning: meaning,
+                book: bookName,
+                verseReference: verseNumber
+              });
+              if (added) {
+                toast.success(`Додано до вивчення: ${word}`);
+              } else {
+                toast.info(`Слово вже в списку: ${word}`);
+              }
+            };
+            return <span key={i} className="inline-flex items-center gap-1 flex-wrap text-justify">
+                        {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-1">
+                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-justify">
                               {w}
                             </span>
                             {wi < words.length - 1 && " "}
                           </span>)}
-                        {pair.meaning && <span> — {pair.meaning}</span>}
+                        {pair.meaning && <span className="text-justify"> — {pair.meaning}</span>}
+                        <button onClick={e => {
+                e.stopPropagation();
+                handleAddToLearning(pair.term, pair.meaning || "");
+              }} title="Додати до вивчення" aria-label={`Додати "${pair.term}" до вивчення`} className="inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm">
+                          <GraduationCap className={`h-4 w-4 ${isWordInLearningList(pair.term) ? 'text-green-600' : 'text-muted-foreground group-hover:text-primary'}`} />
+                        </button>
                         {i < synonymPairs.length - 1 && <span>; </span>}
                       </span>;
           })}
@@ -324,10 +358,10 @@ export const VerseCard = ({
           </div>}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6 border-t border-border pt-6">
+        {textDisplaySettings.showTranslation && (isEditing || translation) && <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] font-bold text-foreground">{labels.translation}</h4>
+            <div className="section-header flex items-center justify-center gap-4">
+              <h4 className="text-foreground font-serif">{labels.translation}</h4>
               <button onClick={() => playSection("Літературний переклад", audioTranslation)} disabled={!audioTranslation && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати переклад">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -336,14 +370,14 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] text-4xl font-semibold" /> : <p className="leading-relaxed text-foreground font-semibold text-4xl">{translation}</p>}
+        }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold font-serif text-justify">{translation}</p>}
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (isEditing || commentary) && <div className="border-t border-border pt-6">
+        {textDisplaySettings.showCommentary && (isEditing || commentary) && <div>
             {/* Заголовок + кнопка Volume2 */}
-            <div className="mb-4 flex items-center justify-center gap-4">
-              <h4 className="text-[1.17em] text-foreground font-extrabold">{labels.commentary}</h4>
+            <div className="section-header flex items-center justify-center gap-4">
+              <h4 className="text-foreground font-serif">{labels.commentary}</h4>
               <button onClick={() => playSection("Пояснення", audioCommentary)} disabled={!audioCommentary && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати пояснення">
                 <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
@@ -352,7 +386,7 @@ export const VerseCard = ({
             {isEditing ? <InlineTiptapEditor content={edited.commentary} onChange={html => setEdited(p => ({
           ...p,
           commentary: html
-        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="text-4xl leading-relaxed" />}
+        }))} label="Редагувати коментар" /> : <TiptapRenderer content={commentary || ""} className="commentary-text" />}
           </div>}
       </div>
     </Card>;

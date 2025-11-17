@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,14 +20,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Breadcrumbs, BreadcrumbItem } from "@/components/admin/Breadcrumbs";
 
 const Verses = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [selectedBookId, setSelectedBookId] = useState<string>("");
-  const [selectedCantoId, setSelectedCantoId] = useState<string>("");
-  const [selectedChapterId, setSelectedChapterId] = useState<string>("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize state from URL params or empty
+  const [selectedBookId, setSelectedBookId] = useState<string>(searchParams.get("bookId") || "");
+  const [selectedCantoId, setSelectedCantoId] = useState<string>(searchParams.get("cantoId") || "");
+  const [selectedChapterId, setSelectedChapterId] = useState<string>(searchParams.get("chapterId") || "");
   const [deleteVerseId, setDeleteVerseId] = useState<{ id: string; verseNumber: string } | null>(null);
   const [selectedVerses, setSelectedVerses] = useState<Set<string>>(new Set());
   const [bulkDeleteMode, setBulkDeleteMode] = useState(false);
@@ -39,6 +43,15 @@ const Verses = () => {
       navigate("/auth");
     }
   }, [user, isAdmin, navigate]);
+
+  // Sync URL params when selection changes
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedBookId) params.set("bookId", selectedBookId);
+    if (selectedCantoId) params.set("cantoId", selectedCantoId);
+    if (selectedChapterId) params.set("chapterId", selectedChapterId);
+    setSearchParams(params, { replace: true });
+  }, [selectedBookId, selectedCantoId, selectedChapterId, setSearchParams]);
 
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
@@ -99,7 +112,7 @@ const Verses = () => {
         .select("*")
         .eq("chapter_id", selectedChapterId)
         .is("deleted_at", null)
-        .order("verse_number_sort", { ascending: true });
+        .order("sort_key", { ascending: true });
       if (error) throw error;
       return data || [];
     },
@@ -271,7 +284,13 @@ const Verses = () => {
               )}
               {selectedChapterId && (
                 <Button asChild>
-                  <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
+                  <Link
+                    to={`/admin/verses/new?${new URLSearchParams({
+                      chapterId: selectedChapterId,
+                      ...(selectedBookId && { bookId: selectedBookId }),
+                      ...(selectedCantoId && { cantoId: selectedCantoId }),
+                    }).toString()}`}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Додати вірш
                   </Link>
@@ -283,6 +302,28 @@ const Verses = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Breadcrumbs */}
+        {(() => {
+          const breadcrumbs: BreadcrumbItem[] = [{ label: "Вірші", href: "/admin/verses" }];
+
+          const selectedBookData = books?.find((b) => b.id === selectedBookId);
+          if (selectedBookData) {
+            breadcrumbs.push({ label: selectedBookData.title_ua });
+          }
+
+          const selectedCantoData = cantos?.find((c) => c.id === selectedCantoId);
+          if (selectedCantoData) {
+            breadcrumbs.push({ label: `Пісня ${selectedCantoData.canto_number}` });
+          }
+
+          const selectedChapterData = chapters?.find((ch) => ch.id === selectedChapterId);
+          if (selectedChapterData) {
+            breadcrumbs.push({ label: `Розділ ${selectedChapterData.chapter_number}` });
+          }
+
+          return breadcrumbs.length > 1 ? <Breadcrumbs items={breadcrumbs} /> : null;
+        })()}
+
         <div className="space-y-4 mb-6">
           <div>
             <label className="text-sm font-medium mb-2 block">Оберіть книгу</label>
@@ -464,8 +505,14 @@ const Verses = () => {
                             {verse.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </Button>
                           <Button size="sm" variant="outline" asChild>
-                            <Link to={`/admin/verses/${verse.id}/edit`}>
-                              <Edit className="w-4 h-4" />
+                            <Link
+                              to={`/admin/verses/${verse.id}/edit?${new URLSearchParams({
+                                ...(selectedBookId && { bookId: selectedBookId }),
+                                ...(selectedCantoId && { cantoId: selectedCantoId }),
+                                ...(selectedChapterId && { chapterId: selectedChapterId }),
+                              }).toString()}`}
+                            >
+                              <Edit className="w-4 w-4" />
                             </Link>
                           </Button>
                           <Button

@@ -34,11 +34,16 @@ import {
   wisdomlibChapterToStandardChapter,
   WisdomlibChapter,
 } from "@/utils/wisdomlibParser";
+import {
+  parseRajaVidyaEPUB,
+  parseRajaVidyaVedabase,
+  mergeRajaVidyaChapters,
+} from "@/utils/rajaVidyaParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
 import { extractTextFromPDF } from "@/utils/import/pdf";
-import { extractTextFromEPUB } from "@/utils/import/epub";
+import { extractTextFromEPUB, extractHTMLFromEPUB } from "@/utils/import/epub";
 import { extractTextFromDOCX } from "@/utils/import/docx";
 import { splitIntoChapters } from "@/utils/import/splitters";
 import { BOOK_TEMPLATES, ImportTemplate } from "@/types/book-import";
@@ -874,11 +879,23 @@ export default function UniversalImportFixed() {
 
           // Fallback: browser парсинг (спрощена версія)
           if (!result) {
-            // Тут мала б бути повна логіка browser парсингу
-            // Для спрощення можемо пропустити або викликати спрощену версію
-            throw new Error("Browser fallback not implemented for batch import");
-          }
+            const chapterUrl = bookInfo.isMultiVolume
+              ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+              : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
 
+            const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
+
+            if (!chapterData?.html) {
+              throw new Error("Failed to fetch chapter HTML from Vedabase");
+            }
+
+            // Парсимо Vedabase сторінку
+            result = parseVedabaseCC(chapterData.html, chapterUrl);
+
+            if (!result || !result.verses || result.verses.length === 0) {
+              throw new Error("Failed to parse chapter from Vedabase");
+            }
+          }
           // Нормалізуємо та зберігаємо
           if (!result?.chapter_number) result.chapter_number = chapterNum;
           if (!result?.chapter_type) result.chapter_type = "verses";
@@ -1389,7 +1406,13 @@ export default function UniversalImportFixed() {
           extractedText = await extractTextFromPDF(file);
         } else if (file.type === "application/epub+zip" || ext === "epub") {
           toast({ title: "Обробка EPUB..." });
-          extractedText = await extractTextFromEPUB(file);
+          // ✅ Для Raja Vidya використовуємо extractHTMLFromEPUB (зберігає структуру)
+          if (selectedTemplate === "raja-vidya") {
+            extractedText = await extractHTMLFromEPUB(file);
+            console.log("📚 [Raja Vidya] Використано extractHTMLFromEPUB для збереження HTML структури");
+          } else {
+            extractedText = await extractTextFromEPUB(file);
+          }
         } else if (
           ext === "docx" ||
           file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -1459,8 +1482,27 @@ export default function UniversalImportFixed() {
         console.log("📖 Парсинг з шаблоном:", template.name);
         console.log("📝 Текст довжина:", textToParse.length);
 
-        // Парсити розділи
-        const chapters = splitIntoChapters(textToParse, template);
+        let chapters: any[] = [];
+
+        // ✅ Спеціальна обробка для Raja Vidya (текстова книга з HTML структурою)
+        if (template.id === "raja-vidya") {
+          console.log("🔍 [Raja Vidya] Використовую спеціалізований парсер для EPUB HTML");
+          const rajaVidyaChapters = parseRajaVidyaEPUB(textToParse);
+
+          // Конвертуємо в стандартний формат ParsedChapter
+          chapters = rajaVidyaChapters.map((ch) => ({
+            chapter_number: ch.chapter_number,
+            chapter_type: 'text' as const,
+            title_ua: ch.title_ua,
+            verses: [],
+            content_ua: ch.content_ua,
+          }));
+
+          console.log(`✅ [Raja Vidya] Розпарсено ${chapters.length} глав`);
+        } else {
+          // Стандартний парсинг для інших книг
+          chapters = splitIntoChapters(textToParse, template);
+        }
 
         console.log("✅ Знайдено розділів:", chapters.length);
 
@@ -1477,9 +1519,17 @@ export default function UniversalImportFixed() {
         setParsedChapters(chapters);
         setSelectedChapterIndex(0);
 
+        // Для текстових глав - рахуємо символи замість віршів
+        const totalVerses = chapters.reduce((sum, ch) => sum + ch.verses.length, 0);
+        const totalChars = chapters.reduce((sum, ch) => sum + (ch.content_ua?.length || 0), 0);
+
+        const description = totalVerses > 0
+          ? `Знайдено ${chapters.length} розділ(ів), ${totalVerses} віршів`
+          : `Знайдено ${chapters.length} розділ(ів), ${totalChars} символів`;
+
         toast({
           title: "✅ Парсинг завершено",
-          description: `Знайдено ${chapters.length} розділ(ів), ${chapters.reduce((sum, ch) => sum + ch.verses.length, 0)} віршів`,
+          description,
         });
 
         setProgress(100);
@@ -1498,6 +1548,129 @@ export default function UniversalImportFixed() {
     },
     [fileText, selectedTemplate],
   );
+
+  /** Імпорт Raja Vidya з двох мов (UA з файлу + EN з Vedabase) */
+  const handleRajaVidyaDualImport = useCallback(async () => {
+    if (parsedChapters.length === 0) {
+      toast({ title: "Помилка", description: "Спочатку завантажте EPUB файл з українською версією", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+    setProgress(10);
+
+    try {
+      const bookInfo = getBookConfigByVedabaseSlug('rv');
+      if (!bookInfo) {
+        throw new Error("Конфігурація книги Raja Vidya не знайдена");
+      }
+
+      toast({ title: "📚 Raja Vidya", description: "Завантаження англійських глав з Vedabase..." });
+
+      const mergedChapters: any[] = [];
+      const totalChapters = parsedChapters.length;
+
+      for (let i = 0; i < parsedChapters.length; i++) {
+        const uaChapter = parsedChapters[i];
+        const chapterNum = uaChapter.chapter_number;
+
+        setProgress(10 + Math.round((i / totalChapters) * 40));
+        toast({
+          title: `Глава ${chapterNum}/${totalChapters}`,
+          description: `Завантаження англійської версії...`
+        });
+
+        // Завантажуємо англійську версію з Vedabase
+        const vedabaseUrl = `https://vedabase.io/en/library/rv/${chapterNum}/`;
+        let enChapter = null;
+
+        try {
+          const { data, error } = await supabase.functions.invoke("fetch-html", {
+            body: { url: vedabaseUrl }
+          });
+
+          if (error) {
+            console.warn(`⚠️ Помилка завантаження EN для глави ${chapterNum}:`, error);
+          } else if (data?.html) {
+            enChapter = parseRajaVidyaVedabase(data.html, vedabaseUrl);
+          }
+        } catch (err) {
+          console.warn(`⚠️ Виключення при завантаженні EN для глави ${chapterNum}:`, err);
+        }
+
+        // Об'єднуємо UA та EN
+        const merged = mergeRajaVidyaChapters(
+          {
+            chapter_number: uaChapter.chapter_number,
+            title_ua: uaChapter.title_ua,
+            content_ua: uaChapter.content_ua || '',
+          },
+          enChapter
+        );
+
+        if (merged) {
+          mergedChapters.push(merged);
+          console.log(`✅ Глава ${chapterNum}: UA (${merged.content_ua?.length || 0} chars) + EN (${merged.content_en?.length || 0} chars)`);
+        }
+
+        // Невелика затримка між запитами
+        if (i < parsedChapters.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
+
+      if (mergedChapters.length === 0) {
+        throw new Error("Не вдалося об'єднати жодної глави");
+      }
+
+      setProgress(60);
+      toast({
+        title: "✅ Завантаження завершено",
+        description: `Об'єднано ${mergedChapters.length} глав. Збереження...`
+      });
+
+      // Створюємо ImportData для збереження
+      const newImport: ImportData = {
+        source: "vedabase",
+        rawText: "",
+        processedText: JSON.stringify(mergedChapters, null, 2),
+        chapters: mergedChapters,
+        metadata: {
+          title_ua: bookInfo.name_ua,
+          title_en: bookInfo.name_en,
+          author: bookInfo.author || 'A. C. Bhaktivedanta Swami Prabhupada',
+          book_slug: bookInfo.our_slug,
+          vedabase_slug: bookInfo.vedabaseSlug || 'rv',
+          source_url: 'https://vedabase.io/en/library/rv/',
+        },
+      };
+
+      setImportData(newImport);
+      setProgress(80);
+
+      // Зберігаємо в БД
+      await saveToDatabase(newImport);
+
+      setProgress(100);
+      toast({
+        title: "🎉 Імпорт завершено!",
+        description: `Raja Vidya: ${mergedChapters.length} глав успішно імпортовано (UA + EN)`,
+        duration: 5000,
+      });
+
+    } catch (err: any) {
+      console.error("Помилка імпорту Raja Vidya:", err);
+      toast({
+        title: "Помилка імпорту",
+        description: err?.message || "Невідома помилка",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parsedChapters]);
 
   /** Імпорт розділу з файлу */
   const handleFileChapterImport = useCallback(async () => {
@@ -2144,6 +2317,27 @@ export default function UniversalImportFixed() {
                         <CheckCircle className="w-4 h-4 mr-2" />
                         Імпортувати обраний розділ
                       </Button>
+
+                      {/* ✨ Спеціальна кнопка для Raja Vidya - двомовний імпорт */}
+                      {selectedTemplate === "raja-vidya" && (
+                        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                            📚 Raja Vidya: Двомовний імпорт
+                          </h4>
+                          <p className="text-xs text-blue-800 dark:text-blue-200 mb-3">
+                            Автоматично завантажить англійські версії всіх глав з Vedabase та об'єднає з українським
+                            перекладом з файлу.
+                          </p>
+                          <Button
+                            onClick={handleRajaVidyaDualImport}
+                            disabled={isProcessing}
+                            className="w-full bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Globe className="w-4 h-4 mr-2" />
+                            Імпортувати ВСІ глави (UA з файлу + EN з Vedabase)
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

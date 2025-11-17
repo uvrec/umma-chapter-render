@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, Upload, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
-import { Progress } from "@/components/ui/progress";
+import { AudioUploader } from "@/components/admin/shared/AudioUploader";
+import { Breadcrumbs, BreadcrumbItem } from "@/components/admin/Breadcrumbs";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -22,21 +22,30 @@ export default function AddEditVerse() {
   const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
-  const [selectedBookId, setSelectedBookId] = useState("");
-  const [selectedCantoId, setSelectedCantoId] = useState("");
+  const [selectedBookId, setSelectedBookId] = useState(searchParams.get("bookId") || "");
+  const [selectedCantoId, setSelectedCantoId] = useState(searchParams.get("cantoId") || "");
   const [chapterId, setChapterId] = useState(searchParams.get("chapterId") || "");
   const [verseNumber, setVerseNumber] = useState("");
-  const [sanskrit, setSanskrit] = useState("");
-  const [transliteration, setTransliteration] = useState("");
+  const [sanskritUa, setSanskritUa] = useState("");
+  const [sanskritEn, setSanskritEn] = useState("");
+  const [transliterationUa, setTransliterationUa] = useState("");
+  const [transliterationEn, setTransliterationEn] = useState("");
   const [synonymsUa, setSynonymsUa] = useState("");
   const [synonymsEn, setSynonymsEn] = useState("");
   const [translationUa, setTranslationUa] = useState("");
   const [translationEn, setTranslationEn] = useState("");
   const [commentaryUa, setCommentaryUa] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
-  const [audioUrl, setAudioUrl] = useState("");
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
+
+  // Audio URLs - simplified structure (4 fields)
+  const [audioUrl, setAudioUrl] = useState(""); // Legacy field
+  const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState(""); // PRIMARY: complete verse (95% use case)
+  const [recitationAudioUrl, setRecitationAudioUrl] = useState(""); // Sanskrit + Transliteration
+  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState(""); // Synonyms + Translation + Commentary UA
+  const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState(""); // EN version
+
+  // UI state for collapsible advanced audio section
+  const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -133,15 +142,30 @@ export default function AddEditVerse() {
     if (verse) {
       setChapterId(verse.chapter_id);
       setVerseNumber(verse.verse_number);
-      setSanskrit(verse.sanskrit || "");
-      setTransliteration(verse.transliteration || "");
+      setSanskritUa(verse.sanskrit_ua || "");
+      setSanskritEn(verse.sanskrit_en || "");
+      setTransliterationUa(verse.transliteration_ua || "");
+      setTransliterationEn(verse.transliteration_en || "");
       setSynonymsUa(verse.synonyms_ua || "");
       setSynonymsEn(verse.synonyms_en || "");
       setTranslationUa(verse.translation_ua || "");
       setTranslationEn(verse.translation_en || "");
       setCommentaryUa(verse.commentary_ua || "");
       setCommentaryEn(verse.commentary_en || "");
+
+      // Legacy audio field
       setAudioUrl(verse.audio_url || "");
+
+      // Simplified dual audio fields (4 fields)
+      setFullVerseAudioUrl(verse.full_verse_audio_url || "");
+      setRecitationAudioUrl(verse.recitation_audio_url || "");
+      setExplanationUaAudioUrl(verse.explanation_ua_audio_url || "");
+      setExplanationEnAudioUrl(verse.explanation_en_audio_url || "");
+
+      // Auto-expand advanced section if any secondary audio exists
+      if (verse.recitation_audio_url || verse.explanation_ua_audio_url || verse.explanation_en_audio_url) {
+        setShowAdvancedAudio(true);
+      }
     }
   }, [verse]);
 
@@ -150,15 +174,24 @@ export default function AddEditVerse() {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
-        sanskrit: sanskrit || null,
-        transliteration: transliteration || null,
+        sanskrit_ua: sanskritUa || null,
+        sanskrit_en: sanskritEn || null,
+        transliteration_ua: transliterationUa || null,
+        transliteration_en: transliterationEn || null,
         synonyms_ua: synonymsUa || null,
         synonyms_en: synonymsEn || null,
         translation_ua: translationUa || null,
         translation_en: translationEn || null,
         commentary_ua: commentaryUa || null,
         commentary_en: commentaryEn || null,
-        audio_url: audioUrl || null,
+
+        // Audio URLs - simplified structure
+        audio_url: audioUrl || null, // Legacy field (kept for compatibility)
+        full_verse_audio_url: fullVerseAudioUrl || null, // PRIMARY audio
+        recitation_audio_url: recitationAudioUrl || null, // Sanskrit + Transliteration
+        explanation_ua_audio_url: explanationUaAudioUrl || null, // UA explanation
+        explanation_en_audio_url: explanationEnAudioUrl || null, // EN explanation
+
         is_published: true,
       };
 
@@ -176,7 +209,13 @@ export default function AddEditVerse() {
         title: id ? "Вірш оновлено" : "Вірш додано",
         description: "Зміни успішно збережено",
       });
-      navigate("/admin/verses");
+
+      // Navigate back with context preserved
+      const params = new URLSearchParams();
+      if (selectedBookId) params.set("bookId", selectedBookId);
+      if (selectedCantoId) params.set("cantoId", selectedCantoId);
+      if (chapterId) params.set("chapterId", chapterId);
+      navigate(`/admin/verses?${params.toString()}`);
     },
     onError: (error) => {
       toast({
@@ -186,81 +225,6 @@ export default function AddEditVerse() {
       });
     },
   });
-
-  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const allowedTypes = ["audio/mpeg", "audio/mp3", "audio/mp4", "audio/m4a", "audio/wav", "audio/ogg", "audio/webm"];
-    if (!allowedTypes.includes(file.type)) {
-      toast({
-        title: "Помилка",
-        description: "Підтримуються тільки аудіо файли (MP3, M4A, WAV, OGG)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-      setUploadProgress(0);
-
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const { error: uploadError } = await supabase.storage.from("verse-audio").upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("verse-audio").getPublicUrl(filePath);
-
-      setAudioUrl(publicUrl);
-      setUploadProgress(100);
-
-      toast({
-        title: "Успіх",
-        description: "Аудіо файл успішно завантажено",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Помилка завантаження",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleRemoveAudio = async () => {
-    if (!audioUrl) return;
-
-    try {
-      const urlParts = audioUrl.split("/verse-audio/");
-      if (urlParts.length > 1) {
-        const filePath = urlParts[1];
-        await supabase.storage.from("verse-audio").remove([filePath]);
-      }
-
-      setAudioUrl("");
-      toast({
-        title: "Успіх",
-        description: "Аудіо файл видалено",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Помилка",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,12 +241,45 @@ export default function AddEditVerse() {
 
   if (!user || !isAdmin) return null;
 
+  // Build breadcrumbs
+  const breadcrumbs: BreadcrumbItem[] = [{ label: "Вірші", href: "/admin/verses" }];
+
+  const selectedBookData = books?.find((b) => b.id === selectedBookId);
+  if (selectedBookData) {
+    breadcrumbs.push({ label: selectedBookData.title_ua });
+  }
+
+  const selectedCantoData = cantos?.find((c) => c.id === selectedCantoId);
+  if (selectedCantoData) {
+    breadcrumbs.push({ label: `Пісня ${selectedCantoData.canto_number}` });
+  }
+
+  const selectedChapterData = chapters?.find((ch) => ch.id === chapterId);
+  if (selectedChapterData) {
+    breadcrumbs.push({ label: `Розділ ${selectedChapterData.chapter_number}` });
+  }
+
+  breadcrumbs.push({ label: id ? `Редагувати вірш ${verseNumber || ""}` : "Новий вірш" });
+
   return (
     <div className="container mx-auto p-6 max-w-4xl pb-32">
-      <Button variant="ghost" onClick={() => navigate("/admin/verses")} className="mb-4">
+      <Button
+        variant="ghost"
+        onClick={() => {
+          const params = new URLSearchParams();
+          if (selectedBookId) params.set("bookId", selectedBookId);
+          if (selectedCantoId) params.set("cantoId", selectedCantoId);
+          if (chapterId) params.set("chapterId", chapterId);
+          navigate(`/admin/verses?${params.toString()}`);
+        }}
+        className="mb-4"
+      >
         <ArrowLeft className="mr-2 h-4 w-4" />
         Назад до віршів
       </Button>
+
+      {/* Breadcrumbs */}
+      {breadcrumbs.length > 1 && <Breadcrumbs items={breadcrumbs} />}
 
       <Card>
         <CardHeader>
@@ -369,35 +366,33 @@ export default function AddEditVerse() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="sanskrit">Санскрит</Label>
-              <Textarea
-                id="sanskrit"
-                value={sanskrit}
-                onChange={(e) => setSanskrit(e.target.value)}
-                placeholder="ॐ नमो भगवते वासुदेवाय..."
-                rows={3}
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Українська колонка */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
 
-            <div>
-              <Label htmlFor="transliteration">Транслітерація</Label>
-              <Textarea
-                id="transliteration"
-                value={transliteration}
-                onChange={(e) => setTransliteration(e.target.value)}
-                placeholder="ом̇ намо бгаґавате ва̄судева̄йа..."
-                rows={3}
-              />
-            </div>
+                <div>
+                  <Label htmlFor="sanskritUa">Санскрит</Label>
+                  <Textarea
+                    id="sanskritUa"
+                    value={sanskritUa}
+                    onChange={(e) => setSanskritUa(e.target.value)}
+                    placeholder="ॐ नमो भगवते वासुदेवाय..."
+                    rows={3}
+                  />
+                </div>
 
-            <Tabs defaultValue="ua" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="ua">Українська</TabsTrigger>
-                <TabsTrigger value="en">English</TabsTrigger>
-              </TabsList>
+                <div>
+                  <Label htmlFor="transliterationUa">Транслітерація</Label>
+                  <Textarea
+                    id="transliterationUa"
+                    value={transliterationUa}
+                    onChange={(e) => setTransliterationUa(e.target.value)}
+                    placeholder="ом̇ намо бгаґавате ва̄судева̄йа..."
+                    rows={3}
+                  />
+                </div>
 
-              <TabsContent value="ua" className="space-y-4">
                 <div>
                   <Label htmlFor="synonymsUa">Синоніми</Label>
                   <Textarea
@@ -408,6 +403,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="translationUa">Переклад</Label>
                   <Textarea
@@ -418,6 +414,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="commentaryUa">Коментар</Label>
                   <InlineTiptapEditor
@@ -426,9 +423,34 @@ export default function AddEditVerse() {
                     label="Коментар українською..."
                   />
                 </div>
-              </TabsContent>
+              </div>
 
-              <TabsContent value="en" className="space-y-4">
+              {/* English колонка */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg border-b pb-2">English</h3>
+
+                <div>
+                  <Label htmlFor="sanskritEn">Sanskrit</Label>
+                  <Textarea
+                    id="sanskritEn"
+                    value={sanskritEn}
+                    onChange={(e) => setSanskritEn(e.target.value)}
+                    placeholder="ॐ नमो भगवते वासुदेवाय..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="transliterationEn">Transliteration</Label>
+                  <Textarea
+                    id="transliterationEn"
+                    value={transliterationEn}
+                    onChange={(e) => setTransliterationEn(e.target.value)}
+                    placeholder="oṁ namo bhagavate vāsudevāya..."
+                    rows={3}
+                  />
+                </div>
+
                 <div>
                   <Label htmlFor="synonymsEn">Synonyms</Label>
                   <Textarea
@@ -439,6 +461,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="translationEn">Translation</Label>
                   <Textarea
@@ -449,6 +472,7 @@ export default function AddEditVerse() {
                     rows={4}
                   />
                 </div>
+
                 <div>
                   <Label htmlFor="commentaryEn">Commentary</Label>
                   <InlineTiptapEditor
@@ -457,58 +481,102 @@ export default function AddEditVerse() {
                     label="Commentary in English..."
                   />
                 </div>
-              </TabsContent>
-            </Tabs>
-
-            <div>
-              <Label htmlFor="audioUrl">Аудіо файл</Label>
-              <div className="space-y-3">
-                {audioUrl ? (
-                  <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
-                    <audio src={audioUrl} controls className="flex-1" />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRemoveAudio}
-                      aria-label="Видалити аудіо"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed rounded-lg p-6 text-center">
-                    <Input
-                      id="audioFile"
-                      type="file"
-                      accept="audio/*"
-                      className="hidden"
-                      onChange={handleAudioUpload}
-                      disabled={isUploading}
-                    />
-                    <Label htmlFor="audioFile" className="cursor-pointer flex flex-col items-center gap-2">
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Натисніть, щоб завантажити аудіо</span>
-                      <span className="text-xs text-muted-foreground">MP3, M4A, WAV, OGG (макс. 50MB)</span>
-                    </Label>
-                  </div>
-                )}
-
-                {isUploading && (
-                  <div className="space-y-2">
-                    <Progress value={uploadProgress} />
-                    <p className="text-sm text-muted-foreground text-center">Завантаження... {uploadProgress}%</p>
-                  </div>
-                )}
-
-                <div className="text-xs text-muted-foreground">Або вставте URL:</div>
-                <Input
-                  id="audioUrlInput"
-                  value={audioUrl}
-                  onChange={(e) => setAudioUrl(e.target.value)}
-                  placeholder="https://example.com/audio.mp3"
-                />
               </div>
+            </div>
+
+            {/* Audio Files Section */}
+            <div className="space-y-6 border-t pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Аудіо файли</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Основне аудіо вірша (лекція/запис)
+                  </p>
+                </div>
+              </div>
+
+              {/* PRIMARY AUDIO - Always visible, prominent */}
+              <AudioUploader
+                label="Повний вірш (лекція)"
+                value={fullVerseAudioUrl}
+                onChange={setFullVerseAudioUrl}
+                primary={true}
+              />
+
+              {/* ADVANCED AUDIO - Collapsible section */}
+              <div className="space-y-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAdvancedAudio(!showAdvancedAudio)}
+                  className="w-full justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      Додаткові аудіо записи
+                    </span>
+                    {(recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                        {[recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {showAdvancedAudio ? "Приховати" : "Показати"}
+                  </span>
+                </Button>
+
+                {showAdvancedAudio && (
+                  <div className="space-y-4 pl-4 border-l-2 border-border">
+                    <p className="text-xs text-muted-foreground">
+                      Окремі аудіо для різних частин вірша (студійні записи)
+                    </p>
+
+                    <AudioUploader
+                      label="Читання санскриту/бенгалі"
+                      value={recitationAudioUrl}
+                      onChange={setRecitationAudioUrl}
+                      compact={true}
+                    />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <AudioUploader
+                        label="Пояснення (українською)"
+                        value={explanationUaAudioUrl}
+                        onChange={setExplanationUaAudioUrl}
+                        compact={true}
+                      />
+
+                      <AudioUploader
+                        label="Explanation (English)"
+                        value={explanationEnAudioUrl}
+                        onChange={setExplanationEnAudioUrl}
+                        compact={true}
+                      />
+                    </div>
+
+                    <p className="text-xs text-muted-foreground italic">
+                      Примітка: Пояснення включає послівний переклад, літературний переклад та коментар
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Legacy Audio Field */}
+              {audioUrl && (
+                <div className="mt-4 p-4 bg-muted/30 border border-dashed rounded-lg">
+                  <Label className="text-xs text-muted-foreground">
+                    Застаріле поле (для сумісності)
+                  </Label>
+                  <Input
+                    value={audioUrl}
+                    onChange={(e) => setAudioUrl(e.target.value)}
+                    placeholder="https://example.com/audio.mp3"
+                    className="mt-2"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4">

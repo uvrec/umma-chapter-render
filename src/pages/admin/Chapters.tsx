@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -328,13 +327,10 @@ export default function Chapters() {
                   />
                 </div>
 
-                <Tabs defaultValue="ua" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="ua">Українська</TabsTrigger>
-                    <TabsTrigger value="en">English</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="ua" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Українська колонка */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
                     <div>
                       <Label htmlFor="titleUa">Назва *</Label>
                       <Input
@@ -345,9 +341,11 @@ export default function Chapters() {
                         required
                       />
                     </div>
-                  </TabsContent>
+                  </div>
 
-                  <TabsContent value="en" className="space-y-4">
+                  {/* English колонка */}
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg border-b pb-2">English</h3>
                     <div>
                       <Label htmlFor="titleEn">Title</Label>
                       <Input
@@ -357,8 +355,8 @@ export default function Chapters() {
                         placeholder="Questions by the Sages"
                       />
                     </div>
-                  </TabsContent>
-                </Tabs>
+                  </div>
+                </div>
 
                 <div className="flex gap-4">
                   <Button type="submit" disabled={addMutation.isPending || updateMutation.isPending}>

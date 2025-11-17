@@ -48,6 +48,8 @@ const DIACRITIC_FIXES: Record<string, string> = {
   ī: "ī", // precomposed i with macron (U+012B -> keep as is)
   ū: "ū", // precomposed u with macron (U+016B -> keep as is)
   ṝ: "ṝ", // precomposed r with dot below and macron
+  ḷ: "ḷ", // precomposed l with dot below -> л̣
+  ḹ: "ḹ", // precomposed l with dot below and macron -> л̣̄
   ṭ: "ṭ", // precomposed t with dot below
   ḍ: "ḍ", // precomposed d with dot below
   ṇ: "ṇ", // precomposed n with dot below
@@ -76,29 +78,29 @@ const WORD_REPLACEMENTS: Record<string, string> = {
   "Чайтан'ї": "Чайтаньї",
   "Чайтан'ю": "Чайтанью",
   "Чайтан'єю": "Чайтаньєю",
-  "чаітанйа": "Чайтанья",
-  "Чаітанйа": "Чайтанья",
-  "чаітанйі": "Чайтаньї",
-  "чаітанйу": "Чайтанью",
-  
+  чаітанйа: "Чайтанья",
+  Чаітанйа: "Чайтанья",
+  чаітанйі: "Чайтаньї",
+  чаітанйу: "Чайтанью",
+
   // Нітьянанда (апостроф ' → м'який знак ь)
   "Ніт'янанда": "Нітьянанда",
   "Ніт'янанди": "Нітьянанди",
   "Ніт'янанді": "Нітьянанді",
   "Ніт'янанду": "Нітьянанду",
   "Ніт'янандою": "Нітьянандою",
-  
+
   // Ґопінатха → Ґопінатха
-  "Ґопінатга": "Ґопінатха",
-  "Ґопінатгу": "Ґопінатху",
-  
+  Ґопінатга: "Ґопінатха",
+  Ґопінатгу: "Ґопінатху",
+
   // Енергія (ґ → г)
-  "енерґія": "енергія",
-  "енерґії": "енергії",
-  "енерґію": "енергію",
-  "енерґією": "енергією",
-  "енерґіями": "енергіями",
-  
+  енерґія: "енергія",
+  енерґії: "енергії",
+  енерґію: "енергію",
+  енерґією: "енергією",
+  енерґіями: "енергіями",
+
   // Санньясі
   "санн'ясі": "санньясі",
   "Санн'ясі": "Санньясі",
@@ -108,16 +110,16 @@ const WORD_REPLACEMENTS: Record<string, string> = {
   "санн'ясою": "саньясою",
   "санн'ясам": "саньясам",
   "санн'ясами": "саньясами",
-  
+
   // Специфічні виправлення
-  "проджджгіта": "проджджхіта",
-  "Проджджгіта": "Проджджхіта",
-  
+  проджджгіта: "проджджхіта",
+  Проджджгіта: "Проджджхіта",
+
   // Інші
-  "Ачйута": "Ачьюта",
-  "Адвайта": "Адваіта",
-  "Джгарікханда": "Джхарікханда",
-  "Пуруши": "Пуруши",
+  Ачйута: "Ачьюта",
+  Адвайта: "Адваіта",
+  Джгарікханда: "Джхарікханда",
+  Пуруши: "Пуруши",
 };
 
 // ============================================================================
@@ -141,7 +143,7 @@ const CONSONANT_CLUSTERS: Record<string, string> = {
   Пг: "Пх",
   Кг: "Кх",
   Чг: "Чх",
-  
+
   // Складні випадки
   джг: "джх",
   Джг: "Джх",
@@ -220,8 +222,8 @@ export function convertIASTtoUkrainian(text: string): string {
     nyo: "нйо",
     nyu: "нйу",
     сch: "ччх",
-    jjh: "жджх",  // ✅ НОВЕ: jjh → жджх (3 символи)
-    "джджг": "жджх", // ✅ НОВЕ: кирилична версія
+    jjh: "жджх", // ✅ НОВЕ: jjh → жджх (3 символи)
+    джджг: "жджх", // ✅ НОВЕ: кирилична версія
 
     // ============ 2 символи ============
     bh: "бг",
@@ -231,8 +233,8 @@ export function convertIASTtoUkrainian(text: string): string {
     ph: "пх",
     kh: "кх",
     ch: "чх",
-    jh: "джх",  // ✅ ОНОВЛЕНО: jh → джх
-    "джг": "джх", // ✅ НОВЕ: кирилична версія джг → джх
+    jh: "джх", // ✅ ОНОВЛЕНО: jh → джх
+    джг: "джх", // ✅ НОВЕ: кирилична версія джг → джх
     sh: "сх",
     kṣ: "кш",
     jñ: "джн̃",
@@ -398,16 +400,12 @@ function removeGitabaseArtifacts(text: string): string {
  */
 function fixApostropheAfterN(text: string): string {
   if (!text) return text;
-  
+
   // Виключення - слова де апостроф після н правильний
-  const exceptions = [
-    "ачар'я", "Ачар'я",
-    "антар'ямі", "Антар'ямі",
-    "антар'ям", "Антар'ям",
-  ];
-  
+  const exceptions = ["ачар'я", "Ачар'я", "антар'ямі", "Антар'ямі", "антар'ям", "Антар'ям"];
+
   let result = text;
-  
+
   // Зберігаємо виключення (заміняємо тимчасовим placeholder)
   const placeholders: Record<string, string> = {};
   exceptions.forEach((exception, idx) => {
@@ -417,15 +415,15 @@ function fixApostropheAfterN(text: string): string {
       result = result.split(exception).join(placeholder);
     }
   });
-  
+
   // Тепер робимо заміну н' → нь
-  result = result.replace(/н'/g, 'нь').replace(/Н'/g, 'Нь');
-  
+  result = result.replace(/н'/g, "нь").replace(/Н'/g, "Нь");
+
   // Відновлюємо виключення
   Object.entries(placeholders).forEach(([placeholder, original]) => {
     result = result.split(placeholder).join(original);
   });
-  
+
   return result;
 }
 
@@ -498,21 +496,81 @@ export function normalizeVerse(verse: any): any {
  */
 const CYRILLIC_TO_LATIN: Record<string, string> = {
   // Українська
-  'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e',
-  'є': 'ye', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y',
-  'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r',
-  'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch',
-  'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu', 'я': 'ya',
+  а: "a",
+  б: "b",
+  в: "v",
+  г: "h",
+  ґ: "g",
+  д: "d",
+  е: "e",
+  є: "ye",
+  ж: "zh",
+  з: "z",
+  и: "y",
+  і: "i",
+  ї: "yi",
+  й: "y",
+  к: "k",
+  л: "l",
+  м: "m",
+  н: "n",
+  о: "o",
+  п: "p",
+  р: "r",
+  с: "s",
+  т: "t",
+  у: "u",
+  ф: "f",
+  х: "kh",
+  ц: "ts",
+  ч: "ch",
+  ш: "sh",
+  щ: "shch",
+  ь: "",
+  ю: "yu",
+  я: "ya",
 
-  'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'H', 'Ґ': 'G', 'Д': 'D', 'Е': 'E',
-  'Є': 'Ye', 'Ж': 'Zh', 'З': 'Z', 'И': 'Y', 'І': 'I', 'Ї': 'Yi', 'Й': 'Y',
-  'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O', 'П': 'P', 'Р': 'R',
-  'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts', 'Ч': 'Ch',
-  'Ш': 'Sh', 'Щ': 'Shch', 'Ь': '', 'Ю': 'Yu', 'Я': 'Ya',
+  А: "A",
+  Б: "B",
+  В: "V",
+  Г: "H",
+  Ґ: "G",
+  Д: "D",
+  Е: "E",
+  Є: "Ye",
+  Ж: "Zh",
+  З: "Z",
+  И: "Y",
+  І: "I",
+  Ї: "Yi",
+  Й: "Y",
+  К: "K",
+  Л: "L",
+  М: "M",
+  Н: "N",
+  О: "O",
+  П: "P",
+  Р: "R",
+  С: "S",
+  Т: "T",
+  У: "U",
+  Ф: "F",
+  Х: "Kh",
+  Ц: "Ts",
+  Ч: "Ch",
+  Ш: "Sh",
+  Щ: "Shch",
+  Ь: "",
+  Ю: "Yu",
+  Я: "Ya",
 
   // Російська (додаткові літери)
-  'ы': 'y', 'э': 'e', 'ъ': '',
-  'Ы': 'Y', 'Э': 'E', 'Ъ': '',
+  ы: "y",
+  э: "e",
+  ъ: "",
+  Ы: "Y",
+  Э: "E",
+  Ъ: "",
 };
 
 /**
@@ -531,15 +589,15 @@ const CYRILLIC_TO_LATIN: Record<string, string> = {
  * // => "Bhaktivinod-Thakur-Vse-moye-zhyttya.mp3"
  */
 export function sanitizeFilename(filename: string, maxLength: number = 200): string {
-  if (!filename) return 'file';
+  if (!filename) return "file";
 
   // Відокремлюємо розширення
-  const lastDotIndex = filename.lastIndexOf('.');
+  const lastDotIndex = filename.lastIndexOf(".");
   const name = lastDotIndex > 0 ? filename.substring(0, lastDotIndex) : filename;
-  const ext = lastDotIndex > 0 ? filename.substring(lastDotIndex) : '';
+  const ext = lastDotIndex > 0 ? filename.substring(lastDotIndex) : "";
 
   // Транслітеруємо кирилицю
-  let result = '';
+  let result = "";
   for (const char of name) {
     if (CYRILLIC_TO_LATIN[char]) {
       result += CYRILLIC_TO_LATIN[char];
@@ -550,10 +608,10 @@ export function sanitizeFilename(filename: string, maxLength: number = 200): str
 
   // Замінюємо пробіли та спецсимволи на дефіси
   result = result
-    .replace(/\s+/g, '-')                    // пробіли → дефіс
-    .replace(/[^\w\-\.]/g, '-')              // спецсимволи → дефіс
-    .replace(/-+/g, '-')                      // множинні дефіси → один
-    .replace(/^-+|-+$/g, '');                 // видаляємо дефіси на початку/кінці
+    .replace(/\s+/g, "-") // пробіли → дефіс
+    .replace(/[^\w\-\.]/g, "-") // спецсимволи → дефіс
+    .replace(/-+/g, "-") // множинні дефіси → один
+    .replace(/^-+|-+$/g, ""); // видаляємо дефіси на початку/кінці
 
   // Обмежуємо довжину (залишаємо місце для розширення)
   const maxNameLength = maxLength - ext.length;
@@ -563,7 +621,7 @@ export function sanitizeFilename(filename: string, maxLength: number = 200): str
 
   // Якщо ім'я порожнє після санітизації
   if (!result) {
-    result = 'file';
+    result = "file";
   }
 
   return result + ext;

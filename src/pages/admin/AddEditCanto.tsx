@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -236,15 +235,12 @@ const AddEditCanto = () => {
                 </div>
               </div>
 
-              <Tabs defaultValue="ua" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="ua">Українська</TabsTrigger>
-                  <TabsTrigger value="en">English</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="ua" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Українська колонка */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
                   <div className="space-y-2">
-                    <Label htmlFor="titleUa">Назва (UA) *</Label>
+                    <Label htmlFor="titleUa">Назва *</Label>
                     <Input
                       id="titleUa"
                       value={titleUa}
@@ -254,7 +250,7 @@ const AddEditCanto = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="descriptionUa">Опис (UA)</Label>
+                    <Label htmlFor="descriptionUa">Опис</Label>
                     <Textarea
                       id="descriptionUa"
                       value={descriptionUa}
@@ -263,11 +259,13 @@ const AddEditCanto = () => {
                       rows={4}
                     />
                   </div>
-                </TabsContent>
+                </div>
 
-                <TabsContent value="en" className="space-y-4">
+                {/* English колонка */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg border-b pb-2">English</h3>
                   <div className="space-y-2">
-                    <Label htmlFor="titleEn">Title (EN) *</Label>
+                    <Label htmlFor="titleEn">Title *</Label>
                     <Input
                       id="titleEn"
                       value={titleEn}
@@ -277,7 +275,7 @@ const AddEditCanto = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="descriptionEn">Description (EN)</Label>
+                    <Label htmlFor="descriptionEn">Description</Label>
                     <Textarea
                       id="descriptionEn"
                       value={descriptionEn}
@@ -286,8 +284,8 @@ const AddEditCanto = () => {
                       rows={4}
                     />
                   </div>
-                </TabsContent>
-              </Tabs>
+                </div>
+              </div>
 
               <div className="flex gap-4">
                 <Button type="submit" disabled={mutation.isPending}>
