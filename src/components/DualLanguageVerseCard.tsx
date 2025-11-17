@@ -389,7 +389,7 @@ export const DualLanguageVerseCard = ({
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => <p key={idx} style={{
                 fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
-              }} className="iast-text text-muted-foreground">
+              }} className="iast-text text-muted-foreground text-3xl">
                         {line}
                       </p>)}
                   </div>}
@@ -405,7 +405,7 @@ export const DualLanguageVerseCard = ({
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => <p key={idx} style={{
                 fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
-              }} className="iast-text text-muted-foreground">
+              }} className="iast-text text-muted-foreground text-3xl font-sans">
                         {line}
                       </p>)}
                   </div>}
