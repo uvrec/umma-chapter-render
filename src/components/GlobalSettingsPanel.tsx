@@ -7,8 +7,11 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAuth } from "@/contexts/AuthContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { AdminTypographyPanel } from "@/components/AdminTypographyPanel";
 
 const MIN_FONT = 12;
 const MAX_FONT = 24;
@@ -92,6 +95,7 @@ export const GlobalSettingsPanel = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const { isAdmin } = useAuth();
 
   // ✅ Використовуємо централізовану responsive систему
   const {
@@ -165,7 +169,13 @@ export const GlobalSettingsPanel = () => {
             <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
           </SheetHeader>
 
-          <div className="space-y-6 pb-6">
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              <TabsTrigger value="general">{t("Загальні", "General")}</TabsTrigger>
+              {isAdmin && <TabsTrigger value="admin">{t("Стилі (Admin)", "Styles (Admin)")}</TabsTrigger>}
+            </TabsList>
+
+            <TabsContent value="general" className="space-y-6 pb-6 mt-6">
             {/* Тема */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Тема оформлення", "Theme")}</Label>
@@ -379,7 +389,15 @@ export const GlobalSettingsPanel = () => {
                 {t("Скинути до початкових", "Reset to Defaults")}
               </Button>
             </div>
-          </div>
+            </TabsContent>
+
+            {/* Admin Typography Panel */}
+            {isAdmin && (
+              <TabsContent value="admin" className="mt-6">
+                <AdminTypographyPanel language={language} />
+              </TabsContent>
+            )}
+          </Tabs>
         </SheetContent>
       </Sheet>
     </>
