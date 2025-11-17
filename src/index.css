@@ -376,6 +376,8 @@ body {
 .prose-reader p,
 .prose-reader li {
   margin: 0.5em 0;
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
 }
 
 /* =========================
