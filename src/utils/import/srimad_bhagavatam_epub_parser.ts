@@ -95,20 +95,20 @@ function parseVerseFromHTML(verseHTML: string, verseNumber: string): ParsedVerse
 
   for (const line of lines) {
     // Пропустити маркери віршів
-    if (/^Вірш\s+\d+/i.test(line)) {
+    if (/^(Вірш|Текст|TEXT)\s+\d+/i.test(line)) {
       continue;
     }
 
-    // Маркери секцій
-    if (/^Послівний переклад/i.test(line)) {
+    // Маркери секцій (підтримка кількох варіантів підписів)
+    if (/^(Послівний переклад|Синоніми|Synonyms)\b/i.test(line)) {
       state = 'synonyms';
       continue;
     }
-    if (/^Переклад$/i.test(line)) {
+    if (/^(Переклад\:?|Translation\:?)/i.test(line)) {
       state = 'translation';
       continue;
     }
-    if (/^Пояснення/i.test(line)) {
+    if (/^(Пояснення|Коментар|Коментарій|Purport)\b/i.test(line)) {
       state = 'commentary';
       continue;
     }
@@ -117,11 +117,11 @@ function parseVerseFromHTML(verseHTML: string, verseNumber: string): ParsedVerse
     if (state === 'sanskrit' && isSanskritText(line)) {
       sanskrit += (sanskrit ? ' ' : '') + line;
     } else if (state === 'sanskrit' && !isSanskritText(line)) {
-      // Після Sanskrit йде transliteration
+      // Після Sanskrit йде transliteration або одразу переклад
       state = 'translit';
-      transliterationUA += line;
+      transliterationUA += (transliterationUA ? ' ' : '') + line;
     } else if (state === 'translit') {
-      transliterationUA += ' ' + line;
+      transliterationUA += (transliterationUA ? ' ' : '') + line;
     } else if (state === 'synonyms') {
       synonymsUA += (synonymsUA ? ' ' : '') + line;
     } else if (state === 'translation') {
