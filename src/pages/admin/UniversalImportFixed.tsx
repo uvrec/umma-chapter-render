@@ -877,11 +877,25 @@ export default function UniversalImportFixed() {
             }
           }
 
-          // Fallback: browser парсинг (спрощена версія)
+          // Fallback: browser парсинг через parseVedabaseCC
           if (!result) {
-            // Тут мала б бути повна логіка browser парсингу
-            // Для спрощення можемо пропустити або викликати спрощену версію
-            throw new Error("Browser fallback not implemented for batch import");
+            // Використовуємо існуючий browser парсер
+            const chapterUrl = bookInfo.isMultiVolume
+              ? `https://vedabase.io/en/library/${vedabaseBook}/${vedabaseCanto}/${chapterNum}/`
+              : `https://vedabase.io/en/library/${vedabaseBook}/${chapterNum}/`;
+
+            const { data: chapterData } = await supabase.functions.invoke("fetch-html", { body: { url: chapterUrl } });
+
+            if (!chapterData?.html) {
+              throw new Error("Failed to fetch chapter HTML from Vedabase");
+            }
+
+            // Парсимо Vedabase сторінку
+            result = parseVedabaseCC(chapterData.html, chapterNum, verseRanges);
+
+            if (!result || !result.verses || result.verses.length === 0) {
+              throw new Error("Failed to parse chapter from Vedabase");
+            }
           }
 
           // Нормалізуємо та зберігаємо
