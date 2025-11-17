@@ -156,9 +156,11 @@ export default {
         primary: "var(--font-primary)",
         translit: "var(--font-translit)",
         sanskrit: "var(--font-devanagari)",
+        "sanskrit-italic": "var(--font-devanagari)", // Додано для підтримки існуючих класів
+        synonyms: "var(--font-synonyms)", // notoSansVedabase кастомна версія
         bengali: "var(--font-bengali)",
         ui: "var(--font-ui)",
-        
+
         // Tailwind стандарт
         sans: ["Montserrat", "ui-sans-serif", "system-ui"],
         serif: ["Crimson Text", "Georgia", "serif"],

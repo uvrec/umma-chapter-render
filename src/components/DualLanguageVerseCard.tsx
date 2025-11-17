@@ -13,6 +13,7 @@ import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
    Типи пропсів
@@ -384,10 +385,10 @@ export const DualLanguageVerseCard = ({
               ...p,
               transliterationUa: e.target.value
             }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
-              fontSize: `${Math.round(fontSize * 1.1)}px`
+              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => <p key={idx} style={{
-                fontSize: `${Math.round(fontSize * 1.1)}px`
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
               }} className="iast-text text-muted-foreground text-3xl">
                         {line}
                       </p>)}
@@ -400,11 +401,11 @@ export const DualLanguageVerseCard = ({
               ...p,
               transliterationEn: e.target.value
             }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
-              fontSize: `${Math.round(fontSize * 1.1)}px`
+              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => <p key={idx} style={{
-                fontSize: `${Math.round(fontSize * 1.1)}px`
-              }} className="iast-text text-muted-foreground text-3xl">
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+              }} className="iast-text text-muted-foreground text-3xl font-sans">
                         {line}
                       </p>)}
                   </div>}
@@ -432,7 +433,7 @@ export const DualLanguageVerseCard = ({
               {/* EN */}
               <div>
                 <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground text-lg font-bold font-sans">Synonyms</h4>
+                  <h4 className="text-foreground font-bold">Synonyms</h4>
                   <button onClick={() => playSection("Synonyms EN", audioSynonymsEn)} disabled={!audioSynonymsEn && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Listen to synonyms EN">
                     <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
                   </button>
@@ -451,7 +452,7 @@ export const DualLanguageVerseCard = ({
               {/* UA */}
               <div>
                 <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground">Літературний переклад</h4>
+                  <h4 className="text-foreground">Переклад</h4>
                   <button onClick={() => playSection("Переклад UA", audioTranslationUa)} disabled={!audioTranslationUa && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати переклад UA">
                     <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
                   </button>
@@ -459,7 +460,7 @@ export const DualLanguageVerseCard = ({
                 {isEditing ? <Textarea value={edited.translationUa} onChange={e => setEdited(p => ({
               ...p,
               translationUa: e.target.value
-            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold">{translationUa}</p>}
+            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold text-justify">{translationUa}</p>}
               </div>
 
               {/* EN */}
@@ -473,7 +474,7 @@ export const DualLanguageVerseCard = ({
                 {isEditing ? <Textarea value={edited.translationEn} onChange={e => setEdited(p => ({
               ...p,
               translationEn: e.target.value
-            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold">{translationEn}</p>}
+            }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>}
               </div>
             </div>
           </div>}

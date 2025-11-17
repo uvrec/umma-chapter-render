@@ -15,6 +15,7 @@ import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
    Типи пропсів
@@ -293,11 +294,11 @@ export const VerseCard = ({
           ...p,
           transliteration: e.target.value
         }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
-          fontSize: `${Math.round(fontSize * 1.1)}px`
+          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
         }} /> : <div className="space-y-1 text-center">
                 {transliteration.split("\n").map((line, idx) => <p key={idx} style={{
-            fontSize: `${Math.round(fontSize * 1.1)}px`
-          }} className="iast-text text-muted-foreground text-2xl">
+            fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+          }} className="iast-text text-muted-foreground">
                     {line}
                   </p>)}
               </div>}
@@ -338,12 +339,12 @@ export const VerseCard = ({
             };
             return <span key={i} className="inline-flex items-center gap-1 flex-wrap">
                         {words.map((w, wi) => <span key={wi} className="inline-flex items-center gap-1">
-                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50" title="Відкрити у глосарії">
+                            <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer font-sanskrit-italic italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-justify">
                               {w}
                             </span>
                             {wi < words.length - 1 && " "}
                           </span>)}
-                        {pair.meaning && <span> — {pair.meaning}</span>}
+                        {pair.meaning && <span className="text-justify"> — {pair.meaning}</span>}
                         <button onClick={e => {
                 e.stopPropagation();
                 handleAddToLearning(pair.term, pair.meaning || "");
@@ -369,7 +370,7 @@ export const VerseCard = ({
             {isEditing ? <Textarea value={edited.translation} onChange={e => setEdited(p => ({
           ...p,
           translation: e.target.value
-        }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold font-serif text-center">{translation}</p>}
+        }))} className="min-h-[100px] prose-reader font-semibold" /> : <p className="prose-reader text-foreground font-semibold font-serif text-justify">{translation}</p>}
           </div>}
 
         {/* Пояснення з окремою кнопкою Volume2 */}

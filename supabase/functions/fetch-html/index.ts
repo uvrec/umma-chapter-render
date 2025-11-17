@@ -39,11 +39,15 @@ async function fetchWithRetry(url: string, host: string, maxAttempts = 3, timeou
     try {
       const res = await fetch(url, {
         headers: {
-          "User-Agent": "VedavoiceFetcher/1.0 (+https://vedavoice.app)",
-          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "Connection": "close"
+          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9,uk;q=0.8",
+          "Referer": "https://vedabase.io/",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive"
         },
-        signal: controller.signal
+        signal: controller.signal,
+        redirect: 'follow'
       });
 
       clearTimeout(timeoutId);
