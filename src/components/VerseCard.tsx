@@ -15,6 +15,7 @@ import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
    Типи пропсів
@@ -293,11 +294,11 @@ export const VerseCard = ({
           ...p,
           transliteration: e.target.value
         }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
-          fontSize: `${Math.round(fontSize * 1.1)}px`
+          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
         }} /> : <div className="space-y-1 text-center">
                 {transliteration.split("\n").map((line, idx) => <p key={idx} style={{
-            fontSize: `${Math.round(fontSize * 1.1)}px`
-          }} className="iast-text text-muted-foreground text-2xl">
+            fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+          }} className="iast-text text-muted-foreground">
                     {line}
                   </p>)}
               </div>}

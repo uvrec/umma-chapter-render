@@ -13,6 +13,7 @@ import { InlineTiptapEditor } from "@/components/InlineTiptapEditor";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
    Типи пропсів
@@ -384,11 +385,11 @@ export const DualLanguageVerseCard = ({
               ...p,
               transliterationUa: e.target.value
             }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
-              fontSize: `${Math.round(fontSize * 1.1)}px`
+              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => <p key={idx} style={{
-                fontSize: `${Math.round(fontSize * 1.1)}px`
-              }} className="iast-text text-muted-foreground text-4xl">
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+              }} className="iast-text text-muted-foreground">
                         {line}
                       </p>)}
                   </div>}
@@ -400,11 +401,11 @@ export const DualLanguageVerseCard = ({
               ...p,
               transliterationEn: e.target.value
             }))} className="min-h-[80px] text-center iast-text text-muted-foreground" style={{
-              fontSize: `${Math.round(fontSize * 1.1)}px`
+              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
             }} /> : <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => <p key={idx} style={{
-                fontSize: `${Math.round(fontSize * 1.1)}px`
-              }} className="iast-text text-muted-foreground text-4xl">
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`
+              }} className="iast-text text-muted-foreground">
                         {line}
                       </p>)}
                   </div>}
@@ -432,7 +433,7 @@ export const DualLanguageVerseCard = ({
               {/* EN */}
               <div>
                 <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground text-lg font-bold font-sans">Synonyms</h4>
+                  <h4 className="text-foreground font-bold">Synonyms</h4>
                   <button onClick={() => playSection("Synonyms EN", audioSynonymsEn)} disabled={!audioSynonymsEn && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Listen to synonyms EN">
                     <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
                   </button>

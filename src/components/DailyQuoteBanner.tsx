@@ -75,11 +75,17 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
           {/* Санскрит/Транслітерація (якщо вірш) */}
           {quote.sanskrit && (
             <div className="text-center space-y-2 pb-3 border-b border-white/20 dark:border-white/10">
-              <p className="text-sm md:text-base lg:text-lg font-sanskrit text-white/95 dark:text-white/90 leading-relaxed font-semibold drop-shadow-lg">
+              <p
+                className="font-sanskrit text-white/95 dark:text-white/90 leading-relaxed font-semibold drop-shadow-lg"
+                style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1.125rem)' }}
+              >
                 {quote.sanskrit}
               </p>
               {quote.transliteration && (
-                <p className="text-xs md:text-sm text-white/80 dark:text-white/75 italic font-medium drop-shadow-md">
+                <p
+                  className="text-white/80 dark:text-white/75 italic font-medium drop-shadow-md"
+                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
+                >
                   {quote.transliteration}
                 </p>
               )}
@@ -88,16 +94,14 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
 
           {/* Основна цитата */}
           <blockquote className="space-y-3">
-            <p className={cn(
-              "text-center leading-relaxed",
-              quote.sanskrit
-                ? "text-base md:text-lg lg:text-xl" // Зменшений текст для віршів
-                : "text-lg md:text-xl lg:text-2xl", // Зменшений для звичайних цитат
-              "font-serif font-semibold",
-              "text-white/95 dark:text-white/90",
-              "tracking-tight",
-              "drop-shadow-lg"
-            )}>
+            <p
+              className="text-center leading-relaxed font-serif font-semibold text-white/95 dark:text-white/90 tracking-tight drop-shadow-lg"
+              style={{
+                fontSize: quote.sanskrit
+                  ? 'clamp(1rem, 3vw, 1.25rem)'      // Для віршів
+                  : 'clamp(1.125rem, 3.5vw, 1.5rem)' // Для звичайних цитат
+              }}
+            >
               <span className="relative inline-block">
                 <span className="relative">"{quote.text}"</span>
               </span>
@@ -106,13 +110,19 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
             {/* Автор і джерело */}
             <footer className="flex flex-col items-center gap-2 pt-3">
               {quote.author && (
-                <cite className="not-italic text-sm md:text-base font-semibold text-white/90 dark:text-white/85 tracking-wide drop-shadow-md">
+                <cite
+                  className="not-italic font-semibold text-white/90 dark:text-white/85 tracking-wide drop-shadow-md"
+                  style={{ fontSize: 'clamp(0.875rem, 2.5vw, 1rem)' }}
+                >
                   — {quote.author}
                 </cite>
               )}
 
               {quote.source && (
-                <div className="flex items-center gap-2 text-xs md:text-sm text-white/75 dark:text-white/70 font-medium">
+                <div
+                  className="flex items-center gap-2 text-white/75 dark:text-white/70 font-medium"
+                  style={{ fontSize: 'clamp(0.75rem, 2vw, 0.875rem)' }}
+                >
                   <span>{quote.source}</span>
                   {quote.link && (
                     <Button

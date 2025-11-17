@@ -1,5 +1,6 @@
 // src/hooks/useReaderSettings.ts
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { getResponsiveBaseFontSize, FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 export type TextDisplaySettings = {
   showSanskrit: boolean;
@@ -20,6 +21,7 @@ export type ContinuousReadingSettings = {
 
 const LS = {
   fontSize: "vv_reader_fontSize",
+  fontSizeAdjustment: "vv_reader_fontSizeAdjustment", // Нова властивість для збереження корекції користувача
   lineHeight: "vv_reader_lineHeight",
   blocks: "vv_reader_blocks",
   dual: "vv_reader_dualMode",
@@ -66,12 +68,24 @@ const DEFAULT_CONT: ContinuousReadingSettings = {
 /**
  * Універсальний хук читання:
  *  - зберігає/читає налаштування з localStorage
+ *  - автоматично адаптується до розміру екрану
+ *  - синхронізує CSS змінні з React state
  *  - диспатчить подію 'vv-reader-prefs-changed'
  *  - може автоматично застосовувати line-height на контейнер з data-reader-root="true"
  */
 export function useReaderSettings() {
-  const [fontSize, setFontSize] = useState<number>(() => readNum(LS.fontSize, 18));
-  const [lineHeight, setLineHeight] = useState<number>(() => readNum(LS.lineHeight, 1.6));
+  // Отримати базовий розмір залежно від екрану
+  const [baseFontSize, setBaseFontSize] = useState<number>(() => getResponsiveBaseFontSize());
+
+  // Зберігати корекцію користувача (наприклад, +2 або -1 від базового)
+  const [fontSizeAdjustment, setFontSizeAdjustment] = useState<number>(() =>
+    readNum(LS.fontSizeAdjustment, 0)
+  );
+
+  // Фактичний fontSize = base + adjustment
+  const fontSize = baseFontSize + fontSizeAdjustment;
+
+  const [lineHeight, setLineHeight] = useState<number>(() => readNum(LS.lineHeight, LINE_HEIGHTS.NORMAL));
   const [dualLanguageMode, setDualLanguageMode] = useState<boolean>(() => readBool(LS.dual, false));
   const [textDisplaySettings, setTextDisplaySettings] = useState<TextDisplaySettings>(() =>
     readJSON<TextDisplaySettings>(LS.blocks, DEFAULT_BLOCKS),
@@ -86,11 +100,34 @@ export function useReaderSettings() {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
   }, []);
 
-  // запис у LS + подія
+  // Синхронізувати CSS змінні з React state
   useEffect(() => {
+    document.documentElement.style.setProperty('--vv-reader-font-size', `${fontSize}px`);
     localStorage.setItem(LS.fontSize, String(fontSize));
+    localStorage.setItem(LS.fontSizeAdjustment, String(fontSizeAdjustment));
     dispatchPrefs();
-  }, [fontSize, dispatchPrefs]);
+  }, [fontSize, fontSizeAdjustment, dispatchPrefs]);
+
+  // Responsive listener - адаптуватися до зміни розміру екрану
+  useEffect(() => {
+    let resizeTimeout: NodeJS.Timeout;
+
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        const newBase = getResponsiveBaseFontSize();
+        if (newBase !== baseFontSize) {
+          setBaseFontSize(newBase);
+        }
+      }, 150); // Debounce 150ms
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [baseFontSize]);
 
   useEffect(() => {
     localStorage.setItem(LS.lineHeight, String(lineHeight));
@@ -123,8 +160,8 @@ export function useReaderSettings() {
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (!e.key) return;
-      if (e.key === LS.fontSize) setFontSize(readNum(LS.fontSize, 18));
-      if (e.key === LS.lineHeight) setLineHeight(readNum(LS.lineHeight, 1.6));
+      if (e.key === LS.fontSizeAdjustment) setFontSizeAdjustment(readNum(LS.fontSizeAdjustment, 0));
+      if (e.key === LS.lineHeight) setLineHeight(readNum(LS.lineHeight, LINE_HEIGHTS.NORMAL));
       if (e.key === LS.dual) setDualLanguageMode(readBool(LS.dual, false));
       if (e.key === LS.blocks) setTextDisplaySettings(readJSON(LS.blocks, DEFAULT_BLOCKS));
       if (e.key === LS.cont) setContinuousReadingSettings(readJSON(LS.cont, DEFAULT_CONT));
@@ -133,20 +170,38 @@ export function useReaderSettings() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // API для зручності
-  const increaseFont = useCallback(() => setFontSize((n) => Math.min(24, n + 1)), []);
-  const decreaseFont = useCallback(() => setFontSize((n) => Math.max(12, n - 1)), []);
+  // API для зручності - оновлено для роботи з adjustment
+  const increaseFont = useCallback(() => {
+    setFontSizeAdjustment((adj) => {
+      const newTotal = baseFontSize + adj + 1;
+      return newTotal <= 24 ? adj + 1 : adj; // Максимум 24px
+    });
+  }, [baseFontSize]);
+
+  const decreaseFont = useCallback(() => {
+    setFontSizeAdjustment((adj) => {
+      const newTotal = baseFontSize + adj - 1;
+      return newTotal >= 12 ? adj - 1 : adj; // Мінімум 12px
+    });
+  }, [baseFontSize]);
+
   const increaseLH = useCallback(() => setLineHeight((l) => Math.min(2.0, Math.round((l + 0.05) * 100) / 100)), []);
   const decreaseLH = useCallback(() => setLineHeight((l) => Math.max(1.3, Math.round((l - 0.05) * 100) / 100)), []);
+
   const resetTypography = useCallback(() => {
-    setFontSize(18);
-    setLineHeight(1.6);
+    setFontSizeAdjustment(0); // Скинути корекцію до 0
+    setLineHeight(LINE_HEIGHTS.NORMAL);
   }, []);
+
+  // Експортувати також множники для використання в компонентах
+  const multipliers = useMemo(() => FONT_SIZE_MULTIPLIERS, []);
 
   return useMemo(
     () => ({
       fontSize,
-      setFontSize,
+      baseFontSize,
+      fontSizeAdjustment,
+      setFontSize: setFontSizeAdjustment, // Тепер змінюємо adjustment, а не fontSize напряму
       lineHeight,
       setLineHeight,
       increaseFont,
@@ -160,9 +215,12 @@ export function useReaderSettings() {
       setTextDisplaySettings,
       continuousReadingSettings,
       setContinuousReadingSettings,
+      multipliers, // Додати множники для зручності
     }),
     [
       fontSize,
+      baseFontSize,
+      fontSizeAdjustment,
       lineHeight,
       increaseFont,
       decreaseFont,
@@ -172,6 +230,7 @@ export function useReaderSettings() {
       dualLanguageMode,
       textDisplaySettings,
       continuousReadingSettings,
+      multipliers,
     ],
   );
 }

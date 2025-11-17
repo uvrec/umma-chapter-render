@@ -53,8 +53,10 @@
 
    ========================= */
 :root {
-  /* Базовий текст - згідно Vedabase.io */
-  --vv-reader-font-size: 18px; /* base для всіх текстів, змінюється на різних екранах */
+  /* ⚠️ ВАЖЛИВО: Ця змінна АВТОМАТИЧНО оновлюється через useReaderSettings
+     НЕ змінюйте це значення напряму - воно керується JavaScript
+     Значення адаптується до розміру екрану: 15px (XS) → 16px (Mobile) → 18px (Tablet) → 20px (Desktop) */
+  --vv-reader-font-size: 18px; /* базове значення, перевизначається useReaderSettings */
   --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
   --vv-reader-max-width: 48rem;
 
