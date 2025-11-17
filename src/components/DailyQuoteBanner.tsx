@@ -16,6 +16,16 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
   const { quote, isLoading, updateDisplayStats, rawQuote } = useDailyQuote();
   const [isVisible, setIsVisible] = useState(false);
 
+  // Діагностика
+  useEffect(() => {
+    console.log('[DailyQuoteBanner] Стан компонента:', {
+      isLoading,
+      hasQuote: !!quote,
+      quoteText: quote?.text,
+      rawQuote
+    });
+  }, [isLoading, quote, rawQuote]);
+
   // Анімація появи
   useEffect(() => {
     if (quote?.text) {
@@ -27,11 +37,13 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
   // Оновлюємо статистику при першому завантаженні
   useEffect(() => {
     if (rawQuote?.id && !rawQuote.last_displayed_at) {
+      console.log('[DailyQuoteBanner] Оновлення статистики для цитати:', rawQuote.id);
       updateDisplayStats(rawQuote.id);
     }
   }, [rawQuote?.id, rawQuote?.last_displayed_at, updateDisplayStats]);
 
   if (isLoading) {
+    console.log('[DailyQuoteBanner] Завантаження...');
     return (
       <div className={cn("animate-pulse", className)}>
         <Card className="p-8 bg-gradient-to-br from-amber-50/50 via-background to-orange-50/30 dark:from-amber-950/20 dark:via-background dark:to-orange-950/10">
@@ -41,7 +53,10 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
     );
   }
 
-  if (!quote?.text) return null;
+  if (!quote?.text) {
+    console.warn('[DailyQuoteBanner] Немає цитати для відображення');
+    return null;
+  }
 
   return (
     <Card
