@@ -276,8 +276,8 @@ body {
   font-family: var(--font-primary);
   font-size: var(--vv-reader-font-size);
   line-height: var(--vv-reader-line-height);
-  max-width: var(--vv-reader-max-width);
-  margin: 0 auto;
+  /* max-width прибрано, щоб блок був такої ж ширини як решта блоків */
+  width: 100%;
   text-align: left;
 }
 
