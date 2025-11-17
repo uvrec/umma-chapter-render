@@ -156,15 +156,34 @@ function parseVerseFromHTML(verseHTML: string, verseNumber: string): ParsedVerse
  * Парсить одну главу з EPUB HTML тексту
  */
 export function parseChapterFromEPUBHTML(html: string, cantoNumber: number): ParsedChapter | null {
-  // Знайти заголовок глави (допускаємо всі символи до кінця рядка)
+  // Знайти заголовок глави (після слова "Глава" до кінця рядка)
   const titleMatch = html.match(/глава\s+(.+?)(?:\n|$)/i);
   if (!titleMatch) {
     console.error('❌ Chapter title not found in HTML');
     return null;
   }
 
-  const titleUA = titleMatch[1].trim().toUpperCase();
-  const chapterNumber = extractChapterNumber(titleUA);
+  // Початкове значення — те, що йде після слова "Глава"
+  let rawTitle = titleMatch[1].trim();
+  let chapterNumber = extractChapterNumber(rawTitle);
+
+  // Якщо в заголовку лише число (наприклад, "1"), беремо наступний нефункціональний рядок як справжню назву
+  if (/^\d+$/.test(rawTitle) || rawTitle.length <= 3) {
+    const startIndex = (titleMatch.index ?? 0) + titleMatch[0].length;
+    const after = html.slice(startIndex);
+    const nextTitleLine = after
+      .split('\n')
+      .map(l => l.trim())
+      .find(l => l && !/^(Вірш|Текст|TEXT)\s+\d+/i.test(l)) || '';
+    if (nextTitleLine) {
+      rawTitle = nextTitleLine;
+    }
+  }
+
+  // Прибрати можливі розділові знаки на початку та нормалізувати регістр
+  let titleUA = rawTitle.replace(/^[\-:–—]\s*/, '').trim().toUpperCase();
+  // Перерахувати номер глави, якщо раніше не визначився
+  chapterNumber = chapterNumber || extractChapterNumber(titleUA);
 
   console.log(`📖 Found chapter: ${chapterNumber} - ${titleUA}`);
 
