@@ -2270,6 +2270,76 @@ export default function UniversalImportFixed() {
                     </div>
                   )}
 
+                  {/* Швидке завантаження BG 1972 з EPUB */}
+                  {selectedTemplate === "bhagavad-gita" && (
+                    <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <h4 className="text-sm font-semibold text-green-900 dark:text-green-100 mb-2">
+                        📗 Bhagavad-gītā As It Is (1972 Original Edition)
+                      </h4>
+                      <p className="text-xs text-green-800 dark:text-green-200 mb-3">
+                        Оригінальне видання 1972 року англійською мовою (18 глав)
+                      </p>
+                      <Button
+                        onClick={async () => {
+                          setIsProcessing(true);
+                          try {
+                            const response = await fetch('/epub/EN_BG_1972_epub_r2.epub');
+                            const blob = await response.blob();
+                            const file = new File([blob], 'EN_BG_1972_epub_r2.epub', { type: 'application/epub+zip' });
+                            const extractedText = await extractTextFromEPUB(file);
+                            setFileText(extractedText);
+                            await parseFileText(extractedText);
+                            toast({ title: "✅ BG 1972 завантажена", description: "18 глав розпарсовано" });
+                          } catch (err: any) {
+                            toast({ title: "Помилка", description: err.message, variant: "destructive" });
+                          } finally {
+                            setIsProcessing(false);
+                          }
+                        }}
+                        disabled={isProcessing}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Завантажити BG 1972 (18 глав, EN)
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Швидке завантаження Chant and Be Happy */}
+                  {selectedTemplate === "default" && (
+                    <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-100 mb-2">
+                        🎵 Chant and Be Happy
+                      </h4>
+                      <p className="text-xs text-purple-800 dark:text-purple-200 mb-3">
+                        The Power of Mantra Meditation (10 chapters, EN)
+                      </p>
+                      <Button
+                        onClick={async () => {
+                          setIsProcessing(true);
+                          try {
+                            const response = await fetch('/epub/EN_CABH_ibooks_r3.epub');
+                            const blob = await response.blob();
+                            const file = new File([blob], 'EN_CABH_ibooks_r3.epub', { type: 'application/epub+zip' });
+                            const extractedText = await extractTextFromEPUB(file);
+                            setFileText(extractedText);
+                            await parseFileText(extractedText);
+                            toast({ title: "✅ CABH завантажена", description: "10 розділів розпарсовано" });
+                          } catch (err: any) {
+                            toast({ title: "Помилка", description: err.message, variant: "destructive" });
+                          } finally {
+                            setIsProcessing(false);
+                          }
+                        }}
+                        disabled={isProcessing}
+                        variant="outline"
+                        size="sm"
+                      >
+                        Завантажити Chant and Be Happy (10 chapters, EN)
+                      </Button>
+                    </div>
+                  )}
+
                   <div className="rounded-lg border-2 border-dashed p-8 text-center">
                     <Upload className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
                     <label className="cursor-pointer">
