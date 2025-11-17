@@ -172,15 +172,19 @@ export function useReaderSettings() {
 
   // API для зручності - оновлено для роботи з adjustment
   const increaseFont = useCallback(() => {
+    console.log('🔼 increaseFont викликано');
     setFontSizeAdjustment((adj) => {
       const newTotal = baseFontSize + adj + 1;
+      console.log(`📏 baseFontSize: ${baseFontSize}, adj: ${adj}, newTotal: ${newTotal}`);
       return newTotal <= 24 ? adj + 1 : adj; // Максимум 24px
     });
   }, [baseFontSize]);
 
   const decreaseFont = useCallback(() => {
+    console.log('🔽 decreaseFont викликано');
     setFontSizeAdjustment((adj) => {
       const newTotal = baseFontSize + adj - 1;
+      console.log(`📏 baseFontSize: ${baseFontSize}, adj: ${adj}, newTotal: ${newTotal}`);
       return newTotal >= 12 ? adj - 1 : adj; // Мінімум 12px
     });
   }, [baseFontSize]);
