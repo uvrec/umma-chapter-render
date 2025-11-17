@@ -451,7 +451,7 @@ export const DualLanguageVerseCard = ({
               {/* UA */}
               <div>
                 <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground">Літературний переклад</h4>
+                  <h4 className="text-foreground">Переклад</h4>
                   <button onClick={() => playSection("Переклад UA", audioTranslationUa)} disabled={!audioTranslationUa && !audioUrl} className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed" aria-label="Слухати переклад UA">
                     <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
                   </button>
