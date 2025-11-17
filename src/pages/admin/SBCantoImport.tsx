@@ -114,26 +114,54 @@ export default function SBCantoImport() {
 
   // Збереження глави в БД
   const saveChapterToDB = async (chapter: ParsedChapter) => {
-    // 1. Створити chapter запис
-    const { data: chapterRecord, error: chapterError } = await supabase
+    // 1. Знайти існуючу главу або створити нову
+    const { data: existingChapter, error: findError } = await supabase
       .from("chapters")
-      .insert({
-        book_id: BOOK_ID,
-        canto_id: CANTO_3_ID,
-        chapter_number: chapter.chapter_number,
-        chapter_type: "verses",
-        title_ua: chapter.title_ua || `Глава ${chapter.chapter_number}`,
-        title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
-        is_published: true,
-      })
-      .select()
+      .select("id")
+      .eq("canto_id", CANTO_3_ID)
+      .eq("chapter_number", chapter.chapter_number)
       .maybeSingle();
 
-    if (chapterError) throw chapterError;
+    if (findError) throw findError;
+
+    let chapterId: string;
+
+    if (existingChapter) {
+      // Оновити назви та статус публікації
+      const { error: updateError } = await supabase
+        .from("chapters")
+        .update({
+          title_ua: chapter.title_ua || `Глава ${chapter.chapter_number}`,
+          title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
+          is_published: true,
+        })
+        .eq("id", existingChapter.id);
+
+      if (updateError) throw updateError;
+      chapterId = existingChapter.id;
+    } else {
+      // Створити новий запис глави
+      const { data: created, error: chapterError } = await supabase
+        .from("chapters")
+        .insert({
+          book_id: BOOK_ID,
+          canto_id: CANTO_3_ID,
+          chapter_number: chapter.chapter_number,
+          chapter_type: "verses",
+          title_ua: chapter.title_ua || `Глава ${chapter.chapter_number}`,
+          title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
+          is_published: true,
+        })
+        .select()
+        .maybeSingle();
+
+      if (chapterError) throw chapterError;
+      chapterId = created!.id;
+    }
 
     // 2. Підготувати дані віршів
     const versesData = chapter.verses.map((v) => ({
-      chapter_id: chapterRecord.id,
+      chapter_id: chapterId,
       verse_number: v.verse_number || "",
       sanskrit_ua: v.sanskrit || null,
       sanskrit_en: v.sanskrit || null,
@@ -148,12 +176,19 @@ export default function SBCantoImport() {
       is_published: true,
     }));
 
-    // 3. Вставити вірші батчем
-    const { error: versesError } = await supabase.from("verses").insert(versesData);
+    // 3. Очистити попередні вірші (щоб уникати дублікатів) і вставити нові
+    if (existingChapter) {
+      const { error: delError } = await supabase
+        .from("verses")
+        .delete()
+        .eq("chapter_id", chapterId);
+      if (delError) throw delError;
+    }
 
+    const { error: versesError } = await supabase.from("verses").insert(versesData);
     if (versesError) throw versesError;
 
-    return { chapterId: chapterRecord.id, versesCount: versesData.length };
+    return { chapterId, versesCount: versesData.length };
   };
 
   // Основна функція імпорту
