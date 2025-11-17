@@ -96,11 +96,11 @@ export function useDailyQuote() {
     },
   });
 
-  // Завантажуємо поточну цитату
+  // Завантажуємо поточну цитату (випадковий вірш з книг)
   const { data: quote, isLoading, error } = useQuery({
-    queryKey: ["daily_quote", settings?.rotation_mode, settings?.current_index],
+    queryKey: ["daily_quote_verse", Date.now()], // Унікальний ключ для кожного запиту
     queryFn: async () => {
-      console.log('[DailyQuote] Завантаження цитати, settings:', settings);
+      console.log('[DailyQuote] Завантаження випадкового вірша...');
 
       if (!settings?.enabled) {
         console.warn('[DailyQuote] Цитати вимкнено в налаштуваннях');
@@ -108,70 +108,87 @@ export function useDailyQuote() {
       }
 
       try {
-        let query = supabase
-          .from("daily_quotes")
+        // Спочатку отримуємо загальну кількість віршів
+        const { count, error: countError } = await supabase
+          .from("verses")
+          .select("*", { count: 'exact', head: true })
+          .not("translation_ua", "is", null)
+          .not("translation_en", "is", null);
+
+        if (countError || !count || count === 0) {
+          console.error('[DailyQuote] Помилка підрахунку віршів:', countError);
+          return null;
+        }
+
+        console.log('[DailyQuote] Знайдено віршів:', count);
+
+        // Генеруємо випадковий offset
+        const offset = Math.floor(Math.random() * count);
+        console.log('[DailyQuote] Випадковий offset:', offset);
+
+        // Завантажуємо вірш з цим offset
+        const { data: verses, error } = await supabase
+          .from("verses")
           .select(`
-            *,
-            verse:verses!verse_id (
-              verse_number,
-              sanskrit_ua,
-              transliteration_ua,
-              translation_ua,
-              translation_en,
-              chapter:chapters (
-                chapter_number,
+            id,
+            verse_number,
+            translation_ua,
+            translation_en,
+            chapter:chapters (
+              chapter_number,
+              title_ua,
+              title_en,
+              book:books (
+                slug,
                 title_ua,
-                title_en,
-                book:books (
-                  slug,
-                  title_ua,
-                  title_en
-                )
+                title_en
               )
             )
           `)
-          .eq("is_active", true)
-          .order("priority", { ascending: false })
-          .order("last_displayed_at", { ascending: true, nullsFirst: true });
+          .not("translation_ua", "is", null)
+          .not("translation_en", "is", null)
+          .order("id")
+          .range(offset, offset)
+          .limit(1);
 
-        // Застосовуємо режим ротації
-        if (settings.rotation_mode === 'random') {
-          // Випадковий вибір серед топ-10 з найвищим пріоритетом
-          query = query.limit(10);
-          const { data, error } = await query;
-          if (error) {
-            console.error('[DailyQuote] Помилка завантаження цитат (random):', error);
-            return null; // Повертаємо null замість throw для більшої стійкості
-          }
-          if (!data || data.length === 0) {
-            console.warn('[DailyQuote] Не знайдено активних цитат');
-            return null;
-          }
-
-          const randomIndex = Math.floor(Math.random() * data.length);
-          console.log('[DailyQuote] Вибрано випадкову цитату:', data[randomIndex]);
-          return data[randomIndex] as DailyQuote;
-        } else {
-          // Sequential або custom - беремо першу
-          const { data, error } = await query.limit(1).single();
-          if (error) {
-            if (error.code === 'PGRST116') {
-              console.warn('[DailyQuote] Не знайдено жодної цитати');
-              return null;
-            }
-            console.error('[DailyQuote] Помилка завантаження цитати (sequential):', error);
-            return null; // Повертаємо null замість throw
-          }
-          console.log('[DailyQuote] Завантажено цитату (sequential):', data);
-          return data as DailyQuote | null;
+        if (error) {
+          console.error('[DailyQuote] Помилка завантаження вірша:', error);
+          return null;
         }
+
+        if (!verses || verses.length === 0) {
+          console.warn('[DailyQuote] Не знайдено вірша');
+          return null;
+        }
+
+        const verse = verses[0];
+        console.log('[DailyQuote] Завантажено випадковий вірш:', verse);
+
+        // Перетворюємо вірш у формат DailyQuote
+        return {
+          id: verse.id,
+          quote_type: 'verse' as const,
+          verse_id: verse.id,
+          verse: {
+            verse_number: verse.verse_number,
+            translation_ua: verse.translation_ua,
+            translation_en: verse.translation_en,
+            chapter: verse.chapter,
+          },
+          priority: 100,
+          display_count: 0,
+          is_active: true,
+        } as DailyQuote;
       } catch (err) {
         console.error('[DailyQuote] Неочікувана помилка:', err);
         return null;
       }
     },
     enabled: !!settings,
-    retry: false, // Не повторюємо запит при помилці
+    retry: false,
+    // Не кешуємо - кожен раз новий вірш
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   // Оновлюємо статистику показу цитати
