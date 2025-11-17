@@ -389,35 +389,6 @@ export function extractWisdomlibChapterUrls(
       }
       if (chapterNumber === null) return;
 
-      // Беремо контекст з батьківського елемента (li, p, div)
-      const parent = link.closest("li, p, div");
-      const context = parent?.textContent?.trim() || "";
-
-      // Шукаємо номер глави в різних форматах:
-      // 1) "Chapter N" або "Adhyāya N" в тексті посилання або контексті
-      // 2) "N. ..." або "N – ..." на початку рядка
-      let chapterNumber: number | null = null;
-
-      // Спроба 1: знайти "Chapter N" або "Adhyāya N"
-      const chapterMatch = 
-        text.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i) ||
-        context.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i);
-      
-      if (chapterMatch) {
-        chapterNumber = parseInt(chapterMatch[1], 10);
-      } else {
-        // Спроба 2: знайти "N. ..." або "N – ..." на початку
-        const numberMatch = 
-          text.match(/^\s*(\d+)\s*[.:\-–]\s+/) ||
-          context.match(/^\s*(\d+)\s*[.:\-–]\s+/);
-        
-        if (numberMatch) {
-          chapterNumber = parseInt(numberMatch[1], 10);
-        }
-      }
-
-      if (chapterNumber === null) return;
-
       // Визначаємо khaṇḍa з baseUrl, а не з href (бо href - це /d/doc...)
       const khanda = determineKhandaFromUrl(baseUrl).name;
 
