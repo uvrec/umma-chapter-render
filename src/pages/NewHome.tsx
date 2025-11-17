@@ -165,7 +165,7 @@ function Hero() {
         </div>
 
         {/* Daily Quote Banner - адаптивна ширина */}
-        <div className="mt-4 sm:mt-6 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
+        <div className="mt-1.5 sm:mt-3.5 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
           <DailyQuoteBanner />
         </div>
       </div>
