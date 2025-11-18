@@ -415,16 +415,14 @@ export const ChapterVersesList = () => {
                 <div className="grid gap-6 md:grid-cols-2">
                   {/* Українська */}
                   <div
-                    className="prose prose-slate dark:prose-invert max-w-none"
-                    style={{ fontSize: `${fontSize}px`, lineHeight }}
+                    className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(effectiveChapterObj.content_ua || "")
                     }}
                   />
                   {/* Англійська */}
                   <div
-                    className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
-                    style={{ fontSize: `${fontSize}px`, lineHeight }}
+                    className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(effectiveChapterObj.content_en || "")
                     }}
@@ -433,8 +431,7 @@ export const ChapterVersesList = () => {
               ) : (
                 /* Одномовний режим */
                 <div
-                  className="prose prose-slate dark:prose-invert max-w-none"
-                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
                       language === "ua"
@@ -451,8 +448,7 @@ export const ChapterVersesList = () => {
           {flowMode ? (
             /* Режим суцільного тексту - без контейнерів, номерів, рамок */
             <div
-              className="prose prose-lg max-w-none"
-              style={{ fontSize: `${fontSize}px`, lineHeight }}
+              className="prose prose-lg max-w-none prose-reader"
             >
               {versesFiltered.map((verse, idx) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
@@ -485,10 +481,7 @@ export const ChapterVersesList = () => {
                               ВІРШ {verse.verse_number}
                             </Link>
                           )}
-                          <p
-                            className="text-foreground"
-                            style={{ fontSize: `${fontSize}px`, lineHeight }}
-                          >
+                          <p className="text-foreground prose-reader">
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
@@ -503,10 +496,7 @@ export const ChapterVersesList = () => {
                               TEXT {verse.verse_number}
                             </Link>
                           )}
-                          <p
-                            className="text-foreground"
-                            style={{ fontSize: `${fontSize}px`, lineHeight }}
-                          >
+                          <p className="text-foreground prose-reader">
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
@@ -522,10 +512,7 @@ export const ChapterVersesList = () => {
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                           </Link>
                         )}
-                        <p
-                          className="text-foreground"
-                          style={{ fontSize: `${fontSize}px`, lineHeight }}
-                        >
+                        <p className="text-foreground prose-reader">
                           {language === "ua"
                             ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
                             : translationEn || <span className="italic text-muted-foreground">No translation</span>}
