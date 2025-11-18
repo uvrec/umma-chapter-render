@@ -326,8 +326,8 @@ body {
 
 /* IAST латиниця - ДИНАМІЧНИЙ розмір */
 .iast-text {
-  /* ✅ ВИПРАВЛЕНО: calc() дозволяє inline styles перевизначати, але дає базову динамічність */
-  font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
+  /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size без множення */
+  font-size: var(--vv-reader-font-size); /* Однаковий розмір як у вихідному вікні */
   line-height: 1.7;
 }
 
