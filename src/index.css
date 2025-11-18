@@ -629,6 +629,46 @@ body {
 }
 
 /* =========================
+   TEXTAREA ТРАНСЛІТЕРАТОРА
+   ========================= */
+
+/* Базові стилі для всіх textarea в транслітераторі */
+textarea.iast-text,
+textarea.devanagari-text,
+textarea.bengali-text,
+textarea.transliteration-output {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* IAST (латиниця з діакритикою) */
+textarea.iast-text {
+  font-family: "Gentium Plus", serif !important;
+  font-weight: 400;
+}
+
+/* Деванагарі */
+textarea.devanagari-text {
+  font-family: "Noto Sans Devanagari", sans-serif !important;
+  font-weight: 400;
+}
+
+/* Бенгалі */
+textarea.bengali-text {
+  font-family: "Noto Sans Bengali", sans-serif !important;
+  font-weight: 400;
+}
+
+/* Вихідний текст (українська кирилиця з діакритикою) */
+textarea.transliteration-output {
+  font-family: "Gentium Plus", serif !important;
+  font-weight: 400;
+}
+
+/* =========================
    UTILITY CLASSES
    ========================= */
 
