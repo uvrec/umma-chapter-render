@@ -15,6 +15,7 @@ import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 export const ChapterVersesList = () => {
   const { bookId, chapterId, cantoNumber, chapterNumber } = useParams();
@@ -22,6 +23,7 @@ export const ChapterVersesList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { fontSize } = useReaderSettings();
 
   // Читаємо налаштування з localStorage
   const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
@@ -414,7 +416,7 @@ export const ChapterVersesList = () => {
                   {/* Українська */}
                   <div
                     className="prose prose-slate dark:prose-invert max-w-none"
-                    style={{ fontSize: '200%' }}
+                    style={{ fontSize: `${fontSize}px` }}
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(effectiveChapterObj.content_ua || "")
                     }}
@@ -422,7 +424,7 @@ export const ChapterVersesList = () => {
                   {/* Англійська */}
                   <div
                     className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
-                    style={{ fontSize: '200%' }}
+                    style={{ fontSize: `${fontSize}px` }}
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(effectiveChapterObj.content_en || "")
                     }}
@@ -432,7 +434,7 @@ export const ChapterVersesList = () => {
                 /* Одномовний режим */
                 <div
                   className="prose prose-slate dark:prose-invert max-w-none"
-                  style={{ fontSize: '200%' }}
+                  style={{ fontSize: `${fontSize}px` }}
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
                       language === "ua"
@@ -448,7 +450,7 @@ export const ChapterVersesList = () => {
           {/* Список віршів */}
           {flowMode ? (
             /* Режим суцільного тексту - без контейнерів, номерів, рамок */
-            <div className="prose prose-lg max-w-none" style={{ fontSize: '200%' }}>
+            <div className="prose prose-lg max-w-none" style={{ fontSize: `${fontSize}px` }}>
               {versesFiltered.map((verse, idx) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
@@ -480,7 +482,7 @@ export const ChapterVersesList = () => {
                               ВІРШ {verse.verse_number}
                             </Link>
                           )}
-                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: '200%' }}>
+                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: `${fontSize}px` }}>
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
@@ -495,7 +497,7 @@ export const ChapterVersesList = () => {
                               TEXT {verse.verse_number}
                             </Link>
                           )}
-                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: '200%' }}>
+                          <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: `${fontSize}px` }}>
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
@@ -511,7 +513,7 @@ export const ChapterVersesList = () => {
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                           </Link>
                         )}
-                        <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: '200%' }}>
+                        <p className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground" style={{ fontSize: `${fontSize}px` }}>
                           {language === "ua"
                             ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
                             : translationEn || <span className="italic text-muted-foreground">No translation</span>}
