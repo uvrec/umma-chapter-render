@@ -1159,8 +1159,6 @@ export const VedaReaderDB = () => {
                       key={currentVerse.id}
                       verseId={currentVerse.id}
                       verseNumber={fullVerseNumber}
-                      bookNameUa={chapterTitle}
-                      bookNameEn={chapterTitle}
                       sanskritTextUa={cleanHtml((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")}
                       sanskritTextEn={cleanHtml((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")}
                       transliterationUa={(currentVerse as any).transliteration_ua || ""}
@@ -1171,16 +1169,6 @@ export const VedaReaderDB = () => {
                       synonymsEn={(currentVerse as any).synonyms_en || ""}
                       translationEn={(currentVerse as any).translation_en || ""}
                       commentaryEn={(currentVerse as any).commentary_en || ""}
-                      audioUrl={currentVerse.audio_url || ""}
-                      is_composite={(currentVerse as any).is_composite}
-                      start_verse={(currentVerse as any).start_verse}
-                      end_verse={(currentVerse as any).end_verse}
-                      verse_count={(currentVerse as any).verse_count}
-                      textDisplaySettings={textDisplaySettings}
-                      showNumbers={showNumbers}
-                      fontSize={fontSize}
-                      lineHeight={lineHeight}
-                      flowMode={flowMode}
                       isAdmin={isAdmin}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
