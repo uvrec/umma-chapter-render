@@ -161,7 +161,10 @@ const SynonymsBlock = ({
     );
   }
   return (
-    <p className="synonyms-text text-foreground text-center">
+    <p
+      className="synonyms-text text-foreground text-center"
+      style={{ fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.SYNONYMS})` }}
+    >
       {synonymPairs.length === 0 ? (
         <span className="text-muted-foreground">{synonyms}</span>
       ) : (
@@ -276,8 +279,19 @@ export const DualLanguageVerseCard = ({
     [commentaryEn, edited.commentaryEn, isEditing],
   );
 
+  // Розбиваємо translation на параграфи для синхронізації
+  const translationParagraphsUa = useMemo(
+    () => splitIntoParagraphs(isEditing ? edited.translationUa : translationUa),
+    [translationUa, edited.translationUa, isEditing],
+  );
+  const translationParagraphsEn = useMemo(
+    () => splitIntoParagraphs(isEditing ? edited.translationEn : translationEn),
+    [translationEn, edited.translationEn, isEditing],
+  );
+
   // Синхронізація кількості параграфів (беремо максимум)
-  const maxParagraphs = Math.max(commentaryParagraphsUa.length, commentaryParagraphsEn.length);
+  const maxCommentaryParagraphs = Math.max(commentaryParagraphsUa.length, commentaryParagraphsEn.length);
+  const maxTranslationParagraphs = Math.max(translationParagraphsUa.length, translationParagraphsEn.length);
 
   // Функція для відтворення аудіо
   const playSection = (section: string, audioSrc?: string) => {
@@ -474,11 +488,20 @@ export const DualLanguageVerseCard = ({
                       }))
                     }
                     className="min-h-[80px] text-center iast-text text-muted-foreground"
+                    style={{
+                      fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
+                    }}
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationUa || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="iast-text text-muted-foreground">
+                      <p
+                        key={idx}
+                        style={{
+                          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
+                        }}
+                        className="iast-text text-muted-foreground"
+                      >
                         {line}
                       </p>
                     ))}
@@ -498,11 +521,20 @@ export const DualLanguageVerseCard = ({
                       }))
                     }
                     className="min-h-[80px] text-center iast-text text-muted-foreground"
+                    style={{
+                      fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
+                    }}
                   />
                 ) : (
                   <div className="space-y-1 text-center">
                     {(transliterationEn || "").split("\n").map((line, idx) => (
-                      <p key={idx} className="iast-text text-muted-foreground font-sans">
+                      <p
+                        key={idx}
+                        style={{
+                          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
+                        }}
+                        className="iast-text text-muted-foreground font-sans"
+                      >
                         {line}
                       </p>
                     ))}
@@ -599,7 +631,22 @@ export const DualLanguageVerseCard = ({
                     className="min-h-[100px] prose-reader font-semibold"
                   />
                 ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationUa}</p>
+                  <div className="space-y-4">
+                    {Array.from({
+                      length: maxTranslationParagraphs,
+                    }).map((_, index) => (
+                      <div key={index} className="min-h-[2rem]">
+                        {translationParagraphsUa[index] ? (
+                          <TiptapRenderer
+                            content={translationParagraphsUa[index]}
+                            className="translation-text text-justify"
+                          />
+                        ) : (
+                          <p className="text-muted-foreground italic text-sm">Немає тексту</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
@@ -628,7 +675,22 @@ export const DualLanguageVerseCard = ({
                     className="min-h-[100px] prose-reader font-semibold"
                   />
                 ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>
+                  <div className="space-y-4">
+                    {Array.from({
+                      length: maxTranslationParagraphs,
+                    }).map((_, index) => (
+                      <div key={index} className="min-h-[2rem]">
+                        {translationParagraphsEn[index] ? (
+                          <TiptapRenderer
+                            content={translationParagraphsEn[index]}
+                            className="translation-text text-justify"
+                          />
+                        ) : (
+                          <p className="text-muted-foreground italic text-sm">No text</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -694,7 +756,7 @@ export const DualLanguageVerseCard = ({
             ) : (
               <div className="space-y-4">
                 {Array.from({
-                  length: maxParagraphs,
+                  length: maxCommentaryParagraphs,
                 }).map((_, index) => (
                   <div key={index} className="grid grid-cols-2 gap-6 pb-4">
                     {/* UA параграф */}
