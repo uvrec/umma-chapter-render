@@ -45,9 +45,8 @@ export const AVAILABLE_FONTS = {
     { value: 'system-ui, sans-serif', label: 'System UI' },
   ],
   bengali: [
-    { value: 'var(--font-bengali)', label: 'Noto Serif Bengali weight 500 (Vedabase)' },
-    { value: '"Noto Serif Bengali", serif', label: 'Noto Serif Bengali' },
-    { value: '"Noto Sans Bengali", sans-serif', label: 'Noto Sans Bengali' },
+    { value: 'var(--font-bengali)', label: 'Noto Serif (для транслітерації)' },
+    { value: '"Noto Serif", serif', label: 'Noto Serif' },
   ],
 };
 
