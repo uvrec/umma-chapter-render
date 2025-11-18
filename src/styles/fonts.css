@@ -10,8 +10,8 @@
    ========================================== */
 
 /* -------- Google Fonts імпорти (мають бути на початку) -------- */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap");
 
 /* -------- Блок для трансліту (використовується в читалці віршів) -------- */
 .translit,
@@ -22,6 +22,10 @@
   font-family: "Noto Serif", serif !important;
   font-style: normal;
   font-weight: 400 !important;
+
+  /* Розмір шрифту - базовий */
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
 
   /* OpenType features */
   font-feature-settings: normal;
@@ -38,8 +42,6 @@
   white-space: pre-wrap;
   word-break: break-word;
   unicode-bidi: isolate;
-
-  /* ⚠️ font-size та line-height визначені в index.css */
 }
 
 /* -------- Санскрит (Деванагарі) для читалки -------- */
@@ -50,5 +52,7 @@
   font-style: normal !important;
   font-weight: 400 !important;
 
-  /* ⚠️ font-size та line-height визначені в index.css */
+  /* Розмір шрифту - базовий */
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
 }
