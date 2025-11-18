@@ -9,13 +9,13 @@
    ========================================== */
 
 /* =========================
-   ШРИФТОВІ СТЕКИ (Vedabase.io specification)
+   ШРИФТОВІ СТЕКИ ВБ
    ========================= */
 :root {
   /* Основний текст (кирилиця + латиниця) - Noto Serif variable 100-900 */
   --font-primary: "Noto Serif", Georgia, serif;
 
-  /* Транслітерація (verse text) - notoSerifVedabase кастомна версія */
+  /* Транслітерація (verse text) */
   --font-translit: "Noto Serif", serif;
 
   /* Деванагарі (देवनागरी) - Noto Sans з Devanagari підтримкою */
@@ -28,11 +28,11 @@
   --font-synonyms: "Noto Serif", serif;
 
   /* UI (інтерфейс) */
-  --font-ui: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-ui: sans-serif;
 }
 
 /* =========================
-   РОЗМІРИ ЧИТАЛКИ (Vedabase.io standard)
+   РОЗМІРИ ЧИТАЛКИ
 
    АРХІТЕКТУРА ДИНАМІЧНИХ РОЗМІРІВ:
 
@@ -63,8 +63,8 @@
   --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
   --vv-reader-max-width: 48rem;
 
-  /* Деванагарі - згідно Vedabase.io (em-text-lg → em-text-2xl) */
-  --sanskrit-font-size: 1.125em; /* Mobile: em-text-lg (перевизначається на desktop) */
+  /* Деванагарі */
+  --sanskrit-font-size: 1.125em; /* Mobile: em-text-lg */
   --sanskrit-line-height: 1.618; /* golden ratio */
 
   /* Трансліт - em-text-base (1em) */
@@ -285,23 +285,23 @@ body {
 .sanskrit-text,
 .prose-reader .sanskrit {
   /* ⚠️ font-family визначена в fonts.css (Noto Sans Devanagari) */
-  /* ✅ ВИПРАВЛЕНО: використовуємо calc() щоб реагувати на зміни fontSize */
-  font-size: calc(var(--vv-reader-font-size) * 1.5); /* 18px * 1.5 = 27px (динамічно) */
+  /* ✅ Використовуємо базовий розмір з typography.ts */
+  font-size: var(--vv-reader-font-size) !important;
   line-height: 1.618; /* golden ratio */
   text-align: center;
   margin: 0;
-  margin-bottom: 0.75em; /* em-mb-3 згідно специфікації */
+  margin-bottom: 0.75em;
 
   /* ⚠️ КРИТИЧНО: white-space для збереження розривів рядків */
-  white-space: pre-line; /* Зберігає \n та автоматично переносить довгі рядки */
+  white-space: pre-line;
 }
 
 /* Бенгалі - ДИНАМІЧНІ розміри */
 .bengali-text {
-  /* ✅ ВИПРАВЛЕНО: Noto Serif для транслітерації */
+  /* ✅ Noto Serif для транслітерації */
   font-family: var(--font-bengali) !important;
-  /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size для динамічності */
-  font-size: var(--vv-reader-font-size); /* Реагує на зміни користувача */
+  /* ✅ Базовий розмір */
+  font-size: var(--vv-reader-font-size) !important;
   line-height: 1.6;
   text-align: left;
   letter-spacing: 0.01em;
@@ -318,8 +318,8 @@ body {
 
 /* Деванагарі - ДИНАМІЧНИЙ розмір */
 .devanagari-text {
-  /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size */
-  font-size: var(--vv-reader-font-size); /* Реагує на зміни користувача */
+  /* ✅ Базовий розмір */
+  font-size: var(--vv-reader-font-size) !important;
   line-height: 1.7;
   text-align: left;
   letter-spacing: 0.01em;
@@ -327,8 +327,8 @@ body {
 
 /* IAST латиниця - ДИНАМІЧНИЙ розмір */
 .iast-text {
-  /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size без множення */
-  font-size: var(--vv-reader-font-size); /* Однаковий розмір як у вихідному вікні */
+  /* ✅ Базовий розмір */
+  font-size: var(--vv-reader-font-size) !important;
   line-height: 1.7;
 }
 
@@ -336,8 +336,8 @@ body {
 .translit,
 .transliteration-output:not(textarea),
 .prose-reader .translit {
-  /* ✅ ВИПРАВЛЕНО: calc() для транслітерації */
-  font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
+  /* ✅ Базовий розмір без множення */
+  font-size: var(--vv-reader-font-size) !important;
   line-height: 1.7;
   text-align: left;
 }
@@ -346,8 +346,8 @@ body {
 .synonyms-text {
   /* Шрифт з підтримкою діакритики */
   font-family: var(--font-synonyms) !important;
-  /* ✅ ВИПРАВЛЕНО: використовуємо calc() для динамічності */
-  font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
+  /* ✅ Базовий розмір */
+  font-size: var(--vv-reader-font-size) !important;
   line-height: var(--vv-reader-line-height);
 }
 
@@ -372,7 +372,7 @@ body {
   line-height: var(--commentary-line-height);
 }
 
-/* Параграфи в коментарях - згідно Vedabase.io */
+/* Параграфи в коментарях */
 .commentary-text p {
   margin-bottom: 1rem; /* mb-4 між параграфами */
 }
@@ -391,8 +391,15 @@ body {
 /* Параграфи у всіх space-y блоках (універсальне правило) */
 [class*="space-y-"] > div > p,
 [class*="space-y-"] p {
-  font-size: var(--vv-reader-font-size);
-  line-height: var(--vv-reader-line-height);
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
+}
+
+/* Всі параграфи в читалці мають однаковий розмір */
+.verse-surface p,
+.prose-reader p {
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
 }
 
 /* =========================
@@ -437,19 +444,20 @@ body {
   text-align: center;
 }
 
-/* Заголовки секцій - згідно Vedabase.io */
+/* Заголовки секцій */
 .section-header {
   margin-top: 2.5rem; /* mt-10 */
   margin-bottom: 1rem; /* mb-4 */
   font-weight: 700; /* font-bold */
-  font-size: var(--section-header-font-size);
+  font-size: var(--vv-reader-font-size) !important;
+  line-height: var(--vv-reader-line-height) !important;
   text-align: center;
   font-family: var(--font-ui);
 }
 
 @media (min-width: 1024px) {
   .section-header {
-    font-size: var(--section-header-font-size-lg);
+    font-size: var(--vv-reader-font-size) !important;
   }
 }
 
@@ -627,7 +635,7 @@ body {
    АДАПТИВНІСТЬ
    ========================= */
 
-/* Desktop (>1024px) - lg breakpoint за Vedabase.io */
+/* Desktop (>1024px) */
 @media (min-width: 1024px) {
   :root {
     --vv-reader-font-size: 20px; /* збільшено для десктопу */
