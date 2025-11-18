@@ -633,12 +633,13 @@ body {
    ========================= */
 
 /* Базові стилі для всіх textarea в транслітераторі */
+/* ⚠️ ВАЖЛИВО: !important потрібен щоб перевизначити Tailwind text-sm з Textarea компонента */
 textarea.iast-text,
 textarea.devanagari-text,
 textarea.bengali-text,
 textarea.transliteration-output {
-  font-size: 1.125rem; /* 18px */
-  line-height: 1.6;
+  font-size: 1.125rem !important; /* 18px - перевизначає Tailwind text-sm */
+  line-height: 1.6 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
