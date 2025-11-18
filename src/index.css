@@ -21,8 +21,8 @@
   /* Деванагарі (देवनागरी) - Noto Sans з Devanagari підтримкою */
   --font-devanagari: "Noto Sans Devanagari", sans-serif;
 
-  /* Бенгалі (বাংলা) - Noto Serif Bengali weight 500 */
-  --font-bengali: "Noto Serif Bengali", serif;
+  /* Бенгалі (বাংলা) - Noto Serif для транслітерації */
+  --font-bengali: "Noto Serif", serif;
 
   /* Послівний переклад (synonyms) - Noto Serif з підтримкою діакритики */
   --font-synonyms: "Noto Serif", serif;
@@ -298,7 +298,8 @@ body {
 
 /* Бенгалі - ДИНАМІЧНІ розміри */
 .bengali-text {
-  /* ⚠️ font-family визначена в fonts.css (Noto Sans Bengali) */
+  /* ✅ ВИПРАВЛЕНО: Noto Serif для транслітерації */
+  font-family: var(--font-bengali) !important;
   /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size для динамічності */
   font-size: var(--vv-reader-font-size); /* Реагує на зміни користувача */
   line-height: 1.6;
@@ -777,7 +778,7 @@ textarea.devanagari-text {
 
 /* Бенгалі */
 textarea.bengali-text {
-  font-family: "Noto Sans Bengali", sans-serif !important;
+  font-family: "Noto Serif", serif !important;
   font-weight: 400;
 }
 
