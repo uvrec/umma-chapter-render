@@ -35,6 +35,7 @@ type ContentItem = {
     title: string;
     subtitle?: string;
     src: string;
+    url: string;
     coverImage?: string;
     duration?: number;
   };
@@ -279,6 +280,7 @@ function LatestContent() {
       artist: "Шріла Прабгупада",
       // За замовчанням автор
       src: track.audio_url || "",
+      url: track.audio_url || "",
       duration: track.duration,
       coverImage: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png" // Логотип як обкладинка за замовчанням
     }

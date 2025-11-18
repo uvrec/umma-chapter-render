@@ -53,6 +53,7 @@ export function LatestAudioTracks() {
       id: t.id,
       title: t.title_ua ?? t.title_en ?? "Без назви",
       src: t.audio_url,
+      url: t.audio_url,
       coverImage: t.playlist?.cover_image_url ?? undefined,
       subtitle: `Трек ${t.track_number}`,
       artist: t.playlist?.author || "Vedavoice",
@@ -61,7 +62,7 @@ export function LatestAudioTracks() {
   };
 
   const handleAddToQueue = (t: NonNullable<typeof tracks>[number]) => {
-    addToPlaylist({ id: t.id, title: t.title_ua ?? t.title_en ?? "Без назви", src: t.audio_url });
+    addToPlaylist({ id: t.id, title: t.title_ua ?? t.title_en ?? "Без назви", src: t.audio_url, url: t.audio_url });
   };
 
   return (
