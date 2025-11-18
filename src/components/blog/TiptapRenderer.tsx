@@ -1,8 +1,5 @@
 import { useMemo } from "react";
 import DOMPurify from "dompurify";
-import { useSanskritTerms } from "@/hooks/useSanskritTerms";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { highlightSanskritTerms } from "@/utils/highlightSanskritTerms";
 
 interface TiptapRendererProps {
   content: string;
@@ -17,9 +14,6 @@ interface TiptapRendererProps {
 }
 
 export const TiptapRenderer = ({ content, className = "", displayBlocks }: TiptapRendererProps) => {
-  const { getTermsMap } = useSanskritTerms();
-  const { language } = useLanguage();
-
   const sanitizedContent = useMemo(() => {
     if (!content?.trim()) return null;
 
@@ -69,7 +63,6 @@ export const TiptapRenderer = ({ content, className = "", displayBlocks }: Tipta
           "height",
           "colspan",
           "rowspan",
-          "data-sanskrit-term",
         ],
         ADD_ATTR: ["loading"], // allow lazy-loading for images
         ALLOW_DATA_ATTR: true,
@@ -83,14 +76,14 @@ export const TiptapRenderer = ({ content, className = "", displayBlocks }: Tipta
         '<a href="$1" target="_blank" rel="noopener noreferrer">',
       );
 
-      // highlight Sanskrit terms
-      const termsMap = getTermsMap();
-      return highlightSanskritTerms(fixedLinks, termsMap, language);
+      // ✅ ВИДАЛЕНО: індексування санскритських термінів для глосарію
+      // Повертаємо санітизований HTML без автоматичного підсвічування термінів
+      return fixedLinks;
     } catch (err) {
       console.error("Renderer sanitize error:", err);
       return `<p class='text-destructive'>Помилка відображення контенту</p>`;
     }
-  }, [content, getTermsMap, language]);
+  }, [content]);
 
   if (!sanitizedContent) {
     return <div className="text-muted-foreground italic">Контент відсутній</div>;
