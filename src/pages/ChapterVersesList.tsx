@@ -457,7 +457,7 @@ export const ChapterVersesList = () => {
               {versesFiltered.map((verse, idx) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
-                  <p key={verse.id} className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground mb-6">
+                  <p key={verse.id} className="text-foreground mb-6">
                     {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
                   </p>
                 );
@@ -486,7 +486,7 @@ export const ChapterVersesList = () => {
                             </Link>
                           )}
                           <p
-                            className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground"
+                            className="text-foreground"
                             style={{ fontSize: `${fontSize}px`, lineHeight }}
                           >
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
@@ -504,7 +504,7 @@ export const ChapterVersesList = () => {
                             </Link>
                           )}
                           <p
-                            className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground"
+                            className="text-foreground"
                             style={{ fontSize: `${fontSize}px`, lineHeight }}
                           >
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
@@ -523,7 +523,7 @@ export const ChapterVersesList = () => {
                           </Link>
                         )}
                         <p
-                          className="text-xl leading-relaxed md:text-2xl md:leading-loose text-foreground"
+                          className="text-foreground"
                           style={{ fontSize: `${fontSize}px`, lineHeight }}
                         >
                           {language === "ua"
