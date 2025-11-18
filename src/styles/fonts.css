@@ -10,7 +10,6 @@
    ========================================== */
 
 /* -------- Google Fonts імпорти (мають бути на початку) -------- */
-@import url('https://fonts.googleapis.com/css2?family=Gentium+Plus:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap');
@@ -29,45 +28,13 @@
     "ccmp" 1;
 }
 
-/* -------- Gentium Plus Cyr (для української кирилиці з діакритикою) -------- */
-@font-face {
-  font-family: "Gentium Plus Cyr";
-  src: url("/fonts/Gentium-Regular.woff2") format("woff2");
-  font-display: swap;
-  font-style: normal;
-  font-weight: 400;
-  font-feature-settings:
-    "kern" 1,
-    "liga" 1,
-    "ccmp" 1,
-    "mark" 1,
-    "mkmk" 1;
-  /* Діапазони Unicode: кирилиця, діакритики, розширення */
-  unicode-range: U+0300-036F, U+1E00-1EFF, U+0400-04FF, U+0500-052F;
-}
-
-@font-face {
-  font-family: "Gentium Plus Cyr";
-  src: url("/fonts/Gentium-Italic.woff2") format("woff2");
-  font-display: swap;
-  font-style: italic;
-  font-weight: 400;
-  font-feature-settings:
-    "kern" 1,
-    "liga" 1,
-    "ccmp" 1,
-    "mark" 1,
-    "mkmk" 1;
-  unicode-range: U+0300-036F, U+1E00-1EFF, U+0400-04FF, U+0500-052F;
-}
-
 /* -------- Блок для трансліту (використовується в читалці віршів) -------- */
 .translit,
 .prose-reader .translit,
 .result-text,
 [data-result] {
   /* Шрифтова сім'я (!important для пріоритету) */
-  font-family: "Gentium Plus", serif !important;
+  font-family: "Noto Serif", serif !important;
   font-style: normal;
   font-weight: 400 !important;
 

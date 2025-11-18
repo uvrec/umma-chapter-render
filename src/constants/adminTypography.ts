@@ -33,7 +33,6 @@ export const AVAILABLE_FONTS = {
   transliteration: [
     { value: 'var(--font-translit)', label: 'Noto Serif (notoSerifVedabase)' },
     { value: '"Noto Serif", serif', label: 'Noto Serif' },
-    { value: '"Gentium Plus", serif', label: 'Gentium Plus' },
     { value: 'Georgia, serif', label: 'Georgia' },
     { value: 'Times New Roman, serif', label: 'Times New Roman' },
   ],
