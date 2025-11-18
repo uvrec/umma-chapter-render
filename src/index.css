@@ -365,8 +365,8 @@ body {
 /* Параграфи в коментарях - згідно Vedabase.io */
 .commentary-text p {
   margin-bottom: 1rem; /* mb-4 між параграфами */
-  font-size: var(--vv-reader-font-size) !important; /* Такий самий розмір як у prose-reader */
-  line-height: var(--vv-reader-line-height) !important;
+  font-size: var(--vv-reader-font-size); /* Такий самий розмір як у prose-reader */
+  line-height: var(--vv-reader-line-height);
 }
 
 .commentary-text p:last-child {
@@ -376,15 +376,15 @@ body {
 .prose-reader p,
 .prose-reader li {
   margin: 0.5em 0;
-  font-size: var(--vv-reader-font-size) !important;
-  line-height: var(--vv-reader-line-height) !important;
+  font-size: var(--vv-reader-font-size);
+  line-height: var(--vv-reader-line-height);
 }
 
 /* Параграфи у всіх space-y блоках (універсальне правило) */
 [class*="space-y-"] > div > p,
 [class*="space-y-"] p {
-  font-size: var(--vv-reader-font-size) !important;
-  line-height: var(--vv-reader-line-height) !important;
+  font-size: var(--vv-reader-font-size);
+  line-height: var(--vv-reader-line-height);
 }
 
 /* =========================
