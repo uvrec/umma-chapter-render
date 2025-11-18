@@ -281,12 +281,13 @@ body {
   text-align: left;
 }
 
-/* Санскрит (Деванагарі) - базові розміри згідно Vedabase.io */
+/* Санскрит (Деванагарі) - ДИНАМІЧНІ розміри прив'язані до fontSize користувача */
 .sanskrit-text,
 .prose-reader .sanskrit {
   /* ⚠️ font-family визначена в fonts.css (Noto Sans Devanagari) */
-  font-size: var(--sanskrit-font-size); /* Mobile: 1.125em → Desktop: 1.875em (em-text-3xl) */
-  line-height: var(--sanskrit-line-height); /* 1.618 golden ratio */
+  /* ✅ ВИПРАВЛЕНО: використовуємо calc() щоб реагувати на зміни fontSize */
+  font-size: calc(var(--vv-reader-font-size) * 1.5); /* 18px * 1.5 = 27px (динамічно) */
+  line-height: 1.618; /* golden ratio */
   text-align: center;
   margin: 0;
   margin-bottom: 0.75em; /* em-mb-3 згідно специфікації */
@@ -295,10 +296,11 @@ body {
   white-space: pre-line; /* Зберігає \n та автоматично переносить довгі рядки */
 }
 
-/* Бенгалі - базові розміри */
+/* Бенгалі - ДИНАМІЧНІ розміри */
 .bengali-text {
   /* ⚠️ font-family визначена в fonts.css (Noto Sans Bengali) */
-  font-size: 1rem; /* 16px базовий */
+  /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size для динамічності */
+  font-size: var(--vv-reader-font-size); /* Реагує на зміни користувача */
   line-height: 1.6;
   text-align: left;
   letter-spacing: 0.01em;
@@ -309,37 +311,41 @@ body {
 
    ⚠️ ВАЖЛИВО:
    - font-family, font-feature-settings тощо визначені в fonts.css
-   - Тут тільки font-size та line-height БЕЗ !important
-   - Це дозволяє inline styles перевизначати розміри динамічно
+   - Всі розміри ДИНАМІЧНІ і прив'язані до --vv-reader-font-size
+   - Це забезпечує що ВСІ блоки реагують на зміни fontSize
    ========================= */
 
-/* Деванагарі */
+/* Деванагарі - ДИНАМІЧНИЙ розмір */
 .devanagari-text {
-  font-size: 1.125rem; /* 18px базовий розмір */
+  /* ✅ ВИПРАВЛЕНО: використовуємо --vv-reader-font-size */
+  font-size: var(--vv-reader-font-size); /* Реагує на зміни користувача */
   line-height: 1.7;
   text-align: left;
   letter-spacing: 0.01em;
 }
 
-/* IAST латиниця (санскрит) */
+/* IAST латиниця - ДИНАМІЧНИЙ розмір */
 .iast-text {
-  font-size: 1.125rem; /* 18px базовий розмір, можна перевизначити через inline styles */
+  /* ✅ ВИПРАВЛЕНО: calc() дозволяє inline styles перевизначати, але дає базову динамічність */
+  font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
   line-height: 1.7;
 }
 
-/* Трансліт (українська кирилиця з діакритикою) */
+/* Трансліт - ДИНАМІЧНИЙ розмір */
 .translit,
-.transliteration-output,
+.transliteration-output:not(textarea),
 .prose-reader .translit {
-  font-size: 1.125rem; /* 18px базовий розмір */
+  /* ✅ ВИПРАВЛЕНО: calc() для транслітерації */
+  font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
   line-height: 1.7;
   text-align: left;
 }
 
-/* Послівний переклад */
+/* Послівний переклад - ДИНАМІЧНИЙ розмір */
 .synonyms-text {
-  font-size: var(--synonyms-font-size);
-  line-height: var(--synonyms-line-height);
+  /* ✅ ВИПРАВЛЕНО: використовуємо calc() для динамічності */
+  font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
+  line-height: var(--vv-reader-line-height);
 }
 
 .synonyms-pair {
