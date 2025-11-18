@@ -1,7 +1,7 @@
 // index.ts - Центральний файл експортів для GlobalAudioPlayer
 
-// Основні компоненти та хуки
-export { AudioProvider, GlobalAudioPlayer, useAudio } from './GlobalAudioPlayer';
+// Основні компоненти та хуки (імпортуються з ModernAudioContext)
+export { useAudio } from '@/contexts/ModernAudioContext';
 
 // TypeScript типи
 export type {

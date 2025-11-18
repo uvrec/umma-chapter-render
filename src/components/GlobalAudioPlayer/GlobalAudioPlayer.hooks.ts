@@ -1,7 +1,7 @@
 // GlobalAudioPlayer.hooks.ts - Кастомні React хуки для роботи з плеєром
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAudio } from './GlobalAudioPlayer';
+import { useAudio } from '@/contexts/ModernAudioContext';
 import type { Track, RepeatMode } from './GlobalAudioPlayer.types';
 import { formatTime, getProgressPercentage } from './GlobalAudioPlayer.utils';
 
