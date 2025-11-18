@@ -33,9 +33,9 @@ export const AVAILABLE_FONTS = {
     { value: 'Georgia, serif', label: 'Georgia' },
   ],
   synonyms: [
-    { value: 'var(--font-synonyms)', label: 'Noto Sans (notoSansVedabase)' },
-    { value: '"Noto Sans", sans-serif', label: 'Noto Sans' },
-    { value: 'var(--font-primary)', label: 'Noto Serif' },
+    { value: 'var(--font-synonyms)', label: 'Noto Serif (з діакритикою)' },
+    { value: '"Noto Serif", serif', label: 'Noto Serif' },
+    { value: 'var(--font-primary)', label: 'Noto Serif variable' },
     { value: 'system-ui, sans-serif', label: 'System UI' },
   ],
   text: [
@@ -72,7 +72,7 @@ export const DEFAULT_ADMIN_TYPOGRAPHY: AdminTypographyConfig = {
     lineHeight: 1.6,
   },
   synonyms: {
-    fontFamily: 'var(--font-synonyms)', // Noto Sans (notoSansVedabase custom)
+    fontFamily: 'var(--font-synonyms)', // Noto Serif з підтримкою діакритики
     fontSize: 0.95, // 95% від базового
     fontWeight: 400, // Regular
     fontStyle: 'normal',

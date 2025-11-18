@@ -24,8 +24,8 @@
   /* Бенгалі (বাংলা) - Noto Serif Bengali weight 500 */
   --font-bengali: "Noto Serif Bengali", serif;
 
-  /* Послівний переклад (synonyms) - notoSansVedabase кастомна версія */
-  --font-synonyms: "Noto Sans", sans-serif;
+  /* Послівний переклад (synonyms) - Noto Serif з підтримкою діакритики */
+  --font-synonyms: "Noto Serif", serif;
 
   /* UI (інтерфейс) */
   --font-ui: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -343,6 +343,8 @@ body {
 
 /* Послівний переклад - ДИНАМІЧНИЙ розмір */
 .synonyms-text {
+  /* Шрифт з підтримкою діакритики */
+  font-family: var(--font-synonyms) !important;
   /* ✅ ВИПРАВЛЕНО: використовуємо calc() для динамічності */
   font-size: calc(var(--vv-reader-font-size) * 1.1); /* 18px * 1.1 = 19.8px (динамічно) */
   line-height: var(--vv-reader-line-height);

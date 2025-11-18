@@ -157,7 +157,7 @@ export default {
         translit: "var(--font-translit)",
         sanskrit: "var(--font-devanagari)",
         "sanskrit-italic": "var(--font-devanagari)", // Додано для підтримки існуючих класів
-        synonyms: "var(--font-synonyms)", // notoSansVedabase кастомна версія
+        synonyms: "var(--font-synonyms)", // Noto Serif з підтримкою діакритики
         bengali: "var(--font-bengali)",
         ui: "var(--font-ui)",
 
