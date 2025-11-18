@@ -13,7 +13,7 @@
    ========================= */
 :root {
   /* Основний текст (кирилиця + латиниця) - Noto Serif variable 100-900 */
-  --font-primary: "Noto Serif", "Gentium Plus", Georgia, serif;
+  --font-primary: "Noto Serif", Georgia, serif;
 
   /* Транслітерація (verse text) - notoSerifVedabase кастомна версія */
   --font-translit: "Noto Serif", serif;
@@ -763,7 +763,7 @@ textarea.transliteration-output {
 
 /* IAST (латиниця з діакритикою) */
 textarea.iast-text {
-  font-family: "Gentium Plus", serif !important;
+  font-family: "Noto Serif", serif !important;
   font-weight: 400;
 }
 
@@ -781,7 +781,7 @@ textarea.bengali-text {
 
 /* Вихідний текст (українська кирилиця з діакритикою) */
 textarea.transliteration-output {
-  font-family: "Gentium Plus", serif !important;
+  font-family: "Noto Serif", serif !important;
   font-weight: 400;
 }
 

@@ -26,16 +26,11 @@ export const AVAILABLE_FONTS = {
   sanskrit: [
     { value: 'var(--font-devanagari)', label: 'Noto Sans Devanagari (Vedabase)' },
     { value: '"Noto Sans Devanagari", sans-serif', label: 'Noto Sans Devanagari' },
-    { value: 'Siddhanta, serif', label: 'Siddhanta' },
-    { value: 'Mangal, serif', label: 'Mangal' },
-    { value: 'Sanskrit2003, serif', label: 'Sanskrit 2003' },
   ],
   transliteration: [
     { value: 'var(--font-translit)', label: 'Noto Serif (notoSerifVedabase)' },
     { value: '"Noto Serif", serif', label: 'Noto Serif' },
-    { value: '"Gentium Plus", serif', label: 'Gentium Plus' },
     { value: 'Georgia, serif', label: 'Georgia' },
-    { value: 'Times New Roman, serif', label: 'Times New Roman' },
   ],
   synonyms: [
     { value: 'var(--font-synonyms)', label: 'Noto Sans (notoSansVedabase)' },
