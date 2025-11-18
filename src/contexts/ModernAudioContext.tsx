@@ -7,6 +7,8 @@ export interface AudioTrack {
   title: string;
   subtitle?: string;
   src: string;
+  url: string; // Required alias for src
+  verseNumber?: string;
   coverImage?: string;
   duration?: number;
   artist?: string;

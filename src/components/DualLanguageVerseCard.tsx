@@ -292,6 +292,7 @@ export const DualLanguageVerseCard = ({
       id: trackId,
       title: `${verseNumber} — ${section}`,
       src,
+      url: src,
     });
   };
   const startEdit = () => {

@@ -150,6 +150,7 @@ export const IndividualVerse = () => {
       id: `${verseNumber}-${section}`,
       title: `${verseNumber} — ${section}`,
       src: currentVerse.audioUrl,
+      url: currentVerse.audioUrl,
     });
   };
 

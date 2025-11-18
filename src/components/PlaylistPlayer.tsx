@@ -40,7 +40,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
 
   const handlePlayTrack = (track: Track, index: number) => {
     setCurrentTrackIndex(index);
-    playTrack({ id: track.id, title: track.title, src: track.src });
+    playTrack({ id: track.id, title: track.title, src: track.src, url: track.src });
   };
 
   const handleNext = () => {

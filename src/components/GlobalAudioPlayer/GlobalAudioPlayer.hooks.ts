@@ -387,7 +387,7 @@ export const usePlaylistFilter = () => {
 
   const filteredPlaylist = playlist.filter((track) =>
     track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    track.verseNumber?.toLowerCase().includes(searchQuery.toLowerCase())
+    (track.verseNumber && track.verseNumber.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const sortedPlaylist = [...filteredPlaylist].sort((a, b) => {

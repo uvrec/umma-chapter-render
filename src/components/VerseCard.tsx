@@ -199,6 +199,7 @@ export const VerseCard = ({
       id: trackId,
       title: `${verseNumber} — ${section}`,
       src,
+      url: src,
     });
   };
   const startEdit = () => {
