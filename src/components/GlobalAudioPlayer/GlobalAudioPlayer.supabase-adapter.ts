@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useRef } from "react";
 import type { Track } from "./GlobalAudioPlayer.types";
-import { useAudio } from "./GlobalAudioPlayer";
+import { useAudio } from "@/contexts/ModernAudioContext";
 
 type AudioTrack = {
   id: string;
