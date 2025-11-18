@@ -342,20 +342,11 @@ export const VerseCard = ({
                   }))
                 }
                 className="min-h-[80px] text-center iast-text text-muted-foreground"
-                style={{
-                  fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                }}
               />
             ) : (
               <div className="space-y-1 text-center">
                 {transliteration.split("\n").map((line, idx) => (
-                  <p
-                    key={idx}
-                    style={{
-                      fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                    }}
-                    className="iast-text text-muted-foreground"
-                  >
+                  <p key={idx} className="iast-text text-muted-foreground">
                     {line}
                   </p>
                 ))}
@@ -392,10 +383,7 @@ export const VerseCard = ({
                 className="min-h-[120px] synonyms-text"
               />
             ) : (
-              <p
-                className="synonyms-text text-foreground text-center"
-                style={{ fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.SYNONYMS})` }}
-              >
+              <p className="synonyms-text text-foreground text-center">
                 {synonymPairs.length === 0 ? (
                   <span className="text-muted-foreground">{synonyms}</span>
                 ) : (
@@ -490,7 +478,7 @@ export const VerseCard = ({
                 className="min-h-[100px] prose-reader font-semibold"
               />
             ) : (
-              <p className="translation-text text-justify">{translation}</p>
+              <p className="prose-reader text-foreground font-semibold font-serif text-justify">{translation}</p>
             )}
           </div>
         )}
