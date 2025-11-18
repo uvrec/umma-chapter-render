@@ -1,25 +1,12 @@
 /* ==========================================
    src/styles/fonts.css
 
-   ПРИЗНАЧЕННЯ: Визначення шрифтових сімей та OpenType features
+   ПРИЗНАЧЕННЯ: Визначення шрифтових сімей та @font-face
 
-   АРХІТЕКТУРА СТИЛІВ ШРИФТІВ:
-   1. fonts.css (цей файл):
-      - @font-face декларації
-      - font-family з !important (забезпечує пріоритет правильного шрифту)
-      - OpenType features (font-feature-settings, font-variant-ligatures)
-      - Рендеринг шрифтів (-webkit-font-smoothing, text-rendering)
-
-   2. index.css:
-      - CSS змінні для розмірів (--vv-reader-font-size, --sanskrit-font-size тощо)
-      - font-size та line-height БЕЗ !important (дозволяє inline styles перевизначати)
-      - Responsive breakpoints для адаптивності
-
-   3. Inline styles в компонентах:
-      - Динамічна зміна fontSize на основі useReaderSettings hook
-      - Формула: Sanskrit = fontSize * 1.5, Transliteration = fontSize * 1.1
-
-   ⚠️ ВАЖЛИВО: НЕ додавайте font-size/line-height сюди - це створює конфлікти!
+   ⚠️ ВАЖЛИВО:
+   - Тут тільки @font-face декларації та Google Fonts імпорти
+   - Стилі для конкретних елементів (font-size, line-height) в index.css
+   - Стилі для textarea в index.css в блоці "TEXTAREA ТРАНСЛІТЕРАТОРА"
    ========================================== */
 
 /* -------- Google Fonts імпорти (мають бути на початку) -------- */
@@ -74,13 +61,10 @@
   unicode-range: U+0300-036F, U+1E00-1EFF, U+0400-04FF, U+0500-052F;
 }
 
-
-
-/* -------- Блок для трансліту (українська кирилиця з діакритикою) -------- */
+/* -------- Блок для трансліту (використовується в читалці віршів) -------- */
 .translit,
 .prose-reader .translit,
 .result-text,
-.transliteration-output,
 [data-result] {
   /* Шрифтова сім'я (!important для пріоритету) */
   font-family: "Gentium Plus", serif !important;
@@ -106,58 +90,13 @@
   /* ⚠️ font-size та line-height визначені в index.css */
 }
 
-/* -------- Деванагарі -------- */
-.devanagari-text,
-.transliteration-output[data-script="devanagari"] {
-  /* Шрифтова сім'я (!important для пріоритету) */
-  font-family: "Noto Sans Devanagari", sans-serif !important;
-  font-style: normal;
-  font-weight: 400 !important;
-
-  /* ⚠️ font-size та line-height визначені в index.css */
-}
-
-/* -------- Бенгалі -------- */
-.bengali-text,
-.transliteration-output[data-script="bengali"] {
-  /* Шрифтова сім'я (!important для пріоритету) */
-  font-family: "Noto Sans Bengali", sans-serif !important;
-  font-style: normal;
-  font-weight: 400 !important;
-
-  /* ⚠️ font-size та line-height визначені в index.css */
-}
-
-/* -------- Санскрит (Деванагарі) -------- */
+/* -------- Санскрит (Деванагарі) для читалки -------- */
 .sanskrit-text,
 .prose-reader .sanskrit {
   /* Шрифтова сім'я для ДЕВАНАГАРІ (!important для пріоритету) */
   font-family: "Noto Sans Devanagari", sans-serif !important;
   font-style: normal !important;
   font-weight: 400 !important;
-
-  /* ⚠️ font-size та line-height визначені в index.css */
-}
-
-/* -------- IAST латиниця (транслітерація) -------- */
-.iast-text,
-.transliteration-output[data-script="iast"],
-textarea.iast-text,
-input.iast-text {
-  /* Шрифтова сім'я (!important для пріоритету) */
-  font-family: "Gentium Plus", serif !important;
-  font-style: normal !important;
-  font-weight: 400 !important;
-
-  /* OpenType features (!important для пріоритету) */
-  font-feature-settings: normal !important;
-  font-variant-ligatures: none !important;
-  letter-spacing: 0 !important;
-
-  /* Рендеринг шрифтів (!important для пріоритету) */
-  -webkit-font-smoothing: antialiased !important;
-  text-rendering: optimizeLegibility !important;
-  font-synthesis: none !important;
 
   /* ⚠️ font-size та line-height визначені в index.css */
 }
