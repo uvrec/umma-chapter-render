@@ -944,10 +944,8 @@ export const VedaReaderDB = () => {
 
   const isTextChapter = chapter.chapter_type === "text" || verses.length === 0;
 
-  // Глобальне застосування розміру шрифту до контенту рідера
-  const readerStyle: React.CSSProperties = {
-    fontSize: `${fontSize}px`
-  };
+  // ✅ fontSize керується через useReaderSettings → оновлює CSS змінну --vv-reader-font-size
+  // Не потрібно встановлювати inline font-size на контейнер
 
   return (
     <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
@@ -1020,7 +1018,7 @@ export const VedaReaderDB = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8" style={readerStyle} data-reader-root="true">
+      <div className="container mx-auto px-4 py-8" data-reader-root="true">
         {/* Заголовок */}
         <div className="mt-8 mb-8">
           <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
