@@ -14,20 +14,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap');
 
-/* -------- Gaura Times (основний вайшнавський шрифт) -------- */
-@font-face {
-  font-family: "Gaura Times";
-  src:
-    url("/fonts/GauraTimes.woff2") format("woff2"),
-    url("/fonts/GauraTimes.woff") format("woff");
-  font-display: swap;
-  font-feature-settings:
-    "liga" 1,
-    "dlig" 1,
-    "calt" 1,
-    "ccmp" 1;
-}
-
 /* -------- Блок для трансліту (використовується в читалці віршів) -------- */
 .translit,
 .prose-reader .translit,
