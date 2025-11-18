@@ -100,8 +100,3 @@
 
   /* ⚠️ font-size та line-height визначені в index.css */
 }
-
-/* -------- Tailwind базові директиви -------- */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
