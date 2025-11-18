@@ -130,6 +130,8 @@ export function useReaderSettings() {
   }, [baseFontSize]);
 
   useEffect(() => {
+    // Оновити CSS змінну для глобального використання
+    document.documentElement.style.setProperty('--vv-reader-line-height', String(lineHeight));
     localStorage.setItem(LS.lineHeight, String(lineHeight));
     // застосувати до контейнера з data-reader-root="true"
     if (!rootRef.current) {

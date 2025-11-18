@@ -230,18 +230,16 @@ export const IntroChapter = () => {
               // Dual mode - two columns with full HTML
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
                 {/* Ukrainian column */}
-                <div 
-                  className="prose prose-slate dark:prose-invert max-w-none"
-                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(introChapter?.content_ua || "")
                   }}
                 />
-                
+
                 {/* English column */}
-                <div 
-                  className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
-                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(introChapter?.content_en || "")
                   }}
@@ -250,8 +248,7 @@ export const IntroChapter = () => {
             ) : (
               // Single mode - one language
               <div
-                className="prose prose-slate dark:prose-invert max-w-none"
-                style={{ fontSize: `${fontSize}px`, lineHeight }}
+                className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     language === 'ua'
