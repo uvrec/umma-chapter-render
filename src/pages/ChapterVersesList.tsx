@@ -406,11 +406,13 @@ export const ChapterVersesList = () => {
           )}
 
           {/* Список віршів */}
-          {flowMode ? (/* Режим суцільного тексту - без контейнерів, номерів, рамок */
-        <div className="prose prose-lg max-w-none prose-reader">
-              {versesFiltered.map((verse, idx) => {
-            const text = language === "ua" ? verse.translation_ua : verse.translation_en;
-            return <p key={verse.id} className="text-foreground mb-6">
+          {flowMode ? (
+            /* Режим суцільного тексту - без контейнерів, номерів, рамок */
+            <div className="prose prose-lg max-w-none prose-reader">
+              {versesFiltered.map((verse) => {
+                const text = language === "ua" ? verse.translation_ua : verse.translation_en;
+                return (
+                  <p key={verse.id} className="text-foreground mb-6">
                     {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
                   </p>
                 );
@@ -430,9 +432,14 @@ export const ChapterVersesList = () => {
                       <div className="grid gap-6 md:grid-cols-2">
                         {/* Українська */}
                         <div className="space-y-3">
-                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                          {showNumbers && (
+                            <Link 
+                              to={getVerseUrl(verse.verse_number)} 
+                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                            >
                               ВІРШ {verse.verse_number}
-                            </Link>}
+                            </Link>
+                          )}
                           <p className="text-foreground prose-reader">
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
@@ -440,28 +447,46 @@ export const ChapterVersesList = () => {
 
                         {/* Англійська */}
                         <div className="space-y-3 border-l border-border pl-6">
-                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                          {showNumbers && (
+                            <Link 
+                              to={getVerseUrl(verse.verse_number)} 
+                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                            >
                               TEXT {verse.verse_number}
-                            </Link>}
+                            </Link>
+                          )}
                           <p className="text-foreground prose-reader">
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
-                      </div> : (/* Одна мова */
-              <div className="space-y-3">
-                        {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                      </div>
+                    ) : (
+                      /* Одна мова */
+                      <div className="space-y-3">
+                        {showNumbers && (
+                          <Link 
+                            to={getVerseUrl(verse.verse_number)} 
+                            className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                          >
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                          </Link>}
+                          </Link>
+                        )}
                         <p className="text-foreground prose-reader">
-                          {language === "ua" ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span> : translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                          {language === "ua" 
+                            ? (translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>)
+                            : (translationEn || <span className="italic text-muted-foreground">No translation</span>)
+                          }
                         </p>
-                      </div>)}
+                      </div>
+                    )}
 
                     {/* Невеликий відступ замість роздільної лінії */}
                     <div className="h-4" />
-                  </div>;
-          })}
-            </div>)}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {verses.length === 0 && <div className="rounded-lg border border-dashed border-border p-12 text-center">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />

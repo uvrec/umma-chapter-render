@@ -809,9 +809,8 @@ export const VedaReaderDB = () => {
       key: 'c',
       description: t('Безперервне читання', 'Continuous reading'),
       handler: () => {
-        const newSettings = { ...readContinuousReading(), enabled: !readContinuousReading().enabled };
-        localStorage.setItem("vv_reader_continuousReading", JSON.stringify(newSettings));
-        setContinuousReadingFromGlobal(newSettings);
+        const newSettings = { ...continuousReadingSettings, enabled: !continuousReadingSettings.enabled };
+        setContinuousReadingSettings(newSettings);
         window.dispatchEvent(new Event("vv-reader-prefs-changed"));
       },
       category: 'modes',
@@ -1100,8 +1099,6 @@ export const VedaReaderDB = () => {
                       commentaryEn={(currentVerse as any).commentary_en || ""}
                       isAdmin={isAdmin}
                       showNumbers={showNumbers}
-                      fontSize={fontSize}
-                      lineHeight={lineHeight}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,

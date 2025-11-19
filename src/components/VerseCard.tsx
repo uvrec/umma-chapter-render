@@ -6,8 +6,6 @@
 import { useState, useMemo } from "react";
 import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FONT_SIZE_MULTIPLIERS } from "@/constants/typography";
-// Card видалено - вірш відображається на прозорому фоні
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
