@@ -38,9 +38,16 @@ export function cleanHtml(html: string): string {
 /**
  * Очищає санскрит від HTML тегів, але ЗБЕРІГАЄ розриви рядків (\n)
  * Використовується для санскриту, де мануальні розриви рядків важливі
+ *
+ * ✅ Простий підхід: якщо немає HTML тегів - повертаємо текст як є
  */
 export function cleanSanskrit(text: string): string {
   if (!text) return '';
+
+  // Якщо текст не містить HTML тегів - повертаємо як є
+  if (!text.includes('<')) return text;
+
+  // Тільки якщо є HTML теги - очищаємо
   return text
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')

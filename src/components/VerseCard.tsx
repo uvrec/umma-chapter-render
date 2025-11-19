@@ -13,7 +13,7 @@ import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
-import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+// ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
 import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
@@ -177,11 +177,8 @@ export const VerseCard = ({
   });
   const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
 
-  // ✨ ВАЖЛИВО: Обробка санскриту для автоматичних розривів рядків
-  // Конвертує | (pipe) на \n для правильного відображення
-  const processedSanskrit = useMemo(() => {
-    return addSanskritLineBreaks(sanskritText);
-  }, [sanskritText]);
+  // ✅ ВИДАЛЕНО: processedSanskrit - санскрит відображається як є, з \n
+  // Автоматичні розриви застосовуються ТІЛЬКИ при імпорті, а не при рендерингу
 
   // Функція для відтворення конкретної секції
   const playSection = (section: string, audioSrc?: string) => {
@@ -324,7 +321,7 @@ export const VerseCard = ({
                 className="min-h-[100px] text-center sanskrit-text"
               />
             ) : (
-              <p className="whitespace-pre-line text-center sanskrit-text">{processedSanskrit}</p>
+              <p className="whitespace-pre-line text-center sanskrit-text">{sanskritText}</p>
             )}
           </div>
         )}
