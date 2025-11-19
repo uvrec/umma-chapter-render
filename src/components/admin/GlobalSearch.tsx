@@ -77,7 +77,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           id: chapter.id,
           title: `${chapter.chapter_number}. ${chapter.title_ua}`,
           subtitle: cantoTitle ? `${bookTitle} → ${cantoTitle}` : bookTitle,
-          href: `/admin/verses?chapterId=${chapter.id}`,
+          href: `/admin/scripture?chapterId=${chapter.id}`,
         });
       });
 

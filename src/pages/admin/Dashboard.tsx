@@ -262,9 +262,6 @@ const Dashboard = () => {
                   Scripture Manager
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/verses">Класичний режим</Link>
-              </Button>
             </CardContent>
           </Card>
 
