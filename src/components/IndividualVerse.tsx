@@ -401,7 +401,7 @@ export const IndividualVerse = () => {
             </div>
             <div
               style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
+                fontSize: `var(--vv-reader-font-size)`,
                 lineHeight: LINE_HEIGHTS.NORMAL
               }}
             >
