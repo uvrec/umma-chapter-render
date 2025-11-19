@@ -1011,19 +1011,45 @@ export const VedaReaderDB = () => {
                 showCommentary: continuousReadingSettings.showCommentary,
               };
 
-              return (
+              return dualLanguageMode ? (
+                <DualLanguageVerseCard
+                  key={verse.id}
+                  verseId={verse.id}
+                  verseNumber={fullVerseNumber}
+                  sanskritTextUa={cleanHtml((verse as any).sanskrit_ua || (verse as any).sanskrit || "")}
+                  sanskritTextEn={cleanHtml((verse as any).sanskrit_en || (verse as any).sanskrit || "")}
+                  transliterationUa={(verse as any).transliteration_ua || ""}
+                  synonymsUa={(verse as any).synonyms_ua || ""}
+                  translationUa={(verse as any).translation_ua || ""}
+                  commentaryUa={(verse as any).commentary_ua || ""}
+                  transliterationEn={(verse as any).transliteration_en || ""}
+                  synonymsEn={(verse as any).synonyms_en || ""}
+                  translationEn={(verse as any).translation_en || ""}
+                  commentaryEn={(verse as any).commentary_en || ""}
+                  isAdmin={isAdmin}
+                  showNumbers={showNumbers}
+                  fontSize={fontSize}
+                  lineHeight={lineHeight}
+                  onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                    verseId,
+                    updates,
+                    chapterId: chapter?.id,
+                    verseNumber: verse.verse_number
+                  })}
+                />
+              ) : (
                 <VerseCard
                   key={verse.id}
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
                   sanskritText={cleanHtml(
-                    language === "ua" 
-                      ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" 
+                    language === "ua"
+                      ? (verse as any).sanskrit_ua || (verse as any).sanskrit || ""
                       : (verse as any).sanskrit_en || (verse as any).sanskrit || ""
                   )}
                   transliteration={
-                    language === "ua" 
+                    language === "ua"
                       ? (verse as any).transliteration_ua || (verse as any).transliteration || ""
                       : (verse as any).transliteration_en || (verse as any).transliteration || ""
                   }

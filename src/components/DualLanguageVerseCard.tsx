@@ -28,6 +28,8 @@ interface DualLanguageVerseCardProps {
 
   isAdmin?: boolean;
   showNumbers?: boolean;
+  fontSize?: number;
+  lineHeight?: number;
   onVerseUpdate?: (verseId: string, updates: any) => void;
 }
 
@@ -67,6 +69,8 @@ export function DualLanguageVerseCard({
   commentaryEn,
   isAdmin,
   showNumbers = true,
+  fontSize = 18,
+  lineHeight = 1.6,
   onVerseUpdate,
 }: DualLanguageVerseCardProps) {
   const [editMode, setEditMode] = useState(false);
@@ -121,7 +125,13 @@ export function DualLanguageVerseCard({
   const synonymsParsedEn = parseSynonyms(editedData.synonymsEn);
 
   return (
-    <div className="w-full max-w-7xl mx-auto">
+    <div
+      className="w-full max-w-7xl mx-auto"
+      style={{
+        fontSize: `${fontSize}px`,
+        lineHeight,
+      }}
+    >
       {/* Admin Controls */}
       {isAdmin && (
         <div className="flex justify-end gap-2 p-4">
