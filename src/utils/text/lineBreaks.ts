@@ -5,9 +5,7 @@
 
 /**
  * Adds line breaks to Sanskrit text based on Devanagari punctuation
- * Splits at: invocations (ॐ), single danda (।), pipe (|), and preserves double danda (॥) with verse numbers
- *
- * ВАЖЛИВО: Підтримує як деванагарі символ (।), так і латинський pipe (|)
+ * Splits at: invocations (ॐ), single danda (।), and preserves double danda (॥) with verse numbers
  */
 export function addSanskritLineBreaks(text: string): string {
   // Перевірка на коректність вхідних даних
@@ -15,12 +13,14 @@ export function addSanskritLineBreaks(text: string): string {
   if (!text.trim()) return text;
 
   try {
+    // ✅ ВИПРАВЛЕННЯ: Якщо текст вже має розриви рядків (\n),
+    // це означає що він був відредагований вручну - НЕ ОБРОБЛЯТИ!
+    if (text.includes('\n')) {
+      return text;
+    }
+
     // Remove existing line breaks to start fresh
     let cleaned = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
-
-    // Step 1: Normalize pipes - convert Latin pipe (|) to Devanagari danda (।)
-    // This makes processing uniform
-    cleaned = cleaned.replace(/\|/g, '।');
 
     // Step 2: Handle invocation (ॐ) - should be on its own line
     cleaned = cleaned.replace(/^(ॐ[^।॥]+)/i, '$1\n');
