@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useEffect, useState } from "react";
 
 export const BookOverview = () => {
@@ -14,18 +15,7 @@ export const BookOverview = () => {
   const bookSlug = slug || bookId;
   const { language, t } = useLanguage();
   const navigate = useNavigate();
-
-  // Читаємо dualMode з localStorage
-  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
-
-  // Слухаємо зміни з GlobalSettingsPanel
-  useEffect(() => {
-    const handler = () => {
-      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
-    };
-    window.addEventListener("vv-reader-prefs-changed", handler);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
-  }, []);
+  const { dualLanguageMode } = useReaderSettings();
 
   // Fetch book
   const { data: book } = useQuery({
@@ -178,7 +168,7 @@ export const BookOverview = () => {
                   const cantoTitleUa = canto.title_ua;
                   const cantoTitleEn = canto.title_en;
 
-                  return dualMode ? (
+                  return dualLanguageMode ? (
                     // Side-by-side для cantos
                     <Link
                       key={canto.id}
@@ -224,7 +214,7 @@ export const BookOverview = () => {
                     const titleUa = verse.translation_ua ? `${verse.verse_number}. ${verse.translation_ua}` : `Текст ${verse.verse_number}`;
                     const titleEn = verse.translation_en ? `${verse.verse_number}. ${verse.translation_en}` : `Text ${verse.verse_number}`;
 
-                    return dualMode ? (
+                    return dualLanguageMode ? (
                       <Link
                         key={verse.id}
                         to={`/veda-reader/noi/${verse.verse_number}`}
@@ -267,7 +257,7 @@ export const BookOverview = () => {
                   const chapterTitleUa = chapter.title_ua;
                   const chapterTitleEn = chapter.title_en;
 
-                  return dualMode ? (
+                  return dualLanguageMode ? (
                     // Side-by-side для chapters
                     <Link
                       key={chapter.id}

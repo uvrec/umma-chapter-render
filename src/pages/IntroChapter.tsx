@@ -20,18 +20,7 @@ export const IntroChapter = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { fontSize, lineHeight } = useReaderSettings();
-  const [dualMode, setDualMode] = useState(() => 
-    localStorage.getItem("vv_reader_dualMode") === "true"
-  );
-
-  useEffect(() => {
-    const handler = () => {
-      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
-    };
-    window.addEventListener("vv-reader-prefs-changed", handler);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
-  }, []);
+  const { fontSize, lineHeight, dualLanguageMode } = useReaderSettings();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -226,8 +215,8 @@ export const IntroChapter = () => {
             </div>
           ) : (
             // Reading mode
-            dualMode ? (
-              // Dual mode - two columns with full HTML
+            dualLanguageMode ? (
+              // Dual language mode - two columns with full HTML
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
                 {/* Ukrainian column */}
                 <div

@@ -1,4 +1,4 @@
-// ChapterVersesList.tsx — Список віршів з підтримкою dualMode
+// ChapterVersesList.tsx — Список віршів з підтримкою dualLanguageMode
 
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -23,28 +23,12 @@ export const ChapterVersesList = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { fontSize, lineHeight } = useReaderSettings();
+  const { fontSize, lineHeight, dualLanguageMode, showNumbers, flowMode } = useReaderSettings();
 
-  // Читаємо налаштування з localStorage
-  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
-  const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
-  const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
-  
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
-
-  // Слухаємо зміни з GlobalSettingsPanel
-  useEffect(() => {
-    const handler = () => {
-      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
-      setShowNumbers(localStorage.getItem("vv_reader_showNumbers") !== "false");
-      setFlowMode(localStorage.getItem("vv_reader_flowMode") === "true");
-    };
-    window.addEventListener("vv-reader-prefs-changed", handler);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
-  }, []);
 
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
@@ -410,7 +394,7 @@ export const ChapterVersesList = () => {
                     </Button>
                   </div>
                 </div>
-              ) : dualMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+              ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
                 /* ✅ Двомовний режим для текстових глав - side-by-side */
                 <div className="grid gap-6 md:grid-cols-2">
                   {/* Українська */}
@@ -468,8 +452,8 @@ export const ChapterVersesList = () => {
 
                 return (
                   <div key={verse.id} className="space-y-3">
-                    {/* Side-by-side якщо dualMode */}
-                    {dualMode ? (
+                    {/* Side-by-side якщо dualLanguageMode */}
+                    {dualLanguageMode ? (
                       <div className="grid gap-6 md:grid-cols-2">
                         {/* Українська */}
                         <div className="space-y-3">

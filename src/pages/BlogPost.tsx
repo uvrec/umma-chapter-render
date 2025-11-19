@@ -21,6 +21,7 @@ import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useBlogPostView } from "@/hooks/useBlogPostView";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
@@ -30,9 +31,7 @@ export default function BlogPost() {
   const { language } = useLanguage();
   const { isAdmin } = useAuth();
   const queryClient = useQueryClient();
-
-  // Читаємо dualMode з localStorage
-  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
+  const { dualLanguageMode } = useReaderSettings();
 
   // ✅ ДОДАНО: Display blocks для контролю видимості блоків
   const [displayBlocks, setDisplayBlocks] = useState({
@@ -42,15 +41,6 @@ export default function BlogPost() {
     translation: true,
     commentary: true,
   });
-
-  // Слухаємо зміни з GlobalSettingsPanel
-  useEffect(() => {
-    const handler = () => {
-      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
-    };
-    window.addEventListener("vv-reader-prefs-changed", handler);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
-  }, []);
 
   const {
     data: post,
@@ -320,7 +310,7 @@ export default function BlogPost() {
       <Header />
 
       <article className="container mx-auto py-8">
-        <div className={dualMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
+        <div className={dualLanguageMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
           {/* ✅ ДОДАНО: Панель налаштувань блоків (тільки для адміна) */}
           {isAdmin && (
             <Card className="mb-6 p-4 bg-card/50">
@@ -393,7 +383,7 @@ export default function BlogPost() {
             </div>
           )}
 
-          {dualMode ? (
+          {dualLanguageMode ? (
             // DUAL MODE - Side by side
             <div className="grid md:grid-cols-2 gap-8">
               {/* Ukrainian Column */}
@@ -647,7 +637,7 @@ export default function BlogPost() {
           )}
 
           {/* Embeds - показуємо один раз, не дублюємо в dual mode */}
-          {!dualMode && (
+          {!dualLanguageMode && (
             <div className="space-y-8 mb-8 mt-8">
               {post.video_url && <VideoEmbed url={post.video_url} />}
               {post.audio_url && <AudioEmbed url={post.audio_url} />}

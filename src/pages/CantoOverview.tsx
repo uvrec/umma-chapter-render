@@ -1,4 +1,4 @@
-// CantoOverview.tsx - список глав канту з підтримкою dualMode
+// CantoOverview.tsx - список глав канту з підтримкою dualLanguageMode
 
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -7,23 +7,13 @@ import { Header } from "@/components/Header";
 import { Breadcrumb } from "@/components/Breadcrumb";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useEffect, useState } from "react";
 
 export const CantoOverview = () => {
   const { bookId, cantoNumber } = useParams();
   const { language, t } = useLanguage();
-
-  // Читаємо dualMode з localStorage
-  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
-
-  // Слухаємо зміни з GlobalSettingsPanel
-  useEffect(() => {
-    const handler = () => {
-      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
-    };
-    window.addEventListener("vv-reader-prefs-changed", handler);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
-  }, []);
+  const { dualLanguageMode } = useReaderSettings();
 
   const { data: book } = useQuery({
     queryKey: ["book", bookId],
@@ -121,7 +111,7 @@ export const CantoOverview = () => {
               const chapterTitleEn = chapter.title_en;
               const chapterNum = chapter.chapter_number; // Це вже просто номер глави (1, 2, 3...)
 
-              return dualMode ? (
+              return dualLanguageMode ? (
                 // Side-by-side для chapters
                 <Link
                   key={chapter.id}

@@ -71,25 +71,11 @@ export const VedaReaderDB = () => {
     setTextDisplaySettings,
     continuousReadingSettings,
     setContinuousReadingSettings,
+    showNumbers,
+    setShowNumbers,
+    flowMode,
+    setFlowMode,
   } = useReaderSettings();
-
-  // Локальні налаштування, які НЕ управляються через useReaderSettings
-  const [showNumbers, setShowNumbers] = useState<boolean>(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
-  const [flowMode, setFlowMode] = useState<boolean>(() => localStorage.getItem("vv_reader_flowMode") === "true");
-
-  // Слухаємо зміни локальних налаштувань
-  useEffect(() => {
-    const handlePrefsChanged = () => {
-      const newShowNumbers = localStorage.getItem("vv_reader_showNumbers") !== "false";
-      setShowNumbers(newShowNumbers);
-
-      const newFlowMode = localStorage.getItem("vv_reader_flowMode") === "true";
-      setFlowMode(newFlowMode);
-    };
-
-    window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-  }, []);
   
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
