@@ -22,7 +22,7 @@ const MAX_LH = 2.0;
 const DEFAULTS = {
   fontSize: 18,
   lineHeight: 1.6,
-  dualMode: false,
+  dualLanguageMode: false,
   showNumbers: true,
   flowMode: false,
   blocks: {
@@ -125,7 +125,7 @@ export const GlobalSettingsPanel = () => {
     resetTypography();
 
     // Скидаємо інші налаштування
-    setDualLanguageMode(DEFAULTS.dualMode);
+    setDualLanguageMode(DEFAULTS.dualLanguageMode);
     setTextDisplaySettings(DEFAULTS.blocks);
     setShowNumbers(DEFAULTS.showNumbers);
     setFlowMode(DEFAULTS.flowMode);
