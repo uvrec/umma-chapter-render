@@ -124,7 +124,7 @@ export function DualLanguageVerseCard({
     <div className="w-full max-w-7xl mx-auto bg-card rounded-lg">
       {/* Admin Controls */}
       {isAdmin && (
-        <div className="flex justify-end gap-2 p-4 border-b border-border">
+        <div className="flex justify-end gap-2 p-4">
           {!editMode ? (
             <Button onClick={() => setEditMode(true)} variant="outline" size="sm">
               <Edit className="w-4 h-4 mr-2" />
@@ -221,7 +221,7 @@ export function DualLanguageVerseCard({
         <div className="grid grid-cols-2 gap-8">
           {/* Ukrainian Synonyms */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Послівний переклад</h3>
+            <h3 className="text-xl font-bold mb-4 text-center">Послівний переклад</h3>
             {editMode ? (
               <Textarea
                 value={editedData.synonymsUa}
@@ -263,7 +263,7 @@ export function DualLanguageVerseCard({
 
           {/* English Synonyms */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Synonyms</h3>
+            <h3 className="text-xl font-bold mb-4 text-center">Synonyms</h3>
             {editMode ? (
               <Textarea
                 value={editedData.synonymsEn}
@@ -309,8 +309,8 @@ export function DualLanguageVerseCard({
       <div className="p-8">
         {/* Headers */}
         <div className="grid grid-cols-2 gap-8 mb-4">
-          <h3 className="text-xl font-bold">Переклад</h3>
-          <h3 className="text-xl font-bold">Translation</h3>
+          <h3 className="text-xl font-bold text-center">Переклад</h3>
+          <h3 className="text-xl font-bold text-center">Translation</h3>
         </div>
 
         {editMode ? (
@@ -345,8 +345,8 @@ export function DualLanguageVerseCard({
       <div className="p-8">
         {/* Headers */}
         <div className="grid grid-cols-2 gap-8 mb-4">
-          <h3 className="text-xl font-bold">Пояснення</h3>
-          <h3 className="text-xl font-bold">Purport</h3>
+          <h3 className="text-xl font-bold text-center">Пояснення</h3>
+          <h3 className="text-xl font-bold text-center">Purport</h3>
         </div>
 
         {editMode ? (
