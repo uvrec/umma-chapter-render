@@ -96,6 +96,26 @@ export function useReaderSettings() {
 
   const rootRef = useRef<HTMLElement | null>(null);
 
+  // Refs для відстеження поточних значень без перереєстрації listener
+  const stateRefs = useRef({
+    fontSizeAdjustment,
+    lineHeight,
+    dualLanguageMode,
+    textDisplaySettings,
+    continuousReadingSettings,
+  });
+
+  // Оновлюємо refs при кожній зміні
+  useEffect(() => {
+    stateRefs.current = {
+      fontSizeAdjustment,
+      lineHeight,
+      dualLanguageMode,
+      textDisplaySettings,
+      continuousReadingSettings,
+    };
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings]);
+
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
   }, []);
@@ -173,26 +193,29 @@ export function useReaderSettings() {
   }, []);
 
   // Слухаємо зміни з GlobalSettingsPanel (без циклу)
+  // Використовуємо refs щоб listener не перереєстровувався
   useEffect(() => {
     const handlePrefsChanged = () => {
-      // Читаємо з localStorage тільки ті значення, які ми НЕ змінюємо самі
+      // Читаємо з localStorage нові значення
       const newAdjustment = readNum(LS.fontSizeAdjustment, 0);
       const newLineHeight = readNum(LS.lineHeight, LINE_HEIGHTS.NORMAL);
       const newDual = readBool(LS.dual, false);
       const newBlocks = readJSON(LS.blocks, DEFAULT_BLOCKS);
       const newCont = readJSON(LS.cont, DEFAULT_CONT);
 
-      // Оновлюємо тільки якщо значення змінились (уникаємо циклу)
-      if (newAdjustment !== fontSizeAdjustment) setFontSizeAdjustment(newAdjustment);
-      if (newLineHeight !== lineHeight) setLineHeight(newLineHeight);
-      if (newDual !== dualLanguageMode) setDualLanguageMode(newDual);
-      if (JSON.stringify(newBlocks) !== JSON.stringify(textDisplaySettings)) setTextDisplaySettings(newBlocks);
-      if (JSON.stringify(newCont) !== JSON.stringify(continuousReadingSettings)) setContinuousReadingSettings(newCont);
+      // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
+      const current = stateRefs.current;
+
+      if (newAdjustment !== current.fontSizeAdjustment) setFontSizeAdjustment(newAdjustment);
+      if (newLineHeight !== current.lineHeight) setLineHeight(newLineHeight);
+      if (newDual !== current.dualLanguageMode) setDualLanguageMode(newDual);
+      if (JSON.stringify(newBlocks) !== JSON.stringify(current.textDisplaySettings)) setTextDisplaySettings(newBlocks);
+      if (JSON.stringify(newCont) !== JSON.stringify(current.continuousReadingSettings)) setContinuousReadingSettings(newCont);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
     return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings]);
+  }, []); // Порожній масив - listener реєструється один раз
 
   // API для зручності - оновлено для роботи з adjustment
   const increaseFont = useCallback(() => {
