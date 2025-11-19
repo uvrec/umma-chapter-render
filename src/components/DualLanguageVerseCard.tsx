@@ -241,7 +241,7 @@ export function DualLanguageVerseCard({
                 className="text-base min-h-[200px]"
               />
             ) : (
-              <p className="text-base leading-relaxed">
+              <p style={{ fontSize: `${fontSize}px`, lineHeight }}>
                 {synonymsParsedUa.map((syn, i) => {
                   const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
                   return (
@@ -283,7 +283,7 @@ export function DualLanguageVerseCard({
                 className="text-base min-h-[200px]"
               />
             ) : (
-              <p className="text-base leading-relaxed">
+              <p style={{ fontSize: `${fontSize}px`, lineHeight }}>
                 {synonymsParsedEn.map((syn, i) => {
                   const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
                   return (
