@@ -293,7 +293,7 @@ export const IndividualVerse = () => {
         {/* Послівний переклад */}
         {currentVerse.synonyms && (
           <section className="mb-12">
-            <div className="mb-6 flex items-center justify-center gap-4">
+            <div className="mb-8 flex items-center justify-center gap-4">
               <h2
                 className="font-bold"
                 style={{
@@ -350,7 +350,7 @@ export const IndividualVerse = () => {
         {/* Літературний переклад */}
         {currentVerse.translation && (
           <section className="mb-12">
-            <div className="mb-6 flex items-center justify-center gap-4">
+            <div className="mb-8 flex items-center justify-center gap-4">
               <h2
                 className="font-bold"
                 style={{
@@ -382,7 +382,7 @@ export const IndividualVerse = () => {
         {/* Пояснення */}
         {currentVerse.commentary && (
           <section className="mb-12">
-            <div className="mb-6 flex items-center justify-center gap-4">
+            <div className="mb-8 flex items-center justify-center gap-4">
               <h2
                 className="font-bold"
                 style={{
