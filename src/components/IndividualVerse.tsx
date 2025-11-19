@@ -30,7 +30,7 @@ export const IndividualVerse = () => {
   // ✅ Назви блоків (поки що UA, можна додати мовний контекст)
   const blockLabels = {
     synonyms: 'Послівний переклад',
-    translation: 'Літературний переклад',
+    translation: 'Переклад',
     commentary: 'Пояснення',
   };
 
@@ -57,9 +57,9 @@ export const IndividualVerse = () => {
       case "srimad-bhagavatam":
         return "ШБ";
       case "bhagavad-gita":
-        return "БГ";
+        return "БҐ";
       case "sri-isopanishad":
-        return "ШІІ";
+        return "ІШО";
       default:
         return "";
     }
