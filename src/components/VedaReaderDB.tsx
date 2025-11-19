@@ -23,7 +23,7 @@ import { HighlightDialog } from "@/components/HighlightDialog";
 import { useHighlights } from "@/hooks/useHighlights";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
-import { cleanHtml } from "@/utils/import/normalizers";
+import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 
 export const VedaReaderDB = () => {
@@ -1012,8 +1012,8 @@ export const VedaReaderDB = () => {
                   key={verse.id}
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
-                  sanskritTextUa={cleanHtml((verse as any).sanskrit_ua || (verse as any).sanskrit || "")}
-                  sanskritTextEn={cleanHtml((verse as any).sanskrit_en || (verse as any).sanskrit || "")}
+                  sanskritTextUa={cleanSanskrit((verse as any).sanskrit_ua || (verse as any).sanskrit || "")}
+                  sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")}
                   transliterationUa={(verse as any).transliteration_ua || ""}
                   synonymsUa={(verse as any).synonyms_ua || ""}
                   translationUa={(verse as any).translation_ua || ""}
@@ -1039,7 +1039,7 @@ export const VedaReaderDB = () => {
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
-                  sanskritText={cleanHtml(
+                  sanskritText={cleanSanskrit(
                     language === "ua"
                       ? (verse as any).sanskrit_ua || (verse as any).sanskrit || ""
                       : (verse as any).sanskrit_en || (verse as any).sanskrit || ""
@@ -1110,8 +1110,8 @@ export const VedaReaderDB = () => {
                       key={currentVerse.id}
                       verseId={currentVerse.id}
                       verseNumber={fullVerseNumber}
-                      sanskritTextUa={cleanHtml((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")}
-                      sanskritTextEn={cleanHtml((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")}
+                      sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")}
+                      sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")}
                       transliterationUa={(currentVerse as any).transliteration_ua || ""}
                       synonymsUa={(currentVerse as any).synonyms_ua || ""}
                       translationUa={(currentVerse as any).translation_ua || ""}
@@ -1135,8 +1135,8 @@ export const VedaReaderDB = () => {
                       verseId={currentVerse.id}
                       verseNumber={fullVerseNumber}
                       bookName={chapterTitle}
-                      sanskritText={cleanHtml(
-                        language === "ua" 
+                      sanskritText={cleanSanskrit(
+                        language === "ua"
                           ? (currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || ""
                           : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || ""
                       )}

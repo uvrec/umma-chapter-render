@@ -35,6 +35,23 @@ export function cleanHtml(html: string): string {
     .trim();
 }
 
+/**
+ * Очищає санскрит від HTML тегів, але ЗБЕРІГАЄ розриви рядків (\n)
+ * Використовується для санскриту, де мануальні розриви рядків важливі
+ */
+export function cleanSanskrit(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+    .replace(/<br\s*\/?>/gi, '\n') // Конвертуємо <br> в \n
+    .replace(/<[^>]+>/g, '') // Видаляємо інші HTML теги
+    .replace(/[ \t]+/g, ' ') // Нормалізуємо пробіли та табуляції (але НЕ \n!)
+    .replace(/\n\s+/g, '\n') // Прибираємо пробіли на початку рядків
+    .replace(/\s+\n/g, '\n') // Прибираємо пробіли в кінці рядків
+    .trim();
+}
+
 export function sanitizeHtml(html: string): string {
   if (!html) return '';
   return DOMPurify.sanitize(html, {
