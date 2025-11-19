@@ -270,7 +270,6 @@ export function useDailyQuote() {
     link: quote.quote_type === 'verse' && quote.verse?.chapter?.book
       ? (() => {
           const bookSlug = quote.verse.chapter.book.slug;
-          const chapterId = quote.verse.chapter.id;
           const verseNumber = quote.verse.verse_number;
           const hasCantos = quote.verse.chapter.book.has_cantos;
           const cantoNumber = quote.verse.chapter.canto?.canto_number;
@@ -281,8 +280,8 @@ export function useDailyQuote() {
             return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
           }
 
-          // Інакше використовуємо chapterId
-          return `/veda-reader/${bookSlug}/${chapterId}/${verseNumber}`;
+          // Інакше використовуємо chapterNumber
+          return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
         })()
       : null,
   } : null;
