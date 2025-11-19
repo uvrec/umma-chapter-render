@@ -113,26 +113,11 @@ export const GlobalSettingsPanel = () => {
     setTextDisplaySettings,
     continuousReadingSettings,
     setContinuousReadingSettings,
+    showNumbers,
+    setShowNumbers,
+    flowMode,
+    setFlowMode,
   } = useReaderSettings();
-
-  // Локальні налаштування, які НЕ управляються через useReaderSettings
-  const [showNumbers, setShowNumbers] = useState<boolean>(() => localStorage.getItem(LS_KEYS.showNumbers) !== "false");
-  const [flowMode, setFlowMode] = useState<boolean>(() => localStorage.getItem(LS_KEYS.flowMode) === "true");
-
-  const bumpReader = () => {
-    window.dispatchEvent(new CustomEvent("vv-reader-prefs-changed"));
-  };
-
-  // useEffect лише для локальних налаштувань (fontSize/lineHeight тепер в useReaderSettings)
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.showNumbers, String(showNumbers));
-    bumpReader();
-  }, [showNumbers]);
-
-  useEffect(() => {
-    localStorage.setItem(LS_KEYS.flowMode, String(flowMode));
-    bumpReader();
-  }, [flowMode]);
 
   // Функція скидання до початкових значень
   const resetToDefaults = () => {

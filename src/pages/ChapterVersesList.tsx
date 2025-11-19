@@ -1,4 +1,4 @@
-// ChapterVersesList.tsx — Список віршів з підтримкою dualMode
+// ChapterVersesList.tsx — Список віршів з підтримкою dualLanguageMode
 
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,31 +31,13 @@ export const ChapterVersesList = () => {
     user
   } = useAuth();
   const queryClient = useQueryClient();
-  const {
-    fontSize,
-    lineHeight
-  } = useReaderSettings();
-
-  // Читаємо налаштування з localStorage
-  const [dualMode, setDualMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
-  const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
-  const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
+  const { fontSize, lineHeight, dualLanguageMode, showNumbers, flowMode } = useReaderSettings();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
 
-  // Слухаємо зміни з GlobalSettingsPanel
-  useEffect(() => {
-    const handler = () => {
-      setDualMode(localStorage.getItem("vv_reader_dualMode") === "true");
-      setShowNumbers(localStorage.getItem("vv_reader_showNumbers") !== "false");
-      setFlowMode(localStorage.getItem("vv_reader_flowMode") === "true");
-    };
-    window.addEventListener("vv-reader-prefs-changed", handler);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handler);
-  }, []);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
   const {
@@ -338,7 +320,90 @@ export const ChapterVersesList = () => {
           </div>
 
           {/* Огляд глави */}
-          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en)}
+          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
+            <div className="mb-8 rounded-lg border border-border bg-card p-6">
+              {user && !isEditingContent && (
+                <div className="mb-4 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditingContent(true)}
+                    className="gap-2"
+                  >
+                    <Edit className="h-4 w-4" />
+                    {language === "ua" ? "Редагувати" : "Edit"}
+                  </Button>
+                </div>
+              )}
+
+              {isEditingContent ? (
+                <div className="space-y-4">
+                  <EnhancedInlineEditor
+                    content={editedContentUa}
+                    onChange={setEditedContentUa}
+                    label="Українська"
+                  />
+                  <EnhancedInlineEditor
+                    content={editedContentEn}
+                    onChange={setEditedContentEn}
+                    label="English"
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => saveContentMutation.mutate()}
+                      disabled={saveContentMutation.isPending}
+                      className="gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {language === "ua" ? "Зберегти" : "Save"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingContent(false);
+                        setEditedContentUa(effectiveChapterObj.content_ua || "");
+                        setEditedContentEn(effectiveChapterObj.content_en || "");
+                      }}
+                      className="gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      {language === "ua" ? "Скасувати" : "Cancel"}
+                    </Button>
+                  </div>
+                </div>
+              ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+                /* ✅ Двомовний режим для текстових глав - side-by-side */
+                <div className="grid gap-6 md:grid-cols-2">
+                  {/* Українська */}
+                  <div
+                    className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(effectiveChapterObj.content_ua || "")
+                    }}
+                  />
+                  {/* Англійська */}
+                  <div
+                    className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(effectiveChapterObj.content_en || "")
+                    }}
+                  />
+                </div>
+              ) : (
+                /* Одномовний режим */
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      language === "ua"
+                        ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
+                        : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
+                    )
+                  }}
+                />
+              )}
+            </div>
+          )}
 
           {/* Список віршів */}
           {flowMode ? (/* Режим суцільного тексту - без контейнерів, номерів, рамок */
@@ -347,16 +412,22 @@ export const ChapterVersesList = () => {
             const text = language === "ua" ? verse.translation_ua : verse.translation_en;
             return <p key={verse.id} className="text-foreground mb-6">
                     {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
-                  </p>;
-          })}
-            </div>) : (/* Звичайний режим */
-        <div className="space-y-6">
-              {verses.map(verse => {
-            const translationUa = verse.translation_ua || "";
-            const translationEn = verse.translation_en || "";
-            return <div key={verse.id} className="space-y-3">
-                    {/* Side-by-side якщо dualMode */}
-                    {dualMode ? <div className="grid gap-6 md:grid-cols-2">
+                  </p>
+                );
+              })}
+            </div>
+          ) : (
+            /* Звичайний режим */
+            <div className="space-y-6">
+              {verses.map((verse) => {
+                const translationUa = verse.translation_ua || "";
+                const translationEn = verse.translation_en || "";
+
+                return (
+                  <div key={verse.id} className="space-y-3">
+                    {/* Side-by-side якщо dualLanguageMode */}
+                    {dualLanguageMode ? (
+                      <div className="grid gap-6 md:grid-cols-2">
                         {/* Українська */}
                         <div className="space-y-3">
                           {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">

@@ -26,6 +26,8 @@ const LS = {
   blocks: "vv_reader_blocks",
   dual: "vv_reader_dualMode",
   cont: "vv_reader_continuous",
+  showNumbers: "vv_reader_showNumbers",
+  flowMode: "vv_reader_flowMode",
 };
 
 function readNum(key: string, def: number) {
@@ -93,6 +95,8 @@ export function useReaderSettings() {
   const [continuousReadingSettings, setContinuousReadingSettings] = useState<ContinuousReadingSettings>(() =>
     readJSON<ContinuousReadingSettings>(LS.cont, DEFAULT_CONT),
   );
+  const [showNumbers, setShowNumbers] = useState<boolean>(() => readBool(LS.showNumbers, true));
+  const [flowMode, setFlowMode] = useState<boolean>(() => readBool(LS.flowMode, false));
 
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -103,6 +107,8 @@ export function useReaderSettings() {
     dualLanguageMode,
     textDisplaySettings,
     continuousReadingSettings,
+    showNumbers,
+    flowMode,
   });
 
   // Оновлюємо refs при кожній зміні
@@ -113,8 +119,10 @@ export function useReaderSettings() {
       dualLanguageMode,
       textDisplaySettings,
       continuousReadingSettings,
+      showNumbers,
+      flowMode,
     };
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings]);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode]);
 
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
@@ -178,6 +186,16 @@ export function useReaderSettings() {
     dispatchPrefs();
   }, [continuousReadingSettings, dispatchPrefs]);
 
+  useEffect(() => {
+    localStorage.setItem(LS.showNumbers, String(showNumbers));
+    dispatchPrefs();
+  }, [showNumbers, dispatchPrefs]);
+
+  useEffect(() => {
+    localStorage.setItem(LS.flowMode, String(flowMode));
+    dispatchPrefs();
+  }, [flowMode, dispatchPrefs]);
+
   // синхронізація між вкладками
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -187,6 +205,8 @@ export function useReaderSettings() {
       if (e.key === LS.dual) setDualLanguageMode(readBool(LS.dual, false));
       if (e.key === LS.blocks) setTextDisplaySettings(readJSON(LS.blocks, DEFAULT_BLOCKS));
       if (e.key === LS.cont) setContinuousReadingSettings(readJSON(LS.cont, DEFAULT_CONT));
+      if (e.key === LS.showNumbers) setShowNumbers(readBool(LS.showNumbers, true));
+      if (e.key === LS.flowMode) setFlowMode(readBool(LS.flowMode, false));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -202,6 +222,8 @@ export function useReaderSettings() {
       const newDual = readBool(LS.dual, false);
       const newBlocks = readJSON(LS.blocks, DEFAULT_BLOCKS);
       const newCont = readJSON(LS.cont, DEFAULT_CONT);
+      const newShowNumbers = readBool(LS.showNumbers, true);
+      const newFlowMode = readBool(LS.flowMode, false);
 
       // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
       const current = stateRefs.current;
@@ -211,6 +233,8 @@ export function useReaderSettings() {
       if (newDual !== current.dualLanguageMode) setDualLanguageMode(newDual);
       if (JSON.stringify(newBlocks) !== JSON.stringify(current.textDisplaySettings)) setTextDisplaySettings(newBlocks);
       if (JSON.stringify(newCont) !== JSON.stringify(current.continuousReadingSettings)) setContinuousReadingSettings(newCont);
+      if (newShowNumbers !== current.showNumbers) setShowNumbers(newShowNumbers);
+      if (newFlowMode !== current.flowMode) setFlowMode(newFlowMode);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -261,6 +285,10 @@ export function useReaderSettings() {
     setTextDisplaySettings,
     continuousReadingSettings,
     setContinuousReadingSettings,
+    showNumbers,
+    setShowNumbers,
+    flowMode,
+    setFlowMode,
     multipliers,
   };
 }
