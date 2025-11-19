@@ -56,7 +56,6 @@ import SynonymsSearch from "./pages/SynonymsSearch";
 import Dashboard from "./pages/admin/Dashboard";
 import NormalizeTexts from "./pages/admin/NormalizeTexts";
 import Books from "./pages/admin/Books";
-import Verses from "./pages/admin/Verses";
 import ScriptureManager from "./pages/admin/ScriptureManager";
 import Chapters from "./pages/admin/Chapters";
 import AddEditBook from "./pages/admin/AddEditBook";
@@ -192,7 +191,6 @@ const App = () => (
                   <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
                   <Route path="/admin/chapters/:bookId" element={<Chapters />} />
                   <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
-                  <Route path="/admin/verses" element={<Verses />} />
                   <Route path="/admin/verses/new" element={<AddEditVerse />} />
                   <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
                   <Route path="/admin/scripture" element={<ScriptureManager />} />

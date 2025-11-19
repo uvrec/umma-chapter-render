@@ -217,7 +217,7 @@ export default function AddEditVerse() {
       if (selectedBookId) params.set("bookId", selectedBookId);
       if (selectedCantoId) params.set("cantoId", selectedCantoId);
       if (chapterId) params.set("chapterId", chapterId);
-      navigate(`/admin/verses?${params.toString()}`);
+      navigate(`/admin/scripture?${params.toString()}`);
     },
     onError: (error) => {
       toast({
@@ -244,7 +244,7 @@ export default function AddEditVerse() {
   if (!user || !isAdmin) return null;
 
   // Build breadcrumbs
-  const breadcrumbs: BreadcrumbItem[] = [{ label: "Вірші", href: "/admin/verses" }];
+  const breadcrumbs: BreadcrumbItem[] = [{ label: "Вірші", href: "/admin/scripture" }];
 
   const selectedBookData = books?.find((b) => b.id === selectedBookId);
   if (selectedBookData) {
@@ -272,7 +272,7 @@ export default function AddEditVerse() {
           if (selectedBookId) params.set("bookId", selectedBookId);
           if (selectedCantoId) params.set("cantoId", selectedCantoId);
           if (chapterId) params.set("chapterId", chapterId);
-          navigate(`/admin/verses?${params.toString()}`);
+          navigate(`/admin/scripture?${params.toString()}`);
         }}
         className="mb-4"
       >
@@ -585,7 +585,7 @@ export default function AddEditVerse() {
               <Button type="submit" disabled={mutation.isPending}>
                 {mutation.isPending ? "Збереження..." : "Зберегти"}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate("/admin/verses")}>
+              <Button type="button" variant="outline" onClick={() => navigate("/admin/scripture")}>
                 Скасувати
               </Button>
             </div>

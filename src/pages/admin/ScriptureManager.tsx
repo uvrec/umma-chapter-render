@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ScriptureTreeNav } from "@/components/admin/ScriptureTreeNav";
 import { VerseQuickEdit } from "@/components/admin/VerseQuickEdit";
 import {
@@ -17,6 +19,8 @@ import {
   Trash2,
   ExternalLink,
   FileText,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -45,6 +49,12 @@ export default function ScriptureManager() {
     id: string;
     verseNumber: string;
   } | null>(null);
+
+  // Bulk delete state
+  const [bulkDeleteMode, setBulkDeleteMode] = useState(false);
+  const [selectedVerses, setSelectedVerses] = useState<Set<string>>(new Set());
+  const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null);
+  const [rangeInput, setRangeInput] = useState("");
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -123,7 +133,9 @@ export default function ScriptureManager() {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success("Статус вірша оновлено");
     },
     onError: (error: any) => {
@@ -140,7 +152,9 @@ export default function ScriptureManager() {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success("Вірш видалено");
       setDeleteVerseId(null);
       if (selectedVerseId === deleteVerseId?.id) {
@@ -152,9 +166,100 @@ export default function ScriptureManager() {
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async ({ ids, count }: { ids: string[]; count: number }) => {
+      const { error } = await supabase
+        .from("verses")
+        .update({ deleted_at: new Date().toISOString() } as any)
+        .in("id", ids);
+      if (error) throw error;
+      return { count };
+    },
+    onSuccess: (_, variables) => {
+      // Очищуємо кеш для адмінки і фронтенду
+      queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
+      toast.success(`Видалено ${variables.count} віршів`);
+      setSelectedVerses(new Set());
+      setBulkDeleteMode(false);
+    },
+    onError: (error: any, variables) => {
+      toast.error(
+        `Помилка при масовому видаленні (${variables.count} віршів): ${error?.message || ""}`
+      );
+    },
+  });
+
   const handleChapterSelect = (chapterId: string) => {
     setSelectedChapterId(chapterId);
     setSelectedVerseId(null); // Close quick edit panel
+    setBulkDeleteMode(false); // Exit bulk delete mode
+    setSelectedVerses(new Set()); // Clear selection
+  };
+
+  const toggleVerseSelection = (id: string, index: number, shiftKey: boolean) => {
+    const newSelected = new Set(selectedVerses);
+
+    if (shiftKey && lastSelectedIndex !== null && verses) {
+      // Shift+click: select range
+      const start = Math.min(lastSelectedIndex, index);
+      const end = Math.max(lastSelectedIndex, index);
+      for (let i = start; i <= end; i++) {
+        if (verses[i]) {
+          newSelected.add(verses[i].id);
+        }
+      }
+    } else {
+      // Regular click: toggle single
+      if (newSelected.has(id)) {
+        newSelected.delete(id);
+      } else {
+        newSelected.add(id);
+      }
+    }
+
+    setSelectedVerses(newSelected);
+    setLastSelectedIndex(index);
+  };
+
+  const selectAll = () => {
+    if (!verses) return;
+    const allIds = new Set(verses.map((v) => v.id));
+    setSelectedVerses(allIds);
+  };
+
+  const deselectAll = () => {
+    setSelectedVerses(new Set());
+  };
+
+  const selectByRange = () => {
+    if (!verses || !rangeInput.trim()) return;
+
+    const match = rangeInput.match(/^(\d+)-(\d+)$/);
+    if (!match) {
+      toast.error("Введіть діапазон у форматі: 200-500");
+      return;
+    }
+
+    const start = parseInt(match[1]);
+    const end = parseInt(match[2]);
+
+    if (start > end) {
+      toast.error("Початок діапазону має бути меншим за кінець");
+      return;
+    }
+
+    const newSelected = new Set(selectedVerses);
+    verses.forEach((verse, idx) => {
+      const verseNum = idx + 1; // assuming 1-based indexing
+      if (verseNum >= start && verseNum <= end) {
+        newSelected.add(verse.id);
+      }
+    });
+
+    setSelectedVerses(newSelected);
+    toast.success(`Вибрано вірші ${start}-${end}`);
+    setRangeInput("");
   };
 
   const selectedChapter = chapters?.find((ch) => ch.id === selectedChapterId);
@@ -185,18 +290,52 @@ export default function ScriptureManager() {
             </div>
           </div>
 
-          {selectedChapterId && (
-            <Button asChild size="sm">
-              <Link
-                to={`/admin/verses/new?chapterId=${selectedChapterId}`}
-                target="_blank"
+          <div className="flex gap-2">
+            {selectedChapterId && bulkDeleteMode && selectedVerses.size > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (
+                    confirm(`Видалити ${selectedVerses.size} вибраних віршів?`)
+                  ) {
+                    bulkDeleteMutation.mutate({
+                      ids: Array.from(selectedVerses),
+                      count: selectedVerses.size,
+                    });
+                  }
+                }}
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Додати вірш
-                <ExternalLink className="w-3 h-3 ml-2" />
-              </Link>
-            </Button>
-          )}
+                <Trash2 className="w-4 h-4 mr-2" />
+                Видалити ({selectedVerses.size})
+              </Button>
+            )}
+            {selectedChapterId && verses && verses.length > 0 && (
+              <Button
+                variant={bulkDeleteMode ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setBulkDeleteMode(!bulkDeleteMode);
+                  setSelectedVerses(new Set());
+                  setLastSelectedIndex(null);
+                }}
+              >
+                {bulkDeleteMode ? "Скасувати" : "Масове видалення"}
+              </Button>
+            )}
+            {selectedChapterId && (
+              <Button asChild size="sm">
+                <Link
+                  to={`/admin/verses/new?chapterId=${selectedChapterId}`}
+                  target="_blank"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Додати вірш
+                  <ExternalLink className="w-3 h-3 ml-2" />
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -229,6 +368,42 @@ export default function ScriptureManager() {
                 </div>
               </div>
 
+              {/* Bulk Selection Toolbar */}
+              {bulkDeleteMode && verses && verses.length > 0 && (
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <Button size="sm" variant="outline" onClick={selectAll}>
+                      <CheckSquare className="w-4 h-4 mr-2" />
+                      Вибрати всі
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={deselectAll}>
+                      <Square className="w-4 h-4 mr-2" />
+                      Зняти всі
+                    </Button>
+                    <div className="flex gap-2 items-center ml-4">
+                      <Input
+                        type="text"
+                        placeholder="200-500"
+                        value={rangeInput}
+                        onChange={(e) => setRangeInput(e.target.value)}
+                        className="w-32 h-8"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            selectByRange();
+                          }
+                        }}
+                      />
+                      <Button size="sm" onClick={selectByRange}>
+                        Вибрати діапазон
+                      </Button>
+                    </div>
+                    <span className="text-sm text-muted-foreground ml-auto">
+                      Вибрано: {selectedVerses.size} із {verses.length}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Verses List */}
               <ScrollArea className="flex-1">
                 <div className="p-4 space-y-2">
@@ -237,17 +412,36 @@ export default function ScriptureManager() {
                       Завантаження...
                     </div>
                   ) : verses && verses.length > 0 ? (
-                    verses.map((verse: any) => (
+                    verses.map((verse: any, index: number) => (
                       <Card
                         key={verse.id}
                         className={cn(
                           "p-4 cursor-pointer transition-all hover:border-primary/50",
                           selectedVerseId === verse.id &&
-                            "border-primary bg-primary/5"
+                            "border-primary bg-primary/5",
+                          bulkDeleteMode &&
+                            selectedVerses.has(verse.id) &&
+                            "border-destructive bg-destructive/5"
                         )}
-                        onClick={() => setSelectedVerseId(verse.id)}
+                        onClick={(e) => {
+                          if (bulkDeleteMode) {
+                            toggleVerseSelection(verse.id, index, e.shiftKey);
+                          } else {
+                            setSelectedVerseId(verse.id);
+                          }
+                        }}
                       >
                         <div className="flex items-start justify-between gap-4">
+                          {bulkDeleteMode && (
+                            <Checkbox
+                              checked={selectedVerses.has(verse.id)}
+                              onCheckedChange={() =>
+                                toggleVerseSelection(verse.id, index, false)
+                              }
+                              onClick={(e) => e.stopPropagation()}
+                              className="mt-1"
+                            />
+                          )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
                               <span className="font-semibold text-sm">
@@ -266,53 +460,55 @@ export default function ScriptureManager() {
                             )}
                           </div>
 
-                          <div className="flex gap-1 flex-shrink-0">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                togglePublishMutation.mutate({
-                                  id: verse.id,
-                                  isPublished: verse.is_published,
-                                });
-                              }}
-                              title={
-                                verse.is_published
-                                  ? "Приховати"
-                                  : "Опублікувати"
-                              }
-                            >
-                              {verse.is_published ? (
-                                <EyeOff className="w-4 h-4" />
-                              ) : (
-                                <Eye className="w-4 h-4" />
-                              )}
-                            </Button>
-                            <Button size="sm" variant="ghost" asChild>
-                              <Link
-                                to={`/admin/verses/${verse.id}/edit`}
-                                target="_blank"
-                                onClick={(e) => e.stopPropagation()}
+                          {!bulkDeleteMode && (
+                            <div className="flex gap-1 flex-shrink-0">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  togglePublishMutation.mutate({
+                                    id: verse.id,
+                                    isPublished: verse.is_published,
+                                  });
+                                }}
+                                title={
+                                  verse.is_published
+                                    ? "Приховати"
+                                    : "Опублікувати"
+                                }
                               >
-                                <ExternalLink className="w-4 h-4" />
-                              </Link>
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setDeleteVerseId({
-                                  id: verse.id,
-                                  verseNumber: verse.verse_number,
-                                });
-                              }}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
+                                {verse.is_published ? (
+                                  <EyeOff className="w-4 h-4" />
+                                ) : (
+                                  <Eye className="w-4 h-4" />
+                                )}
+                              </Button>
+                              <Button size="sm" variant="ghost" asChild>
+                                <Link
+                                  to={`/admin/verses/${verse.id}/edit`}
+                                  target="_blank"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Link>
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setDeleteVerseId({
+                                    id: verse.id,
+                                    verseNumber: verse.verse_number,
+                                  });
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </Card>
                     ))
