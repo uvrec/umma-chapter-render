@@ -234,7 +234,7 @@ export function DualLanguageVerseCard({
                             onClick={() => openGlossary(w)}
                             onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                             title="Відкрити у глосарії"
-                            className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            className="cursor-pointer italic"
                           >
                             {w}
                           </span>
@@ -275,7 +275,7 @@ export function DualLanguageVerseCard({
                             onClick={() => openGlossary(w)}
                             onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                             title="Open in glossary"
-                            className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            className="cursor-pointer italic"
                           >
                             {w}
                           </span>
@@ -295,43 +295,38 @@ export function DualLanguageVerseCard({
 
       {/* Translation */}
       <div className="p-8">
-        <div className="grid grid-cols-2 gap-8">
-          {/* Ukrainian Translation */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Переклад</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.translationUa}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, translationUa: e.target.value })
-                }
-                className="text-base min-h-[150px]"
-              />
-            ) : (
-              <div className="text-base leading-relaxed">
-                <TiptapRenderer content={editedData.translationUa} />
-              </div>
-            )}
-          </div>
-
-          {/* English Translation */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Translation</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.translationEn}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, translationEn: e.target.value })
-                }
-                className="text-base min-h-[150px]"
-              />
-            ) : (
-              <div className="text-base leading-relaxed">
-                <TiptapRenderer content={editedData.translationEn} />
-              </div>
-            )}
-          </div>
+        {/* Headers */}
+        <div className="grid grid-cols-2 gap-8 mb-4">
+          <h3 className="text-xl font-bold">Переклад</h3>
+          <h3 className="text-xl font-bold">Translation</h3>
         </div>
+
+        {editMode ? (
+          <div className="grid grid-cols-2 gap-8">
+            <Textarea
+              value={editedData.translationUa}
+              onChange={(e) =>
+                setEditedData({ ...editedData, translationUa: e.target.value })
+              }
+              className="text-base min-h-[150px]"
+            />
+            <Textarea
+              value={editedData.translationEn}
+              onChange={(e) =>
+                setEditedData({ ...editedData, translationEn: e.target.value })
+              }
+              className="text-base min-h-[150px]"
+            />
+          </div>
+        ) : (
+          <DualLanguageText
+            uaParagraphs={null}
+            enParagraphs={null}
+            uaText={editedData.translationUa}
+            enText={editedData.translationEn}
+            className="text-base font-semibold"
+          />
+        )}
       </div>
 
       {/* Commentary */}
