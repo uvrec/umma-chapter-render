@@ -172,18 +172,9 @@ export function useReaderSettings() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // Слухаємо зміни з GlobalSettingsPanel
-  useEffect(() => {
-    const handlePrefsChanged = () => {
-      setFontSizeAdjustment(readNum(LS.fontSizeAdjustment, 0));
-      setLineHeight(readNum(LS.lineHeight, LINE_HEIGHTS.NORMAL));
-      setDualLanguageMode(readBool(LS.dual, false));
-      setTextDisplaySettings(readJSON(LS.blocks, DEFAULT_BLOCKS));
-      setContinuousReadingSettings(readJSON(LS.cont, DEFAULT_CONT));
-    };
-    window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-    return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
-  }, []);
+  // ❌ ВИДАЛЕНО listener для vv-reader-prefs-changed
+  // Причина: створював безкінечний цикл, бо ми самі диспатчимо цю подію
+  // VedaReaderDB тепер використовує useReaderSettings напряму, тому listener не потрібен
 
   // API для зручності - оновлено для роботи з adjustment
   const increaseFont = useCallback(() => {
@@ -211,41 +202,24 @@ export function useReaderSettings() {
   // Експортувати також множники для використання в компонентах
   const multipliers = useMemo(() => FONT_SIZE_MULTIPLIERS, []);
 
-  return useMemo(
-    () => ({
-      fontSize,
-      baseFontSize,
-      fontSizeAdjustment,
-      setFontSize: setFontSizeAdjustment, // Тепер змінюємо adjustment, а не fontSize напряму
-      lineHeight,
-      setLineHeight,
-      increaseFont,
-      decreaseFont,
-      increaseLH,
-      decreaseLH,
-      resetTypography,
-      dualLanguageMode,
-      setDualLanguageMode,
-      textDisplaySettings,
-      setTextDisplaySettings,
-      continuousReadingSettings,
-      setContinuousReadingSettings,
-      multipliers, // Додати множники для зручності
-    }),
-    [
-      fontSize,
-      baseFontSize,
-      fontSizeAdjustment,
-      lineHeight,
-      increaseFont,
-      decreaseFont,
-      increaseLH,
-      decreaseLH,
-      resetTypography,
-      dualLanguageMode,
-      textDisplaySettings,
-      continuousReadingSettings,
-      multipliers,
-    ],
-  );
+  return {
+    fontSize,
+    baseFontSize,
+    fontSizeAdjustment,
+    setFontSize: setFontSizeAdjustment,
+    lineHeight,
+    setLineHeight,
+    increaseFont,
+    decreaseFont,
+    increaseLH,
+    decreaseLH,
+    resetTypography,
+    dualLanguageMode,
+    setDualLanguageMode,
+    textDisplaySettings,
+    setTextDisplaySettings,
+    continuousReadingSettings,
+    setContinuousReadingSettings,
+    multipliers,
+  };
 }
