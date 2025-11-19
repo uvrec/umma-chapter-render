@@ -15,6 +15,12 @@ export function addSanskritLineBreaks(text: string): string {
   if (!text.trim()) return text;
 
   try {
+    // ✅ ВИПРАВЛЕННЯ: Якщо текст вже має розриви рядків (\n),
+    // це означає що він був відредагований вручну - НЕ ОБРОБЛЯТИ!
+    if (text.includes('\n')) {
+      return text;
+    }
+
     // Remove existing line breaks to start fresh
     let cleaned = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 
