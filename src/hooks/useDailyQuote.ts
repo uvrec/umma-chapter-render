@@ -119,26 +119,27 @@ export function useDailyQuote() {
       }
 
       try {
-        // Спочатку отримуємо загальну кількість віршів
-        const { count, error: countError } = await supabase
+        // Отримуємо всі ID віршів що мають переклади
+        const { data: verseIds, error: idsError } = await supabase
           .from("verses")
-          .select("*", { count: 'exact', head: true })
+          .select("id")
           .not("translation_ua", "is", null)
           .not("translation_en", "is", null);
 
-        if (countError || !count || count === 0) {
-          console.error('[DailyQuote] Помилка підрахунку віршів:', countError);
+        if (idsError || !verseIds || verseIds.length === 0) {
+          console.error('[DailyQuote] Помилка отримання ID віршів:', idsError);
           return null;
         }
 
-        console.log('[DailyQuote] Знайдено віршів:', count);
+        console.log('[DailyQuote] Знайдено віршів:', verseIds.length);
 
-        // Генеруємо випадковий offset
-        const offset = Math.floor(Math.random() * count);
-        console.log('[DailyQuote] Випадковий offset:', offset);
+        // Вибираємо випадковий ID
+        const randomIndex = Math.floor(Math.random() * verseIds.length);
+        const randomVerseId = verseIds[randomIndex].id;
+        console.log('[DailyQuote] Випадковий індекс:', randomIndex, 'ID:', randomVerseId);
 
-        // Завантажуємо вірш з цим offset
-        const { data: verses, error } = await supabase
+        // Завантажуємо повні дані вірша
+        const { data: verse, error } = await supabase
           .from("verses")
           .select(`
             id,
@@ -163,23 +164,19 @@ export function useDailyQuote() {
               )
             )
           `)
-          .not("translation_ua", "is", null)
-          .not("translation_en", "is", null)
-          .order("id")
-          .range(offset, offset)
-          .limit(1);
+          .eq("id", randomVerseId)
+          .single();
 
         if (error) {
           console.error('[DailyQuote] Помилка завантаження вірша:', error);
           return null;
         }
 
-        if (!verses || verses.length === 0) {
-          console.warn('[DailyQuote] Не знайдено вірша');
+        if (!verse) {
+          console.warn('[DailyQuote] Не знайдено вірша за ID', randomVerseId);
           return null;
         }
 
-        const verse = verses[0];
         console.log('[DailyQuote] Завантажено випадковий вірш:', verse);
 
         // Перетворюємо вірш у формат DailyQuote
