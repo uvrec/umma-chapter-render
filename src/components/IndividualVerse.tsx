@@ -30,7 +30,7 @@ export const IndividualVerse = () => {
   // ✅ Назви блоків (поки що UA, можна додати мовний контекст)
   const blockLabels = {
     synonyms: 'Послівний переклад',
-    translation: 'Літературний переклад',
+    translation: 'Переклад',
     commentary: 'Пояснення',
   };
 
