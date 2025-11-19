@@ -9,7 +9,7 @@ import { DualLanguageText } from "@/components/DualLanguageText";
 interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
-  
+
   // Sanskrit (однаковий для обох мов)
   sanskritTextUa: string;
   sanskritTextEn: string;
@@ -27,6 +27,7 @@ interface DualLanguageVerseCardProps {
   commentaryEn: string;
 
   isAdmin?: boolean;
+  showNumbers?: boolean;
   onVerseUpdate?: (verseId: string, updates: any) => void;
 }
 
@@ -65,6 +66,7 @@ export function DualLanguageVerseCard({
   translationEn,
   commentaryEn,
   isAdmin,
+  showNumbers = true,
   onVerseUpdate,
 }: DualLanguageVerseCardProps) {
   const [editMode, setEditMode] = useState(false);
@@ -143,6 +145,14 @@ export function DualLanguageVerseCard({
         </div>
       )}
 
+      {/* Verse Number */}
+      {showNumbers && (
+        <div className="p-6 pb-0">
+          <div className="flex h-8 items-center justify-center">
+            <span className="text-lg font-semibold text-primary">Вірш {verseNumber}</span>
+          </div>
+        </div>
+      )}
 
       {/* Sanskrit - Devanagari (same for both columns) */}
       <div className="p-8 bg-background/50">
