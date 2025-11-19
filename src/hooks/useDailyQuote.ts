@@ -7,33 +7,40 @@ import { useLanguage } from "@/contexts/LanguageContext";
 export type DailyQuote = {
   id: string;
   quote_type: 'verse' | 'custom';
-  
+
   verse_id?: string;
   verse?: {
     verse_number: string;
+    chapter_id?: string;
     sanskrit_ua?: string;
     transliteration_ua?: string;
     translation_ua?: string;
     translation_en?: string;
     chapter?: {
+      id: string;
       chapter_number: number;
       title_ua: string;
       title_en?: string;
+      canto_id?: string;
+      canto?: {
+        canto_number: number;
+      };
       book?: {
         slug: string;
         title_ua: string;
         title_en?: string;
+        has_cantos?: boolean;
       };
     };
   };
-  
+
   quote_ua?: string;
   quote_en?: string;
   author_ua?: string;
   author_en?: string;
   source_ua?: string;
   source_en?: string;
-  
+
   priority: number;
   display_count: number;
   last_displayed_at?: string;
@@ -136,16 +143,23 @@ export function useDailyQuote() {
           .select(`
             id,
             verse_number,
+            chapter_id,
             translation_ua,
             translation_en,
             chapter:chapters (
+              id,
               chapter_number,
               title_ua,
               title_en,
+              canto_id,
+              canto:cantos (
+                canto_number
+              ),
               book:books (
                 slug,
                 title_ua,
-                title_en
+                title_en,
+                has_cantos
               )
             )
           `)
@@ -175,6 +189,7 @@ export function useDailyQuote() {
           verse_id: verse.id,
           verse: {
             verse_number: verse.verse_number,
+            chapter_id: verse.chapter_id,
             translation_ua: verse.translation_ua,
             translation_en: verse.translation_en,
             chapter: verse.chapter,
@@ -232,8 +247,20 @@ export function useDailyQuote() {
 
     author: language === 'ua' ? quote.author_ua : quote.author_en,
 
-    source: quote.quote_type === 'verse'
-      ? `${quote.verse?.chapter?.book?.[language === 'ua' ? 'title_ua' : 'title_en']} ${quote.verse?.chapter?.chapter_number}.${quote.verse?.verse_number}`
+    source: quote.quote_type === 'verse' && quote.verse?.chapter
+      ? (() => {
+          const bookTitle = quote.verse.chapter.book?.[language === 'ua' ? 'title_ua' : 'title_en'] || quote.verse.chapter.book?.title_ua || '';
+          const chapterNumber = quote.verse.chapter.chapter_number;
+          const verseNumber = quote.verse.verse_number;
+
+          // Якщо є канта, додаємо її номер
+          const cantoNumber = quote.verse.chapter.canto?.canto_number;
+          if (cantoNumber) {
+            return `${bookTitle} ${cantoNumber}.${chapterNumber}.${verseNumber}`;
+          }
+
+          return `${bookTitle} ${chapterNumber}.${verseNumber}`;
+        })()
       : (language === 'ua' ? quote.source_ua : quote.source_en),
 
     verseNumber: quote.quote_type === 'verse' ? quote.verse?.verse_number : null,
@@ -241,7 +268,22 @@ export function useDailyQuote() {
     transliteration: quote.quote_type === 'verse' ? quote.verse?.transliteration_ua : null,
 
     link: quote.quote_type === 'verse' && quote.verse?.chapter?.book
-      ? `/veda-reader/${quote.verse.chapter.book.slug}/chapter/${quote.verse.chapter.chapter_number}#verse-${quote.verse.verse_number}`
+      ? (() => {
+          const bookSlug = quote.verse.chapter.book.slug;
+          const chapterId = quote.verse.chapter.id;
+          const verseNumber = quote.verse.verse_number;
+          const hasCantos = quote.verse.chapter.book.has_cantos;
+          const cantoNumber = quote.verse.chapter.canto?.canto_number;
+          const chapterNumber = quote.verse.chapter.chapter_number;
+
+          // Якщо книга має канти і є canto_id
+          if (hasCantos && cantoNumber) {
+            return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+          }
+
+          // Інакше використовуємо chapterId
+          return `/veda-reader/${bookSlug}/${chapterId}/${verseNumber}`;
+        })()
       : null,
   } : null;
 
@@ -274,16 +316,23 @@ export function useDailyQuotesAdmin() {
           *,
           verse:verses!verse_id (
             verse_number,
+            chapter_id,
             translation_ua,
             translation_en,
             chapter:chapters (
+              id,
               chapter_number,
               title_ua,
               title_en,
+              canto_id,
+              canto:cantos (
+                canto_number
+              ),
               book:books (
                 slug,
                 title_ua,
-                title_en
+                title_en,
+                has_cantos
               )
             )
           )
