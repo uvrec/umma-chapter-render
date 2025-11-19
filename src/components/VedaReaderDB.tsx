@@ -191,7 +191,6 @@ export const VedaReaderDB = () => {
   // VERSES (main)
   const { data: versesMain = [], isLoading: isLoadingVersesMain } = useQuery({
     queryKey: ["verses", chapter?.id],
-    staleTime: 60_000,
     enabled: !!chapter?.id,
     queryFn: async () => {
       if (!chapter?.id) return [] as any[];
@@ -215,7 +214,6 @@ export const VedaReaderDB = () => {
   // VERSES (fallback)
   const { data: versesFallback = [], isLoading: isLoadingVersesFallback } = useQuery({
     queryKey: ["verses-fallback", fallbackChapter?.id],
-    staleTime: 60_000,
     enabled: !!fallbackChapter?.id,
     queryFn: async () => {
       if (!fallbackChapter?.id) return [] as any[];
