@@ -172,9 +172,27 @@ export function useReaderSettings() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  // ❌ ВИДАЛЕНО listener для vv-reader-prefs-changed
-  // Причина: створював безкінечний цикл, бо ми самі диспатчимо цю подію
-  // VedaReaderDB тепер використовує useReaderSettings напряму, тому listener не потрібен
+  // Слухаємо зміни з GlobalSettingsPanel (без циклу)
+  useEffect(() => {
+    const handlePrefsChanged = () => {
+      // Читаємо з localStorage тільки ті значення, які ми НЕ змінюємо самі
+      const newAdjustment = readNum(LS.fontSizeAdjustment, 0);
+      const newLineHeight = readNum(LS.lineHeight, LINE_HEIGHTS.NORMAL);
+      const newDual = readBool(LS.dual, false);
+      const newBlocks = readJSON(LS.blocks, DEFAULT_BLOCKS);
+      const newCont = readJSON(LS.cont, DEFAULT_CONT);
+
+      // Оновлюємо тільки якщо значення змінились (уникаємо циклу)
+      if (newAdjustment !== fontSizeAdjustment) setFontSizeAdjustment(newAdjustment);
+      if (newLineHeight !== lineHeight) setLineHeight(newLineHeight);
+      if (newDual !== dualLanguageMode) setDualLanguageMode(newDual);
+      if (JSON.stringify(newBlocks) !== JSON.stringify(textDisplaySettings)) setTextDisplaySettings(newBlocks);
+      if (JSON.stringify(newCont) !== JSON.stringify(continuousReadingSettings)) setContinuousReadingSettings(newCont);
+    };
+
+    window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings]);
 
   // API для зручності - оновлено для роботи з adjustment
   const increaseFont = useCallback(() => {
