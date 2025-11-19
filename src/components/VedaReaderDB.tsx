@@ -952,7 +952,7 @@ export const VedaReaderDB = () => {
       <Header />
 
       {/* 🆕 Sticky Header з іконками */}
-      <div className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Breadcrumbs */}
@@ -1038,7 +1038,7 @@ export const VedaReaderDB = () => {
         {isTextChapter ? (
           <Card className="verse-surface p-8">
             {/* Навігація зверху для текстових глав */}
-            <div className="mb-8 flex items-center justify-between border-b border-border pb-6">
+            <div className="mb-8 flex items-center justify-between pb-6">
               <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 {t("Попередня глава", "Previous Chapter")}
@@ -1055,7 +1055,7 @@ export const VedaReaderDB = () => {
             </div>
 
             {/* Навігація знизу */}
-            <div className="mt-8 flex items-center justify-between border-t border-border pt-6">
+            <div className="mt-8 flex items-center justify-between pt-6">
               <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
                 <ChevronLeft className="mr-2 h-4 w-4" />
                 {t("Попередня глава", "Previous Chapter")}
@@ -1136,9 +1136,9 @@ export const VedaReaderDB = () => {
               return (
                 <div className="space-y-6">
                   {/* Навігація зверху */}
-                  <div className="flex items-center justify-between border-b border-border pb-6 mb-8">
-                    <Button 
-                      variant="outline" 
+                  <div className="flex items-center justify-between pb-6 mb-8">
+                    <Button
+                      variant="outline"
                       onClick={handlePrevVerse} 
                       disabled={currentVerseIndex === 0 && currentChapterIndex === 0}
                     >
@@ -1224,9 +1224,9 @@ export const VedaReaderDB = () => {
                   )}
 
                   {/* Навігація знизу */}
-                  <div className="flex items-center justify-between border-t border-border pt-6">
-                    <Button 
-                      variant="outline" 
+                  <div className="flex items-center justify-between pt-6">
+                    <Button
+                      variant="outline"
                       onClick={handlePrevVerse} 
                       disabled={currentVerseIndex === 0 && currentChapterIndex === 0}
                     >

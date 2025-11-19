@@ -200,7 +200,7 @@ export const IndividualVerse = () => {
   return (
     <div className="min-h-screen bg-background" style={baseStyle} data-reader-root="true">
       {/* Sticky Header з іконками */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
+      <header className="sticky top-0 z-40 bg-background/90 backdrop-blur">
         <div className="mx-auto max-w-5xl px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Breadcrumbs */}
@@ -416,7 +416,7 @@ export const IndividualVerse = () => {
         )}
 
         {/* Навігація між віршами */}
-        <div className="flex items-center justify-between border-t border-border pt-8">
+        <div className="flex items-center justify-between pt-8">
           <Button
             variant="secondary"
             disabled={!prevVerse}

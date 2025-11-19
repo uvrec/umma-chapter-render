@@ -85,7 +85,11 @@ export const EnhancedInlineEditor = ({
             levels: [1, 2, 3, 4, 5, 6],
           },
         }),
-        Image,
+        Image.configure({
+          HTMLAttributes: {
+            class: 'max-w-full h-auto',
+          },
+        }),
         Link.configure({
           openOnClick: false,
           HTMLAttributes: {
@@ -116,6 +120,15 @@ export const EnhancedInlineEditor = ({
       editorProps: {
         attributes: {
           class: `prose prose-sm dark:prose-invert max-w-none min-h-[${minHeight}] focus:outline-none p-4`,
+        },
+        // Зберігаємо форматування при вставці з буфера обміну
+        handlePaste: (view, event, slice) => {
+          // Дозволяємо стандартну поведінку вставки з HTML
+          return false;
+        },
+        transformPastedHTML(html) {
+          // Зберігаємо весь HTML без змін
+          return html;
         },
       },
     },
