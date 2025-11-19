@@ -435,8 +435,9 @@ export const VedaReaderDB = () => {
       }
     },
     onSuccess: () => {
+      // Очищуємо кеш для обох query keys (основний і fallback)
       queryClient.invalidateQueries({
-        queryKey: ["verses", chapter?.id]
+        queryKey: ["verses"]
       });
       toast({
         title: t("Збережено", "Saved"),
