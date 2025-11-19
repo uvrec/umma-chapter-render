@@ -40,7 +40,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   const maxLength = alignedUa.length;
 
   return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-x-8 ${className}`}>
+    <div className={`grid grid-cols-2 gap-x-8 ${className}`}>
       {/* Українська колонка */}
       <div className="space-y-4">
         {alignedUa.map((para, idx) => (
