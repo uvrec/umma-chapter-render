@@ -10,31 +10,39 @@
  * ВАЖЛИВО: Підтримує як деванагарі символ (।), так і латинський pipe (|)
  */
 export function addSanskritLineBreaks(text: string): string {
-  if (!text || !text.trim()) return text;
+  // Перевірка на коректність вхідних даних
+  if (!text || typeof text !== 'string') return text || '';
+  if (!text.trim()) return text;
 
-  // Remove existing line breaks to start fresh
-  let cleaned = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+  try {
+    // Remove existing line breaks to start fresh
+    let cleaned = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 
-  // Step 1: Normalize pipes - convert Latin pipe (|) to Devanagari danda (।)
-  // This makes processing uniform
-  cleaned = cleaned.replace(/\|/g, '।');
+    // Step 1: Normalize pipes - convert Latin pipe (|) to Devanagari danda (।)
+    // This makes processing uniform
+    cleaned = cleaned.replace(/\|/g, '।');
 
-  // Step 2: Handle invocation (ॐ) - should be on its own line
-  cleaned = cleaned.replace(/^(ॐ[^।॥]+)/i, '$1\n');
+    // Step 2: Handle invocation (ॐ) - should be on its own line
+    cleaned = cleaned.replace(/^(ॐ[^।॥]+)/i, '$1\n');
 
-  // Step 3: Split at single danda (।) but not double danda (॥)
-  // Add line break after single danda if not followed by another danda
-  cleaned = cleaned.replace(/।(?!।)/g, '।\n');
+    // Step 3: Split at single danda (।) but not double danda (॥)
+    // Add line break after single danda if not followed by another danda
+    cleaned = cleaned.replace(/।(?!।)/g, '।\n');
 
-  // Step 4: Keep double danda (॥) with any following verse number on same line
-  cleaned = cleaned.replace(/॥\s*(\d+)?\s*॥/g, '॥ $1 ॥');
+    // Step 4: Keep double danda (॥) with any following verse number on same line
+    cleaned = cleaned.replace(/॥\s*(\d+)?\s*॥/g, '॥ $1 ॥');
 
-  // Clean up multiple line breaks and trim each line
-  const lines = cleaned.split('\n')
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
+    // Clean up multiple line breaks and trim each line
+    const lines = cleaned.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
 
-  return lines.join('\n');
+    return lines.join('\n');
+  } catch (error) {
+    console.error('Error in addSanskritLineBreaks:', error, 'Text:', text?.substring(0, 100));
+    // У разі помилки повертаємо оригінальний текст
+    return text;
+  }
 }
 
 /**

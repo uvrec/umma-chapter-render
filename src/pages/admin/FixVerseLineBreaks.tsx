@@ -56,6 +56,8 @@ export default function FixVerseLineBreaks() {
         const from = page * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
 
+        console.log(`📄 Завантаження сторінки ${page + 1} (вірші ${from + 1}-${to + 1})...`);
+
         const { data: pageVerses, error: fetchErr } = await supabase
           .from("verses")
           .select("id, verse_number, sanskrit, transliteration, chapters!inner(chapter_number)", { count: "exact" })
@@ -64,9 +66,17 @@ export default function FixVerseLineBreaks() {
           .order("id", { ascending: true })
           .range(from, to);
 
-        if (fetchErr) throw fetchErr;
+        if (fetchErr) {
+          console.error(`❌ Помилка завантаження сторінки ${page + 1}:`, fetchErr);
+          throw fetchErr;
+        }
 
-        if (!pageVerses || pageVerses.length === 0) break;
+        if (!pageVerses || pageVerses.length === 0) {
+          console.log(`✅ Завершено - більше віршів немає (сторінка ${page + 1})`);
+          break;
+        }
+
+        console.log(`✅ Завантажено ${pageVerses.length} віршів на сторінці ${page + 1}`);
 
         // 3) У межах сторінки — оброблюємо невеликими "підпакетами"
         for (let i = 0; i < pageVerses.length; i += UPDATE_BATCH) {
@@ -74,13 +84,27 @@ export default function FixVerseLineBreaks() {
 
           // послідовні оновлення (надiйно для RLS/триггерів)
           for (const verse of slice) {
+            const chapterNum = (verse as any).chapters?.chapter_number || '?';
+
             try {
               // ще одна локальна перевірка (на випадок, якщо текст змінився між запитами)
               if (verse.sanskrit && !verse.sanskrit.includes("\n")) {
-                const fixed = processVerseLineBreaks({
-                  sanskrit: verse.sanskrit,
-                  transliteration: verse.transliteration,
-                });
+                console.log(`🔄 Обробка вірша ${chapterNum}:${verse.verse_number}, ID: ${verse.id}`);
+                console.log(`📝 Sanskrit (перші 100 символів): ${verse.sanskrit.substring(0, 100)}`);
+
+                let fixed;
+                try {
+                  fixed = processVerseLineBreaks({
+                    sanskrit: verse.sanskrit,
+                    transliteration: verse.transliteration,
+                  });
+                  console.log(`✅ Успішно оброблено вірш ${chapterNum}:${verse.verse_number}`);
+                } catch (processErr) {
+                  console.error(`❌ ПОМИЛКА при обробці вірша ${chapterNum}:${verse.verse_number}:`, processErr);
+                  console.error(`📄 Повний sanskrit:`, verse.sanskrit);
+                  console.error(`📄 Повний transliteration:`, verse.transliteration);
+                  throw processErr;
+                }
 
                 const { error: updateErr } = await supabase
                   .from("verses")
@@ -91,20 +115,31 @@ export default function FixVerseLineBreaks() {
                   .eq("id", verse.id);
 
                 if (updateErr) {
-                  const chapterNum = (verse as any).chapters?.chapter_number || '?';
+                  console.error(`❌ ПОМИЛКА БД для вірша ${chapterNum}:${verse.verse_number}:`, updateErr);
                   errorMessages.push(`Вірш ${chapterNum}:${verse.verse_number}: ${updateErr.message}`);
                 }
               }
             } catch (err) {
-              const chapterNum = (verse as any).chapters?.chapter_number || '?';
-              errorMessages.push(
-                `Вірш ${chapterNum}:${verse.verse_number}: ${err instanceof Error ? err.message : "Помилка обробки"}`,
-              );
+              const errorMsg = `Вірш ${chapterNum}:${verse.verse_number} (ID: ${verse.id}): ${err instanceof Error ? err.message : "Помилка обробки"}`;
+              console.error('❌ ЗАГАЛЬНА ПОМИЛКА:', errorMsg);
+              console.error('Стек:', err);
+              console.error('Дані вірша:', {
+                id: verse.id,
+                verse_number: verse.verse_number,
+                sanskrit_length: verse.sanskrit?.length,
+                sanskrit_preview: verse.sanskrit?.substring(0, 200),
+              });
+              errorMessages.push(errorMsg);
             }
 
             processedSoFar += 1;
             setProcessed((prev) => prev + 1);
             setProgress((processedSoFar / totalCount) * 100);
+
+            // Логування прогресу кожних 50 віршів
+            if (processedSoFar % 50 === 0) {
+              console.log(`✅ Оброблено ${processedSoFar} з ${totalCount} віршів (${Math.round((processedSoFar / totalCount) * 100)}%)`);
+            }
           }
         }
       }
@@ -199,16 +234,19 @@ export default function FixVerseLineBreaks() {
 
               {errors.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="font-semibold mb-2">Помилки:</h4>
-                  <div className="bg-muted p-4 rounded-lg max-h-60 overflow-y-auto">
-                    <ul className="space-y-1 text-sm">
+                  <h4 className="font-semibold mb-2">Помилки ({errors.length}):</h4>
+                  <div className="bg-muted p-4 rounded-lg max-h-96 overflow-y-auto">
+                    <ul className="space-y-2 text-sm font-mono">
                       {errors.map((err, i) => (
-                        <li key={i} className="text-destructive">
+                        <li key={i} className="text-destructive border-b border-border pb-2">
                           {err}
                         </li>
                       ))}
                     </ul>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    💡 Порада: Відкрийте консоль браузера (F12) для детальної інформації про кожну помилку
+                  </p>
                 </div>
               )}
 

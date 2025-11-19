@@ -51,39 +51,47 @@ const DOUBLE_DANDA_NUM_RE = /॥\s*([०-९0-9]+)?\s*॥/g;
  *  - послідовність «॥ <номер?> ॥» залишається на одному рядку, після неї — перенесення (якщо є текст далі)
  */
 export function addSanskritLineBreaks(text: string): string {
-  if (!text || !text.trim()) return text;
+  // Перевірка на коректність вхідних даних
+  if (!text || typeof text !== 'string') return text || '';
+  if (!text.trim()) return text;
 
-  // 0) Обнулити наявні перенесення та зайві пробіли
-  let s = softNormalizeBeforeSplit(text);
+  try {
+    // 0) Обнулити наявні перенесення та зайві пробіли
+    let s = softNormalizeBeforeSplit(text);
 
-  // 1) Інвокація «ॐ» — якщо справді на початку вірша
-  //    зробимо її окремим рядком: "ॐ ..." -> "ॐ\n..."
-  if (/^ॐ[^\S\n]*\S/.test(s)) {
-    s = s.replace(/^ॐ[^\S\n]*/i, "ॐ\n");
+    // 1) Інвокація «ॐ» — якщо справді на початку вірша
+    //    зробимо її окремим рядком: "ॐ ..." -> "ॐ\n..."
+    if (/^ॐ[^\S\n]*\S/.test(s)) {
+      s = s.replace(/^ॐ[^\S\n]*/i, "ॐ\n");
+    }
+
+    // 2) Подвійні данди з номером: гарантуємо компактний формат "॥ <num> ॥"
+    //    і додамо перенос ПІСЛЯ такого блоку, якщо далі ще є текст.
+    s = s.replace(DOUBLE_DANDA_NUM_RE, (_m, num) => {
+      const asciiNum = num ? devaDigitsToAscii(String(num)) : "";
+      // залишимо деванаґарі чи арабські — як було; формат лише нормалізуємо
+      return asciiNum ? `॥ ${num} ॥` : "॥ ॥";
+    });
+
+    // Вставити перенос після завершеного блоку "॥ ... ॥", якщо потім ще йде текст
+    s = s.replace(/(॥\s*[०-९0-9]*\s*॥)(\s*)(?=\S)/g, (_m, block) => `${block}\n`);
+
+    // 3) Одиничні данди: ставимо перенос після «।», але НЕ якщо це частина «॥»
+    s = s.replace(SINGLE_DANDA_RE, "।\n");
+
+    // 4) Фінальна чистка
+    const lines = s
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+
+    // Уникаємо подвійних переносів на кінці
+    return lines.join("\n");
+  } catch (error) {
+    console.error('Error in addSanskritLineBreaks:', error, 'Text:', text?.substring(0, 100));
+    // У разі помилки повертаємо оригінальний текст
+    return text;
   }
-
-  // 2) Подвійні данди з номером: гарантуємо компактний формат "॥ <num> ॥"
-  //    і додамо перенос ПІСЛЯ такого блоку, якщо далі ще є текст.
-  s = s.replace(DOUBLE_DANDA_NUM_RE, (_m, num) => {
-    const asciiNum = num ? devaDigitsToAscii(String(num)) : "";
-    // залишимо деванаґарі чи арабські — як було; формат лише нормалізуємо
-    return asciiNum ? `॥ ${num} ॥` : "॥ ॥";
-  });
-
-  // Вставити перенос після завершеного блоку "॥ ... ॥", якщо потім ще йде текст
-  s = s.replace(/(॥\s*[०-९0-9]*\s*॥)(\s*)(?=\S)/g, (_m, block) => `${block}\n`);
-
-  // 3) Одиничні данди: ставимо перенос після «।», але НЕ якщо це частина «॥»
-  s = s.replace(SINGLE_DANDA_RE, "।\n");
-
-  // 4) Фінальна чистка
-  const lines = s
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-
-  // Уникаємо подвійних переносів на кінці
-  return lines.join("\n");
 }
 
 /**
