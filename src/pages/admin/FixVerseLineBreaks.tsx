@@ -97,14 +97,19 @@ export default function FixVerseLineBreaks() {
               }
             } catch (err) {
               const chapterNum = (verse as any).chapters?.chapter_number || '?';
-              errorMessages.push(
-                `Вірш ${chapterNum}:${verse.verse_number}: ${err instanceof Error ? err.message : "Помилка обробки"}`,
-              );
+              const errorMsg = `Вірш ${chapterNum}:${verse.verse_number}: ${err instanceof Error ? err.message : "Помилка обробки"}`;
+              console.error(errorMsg, err);
+              errorMessages.push(errorMsg);
             }
 
             processedSoFar += 1;
             setProcessed((prev) => prev + 1);
             setProgress((processedSoFar / totalCount) * 100);
+
+            // Логування прогресу кожних 50 віршів
+            if (processedSoFar % 50 === 0) {
+              console.log(`✅ Оброблено ${processedSoFar} з ${totalCount} віршів (${Math.round((processedSoFar / totalCount) * 100)}%)`);
+            }
           }
         }
       }
