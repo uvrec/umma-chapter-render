@@ -95,7 +95,9 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
       if (error) throw error;
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       queryClient.invalidateQueries({ queryKey: ["verse", verseId] });
       toast({
         title: "Успіх",

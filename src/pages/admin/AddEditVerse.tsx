@@ -204,7 +204,9 @@ export default function AddEditVerse() {
       }
     },
     onSuccess: () => {
+      // Очищуємо кеш для фронтенду і адмінки
       queryClient.invalidateQueries({ queryKey: ["verses"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
       toast({
         title: id ? "Вірш оновлено" : "Вірш додано",
         description: "Зміни успішно збережено",

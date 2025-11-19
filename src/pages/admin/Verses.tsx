@@ -126,7 +126,9 @@ const Verses = () => {
       return { verseNumber };
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success("Статус вірша оновлено");
     },
     onError: (error: any, variables) => {
@@ -145,7 +147,9 @@ const Verses = () => {
       return { verseNumber };
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success("Вірш видалено");
       setDeleteVerseId(null);
     },
@@ -165,7 +169,9 @@ const Verses = () => {
       return { count };
     },
     onSuccess: (_, variables) => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success(`Видалено ${variables.count} віршів`);
       setSelectedVerses(new Set());
       setBulkDeleteMode(false);
