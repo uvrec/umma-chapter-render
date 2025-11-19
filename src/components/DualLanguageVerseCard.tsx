@@ -346,7 +346,9 @@ export function DualLanguageVerseCard({
             enParagraphs={null}
             uaText={editedData.translationUa}
             enText={editedData.translationEn}
-            className="text-base font-semibold"
+            className="font-semibold"
+            fontSize={fontSize}
+            lineHeight={lineHeight}
           />
         )}
       </div>
@@ -382,7 +384,8 @@ export function DualLanguageVerseCard({
             enParagraphs={null}
             uaText={editedData.commentaryUa}
             enText={editedData.commentaryEn}
-            className="text-base"
+            fontSize={fontSize}
+            lineHeight={lineHeight}
           />
         )}
       </div>

@@ -4,6 +4,8 @@ import DOMPurify from "dompurify";
 interface TiptapRendererProps {
   content: string;
   className?: string;
+  fontSize?: number;
+  lineHeight?: number | string;
   displayBlocks?: {
     sanskrit?: boolean;
     transliteration?: boolean;
@@ -13,7 +15,7 @@ interface TiptapRendererProps {
   };
 }
 
-export const TiptapRenderer = ({ content, className = "", displayBlocks }: TiptapRendererProps) => {
+export const TiptapRenderer = ({ content, className = "", fontSize, lineHeight, displayBlocks }: TiptapRendererProps) => {
   const sanitizedContent = useMemo(() => {
     if (!content?.trim()) return null;
 
@@ -91,17 +93,23 @@ export const TiptapRenderer = ({ content, className = "", displayBlocks }: Tipta
 
   // ✅ ДОДАНО: Стиль для приховування блоків згідно з налаштуваннями
   const hiddenBlocksStyle = useMemo(() => {
-    if (!displayBlocks) return {};
-    
-    const styles: Record<string, string> = {};
-    if (!displayBlocks.sanskrit) styles['--hide-sanskrit'] = 'none';
-    if (!displayBlocks.transliteration) styles['--hide-transliteration'] = 'none';
-    if (!displayBlocks.synonyms) styles['--hide-synonyms'] = 'none';
-    if (!displayBlocks.translation) styles['--hide-translation'] = 'none';
-    if (!displayBlocks.commentary) styles['--hide-commentary'] = 'none';
-    
+    const styles: Record<string, any> = {};
+
+    // Додаємо fontSize та lineHeight якщо передано
+    if (fontSize) styles.fontSize = `${fontSize}px`;
+    if (lineHeight) styles.lineHeight = lineHeight;
+
+    // Додаємо стилі для приховування блоків
+    if (displayBlocks) {
+      if (!displayBlocks.sanskrit) styles['--hide-sanskrit'] = 'none';
+      if (!displayBlocks.transliteration) styles['--hide-transliteration'] = 'none';
+      if (!displayBlocks.synonyms) styles['--hide-synonyms'] = 'none';
+      if (!displayBlocks.translation) styles['--hide-translation'] = 'none';
+      if (!displayBlocks.commentary) styles['--hide-commentary'] = 'none';
+    }
+
     return styles;
-  }, [displayBlocks]);
+  }, [fontSize, lineHeight, displayBlocks]);
 
   return (
     <div
