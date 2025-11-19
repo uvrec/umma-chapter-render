@@ -92,11 +92,11 @@ export const VedaReaderDB = () => {
       if (saved) {
         const blocks = JSON.parse(saved);
         return {
-          showSanskrit: blocks.sanskrit ?? true,
-          showTransliteration: blocks.translit ?? true,
-          showSynonyms: blocks.synonyms ?? true,
-          showTranslation: blocks.translation ?? true,
-          showCommentary: blocks.commentary ?? true
+          showSanskrit: blocks.showSanskrit ?? true,
+          showTransliteration: blocks.showTransliteration ?? true,
+          showSynonyms: blocks.showSynonyms ?? true,
+          showTranslation: blocks.showTranslation ?? true,
+          showCommentary: blocks.showCommentary ?? true
         };
       }
     } catch {}
@@ -132,11 +132,11 @@ export const VedaReaderDB = () => {
         if (blocksStr) {
           const blocks = JSON.parse(blocksStr);
           setTextDisplaySettings({
-            showSanskrit: blocks.sanskrit ?? true,
-            showTransliteration: blocks.translit ?? true,
-            showSynonyms: blocks.synonyms ?? true,
-            showTranslation: blocks.translation ?? true,
-            showCommentary: blocks.commentary ?? true
+            showSanskrit: blocks.showSanskrit ?? true,
+            showTransliteration: blocks.showTransliteration ?? true,
+            showSynonyms: blocks.showSynonyms ?? true,
+            showTranslation: blocks.showTranslation ?? true,
+            showCommentary: blocks.showCommentary ?? true
           });
         }
       } catch (e) {
