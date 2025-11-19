@@ -59,93 +59,33 @@ export const VedaReaderDB = () => {
   // Keyboard shortcuts state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
 
-  // Використовуємо useReaderSettings hook для fontSize/lineHeight
-  const { fontSize, lineHeight, increaseFont, decreaseFont } = useReaderSettings();
+  // ✅ Використовуємо централізовану систему через useReaderSettings
+  const {
+    fontSize,
+    lineHeight,
+    increaseFont,
+    decreaseFont,
+    dualLanguageMode,
+    setDualLanguageMode,
+    textDisplaySettings,
+    setTextDisplaySettings,
+    continuousReadingSettings,
+    setContinuousReadingSettings,
+  } = useReaderSettings();
 
-  // Читаємо налаштування з localStorage і слухаємо зміни
-  const [dualLanguageMode, setDualLanguageMode] = useState(() => localStorage.getItem("vv_reader_dualMode") === "true");
-  const [showNumbers, setShowNumbers] = useState(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
-  const [flowMode, setFlowMode] = useState(() => localStorage.getItem("vv_reader_flowMode") === "true");
+  // Локальні налаштування, які НЕ управляються через useReaderSettings
+  const [showNumbers, setShowNumbers] = useState<boolean>(() => localStorage.getItem("vv_reader_showNumbers") !== "false");
+  const [flowMode, setFlowMode] = useState<boolean>(() => localStorage.getItem("vv_reader_flowMode") === "true");
 
-  // Continuous Reading Mode з localStorage
-  const readContinuousReading = () => {
-    try {
-      const raw = localStorage.getItem("vv_reader_continuousReading");
-      if (raw) return JSON.parse(raw);
-    } catch {}
-    return {
-      enabled: false,
-      showVerseNumbers: true,
-      showSanskrit: false,
-      showTransliteration: false,
-      showTranslation: true,
-      showCommentary: false,
-    };
-  };
-
-  const [continuousReadingFromGlobal, setContinuousReadingFromGlobal] = useState(readContinuousReading);
-
-  // Читаємо блоки з localStorage
-  const [textDisplaySettings, setTextDisplaySettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem("vv_reader_blocks");
-      if (saved) {
-        const blocks = JSON.parse(saved);
-        return {
-          showSanskrit: blocks.showSanskrit ?? true,
-          showTransliteration: blocks.showTransliteration ?? true,
-          showSynonyms: blocks.showSynonyms ?? true,
-          showTranslation: blocks.showTranslation ?? true,
-          showCommentary: blocks.showCommentary ?? true
-        };
-      }
-    } catch {}
-    return {
-      showSanskrit: true,
-      showTransliteration: true,
-      showSynonyms: true,
-      showTranslation: true,
-      showCommentary: true
-    };
-  });
-
-  // Слухаємо зміни з GlobalSettingsPanel
+  // Слухаємо зміни локальних налаштувань
   useEffect(() => {
     const handlePrefsChanged = () => {
-      // fontSize та lineHeight тепер керуються useReaderSettings hook
-
-      const newDualMode = localStorage.getItem("vv_reader_dualMode") === "true";
-      setDualLanguageMode(newDualMode);
-
       const newShowNumbers = localStorage.getItem("vv_reader_showNumbers") !== "false";
       setShowNumbers(newShowNumbers);
 
       const newFlowMode = localStorage.getItem("vv_reader_flowMode") === "true";
       setFlowMode(newFlowMode);
-
-      // Continuous Reading з GlobalSettingsPanel
-      const newContinuousReading = readContinuousReading();
-      setContinuousReadingFromGlobal(newContinuousReading);
-
-      try {
-        const blocksStr = localStorage.getItem("vv_reader_blocks");
-        if (blocksStr) {
-          const blocks = JSON.parse(blocksStr);
-          setTextDisplaySettings({
-            showSanskrit: blocks.showSanskrit ?? true,
-            showTransliteration: blocks.showTransliteration ?? true,
-            showSynonyms: blocks.showSynonyms ?? true,
-            showTranslation: blocks.showTranslation ?? true,
-            showCommentary: blocks.showCommentary ?? true
-          });
-        }
-      } catch (e) {
-        console.error('[VedaReaderDB] Error parsing blocks:', e);
-      }
     };
-
-    // Викликаємо одразу щоб застосувати поточні значення
-    handlePrefsChanged();
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
     return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -1020,7 +960,7 @@ export const VedaReaderDB = () => {
 
       <div className="container mx-auto px-4 py-8" data-reader-root="true">
         {/* Заголовок - тільки для безперервного читання або текстових глав */}
-        {(continuousReadingFromGlobal.enabled || isTextChapter) && (
+        {(continuousReadingSettings.enabled || isTextChapter) && (
           <div className="mb-8">
             <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
           </div>
@@ -1067,7 +1007,7 @@ export const VedaReaderDB = () => {
               </Button>
             </div>
           </Card>
-        ) : continuousReadingFromGlobal.enabled ? (
+        ) : continuousReadingSettings.enabled ? (
           <div className="space-y-8">
             {verses.map(verse => {
               const verseIdx = getDisplayVerseNumber(verse.verse_number);
@@ -1077,11 +1017,11 @@ export const VedaReaderDB = () => {
 
               // Налаштування відображення для continuous mode
               const contSettings = {
-                showSanskrit: continuousReadingFromGlobal.showSanskrit,
-                showTransliteration: continuousReadingFromGlobal.showTransliteration,
+                showSanskrit: continuousReadingSettings.showSanskrit,
+                showTransliteration: continuousReadingSettings.showTransliteration,
                 showSynonyms: false, // Завжди false в continuous mode
-                showTranslation: continuousReadingFromGlobal.showTranslation,
-                showCommentary: continuousReadingFromGlobal.showCommentary,
+                showTranslation: continuousReadingSettings.showTranslation,
+                showCommentary: continuousReadingSettings.showCommentary,
               };
 
               return (
