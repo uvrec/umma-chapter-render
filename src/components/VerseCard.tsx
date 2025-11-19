@@ -385,7 +385,7 @@ export const VerseCard = ({
                 className="min-h-[120px] synonyms-text"
               />
             ) : (
-              <p className="synonyms-text text-foreground" style={{ fontSize: `${fontSize - 1}px` }}>
+              <p className="synonyms-text text-foreground" style={{ fontSize: `${fontSize}px`, lineHeight }}>
                 {synonymPairs.length === 0 ? (
                   <span className="text-muted-foreground">{synonyms}</span>
                 ) : (
