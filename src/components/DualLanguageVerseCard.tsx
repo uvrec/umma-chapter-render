@@ -121,7 +121,7 @@ export function DualLanguageVerseCard({
   const synonymsParsedEn = parseSynonyms(editedData.synonymsEn);
 
   return (
-    <div className="w-full max-w-7xl mx-auto bg-card rounded-lg">
+    <div className="w-full max-w-7xl mx-auto">
       {/* Admin Controls */}
       {isAdmin && (
         <div className="flex justify-end gap-2 p-4">
