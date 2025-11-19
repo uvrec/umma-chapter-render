@@ -360,7 +360,7 @@ export const VerseCard = ({
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
-            <div className="section-header flex items-center justify-center gap-4">
+            <div className="section-header flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground">{labels.synonyms}</h4>
               <button
                 onClick={() => playSection("Послівний переклад", audioSynonyms)}
@@ -456,7 +456,7 @@ export const VerseCard = ({
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
-            <div className="section-header flex items-center justify-center gap-4">
+            <div className="section-header flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground font-serif">{labels.translation}</h4>
               <button
                 onClick={() => playSection("Літературний переклад", audioTranslation)}
@@ -489,7 +489,7 @@ export const VerseCard = ({
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div>
             {/* Заголовок + кнопка Volume2 */}
-            <div className="section-header flex items-center justify-center gap-4">
+            <div className="section-header flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
               <button
                 onClick={() => playSection("Пояснення", audioCommentary)}
