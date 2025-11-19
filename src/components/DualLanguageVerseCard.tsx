@@ -4,6 +4,7 @@ import { Edit, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
+import { DualLanguageText } from "@/components/DualLanguageText";
 
 interface DualLanguageVerseCardProps {
   verseId?: string;
@@ -137,51 +138,40 @@ export function DualLanguageVerseCard({
         </div>
       )}
 
-      {/* Header - Dual Language */}
-      <div className="grid grid-cols-2 gap-8 p-8 border-b border-border">
-        <div>
-          <h1 className="text-4xl font-bold text-center">ВІРШ {verseNumber}</h1>
-        </div>
-        <div>
-          <h1 className="text-4xl font-bold text-center">Text {verseNumber}</h1>
-        </div>
-      </div>
 
       {/* Sanskrit - Devanagari (same for both columns) */}
-      <div className="p-8 border-b border-border bg-background/50">
-        <div className="text-center">
-          {editMode ? (
-            <div className="grid grid-cols-2 gap-8">
-              <Textarea
-                value={editedData.sanskritTextUa}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, sanskritTextUa: e.target.value })
-                }
-                className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
-              />
-              <Textarea
-                value={editedData.sanskritTextEn}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, sanskritTextEn: e.target.value })
-                }
-                className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
-              />
+      <div className="p-8 bg-background/50">
+        {editMode ? (
+          <div className="grid grid-cols-2 gap-8">
+            <Textarea
+              value={editedData.sanskritTextUa}
+              onChange={(e) =>
+                setEditedData({ ...editedData, sanskritTextUa: e.target.value })
+              }
+              className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+            />
+            <Textarea
+              value={editedData.sanskritTextEn}
+              onChange={(e) =>
+                setEditedData({ ...editedData, sanskritTextEn: e.target.value })
+              }
+              className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-8 text-center">
+            <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
+              {editedData.sanskritTextUa}
             </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-8">
-              <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
-                {editedData.sanskritTextUa}
-              </div>
-              <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
-                {editedData.sanskritTextEn}
-              </div>
+            <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
+              {editedData.sanskritTextEn}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Transliteration */}
-      <div className="p-8 border-b border-border">
+      <div className="p-8">
         {editMode ? (
           <div className="grid grid-cols-2 gap-8">
             <Textarea
@@ -212,11 +202,11 @@ export function DualLanguageVerseCard({
       </div>
 
       {/* Synonyms */}
-      <div className="p-8 border-b border-border">
+      <div className="p-8">
         <div className="grid grid-cols-2 gap-8">
           {/* Ukrainian Synonyms */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Synonyms</h3>
+            <h3 className="text-xl font-bold mb-4">Послівний переклад</h3>
             {editMode ? (
               <Textarea
                 value={editedData.synonymsUa}
@@ -226,15 +216,16 @@ export function DualLanguageVerseCard({
                 className="text-base min-h-[200px]"
               />
             ) : (
-              <div className="text-base leading-relaxed space-y-2">
+              <p className="text-base leading-relaxed">
                 {synonymsParsedUa.map((syn, i) => (
-                  <div key={i}>
+                  <span key={i}>
                     <span className="italic text-accent">{syn.term}</span>
                     {" — "}
                     <span>{syn.meaning}</span>
-                  </div>
+                    {i < synonymsParsedUa.length - 1 && <span>; </span>}
+                  </span>
                 ))}
-              </div>
+              </p>
             )}
           </div>
 
@@ -250,22 +241,23 @@ export function DualLanguageVerseCard({
                 className="text-base min-h-[200px]"
               />
             ) : (
-              <div className="text-base leading-relaxed space-y-2">
+              <p className="text-base leading-relaxed">
                 {synonymsParsedEn.map((syn, i) => (
-                  <div key={i}>
+                  <span key={i}>
                     <span className="italic text-accent">{syn.term}</span>
                     {" — "}
                     <span>{syn.meaning}</span>
-                  </div>
+                    {i < synonymsParsedEn.length - 1 && <span>; </span>}
+                  </span>
                 ))}
-              </div>
+              </p>
             )}
           </div>
         </div>
       </div>
 
       {/* Translation */}
-      <div className="p-8 border-b border-border">
+      <div className="p-8">
         <div className="grid grid-cols-2 gap-8">
           {/* Ukrainian Translation */}
           <div>
@@ -307,43 +299,38 @@ export function DualLanguageVerseCard({
 
       {/* Commentary */}
       <div className="p-8">
-        <div className="grid grid-cols-2 gap-8">
-          {/* Ukrainian Commentary */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Коментар</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.commentaryUa}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, commentaryUa: e.target.value })
-                }
-                className="text-base min-h-[300px]"
-              />
-            ) : (
-              <div className="text-base leading-relaxed">
-                <TiptapRenderer content={editedData.commentaryUa} />
-              </div>
-            )}
-          </div>
-
-          {/* English Commentary */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Purport</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.commentaryEn}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, commentaryEn: e.target.value })
-                }
-                className="text-base min-h-[300px]"
-              />
-            ) : (
-              <div className="text-base leading-relaxed">
-                <TiptapRenderer content={editedData.commentaryEn} />
-              </div>
-            )}
-          </div>
+        {/* Headers */}
+        <div className="grid grid-cols-2 gap-8 mb-4">
+          <h3 className="text-xl font-bold">Пояснення</h3>
+          <h3 className="text-xl font-bold">Purport</h3>
         </div>
+
+        {editMode ? (
+          <div className="grid grid-cols-2 gap-8">
+            <Textarea
+              value={editedData.commentaryUa}
+              onChange={(e) =>
+                setEditedData({ ...editedData, commentaryUa: e.target.value })
+              }
+              className="text-base min-h-[300px]"
+            />
+            <Textarea
+              value={editedData.commentaryEn}
+              onChange={(e) =>
+                setEditedData({ ...editedData, commentaryEn: e.target.value })
+              }
+              className="text-base min-h-[300px]"
+            />
+          </div>
+        ) : (
+          <DualLanguageText
+            uaParagraphs={null}
+            enParagraphs={null}
+            uaText={editedData.commentaryUa}
+            enText={editedData.commentaryEn}
+            className="text-base"
+          />
+        )}
       </div>
     </div>
   );
