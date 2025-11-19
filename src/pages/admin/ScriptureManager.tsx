@@ -123,7 +123,9 @@ export default function ScriptureManager() {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success("Статус вірша оновлено");
     },
     onError: (error: any) => {
@@ -140,7 +142,9 @@ export default function ScriptureManager() {
       if (error) throw error;
     },
     onSuccess: () => {
+      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast.success("Вірш видалено");
       setDeleteVerseId(null);
       if (selectedVerseId === deleteVerseId?.id) {

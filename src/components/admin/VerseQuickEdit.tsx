@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Save, X, Clock } from "lucide-react";
 
@@ -14,9 +15,15 @@ interface Verse {
   id: string;
   verse_number: string;
   sanskrit_ua?: string;
+  sanskrit_en?: string;
   transliteration_ua?: string;
+  transliteration_en?: string;
+  synonyms_ua?: string;
+  synonyms_en?: string;
   translation_ua?: string;
+  translation_en?: string;
   commentary_ua?: string;
+  commentary_en?: string;
   full_verse_audio_url?: string;
 }
 
@@ -31,12 +38,20 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
   const [verse, setVerse] = useState<Verse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form fields
+  // Form fields - Ukrainian
   const [verseNumber, setVerseNumber] = useState("");
   const [sanskritUa, setSanskritUa] = useState("");
   const [transliterationUa, setTransliterationUa] = useState("");
+  const [synonymsUa, setSynonymsUa] = useState("");
   const [translationUa, setTranslationUa] = useState("");
   const [commentaryUa, setCommentaryUa] = useState("");
+
+  // Form fields - English
+  const [sanskritEn, setSanskritEn] = useState("");
+  const [transliterationEn, setTransliterationEn] = useState("");
+  const [synonymsEn, setSynonymsEn] = useState("");
+  const [translationEn, setTranslationEn] = useState("");
+  const [commentaryEn, setCommentaryEn] = useState("");
 
   // Load verse data
   useEffect(() => {
@@ -65,10 +80,18 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
 
         setVerse(data);
         setVerseNumber(data.verse_number || "");
+        // Ukrainian fields
         setSanskritUa(data.sanskrit_ua || "");
         setTransliterationUa(data.transliteration_ua || "");
+        setSynonymsUa(data.synonyms_ua || "");
         setTranslationUa(data.translation_ua || "");
         setCommentaryUa(data.commentary_ua || "");
+        // English fields
+        setSanskritEn(data.sanskrit_en || "");
+        setTransliterationEn(data.transliteration_en || "");
+        setSynonymsEn(data.synonyms_en || "");
+        setTranslationEn(data.translation_en || "");
+        setCommentaryEn(data.commentary_en || "");
       } finally {
         setIsLoading(false);
       }
@@ -85,10 +108,18 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
         .from("verses")
         .update({
           verse_number: verseNumber,
+          // Ukrainian fields
           sanskrit_ua: sanskritUa || null,
           transliteration_ua: transliterationUa || null,
+          synonyms_ua: synonymsUa || null,
           translation_ua: translationUa || null,
           commentary_ua: commentaryUa || null,
+          // English fields
+          sanskrit_en: sanskritEn || null,
+          transliteration_en: transliterationEn || null,
+          synonyms_en: synonymsEn || null,
+          translation_en: translationEn || null,
+          commentary_en: commentaryEn || null,
         })
         .eq("id", verseId);
 
@@ -176,54 +207,131 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
             />
           </div>
 
-          {/* Sanskrit */}
-          <div className="space-y-2">
-            <Label htmlFor="quick-sanskrit">Санскрит (UA)</Label>
-            <Textarea
-              id="quick-sanskrit"
-              value={sanskritUa}
-              onChange={(e) => setSanskritUa(e.target.value)}
-              placeholder="देहिनोऽस्मिन्..."
-              rows={3}
-              className="font-sanskrit"
-            />
-          </div>
+          {/* Language Tabs */}
+          <Tabs defaultValue="ua" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="ua">Українська</TabsTrigger>
+              <TabsTrigger value="en">English</TabsTrigger>
+            </TabsList>
 
-          {/* Transliteration */}
-          <div className="space-y-2">
-            <Label htmlFor="quick-transliteration">Транслітерація (UA)</Label>
-            <Textarea
-              id="quick-transliteration"
-              value={transliterationUa}
-              onChange={(e) => setTransliterationUa(e.target.value)}
-              placeholder="dehino 'smin..."
-              rows={2}
-            />
-          </div>
+            {/* Ukrainian Tab */}
+            <TabsContent value="ua" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="quick-sanskrit-ua">Санскрит</Label>
+                <Textarea
+                  id="quick-sanskrit-ua"
+                  value={sanskritUa}
+                  onChange={(e) => setSanskritUa(e.target.value)}
+                  placeholder="देहिनोऽस्मिन्..."
+                  rows={3}
+                  className="font-sanskrit"
+                />
+              </div>
 
-          {/* Translation */}
-          <div className="space-y-2">
-            <Label htmlFor="quick-translation">Переклад (UA)</Label>
-            <Textarea
-              id="quick-translation"
-              value={translationUa}
-              onChange={(e) => setTranslationUa(e.target.value)}
-              placeholder="Як душа..."
-              rows={4}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="quick-transliteration-ua">Транслітерація</Label>
+                <Textarea
+                  id="quick-transliteration-ua"
+                  value={transliterationUa}
+                  onChange={(e) => setTransliterationUa(e.target.value)}
+                  placeholder="dehino 'smin..."
+                  rows={2}
+                />
+              </div>
 
-          {/* Commentary */}
-          <div className="space-y-2">
-            <Label htmlFor="quick-commentary">Коментар (UA)</Label>
-            <Textarea
-              id="quick-commentary"
-              value={commentaryUa}
-              onChange={(e) => setCommentaryUa(e.target.value)}
-              placeholder="В цьому вірші..."
-              rows={6}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="quick-synonyms-ua">Синоніми</Label>
+                <Textarea
+                  id="quick-synonyms-ua"
+                  value={synonymsUa}
+                  onChange={(e) => setSynonymsUa(e.target.value)}
+                  placeholder="деха – тіло; асмін – в цьому..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quick-translation-ua">Переклад</Label>
+                <Textarea
+                  id="quick-translation-ua"
+                  value={translationUa}
+                  onChange={(e) => setTranslationUa(e.target.value)}
+                  placeholder="Як душа..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quick-commentary-ua">Коментар</Label>
+                <Textarea
+                  id="quick-commentary-ua"
+                  value={commentaryUa}
+                  onChange={(e) => setCommentaryUa(e.target.value)}
+                  placeholder="В цьому вірші..."
+                  rows={6}
+                />
+              </div>
+            </TabsContent>
+
+            {/* English Tab */}
+            <TabsContent value="en" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="quick-sanskrit-en">Sanskrit</Label>
+                <Textarea
+                  id="quick-sanskrit-en"
+                  value={sanskritEn}
+                  onChange={(e) => setSanskritEn(e.target.value)}
+                  placeholder="देहिनोऽस्मिन्..."
+                  rows={3}
+                  className="font-sanskrit"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quick-transliteration-en">Transliteration</Label>
+                <Textarea
+                  id="quick-transliteration-en"
+                  value={transliterationEn}
+                  onChange={(e) => setTransliterationEn(e.target.value)}
+                  placeholder="dehino 'smin..."
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quick-synonyms-en">Synonyms</Label>
+                <Textarea
+                  id="quick-synonyms-en"
+                  value={synonymsEn}
+                  onChange={(e) => setSynonymsEn(e.target.value)}
+                  placeholder="deha – body; asmin – in this..."
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quick-translation-en">Translation</Label>
+                <Textarea
+                  id="quick-translation-en"
+                  value={translationEn}
+                  onChange={(e) => setTranslationEn(e.target.value)}
+                  placeholder="As the soul..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="quick-commentary-en">Commentary</Label>
+                <Textarea
+                  id="quick-commentary-en"
+                  value={commentaryEn}
+                  onChange={(e) => setCommentaryEn(e.target.value)}
+                  placeholder="In this verse..."
+                  rows={6}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
 
           {/* Actions */}
           <div className="flex gap-2 pt-4 border-t sticky bottom-0 bg-background">
