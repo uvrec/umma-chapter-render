@@ -6,7 +6,7 @@
 import { useState, useMemo } from "react";
 import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+// Card видалено - вірш відображається на прозорому фоні
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -230,11 +230,11 @@ export const VerseCard = ({
   };
   const synonymPairs = textDisplaySettings.showSynonyms ? parseSynonyms(isEditing ? edited.synonyms : synonyms) : [];
   return (
-    <Card
-      className={`verse-surface w-full animate-fade-in ${flowMode ? "border-0 shadow-none" : "border-gray-100 shadow-sm dark:border-border"} bg-card`}
+    <div
+      className="verse-surface w-full animate-fade-in"
     >
       <div
-        className={flowMode ? "py-6" : "p-6"}
+        className="py-6"
         style={{
           fontSize: `${fontSize}px`,
           lineHeight,
@@ -518,6 +518,6 @@ export const VerseCard = ({
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };
