@@ -40,32 +40,23 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   const maxLength = alignedUa.length;
 
   return (
-    <div className={`grid grid-cols-2 gap-x-8 ${className}`}>
-      {/* Українська колонка */}
-      <div className="space-y-4">
-        {alignedUa.map((para, idx) => (
+    <div className={`grid grid-cols-2 gap-x-8 gap-y-4 ${className}`} style={{ gridAutoRows: 'auto' }}>
+      {alignedUa.map((para, idx) => (
+        <React.Fragment key={`pair-${idx}`}>
           <p
-            key={`ua-${idx}`}
-            className="leading-relaxed text-base"
+            className="leading-relaxed text-base self-start"
             dangerouslySetInnerHTML={{
               __html: para.text || '&nbsp;'
             }}
           />
-        ))}
-      </div>
-
-      {/* English column */}
-      <div className="space-y-4">
-        {alignedEn.map((para, idx) => (
           <p
-            key={`en-${idx}`}
-            className="leading-relaxed text-base"
+            className="leading-relaxed text-base self-start"
             dangerouslySetInnerHTML={{
-              __html: para.text || '&nbsp;'
+              __html: alignedEn[idx]?.text || '&nbsp;'
             }}
           />
-        ))}
-      </div>
+        </React.Fragment>
+      ))}
     </div>
   );
 };
