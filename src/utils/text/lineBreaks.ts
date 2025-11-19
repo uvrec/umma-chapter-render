@@ -77,7 +77,8 @@ export function addTransliterationLineBreaks(sanskrit: string, transliteration: 
 }
 
 /**
- * Process a verse and add line breaks to both Sanskrit and transliteration
+ * Process a verse and add line breaks to Sanskrit only (Devanagari/Bengali)
+ * Transliteration is returned unchanged
  */
 export function processVerseLineBreaks(verse: {
   sanskrit?: string | null;
@@ -87,19 +88,16 @@ export function processVerseLineBreaks(verse: {
   transliteration?: string;
 } {
   const result: { sanskrit?: string; transliteration?: string } = {};
-  
+
+  // Обробляємо ТІЛЬКИ санскрит (деванаґарі/бенгалі)
   if (verse.sanskrit) {
     result.sanskrit = addSanskritLineBreaks(verse.sanskrit);
   }
-  
-  if (verse.transliteration && result.sanskrit) {
-    result.transliteration = addTransliterationLineBreaks(
-      result.sanskrit,
-      verse.transliteration
-    );
-  } else if (verse.transliteration) {
+
+  // Транслітерацію залишаємо БЕЗ ЗМІН
+  if (verse.transliteration) {
     result.transliteration = verse.transliteration;
   }
-  
+
   return result;
 }

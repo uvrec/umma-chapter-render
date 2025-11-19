@@ -144,7 +144,8 @@ export function addTransliterationLineBreaks(sanskrit: string, transliteration: 
 }
 
 /**
- * Обробка одного вірша: додає перенесення в санскриті і узгоджує трансліт.
+ * Обробка одного вірша: додає перенесення ТІЛЬКИ в санскриті (деванаґарі/бенгалі)
+ * Транслітерацію залишає без змін
  */
 export function processVerseLineBreaks(verse: { sanskrit?: string | null; transliteration?: string | null }): {
   sanskrit?: string;
@@ -152,17 +153,14 @@ export function processVerseLineBreaks(verse: { sanskrit?: string | null; transl
 } {
   const result: { sanskrit?: string; transliteration?: string } = {};
 
+  // Обробляємо ТІЛЬКИ санскрит
   if (verse.sanskrit && verse.sanskrit.trim()) {
     result.sanskrit = addSanskritLineBreaks(verse.sanskrit);
   }
 
+  // Транслітерацію залишаємо БЕЗ ЗМІН
   if (verse.transliteration && verse.transliteration.trim()) {
-    if (result.sanskrit) {
-      result.transliteration = addTransliterationLineBreaks(result.sanskrit, verse.transliteration);
-    } else {
-      // Без санскриту — лише легка нормалізація
-      result.transliteration = normalizeSpaces(verse.transliteration);
-    }
+    result.transliteration = verse.transliteration;
   }
 
   return result;
