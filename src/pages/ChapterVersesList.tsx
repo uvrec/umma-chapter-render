@@ -19,7 +19,6 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 export const ChapterVersesList = () => {
   const {
     bookId,
-    chapterId,
     cantoNumber,
     chapterNumber
   } = useParams();
@@ -39,7 +38,7 @@ export const ChapterVersesList = () => {
   const [editedContentEn, setEditedContentEn] = useState("");
 
   const isCantoMode = !!cantoNumber;
-  const effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
+  const effectiveChapterParam = chapterNumber;
   const {
     data: book
   } = useQuery({
@@ -185,7 +184,7 @@ export const ChapterVersesList = () => {
     if (isCantoMode) {
       return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
     }
-    return `/veda-reader/${bookId}/${chapterId}/${verseNumber}`;
+    return `/veda-reader/${bookId}/${chapterNumber}/${verseNumber}`;
   };
   const handleBack = () => {
     if (isCantoMode) {

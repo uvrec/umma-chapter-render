@@ -120,8 +120,8 @@ const App = () => (
                   {/* Special route for NoI: redirect to explicit chapter 1 */}
                   <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
 
-                  <Route path="/veda-reader/:bookId/:chapterId" element={<ChapterVersesList />} />
-                  <Route path="/veda-reader/:bookId/:chapterId/:verseNumber" element={<VedaReaderDB />} />
+                  <Route path="/veda-reader/:bookId/:chapterNumber" element={<ChapterVersesList />} />
+                  <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<VedaReaderDB />} />
                   <Route
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
                     element={<ChapterVersesList />}

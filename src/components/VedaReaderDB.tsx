@@ -29,7 +29,6 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 export const VedaReaderDB = () => {
   const {
     bookId,
-    chapterId,
     cantoNumber,
     chapterNumber,
     verseNumber,
@@ -114,8 +113,8 @@ export const VedaReaderDB = () => {
 
   // Special handling for NoI: /veda-reader/noi/1 → chapter=1, verse=1
   // NoI має всі тексти в главі 1, URL /noi/1 означає "текст 1"
-  let effectiveChapterParam = isCantoMode ? chapterNumber : chapterId;
-  if (bookId === 'noi' && !chapterId && routeVerseNumber) {
+  let effectiveChapterParam = chapterNumber;
+  if (bookId === 'noi' && !chapterNumber && routeVerseNumber) {
     effectiveChapterParam = '1'; // Всі NoI тексти завжди в главі 1
   }
 
