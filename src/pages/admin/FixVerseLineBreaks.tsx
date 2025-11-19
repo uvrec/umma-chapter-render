@@ -32,9 +32,8 @@ export default function FixVerseLineBreaks() {
       const { count: totalToFix, error: countErr } = await supabase
         .from("verses")
         .select("id", { count: "exact", head: true })
-        // sanskrit не порожній і НЕ містить \n
-        .not("sanskrit", "is", null)
-        .not("sanskrit", "like", "%\n%");
+        // sanskrit_ua або sanskrit_en не порожні
+        .or("sanskrit_ua.not.is.null,sanskrit_en.not.is.null");
 
       if (countErr) throw countErr;
 
@@ -58,9 +57,8 @@ export default function FixVerseLineBreaks() {
 
         const { data: pageVerses, error: fetchErr } = await supabase
           .from("verses")
-          .select("id, verse_number, sanskrit, transliteration, chapters!inner(chapter_number)", { count: "exact" })
-          .not("sanskrit", "is", null)
-          .not("sanskrit", "like", "%\n%")
+          .select("id, verse_number, sanskrit_ua, sanskrit_en, transliteration_ua, transliteration_en, chapters!inner(chapter_number)", { count: "exact" })
+          .or("sanskrit_ua.not.is.null,sanskrit_en.not.is.null")
           .order("id", { ascending: true })
           .range(from, to);
 
@@ -75,19 +73,33 @@ export default function FixVerseLineBreaks() {
           // послідовні оновлення (надiйно для RLS/триггерів)
           for (const verse of slice) {
             try {
-              // ще одна локальна перевірка (на випадок, якщо текст змінився між запитами)
-              if (verse.sanskrit && !verse.sanskrit.includes("\n")) {
-                const fixed = processVerseLineBreaks({
-                  sanskrit: verse.sanskrit,
-                  transliteration: verse.transliteration,
-                });
+              const updates: any = {};
 
+              // Обробляємо українську версію
+              if ((verse as any).sanskrit_ua && !(verse as any).sanskrit_ua.includes("\n")) {
+                const fixedUa = processVerseLineBreaks({
+                  sanskrit: (verse as any).sanskrit_ua,
+                  transliteration: (verse as any).transliteration_ua,
+                });
+                updates.sanskrit_ua = fixedUa.sanskrit;
+                updates.transliteration_ua = fixedUa.transliteration;
+              }
+
+              // Обробляємо англійську версію
+              if ((verse as any).sanskrit_en && !(verse as any).sanskrit_en.includes("\n")) {
+                const fixedEn = processVerseLineBreaks({
+                  sanskrit: (verse as any).sanskrit_en,
+                  transliteration: (verse as any).transliteration_en,
+                });
+                updates.sanskrit_en = fixedEn.sanskrit;
+                updates.transliteration_en = fixedEn.transliteration;
+              }
+
+              // Оновлюємо якщо є зміни
+              if (Object.keys(updates).length > 0) {
                 const { error: updateErr } = await supabase
                   .from("verses")
-                  .update({
-                    sanskrit: fixed.sanskrit,
-                    transliteration: fixed.transliteration,
-                  })
+                  .update(updates)
                   .eq("id", verse.id);
 
                 if (updateErr) {

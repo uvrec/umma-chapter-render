@@ -422,6 +422,9 @@ export const VedaReaderDB = () => {
       queryClient.invalidateQueries({
         queryKey: ["verses"]
       });
+      queryClient.invalidateQueries({
+        queryKey: ["verses-fallback"]
+      });
       toast({
         title: t("Збережено", "Saved"),
         description: t("Вірш оновлено", "Verse updated")
