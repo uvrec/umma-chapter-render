@@ -1113,6 +1113,8 @@ export const VedaReaderDB = () => {
                       commentaryEn={(currentVerse as any).commentary_en || ""}
                       isAdmin={isAdmin}
                       showNumbers={showNumbers}
+                      fontSize={fontSize}
+                      lineHeight={lineHeight}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,

@@ -6,6 +6,7 @@
 import { useState, useMemo } from "react";
 import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FONT_SIZE_MULTIPLIERS } from "@/constants/typography";
 // Card видалено - вірш відображається на прозорому фоні
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -513,7 +514,7 @@ export const VerseCard = ({
                 label="Редагувати коментар"
               />
             ) : (
-              <div style={{ fontSize: `${fontSize + 2}px` }} className="font-semibold">
+              <div style={{ fontSize: `${fontSize * FONT_SIZE_MULTIPLIERS.MEDIUM + 2}px` }} className="font-semibold">
                 <TiptapRenderer content={commentary || ""} className="commentary-text" />
               </div>
             )}
