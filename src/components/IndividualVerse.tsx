@@ -400,9 +400,8 @@ export const IndividualVerse = () => {
               </button>
             </div>
             <div
-              className="font-bold"
               style={{
-                fontSize: `calc(var(--vv-reader-font-size) + 2px)`,
+                fontSize: `calc(var(--vv-reader-font-size) + 4px)`,
                 lineHeight: LINE_HEIGHTS.NORMAL
               }}
             >
