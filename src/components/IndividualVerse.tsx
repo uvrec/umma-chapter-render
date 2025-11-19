@@ -311,7 +311,7 @@ export const IndividualVerse = () => {
               </button>
             </div>
             <p style={{
-              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
+              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM} - 1px)`,
               lineHeight: LINE_HEIGHTS.NORMAL
             }}>
               {synonymPairs.map((pair, i) => {
@@ -402,7 +402,7 @@ export const IndividualVerse = () => {
             <div
               className="font-bold"
               style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM} + 2px)`,
                 lineHeight: LINE_HEIGHTS.NORMAL
               }}
             >
