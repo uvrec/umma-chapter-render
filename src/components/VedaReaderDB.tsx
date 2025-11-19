@@ -1019,10 +1019,12 @@ export const VedaReaderDB = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8" data-reader-root="true">
-        {/* Заголовок */}
-        <div className="mt-8 mb-8">
-          <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
-        </div>
+        {/* Заголовок - тільки для безперервного читання або текстових глав */}
+        {(continuousReadingFromGlobal.enabled || isTextChapter) && (
+          <div className="mb-8">
+            <h1 className="text-center font-extrabold text-5xl">{chapterTitle}</h1>
+          </div>
+        )}
 
         {/* Intro/preface block (render above verses if present) */}
         {(language === "ua" ? chapter.content_ua : chapter.content_en) && !isTextChapter && (
@@ -1170,6 +1172,7 @@ export const VedaReaderDB = () => {
                       translationEn={(currentVerse as any).translation_en || ""}
                       commentaryEn={(currentVerse as any).commentary_en || ""}
                       isAdmin={isAdmin}
+                      showNumbers={showNumbers}
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,

@@ -9,7 +9,7 @@ import { DualLanguageText } from "@/components/DualLanguageText";
 interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
-  
+
   // Sanskrit (однаковий для обох мов)
   sanskritTextUa: string;
   sanskritTextEn: string;
@@ -27,6 +27,7 @@ interface DualLanguageVerseCardProps {
   commentaryEn: string;
 
   isAdmin?: boolean;
+  showNumbers?: boolean;
   onVerseUpdate?: (verseId: string, updates: any) => void;
 }
 
@@ -46,6 +47,11 @@ function parseSynonyms(raw: string): Array<{ term: string; meaning: string }> {
     .filter((s) => s.term && s.meaning);
 }
 
+function openGlossary(term: string) {
+  const url = `/glossary?search=${encodeURIComponent(term)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 export function DualLanguageVerseCard({
   verseId,
   verseNumber,
@@ -60,6 +66,7 @@ export function DualLanguageVerseCard({
   translationEn,
   commentaryEn,
   isAdmin,
+  showNumbers = true,
   onVerseUpdate,
 }: DualLanguageVerseCardProps) {
   const [editMode, setEditMode] = useState(false);
@@ -138,6 +145,14 @@ export function DualLanguageVerseCard({
         </div>
       )}
 
+      {/* Verse Number */}
+      {showNumbers && (
+        <div className="p-6 pb-0">
+          <div className="flex h-8 items-center justify-center">
+            <span className="text-lg font-semibold text-primary">Вірш {verseNumber}</span>
+          </div>
+        </div>
+      )}
 
       {/* Sanskrit - Devanagari (same for both columns) */}
       <div className="p-8 bg-background/50">
@@ -217,14 +232,30 @@ export function DualLanguageVerseCard({
               />
             ) : (
               <p className="text-base leading-relaxed">
-                {synonymsParsedUa.map((syn, i) => (
-                  <span key={i}>
-                    <span className="italic text-accent">{syn.term}</span>
-                    {" — "}
-                    <span>{syn.meaning}</span>
-                    {i < synonymsParsedUa.length - 1 && <span>; </span>}
-                  </span>
-                ))}
+                {synonymsParsedUa.map((syn, i) => {
+                  const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
+                  return (
+                    <span key={i}>
+                      {words.map((w, wi) => (
+                        <span key={wi}>
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            onClick={() => openGlossary(w)}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                            title="Відкрити у глосарії"
+                            className="cursor-pointer italic"
+                          >
+                            {w}
+                          </span>
+                          {wi < words.length - 1 && " "}
+                        </span>
+                      ))}
+                      {syn.meaning && <span> — {syn.meaning}</span>}
+                      {i < synonymsParsedUa.length - 1 && <span>; </span>}
+                    </span>
+                  );
+                })}
               </p>
             )}
           </div>
@@ -242,14 +273,30 @@ export function DualLanguageVerseCard({
               />
             ) : (
               <p className="text-base leading-relaxed">
-                {synonymsParsedEn.map((syn, i) => (
-                  <span key={i}>
-                    <span className="italic text-accent">{syn.term}</span>
-                    {" — "}
-                    <span>{syn.meaning}</span>
-                    {i < synonymsParsedEn.length - 1 && <span>; </span>}
-                  </span>
-                ))}
+                {synonymsParsedEn.map((syn, i) => {
+                  const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
+                  return (
+                    <span key={i}>
+                      {words.map((w, wi) => (
+                        <span key={wi}>
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            onClick={() => openGlossary(w)}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                            title="Open in glossary"
+                            className="cursor-pointer italic"
+                          >
+                            {w}
+                          </span>
+                          {wi < words.length - 1 && " "}
+                        </span>
+                      ))}
+                      {syn.meaning && <span> — {syn.meaning}</span>}
+                      {i < synonymsParsedEn.length - 1 && <span>; </span>}
+                    </span>
+                  );
+                })}
               </p>
             )}
           </div>
@@ -258,43 +305,38 @@ export function DualLanguageVerseCard({
 
       {/* Translation */}
       <div className="p-8">
-        <div className="grid grid-cols-2 gap-8">
-          {/* Ukrainian Translation */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Переклад</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.translationUa}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, translationUa: e.target.value })
-                }
-                className="text-base min-h-[150px]"
-              />
-            ) : (
-              <div className="text-base leading-relaxed">
-                <TiptapRenderer content={editedData.translationUa} />
-              </div>
-            )}
-          </div>
-
-          {/* English Translation */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Translation</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.translationEn}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, translationEn: e.target.value })
-                }
-                className="text-base min-h-[150px]"
-              />
-            ) : (
-              <div className="text-base leading-relaxed">
-                <TiptapRenderer content={editedData.translationEn} />
-              </div>
-            )}
-          </div>
+        {/* Headers */}
+        <div className="grid grid-cols-2 gap-8 mb-4">
+          <h3 className="text-xl font-bold">Переклад</h3>
+          <h3 className="text-xl font-bold">Translation</h3>
         </div>
+
+        {editMode ? (
+          <div className="grid grid-cols-2 gap-8">
+            <Textarea
+              value={editedData.translationUa}
+              onChange={(e) =>
+                setEditedData({ ...editedData, translationUa: e.target.value })
+              }
+              className="text-base min-h-[150px]"
+            />
+            <Textarea
+              value={editedData.translationEn}
+              onChange={(e) =>
+                setEditedData({ ...editedData, translationEn: e.target.value })
+              }
+              className="text-base min-h-[150px]"
+            />
+          </div>
+        ) : (
+          <DualLanguageText
+            uaParagraphs={null}
+            enParagraphs={null}
+            uaText={editedData.translationUa}
+            enText={editedData.translationEn}
+            className="text-base font-semibold"
+          />
+        )}
       </div>
 
       {/* Commentary */}
