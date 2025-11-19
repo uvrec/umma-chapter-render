@@ -514,7 +514,12 @@ export const VerseCard = ({
                 label="Редагувати коментар"
               />
             ) : (
-              <TiptapRenderer content={commentary || ""} className="commentary-text" />
+              <TiptapRenderer
+                content={commentary || ""}
+                className="commentary-text"
+                fontSize={fontSize}
+                lineHeight={lineHeight}
+              />
             )}
           </div>
         )}

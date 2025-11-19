@@ -5,6 +5,8 @@ interface DualLanguageTextProps {
   uaParagraphs: Paragraph[] | null;
   enParagraphs: Paragraph[] | null;
   className?: string;
+  fontSize?: number;
+  lineHeight?: number | string;
   /** Fallback якщо paragraphs відсутні */
   uaText?: string;
   enText?: string;
@@ -18,6 +20,8 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   uaParagraphs,
   enParagraphs,
   className = '',
+  fontSize,
+  lineHeight,
   uaText,
   enText,
 }) => {
@@ -39,18 +43,25 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   const [alignedUa, alignedEn] = alignParagraphs(uaParas, enParas);
   const maxLength = alignedUa.length;
 
+  // Стилі для динамічного розміру шрифту
+  const textStyle: React.CSSProperties = {};
+  if (fontSize) textStyle.fontSize = `${fontSize}px`;
+  if (lineHeight) textStyle.lineHeight = lineHeight;
+
   return (
     <div className={`grid grid-cols-2 gap-x-8 gap-y-4 ${className}`} style={{ gridAutoRows: 'auto' }}>
       {alignedUa.map((para, idx) => (
         <React.Fragment key={`pair-${idx}`}>
           <p
-            className="leading-relaxed text-base self-start"
+            className="self-start"
+            style={textStyle}
             dangerouslySetInnerHTML={{
               __html: para.text || '&nbsp;'
             }}
           />
           <p
-            className="leading-relaxed text-base self-start"
+            className="self-start"
+            style={textStyle}
             dangerouslySetInnerHTML={{
               __html: alignedEn[idx]?.text || '&nbsp;'
             }}
