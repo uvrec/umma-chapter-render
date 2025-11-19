@@ -384,7 +384,7 @@ export const VerseCard = ({
                 className="min-h-[120px] synonyms-text"
               />
             ) : (
-              <p className="synonyms-text text-foreground">
+              <p className="synonyms-text text-foreground" style={{ fontSize: `${fontSize - 1}px` }}>
                 {synonymPairs.length === 0 ? (
                   <span className="text-muted-foreground">{synonyms}</span>
                 ) : (
@@ -513,7 +513,9 @@ export const VerseCard = ({
                 label="Редагувати коментар"
               />
             ) : (
-              <TiptapRenderer content={commentary || ""} className="commentary-text" />
+              <div style={{ fontSize: `${fontSize + 2}px` }}>
+                <TiptapRenderer content={commentary || ""} className="commentary-text" />
+              </div>
             )}
           </div>
         )}
