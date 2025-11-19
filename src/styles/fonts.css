@@ -52,7 +52,7 @@
   font-style: normal !important;
   font-weight: 400 !important;
 
-  /* Розмір шрифту - базовий */
-  font-size: var(--vv-reader-font-size) !important;
+  /* Розмір шрифту - трохи більший ніж базовий (+15%) */
+  font-size: calc(var(--vv-reader-font-size) * 1.15) !important;
   line-height: var(--vv-reader-line-height) !important;
 }
