@@ -172,6 +172,19 @@ export function useReaderSettings() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // Слухаємо зміни з GlobalSettingsPanel
+  useEffect(() => {
+    const handlePrefsChanged = () => {
+      setFontSizeAdjustment(readNum(LS.fontSizeAdjustment, 0));
+      setLineHeight(readNum(LS.lineHeight, LINE_HEIGHTS.NORMAL));
+      setDualLanguageMode(readBool(LS.dual, false));
+      setTextDisplaySettings(readJSON(LS.blocks, DEFAULT_BLOCKS));
+      setContinuousReadingSettings(readJSON(LS.cont, DEFAULT_CONT));
+    };
+    window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
+    return () => window.removeEventListener("vv-reader-prefs-changed", handlePrefsChanged);
+  }, []);
+
   // API для зручності - оновлено для роботи з adjustment
   const increaseFont = useCallback(() => {
     setFontSizeAdjustment((adj) => {
