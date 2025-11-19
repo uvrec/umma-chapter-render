@@ -46,6 +46,11 @@ function parseSynonyms(raw: string): Array<{ term: string; meaning: string }> {
     .filter((s) => s.term && s.meaning);
 }
 
+function openGlossary(term: string) {
+  const url = `/glossary?search=${encodeURIComponent(term)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 export function DualLanguageVerseCard({
   verseId,
   verseNumber,
@@ -217,14 +222,30 @@ export function DualLanguageVerseCard({
               />
             ) : (
               <p className="text-base leading-relaxed">
-                {synonymsParsedUa.map((syn, i) => (
-                  <span key={i}>
-                    <span className="italic text-accent">{syn.term}</span>
-                    {" — "}
-                    <span>{syn.meaning}</span>
-                    {i < synonymsParsedUa.length - 1 && <span>; </span>}
-                  </span>
-                ))}
+                {synonymsParsedUa.map((syn, i) => {
+                  const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
+                  return (
+                    <span key={i}>
+                      {words.map((w, wi) => (
+                        <span key={wi}>
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            onClick={() => openGlossary(w)}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                            title="Відкрити у глосарії"
+                            className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          >
+                            {w}
+                          </span>
+                          {wi < words.length - 1 && " "}
+                        </span>
+                      ))}
+                      {syn.meaning && <span> — {syn.meaning}</span>}
+                      {i < synonymsParsedUa.length - 1 && <span>; </span>}
+                    </span>
+                  );
+                })}
               </p>
             )}
           </div>
@@ -242,14 +263,30 @@ export function DualLanguageVerseCard({
               />
             ) : (
               <p className="text-base leading-relaxed">
-                {synonymsParsedEn.map((syn, i) => (
-                  <span key={i}>
-                    <span className="italic text-accent">{syn.term}</span>
-                    {" — "}
-                    <span>{syn.meaning}</span>
-                    {i < synonymsParsedEn.length - 1 && <span>; </span>}
-                  </span>
-                ))}
+                {synonymsParsedEn.map((syn, i) => {
+                  const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
+                  return (
+                    <span key={i}>
+                      {words.map((w, wi) => (
+                        <span key={wi}>
+                          <span
+                            role="link"
+                            tabIndex={0}
+                            onClick={() => openGlossary(w)}
+                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                            title="Open in glossary"
+                            className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          >
+                            {w}
+                          </span>
+                          {wi < words.length - 1 && " "}
+                        </span>
+                      ))}
+                      {syn.meaning && <span> — {syn.meaning}</span>}
+                      {i < synonymsParsedEn.length - 1 && <span>; </span>}
+                    </span>
+                  );
+                })}
               </p>
             )}
           </div>
