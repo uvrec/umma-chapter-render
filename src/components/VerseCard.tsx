@@ -420,7 +420,7 @@ export const VerseCard = ({
                               onClick={() => openGlossary(w)}
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
-                              className="cursor-pointer italic"
+                              className="cursor-pointer italic text-orange-600 dark:text-orange-400"
                             >
                               {w}
                             </span>

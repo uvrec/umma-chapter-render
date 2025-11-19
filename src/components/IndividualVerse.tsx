@@ -329,7 +329,7 @@ export const IndividualVerse = () => {
                           tabIndex={0}
                           onClick={() => openGlossary(w)}
                           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                          className="cursor-pointer italic"
+                          className="cursor-pointer italic text-orange-600 dark:text-orange-400"
                           title="Відкрити у глосарії"
                         >
                           {w}
