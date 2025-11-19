@@ -384,7 +384,7 @@ export const VerseCard = ({
                 className="min-h-[120px] synonyms-text"
               />
             ) : (
-              <p className="synonyms-text text-foreground text-center">
+              <p className="synonyms-text text-foreground">
                 {synonymPairs.length === 0 ? (
                   <span className="text-muted-foreground">{synonyms}</span>
                 ) : (
@@ -411,23 +411,23 @@ export const VerseCard = ({
                       }
                     };
                     return (
-                      <span key={i} className="inline-flex items-center gap-1 flex-wrap text-justify">
+                      <span key={i}>
                         {words.map((w, wi) => (
-                          <span key={wi} className="inline-flex items-center gap-1">
+                          <span key={wi}>
                             <span
                               role="link"
                               tabIndex={0}
                               onClick={() => openGlossary(w)}
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
-                              className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-justify"
+                              className="cursor-pointer font-serif font-semibold italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50"
                             >
                               {w}
                             </span>
                             {wi < words.length - 1 && " "}
                           </span>
                         ))}
-                        {pair.meaning && <span className="text-justify"> — {pair.meaning}</span>}
+                        {pair.meaning && <span> — {pair.meaning}</span>}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

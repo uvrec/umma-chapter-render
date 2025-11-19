@@ -310,7 +310,7 @@ export const IndividualVerse = () => {
                 <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
-            <div style={{
+            <p style={{
               fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
               lineHeight: LINE_HEIGHTS.NORMAL
             }}>
@@ -342,7 +342,7 @@ export const IndividualVerse = () => {
                   </span>
                 );
               })}
-            </div>
+            </p>
           </section>
         )}
 
