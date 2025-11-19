@@ -347,7 +347,7 @@ export const VerseCard = ({
             ) : (
               <div className="space-y-1 text-center">
                 {transliteration.split("\n").map((line, idx) => (
-                  <p key={idx} className="iast-text text-muted-foreground">
+                  <p key={idx} className="iast-text text-muted-foreground italic">
                     {line}
                   </p>
                 ))}
@@ -420,7 +420,8 @@ export const VerseCard = ({
                               onClick={() => openGlossary(w)}
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
-                              className="cursor-pointer italic text-orange-600 dark:text-orange-400"
+                              className="cursor-pointer italic"
+                              style={{ color: '#BC731B' }}
                             >
                               {w}
                             </span>

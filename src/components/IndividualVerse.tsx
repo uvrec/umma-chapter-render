@@ -329,7 +329,8 @@ export const IndividualVerse = () => {
                           tabIndex={0}
                           onClick={() => openGlossary(w)}
                           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                          className="cursor-pointer italic text-orange-600 dark:text-orange-400"
+                          className="cursor-pointer italic"
+                          style={{ color: '#BC731B' }}
                           title="Відкрити у глосарії"
                         >
                           {w}
@@ -398,10 +399,13 @@ export const IndividualVerse = () => {
                 <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
-            <div style={{
-              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
-              lineHeight: LINE_HEIGHTS.NORMAL
-            }}>
+            <div
+              className="font-bold"
+              style={{
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
+                lineHeight: LINE_HEIGHTS.NORMAL
+              }}
+            >
               {currentVerse.commentary.split("\n\n").map((para, i) => (
                 <p key={i} className="mb-6 last:mb-0">
                   {para}
