@@ -57,9 +57,9 @@ export const IndividualVerse = () => {
       case "srimad-bhagavatam":
         return "ШБ";
       case "bhagavad-gita":
-        return "БГ";
+        return "БҐ";
       case "sri-isopanishad":
-        return "ШІІ";
+        return "ІШО";
       default:
         return "";
     }
