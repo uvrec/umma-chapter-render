@@ -23,7 +23,23 @@ const parseHTMLToParagraphs = (html: string): string[] => {
   const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol, pre');
 
   elements.forEach((el) => {
-    paragraphs.push(el.outerHTML);
+    // Перевіряємо, чи є <br> теги всередині елемента
+    if (el.innerHTML.includes('<br>') || el.innerHTML.includes('<br/>') || el.innerHTML.includes('<br />')) {
+      // Розбиваємо за <br> тегами
+      const parts = el.innerHTML
+        .split(/<br\s*\/?>/i)
+        .map(part => part.trim())
+        .filter(part => part.length > 0);
+
+      // Кожну частину загортаємо в той самий тип елемента
+      const tagName = el.tagName.toLowerCase();
+      parts.forEach(part => {
+        paragraphs.push(`<${tagName}>${part}</${tagName}>`);
+      });
+    } else {
+      // Якщо немає <br>, додаємо елемент як є
+      paragraphs.push(el.outerHTML);
+    }
   });
 
   return paragraphs.length > 0 ? paragraphs : [html];
