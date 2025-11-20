@@ -23,23 +23,7 @@ const parseHTMLToParagraphs = (html: string): string[] => {
   const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol, pre');
 
   elements.forEach((el) => {
-    // Перевіряємо, чи є <br> теги всередині елемента
-    if (el.innerHTML.includes('<br>') || el.innerHTML.includes('<br/>') || el.innerHTML.includes('<br />')) {
-      // Розбиваємо за <br> тегами
-      const parts = el.innerHTML
-        .split(/<br\s*\/?>/i)
-        .map(part => part.trim())
-        .filter(part => part.length > 0);
-
-      // Кожну частину загортаємо в той самий тип елемента
-      const tagName = el.tagName.toLowerCase();
-      parts.forEach(part => {
-        paragraphs.push(`<${tagName}>${part}</${tagName}>`);
-      });
-    } else {
-      // Якщо немає <br>, додаємо елемент як є
-      paragraphs.push(el.outerHTML);
-    }
+    paragraphs.push(el.outerHTML);
   });
 
   return paragraphs.length > 0 ? paragraphs : [html];
@@ -285,7 +269,7 @@ export const IntroChapter = () => {
                   <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-x-12">
                     {/* Ukrainian paragraph */}
                     <div
-                      className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                      className="prose prose-slate dark:prose-invert max-w-none"
                       dangerouslySetInnerHTML={{
                         __html: pair.ua
                       }}
@@ -293,7 +277,7 @@ export const IntroChapter = () => {
 
                     {/* English paragraph */}
                     <div
-                      className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                      className="prose prose-slate dark:prose-invert max-w-none"
                       dangerouslySetInnerHTML={{
                         __html: pair.en
                       }}
@@ -304,7 +288,7 @@ export const IntroChapter = () => {
             ) : (
               // Single mode - one language
               <div
-                className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                className="prose prose-slate dark:prose-invert max-w-none"
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     language === 'ua'
