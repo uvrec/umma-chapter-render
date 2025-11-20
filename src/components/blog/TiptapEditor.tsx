@@ -12,6 +12,7 @@ import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import { Placeholder } from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
+import { PoeticBlock } from "./PoeticBlockExtension";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ import {
   AlignCenter,
   AlignRight,
   AlignJustify,
+  Quote,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -69,6 +71,7 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       TextAlign.configure({
         types: ['heading', 'paragraph'],
       }),
+      PoeticBlock,
       Placeholder.configure({ placeholder }),
     ],
     content,
@@ -218,6 +221,20 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
           className={editor.isActive("orderedList") ? "bg-accent" : ""}
         >
           <ListOrdered className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-border mx-1" />
+
+        {/* Poetic Block */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => editor.chain().focus().togglePoeticBlock().run()}
+          className={editor.isActive("poeticBlock") ? "bg-accent" : ""}
+          title="Поетичний блок (Ctrl+Alt+P)"
+        >
+          <Quote className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-border mx-1" />
