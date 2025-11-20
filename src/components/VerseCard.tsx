@@ -2,8 +2,9 @@
 // Відповідає PDF шаблону: кожен блок (Санскрит, Послівний, Переклад, Пояснення) має свою кнопку Volume2
 // + VerseNumberEditor для мануального редагування номерів віршів адміністратором
 // + STICKY HEADER для верхньої панелі
+// + Inline редактор для коментарів з автозбереженням
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -170,11 +171,22 @@ export const VerseCard = ({
   const [isEditing, setIsEditing] = useState(false);
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
-    transliteration,
-    synonyms,
+    transliteration: transliteration || "",
+    synonyms: synonyms || "",
     translation,
-    commentary,
+    commentary: commentary || "",
   });
+
+  // ✅ Оновлювати edited коли props змінюються (напр. при переході між віршами)
+  useEffect(() => {
+    setEdited({
+      sanskrit: sanskritText,
+      transliteration: transliteration || "",
+      synonyms: synonyms || "",
+      translation,
+      commentary: commentary || "",
+    });
+  }, [sanskritText, transliteration, synonyms, translation, commentary]);
   const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
 
   // ✅ ВИДАЛЕНО: processedSanskrit - санскрит відображається як є, з \n
@@ -224,6 +236,31 @@ export const VerseCard = ({
       setIsEditing(false);
     }
   };
+
+  // ✅ НОВЕ: Автозбереження коментарів для адмінів
+  const saveTimeoutRef = useRef<NodeJS.Timeout>();
+  useEffect(() => {
+    if (!isAdmin || !verseId || !onVerseUpdate) return;
+
+    // Якщо коментар змінився (порівняно з початковим), зберігаємо через 2 секунди
+    if (edited.commentary !== commentary) {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+
+      saveTimeoutRef.current = setTimeout(() => {
+        onVerseUpdate(verseId, edited);
+        toast.success("Зміни збережено", { duration: 1500 });
+      }, 2000);
+    }
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, [edited.commentary, commentary, isAdmin, verseId, onVerseUpdate, edited]);
+
   const synonymPairs = textDisplaySettings.showSynonyms ? parseSynonyms(isEditing ? edited.synonyms : synonyms) : [];
   return (
     <div
@@ -482,7 +519,7 @@ export const VerseCard = ({
         )}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (isEditing || commentary) && (
+        {textDisplaySettings.showCommentary && (commentary || isAdmin) && (
           <div>
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -497,7 +534,7 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isEditing ? (
+            {isAdmin ? (
               <EnhancedInlineEditor
                 content={edited.commentary}
                 onChange={(html) =>
@@ -506,7 +543,8 @@ export const VerseCard = ({
                     commentary: html,
                   }))
                 }
-                label="Редагувати коментар"
+                label="Пояснення"
+                editable={true}
               />
             ) : (
               <TiptapRenderer
