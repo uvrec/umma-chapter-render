@@ -13,6 +13,22 @@ import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 
+// Функція для розбиття HTML на параграфи
+const parseHTMLToParagraphs = (html: string): string[] => {
+  if (!html) return [];
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = DOMPurify.sanitize(html);
+
+  const paragraphs: string[] = [];
+  const elements = tempDiv.querySelectorAll('p, h1, h2, h3, h4, h5, h6, blockquote, ul, ol, pre');
+
+  elements.forEach((el) => {
+    paragraphs.push(el.outerHTML);
+  });
+
+  return paragraphs.length > 0 ? paragraphs : [html];
+};
+
 export const IntroChapter = () => {
   const { bookId, slug } = useParams();
   const navigate = useNavigate();
@@ -88,6 +104,26 @@ export const IntroChapter = () => {
       setEditedContentEn(introChapter.content_en || "");
     }
   }, [introChapter]);
+
+  // Синхронізовані параграфи для двомовного режиму
+  const synchronizedParagraphs = useMemo(() => {
+    if (!introChapter || !dualLanguageMode) return [];
+
+    const paragraphsUa = parseHTMLToParagraphs(introChapter.content_ua || '');
+    const paragraphsEn = parseHTMLToParagraphs(introChapter.content_en || '');
+
+    const maxLength = Math.max(paragraphsUa.length, paragraphsEn.length);
+    const synced: Array<{ ua: string; en: string }> = [];
+
+    for (let i = 0; i < maxLength; i++) {
+      synced.push({
+        ua: paragraphsUa[i] || '',
+        en: paragraphsEn[i] || '',
+      });
+    }
+
+    return synced;
+  }, [introChapter, dualLanguageMode]);
 
   // Save content mutation
   const saveContentMutation = useMutation({
@@ -227,23 +263,27 @@ export const IntroChapter = () => {
           ) : (
             // Reading mode
             dualLanguageMode ? (
-              // Dual language mode - two columns with full HTML (no border)
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12">
-                {/* Ukrainian column */}
-                <div
-                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(introChapter?.content_ua || "")
-                  }}
-                />
+              // Dual language mode - synchronized paragraphs
+              <div className="space-y-8">
+                {synchronizedParagraphs.map((pair, index) => (
+                  <div key={index} className="grid grid-cols-1 lg:grid-cols-2 gap-x-12">
+                    {/* Ukrainian paragraph */}
+                    <div
+                      className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                      dangerouslySetInnerHTML={{
+                        __html: pair.ua
+                      }}
+                    />
 
-                {/* English column */}
-                <div
-                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(introChapter?.content_en || "")
-                  }}
-                />
+                    {/* English paragraph */}
+                    <div
+                      className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                      dangerouslySetInnerHTML={{
+                        __html: pair.en
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             ) : (
               // Single mode - one language
