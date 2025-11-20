@@ -501,10 +501,9 @@ export const EnhancedInlineEditor = ({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className={`h-8 w-8 ${editor.isActive("link") ? "bg-accent text-accent-foreground" : "opacity-50"}`}
                 onClick={removeLink}
-                disabled={!editor.isActive("link")}
-                title="Видалити посилання"
+                title={editor.isActive("link") ? "Видалити посилання" : "Виділіть текст з посиланням"}
               >
                 <Unlink className="h-3 w-3" />
               </Button>
