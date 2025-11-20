@@ -1,5 +1,6 @@
 -- Fix SCC (Śrī Caitanya-caritāmṛta) chapters to have proper canto_id mapping
 -- Problem: Chapters have book_id but no canto_id, so they don't show up when accessing via /veda-reader/scc/canto/X/chapter/Y/Z
+-- Root cause: The constraint chapters_book_or_canto_check is incorrect - it should allow BOTH book_id AND canto_id for multi-canto books
 
 DO $$
 DECLARE
@@ -16,6 +17,15 @@ BEGIN
     RAISE WARNING 'Book scc not found - skipping migration';
     RETURN;
   END IF;
+
+  -- Step 1: Drop the incorrect constraint that prevents having both book_id and canto_id
+  ALTER TABLE chapters DROP CONSTRAINT IF EXISTS chapters_book_or_canto_check;
+  RAISE NOTICE 'Dropped incorrect constraint chapters_book_or_canto_check';
+
+  -- Step 2: Add correct constraint - at least one of book_id or canto_id must be set
+  ALTER TABLE chapters ADD CONSTRAINT chapters_book_or_canto_check
+    CHECK (book_id IS NOT NULL OR canto_id IS NOT NULL);
+  RAISE NOTICE 'Added correct constraint allowing both book_id and canto_id';
 
   -- Ensure book has cantos enabled
   UPDATE books SET has_cantos = true WHERE id = v_book_id;
@@ -66,11 +76,9 @@ BEGIN
   RETURNING id INTO v_antya_canto_id;
 
   -- Fix Adi-lila chapters (chapters 1-17)
-  -- Note: We set canto_id and clear book_id due to the constraint
+  -- Note: We keep book_id and add canto_id (both are needed for proper navigation)
   UPDATE chapters
-  SET
-    canto_id = v_adi_canto_id,
-    book_id = NULL
+  SET canto_id = v_adi_canto_id
   WHERE book_id = v_book_id
     AND canto_id IS NULL
     AND chapter_number >= 1
@@ -81,9 +89,7 @@ BEGIN
 
   -- Fix Madhya-lila chapters (chapters 1-25)
   UPDATE chapters
-  SET
-    canto_id = v_madhya_canto_id,
-    book_id = NULL
+  SET canto_id = v_madhya_canto_id
   WHERE book_id = v_book_id
     AND canto_id IS NULL
     AND chapter_number >= 1
@@ -94,9 +100,7 @@ BEGIN
 
   -- Fix Antya-lila chapters (chapters 1-20)
   UPDATE chapters
-  SET
-    canto_id = v_antya_canto_id,
-    book_id = NULL
+  SET canto_id = v_antya_canto_id
   WHERE book_id = v_book_id
     AND canto_id IS NULL
     AND chapter_number >= 1
