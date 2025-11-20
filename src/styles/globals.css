@@ -169,3 +169,51 @@ mark {
 .prose-reader ol li + li {
   @apply mt-1;
 }
+
+/* ==========================================
+   Poetic-block: Форматування для поетичних текстів
+   (ом тат сат, підписи, дати тощо)
+   ========================================== */
+
+/* Основний клас для поетичних блоків */
+.poetic-block {
+  white-space: pre-line;
+  display: block;
+  line-height: 1.35;
+  margin: 0;
+  padding: 0;
+}
+
+/* Якщо WYSIWYG редактор все одно вставляє <p> або <div> */
+.poetic-block p,
+.poetic-block div {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block;
+  white-space: pre-line;
+}
+
+/* Підтримка для prose контексту (TiptapRenderer) */
+.prose .poetic-block,
+.prose-reader .poetic-block {
+  white-space: pre-line;
+  display: block;
+  line-height: 1.35;
+  margin: 0;
+  padding: 0;
+}
+
+.prose .poetic-block p,
+.prose .poetic-block div,
+.prose-reader .poetic-block p,
+.prose-reader .poetic-block div {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block;
+  white-space: pre-line;
+}
+
+/* Підтримка для dark mode */
+.dark .poetic-block {
+  color: inherit;
+}
