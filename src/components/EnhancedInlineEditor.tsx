@@ -37,6 +37,7 @@ import {
   List,
   ListOrdered,
   Link as LinkIcon,
+  Unlink,
   Image as ImageIcon,
   Youtube as YoutubeIcon,
   Table as TableIcon,
@@ -170,6 +171,10 @@ export const EnhancedInlineEditor = ({
   const addLink = () => {
     const url = window.prompt("Введіть URL:");
     if (url) editor?.chain().focus().setLink({ href: url }).run();
+  };
+
+  const removeLink = () => {
+    editor?.chain().focus().unsetLink().run();
   };
 
   const addYoutubeVideo = () => {
@@ -486,11 +491,22 @@ export const EnhancedInlineEditor = ({
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className={`h-8 w-8 ${editor.isActive("link") ? "bg-accent" : ""}`}
                 onClick={addLink}
-                title="Посилання"
+                title="Додати посилання"
               >
                 <LinkIcon className="h-3 w-3" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={removeLink}
+                disabled={!editor.isActive("link")}
+                title="Видалити посилання"
+              >
+                <Unlink className="h-3 w-3" />
               </Button>
               <Button
                 type="button"
