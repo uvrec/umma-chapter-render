@@ -123,3 +123,34 @@ mark {
 .loading-pulse {
   animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* ==========================================
+   Стилі для prose-reader (передмова, вступи)
+   ========================================== */
+
+/* Виправлення міжряддя для списків у передмовах */
+.prose-reader ul,
+.prose-reader ol {
+  @apply my-0;
+}
+
+.prose-reader li {
+  @apply my-0 leading-relaxed;
+}
+
+.prose-reader ul > li,
+.prose-reader ol > li {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Параграфи в списках мають мати відступи */
+.prose-reader li p {
+  @apply my-2;
+}
+
+/* Відступи між елементами списку */
+.prose-reader ul li + li,
+.prose-reader ol li + li {
+  @apply mt-1;
+}
