@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Edit, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Header } from '@/components/Header';
 import { Breadcrumb } from '@/components/Breadcrumb';
 import { supabase } from '@/integrations/supabase/client';
@@ -146,7 +145,7 @@ export const IntroChapter = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <Breadcrumb
           items={[
@@ -156,30 +155,64 @@ export const IntroChapter = () => {
           ]}
         />
 
-        <div className="mt-6 mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">{bookTitle}</h1>
-          <h2 className="text-2xl text-muted-foreground">{chapterTitle}</h2>
-        </div>
+        <div className="verse-surface w-full animate-fade-in py-6">
+          {/* Sticky Header - Title + Edit Button */}
+          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-foreground mb-1">{bookTitle}</h1>
+                <h2 className="section-header text-xl text-foreground font-serif">{chapterTitle}</h2>
+              </div>
 
-        <Card className="p-8 mb-8">
-          {/* Admin Edit Button */}
-          {user && !isEditingContent && (
-            <div className="mb-4 flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditingContent(true)}
-                className="gap-2"
-              >
-                <Edit className="h-4 w-4" />
-                {language === 'ua' ? 'Редагувати' : 'Edit'}
-              </Button>
+              {/* Admin Edit Button */}
+              {user && (
+                <div className="flex gap-2">
+                  {isEditingContent ? (
+                    <>
+                      <Button
+                        onClick={() => saveContentMutation.mutate()}
+                        disabled={saveContentMutation.isPending}
+                        variant="default"
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <Save className="h-4 w-4" />
+                        {language === 'ua' ? 'Зберегти' : 'Save'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setIsEditingContent(false);
+                          setEditedContentUa(introChapter?.content_ua || "");
+                          setEditedContentEn(introChapter?.content_en || "");
+                        }}
+                        className="gap-2"
+                      >
+                        <X className="h-4 w-4" />
+                        {language === 'ua' ? 'Скасувати' : 'Cancel'}
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingContent(true)}
+                      className="gap-2"
+                    >
+                      <Edit className="h-4 w-4" />
+                      {language === 'ua' ? 'Редагувати' : 'Edit'}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
 
+          {/* Content */}
           {isEditingContent ? (
             // Editing mode - EnhancedInlineEditor
-            <div className="space-y-4">
+            <div className="space-y-6">
               <EnhancedInlineEditor
                 content={editedContentUa}
                 onChange={setEditedContentUa}
@@ -190,34 +223,12 @@ export const IntroChapter = () => {
                 onChange={setEditedContentEn}
                 label="English"
               />
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => saveContentMutation.mutate()}
-                  disabled={saveContentMutation.isPending}
-                  className="gap-2"
-                >
-                  <Save className="h-4 w-4" />
-                  {language === 'ua' ? 'Зберегти' : 'Save'}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsEditingContent(false);
-                    setEditedContentUa(introChapter?.content_ua || "");
-                    setEditedContentEn(introChapter?.content_en || "");
-                  }}
-                  className="gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  {language === 'ua' ? 'Скасувати' : 'Cancel'}
-                </Button>
-              </div>
             </div>
           ) : (
             // Reading mode
             dualLanguageMode ? (
-              // Dual language mode - two columns with full HTML
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8">
+              // Dual language mode - two columns with full HTML (no border)
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12">
                 {/* Ukrainian column */}
                 <div
                   className="prose prose-slate dark:prose-invert max-w-none prose-reader"
@@ -228,7 +239,7 @@ export const IntroChapter = () => {
 
                 {/* English column */}
                 <div
-                  className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
+                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(introChapter?.content_en || "")
                   }}
@@ -248,7 +259,7 @@ export const IntroChapter = () => {
               />
             )
           )}
-        </Card>
+        </div>
 
         {/* Navigation */}
         <div className="flex justify-between items-center">
