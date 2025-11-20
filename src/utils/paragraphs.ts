@@ -15,15 +15,26 @@ export interface Paragraph {
 export function splitIntoParagraphs(text: string | null | undefined): Paragraph[] {
   if (!text) return [];
 
-  // Розбити по подвійних переносах рядків або більше
-  const paragraphs = text
+  // Спочатку розбити по подвійних переносах рядків
+  const blocks = text
     .split(/\n\n+/)
     .map(p => p.trim())
     .filter(p => p.length > 0);
 
-  return paragraphs.map((text, index) => ({
+  // Потім кожен блок розбити за одиничними переносами рядків
+  const allLines: string[] = [];
+  blocks.forEach(block => {
+    const lines = block
+      .split(/\n/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+
+    allLines.push(...lines);
+  });
+
+  return allLines.map((text, index) => ({
     index,
-    text: text.replace(/\n/g, ' ').trim(), // Одиничні \n замінюємо на пробіли
+    text
   }));
 }
 
