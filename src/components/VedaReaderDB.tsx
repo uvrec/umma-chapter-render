@@ -234,10 +234,15 @@ export const VedaReaderDB = () => {
   });
 
   const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
+
+  // ✅ FALLBACK: використовуємо fallbackChapter якщо chapter не знайдено
+  // Це критично для SCC та інших книг де canto може не існувати в БД
+  const effectiveChapter = chapter || fallbackChapter;
+
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
   // Highlights hook - needs chapter.id
-  const { createHighlight } = useHighlights(chapter?.id);
+  const { createHighlight } = useHighlights(effectiveChapter?.id);
 
   // Jump to verse from URL if provided
   useEffect(() => {
@@ -440,11 +445,11 @@ export const VedaReaderDB = () => {
   const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
   
   // Special handling for NOI: display "Text X" instead of chapter title
-  let chapterTitle = chapter ? (language === "ua" ? chapter.title_ua : chapter.title_en) : null;
+  let chapterTitle = effectiveChapter ? (language === "ua" ? effectiveChapter.title_ua : effectiveChapter.title_en) : null;
   if (bookId === 'noi' && routeVerseNumber) {
     chapterTitle = language === 'ua' ? `Текст ${routeVerseNumber}` : `Text ${routeVerseNumber}`;
   }
-  const currentChapterIndex = allChapters.findIndex(ch => ch.id === chapter?.id);
+  const currentChapterIndex = allChapters.findIndex(ch => ch.id === effectiveChapter?.id);
   const currentVerse = verses[currentVerseIndex];
 
   // 🆕 Bookmark функція
@@ -498,7 +503,7 @@ export const VedaReaderDB = () => {
     const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
     const fullVerseNumber = isCantoMode
       ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
-      : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+      : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
 
     // Create learning verse object
     const learningVerse = {
@@ -507,7 +512,7 @@ export const VedaReaderDB = () => {
       bookName: bookTitle || "",
       bookSlug: bookId,
       cantoNumber: cantoNumber,
-      chapterNumber: isCantoMode ? chapterNumber : chapter?.chapter_number?.toString(),
+      chapterNumber: isCantoMode ? chapterNumber : effectiveChapter?.chapter_number?.toString(),
       sanskritText: currentVerse.text || "",
       transliteration: currentVerse.transliteration || undefined,
       translation: language === 'ua' ? (currentVerse.translation_ua || "") : (currentVerse.translation_en || ""),
@@ -687,12 +692,12 @@ export const VedaReaderDB = () => {
   };
 
   const handleSaveHighlight = useCallback((notes: string) => {
-    if (!book?.id || !chapter?.id) return;
+    if (!book?.id || !effectiveChapter?.id) return;
 
     createHighlight({
       book_id: book.id,
       canto_id: canto?.id,
-      chapter_id: chapter.id,
+      chapter_id: effectiveChapter.id,
       verse_id: currentVerse?.id,
       verse_number: currentVerse?.verse_number,
       selected_text: selectedTextForHighlight,
@@ -701,7 +706,7 @@ export const VedaReaderDB = () => {
       notes: notes || undefined,
       highlight_color: "yellow",
     });
-  }, [book, canto, chapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight]);
+  }, [book, canto, effectiveChapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight]);
 
   // Add mouseup listener for text selection
   useEffect(() => {
@@ -852,7 +857,7 @@ export const VedaReaderDB = () => {
       </div>;
   }
 
-  if (!chapter) {
+  if (!effectiveChapter) {
     return <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8 text-center">
@@ -865,7 +870,7 @@ export const VedaReaderDB = () => {
       </div>;
   }
 
-  const isTextChapter = chapter.chapter_type === "text" || verses.length === 0;
+  const isTextChapter = effectiveChapter.chapter_type === "text" || verses.length === 0;
 
   // ✅ fontSize керується через useReaderSettings → оновлює CSS змінну --vv-reader-font-size
   // Не потрібно встановлювати inline font-size на контейнер
@@ -950,10 +955,10 @@ export const VedaReaderDB = () => {
         )}
 
         {/* Intro/preface block (render above verses if present) */}
-        {(language === "ua" ? chapter.content_ua : chapter.content_en) && !isTextChapter && (
+        {(language === "ua" ? effectiveChapter.content_ua : effectiveChapter.content_en) && !isTextChapter && (
           <Card className="verse-surface p-8 mb-8">
             <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || ""} />
+              <TiptapRenderer content={language === "ua" ? effectiveChapter.content_ua || "" : effectiveChapter.content_en || ""} />
             </div>
           </Card>
         )}
@@ -974,7 +979,7 @@ export const VedaReaderDB = () => {
             </div>
 
             <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "ua" ? chapter.content_ua || "" : chapter.content_en || chapter.content_ua || ""} />
+              <TiptapRenderer content={language === "ua" ? effectiveChapter.content_ua || "" : effectiveChapter.content_en || effectiveChapter.content_ua || ""} />
             </div>
 
             {/* Навігація знизу */}
@@ -996,7 +1001,7 @@ export const VedaReaderDB = () => {
               const verseIdx = getDisplayVerseNumber(verse.verse_number);
               const fullVerseNumber = isCantoMode
                 ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
-                : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+                : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
 
               // Налаштування відображення для continuous mode
               const contSettings = {
@@ -1029,7 +1034,7 @@ export const VedaReaderDB = () => {
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                     verseId,
                     updates,
-                    chapterId: chapter?.id,
+                    chapterId: effectiveChapter?.id,
                     verseNumber: verse.verse_number
                   })}
                 />
@@ -1067,7 +1072,7 @@ export const VedaReaderDB = () => {
                   onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                     verseId,
                     updates,
-                    chapterId: chapter?.id,
+                    chapterId: effectiveChapter?.id,
                     verseNumber: verse.verse_number
                   })}
                 />
@@ -1078,9 +1083,9 @@ export const VedaReaderDB = () => {
           <>
             {currentVerse && (() => {
               const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
-              const fullVerseNumber = isCantoMode 
-                ? `${cantoNumber}.${chapterNumber}.${verseIdx}` 
-                : `${chapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+              const fullVerseNumber = isCantoMode
+                ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
+                : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
               
               return (
                 <div className="space-y-6">
@@ -1125,7 +1130,7 @@ export const VedaReaderDB = () => {
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,
-                        chapterId: chapter?.id,
+                        chapterId: effectiveChapter?.id,
                         verseNumber: currentVerse.verse_number
                       })}
                     />
@@ -1163,7 +1168,7 @@ export const VedaReaderDB = () => {
                       onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
                         verseId,
                         updates,
-                        chapterId: chapter?.id,
+                        chapterId: effectiveChapter?.id,
                         verseNumber: currentVerse.verse_number
                       })}
                       onVerseNumberUpdate={() => {
