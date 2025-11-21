@@ -387,7 +387,7 @@ export const ChapterVersesList = () => {
                           {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               ВІРШ {verse.verse_number}
                             </Link>}
-                          <p className="text-foreground prose-reader">
+                          <p className="text-foreground prose-reader text-justify">
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
@@ -397,7 +397,7 @@ export const ChapterVersesList = () => {
                           {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               TEXT {verse.verse_number}
                             </Link>}
-                          <p className="text-foreground prose-reader">
+                          <p className="text-foreground prose-reader text-justify">
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
