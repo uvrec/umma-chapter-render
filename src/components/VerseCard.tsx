@@ -182,6 +182,18 @@ export const VerseCard = ({
   const labels = blockLabels[language];
   const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
+
+  // Debug: перевірка isAdmin
+  useEffect(() => {
+    console.log('[VerseCard] Debug:', {
+      isAdmin,
+      verseId,
+      verseNumber,
+      hasSynonyms: !!synonyms,
+      hasTranslation: !!translation,
+      hasCommentary: !!commentary
+    });
+  }, [isAdmin, verseId, verseNumber, synonyms, translation, commentary]);
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
