@@ -18,6 +18,19 @@ import { toast } from "sonner";
 import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 
 /* =========================
+   Допоміжні функції
+   ========================= */
+
+// Convert plain text to HTML (wrap in <p> tags, preserve line breaks)
+const textToHtml = (text: string | undefined): string => {
+  if (!text) return "";
+  // Якщо вже HTML (містить теги), повертаємо як є
+  if (text.includes("<") && text.includes(">")) return text;
+  // Інакше конвертуємо plain text в HTML
+  return text.split("\n").map(line => `<p>${line || '<br>'}</p>`).join("");
+};
+
+/* =========================
    Типи пропсів
    ========================= */
 interface VerseCardProps {
@@ -172,9 +185,9 @@ export const VerseCard = ({
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
-    synonyms: synonyms || "",
-    translation,
-    commentary: commentary || "",
+    synonyms: textToHtml(synonyms),
+    translation: textToHtml(translation),
+    commentary: textToHtml(commentary),
   });
 
   // ✅ Оновлювати edited коли props змінюються (напр. при переході між віршами)
@@ -182,9 +195,9 @@ export const VerseCard = ({
     setEdited({
       sanskrit: sanskritText,
       transliteration: transliteration || "",
-      synonyms: synonyms || "",
-      translation,
-      commentary: commentary || "",
+      synonyms: textToHtml(synonyms),
+      translation: textToHtml(translation),
+      commentary: textToHtml(commentary),
     });
   }, [sanskritText, transliteration, synonyms, translation, commentary]);
   const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
