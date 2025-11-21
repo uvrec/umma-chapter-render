@@ -1,6 +1,5 @@
 import React from 'react';
 import { Paragraph, splitIntoParagraphs, alignParagraphs, jsonbToParagraphs } from '@/utils/paragraphs';
-
 interface DualLanguageTextProps {
   uaParagraphs: Paragraph[] | null;
   enParagraphs: Paragraph[] | null;
@@ -23,7 +22,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   fontSize,
   lineHeight,
   uaText,
-  enText,
+  enText
 }) => {
   // Використовуємо утиліти для обробки параграфів
   const getParagraphs = (paragraphs: Paragraph[] | null, text?: string): Paragraph[] => {
@@ -35,7 +34,6 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
     }
     return [];
   };
-
   const uaParas = getParagraphs(uaParagraphs, uaText);
   const enParas = getParagraphs(enParagraphs, enText);
 
@@ -47,27 +45,16 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   const textStyle: React.CSSProperties = {};
   if (fontSize) textStyle.fontSize = `${fontSize}px`;
   if (lineHeight) textStyle.lineHeight = lineHeight;
-
-  return (
-    <div className={`grid grid-cols-2 gap-x-8 gap-y-4 ${className}`} style={{ gridAutoRows: 'auto' }}>
-      {alignedUa.map((para, idx) => (
-        <React.Fragment key={`pair-${idx}`}>
-          <p
-            className="self-start"
-            style={textStyle}
-            dangerouslySetInnerHTML={{
-              __html: para.text || '&nbsp;'
-            }}
-          />
-          <p
-            className="self-start"
-            style={textStyle}
-            dangerouslySetInnerHTML={{
-              __html: alignedEn[idx]?.text || '&nbsp;'
-            }}
-          />
-        </React.Fragment>
-      ))}
-    </div>
-  );
+  return <div className={`grid grid-cols-2 gap-x-8 gap-y-4 ${className}`} style={{
+    gridAutoRows: 'auto'
+  }}>
+      {alignedUa.map((para, idx) => <React.Fragment key={`pair-${idx}`}>
+          <p style={textStyle} dangerouslySetInnerHTML={{
+        __html: para.text || '&nbsp;'
+      }} className="self-start text-justify" />
+          <p style={textStyle} dangerouslySetInnerHTML={{
+        __html: alignedEn[idx]?.text || '&nbsp;'
+      }} className="self-start text-justify" />
+        </React.Fragment>)}
+    </div>;
 };

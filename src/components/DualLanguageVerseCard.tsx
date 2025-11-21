@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { DualLanguageText } from "@/components/DualLanguageText";
-
 interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
@@ -25,35 +24,29 @@ interface DualLanguageVerseCardProps {
   synonymsEn: string;
   translationEn: string;
   commentaryEn: string;
-
   isAdmin?: boolean;
   showNumbers?: boolean;
   fontSize?: number;
   lineHeight?: number;
   onVerseUpdate?: (verseId: string, updates: any) => void;
 }
-
-function parseSynonyms(raw: string): Array<{ term: string; meaning: string }> {
+function parseSynonyms(raw: string): Array<{
+  term: string;
+  meaning: string;
+}> {
   if (!raw) return [];
-  return raw
-    .split(/[;]+/g)
-    .map((p) => p.trim())
-    .filter(Boolean)
-    .map((pair) => {
-      const [term, meaning] = pair.split(/[—–-]/);
-      return {
-        term: term?.trim() || "",
-        meaning: meaning?.trim() || "",
-      };
-    })
-    .filter((s) => s.term && s.meaning);
+  return raw.split(/[;]+/g).map(p => p.trim()).filter(Boolean).map(pair => {
+    const [term, meaning] = pair.split(/[—–-]/);
+    return {
+      term: term?.trim() || "",
+      meaning: meaning?.trim() || ""
+    };
+  }).filter(s => s.term && s.meaning);
 }
-
 function openGlossary(term: string) {
   const url = `/glossary?search=${encodeURIComponent(term)}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
-
 export function DualLanguageVerseCard({
   verseId,
   verseNumber,
@@ -71,7 +64,7 @@ export function DualLanguageVerseCard({
   showNumbers = true,
   fontSize = 18,
   lineHeight = 1.6,
-  onVerseUpdate,
+  onVerseUpdate
 }: DualLanguageVerseCardProps) {
   const [editMode, setEditMode] = useState(false);
   const [editedData, setEditedData] = useState({
@@ -84,9 +77,8 @@ export function DualLanguageVerseCard({
     translationUa,
     translationEn,
     commentaryUa,
-    commentaryEn,
+    commentaryEn
   });
-
   const handleSave = () => {
     if (verseId && onVerseUpdate) {
       onVerseUpdate(verseId, {
@@ -99,12 +91,11 @@ export function DualLanguageVerseCard({
         translation_ua: editedData.translationUa,
         translation_en: editedData.translationEn,
         commentary_ua: editedData.commentaryUa,
-        commentary_en: editedData.commentaryEn,
+        commentary_en: editedData.commentaryEn
       });
     }
     setEditMode(false);
   };
-
   const handleCancel = () => {
     setEditedData({
       sanskritTextUa,
@@ -116,32 +107,22 @@ export function DualLanguageVerseCard({
       translationUa,
       translationEn,
       commentaryUa,
-      commentaryEn,
+      commentaryEn
     });
     setEditMode(false);
   };
-
   const synonymsParsedUa = parseSynonyms(editedData.synonymsUa);
   const synonymsParsedEn = parseSynonyms(editedData.synonymsEn);
-
-  return (
-    <div
-      className="w-full max-w-7xl mx-auto"
-      style={{
-        fontSize: `${fontSize}px`,
-        lineHeight,
-      }}
-    >
+  return <div className="w-full max-w-7xl mx-auto" style={{
+    fontSize: `${fontSize}px`,
+    lineHeight
+  }}>
       {/* Admin Controls */}
-      {isAdmin && (
-        <div className="flex justify-end gap-2 p-4">
-          {!editMode ? (
-            <Button onClick={() => setEditMode(true)} variant="outline" size="sm">
+      {isAdmin && <div className="flex justify-end gap-2 p-4">
+          {!editMode ? <Button onClick={() => setEditMode(true)} variant="outline" size="sm">
               <Edit className="w-4 h-4 mr-2" />
               Редагувати
-            </Button>
-          ) : (
-            <>
+            </Button> : <>
               <Button onClick={handleSave} size="sm">
                 <Save className="w-4 h-4 mr-2" />
                 Зберегти
@@ -150,80 +131,56 @@ export function DualLanguageVerseCard({
                 <X className="w-4 h-4 mr-2" />
                 Скасувати
               </Button>
-            </>
-          )}
-        </div>
-      )}
+            </>}
+        </div>}
 
       {/* Verse Number */}
-      {showNumbers && (
-        <div className="p-6 pb-0">
+      {showNumbers && <div className="p-6 pb-0">
           <div className="flex h-8 items-center justify-center">
             <span className="text-lg font-semibold text-primary">Вірш {verseNumber}</span>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Sanskrit - Devanagari (same for both columns) */}
       <div className="p-8 bg-background/50">
-        {editMode ? (
-          <div className="grid grid-cols-2 gap-8">
-            <Textarea
-              value={editedData.sanskritTextUa}
-              onChange={(e) =>
-                setEditedData({ ...editedData, sanskritTextUa: e.target.value })
-              }
-              className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
-            />
-            <Textarea
-              value={editedData.sanskritTextEn}
-              onChange={(e) =>
-                setEditedData({ ...editedData, sanskritTextEn: e.target.value })
-              }
-              className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
-            />
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-8 text-center">
+        {editMode ? <div className="grid grid-cols-2 gap-8">
+            <Textarea value={editedData.sanskritTextUa} onChange={e => setEditedData({
+          ...editedData,
+          sanskritTextUa: e.target.value
+        })} className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]" />
+            <Textarea value={editedData.sanskritTextEn} onChange={e => setEditedData({
+          ...editedData,
+          sanskritTextEn: e.target.value
+        })} className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]" />
+          </div> : <div className="grid grid-cols-2 gap-8 text-center">
             <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
               {editedData.sanskritTextUa}
             </div>
             <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
               {editedData.sanskritTextEn}
             </div>
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Transliteration */}
       <div className="p-8">
-        {editMode ? (
-          <div className="grid grid-cols-2 gap-8">
-            <Textarea
-              value={editedData.transliterationUa}
-              onChange={(e) =>
-                setEditedData({ ...editedData, transliterationUa: e.target.value })
-              }
-              className="italic text-lg text-center min-h-[150px]"
-            />
-            <Textarea
-              value={editedData.transliterationEn}
-              onChange={(e) =>
-                setEditedData({ ...editedData, transliterationEn: e.target.value })
-              }
-              className="italic text-lg text-center min-h-[150px]"
-            />
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-8">
+        {editMode ? <div className="grid grid-cols-2 gap-8">
+            <Textarea value={editedData.transliterationUa} onChange={e => setEditedData({
+          ...editedData,
+          transliterationUa: e.target.value
+        })} className="italic text-lg text-center min-h-[150px]" />
+            <Textarea value={editedData.transliterationEn} onChange={e => setEditedData({
+          ...editedData,
+          transliterationEn: e.target.value
+        })} className="italic text-lg text-center min-h-[150px]" />
+          </div> : <div className="grid grid-cols-2 gap-8">
             <div className="italic text-lg whitespace-pre-line leading-relaxed text-center">
               {editedData.transliterationUa}
             </div>
             <div className="italic text-lg whitespace-pre-line leading-relaxed text-center">
               {editedData.transliterationEn}
             </div>
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Synonyms */}
@@ -232,85 +189,57 @@ export function DualLanguageVerseCard({
           {/* Ukrainian Synonyms */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-center">Послівний переклад</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.synonymsUa}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, synonymsUa: e.target.value })
-                }
-                className="text-base min-h-[200px]"
-              />
-            ) : (
-              <p style={{ fontSize: `${fontSize}px`, lineHeight }}>
+            {editMode ? <Textarea value={editedData.synonymsUa} onChange={e => setEditedData({
+            ...editedData,
+            synonymsUa: e.target.value
+          })} className="text-base min-h-[200px]" /> : <p style={{
+            fontSize: `${fontSize}px`,
+            lineHeight
+          }} className="text-justify">
                 {synonymsParsedUa.map((syn, i) => {
-                  const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
-                  return (
-                    <span key={i}>
-                      {words.map((w, wi) => (
-                        <span key={wi}>
-                          <span
-                            role="link"
-                            tabIndex={0}
-                            onClick={() => openGlossary(w)}
-                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                            title="Відкрити у глосарії"
-                            className="cursor-pointer italic"
-                            style={{ color: '#BC731B' }}
-                          >
+              const words = syn.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
+              return <span key={i}>
+                      {words.map((w, wi) => <span key={wi}>
+                          <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Відкрити у глосарії" className="cursor-pointer italic" style={{
+                    color: '#BC731B'
+                  }}>
                             {w}
                           </span>
                           {wi < words.length - 1 && " "}
-                        </span>
-                      ))}
+                        </span>)}
                       {syn.meaning && <span> — {syn.meaning}</span>}
                       {i < synonymsParsedUa.length - 1 && <span>; </span>}
-                    </span>
-                  );
-                })}
-              </p>
-            )}
+                    </span>;
+            })}
+              </p>}
           </div>
 
           {/* English Synonyms */}
           <div>
             <h3 className="text-xl font-bold mb-4 text-center">Synonyms</h3>
-            {editMode ? (
-              <Textarea
-                value={editedData.synonymsEn}
-                onChange={(e) =>
-                  setEditedData({ ...editedData, synonymsEn: e.target.value })
-                }
-                className="text-base min-h-[200px]"
-              />
-            ) : (
-              <p style={{ fontSize: `${fontSize}px`, lineHeight }}>
+            {editMode ? <Textarea value={editedData.synonymsEn} onChange={e => setEditedData({
+            ...editedData,
+            synonymsEn: e.target.value
+          })} className="text-base min-h-[200px]" /> : <p style={{
+            fontSize: `${fontSize}px`,
+            lineHeight
+          }} className="text-justify">
                 {synonymsParsedEn.map((syn, i) => {
-                  const words = syn.term.split(/\s+/).map((w) => w.trim()).filter(Boolean);
-                  return (
-                    <span key={i}>
-                      {words.map((w, wi) => (
-                        <span key={wi}>
-                          <span
-                            role="link"
-                            tabIndex={0}
-                            onClick={() => openGlossary(w)}
-                            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                            title="Open in glossary"
-                            className="cursor-pointer italic"
-                            style={{ color: '#BC731B' }}
-                          >
+              const words = syn.term.split(/\s+/).map(w => w.trim()).filter(Boolean);
+              return <span key={i}>
+                      {words.map((w, wi) => <span key={wi}>
+                          <span role="link" tabIndex={0} onClick={() => openGlossary(w)} onKeyDown={e => (e.key === "Enter" || e.key === " ") && openGlossary(w)} title="Open in glossary" className="cursor-pointer italic" style={{
+                    color: '#BC731B'
+                  }}>
                             {w}
                           </span>
                           {wi < words.length - 1 && " "}
-                        </span>
-                      ))}
+                        </span>)}
                       {syn.meaning && <span> — {syn.meaning}</span>}
                       {i < synonymsParsedEn.length - 1 && <span>; </span>}
-                    </span>
-                  );
-                })}
-              </p>
-            )}
+                    </span>;
+            })}
+              </p>}
           </div>
         </div>
       </div>
@@ -323,34 +252,16 @@ export function DualLanguageVerseCard({
           <h3 className="text-xl font-bold text-center">Translation</h3>
         </div>
 
-        {editMode ? (
-          <div className="grid grid-cols-2 gap-8">
-            <Textarea
-              value={editedData.translationUa}
-              onChange={(e) =>
-                setEditedData({ ...editedData, translationUa: e.target.value })
-              }
-              className="text-base min-h-[150px]"
-            />
-            <Textarea
-              value={editedData.translationEn}
-              onChange={(e) =>
-                setEditedData({ ...editedData, translationEn: e.target.value })
-              }
-              className="text-base min-h-[150px]"
-            />
-          </div>
-        ) : (
-          <DualLanguageText
-            uaParagraphs={null}
-            enParagraphs={null}
-            uaText={editedData.translationUa}
-            enText={editedData.translationEn}
-            className="font-semibold"
-            fontSize={fontSize}
-            lineHeight={lineHeight}
-          />
-        )}
+        {editMode ? <div className="grid grid-cols-2 gap-8">
+            <Textarea value={editedData.translationUa} onChange={e => setEditedData({
+          ...editedData,
+          translationUa: e.target.value
+        })} className="text-base min-h-[150px]" />
+            <Textarea value={editedData.translationEn} onChange={e => setEditedData({
+          ...editedData,
+          translationEn: e.target.value
+        })} className="text-base min-h-[150px]" />
+          </div> : <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={editedData.translationUa} enText={editedData.translationEn} className="font-semibold" fontSize={fontSize} lineHeight={lineHeight} />}
       </div>
 
       {/* Commentary */}
@@ -361,34 +272,16 @@ export function DualLanguageVerseCard({
           <h3 className="text-xl font-bold text-center">Purport</h3>
         </div>
 
-        {editMode ? (
-          <div className="grid grid-cols-2 gap-8">
-            <Textarea
-              value={editedData.commentaryUa}
-              onChange={(e) =>
-                setEditedData({ ...editedData, commentaryUa: e.target.value })
-              }
-              className="text-base min-h-[300px]"
-            />
-            <Textarea
-              value={editedData.commentaryEn}
-              onChange={(e) =>
-                setEditedData({ ...editedData, commentaryEn: e.target.value })
-              }
-              className="text-base min-h-[300px]"
-            />
-          </div>
-        ) : (
-          <DualLanguageText
-            uaParagraphs={null}
-            enParagraphs={null}
-            uaText={editedData.commentaryUa}
-            enText={editedData.commentaryEn}
-            fontSize={fontSize}
-            lineHeight={lineHeight}
-          />
-        )}
+        {editMode ? <div className="grid grid-cols-2 gap-8">
+            <Textarea value={editedData.commentaryUa} onChange={e => setEditedData({
+          ...editedData,
+          commentaryUa: e.target.value
+        })} className="text-base min-h-[300px]" />
+            <Textarea value={editedData.commentaryEn} onChange={e => setEditedData({
+          ...editedData,
+          commentaryEn: e.target.value
+        })} className="text-base min-h-[300px]" />
+          </div> : <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={editedData.commentaryUa} enText={editedData.commentaryEn} fontSize={fontSize} lineHeight={lineHeight} />}
       </div>
-    </div>
-  );
+    </div>;
 }
