@@ -77,6 +77,9 @@ export const EnhancedInlineEditor = ({
   minHeight = "200px",
   compact = false,
 }: EnhancedInlineEditorProps) => {
+  // Ensure content is valid HTML
+  const initialContent = content || "<p></p>";
+
   const editor = useEditor(
     {
       extensions: [
@@ -115,7 +118,7 @@ export const EnhancedInlineEditor = ({
         }),
         Placeholder.configure({ placeholder }),
       ],
-      content,
+      content: initialContent,
       editable,
       onUpdate: ({ editor }) => onChange(editor.getHTML()),
       editorProps: {
@@ -139,11 +142,22 @@ export const EnhancedInlineEditor = ({
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable);
-      if (content !== editor.getHTML()) {
-        editor.commands.setContent(content);
+      const newContent = content || "<p></p>";
+      if (newContent !== editor.getHTML()) {
+        editor.commands.setContent(newContent);
       }
     }
   }, [editor, editable, content]);
+
+  // Debug log
+  useEffect(() => {
+    console.log('[EnhancedInlineEditor] Props:', {
+      label,
+      editable,
+      hasEditor: !!editor,
+      contentLength: content?.length || 0
+    });
+  }, [label, editable, editor, content]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");
