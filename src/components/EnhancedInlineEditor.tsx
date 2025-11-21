@@ -220,12 +220,24 @@ export const EnhancedInlineEditor = ({
     editor?.chain().focus().clearNodes().unsetAllMarks().run();
   };
 
-  if (!editor) return null;
+  if (!editor) {
+    console.log('[EnhancedInlineEditor] Editor is null, returning placeholder');
+    return (
+      <div className="p-4 border border-dashed border-gray-300 rounded-md text-gray-500">
+        Завантаження редактора... (label: {label})
+      </div>
+    );
+  }
 
   return (
     <div
       className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative`}
     >
+      {/* DEBUG INDICATOR */}
+      <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-t-md">
+        ✅ EnhancedInlineEditor: {label} (editable: {String(editable)})
+      </div>
+
       {/* STICKY TOOLBAR */}
       {editable && (
         <div className="sticky top-16 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2">
