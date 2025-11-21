@@ -234,10 +234,15 @@ export const VedaReaderDB = () => {
   });
 
   const verses = (versesMain && versesMain.length > 0) ? versesMain : (versesFallback || []);
+
+  // ✅ FALLBACK: використовуємо fallbackChapter якщо chapter не знайдено
+  // Це критично для SCC та інших книг де canto може не існувати в БД
+  const effectiveChapter = chapter || fallbackChapter;
+
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
 
   // Highlights hook - needs chapter.id
-  const { createHighlight } = useHighlights(chapter?.id);
+  const { createHighlight } = useHighlights(effectiveChapter?.id);
 
   // Jump to verse from URL if provided
   useEffect(() => {
@@ -852,7 +857,7 @@ export const VedaReaderDB = () => {
       </div>;
   }
 
-  if (!chapter) {
+  if (!effectiveChapter) {
     return <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-8 text-center">
@@ -865,7 +870,7 @@ export const VedaReaderDB = () => {
       </div>;
   }
 
-  const isTextChapter = chapter.chapter_type === "text" || verses.length === 0;
+  const isTextChapter = effectiveChapter.chapter_type === "text" || verses.length === 0;
 
   // ✅ fontSize керується через useReaderSettings → оновлює CSS змінну --vv-reader-font-size
   // Не потрібно встановлювати inline font-size на контейнер
