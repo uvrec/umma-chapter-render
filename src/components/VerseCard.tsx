@@ -237,13 +237,18 @@ export const VerseCard = ({
     }
   };
 
-  // ✅ НОВЕ: Автозбереження коментарів для адмінів
+  // ✅ НОВЕ: Автозбереження для адмінів
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   useEffect(() => {
     if (!isAdmin || !verseId || !onVerseUpdate) return;
 
-    // Якщо коментар змінився (порівняно з початковим), зберігаємо через 2 секунди
-    if (edited.commentary !== commentary) {
+    // Перевіряємо чи щось змінилося
+    const hasChanges =
+      edited.synonyms !== (synonyms || "") ||
+      edited.translation !== translation ||
+      edited.commentary !== (commentary || "");
+
+    if (hasChanges) {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
@@ -259,7 +264,7 @@ export const VerseCard = ({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [edited.commentary, commentary, isAdmin, verseId, onVerseUpdate, edited]);
+  }, [edited.synonyms, edited.translation, edited.commentary, synonyms, translation, commentary, isAdmin, verseId, onVerseUpdate, edited]);
 
   const synonymPairs = textDisplaySettings.showSynonyms ? parseSynonyms(isEditing ? edited.synonyms : synonyms) : [];
   return (
@@ -390,7 +395,7 @@ export const VerseCard = ({
         )}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
+        {textDisplaySettings.showSynonyms && (synonyms || isAdmin) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -405,16 +410,17 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isEditing ? (
-              <Textarea
-                value={edited.synonyms}
-                onChange={(e) =>
+            {isAdmin ? (
+              <EnhancedInlineEditor
+                content={edited.synonyms}
+                onChange={(html) =>
                   setEdited((p) => ({
                     ...p,
-                    synonyms: e.target.value,
+                    synonyms: html,
                   }))
                 }
-                className="min-h-[120px] synonyms-text"
+                label="Послівний переклад"
+                editable={true}
               />
             ) : (
               <p className="synonyms-text text-foreground" style={{ fontSize: `${fontSize}px`, lineHeight }}>
@@ -486,7 +492,7 @@ export const VerseCard = ({
         )}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (isEditing || translation) && (
+        {textDisplaySettings.showTranslation && (translation || isAdmin) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -501,16 +507,17 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isEditing ? (
-              <Textarea
-                value={edited.translation}
-                onChange={(e) =>
+            {isAdmin ? (
+              <EnhancedInlineEditor
+                content={edited.translation}
+                onChange={(html) =>
                   setEdited((p) => ({
                     ...p,
-                    translation: e.target.value,
+                    translation: html,
                   }))
                 }
-                className="min-h-[100px] prose-reader font-semibold"
+                label="Переклад"
+                editable={true}
               />
             ) : (
               <p className="prose-reader text-foreground font-semibold font-serif text-justify">{translation}</p>
