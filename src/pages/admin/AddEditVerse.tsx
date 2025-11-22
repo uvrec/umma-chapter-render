@@ -19,7 +19,7 @@ export default function AddEditVerse() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const queryClient = useQueryClient();
 
   const [selectedBookId, setSelectedBookId] = useState(searchParams.get("bookId") || "");
@@ -48,10 +48,10 @@ export default function AddEditVerse() {
   const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
 
   useEffect(() => {
-    if (!user || !isAdmin) {
+    if (!loading && (!user || !isAdmin)) {
       navigate("/auth");
     }
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, loading, navigate]);
 
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
@@ -241,7 +241,7 @@ export default function AddEditVerse() {
     mutation.mutate();
   };
 
-  if (!user || !isAdmin) return null;
+  if (loading || !user || !isAdmin) return null;
 
   // Build breadcrumbs
   const breadcrumbs: BreadcrumbItem[] = [{ label: "Вірші", href: "/admin/scripture" }];
