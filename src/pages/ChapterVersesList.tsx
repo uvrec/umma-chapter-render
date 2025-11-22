@@ -333,7 +333,8 @@ export const ChapterVersesList = () => {
                   </Button>
                 </div>}
 
-              {isEditingContent ? <div className="space-y-4">
+              {isEditingContent ? (
+                <div className="space-y-4">
                   <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
                   <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
                   <div className="flex gap-2">
