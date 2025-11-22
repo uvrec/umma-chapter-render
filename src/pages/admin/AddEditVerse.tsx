@@ -19,8 +19,15 @@ export default function AddEditVerse() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
   const queryClient = useQueryClient();
+
+  // Redirect non-admin users
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, loading, navigate]);
 
   const [selectedBookId, setSelectedBookId] = useState(searchParams.get("bookId") || "");
   const [selectedCantoId, setSelectedCantoId] = useState(searchParams.get("cantoId") || "");

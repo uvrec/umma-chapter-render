@@ -516,16 +516,11 @@ export default function ScriptureManager() {
                   ) : (
                     <div className="text-center py-12 text-muted-foreground">
                       <p>Віршів не знайдено</p>
-                      <Button
-                        size="sm"
-                        className="mt-4"
-                        onClick={() => {
-                          setSelectedVerseId(null);
-                          setIsCreatingVerse(true);
-                        }}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Додати перший вірш
+                      <Button asChild size="sm" className="mt-4">
+                        <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          Додати перший вірш
+                        </Link>
                       </Button>
                     </div>
                   )}
