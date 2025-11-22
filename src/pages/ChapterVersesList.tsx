@@ -399,10 +399,11 @@ export const ChapterVersesList = () => {
                 />
               )}
             </div>
-          )}
+          }
 
           {/* Список віршів */}
-          {flowMode ? (/* Режим суцільного тексту - без контейнерів, номерів, рамок */
+          {/* Режим суцільного тексту - без контейнерів, номерів, рамок */}
+          {flowMode ? (
         <div className="prose prose-lg max-w-none prose-reader">
               {versesFiltered.map(verse => {
             const text = language === "ua" ? verse.translation_ua : verse.translation_en;
@@ -410,7 +411,8 @@ export const ChapterVersesList = () => {
                     {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
                   </p>;
           })}
-            </div>) : (/* Звичайний режим */
+            </div>
+          ) : ( // Звичайний режим
         <div className="space-y-6">
               {verses.map(verse => {
             const translationUa = verse.translation_ua || "";
@@ -437,7 +439,8 @@ export const ChapterVersesList = () => {
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
-                      </div> : (/* Одна мова */
+                      </div>
+                    : (
               <div className="space-y-3">
                         {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
