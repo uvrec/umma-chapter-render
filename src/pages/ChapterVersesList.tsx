@@ -16,6 +16,7 @@ import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { splitIntoParagraphs, alignParagraphs, Paragraph } from "@/utils/paragraphSync";
 export const ChapterVersesList = () => {
   const {
     bookId,
@@ -349,21 +350,55 @@ export const ChapterVersesList = () => {
                       {language === "ua" ? "Скасувати" : "Cancel"}
                     </Button>
                   </div>
-                </div> : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (/* ✅ Двомовний режим для текстових глав - side-by-side */
-          <div className="grid gap-6 md:grid-cols-2">
-                  {/* Українська */}
-                  <div className="prose prose-slate dark:prose-invert max-w-none prose-reader" dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(effectiveChapterObj.content_ua || "")
-            }} />
-                  {/* Англійська */}
-                  <div className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader" dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(effectiveChapterObj.content_en || "")
-            }} />
-                </div>) : (/* Одномовний режим */
-          <div className="prose prose-slate dark:prose-invert max-w-none prose-reader" dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(language === "ua" ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "" : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
-          }} />)}
-            </div>}
+                </div>
+              ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+                /* ✅ Двомовний режим для текстових глав - side-by-side з синхронізацією параграфів */
+                (() => {
+                  // Розбиваємо текст на параграфи (очищаємо від HTML тегів для розбиття)
+                  const stripHtml = (html: string) => {
+                    const div = document.createElement('div');
+                    div.innerHTML = html;
+                    return div.textContent || div.innerText || '';
+                  };
+                  const paragraphsUa = splitIntoParagraphs(stripHtml(effectiveChapterObj.content_ua || ''));
+                  const paragraphsEn = splitIntoParagraphs(stripHtml(effectiveChapterObj.content_en || ''));
+                  const [alignedUa, alignedEn] = alignParagraphs(paragraphsUa, paragraphsEn);
+
+                  return (
+                    <div className="space-y-4">
+                      {alignedUa.map((paraUa, idx) => {
+                        const paraEn = alignedEn[idx];
+                        return (
+                          <div key={idx} className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0">
+                            {/* Українська */}
+                            <div className="prose prose-slate dark:prose-invert max-w-none prose-reader">
+                              <p>{paraUa.text || <span className="italic text-muted-foreground">—</span>}</p>
+                            </div>
+                            {/* Англійська */}
+                            <div className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader">
+                              <p>{paraEn.text || <span className="italic text-muted-foreground">—</span>}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
+              ) : (
+                /* Одномовний режим */
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      language === "ua"
+                        ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
+                        : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
+                    )
+                  }}
+                />
+              )}
+            </div>
+          )}
 
           {/* Список віршів */}
           {flowMode ? (/* Режим суцільного тексту - без контейнерів, номерів, рамок */
