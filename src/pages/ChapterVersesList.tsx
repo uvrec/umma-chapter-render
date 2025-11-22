@@ -318,7 +318,7 @@ export const ChapterVersesList = () => {
                   <span className="truncate max-w-[200px] sm:max-w-none">{cantoTitle}</span>
                 </>}
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words text-center md:text-4xl font-serif">
+            <h1 className="text-xl sm:text-2xl font-bold break-words text-center md:text-4xl font-serif text-primary">
               {chapterTitle || `Глава ${chapter?.chapter_number}`}
             </h1>
           </div>
