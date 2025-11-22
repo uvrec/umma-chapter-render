@@ -31,13 +31,18 @@ export const ChapterVersesList = () => {
     user
   } = useAuth();
   const queryClient = useQueryClient();
-  const { fontSize, lineHeight, dualLanguageMode, showNumbers, flowMode } = useReaderSettings();
+  const {
+    fontSize,
+    lineHeight,
+    dualLanguageMode,
+    showNumbers,
+    flowMode
+  } = useReaderSettings();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
-
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -306,7 +311,7 @@ export const ChapterVersesList = () => {
 
           {/* Заголовок - адаптивний */}
           <div className="mb-6 sm:mb-8">
-            <div className="mb-2 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
+            <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
               {cantoTitle && <>
@@ -314,58 +319,33 @@ export const ChapterVersesList = () => {
                   <span className="truncate max-w-[200px] sm:max-w-none">{cantoTitle}</span>
                 </>}
             </div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">
+            <h1 className="text-xl sm:text-2xl font-bold break-words text-center md:text-4xl font-serif text-primary">
               {chapterTitle || `Глава ${chapter?.chapter_number}`}
             </h1>
           </div>
 
           {/* Огляд глави */}
-          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
-            <div className="mb-8 rounded-lg border border-border bg-card p-6">
-              {user && !isEditingContent && (
-                <div className="mb-4 flex justify-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditingContent(true)}
-                    className="gap-2"
-                  >
+          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && <div className="mb-8 rounded-lg border border-border bg-card p-6">
+              {user && !isEditingContent && <div className="mb-4 flex justify-end">
+                  <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
                     {language === "ua" ? "Редагувати" : "Edit"}
                   </Button>
-                </div>
-              )}
+                </div>}
 
-              {isEditingContent ? (
-                <div className="space-y-4">
-                  <EnhancedInlineEditor
-                    content={editedContentUa}
-                    onChange={setEditedContentUa}
-                    label="Українська"
-                  />
-                  <EnhancedInlineEditor
-                    content={editedContentEn}
-                    onChange={setEditedContentEn}
-                    label="English"
-                  />
+              {isEditingContent ? <div className="space-y-4">
+                  <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
+                  <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
                   <div className="flex gap-2">
-                    <Button
-                      onClick={() => saveContentMutation.mutate()}
-                      disabled={saveContentMutation.isPending}
-                      className="gap-2"
-                    >
+                    <Button onClick={() => saveContentMutation.mutate()} disabled={saveContentMutation.isPending} className="gap-2">
                       <Save className="h-4 w-4" />
                       {language === "ua" ? "Зберегти" : "Save"}
                     </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditingContent(false);
-                        setEditedContentUa(effectiveChapterObj.content_ua || "");
-                        setEditedContentEn(effectiveChapterObj.content_en || "");
-                      }}
-                      className="gap-2"
-                    >
+                    <Button variant="outline" onClick={() => {
+                setIsEditingContent(false);
+                setEditedContentUa(effectiveChapterObj.content_ua || "");
+                setEditedContentEn(effectiveChapterObj.content_en || "");
+              }} className="gap-2">
                       <X className="h-4 w-4" />
                       {language === "ua" ? "Скасувати" : "Cancel"}
                     </Button>
@@ -421,87 +401,56 @@ export const ChapterVersesList = () => {
           )}
 
           {/* Список віршів */}
-          {flowMode ? (
-            /* Режим суцільного тексту - без контейнерів, номерів, рамок */
-            <div className="prose prose-lg max-w-none prose-reader">
-              {versesFiltered.map((verse) => {
-                const text = language === "ua" ? verse.translation_ua : verse.translation_en;
-                return (
-                  <p key={verse.id} className="text-foreground mb-6">
+          {flowMode ? (/* Режим суцільного тексту - без контейнерів, номерів, рамок */
+        <div className="prose prose-lg max-w-none prose-reader">
+              {versesFiltered.map(verse => {
+            const text = language === "ua" ? verse.translation_ua : verse.translation_en;
+            return <p key={verse.id} className="text-foreground mb-6">
                     {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
-                  </p>
-                );
-              })}
-            </div>
-          ) : (
-            /* Звичайний режим */
-            <div className="space-y-6">
-              {verses.map((verse) => {
-                const translationUa = verse.translation_ua || "";
-                const translationEn = verse.translation_en || "";
-
-                return (
-                  <div key={verse.id} className="space-y-3">
+                  </p>;
+          })}
+            </div>) : (/* Звичайний режим */
+        <div className="space-y-6">
+              {verses.map(verse => {
+            const translationUa = verse.translation_ua || "";
+            const translationEn = verse.translation_en || "";
+            return <div key={verse.id} className="space-y-3">
                     {/* Side-by-side якщо dualLanguageMode */}
-                    {dualLanguageMode ? (
-                      <div className="grid gap-6 md:grid-cols-2">
+                    {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
                         {/* Українська */}
                         <div className="space-y-3">
-                          {showNumbers && (
-                            <Link 
-                              to={getVerseUrl(verse.verse_number)} 
-                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                            >
+                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               ВІРШ {verse.verse_number}
-                            </Link>
-                          )}
-                          <p className="text-foreground prose-reader">
+                            </Link>}
+                          <p className="text-foreground prose-reader text-justify">
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
 
                         {/* Англійська */}
                         <div className="space-y-3 border-l border-border pl-6">
-                          {showNumbers && (
-                            <Link 
-                              to={getVerseUrl(verse.verse_number)} 
-                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                            >
+                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               TEXT {verse.verse_number}
-                            </Link>
-                          )}
-                          <p className="text-foreground prose-reader">
+                            </Link>}
+                          <p className="text-foreground prose-reader text-justify">
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
-                      </div>
-                    ) : (
-                      /* Одна мова */
-                      <div className="space-y-3">
-                        {showNumbers && (
-                          <Link 
-                            to={getVerseUrl(verse.verse_number)} 
-                            className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
-                          >
+                      </div> : (/* Одна мова */
+              <div className="space-y-3">
+                        {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                          </Link>
-                        )}
+                          </Link>}
                         <p className="text-foreground prose-reader">
-                          {language === "ua" 
-                            ? (translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>)
-                            : (translationEn || <span className="italic text-muted-foreground">No translation</span>)
-                          }
+                          {language === "ua" ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span> : translationEn || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
-                      </div>
-                    )}
+                      </div>)}
 
                     {/* Невеликий відступ замість роздільної лінії */}
                     <div className="h-4" />
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  </div>;
+          })}
+            </div>)}
 
           {verses.length === 0 && <div className="rounded-lg border border-dashed border-border p-12 text-center">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
