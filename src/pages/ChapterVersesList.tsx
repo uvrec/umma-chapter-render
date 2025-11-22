@@ -310,7 +310,7 @@ export const ChapterVersesList = () => {
 
           {/* Заголовок - адаптивний */}
           <div className="mb-6 sm:mb-8">
-            <div className="mb-2 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
+            <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
               {cantoTitle && <>
