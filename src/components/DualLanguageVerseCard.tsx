@@ -118,7 +118,7 @@ export function DualLanguageVerseCard({
     lineHeight
   }}>
       {/* Admin Controls */}
-      {isAdmin && <div className="flex justify-end gap-2 p-4">
+      {isAdmin && <div className="gap-2 p-4 flex items-start justify-center">
           {!editMode ? <Button onClick={() => setEditMode(true)} variant="outline" size="sm">
               <Edit className="w-4 h-4 mr-2" />
               Редагувати
@@ -137,7 +137,7 @@ export function DualLanguageVerseCard({
       {/* Verse Number */}
       {showNumbers && <div className="p-6 pb-0">
           <div className="flex h-8 items-center justify-center">
-            <span className="text-lg font-semibold text-primary">Вірш {verseNumber}</span>
+            <span className="font-semibold text-primary text-4xl">Вірш {verseNumber}</span>
           </div>
         </div>}
 
