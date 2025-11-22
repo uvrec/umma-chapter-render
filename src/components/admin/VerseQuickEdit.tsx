@@ -29,14 +29,17 @@ interface Verse {
 
 interface VerseQuickEditProps {
   verseId: string | null;
+  chapterId?: string | null;
+  mode?: "edit" | "create";
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditProps) {
+export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onSuccess }: VerseQuickEditProps) {
   const queryClient = useQueryClient();
   const [verse, setVerse] = useState<Verse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const isCreateMode = mode === "create";
 
   // Form fields - Ukrainian
   const [verseNumber, setVerseNumber] = useState("");
@@ -53,8 +56,25 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
   const [translationEn, setTranslationEn] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
 
-  // Load verse data
+  // Load verse data or reset for create mode
   useEffect(() => {
+    if (isCreateMode) {
+      // Reset form for create mode
+      setVerse(null);
+      setVerseNumber("");
+      setSanskritUa("");
+      setTransliterationUa("");
+      setSynonymsUa("");
+      setTranslationUa("");
+      setCommentaryUa("");
+      setSanskritEn("");
+      setTransliterationEn("");
+      setSynonymsEn("");
+      setTranslationEn("");
+      setCommentaryEn("");
+      return;
+    }
+
     if (!verseId) {
       setVerse(null);
       return;
@@ -98,43 +118,55 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
     };
 
     loadVerse();
-  }, [verseId]);
+  }, [verseId, isCreateMode]);
 
-  const updateMutation = useMutation({
+  const saveMutation = useMutation({
     mutationFn: async () => {
-      if (!verseId) throw new Error("No verse ID");
+      const verseData = {
+        verse_number: verseNumber,
+        // Ukrainian fields
+        sanskrit_ua: sanskritUa || null,
+        transliteration_ua: transliterationUa || null,
+        synonyms_ua: synonymsUa || null,
+        translation_ua: translationUa || null,
+        commentary_ua: commentaryUa || null,
+        // English fields
+        sanskrit_en: sanskritEn || null,
+        transliteration_en: transliterationEn || null,
+        synonyms_en: synonymsEn || null,
+        translation_en: translationEn || null,
+        commentary_en: commentaryEn || null,
+      };
 
-      const { error } = await supabase
-        .from("verses")
-        .update({
-          verse_number: verseNumber,
-          // Ukrainian fields
-          sanskrit_ua: sanskritUa || null,
-          transliteration_ua: transliterationUa || null,
-          synonyms_ua: synonymsUa || null,
-          translation_ua: translationUa || null,
-          commentary_ua: commentaryUa || null,
-          // English fields
-          sanskrit_en: sanskritEn || null,
-          transliteration_en: transliterationEn || null,
-          synonyms_en: synonymsEn || null,
-          translation_en: translationEn || null,
-          commentary_en: commentaryEn || null,
-        })
-        .eq("id", verseId);
-
-      if (error) throw error;
+      if (isCreateMode) {
+        if (!chapterId) throw new Error("No chapter ID for create");
+        const { error } = await supabase
+          .from("verses")
+          .insert({ ...verseData, chapter_id: chapterId, is_published: true });
+        if (error) throw error;
+      } else {
+        if (!verseId) throw new Error("No verse ID");
+        const { error } = await supabase
+          .from("verses")
+          .update(verseData)
+          .eq("id", verseId);
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      // Очищуємо кеш для адмінки і фронтенду
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
       queryClient.invalidateQueries({ queryKey: ["verses"] });
-      queryClient.invalidateQueries({ queryKey: ["verse", verseId] });
+      if (verseId) {
+        queryClient.invalidateQueries({ queryKey: ["verse", verseId] });
+      }
       toast({
         title: "Успіх",
-        description: "Вірш оновлено",
+        description: isCreateMode ? "Вірш створено" : "Вірш оновлено",
       });
       onSuccess();
+      if (isCreateMode) {
+        onClose();
+      }
     },
     onError: (error: any) => {
       toast({
@@ -155,10 +187,10 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
       });
       return;
     }
-    updateMutation.mutate();
+    saveMutation.mutate();
   };
 
-  if (!verseId) {
+  if (!isCreateMode && !verseId) {
     return (
       <div className="flex flex-col h-full items-center justify-center text-muted-foreground p-8 text-center">
         <Clock className="h-12 w-12 mb-4 opacity-50" />
@@ -182,10 +214,12 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
       {/* Header */}
       <div className="p-4 border-b flex items-center justify-between">
         <div className="flex-1">
-          <h3 className="font-semibold">Редагувати вірш</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {verse?.verse_number}
-          </p>
+          <h3 className="font-semibold">{isCreateMode ? "Створити вірш" : "Редагувати вірш"}</h3>
+          {!isCreateMode && verse?.verse_number && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {verse.verse_number}
+            </p>
+          )}
         </div>
         <Button variant="ghost" size="sm" onClick={onClose}>
           <X className="h-4 w-4" />
@@ -337,18 +371,18 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
           <div className="flex gap-2 pt-4 border-t sticky bottom-0 bg-background">
             <Button
               type="submit"
-              disabled={updateMutation.isPending}
+              disabled={saveMutation.isPending}
               className="flex-1"
             >
-              {updateMutation.isPending ? (
+              {saveMutation.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Збереження...
+                  {isCreateMode ? "Створення..." : "Збереження..."}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Зберегти
+                  {isCreateMode ? "Створити" : "Зберегти"}
                 </>
               )}
             </Button>
@@ -356,7 +390,7 @@ export function VerseQuickEdit({ verseId, onClose, onSuccess }: VerseQuickEditPr
               type="button"
               variant="outline"
               onClick={onClose}
-              disabled={updateMutation.isPending}
+              disabled={saveMutation.isPending}
             >
               Скасувати
             </Button>

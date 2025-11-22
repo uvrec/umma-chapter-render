@@ -45,6 +45,7 @@ export default function ScriptureManager() {
     searchParams.get("chapterId")
   );
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
+  const [isCreatingVerse, setIsCreatingVerse] = useState(false);
   const [deleteVerseId, setDeleteVerseId] = useState<{
     id: string;
     verseNumber: string;
@@ -324,16 +325,23 @@ export default function ScriptureManager() {
               </Button>
             )}
             {selectedChapterId && (
-              <Button asChild size="sm">
-                <Link
-                  to={`/admin/verses/new?chapterId=${selectedChapterId}`}
-                  target="_blank"
+              <>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setSelectedVerseId(null);
+                    setIsCreatingVerse(true);
+                  }}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Додати вірш
-                  <ExternalLink className="w-3 h-3 ml-2" />
-                </Link>
-              </Button>
+                  Створити вірш
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
+                    Розширена форма
+                  </Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -543,9 +551,15 @@ export default function ScriptureManager() {
         <div className="w-96 flex-shrink-0">
           <VerseQuickEdit
             verseId={selectedVerseId}
-            onClose={() => setSelectedVerseId(null)}
+            chapterId={selectedChapterId}
+            mode={isCreatingVerse ? "create" : "edit"}
+            onClose={() => {
+              setSelectedVerseId(null);
+              setIsCreatingVerse(false);
+            }}
             onSuccess={() => {
               queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+              setIsCreatingVerse(false);
             }}
           />
         </div>
