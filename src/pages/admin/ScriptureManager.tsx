@@ -325,23 +325,16 @@ export default function ScriptureManager() {
               </Button>
             )}
             {selectedChapterId && (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setSelectedVerseId(null);
-                    setIsCreatingVerse(true);
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Створити вірш
-                </Button>
-                <Button asChild size="sm" variant="outline">
-                  <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
-                    Розширена форма
-                  </Link>
-                </Button>
-              </>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setSelectedVerseId(null);
+                  setIsCreatingVerse(true);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Створити вірш
+              </Button>
             )}
           </div>
         </div>
