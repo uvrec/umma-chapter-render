@@ -465,10 +465,9 @@ function SupportSection() {
 // --- Main Page ---
 export const NewHome = () => {
   return <div className="min-h-screen bg-background">
+      <Header />
       <main>
         <Hero />
-        <Header />
-        
         <LatestContent />
         <FeaturedBooks />
         <Playlists />
