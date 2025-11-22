@@ -9,115 +9,113 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useEffect, useState } from "react";
-
 export const CantoOverview = () => {
-  const { bookId, cantoNumber } = useParams();
-  const { language, t } = useLanguage();
-  const { dualLanguageMode } = useReaderSettings();
-
-  const { data: book } = useQuery({
+  const {
+    bookId,
+    cantoNumber
+  } = useParams();
+  const {
+    language,
+    t
+  } = useLanguage();
+  const {
+    dualLanguageMode
+  } = useReaderSettings();
+  const {
+    data: book
+  } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("books").select("*").eq("slug", bookId).single();
+      const {
+        data,
+        error
+      } = await supabase.from("books").select("*").eq("slug", bookId).single();
       if (error) throw error;
       return data;
     },
-    enabled: !!bookId,
+    enabled: !!bookId
   });
-
-  const { data: canto, isLoading: cantoLoading } = useQuery({
+  const {
+    data: canto,
+    isLoading: cantoLoading
+  } = useQuery({
     queryKey: ["canto", book?.id, cantoNumber],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const { data, error } = await supabase
-        .from("cantos")
-        .select("*")
-        .eq("book_id", book.id)
-        .eq("canto_number", parseInt(cantoNumber))
-        .maybeSingle();
+      const {
+        data,
+        error
+      } = await supabase.from("cantos").select("*").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!book?.id && !!cantoNumber,
+    enabled: !!book?.id && !!cantoNumber
   });
-
-  const { data: chapters = [], isLoading: chaptersLoading } = useQuery({
+  const {
+    data: chapters = [],
+    isLoading: chaptersLoading
+  } = useQuery({
     queryKey: ["chapters", canto?.id],
     queryFn: async () => {
       if (!canto?.id) return [];
-      const { data, error } = await supabase
-        .from("chapters")
-        .select("*")
-        .eq("canto_id", canto.id)
-        .order("chapter_number");
+      const {
+        data,
+        error
+      } = await supabase.from("chapters").select("*").eq("canto_id", canto.id).order("chapter_number");
       if (error) throw error;
       return data || [];
     },
-    enabled: !!canto?.id,
+    enabled: !!canto?.id
   });
-
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = language === "ua" ? canto?.title_ua : canto?.title_en;
   const cantoDescription = language === "ua" ? canto?.description_ua : canto?.description_en;
-
   if (cantoLoading || chaptersLoading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
           <p>{t("Завантаження...", "Loading...")}</p>
         </main>
-      </div>
-    );
+      </div>;
   }
-
   if (!canto) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <main className="container mx-auto px-4 py-8">
           <p className="text-center text-muted-foreground">{t("Пісню не знайдено", "Canto not found")}</p>
         </main>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
 
       <main className="container mx-auto px-4 py-8">
-        <Breadcrumb
-          items={[
-            { label: t("Бібліотека", "Library"), href: "/library" },
-            { label: bookTitle || "", href: `/veda-reader/${bookId}` },
-            {
-              label: `${t("Пісня", "Canto")} ${cantoNumber}: ${cantoTitle}`,
-            },
-          ]}
-        />
+        <Breadcrumb items={[{
+        label: t("Бібліотека", "Library"),
+        href: "/library"
+      }, {
+        label: bookTitle || "",
+        href: `/veda-reader/${bookId}`
+      }, {
+        label: `${t("Пісня", "Canto")} ${cantoNumber}: ${cantoTitle}`
+      }]} />
 
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="text-4xl font-bold mb-4 text-center text-primary">
             {t("Пісня", "Canto")} {cantoNumber}: {cantoTitle}
           </h1>
-          {cantoDescription && <p className="text-lg text-muted-foreground">{cantoDescription}</p>}
+          {cantoDescription && <p className="text-lg text-muted-foreground text-center">{cantoDescription}</p>}
         </div>
 
         <div className="space-y-1">
-          {chapters && chapters.length > 0 ? (
-            chapters.map((chapter) => {
-              const chapterTitleUa = chapter.title_ua;
-              const chapterTitleEn = chapter.title_en;
-              const chapterNum = chapter.chapter_number; // Це вже просто номер глави (1, 2, 3...)
+          {chapters && chapters.length > 0 ? chapters.map(chapter => {
+          const chapterTitleUa = chapter.title_ua;
+          const chapterTitleEn = chapter.title_en;
+          const chapterNum = chapter.chapter_number; // Це вже просто номер глави (1, 2, 3...)
 
-              return dualLanguageMode ? (
-                // Side-by-side для chapters
-                <Link
-                  key={chapter.id}
-                  to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`}
-                  className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
-                >
+          return dualLanguageMode ?
+          // Side-by-side для chapters
+          <Link key={chapter.id} to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
@@ -128,14 +126,9 @@ export const CantoOverview = () => {
                       <span className="text-lg text-foreground">{chapterTitleEn}</span>
                     </div>
                   </div>
-                </Link>
-              ) : (
-                // Одна мова для chapters
-                <Link
-                  key={chapter.id}
-                  to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`}
-                  className="block py-3 px-4 transition-all hover:bg-primary/5 rounded"
-                >
+                </Link> :
+          // Одна мова для chapters
+          <Link key={chapter.id} to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-primary">
                       {t("Глава", "Chapter")} {chapterNum}
@@ -144,16 +137,10 @@ export const CantoOverview = () => {
                       {language === "ua" ? chapterTitleUa : chapterTitleEn}
                     </span>
                   </div>
-                </Link>
-              );
-            })
-          ) : (
-            <p className="text-center text-muted-foreground">{t("Ще немає глав", "No chapters yet")}</p>
-          )}
+                </Link>;
+        }) : <p className="text-center text-muted-foreground">{t("Ще немає глав", "No chapters yet")}</p>}
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default CantoOverview;
