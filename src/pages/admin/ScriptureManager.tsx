@@ -325,13 +325,9 @@ export default function ScriptureManager() {
             )}
             {selectedChapterId && (
               <Button asChild size="sm">
-                <Link
-                  to={`/admin/verses/new?chapterId=${selectedChapterId}`}
-                  target="_blank"
-                >
+                <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
                   <Plus className="w-4 h-4 mr-2" />
                   Додати вірш
-                  <ExternalLink className="w-3 h-3 ml-2" />
                 </Link>
               </Button>
             )}
