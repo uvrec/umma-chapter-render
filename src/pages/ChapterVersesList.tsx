@@ -325,7 +325,8 @@ export const ChapterVersesList = () => {
           </div>
 
           {/* Огляд глави */}
-          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && <div className="mb-8 rounded-lg border border-border bg-card p-6">
+          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
+            <div className="mb-8 rounded-lg border border-border bg-card p-6">
               {user && !isEditingContent && <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
