@@ -33,9 +33,6 @@ import { LectureView } from "./pages/library/LectureView";
 import { LettersLibrary } from "./pages/library/LettersLibrary";
 import { LetterView } from "./pages/library/LetterView";
 import { Audio } from "./pages/Audio";
-import { BhagavadGita } from "./pages/audiobooks/BhagavadGita";
-import { SrimadBhagavatam } from "./pages/audiobooks/SrimadBhagavatam";
-import { SriIsopanishad } from "./pages/audiobooks/SriIsopanishad";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
@@ -154,9 +151,6 @@ const App = () => (
                   <Route path="/audiobooks/:id" element={<AudiobookView />} />
                   <Route path="/audio/lectures" element={<Lectures />} />
                   <Route path="/audio/music" element={<Music />} />
-                  <Route path="/audiobooks/bhagavad-gita" element={<BhagavadGita />} />
-                  <Route path="/audiobooks/srimad-bhagavatam" element={<SrimadBhagavatam />} />
-                  <Route path="/audiobooks/sri-isopanishad" element={<SriIsopanishad />} />
 
                   {/* Блог/інше */}
                   <Route path="/blog" element={<Blog />} />
