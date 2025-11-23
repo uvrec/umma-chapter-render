@@ -17,6 +17,7 @@ import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { splitIntoParagraphs, alignParagraphs, Paragraph } from "@/utils/paragraphSync";
+
 export const ChapterVersesList = () => {
   const {
     bookId,
@@ -144,10 +145,20 @@ export const ChapterVersesList = () => {
     },
     enabled: !!fallbackChapter?.id
   });
-  const verses = versesMain && versesMain.length > 0 ? versesMain : versesFallback || [];
+
+  const versesRaw = useMemo(() =>
+    versesMain && versesMain.length > 0 ? versesMain : versesFallback || [],
+    [versesMain, versesFallback]
+  );
 
   // Приховуємо «порожні» вірші без перекладу (обидві мови порожні)
-  const versesFiltered = useMemo(() => (verses || []).filter((v: any) => v?.translation_ua && v.translation_ua.trim().length > 0 || v?.translation_en && v.translation_en.trim().length > 0), [verses]);
+  const verses = useMemo(() =>
+    (versesRaw || []).filter((v: any) =>
+      (v?.translation_ua && v.translation_ua.trim().length > 0) ||
+      (v?.translation_en && v.translation_en.trim().length > 0)
+    ),
+    [versesRaw]
+  );
 
   // Get adjacent chapters for navigation
   const {
@@ -233,29 +244,6 @@ export const ChapterVersesList = () => {
     }
   });
 
-  // Save chapter summary mutation (DISABLED - summary fields don't exist in DB)
-  // const saveSummaryMutation = useMutation({
-  //   mutationFn: async () => {
-  //     if (!effectiveChapterObj?.id) return;
-  //     const { error } = await supabase
-  //       .from("chapters")
-  //       .update({
-  //         summary_ua: editedSummaryUa,
-  //         summary_en: editedSummaryEn
-  //       })
-  //       .eq("id", effectiveChapterObj.id);
-  //     if (error) throw error;
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: ["chapter"] });
-  //     setIsEditingSummary(false);
-  //     toast({ title: language === "ua" ? "Summary збережено" : "Summary saved" });
-  //   },
-  //   onError: () => {
-  //     toast({ title: language === "ua" ? "Помилка збереження" : "Save error", variant: "destructive" });
-  //   }
-  // });
-
   // Initialize edited content when chapter loads
   useEffect(() => {
     if (effectiveChapterObj) {
@@ -263,6 +251,7 @@ export const ChapterVersesList = () => {
       setEditedContentEn(effectiveChapterObj.content_en || "");
     }
   }, [effectiveChapterObj]);
+
   const handleNavigate = (chapterNum: number) => {
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`);
@@ -270,8 +259,16 @@ export const ChapterVersesList = () => {
       navigate(`/veda-reader/${bookId}/${chapterNum}`);
     }
   };
+
+  // Reader text styles
+  const readerTextStyle = {
+    fontSize: `${fontSize}px`,
+    lineHeight: lineHeight
+  };
+
   if (isLoading) {
-    return <div className="flex min-h-screen flex-col">
+    return (
+      <div className="flex min-h-screen flex-col">
         <Header />
         <main className="flex-1 bg-background py-8">
           <div className="container mx-auto max-w-5xl px-4">
@@ -283,9 +280,12 @@ export const ChapterVersesList = () => {
           </div>
         </main>
         <Footer />
-      </div>;
+      </div>
+    );
   }
-  return <div className="flex min-h-screen flex-col">
+
+  return (
+    <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 bg-background py-4 sm:py-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
@@ -295,17 +295,21 @@ export const ChapterVersesList = () => {
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden xs:inline">Назад</span>
             </Button>
-            
+
             {/* Chapter Navigation - компактна на мобільних */}
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              {adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {adjacentChapters?.prev && (
+                <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <ChevronLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">{language === "ua" ? "Попередня" : "Previous"}</span>
-                </Button>}
-              {adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+                </Button>
+              )}
+              {adjacentChapters?.next && (
+                <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <span className="hidden sm:inline">{language === "ua" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
-                </Button>}
+                </Button>
+              )}
             </div>
           </div>
 
@@ -314,10 +318,12 @@ export const ChapterVersesList = () => {
             <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
-              {cantoTitle && <>
+              {cantoTitle && (
+                <>
                   <span className="flex-shrink-0">→</span>
                   <span className="truncate max-w-[200px] sm:max-w-none">{cantoTitle}</span>
-                </>}
+                </>
+              )}
             </div>
             <h1 className="text-xl sm:text-2xl font-bold break-words text-center md:text-4xl font-serif text-primary">
               {chapterTitle || `Глава ${chapter?.chapter_number}`}
@@ -327,12 +333,14 @@ export const ChapterVersesList = () => {
           {/* Огляд глави */}
           {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
             <div className="mb-8 rounded-lg border border-border bg-card p-6">
-              {user && !isEditingContent && <div className="mb-4 flex justify-end">
+              {user && !isEditingContent && (
+                <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
                     {language === "ua" ? "Редагувати" : "Edit"}
                   </Button>
-                </div>}
+                </div>
+              )}
 
               {isEditingContent ? (
                 <div className="space-y-4">
@@ -344,42 +352,59 @@ export const ChapterVersesList = () => {
                       {language === "ua" ? "Зберегти" : "Save"}
                     </Button>
                     <Button variant="outline" onClick={() => {
-                setIsEditingContent(false);
-                setEditedContentUa(effectiveChapterObj.content_ua || "");
-                setEditedContentEn(effectiveChapterObj.content_en || "");
-              }} className="gap-2">
+                      setIsEditingContent(false);
+                      setEditedContentUa(effectiveChapterObj.content_ua || "");
+                      setEditedContentEn(effectiveChapterObj.content_en || "");
+                    }} className="gap-2">
                       <X className="h-4 w-4" />
                       {language === "ua" ? "Скасувати" : "Cancel"}
                     </Button>
                   </div>
                 </div>
               ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
-                /* ✅ Двомовний режим для текстових глав - side-by-side з синхронізацією параграфів */
+                /* Двомовний режим для текстових глав - side-by-side з синхронізацією параграфів */
                 (() => {
-                  // Розбиваємо текст на параграфи (очищаємо від HTML тегів для розбиття)
-                  const stripHtml = (html: string) => {
-                    const div = document.createElement('div');
-                    div.innerHTML = html;
-                    return div.textContent || div.innerText || '';
+                  // Розбиваємо HTML на параграфи, зберігаючи форматування
+                  const splitHtmlIntoParagraphs = (html: string): string[] => {
+                    const sanitized = DOMPurify.sanitize(html);
+                    // Розбиваємо по <p>, <br>, або подвійних переносах рядків
+                    const parts = sanitized
+                      .replace(/<\/p>\s*<p>/gi, '</p>\n<p>')
+                      .replace(/<br\s*\/?>/gi, '\n')
+                      .split(/\n+/)
+                      .map(p => p.trim())
+                      .filter(p => p.length > 0);
+                    return parts;
                   };
-                  const paragraphsUa = splitIntoParagraphs(stripHtml(effectiveChapterObj.content_ua || ''));
-                  const paragraphsEn = splitIntoParagraphs(stripHtml(effectiveChapterObj.content_en || ''));
-                  const [alignedUa, alignedEn] = alignParagraphs(paragraphsUa, paragraphsEn);
+
+                  const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_ua || '');
+                  const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || '');
+
+                  // Вирівнюємо кількість параграфів
+                  const maxLen = Math.max(paragraphsUa.length, paragraphsEn.length);
+                  const alignedUa = [...paragraphsUa, ...Array(maxLen - paragraphsUa.length).fill('')];
+                  const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill('')];
 
                   return (
-                    <div className="space-y-4">
+                    <div className="space-y-4" style={readerTextStyle}>
                       {alignedUa.map((paraUa, idx) => {
                         const paraEn = alignedEn[idx];
                         return (
                           <div key={idx} className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0">
                             {/* Українська */}
-                            <div className="prose prose-slate dark:prose-invert max-w-none prose-reader">
-                              <p>{paraUa.text || <span className="italic text-muted-foreground">—</span>}</p>
-                            </div>
+                            <div
+                              className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                              dangerouslySetInnerHTML={{
+                                __html: paraUa || '<span class="italic text-muted-foreground">—</span>'
+                              }}
+                            />
                             {/* Англійська */}
-                            <div className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader">
-                              <p>{paraEn.text || <span className="italic text-muted-foreground">—</span>}</p>
-                            </div>
+                            <div
+                              className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
+                              dangerouslySetInnerHTML={{
+                                __html: paraEn || '<span class="italic text-muted-foreground">—</span>'
+                              }}
+                            />
                           </div>
                         );
                       })}
@@ -390,6 +415,7 @@ export const ChapterVersesList = () => {
                 /* Одномовний режим */
                 <div
                   className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                  style={readerTextStyle}
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
                       language === "ua"
@@ -405,66 +431,87 @@ export const ChapterVersesList = () => {
           {/* Список віршів */}
           {/* Режим суцільного тексту - без контейнерів, номерів, рамок */}
           {flowMode ? (
-        <div className="prose prose-lg max-w-none prose-reader">
-              {versesFiltered.map(verse => {
-            const text = language === "ua" ? verse.translation_ua : verse.translation_en;
-            return <p key={verse.id} className="text-foreground mb-6">
+            <div className="prose prose-lg max-w-none prose-reader" style={readerTextStyle}>
+              {verses.map((verse: any) => {
+                const text = language === "ua" ? verse.translation_ua : verse.translation_en;
+                return (
+                  <p key={verse.id} className="text-foreground mb-6">
                     {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
-                  </p>;
-          })}
+                  </p>
+                );
+              })}
             </div>
-          ) : ( // Звичайний режим
-        <div className="space-y-6">
-              {verses.map(verse => {
-            const translationUa = verse.translation_ua || "";
-            const translationEn = verse.translation_en || "";
-            return <div key={verse.id} className="space-y-3">
+          ) : (
+            // Звичайний режим
+            <div className="space-y-6">
+              {verses.map((verse: any) => {
+                const translationUa = verse.translation_ua || "";
+                const translationEn = verse.translation_en || "";
+                return (
+                  <div key={verse.id} className="space-y-3">
                     {/* Side-by-side якщо dualLanguageMode */}
-                    {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
+                    {dualLanguageMode ? (
+                      <div className="grid gap-6 md:grid-cols-2">
                         {/* Українська */}
                         <div className="space-y-3">
-                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                          {showNumbers && (
+                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               ВІРШ {verse.verse_number}
-                            </Link>}
-                          <p className="text-foreground prose-reader text-justify">
+                            </Link>
+                          )}
+                          <p className="text-foreground prose-reader text-justify" style={readerTextStyle}>
                             {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
 
                         {/* Англійська */}
                         <div className="space-y-3 border-l border-border pl-6">
-                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                          {showNumbers && (
+                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                               TEXT {verse.verse_number}
-                            </Link>}
-                          <p className="text-foreground prose-reader text-justify">
+                            </Link>
+                          )}
+                          <p className="text-foreground prose-reader text-justify" style={readerTextStyle}>
                             {translationEn || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
                       </div>
-                    : (
-              <div className="space-y-3">
-                        {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                    ) : (
+                      <div className="space-y-3">
+                        {showNumbers && (
+                          <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                          </Link>}
-                        <p className="text-foreground prose-reader">
-                          {language === "ua" ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span> : translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                          </Link>
+                        )}
+                        <p className="text-foreground prose-reader" style={readerTextStyle}>
+                          {language === "ua"
+                            ? (translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>)
+                            : (translationEn || <span className="italic text-muted-foreground">No translation</span>)
+                          }
                         </p>
-                      </div>)}
+                      </div>
+                    )}
 
                     {/* Невеликий відступ замість роздільної лінії */}
                     <div className="h-4" />
-                  </div>;
-          })}
-            </div>)}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
-          {verses.length === 0 && <div className="rounded-lg border border-dashed border-border p-12 text-center">
+          {verses.length === 0 && (
+            <div className="rounded-lg border border-dashed border-border p-12 text-center">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">У цій главі ще немає віршів</p>
-            </div>}
+            </div>
+          )}
 
           {/* Bottom Chapter Navigation */}
-          {(adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
-              {adjacentChapters?.prev ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-2">
+          {(adjacentChapters?.prev || adjacentChapters?.next) && (
+            <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
+              {adjacentChapters?.prev ? (
+                <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-2">
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">
                     <div className="text-xs text-muted-foreground">
@@ -474,9 +521,11 @@ export const ChapterVersesList = () => {
                       {language === "ua" ? adjacentChapters.prev.title_ua : adjacentChapters.prev.title_en}
                     </div>
                   </div>
-                </Button> : <div />}
-              
-              {adjacentChapters?.next ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-2">
+                </Button>
+              ) : <div />}
+
+              {adjacentChapters?.next ? (
+                <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-2">
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground">
                       {language === "ua" ? "Наступна глава" : "Next Chapter"}
@@ -486,10 +535,13 @@ export const ChapterVersesList = () => {
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4" />
-                </Button> : <div />}
-            </div>}
+                </Button>
+              ) : <div />}
+            </div>
+          )}
         </div>
       </main>
       <Footer />
-    </div>;
+    </div>
+  );
 };
