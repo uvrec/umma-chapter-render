@@ -134,6 +134,7 @@ const App = () => (
                   {/* Alias/redirects */}
                   <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
                   <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
+                  <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/bhagavatam" replace />} />
 
                   {/* Бібліотека */}
                   <Route path="/library" element={<Library />} />
