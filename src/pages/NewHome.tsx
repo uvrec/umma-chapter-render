@@ -468,6 +468,7 @@ export const NewHome = () => {
       <main>
         <Hero />
         <Header />
+        
         <LatestContent />
         <FeaturedBooks />
         <Playlists />

@@ -36,7 +36,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function ScriptureManager() {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,10 +58,10 @@ export default function ScriptureManager() {
   const [rangeInput, setRangeInput] = useState("");
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
+    if (!user || !isAdmin) {
       navigate("/auth");
     }
-  }, [user, isAdmin, loading, navigate]);
+  }, [user, isAdmin, navigate]);
 
   // Sync URL params when chapter selection changes
   useEffect(() => {
@@ -265,7 +265,7 @@ export default function ScriptureManager() {
 
   const selectedChapter = chapters?.find((ch) => ch.id === selectedChapterId);
 
-  if (loading || !user || !isAdmin) return null;
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="h-screen flex flex-col bg-background">

@@ -147,8 +147,6 @@ export function useDailyQuote() {
             chapter_id,
             translation_ua,
             translation_en,
-            sanskrit_ua,
-            transliteration_ua,
             chapter:chapters (
               id,
               chapter_number,
@@ -191,8 +189,6 @@ export function useDailyQuote() {
             chapter_id: verse.chapter_id,
             translation_ua: verse.translation_ua,
             translation_en: verse.translation_en,
-            sanskrit_ua: verse.sanskrit_ua,
-            transliteration_ua: verse.transliteration_ua,
             chapter: verse.chapter,
           },
           priority: 100,
@@ -204,7 +200,7 @@ export function useDailyQuote() {
         return null;
       }
     },
-    enabled: settings !== undefined && settings?.enabled !== false,
+    enabled: !!settings,
     retry: false,
     // Кешуємо на весь час життя компонента (щоб не перезавантажувати при ререндерах)
     staleTime: Infinity,
