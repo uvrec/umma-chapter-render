@@ -9,14 +9,12 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { splitIntoParagraphs, alignParagraphs, Paragraph } from "@/utils/paragraphSync";
 
 // Type for verse data
 interface Verse {
@@ -60,6 +58,7 @@ export const ChapterVersesList = () => {
   const [editedContentEn, setEditedContentEn] = useState("");
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
+
   const {
     data: book
   } = useQuery({
@@ -73,6 +72,7 @@ export const ChapterVersesList = () => {
       return data;
     }
   });
+
   const {
     data: canto
   } = useQuery({
@@ -88,6 +88,7 @@ export const ChapterVersesList = () => {
     },
     enabled: isCantoMode && !!book?.id && !!cantoNumber
   });
+
   const {
     data: chapter,
     isLoading: isLoadingChapter
@@ -123,13 +124,14 @@ export const ChapterVersesList = () => {
     },
     enabled: !!book?.id && !!effectiveChapterParam
   });
+
   const {
     data: versesMain = [],
     isLoading: isLoadingVersesMain
   } = useQuery({
     queryKey: ["chapter-verses-list", chapter?.id],
     queryFn: async () => {
-      if (!chapter?.id) return [] as any[];
+      if (!chapter?.id) return [] as Verse[];
       const {
         data,
         error
@@ -137,17 +139,18 @@ export const ChapterVersesList = () => {
         ascending: true
       });
       if (error) throw error;
-      return data || [];
+      return (data || []) as Verse[];
     },
     enabled: !!chapter?.id && 'id' in chapter
   });
+
   const {
     data: versesFallback = [],
     isLoading: isLoadingVersesFallback
   } = useQuery({
     queryKey: ["chapter-verses-fallback", fallbackChapter?.id],
     queryFn: async () => {
-      if (!fallbackChapter?.id) return [] as any[];
+      if (!fallbackChapter?.id) return [] as Verse[];
       const {
         data,
         error
@@ -155,7 +158,7 @@ export const ChapterVersesList = () => {
         ascending: true
       });
       if (error) throw error;
-      return data || [];
+      return (data || []) as Verse[];
     },
     enabled: !!fallbackChapter?.id
   });
@@ -210,13 +213,16 @@ export const ChapterVersesList = () => {
     },
     enabled: !!book?.id && !!effectiveChapterParam
   });
+
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
+
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
       return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
     }
     return `/veda-reader/${bookId}/${chapterNumber}/${verseNumber}`;
   };
+
   const handleBack = () => {
     if (isCantoMode) {
       navigate(`/veda-reader/${bookId}/canto/${cantoNumber}`);
@@ -224,6 +230,7 @@ export const ChapterVersesList = () => {
       navigate(`/veda-reader/${bookId}`);
     }
   };
+
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
   const cantoTitle = canto ? language === "ua" ? canto.title_ua : canto.title_en : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
@@ -387,10 +394,10 @@ export const ChapterVersesList = () => {
                     // Збираємо всі параграфи як окремі HTML блоки
                     const paragraphs: string[] = [];
                     div.childNodes.forEach(node => {
-                      if (node.nodeType === Node.ELEMENT_NODE) {
+                      if (node.nodeType === 1) { // ELEMENT_NODE
                         const el = node as HTMLElement;
                         // Якщо це блочний елемент - додаємо як є
-                        if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'UL', 'OL'].includes(el.tagName)) {
+                        if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'UL', 'OL', 'LI'].includes(el.tagName)) {
                           paragraphs.push(el.outerHTML);
                         } else if (el.tagName === 'BR') {
                           // BR пропускаємо, вони розділяють контент
@@ -398,7 +405,7 @@ export const ChapterVersesList = () => {
                           // Інші inline елементи загортаємо в <p>
                           paragraphs.push(`<p>${el.outerHTML}</p>`);
                         }
-                      } else if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+                      } else if (node.nodeType === 3 && node.textContent?.trim()) { // TEXT_NODE
                         paragraphs.push(`<p>${node.textContent.trim()}</p>`);
                       }
                     });
