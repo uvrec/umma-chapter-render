@@ -18,6 +18,20 @@ import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { splitIntoParagraphs, alignParagraphs, Paragraph } from "@/utils/paragraphSync";
 
+// Type for verse data
+interface Verse {
+  id: string;
+  verse_number: string;
+  sanskrit: string | null;
+  transliteration: string | null;
+  transliteration_en: string | null;
+  transliteration_ua: string | null;
+  translation_ua: string | null;
+  translation_en: string | null;
+  is_published: boolean;
+  deleted_at: string | null;
+}
+
 export const ChapterVersesList = () => {
   const {
     bookId,
@@ -153,7 +167,7 @@ export const ChapterVersesList = () => {
 
   // Приховуємо «порожні» вірші без перекладу (обидві мови порожні)
   const verses = useMemo(() =>
-    (versesRaw || []).filter((v: any) =>
+    (versesRaw || []).filter((v: Verse) =>
       (v?.translation_ua && v.translation_ua.trim().length > 0) ||
       (v?.translation_en && v.translation_en.trim().length > 0)
     ),
@@ -367,14 +381,34 @@ export const ChapterVersesList = () => {
                   // Розбиваємо HTML на параграфи, зберігаючи форматування
                   const splitHtmlIntoParagraphs = (html: string): string[] => {
                     const sanitized = DOMPurify.sanitize(html);
-                    // Розбиваємо по <p>, <br>, або подвійних переносах рядків
-                    const parts = sanitized
-                      .replace(/<\/p>\s*<p>/gi, '</p>\n<p>')
-                      .replace(/<br\s*\/?>/gi, '\n')
-                      .split(/\n+/)
-                      .map(p => p.trim())
-                      .filter(p => p.length > 0);
-                    return parts;
+                    const div = document.createElement('div');
+                    div.innerHTML = sanitized;
+
+                    // Збираємо всі параграфи як окремі HTML блоки
+                    const paragraphs: string[] = [];
+                    div.childNodes.forEach(node => {
+                      if (node.nodeType === Node.ELEMENT_NODE) {
+                        const el = node as HTMLElement;
+                        // Якщо це блочний елемент - додаємо як є
+                        if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'UL', 'OL'].includes(el.tagName)) {
+                          paragraphs.push(el.outerHTML);
+                        } else if (el.tagName === 'BR') {
+                          // BR пропускаємо, вони розділяють контент
+                        } else {
+                          // Інші inline елементи загортаємо в <p>
+                          paragraphs.push(`<p>${el.outerHTML}</p>`);
+                        }
+                      } else if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+                        paragraphs.push(`<p>${node.textContent.trim()}</p>`);
+                      }
+                    });
+
+                    // Якщо параграфів не знайшли - повертаємо весь контент як один параграф
+                    if (paragraphs.length === 0 && sanitized.trim()) {
+                      return [sanitized];
+                    }
+
+                    return paragraphs.filter(p => p.length > 0);
                   };
 
                   const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_ua || '');
@@ -432,7 +466,7 @@ export const ChapterVersesList = () => {
           {/* Режим суцільного тексту - без контейнерів, номерів, рамок */}
           {flowMode ? (
             <div className="prose prose-lg max-w-none prose-reader" style={readerTextStyle}>
-              {verses.map((verse: any) => {
+              {verses.map((verse: Verse) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
                   <p key={verse.id} className="text-foreground mb-6">
@@ -444,7 +478,7 @@ export const ChapterVersesList = () => {
           ) : (
             // Звичайний режим
             <div className="space-y-6">
-              {verses.map((verse: any) => {
+              {verses.map((verse: Verse) => {
                 const translationUa = verse.translation_ua || "";
                 const translationEn = verse.translation_en || "";
                 return (
