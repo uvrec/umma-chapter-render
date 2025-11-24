@@ -57,6 +57,28 @@ const CONSONANTS = new Set([
 const VIRAMA = '्';
 
 /**
+ * Retry helper with exponential backoff
+ */
+async function retry<T>(
+  fn: () => Promise<T>,
+  retries = 3,
+  baseDelayMs = 500
+): Promise<T> {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await fn();
+    } catch (err) {
+      attempt++;
+      if (attempt > retries) throw err;
+      const delay = baseDelayMs * Math.pow(2, attempt - 1);
+      console.log(`\n  Retry ${attempt}/${retries} after ${delay}ms...`);
+      await new Promise((res) => setTimeout(res, delay));
+    }
+  }
+}
+
+/**
  * Convert IAST to Devanagari
  */
 function iastToDevanagari(iast: string): string {
@@ -267,16 +289,18 @@ async function importLexicon() {
     batch.push(entry);
 
     if (batch.length >= BATCH_SIZE) {
-      const { error } = await supabase
-        .from('sanskrit_lexicon')
-        .upsert(batch, { onConflict: 'id' });
-
-      if (error) {
-        console.error(`Error inserting batch: ${error.message}`);
-        errors++;
-      } else {
+      try {
+        await retry(async () => {
+          const { error } = await supabase
+            .from('sanskrit_lexicon')
+            .upsert(batch, { onConflict: 'id' });
+          if (error) throw error;
+        });
         totalImported += batch.length;
         process.stdout.write(`\rImported: ${totalImported} entries...`);
+      } catch (err: any) {
+        console.error(`\nError inserting batch (id range ${batch[0].id} - ${batch[batch.length-1].id}): ${err.message || err}`);
+        errors++;
       }
 
       batch = [];
@@ -285,15 +309,17 @@ async function importLexicon() {
 
   // Insert remaining entries
   if (batch.length > 0) {
-    const { error } = await supabase
-      .from('sanskrit_lexicon')
-      .upsert(batch, { onConflict: 'id' });
-
-    if (error) {
-      console.error(`Error inserting final batch: ${error.message}`);
-      errors++;
-    } else {
+    try {
+      await retry(async () => {
+        const { error } = await supabase
+          .from('sanskrit_lexicon')
+          .upsert(batch, { onConflict: 'id' });
+        if (error) throw error;
+      });
       totalImported += batch.length;
+    } catch (err: any) {
+      console.error(`\nError inserting final batch (id range ${batch[0].id} - ${batch[batch.length-1].id}): ${err.message || err}`);
+      errors++;
     }
   }
 
