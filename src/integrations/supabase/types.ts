@@ -1241,39 +1241,6 @@ export type Database = {
         }
         Relationships: []
       }
-      sanskrit_lexicon: {
-        Row: {
-          id: number
-          word: string
-          word_devanagari: string | null
-          grammar: string | null
-          preverbs: string | null
-          meanings: string | null
-          word_normalized: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id: number
-          word: string
-          word_devanagari?: string | null
-          grammar?: string | null
-          preverbs?: string | null
-          meanings?: string | null
-          word_normalized?: string | null
-          created_at?: string | null
-        }
-        Update: {
-          id?: number
-          word?: string
-          word_devanagari?: string | null
-          grammar?: string | null
-          preverbs?: string | null
-          meanings?: string | null
-          word_normalized?: string | null
-          created_at?: string | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2192,37 +2159,6 @@ export type Database = {
           transliteration: string
           verse_id: string
           verse_number: string
-        }[]
-      }
-      search_sanskrit_lexicon: {
-        Args: {
-          search_term: string
-          search_mode?: string
-          grammar_filter?: string
-          result_limit?: number
-        }
-        Returns: {
-          id: number
-          word: string
-          word_devanagari: string
-          grammar: string
-          preverbs: string
-          meanings: string
-          relevance: number
-        }[]
-      }
-      search_sanskrit_by_meaning: {
-        Args: {
-          search_term: string
-          result_limit?: number
-        }
-        Returns: {
-          id: number
-          word: string
-          word_devanagari: string
-          grammar: string
-          meanings: string
-          relevance: number
         }[]
       }
       slugify: { Args: { "": string }; Returns: string }
