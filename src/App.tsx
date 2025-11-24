@@ -36,8 +36,6 @@ import { Audio } from "./pages/Audio";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
-import { OtherMethods } from "./pages/payment/OtherMethods";
-import { Donation } from "./pages/Donation";
 import { Glossary } from "./pages/Glossary";
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
@@ -168,10 +166,8 @@ const App = () => (
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
-                  <Route path="/donation" element={<Donation />} />
                   <Route path="/payment/card" element={<CardPayment />} />
                   <Route path="/payment/bank" element={<BankTransfer />} />
-                  <Route path="/payment/other" element={<OtherMethods />} />
 
                   {/* Auth */}
                   <Route path="/auth" element={<Auth />} />

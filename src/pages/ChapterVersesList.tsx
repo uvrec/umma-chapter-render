@@ -31,26 +31,12 @@ interface Verse {
 }
 
 export const ChapterVersesList = () => {
-  const {
-    bookId,
-    cantoNumber,
-    chapterNumber
-  } = useParams();
-  const {
-    language
-  } = useLanguage();
+  const { bookId, cantoNumber, chapterNumber } = useParams();
+  const { language } = useLanguage();
   const navigate = useNavigate();
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
-  const {
-    fontSize,
-    lineHeight,
-    dualLanguageMode,
-    showNumbers,
-    flowMode
-  } = useReaderSettings();
+  const { fontSize, lineHeight, dualLanguageMode, showNumbers, flowMode } = useReaderSettings();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -64,13 +50,14 @@ export const ChapterVersesList = () => {
   } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("books").select("id, slug, title_ua, title_en").eq("slug", bookId).maybeSingle();
+      const { data, error } = await supabase
+        .from("books")
+        .select("id, slug, title_ua, title_en")
+        .eq("slug", bookId)
+        .maybeSingle();
       if (error) throw error;
       return data;
-    }
+    },
   });
 
   const {
@@ -79,14 +66,16 @@ export const ChapterVersesList = () => {
     queryKey: ["canto", book?.id, cantoNumber],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("cantos").select("id, canto_number, title_ua, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      const { data, error } = await supabase
+        .from("cantos")
+        .select("id, canto_number, title_ua, title_en")
+        .eq("book_id", book.id)
+        .eq("canto_number", parseInt(cantoNumber))
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: isCantoMode && !!book?.id && !!cantoNumber
+    enabled: isCantoMode && !!book?.id && !!cantoNumber,
   });
 
   const {
@@ -96,33 +85,33 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en, content_ua, content_en").eq("chapter_number", parseInt(effectiveChapterParam as string));
+      const base = supabase
+        .from("chapters")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
+        .eq("chapter_number", parseInt(effectiveChapterParam as string));
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
-      const {
-        data,
-        error
-      } = await query.maybeSingle();
+      const { data, error } = await query.maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id)
+    enabled: !!effectiveChapterParam && (isCantoMode ? !!canto?.id : !!book?.id),
   });
 
-  // Fallback: if canto-based chapter has no verses yet, also look for legacy book-only chapter
-  const {
-    data: fallbackChapter
-  } = useQuery({
+  const { data: fallbackChapter } = useQuery({
     queryKey: ["fallback-chapter", book?.id, effectiveChapterParam],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const {
-        data,
-        error
-      } = await supabase.from("chapters").select("id, chapter_number, title_ua, title_en, content_ua, content_en").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam as string)).is("canto_id", null).maybeSingle();
+      const { data, error } = await supabase
+        .from("chapters")
+        .select("id, chapter_number, title_ua, title_en, content_ua, content_en")
+        .eq("book_id", book.id)
+        .eq("chapter_number", parseInt(effectiveChapterParam as string))
+        .is("canto_id", null)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!book?.id && !!effectiveChapterParam
+    enabled: !!book?.id && !!effectiveChapterParam,
   });
 
   const {
@@ -141,7 +130,7 @@ export const ChapterVersesList = () => {
       if (error) throw error;
       return (data || []) as Verse[];
     },
-    enabled: !!chapter?.id && 'id' in chapter
+    enabled: !!chapter?.id && "id" in chapter,
   });
 
   const {
@@ -160,58 +149,53 @@ export const ChapterVersesList = () => {
       if (error) throw error;
       return (data || []) as Verse[];
     },
-    enabled: !!fallbackChapter?.id
+    enabled: !!fallbackChapter?.id,
   });
 
-  const versesRaw = useMemo(() =>
-    versesMain && versesMain.length > 0 ? versesMain : versesFallback || [],
-    [versesMain, versesFallback]
+  const versesRaw = useMemo(
+    () => (versesMain && versesMain.length > 0 ? versesMain : versesFallback || []),
+    [versesMain, versesFallback],
   );
 
-  // Приховуємо «порожні» вірші без перекладу (обидві мови порожні)
-  const verses = useMemo(() =>
-    (versesRaw || []).filter((v: Verse) =>
-      (v?.translation_ua && v.translation_ua.trim().length > 0) ||
-      (v?.translation_en && v.translation_en.trim().length > 0)
-    ),
-    [versesRaw]
+  const verses = useMemo(
+    () =>
+      (versesRaw || []).filter(
+        (v: Verse) =>
+          (v?.translation_ua && v.translation_ua.trim().length > 0) ||
+          (v?.translation_en && v.translation_en.trim().length > 0),
+      ),
+    [versesRaw],
   );
 
-  // Get adjacent chapters for navigation
-  const {
-    data: adjacentChapters
-  } = useQuery({
+  const { data: adjacentChapters } = useQuery({
     queryKey: ["adjacent-chapters", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     queryFn: async () => {
-      if (!book?.id || !effectiveChapterParam) return {
-        prev: null,
-        next: null
-      };
+      if (!book?.id || !effectiveChapterParam)
+        return {
+          prev: null,
+          next: null,
+        };
       const currentNum = parseInt(effectiveChapterParam as string);
       const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en");
       if (isCantoMode && canto?.id) {
-        const {
-          data
-        } = await base.eq("canto_id", canto.id).order("chapter_number");
+        const { data } = await base.eq("canto_id", canto.id).order("chapter_number");
         const chapters = data || [];
-        const currentIdx = chapters.findIndex(c => c.chapter_number === currentNum);
+        const currentIdx = chapters.findIndex((c) => c.chapter_number === currentNum);
         return {
           prev: currentIdx > 0 ? chapters[currentIdx - 1] : null,
-          next: currentIdx < chapters.length - 1 ? chapters[currentIdx + 1] : null
+          next: currentIdx < chapters.length - 1 ? chapters[currentIdx + 1] : null,
         };
       } else {
-        const {
-          data
-        } = await base.eq("book_id", book.id).is("canto_id", null).order("chapter_number");
+        const { data } = await base.eq("book_id", book.id).is("canto_id", null).order("chapter_number");
         const chapters = data || [];
-        const currentIdx = chapters.findIndex(c => c.chapter_number === currentNum);
+        const currentIdx = chapters.findIndex((c) => c.chapter_number === currentNum);
         return {
           prev: currentIdx > 0 ? chapters[currentIdx - 1] : null,
-          next: currentIdx < chapters.length - 1 ? chapters[currentIdx + 1] : null
+          next: currentIdx < chapters.length - 1 ? chapters[currentIdx + 1] : null,
         };
       }
     },
-    enabled: !!book?.id && !!effectiveChapterParam
+    enabled: !!book?.id && !!effectiveChapterParam,
   });
 
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
@@ -232,40 +216,44 @@ export const ChapterVersesList = () => {
   };
 
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const cantoTitle = canto ? language === "ua" ? canto.title_ua : canto.title_en : null;
+  const cantoTitle = canto ? (language === "ua" ? canto.title_ua : canto.title_en) : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj && 'title_ua' in effectiveChapterObj ? language === "ua" ? effectiveChapterObj.title_ua : effectiveChapterObj.title_en : null;
+  const chapterTitle =
+    effectiveChapterObj && "title_ua" in effectiveChapterObj
+      ? language === "ua"
+        ? effectiveChapterObj.title_ua
+        : effectiveChapterObj.title_en
+      : null;
 
-  // Save chapter content mutation
   const saveContentMutation = useMutation({
     mutationFn: async () => {
-      if (!effectiveChapterObj || !('id' in effectiveChapterObj)) return;
-      const {
-        error
-      } = await supabase.from("chapters").update({
-        content_ua: editedContentUa,
-        content_en: editedContentEn
-      }).eq("id", effectiveChapterObj.id);
+      if (!effectiveChapterObj || !("id" in effectiveChapterObj)) return;
+      const { error } = await supabase
+        .from("chapters")
+        .update({
+          content_ua: editedContentUa,
+          content_en: editedContentEn,
+        })
+        .eq("id", effectiveChapterObj.id);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["chapter"]
+        queryKey: ["chapter"],
       });
       setIsEditingContent(false);
       toast({
-        title: "Зміни збережено"
+        title: "Зміни збережено",
       });
     },
     onError: () => {
       toast({
         title: "Помилка збереження",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
-  // Initialize edited content when chapter loads
   useEffect(() => {
     if (effectiveChapterObj) {
       setEditedContentUa(effectiveChapterObj.content_ua || "");
@@ -281,10 +269,9 @@ export const ChapterVersesList = () => {
     }
   };
 
-  // Reader text styles
   const readerTextStyle = {
     fontSize: `${fontSize}px`,
-    lineHeight: lineHeight
+    lineHeight: lineHeight,
   };
 
   if (isLoading) {
@@ -296,7 +283,9 @@ export const ChapterVersesList = () => {
             <Skeleton className="mb-4 h-8 w-48" />
             <Skeleton className="mb-8 h-12 w-96" />
             <div className="space-y-4">
-              {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-32 w-full" />
+              ))}
             </div>
           </div>
         </main>
@@ -310,23 +299,31 @@ export const ChapterVersesList = () => {
       <Header />
       <main className="flex-1 bg-background py-4 sm:py-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
-          {/* Навігація - адаптивна */}
           <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
             <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden xs:inline">Назад</span>
             </Button>
 
-            {/* Chapter Navigation - компактна на мобільних */}
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {adjacentChapters?.prev && (
-                <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)}
+                  className="gap-1 flex-1 sm:flex-none"
+                >
                   <ChevronLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">{language === "ua" ? "Попередня" : "Previous"}</span>
                 </Button>
               )}
               {adjacentChapters?.next && (
-                <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleNavigate(adjacentChapters.next.chapter_number)}
+                  className="gap-1 flex-1 sm:flex-none"
+                >
                   <span className="hidden sm:inline">{language === "ua" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -334,7 +331,6 @@ export const ChapterVersesList = () => {
             </div>
           </div>
 
-          {/* Заголовок - адаптивний */}
           <div className="mb-6 sm:mb-8">
             <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -351,7 +347,6 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {/* Огляд глави */}
           {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
             <div className="mb-8 rounded-lg border border-border bg-card p-6">
               {user && !isEditingContent && (
@@ -368,30 +363,35 @@ export const ChapterVersesList = () => {
                   <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
                   <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
                   <div className="flex gap-2">
-                    <Button onClick={() => saveContentMutation.mutate()} disabled={saveContentMutation.isPending} className="gap-2">
+                    <Button
+                      onClick={() => saveContentMutation.mutate()}
+                      disabled={saveContentMutation.isPending}
+                      className="gap-2"
+                    >
                       <Save className="h-4 w-4" />
                       {language === "ua" ? "Зберегти" : "Save"}
                     </Button>
-                    <Button variant="outline" onClick={() => {
-                      setIsEditingContent(false);
-                      setEditedContentUa(effectiveChapterObj.content_ua || "");
-                      setEditedContentEn(effectiveChapterObj.content_en || "");
-                    }} className="gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditingContent(false);
+                        setEditedContentUa(effectiveChapterObj.content_ua || "");
+                        setEditedContentEn(effectiveChapterObj.content_en || "");
+                      }}
+                      className="gap-2"
+                    >
                       <X className="h-4 w-4" />
                       {language === "ua" ? "Скасувати" : "Cancel"}
                     </Button>
                   </div>
                 </div>
               ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
-                /* Двомовний режим для текстових глав - side-by-side з синхронізацією параграфів */
                 (() => {
-                  // Розбиваємо HTML на параграфи, зберігаючи форматування
                   const splitHtmlIntoParagraphs = (html: string): string[] => {
                     const sanitized = DOMPurify.sanitize(html);
-                    const div = document.createElement('div');
+                    const div = document.createElement("div");
                     div.innerHTML = sanitized;
 
-                    // Збираємо всі параграфи як окремі HTML блоки
                     const paragraphs: string[] = [];
                     div.childNodes.forEach(node => {
                       if (node.nodeType === 1) { // ELEMENT_NODE
@@ -399,10 +399,9 @@ export const ChapterVersesList = () => {
                         // Якщо це блочний елемент - додаємо як є
                         if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'UL', 'OL', 'LI'].includes(el.tagName)) {
                           paragraphs.push(el.outerHTML);
-                        } else if (el.tagName === 'BR') {
-                          // BR пропускаємо, вони розділяють контент
+                        } else if (el.tagName === "BR") {
+                          // BR пропускаємо
                         } else {
-                          // Інші inline елементи загортаємо в <p>
                           paragraphs.push(`<p>${el.outerHTML}</p>`);
                         }
                       } else if (node.nodeType === 3 && node.textContent?.trim()) { // TEXT_NODE
@@ -410,40 +409,40 @@ export const ChapterVersesList = () => {
                       }
                     });
 
-                    // Якщо параграфів не знайшли - повертаємо весь контент як один параграф
                     if (paragraphs.length === 0 && sanitized.trim()) {
                       return [sanitized];
                     }
 
-                    return paragraphs.filter(p => p.length > 0);
+                    return paragraphs.filter((p) => p.length > 0);
                   };
 
-                  const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_ua || '');
-                  const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || '');
+                  const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_ua || "");
+                  const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || "");
 
-                  // Вирівнюємо кількість параграфів
+                  // Вирівнювання: довший переклад (зазвичай УКР) задає довжину
                   const maxLen = Math.max(paragraphsUa.length, paragraphsEn.length);
-                  const alignedUa = [...paragraphsUa, ...Array(maxLen - paragraphsUa.length).fill('')];
-                  const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill('')];
+                  const alignedUa = [...paragraphsUa, ...Array(maxLen - paragraphsUa.length).fill("")];
+                  const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill("")];
 
                   return (
                     <div className="space-y-4" style={readerTextStyle}>
                       {alignedUa.map((paraUa, idx) => {
                         const paraEn = alignedEn[idx];
                         return (
-                          <div key={idx} className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0">
-                            {/* Українська */}
+                          <div
+                            key={idx}
+                            className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0"
+                          >
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                               dangerouslySetInnerHTML={{
-                                __html: paraUa || '<span class="italic text-muted-foreground">—</span>'
+                                __html: paraUa || '<span class="italic text-muted-foreground">—</span>',
                               }}
                             />
-                            {/* Англійська */}
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
                               dangerouslySetInnerHTML={{
-                                __html: paraEn || '<span class="italic text-muted-foreground">—</span>'
+                                __html: paraEn || '<span class="italic text-muted-foreground">—</span>',
                               }}
                             />
                           </div>
@@ -453,50 +452,51 @@ export const ChapterVersesList = () => {
                   );
                 })()
               ) : (
-                /* Одномовний режим */
                 <div
                   className="prose prose-slate dark:prose-invert max-w-none prose-reader"
                   style={readerTextStyle}
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
                       language === "ua"
-                        ? (effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "")
-                        : (effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
-                    )
+                        ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || ""
+                        : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "",
+                    ),
                   }}
                 />
               )}
             </div>
           )}
 
-          {/* Список віршів */}
-          {/* Режим суцільного тексту - без контейнерів, номерів, рамок */}
           {flowMode ? (
             <div className="prose prose-lg max-w-none prose-reader" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
                   <p key={verse.id} className="text-foreground mb-6">
-                    {text || <span className="italic text-muted-foreground">{language === "ua" ? "Немає перекладу" : "No translation"}</span>}
+                    {text || (
+                      <span className="italic text-muted-foreground">
+                        {language === "ua" ? "Немає перекладу" : "No translation"}
+                      </span>
+                    )}
                   </p>
                 );
               })}
             </div>
           ) : (
-            // Звичайний режим
             <div className="space-y-6">
               {verses.map((verse: Verse) => {
                 const translationUa = verse.translation_ua || "";
                 const translationEn = verse.translation_en || "";
                 return (
                   <div key={verse.id} className="space-y-3">
-                    {/* Side-by-side якщо dualLanguageMode */}
                     {dualLanguageMode ? (
                       <div className="grid gap-6 md:grid-cols-2">
-                        {/* Українська */}
                         <div className="space-y-3">
                           {showNumbers && (
-                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                            <Link
+                              to={getVerseUrl(verse.verse_number)}
+                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                            >
                               ВІРШ {verse.verse_number}
                             </Link>
                           )}
@@ -505,10 +505,12 @@ export const ChapterVersesList = () => {
                           </p>
                         </div>
 
-                        {/* Англійська */}
                         <div className="space-y-3 border-l border-border pl-6">
                           {showNumbers && (
-                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                            <Link
+                              to={getVerseUrl(verse.verse_number)}
+                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                            >
                               TEXT {verse.verse_number}
                             </Link>
                           )}
@@ -520,20 +522,21 @@ export const ChapterVersesList = () => {
                     ) : (
                       <div className="space-y-3">
                         {showNumbers && (
-                          <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                          <Link
+                            to={getVerseUrl(verse.verse_number)}
+                            className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+                          >
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                           </Link>
                         )}
                         <p className="text-foreground prose-reader" style={readerTextStyle}>
                           {language === "ua"
-                            ? (translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>)
-                            : (translationEn || <span className="italic text-muted-foreground">No translation</span>)
-                          }
+                            ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
+                            : translationEn || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>
                     )}
 
-                    {/* Невеликий відступ замість роздільної лінії */}
                     <div className="h-4" />
                   </div>
                 );
@@ -548,11 +551,14 @@ export const ChapterVersesList = () => {
             </div>
           )}
 
-          {/* Bottom Chapter Navigation */}
           {(adjacentChapters?.prev || adjacentChapters?.next) && (
             <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
               {adjacentChapters?.prev ? (
-                <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)}
+                  className="gap-2"
+                >
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">
                     <div className="text-xs text-muted-foreground">
@@ -563,10 +569,16 @@ export const ChapterVersesList = () => {
                     </div>
                   </div>
                 </Button>
-              ) : <div />}
+              ) : (
+                <div />
+              )}
 
               {adjacentChapters?.next ? (
-                <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => handleNavigate(adjacentChapters.next.chapter_number)}
+                  className="gap-2"
+                >
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground">
                       {language === "ua" ? "Наступна глава" : "Next Chapter"}
@@ -577,7 +589,9 @@ export const ChapterVersesList = () => {
                   </div>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-              ) : <div />}
+              ) : (
+                <div />
+              )}
             </div>
           )}
         </div>
