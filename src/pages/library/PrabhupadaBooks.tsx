@@ -27,7 +27,7 @@ const prabhupadaBooks: Book[] = [
     description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
     price: "595 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/srimad-bhagavatam/canto/1",
+    verseLink: "/veda-reader/bhagavatam/canto/1",
     coverImage: srimadBhagavatam1Cover,
     purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
   },
@@ -149,9 +149,9 @@ export const PrabhupadaBooks = () => {
                       </Link>
                     )}
                     <Link to={
-                        book.id === 'sb-1-1' ? '/audiobooks/srimad-bhagavatam' :
-                        book.id === 'bg' ? '/audiobooks/bhagavad-gita' :
-                        book.id === 'iso' ? '/audiobooks/sri-isopanishad' :
+                        book.id === 'sb-1-1' ? '/audiobooks/bhagavatam' :
+                        book.id === 'bg' ? '/audiobooks/gita' :
+                        book.id === 'iso' ? '/audiobooks/iso' :
                         '/audio/audiobooks'
                       }>
                       <Badge variant="secondary" className="hover:bg-secondary/80 transition-colors cursor-pointer">

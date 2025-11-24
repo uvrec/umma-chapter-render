@@ -45,7 +45,9 @@ export const ChapterVersesList = () => {
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
 
-  const { data: book } = useQuery({
+  const {
+    data: book
+  } = useQuery({
     queryKey: ["book", bookId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -58,7 +60,9 @@ export const ChapterVersesList = () => {
     },
   });
 
-  const { data: canto } = useQuery({
+  const {
+    data: canto
+  } = useQuery({
     queryKey: ["canto", book?.id, cantoNumber],
     queryFn: async () => {
       if (!book?.id || !cantoNumber) return null;
@@ -74,7 +78,10 @@ export const ChapterVersesList = () => {
     enabled: isCantoMode && !!book?.id && !!cantoNumber,
   });
 
-  const { data: chapter, isLoading: isLoadingChapter } = useQuery({
+  const {
+    data: chapter,
+    isLoading: isLoadingChapter
+  } = useQuery({
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
@@ -107,44 +114,40 @@ export const ChapterVersesList = () => {
     enabled: !!book?.id && !!effectiveChapterParam,
   });
 
-  const { data: versesMain = [], isLoading: isLoadingVersesMain } = useQuery({
+  const {
+    data: versesMain = [],
+    isLoading: isLoadingVersesMain
+  } = useQuery({
     queryKey: ["chapter-verses-list", chapter?.id],
     queryFn: async () => {
-      if (!chapter?.id) return [] as any[];
-      const { data, error } = await supabase
-        .from("verses")
-        .select(
-          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at",
-        )
-        .eq("chapter_id", chapter.id)
-        .is("deleted_at", null)
-        .eq("is_published", true)
-        .order("sort_key", {
-          ascending: true,
-        });
+      if (!chapter?.id) return [] as Verse[];
+      const {
+        data,
+        error
+      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at").eq("chapter_id", chapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+        ascending: true
+      });
       if (error) throw error;
-      return data || [];
+      return (data || []) as Verse[];
     },
     enabled: !!chapter?.id && "id" in chapter,
   });
 
-  const { data: versesFallback = [], isLoading: isLoadingVersesFallback } = useQuery({
+  const {
+    data: versesFallback = [],
+    isLoading: isLoadingVersesFallback
+  } = useQuery({
     queryKey: ["chapter-verses-fallback", fallbackChapter?.id],
     queryFn: async () => {
-      if (!fallbackChapter?.id) return [] as any[];
-      const { data, error } = await supabase
-        .from("verses")
-        .select(
-          "id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at",
-        )
-        .eq("chapter_id", fallbackChapter.id)
-        .is("deleted_at", null)
-        .eq("is_published", true)
-        .order("sort_key", {
-          ascending: true,
-        });
+      if (!fallbackChapter?.id) return [] as Verse[];
+      const {
+        data,
+        error
+      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at").eq("chapter_id", fallbackChapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+        ascending: true
+      });
       if (error) throw error;
-      return data || [];
+      return (data || []) as Verse[];
     },
     enabled: !!fallbackChapter?.id,
   });
@@ -390,23 +393,18 @@ export const ChapterVersesList = () => {
                     div.innerHTML = sanitized;
 
                     const paragraphs: string[] = [];
-                    div.childNodes.forEach((node) => {
-                      if (node.nodeType === 1) {
-                        // ELEMENT_NODE
+                    div.childNodes.forEach(node => {
+                      if (node.nodeType === 1) { // ELEMENT_NODE
                         const el = node as HTMLElement;
-                        if (
-                          ["P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "UL", "OL", "LI"].includes(
-                            el.tagName,
-                          )
-                        ) {
+                        // Якщо це блочний елемент - додаємо як є
+                        if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'BLOCKQUOTE', 'UL', 'OL', 'LI'].includes(el.tagName)) {
                           paragraphs.push(el.outerHTML);
                         } else if (el.tagName === "BR") {
                           // BR пропускаємо
                         } else {
                           paragraphs.push(`<p>${el.outerHTML}</p>`);
                         }
-                      } else if (node.nodeType === 3 && node.textContent?.trim()) {
-                        // TEXT_NODE
+                      } else if (node.nodeType === 3 && node.textContent?.trim()) { // TEXT_NODE
                         paragraphs.push(`<p>${node.textContent.trim()}</p>`);
                       }
                     });

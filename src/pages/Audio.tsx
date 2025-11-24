@@ -195,7 +195,7 @@ export const Audio = () => {
                 </p>
                 <div className="flex gap-2">
                   <Button asChild size="sm" className="flex-1">
-                    <Link to="/audiobooks/bhagavad-gita">
+                    <Link to="/audiobooks/gita">
                       <Play className="w-4 h-4 mr-1" />
                       Аудіокнига
                     </Link>
@@ -235,7 +235,7 @@ export const Audio = () => {
                 </p>
                 <div className="flex gap-2">
                   <Button asChild size="sm" className="flex-1">
-                    <Link to="/audiobooks/srimad-bhagavatam">
+                    <Link to="/audiobooks/bhagavatam">
                       <Play className="w-4 h-4 mr-1" />
                       Аудіокнига
                     </Link>
@@ -274,7 +274,7 @@ export const Audio = () => {
                 </p>
                 <div className="flex gap-2">
                   <Button asChild size="sm" className="flex-1">
-                    <Link to="/audiobooks/sri-isopanishad">
+                    <Link to="/audiobooks/iso">
                       <Play className="w-4 h-4 mr-1" />
                       Аудіокнига
                     </Link>

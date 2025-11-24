@@ -43,11 +43,15 @@ function formatDuration(seconds?: number | null) {
 export const AudiobookView = () => {
   const { id } = useParams<{ id: string }>();
 
+  // Check if id is a UUID or a slug
+  const isUUID = id ? /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) : false;
+
   const { data: audiobook, isLoading } = useQuery({
     queryKey: ["audiobook", id],
     enabled: !!id,
     queryFn: async (): Promise<Playlist | null> => {
-      const { data, error } = await supabase
+      // Build query based on whether we have a UUID or slug
+      let query = supabase
         .from("audio_playlists")
         .select(
           `
@@ -55,10 +59,17 @@ export const AudiobookView = () => {
           tracks:audio_tracks(*)
         `,
         )
-        .eq("id", id)
         .eq("is_published", true)
-        .order("track_number", { foreignTable: "audio_tracks", ascending: true })
-        .maybeSingle();
+        .order("track_number", { foreignTable: "audio_tracks", ascending: true });
+
+      // Search by id or slug
+      if (isUUID) {
+        query = query.eq("id", id);
+      } else {
+        query = query.eq("slug", id);
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
       if (!data) return null;
