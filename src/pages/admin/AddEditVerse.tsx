@@ -19,7 +19,7 @@ export default function AddEditVerse() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const [selectedBookId, setSelectedBookId] = useState(searchParams.get("bookId") || "");

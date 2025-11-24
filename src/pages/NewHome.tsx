@@ -215,7 +215,8 @@ function LatestContent() {
 
   // Останні треки
   const {
-    data: audioTracks
+    data: audioTracks,
+    isError: audioError
   } = useQuery({
     queryKey: ["latest-audio"],
     queryFn: async () => {
@@ -242,14 +243,18 @@ function LatestContent() {
         `).eq("audio_playlists.is_published", true).order("created_at", {
         ascending: false
       }).limit(3);
-      if (error) throw error;
+      if (error) {
+        console.error("[LatestContent] Failed to fetch audio tracks:", error);
+        throw error;
+      }
       return data as any[];
     }
   });
 
   // Останні пости блогу
   const {
-    data: blogPosts
+    data: blogPosts,
+    isError: blogError
   } = useQuery({
     queryKey: ["latest-blog"],
     queryFn: async () => {
@@ -259,7 +264,10 @@ function LatestContent() {
       } = await supabase.from("blog_posts").select("id, title_ua, excerpt_ua, slug, created_at, read_time").eq("is_published", true).order("published_at", {
         ascending: false
       }).limit(3);
-      if (error) throw error;
+      if (error) {
+        console.error("[LatestContent] Failed to fetch blog posts:", error);
+        throw error;
+      }
       return data as any[];
     }
   });
@@ -293,6 +301,18 @@ function LatestContent() {
     duration: post.read_time ? `${post.read_time} хв` : undefined,
     created_at: post.created_at
   })) || [])].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 6);
+
+  // Empty state if no content or both queries failed
+  if ((audioError && blogError) || latestContent.length === 0) {
+    console.warn("[LatestContent] No content available or both queries failed");
+    return <section className="mx-auto w-full max-w-6xl px-4 py-10">
+        <h2 className="font-serif text-2xl font-semibold sm:text-3xl mb-6">Останні додані</h2>
+        <div className="text-center py-8 text-muted-foreground">
+          <p>Контент скоро з'явиться</p>
+        </div>
+      </section>;
+  }
+
   return <section className="mx-auto w-full max-w-6xl px-4 py-10">
       {/* Responsive header - стек на мобільних */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -355,18 +375,30 @@ function FeaturedBooks() {
   } = useLanguage();
   const {
     data: books = [],
-    isLoading
+    isLoading,
+    isError,
+    error
   } = useQuery({
     queryKey: ["featured-books"],
     queryFn: async () => {
+      console.log("[FeaturedBooks] Fetching books from database...");
       const {
         data,
         error
-      } = await supabase.from("books").select("id, slug, title_ua, title_en, cover_image_url").eq("is_published", true).order("display_order").limit(4);
-      if (error) throw error;
-      return data;
+      } = await supabase.from("books").select("id, slug, title_ua, title_en, cover_image_url, is_published, display_order").eq("is_published", true).order("display_order", {
+        ascending: true,
+        nullsFirst: false
+      }).limit(4);
+      if (error) {
+        console.error("[FeaturedBooks] Failed to fetch books:", error);
+        throw error;
+      }
+      console.log("[FeaturedBooks] Successfully fetched books:", data);
+      return data || [];
     }
   });
+
+  // Loading state
   if (isLoading) {
     return <section className="mx-auto w-full max-w-6xl px-4 py-10">
         <h2 className="mb-6 font-serif text-3xl font-semibold">Бібліотека</h2>
@@ -375,6 +407,34 @@ function FeaturedBooks() {
               <div className="aspect-[2/3] w-full rounded-lg bg-muted animate-pulse" />
               <div className="h-4 w-3/4 mx-auto bg-muted animate-pulse rounded" />
             </div>)}
+        </div>
+      </section>;
+  }
+
+  // Error state
+  if (isError) {
+    console.error("[FeaturedBooks] Error loading books:", error);
+    return <section className="mx-auto w-full max-w-6xl px-4 py-10">
+        <h2 className="mb-6 font-serif text-2xl font-semibold sm:text-3xl">Бібліотека</h2>
+        <div className="text-center py-8 text-muted-foreground">
+          <p>Не вдалося завантажити книги. Спробуйте оновити сторінку.</p>
+          <Button variant="outline" className="mt-4" asChild>
+            <a href="/library">Перейти до бібліотеки</a>
+          </Button>
+        </div>
+      </section>;
+  }
+
+  // Empty state
+  if (!books || books.length === 0) {
+    console.warn("[FeaturedBooks] No published books found in database");
+    return <section className="mx-auto w-full max-w-6xl px-4 py-10">
+        <h2 className="mb-6 font-serif text-2xl font-semibold sm:text-3xl">Бібліотека</h2>
+        <div className="text-center py-8 text-muted-foreground">
+          <p>Книги скоро з'являться</p>
+          <Button variant="outline" className="mt-4" asChild>
+            <a href="/library">Перейти до бібліотеки</a>
+          </Button>
         </div>
       </section>;
   }
