@@ -21,6 +21,7 @@ import {
   FileText,
   CheckSquare,
   Square,
+  Columns2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -41,9 +42,7 @@ export default function ScriptureManager() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
-    searchParams.get("chapterId")
-  );
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(searchParams.get("chapterId"));
   const [selectedVerseId, setSelectedVerseId] = useState<string | null>(null);
   const [isCreatingVerse, setIsCreatingVerse] = useState(false);
   const [deleteVerseId, setDeleteVerseId] = useState<{
@@ -73,10 +72,7 @@ export default function ScriptureManager() {
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("books")
-        .select("*")
-        .order("title_ua");
+      const { data, error } = await supabase.from("books").select("*").order("title_ua");
       if (error) throw error;
       return data;
     },
@@ -86,10 +82,7 @@ export default function ScriptureManager() {
   const { data: cantos } = useQuery({
     queryKey: ["admin-cantos"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cantos")
-        .select("*")
-        .order("book_id, canto_number");
+      const { data, error } = await supabase.from("cantos").select("*").order("book_id, canto_number");
       if (error) throw error;
       return data;
     },
@@ -127,10 +120,7 @@ export default function ScriptureManager() {
 
   const togglePublishMutation = useMutation({
     mutationFn: async ({ id, isPublished }: { id: string; isPublished: boolean }) => {
-      const { error } = await supabase
-        .from("verses")
-        .update({ is_published: !isPublished })
-        .eq("id", id);
+      const { error } = await supabase.from("verses").update({ is_published: !isPublished }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -185,9 +175,7 @@ export default function ScriptureManager() {
       setBulkDeleteMode(false);
     },
     onError: (error: any, variables) => {
-      toast.error(
-        `Помилка при масовому видаленні (${variables.count} віршів): ${error?.message || ""}`
-      );
+      toast.error(`Помилка при масовому видаленні (${variables.count} віршів): ${error?.message || ""}`);
     },
   });
 
@@ -297,9 +285,7 @@ export default function ScriptureManager() {
                 variant="destructive"
                 size="sm"
                 onClick={() => {
-                  if (
-                    confirm(`Видалити ${selectedVerses.size} вибраних віршів?`)
-                  ) {
+                  if (confirm(`Видалити ${selectedVerses.size} вибраних віршів?`)) {
                     bulkDeleteMutation.mutate({
                       ids: Array.from(selectedVerses),
                       count: selectedVerses.size,
@@ -325,16 +311,25 @@ export default function ScriptureManager() {
               </Button>
             )}
             {selectedChapterId && (
-              <Button
-                size="sm"
-                onClick={() => {
-                  setSelectedVerseId(null);
-                  setIsCreatingVerse(true);
-                }}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Створити вірш
-              </Button>
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedVerseId(null);
+                    setIsCreatingVerse(true);
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Швидке створення
+                </Button>
+                <Button size="sm" asChild>
+                  <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
+                    <Columns2 className="w-4 h-4 mr-2" />
+                    Розширений редактор
+                  </Link>
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -362,9 +357,7 @@ export default function ScriptureManager() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="font-semibold">Вірші</h2>
-                    <p className="text-sm text-muted-foreground">
-                      {verses?.length || 0} віршів у розділі
-                    </p>
+                    <p className="text-sm text-muted-foreground">{verses?.length || 0} віршів у розділі</p>
                   </div>
                 </div>
               </div>
@@ -409,20 +402,15 @@ export default function ScriptureManager() {
               <ScrollArea className="flex-1">
                 <div className="p-4 space-y-2">
                   {versesLoading ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      Завантаження...
-                    </div>
+                    <div className="text-center py-12 text-muted-foreground">Завантаження...</div>
                   ) : verses && verses.length > 0 ? (
                     verses.map((verse: any, index: number) => (
                       <Card
                         key={verse.id}
                         className={cn(
                           "p-4 cursor-pointer transition-all hover:border-primary/50",
-                          selectedVerseId === verse.id &&
-                            "border-primary bg-primary/5",
-                          bulkDeleteMode &&
-                            selectedVerses.has(verse.id) &&
-                            "border-destructive bg-destructive/5"
+                          selectedVerseId === verse.id && "border-primary bg-primary/5",
+                          bulkDeleteMode && selectedVerses.has(verse.id) && "border-destructive bg-destructive/5",
                         )}
                         onClick={(e) => {
                           if (bulkDeleteMode) {
@@ -436,18 +424,14 @@ export default function ScriptureManager() {
                           {bulkDeleteMode && (
                             <Checkbox
                               checked={selectedVerses.has(verse.id)}
-                              onCheckedChange={() =>
-                                toggleVerseSelection(verse.id, index, false)
-                              }
+                              onCheckedChange={() => toggleVerseSelection(verse.id, index, false)}
                               onClick={(e) => e.stopPropagation()}
                               className="mt-1"
                             />
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2">
-                              <span className="font-semibold text-sm">
-                                Вірш {verse.verse_number}
-                              </span>
+                              <span className="font-semibold text-sm">Вірш {verse.verse_number}</span>
                               {!verse.is_published && (
                                 <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 text-xs rounded-full">
                                   Чернетка
@@ -455,9 +439,7 @@ export default function ScriptureManager() {
                               )}
                             </div>
                             {verse.translation_ua && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">
-                                {verse.translation_ua}
-                              </p>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{verse.translation_ua}</p>
                             )}
                           </div>
 
@@ -473,17 +455,9 @@ export default function ScriptureManager() {
                                     isPublished: verse.is_published,
                                   });
                                 }}
-                                title={
-                                  verse.is_published
-                                    ? "Приховати"
-                                    : "Опублікувати"
-                                }
+                                title={verse.is_published ? "Приховати" : "Опублікувати"}
                               >
-                                {verse.is_published ? (
-                                  <EyeOff className="w-4 h-4" />
-                                ) : (
-                                  <Eye className="w-4 h-4" />
-                                )}
+                                {verse.is_published ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                               </Button>
                               <Button size="sm" variant="ghost" asChild>
                                 <Link
@@ -532,9 +506,7 @@ export default function ScriptureManager() {
               <div className="text-center">
                 <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
                 <p className="text-lg font-medium">Виберіть розділ</p>
-                <p className="text-sm mt-2">
-                  Оберіть розділ з дерева навігації ліворуч
-                </p>
+                <p className="text-sm mt-2">Оберіть розділ з дерева навігації ліворуч</p>
               </div>
             </div>
           )}
@@ -559,17 +531,13 @@ export default function ScriptureManager() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!deleteVerseId}
-        onOpenChange={() => setDeleteVerseId(null)}
-      >
+      <AlertDialog open={!!deleteVerseId} onOpenChange={() => setDeleteVerseId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Видалити вірш?</AlertDialogTitle>
             <AlertDialogDescription>
-              Ви впевнені, що хочете видалити вірш{" "}
-              <strong>{deleteVerseId?.verseNumber}</strong>? Цю дію можна
-              буде скасувати.
+              Ви впевнені, що хочете видалити вірш <strong>{deleteVerseId?.verseNumber}</strong>? Цю дію можна буде
+              скасувати.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
