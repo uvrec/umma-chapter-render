@@ -200,7 +200,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
             {/* Secondary Controls */}
             <div className="max-w-md mx-auto flex items-center justify-between px-4">
-              <button className="text-gray-400 hover:text-white transition">
+              <button className="text-muted-foreground hover:text-foreground transition">
                 <Heart className="w-6 h-6" />
               </button>
 
@@ -225,7 +225,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 />
               </div>
 
-              <button className="text-gray-400 hover:text-white transition">
+              <button className="text-muted-foreground hover:text-foreground transition">
                 <MoreVertical className="w-6 h-6" />
               </button>
             </div>
@@ -311,12 +311,12 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                 {/* Volume (Desktop only) */}
                 <div className="hidden lg:flex items-center gap-2">
-                  <button 
-                    onClick={toggleMute} 
-                    className="text-gray-400 hover:text-white transition"
+                  <button
+                    onClick={toggleMute}
+                    className="text-muted-foreground hover:text-foreground transition"
                   >
-                    {isMuted || volume === 0 ? 
-                      <VolumeX className="w-5 h-5" /> : 
+                    {isMuted || volume === 0 ?
+                      <VolumeX className="w-5 h-5" /> :
                       <Volume2 className="w-5 h-5" />
                     }
                   </button>
@@ -326,26 +326,26 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     max="100"
                     value={volume}
                     onChange={(e) => changeVolume(Number(e.target.value))}
-                    className="w-20 h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    className="w-20 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
 
                 {/* Time */}
-                <div className="hidden md:flex items-center gap-2 text-xs text-gray-400">
+                <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
                   <span>{formatTime(currentTime)}</span>
                   <span>/</span>
                   <span>{formatTime(duration)}</span>
                 </div>
 
                 {/* Mobile Play Button */}
-                <button 
+                <button
                   onClick={togglePlay}
-                  className="md:hidden p-2 rounded-full bg-white text-black"
+                  className="md:hidden p-2 rounded-full bg-primary text-primary-foreground"
                 >
                   {isPlaying ? (
-                    <Pause className="w-6 h-6 fill-black" />
+                    <Pause className="w-6 h-6" />
                   ) : (
-                    <Play className="w-6 h-6 fill-black ml-0.5" />
+                    <Play className="w-6 h-6 ml-0.5" />
                   )}
                 </button>
               </div>

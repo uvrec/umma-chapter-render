@@ -1,9 +1,9 @@
 // src/pages/NewHome.tsx
-// Оновлена домашня сторінка з Hero + "Продовжити прослуховування", SearchStrip, Latest, Playlists, Support
+// Оновлена домашня сторінка з Hero + "Продовжити прослуховування", Latest, Playlists, Support
 // Інтегровано з GlobalAudioPlayer (useAudio) і динамічним Hero з БД (site_settings.home_hero)
 // + DailyQuoteBanner для відображення щоденних цитат
 
-import React, { useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,11 +12,9 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
-import { useNavigate } from "react-router-dom";
-import { Headphones, BookOpen, Play, Pause, SkipBack, SkipForward, Clock, ArrowRight, Music4, Search, ChevronDown, ExternalLink } from "lucide-react";
+import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, ExternalLink } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
 
@@ -175,30 +173,6 @@ function Hero() {
       <div className="hidden sm:block absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 transform animate-bounce">
         <ChevronDown className="h-6 w-6 sm:h-8 sm:w-8 text-white/70" />
       </div>
-    </section>;
-}
-
-// --- Search Strip ---
-function SearchStrip() {
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigate(`/glossary?search=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-  return <section className="mx-auto w-full max-w-6xl px-4 py-8">
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-3">
-            <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSearch()} placeholder="Пошук за назвою або ключовими словами…" className="flex-1" />
-            <Button onClick={handleSearch}>
-              <Search className="mr-2 h-4 w-4" />
-              Знайти
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </section>;
 }
 
@@ -525,10 +499,9 @@ function SupportSection() {
 // --- Main Page ---
 export const NewHome = () => {
   return <div className="min-h-screen bg-background">
+      <Header />
       <main>
         <Hero />
-        <Header />
-        
         <LatestContent />
         <FeaturedBooks />
         <Playlists />
