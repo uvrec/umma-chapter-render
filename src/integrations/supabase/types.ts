@@ -1298,54 +1298,6 @@ export type Database = {
         }
         Relationships: []
       }
-      site_banners: {
-        Row: {
-          created_at: string | null
-          description_en: string | null
-          description_ua: string | null
-          end_at: string | null
-          id: string
-          image_url: string | null
-          is_active: boolean
-          link_url: string | null
-          priority: number | null
-          start_at: string | null
-          title_en: string | null
-          title_ua: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description_en?: string | null
-          description_ua?: string | null
-          end_at?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean
-          link_url?: string | null
-          priority?: number | null
-          start_at?: string | null
-          title_en?: string | null
-          title_ua?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description_en?: string | null
-          description_ua?: string | null
-          end_at?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean
-          link_url?: string | null
-          priority?: number | null
-          start_at?: string | null
-          title_en?: string | null
-          title_ua?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       site_settings: {
         Row: {
           created_at: string | null
@@ -2186,17 +2138,6 @@ export type Database = {
           verse_count: number
         }[]
       }
-      get_unique_synonym_terms: {
-        Args: {
-          limit_count?: number
-          prefix_filter: string
-          search_language: string
-        }
-        Returns: {
-          frequency: number
-          term: string
-        }[]
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2246,27 +2187,6 @@ export type Database = {
           relevance: number
           word: string
           word_devanagari: string
-        }[]
-      }
-      search_synonyms: {
-        Args: {
-          limit_count?: number
-          offset_count?: number
-          search_language: string
-          search_mode: string
-          search_term: string
-        }
-        Returns: {
-          book_slug: string
-          book_title: string
-          chapter_number: number
-          match_rank: number
-          sanskrit: string
-          synonyms: string
-          translation: string
-          transliteration: string
-          verse_id: string
-          verse_number: string
         }[]
       }
       search_verses_fulltext: {

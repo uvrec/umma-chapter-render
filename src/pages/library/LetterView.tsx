@@ -57,7 +57,7 @@ export const LetterView = () => {
   const { data: letter, isLoading } = useQuery({
     queryKey: ["letter", slug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("letters")
         .select("*")
         .eq("slug", slug)

@@ -70,7 +70,7 @@ export default function AdminAudiobooks() {
       setLoading(true);
 
       // Завантажуємо налаштування з site_settings
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("site_settings")
         .select("value")
         .eq("key", "audiobooks_page")
@@ -98,7 +98,7 @@ export default function AdminAudiobooks() {
       setSaving(true);
 
       // Перевіряємо чи існує запис
-      const { data: existing } = await supabase
+      const { data: existing } = await (supabase as any)
         .from("site_settings")
         .select("id")
         .eq("key", "audiobooks_page")
@@ -106,7 +106,7 @@ export default function AdminAudiobooks() {
 
       if (existing) {
         // Оновлюємо існуючий запис
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("site_settings")
           .update({
             value: settings,
@@ -117,7 +117,7 @@ export default function AdminAudiobooks() {
         if (error) throw error;
       } else {
         // Створюємо новий запис
-        const { error } = await supabase.from("site_settings").insert({
+        const { error } = await (supabase as any).from("site_settings").insert({
           key: "audiobooks_page",
           value: settings,
           description: "Налаштування сторінки Аудіокниги",

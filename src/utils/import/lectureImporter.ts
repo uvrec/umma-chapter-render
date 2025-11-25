@@ -46,7 +46,7 @@ export async function importLecture(
 ): Promise<LectureImportResult> {
   try {
     // Крок 1: Перевірити, чи існує лекція з таким slug
-    const { data: existing } = await supabase
+    const { data: existing } = await (supabase as any)
       .from("lectures")
       .select("id")
       .eq("slug", data.metadata.slug)

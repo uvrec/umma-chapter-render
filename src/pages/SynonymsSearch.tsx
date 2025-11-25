@@ -61,7 +61,7 @@ export default function SynonymsSearch() {
 
       setIsLoadingAutocomplete(true);
       try {
-        const { data, error } = await supabase.rpc("get_unique_synonym_terms", {
+        const { data, error } = await (supabase as any).rpc("get_unique_synonym_terms", {
           search_language: lang,
           prefix_filter: term,
           limit_count: 10,
@@ -90,7 +90,7 @@ export default function SynonymsSearch() {
 
     setIsSearching(true);
     try {
-      const { data, error } = await supabase.rpc("search_synonyms", {
+      const { data, error } = await (supabase as any).rpc("search_synonyms", {
         search_term: searchTerm.trim(),
         search_language: searchLanguage,
         search_mode: searchMode,

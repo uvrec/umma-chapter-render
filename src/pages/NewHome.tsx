@@ -72,7 +72,7 @@ function Hero() {
       const {
         data,
         error
-      } = await supabase.from("site_settings").select("value").eq("key", "home_hero").single();
+      } = await (supabase as any).from("site_settings").select("value").eq("key", "home_hero").single();
       if (error) {
         console.error("Failed to load home hero settings:", error);
         return null; // Return null instead of throwing
