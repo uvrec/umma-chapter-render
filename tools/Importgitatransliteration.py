@@ -269,7 +269,8 @@ def parse_epub(epub_path: str, chapter_filter: Optional[int] = None) -> List[Par
 
 def save_to_supabase(verses: List[ParsedVerse], dry_run: bool = False):
     """Зберігає вірші в Supabase"""
-    
+    import requests
+
     if dry_run:
         print("\n🔍 DRY RUN - зміни не будуть збережені в БД")
         print("\nПриклади (перші 5 віршів):")
@@ -278,67 +279,82 @@ def save_to_supabase(verses: List[ParsedVerse], dry_run: bool = False):
             print(f"EN: {v.transliteration_en[:100]}...")
             print(f"UA: {v.transliteration_ua[:100]}...")
         return
-    
-    # Імпорт Supabase
-    try:
-        from supabase import create_client
-    except ImportError:
-        print("❌ Встановіть supabase: pip install supabase")
-        sys.exit(1)
-    
+
     SUPABASE_URL = os.getenv('SUPABASE_URL', '')
     SUPABASE_KEY = os.getenv('SUPABASE_SERVICE_KEY', '')
-    
+
     if not SUPABASE_URL or not SUPABASE_KEY:
         print("❌ Встановіть змінні середовища SUPABASE_URL та SUPABASE_SERVICE_KEY")
         sys.exit(1)
-    
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
-    
+
+    headers = {
+        'apikey': SUPABASE_KEY,
+        'Authorization': f'Bearer {SUPABASE_KEY}',
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+    }
+
     # Отримуємо book_id для gita
-    book_result = supabase.table('books').select('id').eq('slug', 'gita').single().execute()
-    if not book_result.data:
-        print("❌ Книга 'gita' не знайдена в БД")
+    resp = requests.get(
+        f"{SUPABASE_URL}/rest/v1/books?slug=eq.gita&select=id",
+        headers=headers
+    )
+    if resp.status_code != 200 or not resp.json():
+        print(f"❌ Книга 'gita' не знайдена в БД: {resp.text}")
         sys.exit(1)
-    
-    book_id = book_result.data['id']
+
+    book_id = resp.json()[0]['id']
     print(f"📚 Книга gita: {book_id}")
-    
+
     # Отримуємо всі глави
-    chapters_result = supabase.table('chapters').select('id, chapter_number').eq('book_id', book_id).execute()
-    chapters_map = {ch['chapter_number']: ch['id'] for ch in chapters_result.data}
-    
+    resp = requests.get(
+        f"{SUPABASE_URL}/rest/v1/chapters?book_id=eq.{book_id}&select=id,chapter_number",
+        headers=headers
+    )
+    chapters_map = {ch['chapter_number']: ch['id'] for ch in resp.json()}
+
     updated = 0
     errors = 0
-    
+
     for verse in verses:
         chapter_id = chapters_map.get(verse.chapter_number)
         if not chapter_id:
             print(f"⚠️  Глава {verse.chapter_number} не знайдена")
             errors += 1
             continue
-        
+
         # UPSERT: оновлюємо тільки transliteration_en та transliteration_ua
         try:
             # Знаходимо вірш за chapter_id та verse_number
-            verse_result = supabase.table('verses').select('id').eq('chapter_id', chapter_id).eq('verse_number', verse.verse_number).execute()
-            
-            if verse_result.data:
+            resp = requests.get(
+                f"{SUPABASE_URL}/rest/v1/verses?chapter_id=eq.{chapter_id}&verse_number=eq.{verse.verse_number}&select=id",
+                headers=headers
+            )
+
+            if resp.status_code == 200 and resp.json():
                 # Оновлюємо існуючий
-                verse_id = verse_result.data[0]['id']
-                supabase.table('verses').update({
-                    'transliteration_en': verse.transliteration_en,
-                    'transliteration_ua': verse.transliteration_ua,
-                }).eq('id', verse_id).execute()
-                updated += 1
-                print(f"✅ Оновлено: {verse.chapter_number}.{verse.verse_number}")
+                verse_id = resp.json()[0]['id']
+                update_resp = requests.patch(
+                    f"{SUPABASE_URL}/rest/v1/verses?id=eq.{verse_id}",
+                    headers=headers,
+                    json={
+                        'transliteration_en': verse.transliteration_en,
+                        'transliteration_ua': verse.transliteration_ua,
+                    }
+                )
+                if update_resp.status_code in [200, 204]:
+                    updated += 1
+                    print(f"✅ Оновлено: {verse.chapter_number}.{verse.verse_number}")
+                else:
+                    print(f"❌ Помилка оновлення {verse.chapter_number}.{verse.verse_number}: {update_resp.text}")
+                    errors += 1
             else:
                 print(f"⚠️  Вірш {verse.chapter_number}.{verse.verse_number} не знайдено в БД")
                 errors += 1
         except Exception as e:
             print(f"❌ Помилка для {verse.chapter_number}.{verse.verse_number}: {e}")
             errors += 1
-    
+
     print(f"\n✅ Оновлено: {updated}")
     print(f"❌ Помилок: {errors}")
 
