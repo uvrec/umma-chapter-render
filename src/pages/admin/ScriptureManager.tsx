@@ -324,9 +324,7 @@ export default function ScriptureManager() {
                   Швидке створення
                 </Button>
                 <Button size="sm" asChild>
-                  <Link
-                    to={`/admin/verses/new?chapterId=${selectedChapterId}${selectedChapter?.book_id ? `&bookId=${selectedChapter.book_id}` : ""}${selectedChapter?.canto_id ? `&cantoId=${selectedChapter.canto_id}` : ""}`}
-                  >
+                  <Link to={`/admin/verses/new?chapterId=${selectedChapterId}`}>
                     <Columns2 className="w-4 h-4 mr-2" />
                     Розширений редактор
                   </Link>
