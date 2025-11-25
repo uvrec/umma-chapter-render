@@ -368,7 +368,7 @@ export default function VedabaseImportV3() {
       setCurrentStep("Створення книги...");
 
       // 1. Книга
-      const bookQuery: any = await (supabase as any)
+      const bookQuery: any = await supabase
         .from("books")
         .select("id")
         .eq("slug", bookConfig.our_slug || selectedBook)
@@ -465,7 +465,7 @@ export default function VedabaseImportV3() {
       }
 
       // 1. Книга
-      const bookQuery2: any = await (supabase as any)
+      const bookQuery2: any = await supabase
         .from("books")
         .select("id")
         .eq("slug", bookConfig.our_slug || selectedBook)

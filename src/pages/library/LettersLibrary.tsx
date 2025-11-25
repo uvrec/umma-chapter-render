@@ -61,7 +61,7 @@ export const LettersLibrary = () => {
   const { data: letters = [], isLoading } = useQuery({
     queryKey: ["letters"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("letters")
         .select("*")
         .order("letter_date", { ascending: false });

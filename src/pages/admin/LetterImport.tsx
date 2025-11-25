@@ -37,21 +37,21 @@ export default function LetterImport() {
     queryFn: async () => {
       // NOTE: Це буде працювати тільки після застосування міграції
       try {
-        const { count: totalLetters } = await (supabase as any)
+        const { count: totalLetters } = await supabase
           .from("letters")
           .select("*", { count: "exact", head: true });
 
-        const { data: recipients } = await (supabase as any)
+        const { data: recipients } = await supabase
           .from("letters")
           .select("recipient_en")
           .order("recipient_en");
 
-        const { data: locations } = await (supabase as any)
+        const { data: locations } = await supabase
           .from("letters")
           .select("location_en")
           .order("location_en");
 
-        const { data: years } = await (supabase as any)
+        const { data: years } = await supabase
           .from("letters")
           .select("letter_date")
           .order("letter_date");
