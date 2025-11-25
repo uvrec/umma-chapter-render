@@ -46,7 +46,7 @@ export const LectureView = () => {
   const { data: lecture, isLoading: lectureLoading } = useQuery({
     queryKey: ["lecture", slug],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("lectures")
         .select("*")
         .eq("slug", slug)
@@ -62,7 +62,7 @@ export const LectureView = () => {
   const { data: paragraphs = [], isLoading: paragraphsLoading } = useQuery({
     queryKey: ["lecture-paragraphs", lecture?.id],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("lecture_paragraphs")
         .select("*")
         .eq("lecture_id", lecture!.id)

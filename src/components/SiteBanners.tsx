@@ -49,7 +49,7 @@ export default function SiteBanners() {
   const { data } = useQuery({
     queryKey: ["site_banners"],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("site_banners")
         .select(
           "id,title_ua,title_en,description_ua,description_en,link_url,image_url,is_active,start_at,end_at,priority"
