@@ -19,7 +19,7 @@ export default function AddEditVerse() {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
 
   const [selectedBookId, setSelectedBookId] = useState(searchParams.get("bookId") || "");
@@ -46,7 +46,6 @@ export default function AddEditVerse() {
 
   // UI state for collapsible advanced audio section
   const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
-
 
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
@@ -484,9 +483,7 @@ export default function AddEditVerse() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold">Аудіо файли</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Основне аудіо вірша (лекція/запис)
-                  </p>
+                  <p className="text-sm text-muted-foreground mt-1">Основне аудіо вірша (лекція/запис)</p>
                 </div>
               </div>
 
@@ -517,9 +514,7 @@ export default function AddEditVerse() {
                       </span>
                     )}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    {showAdvancedAudio ? "Приховати" : "Показати"}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{showAdvancedAudio ? "Приховати" : "Показати"}</span>
                 </Button>
 
                 {showAdvancedAudio && (
@@ -561,9 +556,7 @@ export default function AddEditVerse() {
               {/* Legacy Audio Field */}
               {audioUrl && (
                 <div className="mt-4 p-4 bg-muted/30 border border-dashed rounded-lg">
-                  <Label className="text-xs text-muted-foreground">
-                    Застаріле поле (для сумісності)
-                  </Label>
+                  <Label className="text-xs text-muted-foreground">Застаріле поле (для сумісності)</Label>
                   <Input
                     value={audioUrl}
                     onChange={(e) => setAudioUrl(e.target.value)}
