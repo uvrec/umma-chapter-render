@@ -119,11 +119,12 @@ export function useDailyQuote() {
       }
 
       try {
-        // Отримуємо всі ID віршів що мають хоча б один переклад (UA або EN)
+        // Отримуємо всі ID віршів що мають переклади
         const { data: verseIds, error: idsError } = await supabase
           .from("verses")
           .select("id")
-          .or("translation_ua.not.is.null,translation_en.not.is.null");
+          .not("translation_ua", "is", null)
+          .not("translation_en", "is", null);
 
         if (idsError || !verseIds || verseIds.length === 0) {
           console.error('[DailyQuote] Помилка отримання ID віршів:', idsError);
