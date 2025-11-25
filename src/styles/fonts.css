@@ -1,17 +1,13 @@
 /* ==========================================
    src/styles/fonts.css
 
-   ПРИЗНАЧЕННЯ: Визначення шрифтових сімей та @font-face
+   ПРИЗНАЧЕННЯ: Визначення шрифтових сімей та стилів для тексту
 
    ⚠️ ВАЖЛИВО:
-   - Тут тільки @font-face декларації та Google Fonts імпорти
-   - Стилі для конкретних елементів (font-size, line-height) в index.css
+   - Шрифти завантажуються через <link> в index.html (оптимальніше для performance)
+   - Тут тільки стилі для конкретних класів
    - Стилі для textarea в index.css в блоці "TEXTAREA ТРАНСЛІТЕРАТОРА"
    ========================================== */
-
-/* -------- Google Fonts імпорти (мають бути на початку) -------- */
-@import url("https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;700&display=swap");
 
 /* -------- Блок для трансліту (використовується в читалці віршів) -------- */
 .translit,
