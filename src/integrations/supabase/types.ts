@@ -1267,34 +1267,28 @@ export type Database = {
       }
       sanskrit_lexicon: {
         Row: {
-          created_at: string | null
-          grammar: string | null
           id: number
-          meanings: string | null
-          preverbs: string | null
           word: string
           word_devanagari: string | null
-          word_normalized: string | null
+          grammar: string | null
+          preverbs: string | null
+          meanings: string | null
         }
         Insert: {
-          created_at?: string | null
-          grammar?: string | null
-          id: number
-          meanings?: string | null
-          preverbs?: string | null
+          id?: number
           word: string
           word_devanagari?: string | null
-          word_normalized?: string | null
+          grammar?: string | null
+          preverbs?: string | null
+          meanings?: string | null
         }
         Update: {
-          created_at?: string | null
-          grammar?: string | null
           id?: number
-          meanings?: string | null
-          preverbs?: string | null
           word?: string
           word_devanagari?: string | null
-          word_normalized?: string | null
+          grammar?: string | null
+          preverbs?: string | null
+          meanings?: string | null
         }
         Relationships: []
       }
@@ -2150,7 +2144,6 @@ export type Database = {
         Returns: undefined
       }
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
-      normalize_sanskrit_word: { Args: { word: string }; Returns: string }
       normalize_ukrainian_cc_texts: { Args: never; Returns: undefined }
       parse_verse_number: {
         Args: { v_num: string }
@@ -2162,31 +2155,34 @@ export type Database = {
       }
       remove_duplicate_words_in_synonyms: { Args: never; Returns: undefined }
       search_sanskrit_by_meaning: {
-        Args: { result_limit?: number; search_term: string }
+        Args: {
+          search_term: string
+          result_limit?: number
+        }
         Returns: {
-          grammar: string
           id: number
-          meanings: string
-          relevance: number
           word: string
-          word_devanagari: string
+          word_devanagari: string | null
+          grammar: string | null
+          preverbs: string | null
+          meanings: string | null
+          relevance: number | null
         }[]
       }
       search_sanskrit_lexicon: {
         Args: {
-          grammar_filter?: string
-          result_limit?: number
-          search_mode?: string
           search_term: string
+          search_mode?: string
+          grammar_filter?: string | null
+          result_limit?: number
         }
         Returns: {
-          grammar: string
           id: number
-          meanings: string
-          preverbs: string
-          relevance: number
           word: string
-          word_devanagari: string
+          word_devanagari: string | null
+          grammar: string | null
+          preverbs: string | null
+          meanings: string | null
         }[]
       }
       search_verses_fulltext: {
