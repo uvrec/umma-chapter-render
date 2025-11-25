@@ -1265,6 +1265,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sanskrit_lexicon: {
+        Row: {
+          id: number
+          word: string
+          word_devanagari: string | null
+          grammar: string | null
+          preverbs: string | null
+          meanings: string | null
+        }
+        Insert: {
+          id?: number
+          word: string
+          word_devanagari?: string | null
+          grammar?: string | null
+          preverbs?: string | null
+          meanings?: string | null
+        }
+        Update: {
+          id?: number
+          word?: string
+          word_devanagari?: string | null
+          grammar?: string | null
+          preverbs?: string | null
+          meanings?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string | null
@@ -2127,6 +2154,37 @@ export type Database = {
         }[]
       }
       remove_duplicate_words_in_synonyms: { Args: never; Returns: undefined }
+      search_sanskrit_by_meaning: {
+        Args: {
+          search_term: string
+          result_limit?: number
+        }
+        Returns: {
+          id: number
+          word: string
+          word_devanagari: string | null
+          grammar: string | null
+          preverbs: string | null
+          meanings: string | null
+          relevance: number | null
+        }[]
+      }
+      search_sanskrit_lexicon: {
+        Args: {
+          search_term: string
+          search_mode?: string
+          grammar_filter?: string | null
+          result_limit?: number
+        }
+        Returns: {
+          id: number
+          word: string
+          word_devanagari: string | null
+          grammar: string | null
+          preverbs: string | null
+          meanings: string | null
+        }[]
+      }
       search_verses_fulltext: {
         Args: {
           book_ids?: string[]
