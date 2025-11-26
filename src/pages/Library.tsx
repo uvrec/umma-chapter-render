@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,19 +8,37 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export const Library = () => {
   const { language, t } = useLanguage();
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
-  const { data: books = [], isLoading } = useQuery({
-    queryKey: ['books'],
+  const handleImageError = (bookId: string) => {
+    setFailedImages(prev => new Set(prev).add(bookId));
+  };
+
+  const { data: books = [], isLoading, error, isError } = useQuery({
+    queryKey: ['library-books'],
     queryFn: async () => {
+      console.log('[Library] Fetching books from database...');
       const { data, error } = await supabase
         .from('books')
         .select('id, slug, title_ua, title_en, cover_image_url, has_cantos')
         .eq('is_published', true)
-        .order('display_order');
-      if (error) throw error;
-      return data;
+        .order('display_order', { ascending: true, nullsFirst: false });
+
+      if (error) {
+        console.error('[Library] Failed to fetch books:', error);
+        throw error;
+      }
+
+      console.log('[Library] Successfully fetched books:', data?.length, data);
+      return data || [];
     },
+    // Force refetch on mount to get fresh data
+    refetchOnMount: true,
+    staleTime: 0,
   });
+
+  // Debug logging
+  console.log('[Library] Render state:', { isLoading, isError, booksCount: books.length, error });
 
   return (
     <div className="min-h-screen bg-background">
@@ -76,12 +95,13 @@ export const Library = () => {
               >
                 {/* Book Cover */}
                 <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
-                  {book.cover_image_url ? (
+                  {book.cover_image_url && !failedImages.has(book.id) ? (
                     <img
                       src={book.cover_image_url}
                       alt={language === 'ua' ? book.title_ua : book.title_en}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
+                      onError={() => handleImageError(book.id)}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
@@ -102,8 +122,20 @@ export const Library = () => {
           </div>
         )}
 
+        {/* Error state */}
+        {isError && (
+          <div className="text-center py-12">
+            <p className="text-destructive mb-2">
+              {t('Помилка завантаження книг', 'Error loading books')}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {error?.message || t('Спробуйте оновити сторінку', 'Please try refreshing the page')}
+            </p>
+          </div>
+        )}
+
         {/* Empty state */}
-        {!isLoading && books.length === 0 && (
+        {!isLoading && !isError && books.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
               {t('Книги ще не додані', 'No books available yet')}
