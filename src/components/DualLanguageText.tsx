@@ -1,11 +1,14 @@
-import React from 'react';
-import { Paragraph, splitIntoParagraphs, alignParagraphs, jsonbToParagraphs } from '@/utils/paragraphs';
+import React from "react";
+
+interface Paragraph {
+  index: number;
+  text: string;
+}
+
 interface DualLanguageTextProps {
   uaParagraphs: Paragraph[] | null;
   enParagraphs: Paragraph[] | null;
   className?: string;
-  fontSize?: number;
-  lineHeight?: number | string;
   /** Fallback якщо paragraphs відсутні */
   uaText?: string;
   enText?: string;
@@ -18,43 +21,49 @@ interface DualLanguageTextProps {
 export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   uaParagraphs,
   enParagraphs,
-  className = '',
-  fontSize,
-  lineHeight,
+  className = "",
   uaText,
-  enText
+  enText,
 }) => {
-  // Використовуємо утиліти для обробки параграфів
+  // Fallback: якщо paragraphs відсутні, парсимо text на льоту
   const getParagraphs = (paragraphs: Paragraph[] | null, text?: string): Paragraph[] => {
     if (paragraphs && paragraphs.length > 0) {
       return paragraphs;
     }
     if (text) {
-      return splitIntoParagraphs(text);
+      return text
+        .split(/\n\n+/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0)
+        .map((text, index) => ({ index, text }));
     }
     return [];
   };
+
   const uaParas = getParagraphs(uaParagraphs, uaText);
   const enParas = getParagraphs(enParagraphs, enText);
 
-  // Вирівняти кількість параграфів використовуючи утиліту
-  const [alignedUa, alignedEn] = alignParagraphs(uaParas, enParas);
-  const maxLength = alignedUa.length;
+  // Вирівняти кількість параграфів (додати порожні якщо потрібно)
+  const maxLength = Math.max(uaParas.length, enParas.length);
 
-  // Стилі для динамічного розміру шрифту
-  const textStyle: React.CSSProperties = {};
-  if (fontSize) textStyle.fontSize = `${fontSize}px`;
-  if (lineHeight) textStyle.lineHeight = lineHeight;
-  return <div className={`grid grid-cols-2 gap-x-8 gap-y-4 ${className}`} style={{
-    gridAutoRows: 'auto'
-  }}>
-      {alignedUa.map((para, idx) => <React.Fragment key={`pair-${idx}`}>
-          <p style={textStyle} dangerouslySetInnerHTML={{
-        __html: para.text || '&nbsp;'
-      }} className="self-start text-justify" />
-          <p style={textStyle} dangerouslySetInnerHTML={{
-        __html: alignedEn[idx]?.text || '&nbsp;'
-      }} className="self-start text-justify" />
-        </React.Fragment>)}
-    </div>;
+  return (
+    <div className={`space-y-4 ${className}`}>
+      {Array.from({ length: maxLength }).map((_, idx) => (
+        <div key={idx} className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 items-start">
+          <p
+            className="leading-relaxed text-base"
+            dangerouslySetInnerHTML={{
+              __html: enParas[idx]?.text || "&nbsp;",
+            }}
+          />
+          <p
+            className="leading-relaxed text-base"
+            dangerouslySetInnerHTML={{
+              __html: uaParas[idx]?.text || "&nbsp;",
+            }}
+          />
+        </div>
+      ))}
+    </div>
+  );
 };
