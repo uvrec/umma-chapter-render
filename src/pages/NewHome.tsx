@@ -173,45 +173,41 @@ function Hero() {
 // --- Horizontal Navigation Menu ---
 function NavigationMenu() {
   const { isAdmin } = useAuth();
-
-  const menuItems = [
-    { label: "Книги", href: "/library", icon: BookOpen },
-    { label: "Бібліотека", href: "/audiobooks", icon: Book },
-    { label: "Глосарій", href: "/glossary", icon: Book },
-    { label: "Транслітерація", href: "/tools/transliteration", icon: Languages },
-    { label: "Меджибіж", href: "/audiobooks?tag=medjibizh", icon: Headphones },
-    { label: "Мороз", href: "/audiobooks?tag=moroz", icon: Headphones },
-    { label: "Зачитані", href: "/audiobooks?sort=popular", icon: Headphones },
-    { label: "Йога", href: "/audiobooks?tag=yoga", icon: GraduationCap },
-  ];
+  const { t } = useLanguage();
 
   return (
     <nav className="bg-background/95 backdrop-blur-sm border-b border-border sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-2">
           {/* Navigation Links */}
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-1">
-            <Button variant="ghost" size="sm" asChild className="flex-shrink-0">
+          <div className="flex items-center gap-1 py-1">
+            <Button variant="ghost" size="sm" asChild>
               <Link to="/" className="flex items-center gap-1.5">
                 <Home className="h-4 w-4" />
-                <span className="hidden sm:inline">Головна</span>
+                <span>{t("Головна", "Home")}</span>
               </Link>
             </Button>
 
-            {menuItems.map((item) => (
-              <Button
-                key={item.href}
-                variant="ghost"
-                size="sm"
-                asChild
-                className="flex-shrink-0"
-              >
-                <Link to={item.href} className="flex items-center gap-1.5">
-                  <item.icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{item.label}</span>
-                </Link>
-              </Button>
-            ))}
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/library" className="flex items-center gap-1.5">
+                <BookOpen className="h-4 w-4" />
+                <span>{t("Бібліотека", "Library")}</span>
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/tools/transliteration" className="flex items-center gap-1.5">
+                <Languages className="h-4 w-4" />
+                <span>{t("Транслітерація", "Transliteration")}</span>
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/blog" className="flex items-center gap-1.5">
+                <BookOpen className="h-4 w-4" />
+                <span>{t("Блог", "Blog")}</span>
+              </Link>
+            </Button>
           </div>
 
           {/* Right Controls */}
@@ -221,7 +217,7 @@ function NavigationMenu() {
               <Button variant="outline" size="sm" asChild>
                 <Link to="/admin/dashboard" className="flex items-center gap-1.5">
                   <User className="h-4 w-4" />
-                  <span className="hidden sm:inline">Адмін</span>
+                  <span>{t("Адмін", "Admin")}</span>
                 </Link>
               </Button>
             )}
