@@ -402,34 +402,6 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUa || sanskritTextEn) && (
           <div className="mb-10">
             <div className="grid grid-cols-2 gap-6 items-start">
-              {/* EN */}
-              <div>
-                <div className="mb-4 flex justify-center">
-                  <button
-                    onClick={() => playSection("Sanskrit EN", audioSanskrit)}
-                    disabled={!audioSanskrit && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Listen to Sanskrit EN"
-                  >
-                    <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                {isEditing ? (
-                  <Textarea
-                    value={edited.sanskritEn}
-                    onChange={(e) =>
-                      setEdited((p) => ({
-                        ...p,
-                        sanskritEn: e.target.value,
-                      }))
-                    }
-                    className="min-h-[100px] text-center sanskrit-text"
-                  />
-                ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text">{processedSanskritEn}</p>
-                )}
-              </div>
-
               {/* UA */}
               <div>
                 <div className="mb-4 flex justify-center">
@@ -455,6 +427,34 @@ export const DualLanguageVerseCard = ({
                   />
                 ) : (
                   <p className="whitespace-pre-line text-center sanskrit-text">{processedSanskritUa}</p>
+                )}
+              </div>
+
+              {/* EN */}
+              <div>
+                <div className="mb-4 flex justify-center">
+                  <button
+                    onClick={() => playSection("Sanskrit EN", audioSanskrit)}
+                    disabled={!audioSanskrit && !audioUrl}
+                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Listen to Sanskrit EN"
+                  >
+                    <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={edited.sanskritEn}
+                    onChange={(e) =>
+                      setEdited((p) => ({
+                        ...p,
+                        sanskritEn: e.target.value,
+                      }))
+                    }
+                    className="min-h-[100px] text-center sanskrit-text"
+                  />
+                ) : (
+                  <p className="whitespace-pre-line text-center sanskrit-text">{processedSanskritEn}</p>
                 )}
               </div>
             </div>
@@ -496,9 +496,9 @@ export const DualLanguageVerseCard = ({
             ) : (
               <div className="space-y-1">
                 {(() => {
-                  const linesEn = (transliterationEn || "").split("\n");
                   const linesUa = (transliterationUa || "").split("\n");
-                  const maxLines = Math.max(linesEn.length, linesUa.length);
+                  const linesEn = (transliterationEn || "").split("\n");
+                  const maxLines = Math.max(linesUa.length, linesEn.length);
                   return Array.from({ length: maxLines }).map((_, idx) => (
                     <div key={idx} className="grid grid-cols-2 gap-6 items-start">
                       <p
@@ -507,7 +507,7 @@ export const DualLanguageVerseCard = ({
                         }}
                         className="iast-text text-muted-foreground text-center"
                       >
-                        {linesEn[idx] || ""}
+                        {linesUa[idx] || ""}
                       </p>
                       <p
                         style={{
@@ -515,7 +515,7 @@ export const DualLanguageVerseCard = ({
                         }}
                         className="iast-text text-muted-foreground text-center"
                       >
-                        {linesUa[idx] || ""}
+                        {linesEn[idx] || ""}
                       </p>
                     </div>
                   ));
@@ -529,31 +529,6 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showSynonyms && (isEditing || synonymsUa || synonymsEn) && (
           <div className="mb-8 pt-6">
             <div className="grid grid-cols-2 gap-6">
-              {/* EN */}
-              <div>
-                <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground font-bold">Synonyms</h4>
-                  <button
-                    onClick={() => playSection("Synonyms EN", audioSynonymsEn)}
-                    disabled={!audioSynonymsEn && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Listen to synonyms EN"
-                  >
-                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                <SynonymsBlock
-                  synonyms={isEditing ? edited.synonymsEn : synonymsEn}
-                  isEditing={isEditing}
-                  onEdit={(value) =>
-                    setEdited((p) => ({
-                      ...p,
-                      synonymsEn: value,
-                    }))
-                  }
-                />
-              </div>
-
               {/* UA */}
               <div>
                 <div className="section-header flex items-center justify-center gap-4">
@@ -578,6 +553,31 @@ export const DualLanguageVerseCard = ({
                   }
                 />
               </div>
+
+              {/* EN */}
+              <div>
+                <div className="section-header flex items-center justify-center gap-4">
+                  <h4 className="text-foreground font-bold">Synonyms</h4>
+                  <button
+                    onClick={() => playSection("Synonyms EN", audioSynonymsEn)}
+                    disabled={!audioSynonymsEn && !audioUrl}
+                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Listen to synonyms EN"
+                  >
+                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                <SynonymsBlock
+                  synonyms={isEditing ? edited.synonymsEn : synonymsEn}
+                  isEditing={isEditing}
+                  onEdit={(value) =>
+                    setEdited((p) => ({
+                      ...p,
+                      synonymsEn: value,
+                    }))
+                  }
+                />
+              </div>
             </div>
           </div>
         )}
@@ -586,35 +586,6 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showTranslation && (isEditing || translationUa || translationEn) && (
           <div className="mb-8 pt-6">
             <div className="grid grid-cols-2 gap-6 items-start">
-              {/* EN */}
-              <div>
-                <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground">Translation</h4>
-                  <button
-                    onClick={() => playSection("Translation EN", audioTranslationEn)}
-                    disabled={!audioTranslationEn && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Listen to translation EN"
-                  >
-                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                {isEditing ? (
-                  <Textarea
-                    value={edited.translationEn}
-                    onChange={(e) =>
-                      setEdited((p) => ({
-                        ...p,
-                        translationEn: e.target.value,
-                      }))
-                    }
-                    className="min-h-[100px] prose-reader font-semibold"
-                  />
-                ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>
-                )}
-              </div>
-
               {/* UA */}
               <div>
                 <div className="section-header flex items-center justify-center gap-4">
@@ -643,6 +614,35 @@ export const DualLanguageVerseCard = ({
                   <p className="prose-reader text-foreground font-semibold text-justify">{translationUa}</p>
                 )}
               </div>
+
+              {/* EN */}
+              <div>
+                <div className="section-header flex items-center justify-center gap-4">
+                  <h4 className="text-foreground">Translation</h4>
+                  <button
+                    onClick={() => playSection("Translation EN", audioTranslationEn)}
+                    disabled={!audioTranslationEn && !audioUrl}
+                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    aria-label="Listen to translation EN"
+                  >
+                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                  </button>
+                </div>
+                {isEditing ? (
+                  <Textarea
+                    value={edited.translationEn}
+                    onChange={(e) =>
+                      setEdited((p) => ({
+                        ...p,
+                        translationEn: e.target.value,
+                      }))
+                    }
+                    className="min-h-[100px] prose-reader font-semibold"
+                  />
+                ) : (
+                  <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -652,19 +652,6 @@ export const DualLanguageVerseCard = ({
           <div className="pt-6">
             {/* Заголовки з кнопками аудіо */}
             <div className="section-header grid grid-cols-2 gap-6">
-              {/* EN */}
-              <div className="flex items-center justify-center gap-4">
-                <h4 className="text-foreground">Purport</h4>
-                <button
-                  onClick={() => playSection("Purport EN", audioCommentaryEn)}
-                  disabled={!audioCommentaryEn && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Listen to purport EN"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
-              </div>
-
               {/* UA */}
               <div className="flex items-center justify-center gap-4">
                 <h4 className="text-foreground">Пояснення</h4>
@@ -677,21 +664,24 @@ export const DualLanguageVerseCard = ({
                   <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
                 </button>
               </div>
+
+              {/* EN */}
+              <div className="flex items-center justify-center gap-4">
+                <h4 className="text-foreground">Purport</h4>
+                <button
+                  onClick={() => playSection("Purport EN", audioCommentaryEn)}
+                  disabled={!audioCommentaryEn && !audioUrl}
+                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Listen to purport EN"
+                >
+                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                </button>
+              </div>
             </div>
 
             {/* Параграфи синхронізовані */}
             {isEditing ? (
               <div className="grid grid-cols-2 gap-6">
-                <EnhancedInlineEditor
-                  content={edited.commentaryEn}
-                  onChange={(html) =>
-                    setEdited((p) => ({
-                      ...p,
-                      commentaryEn: html,
-                    }))
-                  }
-                  label="Edit commentary EN"
-                />
                 <EnhancedInlineEditor
                   content={edited.commentaryUa}
                   onChange={(html) =>
@@ -702,6 +692,16 @@ export const DualLanguageVerseCard = ({
                   }
                   label="Редагувати коментар UA"
                 />
+                <EnhancedInlineEditor
+                  content={edited.commentaryEn}
+                  onChange={(html) =>
+                    setEdited((p) => ({
+                      ...p,
+                      commentaryEn: html,
+                    }))
+                  }
+                  label="Edit commentary EN"
+                />
               </div>
             ) : (
               <div className="space-y-4">
@@ -709,21 +709,21 @@ export const DualLanguageVerseCard = ({
                   length: maxParagraphs,
                 }).map((_, index) => (
                   <div key={index} className="grid grid-cols-2 gap-6 pb-4 items-start">
-                    {/* EN параграф */}
-                    <div className="commentary-text">
-                      {commentaryParagraphsEn[index] ? (
-                        <TiptapRenderer content={commentaryParagraphsEn[index]} />
-                      ) : (
-                        <p className="text-muted-foreground italic text-sm">No text</p>
-                      )}
-                    </div>
-
                     {/* UA параграф */}
                     <div className="commentary-text">
                       {commentaryParagraphsUa[index] ? (
                         <TiptapRenderer content={commentaryParagraphsUa[index]} />
                       ) : (
                         <p className="text-muted-foreground italic text-sm">Немає тексту</p>
+                      )}
+                    </div>
+
+                    {/* EN параграф */}
+                    <div className="commentary-text">
+                      {commentaryParagraphsEn[index] ? (
+                        <TiptapRenderer content={commentaryParagraphsEn[index]} />
+                      ) : (
+                        <p className="text-muted-foreground italic text-sm">No text</p>
                       )}
                     </div>
                   </div>
