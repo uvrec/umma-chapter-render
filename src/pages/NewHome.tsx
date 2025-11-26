@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
 import {
   Headphones,
   BookOpen,
@@ -20,10 +21,7 @@ import {
   Home,
   Book,
   Languages,
-  GraduationCap,
-  BookMarked,
-  User,
-  Heart
+  User
 } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -53,8 +51,6 @@ type ContentItem = {
 
 // --- Hero Section ---
 function Hero() {
-  const { language } = useLanguage();
-
   // Завантаження налаштувань з БД
   const { data: settingsData } = useQuery({
     queryKey: ["site-settings", "home_hero"],
@@ -71,55 +67,14 @@ function Hero() {
       return (data as any)?.value as {
         background_image: string;
         logo_image: string;
-        subtitle_ua: string;
-        subtitle_en: string;
-        quote_ua?: string;
-        quote_en?: string;
-        quote_author_ua?: string;
-        quote_author_en?: string;
-        quote_source_ua?: string;
-        quote_source_en?: string;
       };
-    },
-  });
-
-  // Завантаження щоденної цитати
-  const { data: dailyQuote } = useQuery({
-    queryKey: ["daily-quote"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("daily_quotes")
-        .select("*")
-        .eq("is_active", true)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-      if (error) {
-        console.log("No daily quote found:", error);
-        return null;
-      }
-      return data;
     },
   });
 
   const settings = settingsData || {
     background_image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png",
     logo_image: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png",
-    subtitle_ua: "Бібліотека ведичних аудіокниг",
-    subtitle_en: "Library of Vedic audiobooks",
   };
-
-  const quoteText = dailyQuote
-    ? (language === "ua" ? dailyQuote.text_ua : dailyQuote.text_en)
-    : (language === "ua" ? settings.quote_ua : settings.quote_en);
-
-  const quoteAuthor = dailyQuote
-    ? (language === "ua" ? dailyQuote.author_ua : dailyQuote.author_en)
-    : (language === "ua" ? settings.quote_author_ua : settings.quote_author_en);
-
-  const quoteSource = dailyQuote
-    ? (language === "ua" ? dailyQuote.source_ua : dailyQuote.source_en)
-    : (language === "ua" ? settings.quote_source_ua : settings.quote_source_en);
 
   return (
     <section
@@ -141,24 +96,10 @@ function Hero() {
             </div>
           </div>
 
-          {/* Quote Box */}
-          {quoteText && (
-            <Card className="mx-auto max-w-2xl backdrop-blur-md bg-white/15 dark:bg-black/30 border-white/20">
-              <CardContent className="p-4 sm:p-6">
-                <blockquote className="text-center">
-                  <p className="text-sm sm:text-base md:text-lg font-serif italic text-white/95 leading-relaxed">
-                    "{quoteText}"
-                  </p>
-                  {(quoteAuthor || quoteSource) && (
-                    <footer className="mt-3 text-xs sm:text-sm text-white/80">
-                      {quoteAuthor && <cite className="not-italic font-medium">— {quoteAuthor}</cite>}
-                      {quoteSource && <span className="ml-2 opacity-80">{quoteSource}</span>}
-                    </footer>
-                  )}
-                </blockquote>
-              </CardContent>
-            </Card>
-          )}
+          {/* Daily Quote Banner - випадкові вірші з бібліотеки */}
+          <div className="mx-auto max-w-2xl">
+            <DailyQuoteBanner />
+          </div>
         </div>
       </div>
 
