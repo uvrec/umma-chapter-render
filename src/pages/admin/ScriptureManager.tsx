@@ -35,6 +35,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 export default function ScriptureManager() {
   const { user, isAdmin } = useAuth();
@@ -439,7 +440,7 @@ export default function ScriptureManager() {
                               )}
                             </div>
                             {verse.translation_ua && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">{verse.translation_ua}</p>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{stripParagraphTags(verse.translation_ua)}</p>
                             )}
                           </div>
 

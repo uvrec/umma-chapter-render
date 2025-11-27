@@ -14,6 +14,7 @@ import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 /* =========================
    Типи пропсів
@@ -611,7 +612,7 @@ export const DualLanguageVerseCard = ({
                     className="min-h-[100px] prose-reader font-semibold"
                   />
                 ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationUa}</p>
+                  <p className="prose-reader text-foreground font-semibold text-justify">{stripParagraphTags(translationUa)}</p>
                 )}
               </div>
 
@@ -640,7 +641,7 @@ export const DualLanguageVerseCard = ({
                     className="min-h-[100px] prose-reader font-semibold"
                   />
                 ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>
+                  <p className="prose-reader text-foreground font-semibold text-justify">{stripParagraphTags(translationEn)}</p>
                 )}
               </div>
             </div>

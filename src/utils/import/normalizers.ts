@@ -81,8 +81,31 @@ export function extractSanskritText(text: string): string | undefined {
   if (devanagariMatch) {
     return devanagariMatch[0];
   }
-  
+
   // Look for IAST transliteration (with diacritics)
   const iastMatch = text.match(/[a-zA-Zāīūṛṝḷḹēōṃḥśṣṇṭḍ]+/);
   return iastMatch ? iastMatch[0] : undefined;
+}
+
+/**
+ * Видаляє HTML теги <p> та </p> з тексту, залишаючи контент.
+ * Використовується для очистки перекладів від небажаних HTML тегів.
+ *
+ * Приклади:
+ * - "<p>текст</p>" → "текст"
+ * - "<p>рядок 1</p><p>рядок 2</p>" → "рядок 1 рядок 2"
+ * - "звичайний текст" → "звичайний текст"
+ */
+export function stripParagraphTags(text: string): string {
+  if (!text) return '';
+
+  // Якщо немає HTML тегів - повертаємо як є
+  if (!text.includes('<')) return text;
+
+  return text
+    .replace(/<p\s*[^>]*>/gi, '')  // Видаляємо <p> та <p class="...">
+    .replace(/<\/p>/gi, ' ')       // Замінюємо </p> на пробіл
+    .replace(/<br\s*\/?>/gi, ' ')  // Замінюємо <br> на пробіл
+    .replace(/\s+/g, ' ')          // Нормалізуємо множинні пробіли
+    .trim();
 }
