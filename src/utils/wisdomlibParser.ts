@@ -1,268 +1,379 @@
 // ============================================================================
-// WISDOM LIBRARY PARSER - Chaitanya Bhagavata
-// Updated version with correct selectors for actual HTML structure
+// WISDOM LIBRARY PARSER - Chaitanya Bhagavata (SCB)
+// Повна підтримка парсингу з wisdomlib.org
 //
-// DB STRUCTURE (existing, book slug: 'scb'):
-//   books (slug='scb') → cantos (3 khaṇḍas) → chapters → verses
+// Структура книги:
+// - Ādi-khaṇḍa (Book 1) - 17 глав
+// - Madhya-khaṇḍa (Book 2) - 28 глав
+// - Antya-khaṇḍa (Book 3) - 10 глав
 //
-// Khaṇḍas stored as cantos:
-//   1. Ādi-khaṇḍa
-//   2. Madhya-khaṇḍa
-//   3. Antya-khaṇḍa
+// Book slug: scb
 // ============================================================================
 
 export interface WisdomlibVerse {
-  verse_number: string; // e.g., "1", "352-353"
-  bengali?: string;
+  verse_number: string;
+  bengali?: string; // Bengali text (original)
+  devanagari?: string; // Devanagari text
   transliteration_en?: string; // IAST with diacritics
+  transliteration_simple?: string; // Simple ASCII
+  synonyms_en?: string;
   translation_en?: string;
-  commentary_en?: string; // Gauḍīya-bhāṣya
+  commentary_en?: string; // Gaudiya-bhāṣya by Bhaktisiddhānta Sarasvatī
+  url?: string;
 }
 
 export interface WisdomlibChapter {
   chapter_number: number;
-  khanda_number: number; // 1=Ādi, 2=Madhya, 3=Antya
-  khanda_name: string;
   title_en?: string;
+  introduction?: string; // Chapter summary/introduction if present
   verses: WisdomlibVerse[];
+  khanda: string; // adi, madhya, antya
+  khanda_number: number; // 1, 2, 3
   verseUrls?: Array<{ url: string; verseNumber: string }>;
+  url?: string;
 }
 
-// Khaṇḍa URLs
-export const KHANDA_URLS = {
-  adi: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1092508.html",
-  madhya: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1098648.html",
-  antya: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1108917.html",
-};
+export interface WisdomlibKhanda {
+  name: string; // adi, madhya, antya
+  number: number; // 1, 2, 3
+  title_en: string; // Ādi-khaṇḍa, etc.
+  chapters: WisdomlibChapter[];
+  url?: string;
+}
 
-// Khaṇḍa names for display
-// Ukrainian transliteration rules:
-// - dhy → дг'я (apostrophe for dh cluster before ya)
-// - nty → нтья (no apostrophe, soft sign absorption)
-export const KHANDA_NAMES: Record<number, { en: string; ua: string }> = {
-  1: { en: "Ādi-khaṇḍa", ua: "Аді-кханда" },
-  2: { en: "Madhya-khaṇḍa", ua: "Мадг'я-кханда" },
-  3: { en: "Antya-khaṇḍa", ua: "Антья-кханда" },
-};
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
 
-export interface WisdomlibChapterFull {
-  chapter_number: number;
-  khanda_number: number;
-  khanda_name: string;
-  title_en: string;
-  title_ua?: string;
-  content_en?: string; // Chapter introduction/description from "Introduction to chapter X"
-  content_ua?: string; // To be filled manually later
-  verses: WisdomlibVerse[];
-  verseUrls: Array<{ url: string; verseNumber: string; fullRef: string }>;
-  introUrl?: string;
+export const WISDOMLIB_BASE_URL = "https://www.wisdomlib.org";
+export const CHAITANYA_BHAGAVATA_URL = `${WISDOMLIB_BASE_URL}/hinduism/book/chaitanya-bhagavata`;
+
+export const KHANDAS_CONFIG = {
+  adi: {
+    number: 1,
+    title_en: "Ādi-khaṇḍa",
+    doc_id: "1092508",
+    chapters_count: 17,
+  },
+  madhya: {
+    number: 2,
+    title_en: "Madhya-khaṇḍa",
+    doc_id: "1098648",
+    chapters_count: 28,
+  },
+  antya: {
+    number: 3,
+    title_en: "Antya-khaṇḍa",
+    doc_id: "1108953",
+    chapters_count: 10,
+  },
+} as const;
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/** Перевіряє чи текст містить Bengali символи (Unicode U+0980–U+09FF) */
+export function isBengaliText(text: string): boolean {
+  return /[\u0980-\u09FF]/.test(text);
+}
+
+/** Перевіряє чи текст містить Devanagari символи (Unicode U+0900–U+097F) */
+export function isDevanagariText(text: string): boolean {
+  return /[\u0900-\u097F]/.test(text);
+}
+
+/** Перевіряє чи текст містить IAST діакритичні знаки */
+export function isIASTText(text: string): boolean {
+  return /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text.toLowerCase());
+}
+
+/** Витягує номер вірша з повного формату "X.Y.Z" */
+export function extractVerseNumber(fullNumber: string): string {
+  const match = fullNumber.match(/(\d+)\.(\d+)\.(\d+)/);
+  if (match) {
+    return match[3]; // Повертаємо тільки номер вірша в межах глави
+  }
+  // Якщо формат "X.Y"
+  const match2 = fullNumber.match(/(\d+)\.(\d+)/);
+  if (match2) {
+    return match2[2];
+  }
+  return fullNumber;
 }
 
 /**
- * Parse a single verse page from Wisdomlib
+ * Парсинг окремої сторінки вірша
  *
- * Actual HTML structure on verse pages (text content, not DOM):
- * "Bengali text, Devanagari and Unicode transliteration of verse X.Y.Z:"
- * Bengali: আজানু-লম্বিত-ভুজৌ... ॥ ১ ॥
- * Devanagari: आजानु-लम्बित-भुजौ... ॥ १ ॥ (skip)
- * IAST: ājānu-lambita-bhujau... || 1 ||
- * Plain: ajanu-lambita-bhujau... (1)
- * "English translation:"
- * (1) I offer my respectful obeisances...
- * "Commentary: Gauḍīya-bhāṣya by Śrīla Bhaktisiddhānta..."
- * Commentary text...
+ * Структура Wisdom Library для Chaitanya Bhagavata:
+ * 1. Bengali text (4 рядки) - в blockquote > p
+ * 2. English translation - перший p після blockquote
+ * 3. Commentary - після "Commentary: Gauḍīya-bhāṣya"
  */
 export function parseWisdomlibVersePage(html: string, verseUrl: string): WisdomlibVerse | null {
   try {
-    // Get full text content
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const fullText = doc.body?.textContent || html;
 
-    // Extract verse number from page content
-    // Pattern: "Verse X.Y.Z" or "Verse X.Y.Z-W"
-    let verseNumber = "1";
-    const verseMatch = fullText.match(/Verse\s+\d+\.\d+\.(\d+(?:-\d+)?)/i);
-    if (verseMatch) {
-      verseNumber = verseMatch[1];
-    }
+    // Витягуємо номер вірша з URL
+    const verseMatch = verseUrl.match(/doc(\d+)\.html/);
+    const verseNumber = verseMatch ? verseMatch[1] : "1";
 
     const verse: WisdomlibVerse = {
       verse_number: verseNumber,
     };
 
-    // Split text into lines for easier parsing
-    const lines = fullText
-      .split(/\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+    // 1. BENGALI TEXT - в blockquote (всі рядки разом)
+    const blockquote = doc.querySelector("#scontent blockquote, #pageContent blockquote");
+    if (blockquote) {
+      const paragraphs = blockquote.querySelectorAll("p");
+      const bengaliLines: string[] = [];
 
-    // 1. BENGALI TEXT
-    // Bengali script: U+0980–U+09FF
-    // Has verse marker like ॥ ১ ॥ (Bengali numerals)
-    // Must NOT contain Devanagari (U+0900–U+097F)
-    for (const line of lines) {
-      // Check for Bengali characters
-      if (/[\u0980-\u09FF]/.test(line)) {
-        // Make sure it's NOT Devanagari (mixed lines exist)
-        if (!/[\u0900-\u097F]/.test(line)) {
-          // Check for verse marker ॥ (U+0965) with Bengali numeral
-          if (/॥\s*[\u09E6-\u09EF\d]+(?:-[\u09E6-\u09EF\d]+)?\s*॥/.test(line)) {
-            verse.bengali = line;
-            break;
+      paragraphs.forEach((p) => {
+        const text = p.textContent?.trim() || "";
+        // Bengali текст містить специфічні символи Unicode U+0980–U+09FF
+        if (text && /[\u0980-\u09FF]/.test(text)) {
+          bengaliLines.push(text);
+        }
+      });
+
+      if (bengaliLines.length > 0) {
+        verse.bengali = bengaliLines.join("\n");
+      }
+    }
+
+    // 2. ENGLISH TRANSLATION - robust: search by label or numbered pattern within subtree
+    // Prefer #scontent (content area) and fallback to #pageContent only if missing
+    const scontent = doc.querySelector("#scontent") || doc.querySelector("#pageContent");
+    if (scontent) {
+      const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
+
+      let translation = "";
+
+      const normalize = (t: string) => t.replace(/\s+/g, " ").trim();
+      const isValidText = (t: string) =>
+        t.length > 20 &&
+        !/english\s*translation/i.test(t) &&
+        !/^Bengali text.*transliteration/i.test(t) &&
+        !/Previous|Next|Like what you read\?/i.test(t) &&
+        !/Buy now/i.test(t) &&
+        !/Chaitanya Bhagavata/i.test(t);
+
+      // Find explicit "English translation" label
+      const labelP = ps.find((p) => /english\s*translation\s*:?/i.test(p.textContent || ""));
+      if (labelP) {
+        const labelText = normalize(labelP.textContent || "");
+        // If translation is on the same line after the colon, grab it
+        const sameLine = labelText.match(/english\s*translation\s*:?\s*(.+)$/i);
+        if (sameLine && sameLine[1] && sameLine[1].length > 10) {
+          translation = sameLine[1];
+        } else {
+          // Otherwise take the next meaningful paragraph AFTER the label
+          const idx = ps.indexOf(labelP);
+          for (let i = idx + 1; i < ps.length; i++) {
+            const t = normalize(ps[i].textContent || "");
+            if (isValidText(t)) {
+              translation = t;
+              break;
+            }
           }
         }
       }
-    }
 
-    // 2. IAST TRANSLITERATION
-    // Has diacritics: āīūṛṝḷḹṃḥśṣṇṭḍñṅ
-    // Ends with || number || pattern
-    // Starts with lowercase letter
-    for (const line of lines) {
-      // Must have IAST diacritics
-      if (!/[āīūṛṝḷḹṃḥśṣṇṭḍñṅ]/.test(line)) continue;
-      // Must have || marker
-      if (!/\|\|/.test(line)) continue;
-      // Must start with lowercase (not header text)
-      if (!/^[a-zāīūṛṝḷḹṃḥśṣṇṭḍñṅ]/.test(line)) continue;
-      // Must end with || number || pattern
-      if (/\|\|\s*\d+(?:-\d+)?\s*\|\|/.test(line)) {
-        verse.transliteration_en = line;
-        break;
+      // Fallback: paragraph that starts with a numbered marker like "(198)"
+      if (!translation) {
+        const cand = ps.find((p) => /^\(\d+\)\s+/.test((p.textContent || "").trim()));
+        if (cand) translation = normalize(cand.textContent || "");
+      }
+
+      // Final fallback: first non-blockquote, meaningful paragraph
+      if (!translation) {
+        const cand = ps.find((p) => !p.closest("blockquote") && isValidText(normalize(p.textContent || "")));
+        if (cand) translation = normalize(cand.textContent || "");
+      }
+
+      if (translation) {
+        verse.translation_en = translation;
       }
     }
 
-    // 3. ENGLISH TRANSLATION
-    // Pattern: starts with (number) like "(1)" or "(352-353)"
-    // Should be after "English translation:" marker
-    let foundEngMarker = false;
-    for (const line of lines) {
-      // Check for English translation marker
-      if (/English\s*translation\s*:/i.test(line)) {
-        foundEngMarker = true;
-        continue;
+    // 3. COMMENTARY - paragraphs after the "Commentary: Gauḍīya-bhāṣya" heading
+    if (scontent) {
+      const commentaryParts: string[] = [];
+
+      // Prefer heading elements (h2/h3/h4) labeled as Commentary
+      const headers = Array.from(scontent.querySelectorAll("h2, h3, h4"));
+      const headerEl = headers.find((h) => /Commentary:|Gauḍīya-bhāṣya/i.test(h.textContent || "")) || null;
+
+      if (headerEl) {
+        let el: Element | null = headerEl.nextElementSibling;
+        while (el) {
+          const text = (el.textContent || "").trim();
+          if (!text) {
+            el = el.nextElementSibling;
+            continue;
+          }
+
+          // Stop at navigation/other sections or next major heading
+          if (/^English translation/i.test(text)) break;
+          if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+          if (/^Commentary:/i.test(text) && el !== headerEl) break;
+          if (/^Verse\s+\d/i.test(text)) break;
+          if (/^(References|Notes|Further reading)/i.test(text)) break;
+
+          const tag = el.tagName.toLowerCase();
+          if (tag === "p") {
+            commentaryParts.push(text);
+          } else if (tag === "ul" || tag === "ol") {
+            const lis = Array.from(el.querySelectorAll("li"))
+              .map((li) => (li.textContent || "").trim())
+              .filter(Boolean);
+            if (lis.length) commentaryParts.push(lis.join("\n"));
+          }
+
+          const next = el.nextElementSibling;
+          if (next && /^(H2|H3|H4)$/.test(next.tagName)) {
+            const nextText = (next.textContent || "").trim();
+            if (/^\s*(Translation|Commentary|References|Notes)\b/i.test(nextText)) break;
+          }
+
+          el = el.nextElementSibling;
+        }
+      } else {
+        // Fallback: header as a paragraph containing "Commentary:"
+        const ps = Array.from(scontent.querySelectorAll("p")) as HTMLParagraphElement[];
+        const startIdx = ps.findIndex((p) => /Commentary:|Gauḍīya-bhāṣya/i.test(p.textContent || ""));
+        if (startIdx >= 0) {
+          const headerText = (ps[startIdx].textContent || "").trim();
+          const afterHeader = headerText.split(/Commentary:|Gauḍīya-bhāṣya[^:]*:/i)[1];
+          if (afterHeader && afterHeader.trim()) commentaryParts.push(afterHeader.trim());
+
+          for (let i = startIdx + 1; i < ps.length; i++) {
+            const text = (ps[i].textContent || "").trim();
+            if (!text) continue;
+            if (/^Previous|^Next|Like what you read\?|^parent:/i.test(text)) break;
+            if (/^English translation/i.test(text)) break;
+            if (/^Commentary:/i.test(text)) break;
+            commentaryParts.push(text);
+          }
+        }
       }
 
-      // Look for translation line starting with (number)
-      const transMatch = line.match(/^\((\d+(?:-\d+)?)\)\s*(.+)/);
-      if (transMatch) {
-        // Verify it's actual translation (has enough English text)
-        if (transMatch[2].length > 20 && /[a-zA-Z]{3,}/.test(transMatch[2])) {
-          verse.translation_en = line;
+      if (commentaryParts.length > 0) {
+        verse.commentary_en = commentaryParts.join("\n\n");
+      }
+    }
+
+    // 4. TRANSLITERATION - якщо є, зазвичай в blockquote після Bengali
+    if (blockquote) {
+      const paragraphs = Array.from(blockquote.querySelectorAll("p"));
+      paragraphs.forEach((p) => {
+        const text = p.textContent?.trim() || "";
+        // Транслітерація містить діакритичні знаки IAST
+        if (text && /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text)) {
+          if (!verse.transliteration_en) {
+            verse.transliteration_en = text;
+          }
+        }
+      });
+    }
+
+    // 5. SYNONYMS - слова через "—" та ";"
+    if (scontent) {
+      const allParagraphs = Array.from(scontent.querySelectorAll("p, blockquote p"));
+
+      for (const p of allParagraphs) {
+        const text = p.textContent?.trim() || "";
+
+        // Synonyms мають характерний патерн: слово—переклад; слово—переклад
+        const dashCount = (text.match(/—/g) || []).length;
+        const semiCount = (text.match(/;/g) || []).length;
+
+        // Має бути мінімум 3 тире і 2 крапки з комою
+        if (dashCount >= 3 && semiCount >= 2 && text.length > 50) {
+          verse.synonyms_en = text;
           break;
         }
       }
     }
 
-    // 4. COMMENTARY - Gauḍīya-bhāṣya
-    // After "Commentary:" or "Gauḍīya-bhāṣya" marker
-    const commentaryParts: string[] = [];
-    let inCommentary = false;
-
-    for (const line of lines) {
-      if (!inCommentary) {
-        // Check for commentary start
-        if (/Commentary:|Gauḍīya-bhāṣya/i.test(line)) {
-          inCommentary = true;
-          // Get text after the marker on same line
-          const afterMarker = line.split(/Commentary:\s*Gauḍīya-bhāṣya[^:]*:|Commentary:/i)[1];
-          if (afterMarker && afterMarker.trim().length > 20) {
-            commentaryParts.push(afterMarker.trim());
-          }
-          continue;
-        }
-      } else {
-        // Stop at navigation/footer
-        if (/^(Previous|Next|Like what you read|Let's grow together|parent:|source:)/i.test(line)) break;
-        // Stop at new verse
-        if (/^Verse\s+\d+\.\d+\.\d+/i.test(line)) break;
-        // Skip very short lines (headers, etc)
-        if (line.length < 20) continue;
-        // Skip Bengali/Devanagari
-        if (/[\u0900-\u097F\u0980-\u09FF]/.test(line)) continue;
-
-        commentaryParts.push(line);
-      }
-    }
-
-    if (commentaryParts.length > 0) {
-      verse.commentary_en = commentaryParts.join("\n\n");
-    }
-
-    // Debug log
-    console.log("✅ Parsed verse:", {
+    console.log("✅ Wisdomlib verse parsed:", {
       verse_number: verse.verse_number,
       bengali: verse.bengali ? `${verse.bengali.substring(0, 50)}...` : "MISSING",
-      transliteration: verse.transliteration_en ? `${verse.transliteration_en.substring(0, 50)}...` : "MISSING",
       translation: verse.translation_en ? `${verse.translation_en.substring(0, 50)}...` : "MISSING",
       commentary: verse.commentary_en ? `${verse.commentary_en.length} chars` : "MISSING",
     });
 
-    // Return null if no content found
-    if (!verse.bengali && !verse.translation_en) {
-      console.warn("⚠️ No content found for verse");
+    // Повертаємо null якщо нема ключового контенту
+    if (!verse.bengali && !verse.translation_en && !verse.commentary_en) {
+      console.warn("⚠️ No content found for verse:", verseNumber);
       return null;
     }
 
     return verse;
   } catch (error) {
-    console.error("❌ Parse error:", error);
+    console.error("❌ Wisdomlib parse error:", error);
     return null;
   }
 }
 
 /**
- * Extract verse URLs from a khaṇḍa or chapter index page
- * Links follow pattern: /d/docNNNNNN.html with text "Verse X.Y.Z"
+ * Витягує URLs віршів зі сторінки глави
  */
-export function extractVerseUrlsFromIndex(
+export function extractWisdomlibVerseUrls(
   html: string,
-  baseUrl: string,
-): Array<{ url: string; verseNumber: string; fullRef: string }> {
+  chapterUrl: string,
+): Array<{ url: string; verseNumber: string }> {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const verses: Array<{ url: string; verseNumber: string; fullRef: string }> = [];
+    const verseUrls: Array<{ url: string; verseNumber: string }> = [];
 
-    const links = doc.querySelectorAll('a[href*="/d/doc"]');
+    const contentArea = doc.querySelector("#scontent, .content, main") || doc;
+    const links = contentArea.querySelectorAll('a[href*="/d/doc"]');
 
     links.forEach((link) => {
       const href = link.getAttribute("href");
-      const text = link.textContent?.trim() || "";
-
       if (!href) return;
 
-      // Match "Verse 1.1.1" or "Verse 3.5.352-353"
-      const verseMatch = text.match(/Verse\s+(\d+)\.(\d+)\.(\d+(?:-\d+)?)/i);
+      const text = link.textContent?.trim() || "";
+      const title = link.getAttribute("title") || "";
+
+      // Шукаємо номер вірша: "1", "1.1", "1.1.1", "Verse 1", "Verse 1.1.1", тощо
+      // Перевіряємо text та title
+      const verseMatch =
+        text.match(/^(?:Verse\s*)?(\d+(?:\.\d+){0,2})\b/i) || title.match(/(?:Verse\s*)?(\d+(?:\.\d+){0,2})/i);
+
       if (!verseMatch) return;
+      const verseNumber = verseMatch[1];
 
-      const [, khanda, chapter, verse] = verseMatch;
-      const fullRef = `${khanda}.${chapter}.${verse}`;
-
-      // Build full URL
+      // Будуємо повний URL
       let fullUrl = href;
       if (href.startsWith("/")) {
-        const base = new URL(baseUrl);
+        const base = new URL(chapterUrl);
         fullUrl = base.origin + href;
+      } else if (!href.startsWith("http")) {
+        const base = new URL(chapterUrl);
+        fullUrl = base.origin + "/" + href;
       }
 
-      verses.push({
-        url: fullUrl,
-        verseNumber: verse,
-        fullRef,
-      });
+      verseUrls.push({ url: fullUrl, verseNumber });
     });
 
-    // Sort by verse number
-    verses.sort((a, b) => {
-      const aNum = parseInt(a.verseNumber.split("-")[0], 10);
-      const bNum = parseInt(b.verseNumber.split("-")[0], 10);
-      return aNum - bNum;
+    // Сортуємо за номером вірша (якщо є крапки, сортуємо як масив чисел)
+    verseUrls.sort((a, b) => {
+      const aParts = a.verseNumber.split(".").map(Number);
+      const bParts = b.verseNumber.split(".").map(Number);
+      for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+        const aVal = aParts[i] || 0;
+        const bVal = bParts[i] || 0;
+        if (aVal !== bVal) return aVal - bVal;
+      }
+      return 0;
     });
 
-    console.log(`✅ Found ${verses.length} verse URLs`);
-    return verses;
+    console.log(`✅ Found ${verseUrls.length} verse URLs in chapter`);
+    return verseUrls;
   } catch (error) {
     console.error("❌ Error extracting verse URLs:", error);
     return [];
@@ -270,351 +381,512 @@ export function extractVerseUrlsFromIndex(
 }
 
 /**
- * Parse chapter introduction page from Wisdomlib
- * URL pattern: "Introduction to chapter X"
- * Content goes into chapters.content_en (not intro_chapters table)
- * intro_chapters table is for book-level intros like Preface, Foreword
+ * Парсинг сторінки глави (отримує список URLs віршів)
  */
-export function parseChapterIntroPage(
-  html: string,
-  khandaNumber: number,
-  chapterNumber: number,
-  chapterTitle: string,
-): { content_en: string } | null {
+export function parseWisdomlibChapterPage(html: string, chapterUrl: string, khanda: string): WisdomlibChapter | null {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const fullText = doc.body?.textContent || html;
 
-    // Find introduction content - everything after "Introduction to chapter X" heading
-    // and before navigation/footer
-    const lines = fullText
-      .split(/\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+    // Витягуємо номер глави з URL
+    const chapterMatch = chapterUrl.match(/chapter[_-]?(\d+)/i) || chapterUrl.match(/doc(\d+)/);
+    const chapterNumber = chapterMatch ? parseInt(chapterMatch[1], 10) : 1;
 
-    const contentParts: string[] = [];
-    let inIntro = false;
+    // Витягуємо заголовок
+    const titleEl = doc.querySelector("h1, h2, .chapter-title, #scontent > h2");
+    const title = titleEl?.textContent?.trim() || `Chapter ${chapterNumber}`;
 
-    for (const line of lines) {
-      // Start capturing after intro header
-      if (/Introduction to chapter\s+\d+/i.test(line)) {
-        inIntro = true;
-        continue;
-      }
+    // Витягуємо URLs віршів
+    const verseUrls = extractWisdomlibVerseUrls(html, chapterUrl);
 
-      if (!inIntro) continue;
+    console.log(`✅ Chapter ${chapterNumber} parsed:`, {
+      title,
+      khanda,
+      verseCount: verseUrls.length,
+    });
 
-      // Stop conditions
-      if (/^(Previous|Next|Like what you read|Let's grow together|parent:|source:)/i.test(line)) break;
-      if (/^Verse\s+\d+\.\d+\.\d+/i.test(line)) break;
-      if (/^Chapter\s+\d+\s*[-–]/i.test(line)) break;
-
-      // Skip short lines and navigation
-      if (line.length < 30) continue;
-      // Skip if contains book metadata
-      if (/by Bhumipati|1,349,850 words|16th century/i.test(line)) continue;
-
-      contentParts.push(line);
-    }
-
-    if (contentParts.length === 0) {
-      console.warn(`⚠️ No intro content found for chapter ${khandaNumber}.${chapterNumber}`);
-      return null;
-    }
-
-    // Format as HTML paragraphs
-    const contentHtml = contentParts.map((p) => `<p>${p}</p>`).join("\n");
-
-    console.log(`✅ Parsed intro for chapter ${khandaNumber}.${chapterNumber}: ${contentParts.length} paragraphs`);
-    return { content_en: contentHtml };
+    return {
+      chapter_number: chapterNumber,
+      title_en: title,
+      verses: [],
+      khanda,
+      verseUrls,
+    };
   } catch (error) {
-    console.error("❌ Error parsing chapter intro:", error);
+    console.error("❌ Chapter parse error:", error);
     return null;
   }
 }
 
 /**
- * Extract chapter info including intro URL from khaṇḍa index page
- * Links follow patterns:
- * - "Chapter X - Title" for chapter page
- * - "Introduction to chapter X" for intro page
+ * Визначає khaṇḍa з URL
  */
-export function extractChaptersWithIntros(
-  html: string,
-  baseUrl: string,
-  khandaNumber: number,
-): Array<{
-  chapterNumber: number;
-  title: string;
-  chapterUrl: string;
-  introUrl?: string;
-}> {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    const chapters = new Map<number, { title: string; chapterUrl: string; introUrl?: string }>();
-
-    const links = doc.querySelectorAll('a[href*="/d/doc"]');
-
-    links.forEach((link) => {
-      const href = link.getAttribute("href");
-      const text = link.textContent?.trim() || "";
-
-      if (!href) return;
-
-      // Build full URL
-      let fullUrl = href;
-      if (href.startsWith("/")) {
-        const base = new URL(baseUrl);
-        fullUrl = base.origin + href;
-      }
-
-      // Match "Chapter X - Title"
-      const chapterMatch = text.match(/Chapter\s+(\d+)\s*[-–]\s*(.+)/i);
-      if (chapterMatch) {
-        const num = parseInt(chapterMatch[1], 10);
-        const title = chapterMatch[2].trim();
-        const existing = chapters.get(num);
-        chapters.set(num, {
-          title: existing?.title || title,
-          chapterUrl: fullUrl,
-          introUrl: existing?.introUrl,
-        });
-        return;
-      }
-
-      // Match "Introduction to chapter X"
-      const introMatch = text.match(/Introduction to chapter\s+(\d+)/i);
-      if (introMatch) {
-        const num = parseInt(introMatch[1], 10);
-        const existing = chapters.get(num);
-        chapters.set(num, {
-          title: existing?.title || `Chapter ${num}`,
-          chapterUrl: existing?.chapterUrl || "",
-          introUrl: fullUrl,
-        });
-        return;
-      }
-    });
-
-    // Convert to array and sort
-    const result = Array.from(chapters.entries())
-      .map(([num, data]) => ({
-        chapterNumber: num,
-        title: data.title,
-        chapterUrl: data.chapterUrl,
-        introUrl: data.introUrl,
-      }))
-      .filter((ch) => ch.chapterUrl) // Must have chapter URL
-      .sort((a, b) => a.chapterNumber - b.chapterNumber);
-
-    console.log(
-      `✅ Found ${result.length} chapters with ${result.filter((c) => c.introUrl).length} intros in khaṇḍa ${khandaNumber}`,
-    );
-    return result;
-  } catch (error) {
-    console.error("❌ Error extracting chapters:", error);
-    return [];
-  }
-}
-
-/**
- * Determine khaṇḍa from URL
- */
-export function getKhandaFromUrl(url: string): { name: string; number: number } {
-  const lower = url.toLowerCase();
-  if (lower.includes("antya") || lower.includes("doc1108917") || lower.includes("doc110") || lower.includes("doc111")) {
-    return { name: "antya", number: 3 };
-  }
-  if (
-    lower.includes("madhya") ||
-    lower.includes("doc1098648") ||
-    lower.includes("doc109") ||
-    lower.includes("doc110")
-  ) {
+export function determineKhandaFromUrl(url: string): { name: string; number: number } {
+  const urlLower = url.toLowerCase();
+  if (urlLower.includes("adi")) {
+    return { name: "adi", number: 1 };
+  } else if (urlLower.includes("madhya")) {
     return { name: "madhya", number: 2 };
+  } else if (urlLower.includes("antya")) {
+    return { name: "antya", number: 3 };
   }
   return { name: "adi", number: 1 };
 }
 
 /**
- * Parse full verse reference like "1.15.101" or "3.5.352-353"
+ * Витягує URLs глав з головної сторінки книги
  */
-export function parseVerseRef(ref: string): { khanda: number; chapter: number; verse: string } | null {
-  const match = ref.match(/^(\d+)\.(\d+)\.(\d+(?:-\d+)?)$/);
-  if (!match) return null;
+export function extractWisdomlibChapterUrls(
+  html: string,
+  baseUrl: string,
+): Array<{ url: string; title: string; chapterNumber: number; khanda: string }> {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const chapters: Array<{ url: string; title: string; chapterNumber: number; khanda: string }> = [];
+
+    // Шукаємо всі посилання на глави
+    const links = doc.querySelectorAll('a[href*="/d/doc"]');
+
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href) return;
+
+      const text = link.textContent?.trim() || "";
+
+      // Пропускаємо не-глави
+      const lower = text.toLowerCase();
+      if (lower.includes("introduction") || lower.includes("preface") || lower.includes("index")) return;
+
+      // Беремо контекст з батьківського елемента (li, p, div) — там часто є номер
+      const parent = link.closest("li, p, div");
+      const context = parent?.textContent?.trim() || "";
+
+      // Варіанти визначення номера глави:
+      // 1) "Chapter 1" або "Adhyāya 1"
+      // 2) "1. ..." або "1 – ..." на початку рядка
+      let chapterNumber: number | null = null;
+      const r1 = text.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i) || context.match(/(?:Chapter|Adhy[āa]ya)\s+(\d+)/i);
+      if (r1) {
+        chapterNumber = parseInt(r1[1], 10);
+      } else {
+        const r2 = text.match(/^\s*(\d+)\s*[.:\-–]\s+/) || context.match(/^\s*(\d+)\s*[.:\-–]\s+/);
+        if (r2) chapterNumber = parseInt(r2[1], 10);
+      }
+      if (chapterNumber === null) return;
+
+      // Визначаємо khaṇḍa з baseUrl, а не з href (бо href - це /d/doc...)
+      const khanda = determineKhandaFromUrl(baseUrl).name;
+
+      // Будуємо повний URL
+      let fullUrl = href;
+      if (href.startsWith("/")) {
+        const base = new URL(baseUrl);
+        fullUrl = base.origin + href;
+      } else if (!href.startsWith("http")) {
+        fullUrl = baseUrl.replace(/\/$/, "") + "/" + href;
+      }
+
+      chapters.push({ url: fullUrl, title: text, chapterNumber, khanda });
+    });
+
+    // Сортуємо за номером глави
+    chapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
+
+    console.log(`✅ Found ${chapters.length} chapters`);
+    return chapters;
+  } catch (error) {
+    console.error("❌ Error extracting chapter URLs:", error);
+    return [];
+  }
+}
+
+/**
+ * Конвертує главу Wisdomlib у стандартний формат для імпорту в БД
+ */
+export function wisdomlibChapterToStandardChapter(chapter: WisdomlibChapter): any {
   return {
-    khanda: parseInt(match[1], 10),
-    chapter: parseInt(match[2], 10),
-    verse: match[3],
-  };
-}
-
-/**
- * Convert to standard format for database import
- */
-export function wisdomlibVerseToStandard(verse: WisdomlibVerse, khandaNumber: number, chapterNumber: number) {
-  return {
-    verse_number: verse.verse_number,
-    bengali: verse.bengali || "",
-    transliteration_en: verse.transliteration_en || "",
-    transliteration_ua: "",
-    synonyms_en: "", // Chaitanya Bhagavata doesn't have word-for-word
-    synonyms_ua: "",
-    translation_en: verse.translation_en || "",
-    translation_ua: "",
-    commentary_en: verse.commentary_en || "",
-    commentary_ua: "",
-  };
-}
-
-/**
- * Convert chapter to standard format
- */
-export function wisdomlibChapterToStandard(chapter: WisdomlibChapter) {
-  return {
-    chapter_number: chapter.chapter_number,
-    khanda_number: chapter.khanda_number,
-    khanda_name: chapter.khanda_name,
-    title_en: chapter.title_en || `Chapter ${chapter.chapter_number}`,
-    title_ua: "",
-    chapter_type: "verses" as const,
-    verses: chapter.verses.map((v) => wisdomlibVerseToStandard(v, chapter.khanda_number, chapter.chapter_number)),
-  };
-}
-
-// ============================================================================
-// DATABASE EXPORT STRUCTURES
-// Existing DB structure for book 'scb':
-//   books (id, slug='scb')
-//     → cantos (id, book_id, canto_number=1/2/3, title_en, title_ua)
-//       → chapters (id, book_id, canto_id, chapter_number, title_en, title_ua, content_en, content_ua)
-//         → verses (id, chapter_id, verse_number, sanskrit, transliteration_en, translation_en, commentary_en, ...)
-// ============================================================================
-
-/**
- * Structure for cantos table (3 khaṇḍas)
- * Canto records should already exist in DB for book 'scb'
- */
-export interface CantoDbRecord {
-  id: string; // UUID - use existing canto IDs
-  book_id: string;
-  canto_number: number; // 1, 2, or 3
-  title_en: string; // "Ādi-khaṇḍa", "Madhya-khaṇḍa", "Antya-khaṇḍa"
-  title_ua: string; // "Аді-кханда", "Мадхья-кханда", "Антья-кханда"
-}
-
-/**
- * Structure for chapters table insert
- */
-export interface ChapterDbInsert {
-  book_id: string; // UUID of 'scb' book
-  canto_id?: string; // UUID of canto (khanda)
-  chapter_number: number;
-  title_en: string;
-  title_ua: string;
-  content_en?: string; // Chapter introduction from "Introduction to chapter X"
-  content_ua?: string;
-}
-
-/**
- * Structure for verses table insert
- */
-export interface VerseDbInsert {
-  chapter_id: string;
-  verse_number: string;
-  sanskrit: string; // Bengali text goes here
-  transliteration_en: string;
-  transliteration_ua: string;
-  synonyms_en: string;
-  synonyms_ua: string;
-  translation_en: string;
-  translation_ua: string;
-  commentary_en: string;
-  commentary_ua: string;
-  sort_key: number;
-  is_published: boolean;
-}
-
-/**
- * Convert parsed data to database insert format
- * Chapter intro goes into chapters.content_en (not intro_chapters table)
- */
-export function prepareChapterForDb(
-  chapter: WisdomlibChapterFull,
-  bookId: string,
-  cantoId: string,
-): {
-  chapter: ChapterDbInsert;
-  verses: Omit<VerseDbInsert, "chapter_id">[];
-} {
-  const chapterInsert: ChapterDbInsert = {
-    book_id: bookId,
-    canto_id: cantoId,
     chapter_number: chapter.chapter_number,
     title_en: chapter.title_en,
-    title_ua: chapter.title_ua || "",
-    content_en: chapter.content_en || "", // Introduction content
-    content_ua: chapter.content_ua || "",
-  };
-
-  const versesInsert = chapter.verses.map((v, idx) => ({
-    verse_number: v.verse_number,
-    sanskrit: v.bengali || "", // Bengali text in sanskrit field
-    transliteration_en: v.transliteration_en || "",
-    transliteration_ua: "",
-    synonyms_en: "", // CB doesn't have word-for-word
-    synonyms_ua: "",
-    translation_en: v.translation_en || "",
-    translation_ua: "",
-    commentary_en: v.commentary_en || "",
-    commentary_ua: "",
-    sort_key: (idx + 1) * 10,
-    is_published: true,
-  }));
-
-  return {
-    chapter: chapterInsert,
-    verses: versesInsert,
+    title_ua: chapter.title_en, // Поки що немає UA перекладів з Wisdomlib
+    chapter_type: "verses" as const,
+    verses: chapter.verses.map((v) => ({
+      verse_number: extractVerseNumber(v.verse_number),
+      sanskrit: v.bengali || "", // Bengali текст
+      sanskrit_en: v.devanagari || "", // Devanagari текст
+      transliteration_en: v.transliteration_en || "",
+      transliteration_ua: "", // Немає UA транслітерації
+      synonyms_en: v.synonyms_en || "",
+      synonyms_ua: "", // Немає UA synonyms
+      translation_en: v.translation_en || "",
+      translation_ua: "", // Немає UA перекладу
+      commentary_en: v.commentary_en || "",
+      commentary_ua: "", // Немає UA коментарів
+    })),
   };
 }
 
+// ============================================================================
+// ADVANCED PARSING - Enhanced verse page parser
+// ============================================================================
+
 /**
- * Generate SQL for inserting a chapter with all its content
- * This can be used for manual database import
+ * Покращений парсер сторінки вірша з повним витягуванням даних
+ *
+ * Структура сторінки wisdomlib.org для Chaitanya Bhagavata:
+ *
+ * 1. Title: "Verse X.Y.Z"
+ * 2. Subtitle: "Bengali text, Devanagari and Unicode transliteration of verse X.Y.Z:"
+ * 3. Blockquote містить:
+ *    - Bengali text (перші 2-4 рядки)
+ *    - Devanagari text (наступні 2-4 рядки)
+ *    - IAST transliteration (з діакритикою)
+ *    - Simple transliteration (без діакритики, в дужках з номером)
+ * 4. "English translation:" + переклад
+ * 5. "Commentary: Gauḍīya-bhāṣya by Śrīla Bhaktisiddhānta Sarasvatī Ṭhākura:" + коментар
  */
-export function generateInsertSql(chapter: WisdomlibChapterFull, bookId: string, cantoId: string): string {
-  const data = prepareChapterForDb(chapter, bookId, cantoId);
-  const lines: string[] = [];
+export function parseWisdomlibVersePageEnhanced(html: string, verseUrl: string): WisdomlibVerse | null {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
 
-  // Escape SQL string
-  const esc = (s: string) => s.replace(/'/g, "''");
+    // Витягуємо номер вірша з заголовка
+    const titleEl = doc.querySelector("h1, h2");
+    const titleText = titleEl?.textContent?.trim() || "";
 
-  // Chapter insert (including content_en for introduction)
-  lines.push(`-- Chapter ${chapter.khanda_number}.${chapter.chapter_number}: ${chapter.title_en}`);
-  lines.push(`INSERT INTO chapters (book_id, canto_id, chapter_number, title_en, title_ua, content_en, content_ua)`);
-  lines.push(
-    `VALUES ('${bookId}', '${cantoId}', ${data.chapter.chapter_number}, '${esc(data.chapter.title_en)}', '${esc(data.chapter.title_ua)}', '${esc(data.chapter.content_en || "")}', '${esc(data.chapter.content_ua || "")}')`,
-  );
-  lines.push(`RETURNING id;`);
-  lines.push(``);
+    const verseMatch = titleText.match(/Verse\s+(\d+)\.(\d+)\.(\d+)/i);
+    if (!verseMatch) {
+      console.warn("⚠️ Could not extract verse number from title:", titleText);
+      // Fallback to URL
+      const urlMatch = verseUrl.match(/doc(\d+)\.html/);
+      if (!urlMatch) return null;
+    }
 
-  // Verses insert
-  if (data.verses.length > 0) {
-    lines.push(`-- Verses (${data.verses.length} total)`);
-    lines.push(`-- NOTE: Replace CHAPTER_ID_HERE with actual chapter id from RETURNING above`);
-    lines.push(
-      `INSERT INTO verses (chapter_id, verse_number, sanskrit, transliteration_en, translation_en, commentary_en, sort_key, is_published)`,
-    );
-    lines.push(`VALUES`);
+    const khandaNum = verseMatch ? verseMatch[1] : "1";
+    const chapterNum = verseMatch ? verseMatch[2] : "1";
+    const verseNum = verseMatch ? verseMatch[3] : "1";
 
-    const valueLines = data.verses.map((v, idx) => {
-      const isLast = idx === data.verses.length - 1;
-      return `  ('CHAPTER_ID_HERE', '${esc(v.verse_number)}', '${esc(v.sanskrit)}', '${esc(v.transliteration_en)}', '${esc(v.translation_en)}', '${esc(v.commentary_en)}', ${v.sort_key}, true)${isLast ? ";" : ","}`;
+    const verse: WisdomlibVerse = {
+      verse_number: verseNum,
+      url: verseUrl,
+    };
+
+    // Знаходимо контент
+    const scontent = doc.querySelector("#scontent") || doc.querySelector("#pageContent") || doc.body;
+    if (!scontent) return null;
+
+    // Парсимо blockquote для Bengali, Devanagari та транслітерації
+    const blockquote = scontent.querySelector("blockquote");
+    if (blockquote) {
+      const paragraphs = Array.from(blockquote.querySelectorAll("p"));
+
+      const bengaliLines: string[] = [];
+      const devanagariLines: string[] = [];
+      let iastText = "";
+      let simpleText = "";
+
+      for (const p of paragraphs) {
+        const text = p.textContent?.trim() || "";
+        if (!text) continue;
+
+        if (isBengaliText(text)) {
+          bengaliLines.push(text);
+        } else if (isDevanagariText(text)) {
+          devanagariLines.push(text);
+        } else if (isIASTText(text) && !iastText) {
+          iastText = text;
+        } else if (/^\w[\w\s\-''"",.()]+$/.test(text) && !simpleText) {
+          // Simple ASCII transliteration
+          simpleText = text;
+        }
+      }
+
+      if (bengaliLines.length > 0) {
+        verse.bengali = bengaliLines.join("\n");
+      }
+      if (devanagariLines.length > 0) {
+        verse.devanagari = devanagariLines.join("\n");
+      }
+      if (iastText) {
+        verse.transliteration_en = iastText;
+      }
+      if (simpleText) {
+        verse.transliteration_simple = simpleText;
+      }
+    }
+
+    // Парсимо English translation
+    const allParagraphs = Array.from(scontent.querySelectorAll("p"));
+    let foundTranslation = false;
+
+    for (let i = 0; i < allParagraphs.length; i++) {
+      const p = allParagraphs[i];
+      const text = p.textContent?.trim() || "";
+
+      // Шукаємо заголовок "English translation:"
+      if (/^english\s+translation\s*:?/i.test(text)) {
+        // Перевіряємо чи переклад на тому ж рядку
+        const match = text.match(/english\s+translation\s*:?\s*(.+)/i);
+        if (match && match[1] && match[1].length > 20) {
+          verse.translation_en = match[1].trim();
+          foundTranslation = true;
+        } else {
+          // Шукаємо в наступних параграфах
+          for (let j = i + 1; j < Math.min(i + 5, allParagraphs.length); j++) {
+            const nextText = allParagraphs[j].textContent?.trim() || "";
+
+            // Пропускаємо Bengali/Devanagari
+            if (isBengaliText(nextText) || isDevanagariText(nextText)) continue;
+
+            // Пропускаємо короткі рядки
+            if (nextText.length < 20) continue;
+
+            // Пропускаємо навігацію
+            if (/^(previous|next|buy now|like what)/i.test(nextText)) continue;
+
+            // Пропускаємо коментар
+            if (/^commentary/i.test(nextText)) break;
+
+            verse.translation_en = nextText;
+            foundTranslation = true;
+            break;
+          }
+        }
+        break;
+      }
+
+      // Альтернатива: параграф починається з номера в дужках "(123)"
+      if (!foundTranslation && /^\(\d+\)\s+/.test(text)) {
+        verse.translation_en = text;
+        foundTranslation = true;
+      }
+    }
+
+    // Парсимо Commentary
+    const commentaryParts: string[] = [];
+    let inCommentary = false;
+
+    for (const p of allParagraphs) {
+      const text = p.textContent?.trim() || "";
+
+      if (/commentary|gauḍīya-bhāṣya/i.test(text)) {
+        inCommentary = true;
+
+        // Перевіряємо чи коментар починається тут
+        const match = text.match(/(?:commentary|gauḍīya-bhāṣya)[^:]*:\s*(.+)/i);
+        if (match && match[1] && match[1].length > 20) {
+          commentaryParts.push(match[1].trim());
+        }
+        continue;
+      }
+
+      if (inCommentary) {
+        // Зупиняємось на навігації
+        if (/^(previous|next|like what you read|let's grow)/i.test(text)) break;
+
+        // Зупиняємось на посиланнях на інші вірші
+        if (/^verse\s+\d/i.test(text)) break;
+
+        if (text.length > 10) {
+          commentaryParts.push(text);
+        }
+      }
+    }
+
+    if (commentaryParts.length > 0) {
+      verse.commentary_en = commentaryParts.join("\n\n");
+    }
+
+    // Логуємо результат
+    console.log(`✅ Wisdomlib verse ${khandaNum}.${chapterNum}.${verseNum} parsed:`, {
+      bengali: verse.bengali ? `${verse.bengali.length} chars` : "MISSING",
+      devanagari: verse.devanagari ? `${verse.devanagari.length} chars` : "MISSING",
+      transliteration: verse.transliteration_en ? "OK" : "MISSING",
+      translation: verse.translation_en ? `${verse.translation_en.length} chars` : "MISSING",
+      commentary: verse.commentary_en ? `${verse.commentary_en.length} chars` : "MISSING",
     });
-    lines.push(...valueLines);
+
+    // Перевіряємо чи є хоч якийсь контент
+    if (!verse.bengali && !verse.translation_en && !verse.commentary_en) {
+      console.warn("⚠️ No content found for verse");
+      return null;
+    }
+
+    return verse;
+  } catch (error) {
+    console.error("❌ Wisdomlib enhanced parse error:", error);
+    return null;
+  }
+}
+
+// ============================================================================
+// KHANDA PARSING
+// ============================================================================
+
+/**
+ * Парсить сторінку khaṇḍa і витягує список глав
+ */
+export function parseWisdomlibKhandaPage(
+  html: string,
+  khandaUrl: string,
+  khandaName: string,
+): Array<{ url: string; title: string; chapterNumber: number }> {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const chapters: Array<{ url: string; title: string; chapterNumber: number }> = [];
+
+    const content = doc.querySelector("#scontent") || doc.querySelector("#pageContent") || doc.body;
+    if (!content) return chapters;
+
+    const links = content.querySelectorAll('a[href*="/d/doc"]');
+
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+      if (!href) return;
+
+      const text = link.textContent?.trim() || "";
+
+      // Шукаємо "Chapter N"
+      const chapterMatch = text.match(/Chapter\s+(\d+)/i);
+      if (!chapterMatch) return;
+
+      const chapterNum = parseInt(chapterMatch[1], 10);
+
+      // Будуємо повний URL
+      let fullUrl = href;
+      if (href.startsWith("/")) {
+        fullUrl = WISDOMLIB_BASE_URL + href;
+      } else if (!href.startsWith("http")) {
+        fullUrl = WISDOMLIB_BASE_URL + "/" + href;
+      }
+
+      chapters.push({
+        url: fullUrl,
+        title: text,
+        chapterNumber: chapterNum,
+      });
+    });
+
+    // Сортуємо за номером глави
+    chapters.sort((a, b) => a.chapterNumber - b.chapterNumber);
+
+    console.log(`✅ Found ${chapters.length} chapters in ${khandaName}`);
+    return chapters;
+  } catch (error) {
+    console.error("❌ Error parsing khanda page:", error);
+    return [];
+  }
+}
+
+// ============================================================================
+// UTILITIES FOR IMPORT
+// ============================================================================
+
+/**
+ * Генерує slug глави для Chaitanya Bhagavata
+ * Формат: scb-{khanda}-{chapter}
+ * Приклад: scb-adi-1, scb-madhya-24, scb-antya-10
+ */
+export function generateChapterSlug(khanda: string, chapterNumber: number): string {
+  return `scb-${khanda}-${chapterNumber}`;
+}
+
+/**
+ * Генерує унікальний ID вірша
+ * Формат: scb-{khanda}{chapter}-{verse}
+ * Приклад: scb-1.1.42 (Ādi-khaṇḍa, Chapter 1, Verse 42)
+ */
+export function generateVerseId(khandaNumber: number, chapterNumber: number, verseNumber: string): string {
+  return `scb-${khandaNumber}.${chapterNumber}.${verseNumber}`;
+}
+
+/**
+ * Конвертує Wisdomlib дані в формат для імпорту в Supabase
+ */
+export function wisdomlibToSupabaseFormat(
+  khanda: WisdomlibKhanda,
+  bookId: string,
+): Array<{
+  chapter: any;
+  verses: any[];
+}> {
+  return khanda.chapters.map((chapter) => {
+    const chapterSlug = generateChapterSlug(khanda.name, chapter.chapter_number);
+
+    return {
+      chapter: {
+        book_id: bookId,
+        chapter_number: chapter.chapter_number,
+        title_en: chapter.title_en,
+        title_ua: chapter.title_en, // TODO: add Ukrainian translation
+        slug: chapterSlug,
+        chapter_type: "verses",
+        khanda: khanda.name,
+        khanda_number: khanda.number,
+        introduction_en: chapter.introduction || null,
+      },
+      verses: chapter.verses.map((verse) => ({
+        verse_number: extractVerseNumber(verse.verse_number),
+        bengali: verse.bengali || null,
+        devanagari: verse.devanagari || null,
+        sanskrit: verse.bengali || null, // Use Bengali as primary script
+        transliteration_en: verse.transliteration_en || null,
+        transliteration_simple: verse.transliteration_simple || null,
+        synonyms_en: verse.synonyms_en || null,
+        translation_en: verse.translation_en || null,
+        commentary_en: verse.commentary_en || null,
+        source_url: verse.url || null,
+      })),
+    };
+  });
+}
+
+/**
+ * Статистика парсингу
+ */
+export interface ParsingStats {
+  totalKhandas: number;
+  totalChapters: number;
+  totalVerses: number;
+  versesWithBengali: number;
+  versesWithTranslation: number;
+  versesWithCommentary: number;
+  missingContent: string[];
+}
+
+/**
+ * Обчислює статистику парсингу
+ */
+export function calculateParsingStats(khandas: WisdomlibKhanda[]): ParsingStats {
+  const stats: ParsingStats = {
+    totalKhandas: khandas.length,
+    totalChapters: 0,
+    totalVerses: 0,
+    versesWithBengali: 0,
+    versesWithTranslation: 0,
+    versesWithCommentary: 0,
+    missingContent: [],
+  };
+
+  for (const khanda of khandas) {
+    stats.totalChapters += khanda.chapters.length;
+
+    for (const chapter of khanda.chapters) {
+      stats.totalVerses += chapter.verses.length;
+
+      for (const verse of chapter.verses) {
+        if (verse.bengali) stats.versesWithBengali++;
+        if (verse.translation_en) stats.versesWithTranslation++;
+        if (verse.commentary_en) stats.versesWithCommentary++;
+
+        // Логуємо вірші без ключового контенту
+        if (!verse.bengali && !verse.translation_en) {
+          stats.missingContent.push(`${khanda.name}.${chapter.chapter_number}.${verse.verse_number}`);
+        }
+      }
+    }
   }
 
-  return lines.join("\n");
+  return stats;
 }
