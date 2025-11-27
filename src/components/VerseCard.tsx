@@ -16,6 +16,7 @@ import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 // ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
 import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 /* =========================
    Допоміжні функції
@@ -546,7 +547,7 @@ export const VerseCard = ({
                 editable={true}
               />
             ) : (
-              <p className="prose-reader text-foreground font-semibold font-serif text-justify">{translation}</p>
+              <p className="prose-reader text-foreground font-semibold font-serif text-justify">{stripParagraphTags(translation)}</p>
             )}
           </div>
         )}

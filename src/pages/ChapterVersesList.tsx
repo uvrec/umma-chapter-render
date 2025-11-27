@@ -15,6 +15,7 @@ import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 // Type for verse data
 interface Verse {
@@ -473,7 +474,7 @@ export const ChapterVersesList = () => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
                   <p key={verse.id} className="text-foreground mb-6">
-                    {text || (
+                    {stripParagraphTags(text || "") || (
                       <span className="italic text-muted-foreground">
                         {language === "ua" ? "Немає перекладу" : "No translation"}
                       </span>
@@ -501,7 +502,7 @@ export const ChapterVersesList = () => {
                             </Link>
                           )}
                           <p className="text-foreground prose-reader text-justify" style={readerTextStyle}>
-                            {translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>}
+                            {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
 
@@ -515,7 +516,7 @@ export const ChapterVersesList = () => {
                             </Link>
                           )}
                           <p className="text-foreground prose-reader text-justify" style={readerTextStyle}>
-                            {translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                            {stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
                       </div>
@@ -531,8 +532,8 @@ export const ChapterVersesList = () => {
                         )}
                         <p className="text-foreground prose-reader" style={readerTextStyle}>
                           {language === "ua"
-                            ? translationUa || <span className="italic text-muted-foreground">Немає перекладу</span>
-                            : translationEn || <span className="italic text-muted-foreground">No translation</span>}
+                            ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>
+                            : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>
                     )}
