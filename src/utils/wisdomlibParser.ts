@@ -1,15 +1,28 @@
 // ============================================================================
 // WISDOM LIBRARY PARSER - Chaitanya Bhagavata
 // Виправлена версія з правильними селекторами для структури HTML
+//
+// Структура Wisdom Library:
+// - Bengali: পুনঃ ভক্ত-সঙ্গে... (Unicode U+0980-U+09FF)
+// - Devanagari: पुनः भक्त-सङ्गे... (Unicode U+0900-U+097F) - НЕ ІМПОРТУЄМО (дублювання)
+// - IAST транслітерація: punaḥ bhakta-saṅge... (латиниця з діакритиками)
+// - English translation
+// - Commentary: Gauḍīya-bhāṣya
 // ============================================================================
+
+import { parseVerseNumber } from "./vedabaseParsers";
 
 export interface WisdomlibVerse {
   verse_number: string;
-  bengali?: string; // Bengali text
-  transliteration_en?: string;
+  bengali?: string; // Bengali text (оригінал)
+  transliteration_en?: string; // IAST транслітерація
   synonyms_en?: string;
   translation_en?: string;
-  commentary_en?: string; // Gaudiya-bhāṣya
+  commentary_en?: string; // Gauḍīya-bhāṣya
+  // Метадані для composite віршів
+  is_composite?: boolean;
+  start_verse?: number;
+  end_verse?: number;
 }
 
 export interface WisdomlibChapter {
@@ -17,47 +30,146 @@ export interface WisdomlibChapter {
   title_en?: string;
   verses: WisdomlibVerse[];
   khanda: string; // adi, madhya, antya
-  verseUrls?: Array<{ url: string; verseNumber: string }>;
+  verseUrls?: Array<{ url: string; verseNumber: string; isComposite: boolean }>;
+}
+
+/**
+ * Перевіряє чи є текст Bengali (а не Devanagari)
+ * Bengali: U+0980-U+09FF
+ * Devanagari: U+0900-U+097F (ігноруємо - це дублювання)
+ */
+function isBengaliText(text: string): boolean {
+  // Текст є Bengali якщо містить Bengali символи
+  return /[\u0980-\u09FF]/.test(text);
+}
+
+/**
+ * Перевіряє чи є текст Devanagari (яку ми пропускаємо)
+ */
+function isDevanagariText(text: string): boolean {
+  return /[\u0900-\u097F]/.test(text);
+}
+
+/**
+ * Перевіряє чи є текст IAST транслітерацією
+ * IAST містить латинські символи з діакритиками: ā, ī, ū, ṛ, ṝ, ḷ, ḹ, ē, ō, ṃ, ḥ, ś, ṣ, ṇ, ṭ, ḍ, ñ, ṅ
+ */
+function isIASTText(text: string): boolean {
+  // Повинен містити латиницю + хоча б один IAST діакритичний знак
+  const hasLatin = /[a-zA-Z]/.test(text);
+  const hasIASTDiacritics = /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṆṬḌÑṄ]/.test(text);
+  // Не повинен бути Bengali або Devanagari
+  const notIndic = !isBengaliText(text) && !isDevanagariText(text);
+  return hasLatin && hasIASTDiacritics && notIndic;
+}
+
+/**
+ * Витягує номер вірша з тексту сторінки або URL
+ * Підтримує формати: "Verse 256", "Verse 256-266", "Texts 1-5", тощо
+ */
+function extractVerseNumberFromPage(doc: Document, url: string): string {
+  // 1. Спробувати з заголовка сторінки
+  const h1 = doc.querySelector("h1");
+  if (h1) {
+    const h1Text = h1.textContent || "";
+    // "Verse 256-266" або "Verse 256"
+    const verseMatch = h1Text.match(/(?:Verse|Verses|Text|Texts)\s+(\d+(?:\s*[-–]\s*\d+)?)/i);
+    if (verseMatch) {
+      return verseMatch[1].replace(/\s+/g, "").replace("–", "-");
+    }
+  }
+
+  // 2. З breadcrumb або навігації
+  const breadcrumbs = Array.from(doc.querySelectorAll(".breadcrumb a, nav a, .navigation a"));
+  for (const bc of breadcrumbs) {
+    const text = bc.textContent || "";
+    const match = text.match(/(?:Verse|Text)\s+(\d+(?:\s*[-–]\s*\d+)?)/i);
+    if (match) {
+      return match[1].replace(/\s+/g, "").replace("–", "-");
+    }
+  }
+
+  // 3. З контенту сторінки - шукаємо "(256)" або "(256-266)" на початку вірша
+  const scontent = doc.querySelector("#scontent, #pageContent");
+  if (scontent) {
+    const text = scontent.textContent || "";
+    const match = text.match(/\((\d+(?:-\d+)?)\)/);
+    if (match) {
+      return match[1];
+    }
+  }
+
+  // 4. Fallback: з URL (doc617046.html - але це ID документа, не номер вірша)
+  // Краще повернути "1" як default
+  return "1";
 }
 
 /**
  * Парсинг окремої сторінки вірша
  *
  * Структура Wisdom Library для Chaitanya Bhagavata:
- * 1. Bengali text (4 рядки) - в blockquote > p
- * 2. English translation - перший p після blockquote
- * 3. Commentary - після "Commentary: Gauḍīya-bhāṣya"
+ * 1. Bengali text - в blockquote > p (пропускаємо Devanagari!)
+ * 2. IAST транслітерація - латиниця з діакритиками
+ * 3. English translation - текст без діакритик
+ * 4. Commentary - після "Commentary: Gauḍīya-bhāṣya"
  */
 export function parseWisdomlibVersePage(html: string, verseUrl: string): WisdomlibVerse | null {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
-    // Витягуємо номер вірша з URL
-    const verseMatch = verseUrl.match(/doc(\d+)\.html/);
-    const verseNumber = verseMatch ? verseMatch[1] : "1";
+    // Витягуємо номер вірша з контенту сторінки
+    const verseNumber = extractVerseNumberFromPage(doc, verseUrl);
+
+    // Парсимо номер для composite інформації
+    const parsedNumber = parseVerseNumber(verseNumber);
 
     const verse: WisdomlibVerse = {
       verse_number: verseNumber,
+      is_composite: parsedNumber.isComposite,
+      start_verse: parsedNumber.startVerse,
+      end_verse: parsedNumber.endVerse,
     };
 
     // 1. BENGALI TEXT - в blockquote (всі рядки разом)
-    const blockquote = doc.querySelector("#scontent blockquote, #pageContent blockquote");
-    if (blockquote) {
+    // ВАЖЛИВО: Беремо тільки Bengali (U+0980-U+09FF), пропускаємо Devanagari (U+0900-U+097F)
+    const blockquotes = doc.querySelectorAll("#scontent blockquote, #pageContent blockquote, blockquote");
+    const bengaliLines: string[] = [];
+    const iastLines: string[] = [];
+
+    blockquotes.forEach((blockquote) => {
       const paragraphs = blockquote.querySelectorAll("p");
-      const bengaliLines: string[] = [];
 
       paragraphs.forEach((p) => {
         const text = p.textContent?.trim() || "";
-        // Bengali текст містить специфічні символи Unicode U+0980–U+09FF
-        if (text && /[\u0980-\u09FF]/.test(text)) {
-          bengaliLines.push(text);
-        }
-      });
+        if (!text) return;
 
-      if (bengaliLines.length > 0) {
-        verse.bengali = bengaliLines.join("\n");
-      }
+        // Перевіряємо тип тексту
+        if (isBengaliText(text) && !isDevanagariText(text)) {
+          // Чистий Bengali текст - беремо
+          bengaliLines.push(text);
+        } else if (isBengaliText(text) && isDevanagariText(text)) {
+          // Змішаний текст - можливо Bengali з Devanagari, фільтруємо
+          // Витягуємо тільки Bengali частину
+          const bengaliOnly = text.replace(/[\u0900-\u097F]+/g, "").trim();
+          if (bengaliOnly) {
+            bengaliLines.push(bengaliOnly);
+          }
+        } else if (isIASTText(text)) {
+          // IAST транслітерація
+          iastLines.push(text);
+        }
+        // Devanagari тексти пропускаємо повністю
+      });
+    });
+
+    if (bengaliLines.length > 0) {
+      verse.bengali = bengaliLines.join("\n");
+    }
+
+    // Зберігаємо IAST з blockquote якщо знайдено
+    if (iastLines.length > 0 && !verse.transliteration_en) {
+      verse.transliteration_en = iastLines.join("\n");
     }
 
     // 2. ENGLISH TRANSLATION - robust: search by label or numbered pattern within subtree
@@ -177,18 +289,25 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
       }
     }
 
-    // 4. TRANSLITERATION - якщо є, зазвичай в blockquote після Bengali
-    if (blockquote) {
-      const paragraphs = Array.from(blockquote.querySelectorAll("p"));
-      paragraphs.forEach((p) => {
+    // 4. TRANSLITERATION - шукаємо IAST текст в різних місцях
+    // Вже витягли з blockquote вище, тепер перевіряємо інші місця
+    if (!verse.transliteration_en && scontent) {
+      const allParagraphs = Array.from(scontent.querySelectorAll("p"));
+      const iastParagraphs: string[] = [];
+
+      for (const p of allParagraphs) {
+        // Пропускаємо параграфи всередині blockquote (вже оброблені)
+        if (p.closest("blockquote")) continue;
+
         const text = p.textContent?.trim() || "";
-        // Транслітерація містить діакритичні знаки IAST
-        if (text && /[āīūṛṝḷḹēōṃḥśṣṇṭḍñṅ]/.test(text)) {
-          if (!verse.transliteration_en) {
-            verse.transliteration_en = text;
-          }
+        if (isIASTText(text)) {
+          iastParagraphs.push(text);
         }
-      });
+      }
+
+      if (iastParagraphs.length > 0) {
+        verse.transliteration_en = iastParagraphs.join("\n");
+      }
     }
 
     // 5. SYNONYMS - слова через "—" та ";"
@@ -212,7 +331,9 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
 
     console.log("✅ Wisdomlib verse parsed:", {
       verse_number: verse.verse_number,
+      is_composite: verse.is_composite,
       bengali: verse.bengali ? `${verse.bengali.substring(0, 50)}...` : "MISSING",
+      iast: verse.transliteration_en ? `${verse.transliteration_en.substring(0, 50)}...` : "MISSING",
       translation: verse.translation_en ? `${verse.translation_en.substring(0, 50)}...` : "MISSING",
       commentary: verse.commentary_en ? `${verse.commentary_en.length} chars` : "MISSING",
     });
@@ -232,15 +353,17 @@ export function parseWisdomlibVersePage(html: string, verseUrl: string): Wisdoml
 
 /**
  * Витягує URLs віршів зі сторінки глави
+ * Підтримує: "Verse 1", "Verse 256-266", "Texts 1-5", тощо
  */
 export function extractWisdomlibVerseUrls(
   html: string,
   chapterUrl: string,
-): Array<{ url: string; verseNumber: string }> {
+): Array<{ url: string; verseNumber: string; isComposite: boolean }> {
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const verseUrls: Array<{ url: string; verseNumber: string }> = [];
+    const verseUrls: Array<{ url: string; verseNumber: string; isComposite: boolean }> = [];
+    const seenUrls = new Set<string>();
 
     const contentArea = doc.querySelector("#scontent, .content, main") || doc;
     const links = contentArea.querySelectorAll('a[href*="/d/doc"]');
@@ -252,14 +375,18 @@ export function extractWisdomlibVerseUrls(
       const text = link.textContent?.trim() || "";
       const title = link.getAttribute("title") || "";
 
-      // Шукаємо номер вірша: "1", "1.1", "1.1.1", "Verse 1", "Verse 1.1.1", тощо
-      // Перевіряємо text та title
+      // Шукаємо номер вірша з підтримкою діапазонів:
+      // "1", "256-266", "1.1", "Verse 1", "Verse 256-266", "Texts 1-5"
       const verseMatch =
-        text.match(/^(?:Verse\s*)?(\d+(?:\.\d+){0,2})\b/i) ||
-        title.match(/(?:Verse\s*)?(\d+(?:\.\d+){0,2})/i);
+        text.match(/^(?:Verse|Verses|Text|Texts)\s*(\d+(?:\s*[-–]\s*\d+)?)/i) ||
+        text.match(/^(\d+(?:\s*[-–]\s*\d+)?)\b/) ||
+        title.match(/(?:Verse|Verses|Text|Texts)\s*(\d+(?:\s*[-–]\s*\d+)?)/i) ||
+        title.match(/(\d+(?:\s*[-–]\s*\d+)?)/);
 
       if (!verseMatch) return;
-      const verseNumber = verseMatch[1];
+
+      // Нормалізуємо номер вірша (прибираємо пробіли, замінюємо – на -)
+      const verseNumber = verseMatch[1].replace(/\s+/g, "").replace("–", "-");
 
       // Будуємо повний URL
       let fullUrl = href;
@@ -271,22 +398,25 @@ export function extractWisdomlibVerseUrls(
         fullUrl = base.origin + "/" + href;
       }
 
-      verseUrls.push({ url: fullUrl, verseNumber });
+      // Уникаємо дублікатів
+      if (seenUrls.has(fullUrl)) return;
+      seenUrls.add(fullUrl);
+
+      // Визначаємо чи це composite вірш
+      const isComposite = verseNumber.includes("-");
+
+      verseUrls.push({ url: fullUrl, verseNumber, isComposite });
     });
 
-    // Сортуємо за номером вірша (якщо є крапки, сортуємо як масив чисел)
+    // Сортуємо за номером вірша (враховуючи діапазони)
     verseUrls.sort((a, b) => {
-      const aParts = a.verseNumber.split('.').map(Number);
-      const bParts = b.verseNumber.split('.').map(Number);
-      for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
-        const aVal = aParts[i] || 0;
-        const bVal = bParts[i] || 0;
-        if (aVal !== bVal) return aVal - bVal;
-      }
-      return 0;
+      // Для діапазонів беремо перше число
+      const aFirst = parseInt(a.verseNumber.split("-")[0].split(".").pop() || "0", 10);
+      const bFirst = parseInt(b.verseNumber.split("-")[0].split(".").pop() || "0", 10);
+      return aFirst - bFirst;
     });
 
-    console.log(`✅ Found ${verseUrls.length} verse URLs in chapter`);
+    console.log(`✅ Found ${verseUrls.length} verse URLs in chapter (${verseUrls.filter(v => v.isComposite).length} composite)`);
     return verseUrls;
   } catch (error) {
     console.error("❌ Error extracting verse URLs:", error);
@@ -426,8 +556,8 @@ export function wisdomlibChapterToStandardChapter(chapter: WisdomlibChapter): an
     chapter_type: "verses" as const,
     verses: chapter.verses.map((v) => ({
       verse_number: v.verse_number,
-      sanskrit: v.bengali || "", // Bengali текст
-      transliteration_en: v.transliteration_en || "",
+      sanskrit: v.bengali || "", // Bengali текст (оригінал)
+      transliteration_en: v.transliteration_en || "", // IAST транслітерація
       transliteration_ua: "", // Немає UA транслітерації
       synonyms_en: v.synonyms_en || "",
       synonyms_ua: "", // Немає UA synonyms
@@ -435,6 +565,10 @@ export function wisdomlibChapterToStandardChapter(chapter: WisdomlibChapter): an
       translation_ua: "", // Немає UA перекладу
       commentary_en: v.commentary_en || "",
       commentary_ua: "", // Немає UA коментарів
+      // Composite verse metadata
+      is_composite: v.is_composite || false,
+      start_verse: v.start_verse,
+      end_verse: v.end_verse,
     })),
   };
 }
