@@ -108,9 +108,14 @@ def process_bengali_text(text: str) -> str:
     Process Bengali original text:
     1. Normalize dandas (।। → ॥)
     2. Add line breaks after ॥ N ॥
+    3. Remove English text in quotes (Wisdomlib sometimes includes English in Bengali fields)
     """
     if not text:
         return text
+    
+    # Remove English text in quotes (e.g., "Worshiping My devotees...")
+    # This happens when Wisdomlib mixes English translation in Bengali field
+    text = re.sub(r'"[^"]*"', '', text)
     
     text = normalize_dandas(text)
     text = add_line_breaks_after_double_danda(text)
@@ -536,16 +541,7 @@ ON CONFLICT (book_id, canto_number) DO UPDATE SET
 
 
 def generate_chapter_sql(chapter: Chapter, book_id: str, canto_id: str) -> str:
-    """Generate SQL to insert chapter and verses
-    
-    Output structure:
-    - DO $$ DECLARE ... BEGIN
-    - INSERT INTO chapters
-    - INSERT INTO verses (one per verse)
-    - END $$;
-    
-    No outer BEGIN/ROLLBACK - user adds them manually if needed for dry-run.
-    """
+    """Generate SQL to insert chapter and verses"""
     lines = [
         f"-- Chapter {chapter.khanda_number}.{chapter.chapter_number}: {chapter.title_en}",
         f"-- {len(chapter.verses)} verses",
@@ -577,9 +573,10 @@ BEGIN
         
         lines.append(f"""    INSERT INTO verses (chapter_id, verse_number, sanskrit, transliteration_en, translation_en, commentary_en, sort_key, is_published)
     VALUES (v_chapter_id, '{verse.verse_number}', '{sanskrit}', '{translit}', '{translation}', '{commentary}', {sort_key}, true)
-    ON CONFLICT DO NOTHING;""")
+    ON CONFLICT DO NOTHING;
+""")
     
-    lines.append("\nEND $$;")
+    lines.append("END $$;")
     lines.append("")
     
     return "\n".join(lines)
