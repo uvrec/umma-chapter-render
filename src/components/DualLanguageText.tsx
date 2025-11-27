@@ -17,6 +17,8 @@ interface DualLanguageTextProps {
 /**
  * Компонент для синхронізованого відображення тексту двома мовами
  * Кожен параграф української мови вирівнюється з відповідним параграфом англійської
+ *
+ * Стилі (fontSize, lineHeight) успадковуються від батьківського компонента
  */
 export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   uaParagraphs,
@@ -49,17 +51,17 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: maxLength }).map((_, idx) => (
-        <div key={idx} className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 items-start">
+        <div key={idx} className="grid grid-cols-2 gap-8 items-start">
           <p
-            className="leading-relaxed text-base"
+            className="text-justify"
             dangerouslySetInnerHTML={{
-              __html: enParas[idx]?.text || "&nbsp;",
+              __html: uaParas[idx]?.text || "&nbsp;",
             }}
           />
           <p
-            className="leading-relaxed text-base"
+            className="text-justify"
             dangerouslySetInnerHTML={{
-              __html: uaParas[idx]?.text || "&nbsp;",
+              __html: enParas[idx]?.text || "&nbsp;",
             }}
           />
         </div>
