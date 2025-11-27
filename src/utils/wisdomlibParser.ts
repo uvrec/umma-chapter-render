@@ -405,11 +405,15 @@ export function parseWisdomlibChapterPage(html: string, chapterUrl: string, khan
       verseCount: verseUrls.length,
     });
 
+    const khandaConfig = KHANDAS_CONFIG[khanda as keyof typeof KHANDAS_CONFIG];
+    const khanda_number = khandaConfig?.number || 1;
+
     return {
       chapter_number: chapterNumber,
       title_en: title,
       verses: [],
       khanda,
+      khanda_number,
       verseUrls,
     };
   } catch (error) {
