@@ -21,25 +21,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    // Set up auth state listener - НЕ async щоб уникнути deadlock!
+    // Див: https://supabase.com/docs/guides/troubleshooting/why-is-my-supabase-api-call-not-returning-PGzXw0
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Тільки синхронні оновлення state тут
       setSession(session);
       setUser(session?.user ?? null);
 
-      // Check admin role when session changes
+      // Відкладений виклик admin check через setTimeout(0) щоб уникнути deadlock
       if (session?.user) {
-        await checkAdminRole(session.user.id);
+        setTimeout(() => {
+          checkAdminRole(session.user.id);
+        }, 0);
       } else {
         setIsAdmin(false);
       }
     });
 
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        await checkAdminRole(session.user.id);
+        // Також відкладений виклик
+        setTimeout(() => {
+          checkAdminRole(session.user.id);
+        }, 0);
       }
       setLoading(false);
     });
