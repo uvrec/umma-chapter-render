@@ -20,6 +20,7 @@ import { useAudio } from "@/contexts/ModernAudioContext";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
@@ -374,7 +375,7 @@ export const IndividualVerse = () => {
                 lineHeight: LINE_HEIGHTS.NORMAL
               }}
             >
-              {currentVerse.translation}
+              {stripParagraphTags(currentVerse.translation)}
             </div>
           </section>
         )}

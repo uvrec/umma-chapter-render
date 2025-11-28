@@ -1,30 +1,25 @@
-// DualLanguageVerseCard.tsx
-// Компонент для відображення віршів у двомовному режимі з вирівнюванням блоків по горизонталі
-// Кожен тип блоку (sanskrit, transliteration, synonyms, translation, commentary)
-// відображається в окремому рядку з двома колонками для синхронного читання
-
+// DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
 import { useState, useMemo } from "react";
 import { Edit, Save, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
-import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
+import { DualLanguageText } from "@/components/DualLanguageText";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
-import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
+import { stripParagraphTags } from "@/utils/import/normalizers";
+import { splitIntoParagraphs, alignParagraphs } from "@/utils/paragraphSync";
 
-/* =========================
-   Типи пропсів
-   ========================= */
 interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
   bookNameUa?: string;
   bookNameEn?: string;
-  sanskritTextUa: string; // Окремий для української версії
-  sanskritTextEn: string; // Окремий для англійської версії
+  chapterTitleUa?: string;
+  chapterTitleEn?: string;
+  sanskritTextUa: string;
+  sanskritTextEn: string;
 
   // Українська версія
   transliterationUa: string;
@@ -41,8 +36,6 @@ interface DualLanguageVerseCardProps {
   // Аудіо URLs
   audioUrl?: string;
   audioSanskrit?: string;
-  audioSynonymsUa?: string;
-  audioSynonymsEn?: string;
   audioTranslationUa?: string;
   audioTranslationEn?: string;
   audioCommentaryUa?: string;
@@ -53,6 +46,7 @@ interface DualLanguageVerseCardProps {
   start_verse?: number;
   end_verse?: number;
   verse_count?: number;
+
   textDisplaySettings?: {
     showSanskrit: boolean;
     showTransliteration: boolean;
@@ -67,32 +61,6 @@ interface DualLanguageVerseCardProps {
   isAdmin?: boolean;
   onVerseUpdate?: (verseId: string, updates: any) => void;
   onVerseNumberUpdate?: () => void;
-}
-
-/* =========================
-   Допоміжні функції
-   ========================= */
-
-// Розбиття тексту на параграфи (НЕ ділити кожен <p> як окремий параграф)
-function splitIntoParagraphs(text: string): string[] {
-  if (!text) return [];
-
-  // Нормалізуємо перенос рядків
-  let html = text.replace(/\r\n/g, "\n");
-
-  // Позначаємо явні розриви параграфів:
-  // - подвійні (і більше) \n
-  // - порожні HTML-параграфи: <p><br></p>, <p>&nbsp;</p>, <p> </p>
-  const DELIM = "[[PARA_BREAK]]";
-  html = html.replace(/\n{2,}/g, DELIM).replace(/<p>\s*(?:<br\s*\/?>(?:\s*)?|&nbsp;|\u00A0|\s*)\s*<\/p>/gi, DELIM);
-
-  // ВАЖЛИВО: не розбиваємо на кожному </p><p>, щоб цитати з кількох рядків (у трансліті всередині пояснення)
-  // не вважались окремими параграфами кожен рядок.
-  const parts = html
-    .split(DELIM)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  return parts.length > 0 ? parts : [text.trim()];
 }
 
 // Парсинг синонімів
@@ -137,77 +105,19 @@ function parseSynonyms(raw: string): Array<{
   }
   return pairs;
 }
+
 function openGlossary(term: string) {
   const url = `/glossary?search=${encodeURIComponent(term)}`;
   window.open(url, "_blank", "noopener,noreferrer");
 }
 
-/* =========================
-   Компонент для відображення синонімів
-   ========================= */
-const SynonymsBlock = ({
-  synonyms,
-  isEditing,
-  onEdit,
-}: {
-  synonyms: string;
-  isEditing: boolean;
-  onEdit?: (value: string) => void;
-}) => {
-  const synonymPairs = parseSynonyms(synonyms);
-  if (isEditing) {
-    return (
-      <Textarea value={synonyms} onChange={(e) => onEdit?.(e.target.value)} className="min-h-[120px] synonyms-text" />
-    );
-  }
-  return (
-    <p
-      className="synonyms-text text-foreground text-center"
-      style={{ fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})` }}
-    >
-      {synonymPairs.length === 0 ? (
-        <span className="text-muted-foreground">{synonyms}</span>
-      ) : (
-        synonymPairs.map((pair, i) => {
-          const words = pair.term
-            .split(/\s+/)
-            .map((w) => w.trim())
-            .filter(Boolean);
-          return (
-            <span key={i}>
-              {words.map((w, wi) => (
-                <span key={wi}>
-                  <span
-                    role="link"
-                    tabIndex={0}
-                    onClick={() => openGlossary(w)}
-                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
-                    title="Відкрити у глосарії"
-                    className="cursor-pointer font-serif italic text-primary underline decoration-dotted underline-offset-2 hover:decoration-solid focus:outline-none focus:ring-2 focus:ring-primary/50 text-lg font-semibold"
-                  >
-                    {w}
-                  </span>
-                  {wi < words.length - 1 && " "}
-                </span>
-              ))}
-              {pair.meaning && <span className="text-lg font-medium"> — {pair.meaning}</span>}
-              {i < synonymPairs.length - 1 && <span className="text-left font-mono font-thin text-sm">; </span>}
-            </span>
-          );
-        })
-      )}
-    </p>
-  );
-};
-
-/* =========================
-   Основний компонент
-   ========================= */
 export const DualLanguageVerseCard = ({
   verseId,
   verseNumber,
   bookNameUa,
   bookNameEn,
+  chapterTitleUa,
+  chapterTitleEn,
   sanskritTextUa,
   sanskritTextEn,
   transliterationUa,
@@ -220,8 +130,6 @@ export const DualLanguageVerseCard = ({
   commentaryEn,
   audioUrl,
   audioSanskrit,
-  audioSynonymsUa,
-  audioSynonymsEn,
   audioTranslationUa,
   audioTranslationEn,
   audioCommentaryUa,
@@ -245,7 +153,7 @@ export const DualLanguageVerseCard = ({
   onVerseUpdate,
   onVerseNumberUpdate,
 }: DualLanguageVerseCardProps) => {
-  const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
+  const { playTrack, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
   const [edited, setEdited] = useState({
     sanskritUa: sanskritTextUa,
@@ -260,27 +168,18 @@ export const DualLanguageVerseCard = ({
     commentaryEn,
   });
 
-  // ✨ ВАЖЛИВО: Обробка санскриту для автоматичних розривів рядків
-  // Конвертує | (pipe) на \n для правильного відображення
+  // Обробка санскриту для автоматичних розривів рядків
   const processedSanskritUa = useMemo(() => {
     return addSanskritLineBreaks(sanskritTextUa);
   }, [sanskritTextUa]);
+
   const processedSanskritEn = useMemo(() => {
     return addSanskritLineBreaks(sanskritTextEn);
   }, [sanskritTextEn]);
 
-  // Розбиваємо commentary на параграфи
-  const commentaryParagraphsUa = useMemo(
-    () => splitIntoParagraphs(isEditing ? edited.commentaryUa : commentaryUa),
-    [commentaryUa, edited.commentaryUa, isEditing],
-  );
-  const commentaryParagraphsEn = useMemo(
-    () => splitIntoParagraphs(isEditing ? edited.commentaryEn : commentaryEn),
-    [commentaryEn, edited.commentaryEn, isEditing],
-  );
-
-  // Синхронізація кількості параграфів (беремо максимум)
-  const maxParagraphs = Math.max(commentaryParagraphsUa.length, commentaryParagraphsEn.length);
+  // Парсинг синонімів
+  const synonymsParsedUa = parseSynonyms(isEditing ? edited.synonymsUa : synonymsUa);
+  const synonymsParsedEn = parseSynonyms(isEditing ? edited.synonymsEn : synonymsEn);
 
   // Функція для відтворення аудіо
   const playSection = (section: string, audioSrc?: string) => {
@@ -297,6 +196,7 @@ export const DualLanguageVerseCard = ({
       src,
     });
   };
+
   const startEdit = () => {
     setEdited({
       sanskritUa: sanskritTextUa,
@@ -312,9 +212,11 @@ export const DualLanguageVerseCard = ({
     });
     setIsEditing(true);
   };
+
   const cancelEdit = () => {
     setIsEditing(false);
   };
+
   const saveEdit = () => {
     if (onVerseUpdate && verseId) {
       onVerseUpdate(verseId, {
@@ -332,49 +234,59 @@ export const DualLanguageVerseCard = ({
       setIsEditing(false);
     }
   };
+
   return (
-    <Card
-      className={`verse-surface w-full animate-fade-in ${flowMode ? "border-0 shadow-none" : "border-gray-100 shadow-sm dark:border-border"} bg-card`}
+    <div
+      className={`w-full max-w-7xl mx-auto ${flowMode ? "" : "bg-card"}`}
+      style={{
+        fontSize: `${fontSize}px`,
+        lineHeight,
+      }}
     >
-      <div
-        className={flowMode ? "py-6" : "p-6"}
-        style={{
-          fontSize: `${fontSize}px`,
-          lineHeight,
-        }}
-      >
-        {/* STICKY HEADER - Верхня панель */}
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              {showNumbers &&
-                (isAdmin && verseId ? (
-                  <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
-                ) : (
-                  <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-                    <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
+      <div className={flowMode ? "py-6" : "p-6"}>
+        {/* НАЗВА ГЛАВИ */}
+        {(chapterTitleUa || chapterTitleEn) && (
+          <div className="mb-8">
+            <h1 className="text-center font-extrabold text-5xl">{chapterTitleUa || chapterTitleEn}</h1>
+          </div>
+        )}
+
+        {/* НОМЕР ВІРША */}
+        {showNumbers && (
+          <div className="flex items-center justify-center mb-8">
+            {isAdmin && verseId ? (
+              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+            ) : (
+              <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
+                Вірш {verseNumber}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* STICKY HEADER - Кнопки редагування */}
+        {isAdmin && (
+          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Індикатор складених віршів */}
+                {is_composite && verse_count && start_verse && end_verse && (
+                  <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>
+                      Складений вірш: {verse_count} {verse_count === 1 ? "вірш" : verse_count < 5 ? "вірші" : "віршів"}{" "}
+                      ({start_verse}-{end_verse})
+                    </span>
                   </div>
-                ))}
+                )}
+              </div>
 
-              {/* Індикатор складених віршів */}
-              {isAdmin && is_composite && verse_count && start_verse && end_verse && (
-                <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>
-                    Складений вірш: {verse_count} {verse_count === 1 ? "вірш" : verse_count < 5 ? "вірші" : "віршів"} (
-                    {start_verse}-{end_verse})
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {isAdmin && (
               <div className="flex gap-2">
                 {isEditing ? (
                   <>
@@ -394,78 +306,66 @@ export const DualLanguageVerseCard = ({
                   </Button>
                 )}
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* САНСКРИТ - два стовпці для кожної мови */}
-        {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUa || sanskritTextEn) && (
-          <div className="mb-10">
-            <div className="grid grid-cols-2 gap-6 items-start">
-              {/* UA */}
-              <div>
-                <div className="mb-4 flex justify-center">
-                  <button
-                    onClick={() => playSection("Санскрит UA", audioSanskrit)}
-                    disabled={!audioSanskrit && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Слухати санскрит UA"
-                  >
-                    <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                {isEditing ? (
-                  <Textarea
-                    value={edited.sanskritUa}
-                    onChange={(e) =>
-                      setEdited((p) => ({
-                        ...p,
-                        sanskritUa: e.target.value,
-                      }))
-                    }
-                    className="min-h-[100px] text-center sanskrit-text"
-                  />
-                ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text">{processedSanskritUa}</p>
-                )}
-              </div>
-
-              {/* EN */}
-              <div>
-                <div className="mb-4 flex justify-center">
-                  <button
-                    onClick={() => playSection("Sanskrit EN", audioSanskrit)}
-                    disabled={!audioSanskrit && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Listen to Sanskrit EN"
-                  >
-                    <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                {isEditing ? (
-                  <Textarea
-                    value={edited.sanskritEn}
-                    onChange={(e) =>
-                      setEdited((p) => ({
-                        ...p,
-                        sanskritEn: e.target.value,
-                      }))
-                    }
-                    className="min-h-[100px] text-center sanskrit-text"
-                  />
-                ) : (
-                  <p className="whitespace-pre-line text-center sanskrit-text">{processedSanskritEn}</p>
-                )}
-              </div>
             </div>
           </div>
         )}
 
-        {/* ТРАНСЛІТЕРАЦІЯ - синхронізовані рядки */}
-        {textDisplaySettings.showTransliteration && (isEditing || transliterationUa || transliterationEn) && (
-          <div className="mb-8 pt-6">
+        {/* САНСКРИТ */}
+        {textDisplaySettings.showSanskrit && (isEditing || sanskritTextUa || sanskritTextEn) && (
+          <div className="mb-10">
+            {/* Аудіо кнопка для санскриту */}
+            <div className="mb-4 flex justify-center">
+              <button
+                onClick={() => playSection("Санскрит", audioSanskrit)}
+                disabled={!audioSanskrit && !audioUrl}
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Слухати санскрит"
+              >
+                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
+
             {isEditing ? (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-8">
+                <Textarea
+                  value={edited.sanskritUa}
+                  onChange={(e) =>
+                    setEdited((p) => ({
+                      ...p,
+                      sanskritUa: e.target.value,
+                    }))
+                  }
+                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+                />
+                <Textarea
+                  value={edited.sanskritEn}
+                  onChange={(e) =>
+                    setEdited((p) => ({
+                      ...p,
+                      sanskritEn: e.target.value,
+                    }))
+                  }
+                  className="font-[Noto_Sans_Devanagari] text-2xl text-center min-h-[200px]"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-8 text-center">
+                <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
+                  {processedSanskritUa}
+                </div>
+                <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
+                  {processedSanskritEn}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ТРАНСЛІТЕРАЦІЯ */}
+        {textDisplaySettings.showTransliteration && (isEditing || transliterationUa || transliterationEn) && (
+          <div className="p-8">
+            {isEditing ? (
+              <div className="grid grid-cols-2 gap-8">
                 <Textarea
                   value={edited.transliterationUa}
                   onChange={(e) =>
@@ -474,10 +374,7 @@ export const DualLanguageVerseCard = ({
                       transliterationUa: e.target.value,
                     }))
                   }
-                  className="min-h-[80px] text-center iast-text text-muted-foreground"
-                  style={{
-                    fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                  }}
+                  className="italic text-lg text-center min-h-[150px]"
                 />
                 <Textarea
                   value={edited.transliterationEn}
@@ -487,201 +384,244 @@ export const DualLanguageVerseCard = ({
                       transliterationEn: e.target.value,
                     }))
                   }
-                  className="min-h-[80px] text-center iast-text text-muted-foreground"
-                  style={{
-                    fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                  }}
+                  className="italic text-lg text-center min-h-[150px]"
                 />
               </div>
             ) : (
-              <div className="space-y-1">
-                {(() => {
-                  const linesUa = (transliterationUa || "").split("\n");
-                  const linesEn = (transliterationEn || "").split("\n");
-                  const maxLines = Math.max(linesUa.length, linesEn.length);
-                  return Array.from({ length: maxLines }).map((_, idx) => (
-                    <div key={idx} className="grid grid-cols-2 gap-6 items-start">
-                      <p
-                        style={{
-                          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                        }}
-                        className="iast-text text-muted-foreground text-center"
-                      >
-                        {linesUa[idx] || ""}
-                      </p>
-                      <p
-                        style={{
-                          fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                        }}
-                        className="iast-text text-muted-foreground text-center"
-                      >
-                        {linesEn[idx] || ""}
-                      </p>
-                    </div>
-                  ));
-                })()}
+              <div className="grid grid-cols-2 gap-8">
+                <div className="italic text-lg whitespace-pre-line leading-relaxed text-center">
+                  {isEditing ? edited.transliterationUa : transliterationUa}
+                </div>
+                <div className="italic text-lg whitespace-pre-line leading-relaxed text-center">
+                  {isEditing ? edited.transliterationEn : transliterationEn}
+                </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ПОСЛІВНИЙ ПЕРЕКЛАД - два стовпці */}
+        {/* ПОСЛІВНИЙ ПЕРЕКЛАД */}
         {textDisplaySettings.showSynonyms && (isEditing || synonymsUa || synonymsEn) && (
-          <div className="mb-8 pt-6">
-            <div className="grid grid-cols-2 gap-6">
-              {/* UA */}
+          <div className="p-8">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Ukrainian Synonyms */}
               <div>
-                <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground text-xl font-bold">Послівний переклад</h4>
-                  <button
-                    onClick={() => playSection("Послівний переклад UA", audioSynonymsUa)}
-                    disabled={!audioSynonymsUa && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Слухати послівний переклад UA"
+                {(isEditing || synonymsUa) && (
+                  <h3 className="text-xl font-bold mb-4 text-center">Послівний переклад</h3>
+                )}
+                {isEditing ? (
+                  <Textarea
+                    value={edited.synonymsUa}
+                    onChange={(e) =>
+                      setEdited((p) => ({
+                        ...p,
+                        synonymsUa: e.target.value,
+                      }))
+                    }
+                    className="text-base min-h-[200px]"
+                  />
+                ) : synonymsUa ? (
+                  <p
+                    style={{
+                      fontSize: `${fontSize}px`,
+                      lineHeight,
+                    }}
+                    className="text-justify"
                   >
-                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                <SynonymsBlock
-                  synonyms={isEditing ? edited.synonymsUa : synonymsUa}
-                  isEditing={isEditing}
-                  onEdit={(value) =>
-                    setEdited((p) => ({
-                      ...p,
-                      synonymsUa: value,
-                    }))
-                  }
-                />
+                    {synonymsParsedUa.map((syn, i) => {
+                      const words = syn.term
+                        .split(/\s+/)
+                        .map((w) => w.trim())
+                        .filter(Boolean);
+                      return (
+                        <span key={i}>
+                          {words.map((w, wi) => (
+                            <span key={wi}>
+                              <span
+                                role="link"
+                                tabIndex={0}
+                                onClick={() => openGlossary(w)}
+                                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                                title="Відкрити у глосарії"
+                                className="cursor-pointer italic"
+                                style={{ color: "#BC731B" }}
+                              >
+                                {w}
+                              </span>
+                              {wi < words.length - 1 && " "}
+                            </span>
+                          ))}
+                          {syn.meaning && <span> — {syn.meaning}</span>}
+                          {i < synonymsParsedUa.length - 1 && <span>; </span>}
+                        </span>
+                      );
+                    })}
+                  </p>
+                ) : null}
               </div>
 
-              {/* EN */}
+              {/* English Synonyms */}
               <div>
-                <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground font-bold">Synonyms</h4>
-                  <button
-                    onClick={() => playSection("Synonyms EN", audioSynonymsEn)}
-                    disabled={!audioSynonymsEn && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Listen to synonyms EN"
+                {(isEditing || synonymsEn) && <h3 className="text-xl font-bold mb-4 text-center">Synonyms</h3>}
+                {isEditing ? (
+                  <Textarea
+                    value={edited.synonymsEn}
+                    onChange={(e) =>
+                      setEdited((p) => ({
+                        ...p,
+                        synonymsEn: e.target.value,
+                      }))
+                    }
+                    className="text-base min-h-[200px]"
+                  />
+                ) : synonymsEn ? (
+                  <p
+                    style={{
+                      fontSize: `${fontSize}px`,
+                      lineHeight,
+                    }}
+                    className="text-justify"
                   >
-                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                <SynonymsBlock
-                  synonyms={isEditing ? edited.synonymsEn : synonymsEn}
-                  isEditing={isEditing}
-                  onEdit={(value) =>
-                    setEdited((p) => ({
-                      ...p,
-                      synonymsEn: value,
-                    }))
-                  }
-                />
+                    {synonymsParsedEn.map((syn, i) => {
+                      const words = syn.term
+                        .split(/\s+/)
+                        .map((w) => w.trim())
+                        .filter(Boolean);
+                      return (
+                        <span key={i}>
+                          {words.map((w, wi) => (
+                            <span key={wi}>
+                              <span
+                                role="link"
+                                tabIndex={0}
+                                onClick={() => openGlossary(w)}
+                                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
+                                title="Open in glossary"
+                                className="cursor-pointer italic"
+                                style={{ color: "#BC731B" }}
+                              >
+                                {w}
+                              </span>
+                              {wi < words.length - 1 && " "}
+                            </span>
+                          ))}
+                          {syn.meaning && <span> — {syn.meaning}</span>}
+                          {i < synonymsParsedEn.length - 1 && <span>; </span>}
+                        </span>
+                      );
+                    })}
+                  </p>
+                ) : null}
               </div>
             </div>
           </div>
         )}
 
-        {/* ЛІТЕРАТУРНИЙ ПЕРЕКЛАД - два стовпці */}
+        {/* ПЕРЕКЛАД */}
         {textDisplaySettings.showTranslation && (isEditing || translationUa || translationEn) && (
-          <div className="mb-8 pt-6">
-            <div className="grid grid-cols-2 gap-6 items-start">
-              {/* UA */}
-              <div>
-                <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground">Переклад</h4>
-                  <button
-                    onClick={() => playSection("Переклад UA", audioTranslationUa)}
-                    disabled={!audioTranslationUa && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Слухати переклад UA"
-                  >
-                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                {isEditing ? (
-                  <Textarea
-                    value={edited.translationUa}
-                    onChange={(e) =>
-                      setEdited((p) => ({
-                        ...p,
-                        translationUa: e.target.value,
-                      }))
-                    }
-                    className="min-h-[100px] prose-reader font-semibold"
-                  />
-                ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationUa}</p>
+          <div className="p-8">
+            {/* Заголовки - показуються тільки якщо є текст */}
+            <div className="grid grid-cols-2 gap-8 mb-4">
+              <div className="flex items-center justify-center gap-4">
+                {(isEditing || translationUa) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Переклад</h3>
+                    <button
+                      onClick={() => playSection("Переклад UA", audioTranslationUa)}
+                      disabled={!audioTranslationUa && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Слухати переклад"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
                 )}
               </div>
-
-              {/* EN */}
-              <div>
-                <div className="section-header flex items-center justify-center gap-4">
-                  <h4 className="text-foreground">Translation</h4>
-                  <button
-                    onClick={() => playSection("Translation EN", audioTranslationEn)}
-                    disabled={!audioTranslationEn && !audioUrl}
-                    className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                    aria-label="Listen to translation EN"
-                  >
-                    <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </div>
-                {isEditing ? (
-                  <Textarea
-                    value={edited.translationEn}
-                    onChange={(e) =>
-                      setEdited((p) => ({
-                        ...p,
-                        translationEn: e.target.value,
-                      }))
-                    }
-                    className="min-h-[100px] prose-reader font-semibold"
-                  />
-                ) : (
-                  <p className="prose-reader text-foreground font-semibold text-justify">{translationEn}</p>
+              <div className="flex items-center justify-center gap-4">
+                {(isEditing || translationEn) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Translation</h3>
+                    <button
+                      onClick={() => playSection("Translation EN", audioTranslationEn)}
+                      disabled={!audioTranslationEn && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Listen to translation"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
                 )}
               </div>
             </div>
+
+            {isEditing ? (
+              <div className="grid grid-cols-2 gap-8">
+                <Textarea
+                  value={edited.translationUa}
+                  onChange={(e) =>
+                    setEdited((p) => ({
+                      ...p,
+                      translationUa: e.target.value,
+                    }))
+                  }
+                  className="text-base min-h-[150px]"
+                />
+                <Textarea
+                  value={edited.translationEn}
+                  onChange={(e) =>
+                    setEdited((p) => ({
+                      ...p,
+                      translationEn: e.target.value,
+                    }))
+                  }
+                  className="text-base min-h-[150px]"
+                />
+              </div>
+            ) : (
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} />
+            )}
           </div>
         )}
 
-        {/* ПОЯСНЕННЯ - два стовпці, розбитий на параграфи */}
+        {/* ПОЯСНЕННЯ */}
         {textDisplaySettings.showCommentary && (isEditing || commentaryUa || commentaryEn) && (
-          <div className="pt-6">
-            {/* Заголовки з кнопками аудіо */}
-            <div className="section-header grid grid-cols-2 gap-6">
-              {/* UA */}
+          <div className="p-8">
+            {/* Заголовки - показуються тільки якщо є текст */}
+            <div className="grid grid-cols-2 gap-8 mb-4">
               <div className="flex items-center justify-center gap-4">
-                <h4 className="text-foreground">Пояснення</h4>
-                <button
-                  onClick={() => playSection("Пояснення UA", audioCommentaryUa)}
-                  disabled={!audioCommentaryUa && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Слухати пояснення UA"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
+                {(isEditing || commentaryUa) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Пояснення</h3>
+                    <button
+                      onClick={() => playSection("Пояснення UA", audioCommentaryUa)}
+                      disabled={!audioCommentaryUa && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Слухати пояснення"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
+                )}
               </div>
-
-              {/* EN */}
               <div className="flex items-center justify-center gap-4">
-                <h4 className="text-foreground">Purport</h4>
-                <button
-                  onClick={() => playSection("Purport EN", audioCommentaryEn)}
-                  disabled={!audioCommentaryEn && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Listen to purport EN"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
+                {(isEditing || commentaryEn) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Purport</h3>
+                    <button
+                      onClick={() => playSection("Purport EN", audioCommentaryEn)}
+                      disabled={!audioCommentaryEn && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Listen to purport"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Параграфи синхронізовані */}
             {isEditing ? (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-8">
                 <EnhancedInlineEditor
                   content={edited.commentaryUa}
                   onChange={(html) =>
@@ -704,35 +644,11 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <div className="space-y-4">
-                {Array.from({
-                  length: maxParagraphs,
-                }).map((_, index) => (
-                  <div key={index} className="grid grid-cols-2 gap-6 pb-4 items-start">
-                    {/* UA параграф */}
-                    <div className="commentary-text">
-                      {commentaryParagraphsUa[index] ? (
-                        <TiptapRenderer content={commentaryParagraphsUa[index]} />
-                      ) : (
-                        <p className="text-muted-foreground italic text-sm">Немає тексту</p>
-                      )}
-                    </div>
-
-                    {/* EN параграф */}
-                    <div className="commentary-text">
-                      {commentaryParagraphsEn[index] ? (
-                        <TiptapRenderer content={commentaryParagraphsEn[index]} />
-                      ) : (
-                        <p className="text-muted-foreground italic text-sm">No text</p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} />
             )}
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };

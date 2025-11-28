@@ -41,6 +41,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 // Helper function to create highlighted snippet
 function createHighlightedSnippet(text: string, searchQuery: string, maxLength: number = 250): string {
@@ -940,7 +941,7 @@ export default function KnowledgeCompiler() {
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
                                   {language === 'ua' ? 'Транслітерація:' : 'Transliteration:'}
                                 </p>
-                                <p className="italic">{verse.transliteration}</p>
+                                <p className="italic">{stripParagraphTags(verse.transliteration)}</p>
                               </div>
                             )}
 
@@ -949,7 +950,7 @@ export default function KnowledgeCompiler() {
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
                                   {language === 'ua' ? 'Переклад:' : 'Translation:'}
                                 </p>
-                                <p>{verse.translation}</p>
+                                <p>{stripParagraphTags(verse.translation)}</p>
                               </div>
                             )}
 
@@ -1066,7 +1067,7 @@ export default function KnowledgeCompiler() {
                           </CardHeader>
                           <CardContent className="space-y-2">
                             {verse.translation && (
-                              <p className="text-sm">{verse.translation}</p>
+                              <p className="text-sm">{stripParagraphTags(verse.translation)}</p>
                             )}
                           </CardContent>
                         </Card>

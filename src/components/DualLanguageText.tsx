@@ -15,8 +15,40 @@ interface DualLanguageTextProps {
 }
 
 /**
+ * Розбиває HTML текст на параграфи
+ * Підтримує: <p>...</p>, подвійні переноси \n\n, або комбінацію
+ */
+function parseTextToParagraphs(text?: string): Paragraph[] {
+  if (!text) return [];
+
+  let paragraphs: string[] = [];
+
+  // Перевіряємо чи є HTML теги <p>
+  if (text.includes("<p>") || text.includes("<p ")) {
+    // Розбиваємо по </p> і очищуємо
+    paragraphs = text
+      .split(/<\/p>/i)
+      .map((p) => p.replace(/<p[^>]*>/gi, "").trim())
+      .filter((p) => p.length > 0);
+  } else {
+    // Fallback: розбиваємо по подвійних переносах
+    paragraphs = text
+      .split(/\n\n+/)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+  }
+
+  return paragraphs.map((text, index) => ({
+    index,
+    text: text.replace(/\n/g, " ").trim(),
+  }));
+}
+
+/**
  * Компонент для синхронізованого відображення тексту двома мовами
  * Кожен параграф української мови вирівнюється з відповідним параграфом англійської
+ *
+ * Стилі (fontSize, lineHeight) успадковуються від батьківського компонента
  */
 export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   uaParagraphs,
@@ -25,41 +57,31 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   uaText,
   enText,
 }) => {
-  // Fallback: якщо paragraphs відсутні, парсимо text на льоту
-  const getParagraphs = (paragraphs: Paragraph[] | null, text?: string): Paragraph[] => {
-    if (paragraphs && paragraphs.length > 0) {
-      return paragraphs;
-    }
-    if (text) {
-      return text
-        .split(/\n\n+/)
-        .map((p) => p.trim())
-        .filter((p) => p.length > 0)
-        .map((text, index) => ({ index, text }));
-    }
-    return [];
-  };
+  // Використовуємо передані параграфи або парсимо текст
+  const uaParas = uaParagraphs && uaParagraphs.length > 0 ? uaParagraphs : parseTextToParagraphs(uaText);
 
-  const uaParas = getParagraphs(uaParagraphs, uaText);
-  const enParas = getParagraphs(enParagraphs, enText);
+  const enParas = enParagraphs && enParagraphs.length > 0 ? enParagraphs : parseTextToParagraphs(enText);
 
   // Вирівняти кількість параграфів (додати порожні якщо потрібно)
   const maxLength = Math.max(uaParas.length, enParas.length);
 
+  // Якщо немає тексту - нічого не рендеримо
+  if (maxLength === 0) return null;
+
   return (
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: maxLength }).map((_, idx) => (
-        <div key={idx} className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 items-start">
+        <div key={idx} className="grid grid-cols-2 gap-8 items-start">
           <p
-            className="leading-relaxed text-base"
+            className="text-justify"
             dangerouslySetInnerHTML={{
-              __html: enParas[idx]?.text || "&nbsp;",
+              __html: uaParas[idx]?.text || "&nbsp;",
             }}
           />
           <p
-            className="leading-relaxed text-base"
+            className="text-justify"
             dangerouslySetInnerHTML={{
-              __html: uaParas[idx]?.text || "&nbsp;",
+              __html: enParas[idx]?.text || "&nbsp;",
             }}
           />
         </div>

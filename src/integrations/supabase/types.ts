@@ -1622,6 +1622,27 @@ export type Database = {
         }
         Relationships: []
       }
+      verses_backup_danda_fix: {
+        Row: {
+          changed_at: string | null
+          id: string
+          orig_sanskrit_en: string | null
+          orig_sanskrit_ua: string | null
+        }
+        Insert: {
+          changed_at?: string | null
+          id: string
+          orig_sanskrit_en?: string | null
+          orig_sanskrit_ua?: string | null
+        }
+        Update: {
+          changed_at?: string | null
+          id?: string
+          orig_sanskrit_en?: string | null
+          orig_sanskrit_ua?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       audio_track_daily_stats: {

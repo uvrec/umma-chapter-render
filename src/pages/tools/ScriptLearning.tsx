@@ -45,6 +45,7 @@ import {
   Zap
 } from "lucide-react";
 import { toast } from "sonner";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 // ===== ТИПИ =====
 
@@ -1528,7 +1529,7 @@ export default function ScriptLearning() {
                         </button>
                       </div>
                       <div className="text-sm text-muted-foreground line-clamp-2">
-                        {verse.translation}
+                        {stripParagraphTags(verse.translation)}
                       </div>
                     </div>
                   </div>
