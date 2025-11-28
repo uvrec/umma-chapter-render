@@ -553,15 +553,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText
-                uaParagraphs={null}
-                enParagraphs={null}
-                uaText={translationUa}
-                enText={translationEn}
-                className="font-semibold"
-                fontSize={fontSize}
-                lineHeight={lineHeight}
-              />
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} />
             )}
           </div>
         )}
@@ -619,14 +611,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText
-                uaParagraphs={null}
-                enParagraphs={null}
-                uaText={commentaryUa}
-                enText={commentaryEn}
-                fontSize={fontSize}
-                lineHeight={lineHeight}
-              />
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} />
             )}
           </div>
         )}
