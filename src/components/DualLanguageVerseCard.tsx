@@ -253,7 +253,7 @@ export const DualLanguageVerseCard = ({
 
         {/* НОМЕР ВІРША */}
         {showNumbers && (
-          <div className="flex h-8 items-center justify-center mb-8">
+          <div className="flex items-center justify-center mb-8">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
@@ -406,7 +406,9 @@ export const DualLanguageVerseCard = ({
             <div className="grid grid-cols-2 gap-8">
               {/* Ukrainian Synonyms */}
               <div>
-                <h3 className="text-xl font-bold mb-4 text-center">Послівний переклад</h3>
+                {(isEditing || synonymsUa) && (
+                  <h3 className="text-xl font-bold mb-4 text-center">Послівний переклад</h3>
+                )}
                 {isEditing ? (
                   <Textarea
                     value={edited.synonymsUa}
@@ -418,7 +420,7 @@ export const DualLanguageVerseCard = ({
                     }
                     className="text-base min-h-[200px]"
                   />
-                ) : (
+                ) : synonymsUa ? (
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
@@ -455,12 +457,12 @@ export const DualLanguageVerseCard = ({
                       );
                     })}
                   </p>
-                )}
+                ) : null}
               </div>
 
               {/* English Synonyms */}
               <div>
-                <h3 className="text-xl font-bold mb-4 text-center">Synonyms</h3>
+                {(isEditing || synonymsEn) && <h3 className="text-xl font-bold mb-4 text-center">Synonyms</h3>}
                 {isEditing ? (
                   <Textarea
                     value={edited.synonymsEn}
@@ -472,7 +474,7 @@ export const DualLanguageVerseCard = ({
                     }
                     className="text-base min-h-[200px]"
                   />
-                ) : (
+                ) : synonymsEn ? (
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
@@ -509,7 +511,7 @@ export const DualLanguageVerseCard = ({
                       );
                     })}
                   </p>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
@@ -518,29 +520,37 @@ export const DualLanguageVerseCard = ({
         {/* ПЕРЕКЛАД */}
         {textDisplaySettings.showTranslation && (isEditing || translationUa || translationEn) && (
           <div className="p-8">
-            {/* Заголовки */}
+            {/* Заголовки - показуються тільки якщо є текст */}
             <div className="grid grid-cols-2 gap-8 mb-4">
               <div className="flex items-center justify-center gap-4">
-                <h3 className="text-xl font-bold text-center">Переклад</h3>
-                <button
-                  onClick={() => playSection("Переклад UA", audioTranslationUa)}
-                  disabled={!audioTranslationUa && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Слухати переклад"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
+                {(isEditing || translationUa) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Переклад</h3>
+                    <button
+                      onClick={() => playSection("Переклад UA", audioTranslationUa)}
+                      disabled={!audioTranslationUa && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Слухати переклад"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
+                )}
               </div>
               <div className="flex items-center justify-center gap-4">
-                <h3 className="text-xl font-bold text-center">Translation</h3>
-                <button
-                  onClick={() => playSection("Translation EN", audioTranslationEn)}
-                  disabled={!audioTranslationEn && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Listen to translation"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
+                {(isEditing || translationEn) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Translation</h3>
+                    <button
+                      onClick={() => playSection("Translation EN", audioTranslationEn)}
+                      disabled={!audioTranslationEn && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Listen to translation"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -576,29 +586,37 @@ export const DualLanguageVerseCard = ({
         {/* ПОЯСНЕННЯ */}
         {textDisplaySettings.showCommentary && (isEditing || commentaryUa || commentaryEn) && (
           <div className="p-8">
-            {/* Заголовки */}
+            {/* Заголовки - показуються тільки якщо є текст */}
             <div className="grid grid-cols-2 gap-8 mb-4">
               <div className="flex items-center justify-center gap-4">
-                <h3 className="text-xl font-bold text-center">Пояснення</h3>
-                <button
-                  onClick={() => playSection("Пояснення UA", audioCommentaryUa)}
-                  disabled={!audioCommentaryUa && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Слухати пояснення"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
+                {(isEditing || commentaryUa) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Пояснення</h3>
+                    <button
+                      onClick={() => playSection("Пояснення UA", audioCommentaryUa)}
+                      disabled={!audioCommentaryUa && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Слухати пояснення"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
+                )}
               </div>
               <div className="flex items-center justify-center gap-4">
-                <h3 className="text-xl font-bold text-center">Purport</h3>
-                <button
-                  onClick={() => playSection("Purport EN", audioCommentaryEn)}
-                  disabled={!audioCommentaryEn && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Listen to purport"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
+                {(isEditing || commentaryEn) && (
+                  <>
+                    <h3 className="text-xl font-bold text-center">Purport</h3>
+                    <button
+                      onClick={() => playSection("Purport EN", audioCommentaryEn)}
+                      disabled={!audioCommentaryEn && !audioUrl}
+                      className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                      aria-label="Listen to purport"
+                    >
+                      <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
