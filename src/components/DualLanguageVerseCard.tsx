@@ -257,7 +257,7 @@ export const DualLanguageVerseCard = ({
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
-              <span className="font-semibold text-4xl" style={{ color: "rgb(188, 115, 26)" }}>
+              <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
                 Вірш {verseNumber}
               </span>
             )}
