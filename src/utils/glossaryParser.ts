@@ -18,10 +18,25 @@ export interface GlossaryTermWithUsage {
 // Function to normalize text by removing diacritical marks
 export const normalizeSanskritText = (text: string): string => {
   if (!text) return '';
-  
+
   return text
     .toLowerCase()
     .trim()
+    // Ukrainian Sanskrit diacritical marks (must come BEFORE generic combining marks removal)
+    .replace(/а̄/g, 'а')
+    .replace(/ӯ/g, 'у')
+    .replace(/ш́/g, 'ш')
+    .replace(/т̣/g, 'т')
+    .replace(/д̣/g, 'д')
+    .replace(/р̣̄/g, 'р')
+    .replace(/р̣/g, 'р')
+    .replace(/н̣/g, 'н')
+    .replace(/н̃/g, 'н')
+    .replace(/н̇/g, 'н')
+    .replace(/м̇/g, 'м')
+    .replace(/х̣/g, 'х')
+    .replace(/л̣/g, 'л')
+    .replace(/ом̇/g, 'ом')
     // Remove Latin Sanskrit diacritical marks
     .replace(/[āĀ]/g, 'a')
     .replace(/[īĪ]/g, 'i')
@@ -42,7 +57,7 @@ export const normalizeSanskritText = (text: string): string => {
     .replace(/[ḍḌ]/g, 'd')
     .replace(/[ḥḤ]/g, 'h')
     .replace(/[ḻḺ]/g, 'l')
-    // Remove combining marks and special characters
+    // Remove combining marks and special characters (AFTER specific replacements)
     .replace(/[\u0300-\u036f]/g, '') // combining diacritical marks
     .replace(/[̇̄̃̂̌]/g, '') // additional combining marks
     .replace(/ʼ/g, '') // apostrophes
@@ -50,40 +65,25 @@ export const normalizeSanskritText = (text: string): string => {
     // Ukrainian/Cyrillic transliteration marks
     .replace(/[ії]/g, 'и')
     .replace(/[єэ]/g, 'е')
-    .replace(/[ґг]/g, 'г')
-    // Ukrainian Sanskrit diacritical marks
-    .replace(/а̄/g, 'а')
-    .replace(/ӯ/g, 'у')
-    .replace(/ш́/g, 'ш')
-    .replace(/т̣/g, 'т')
-    .replace(/д̣/g, 'д')
-    .replace(/р̣̄/g, 'р')
-    .replace(/р̣/g, 'р')
-    .replace(/н̣/g, 'н')
-    .replace(/н̃/g, 'н')
-    .replace(/н̇/g, 'н')
-    .replace(/м̇/g, 'м')
-    .replace(/х̣/g, 'х')
-    .replace(/л̣/g, 'л')
-    .replace(/ом̇/g, 'ом');
+    .replace(/[ґг]/g, 'г');
 };
 
 export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
   if (!synonyms) return [];
-  
+
   const terms: GlossaryTerm[] = [];
-  
+
   // Split by semicolon or comma
   const termPairs = synonyms.split(/[;,]/);
-  
+
   termPairs.forEach((pair) => {
     const trimmedPair = pair.trim();
-    
+
     // Try all separator variations: regular dash, en dash, em dash with optional spaces and newlines
     const separators = [' – ', ' — ', ' - ', '–', '—', '-', ' –\n', ' —\n', ' -\n', '–\n', '—\n', '-\n'];
     let dashIndex = -1;
     let separator = '';
-    
+
     for (const sep of separators) {
       dashIndex = trimmedPair.indexOf(sep);
       if (dashIndex !== -1) {
@@ -91,15 +91,15 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
         break;
       }
     }
-    
+
     if (dashIndex !== -1) {
       const term = trimmedPair.substring(0, dashIndex).trim();
       const meaning = trimmedPair.substring(dashIndex + separator.length).trim().replace(/^\n+/, '');
-      
+
       if (term && meaning) {
         // Generate link based on verse number
         const link = generateVerseLink(verseNumber);
-        
+
         terms.push({
           term,
           meaning,
@@ -111,13 +111,13 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
       }
     }
   });
-  
+
   return terms;
 };
 
 const generateVerseLink = (verseNumber: string): string => {
   const lowerVerse = verseNumber.toLowerCase();
-  
+
   if (lowerVerse.includes('шб') || lowerVerse.includes('sb')) {
     return `/verses/srimad-bhagavatam`;
   } else if (lowerVerse.includes('бг') || lowerVerse.includes('bg')) {
@@ -125,14 +125,14 @@ const generateVerseLink = (verseNumber: string): string => {
   } else if (lowerVerse.includes('īшо') || lowerVerse.includes('iso')) {
     return `/verses/isopanisad`;
   }
-  
+
   return '/verses';
 };
 
 // Extract all terms from verses data
 export const extractAllTerms = (verses: any[]): GlossaryTerm[] => {
   const allTerms: GlossaryTerm[] = [];
-  
+
   verses.forEach((verse) => {
     if (verse.synonyms) {
       const termsFromVerse = parseTermsFromSynonyms(
@@ -143,14 +143,14 @@ export const extractAllTerms = (verses: any[]): GlossaryTerm[] => {
       allTerms.push(...termsFromVerse);
     }
   });
-  
+
   return allTerms;
 };
 
 // Group terms by their Sanskrit/Bengali text
 export const groupTermsByText = (terms: GlossaryTerm[]): { [key: string]: GlossaryTerm[] } => {
   const grouped: { [key: string]: GlossaryTerm[] } = {};
-  
+
   terms.forEach((term) => {
     const key = term.term.toLowerCase().trim();
     if (!grouped[key]) {
@@ -158,14 +158,14 @@ export const groupTermsByText = (terms: GlossaryTerm[]): { [key: string]: Glossa
     }
     grouped[key].push(term);
   });
-  
+
   return grouped;
 };
 
 // Calculate usage count for each unique term
 export const calculateTermUsage = (terms: GlossaryTerm[]): GlossaryTermWithUsage[] => {
   const termMap = new Map<string, GlossaryTerm[]>();
-  
+
   terms.forEach((term) => {
     const key = term.term.toLowerCase().trim();
     if (!termMap.has(key)) {
@@ -173,7 +173,7 @@ export const calculateTermUsage = (terms: GlossaryTerm[]): GlossaryTermWithUsage
     }
     termMap.get(key)!.push(term);
   });
-  
+
   const withUsage: GlossaryTermWithUsage[] = [];
   termMap.forEach((occurrences, term) => {
     withUsage.push({
@@ -182,7 +182,7 @@ export const calculateTermUsage = (terms: GlossaryTerm[]): GlossaryTermWithUsage
       allOccurrences: occurrences
     });
   });
-  
+
   return withUsage.sort((a, b) => b.usageCount - a.usageCount);
 };
 
@@ -193,16 +193,16 @@ export const searchTerms = (
   searchType: 'exact' | 'contains' | 'starts' = 'contains'
 ): GlossaryTerm[] => {
   if (!query) return terms;
-  
+
   const normalizedQuery = normalizeSanskritText(query);
-  
+
   return terms.filter((term) => {
     const normalizedTerm = normalizeSanskritText(term.term);
     const normalizedMeaning = normalizeSanskritText(term.meaning);
-    
+
     let termMatch = false;
     let meaningMatch = false;
-    
+
     switch (searchType) {
       case 'exact':
         termMatch = normalizedTerm === normalizedQuery;
@@ -216,7 +216,7 @@ export const searchTerms = (
         termMatch = normalizedTerm.includes(normalizedQuery);
         meaningMatch = normalizedMeaning.includes(normalizedQuery);
     }
-    
+
     return termMatch || meaningMatch;
   });
 };
