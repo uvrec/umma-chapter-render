@@ -32,9 +32,7 @@ export const Library = () => {
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-center text-primary font-serif">
             {t('Бібліотека', 'Library')}
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground text-center">
-            {t('Повна колекція ведичної літератури з коментарями Його Божественної Милості А. Ч. Бгактіведанти Свамі Прабгупади', 'Complete collection of Vedic literature with commentaries by His Divine Grace A.C. Bhaktivedanta Swami Prabhupada')}
-          </p>
+          
         </div>
 
         {/* Future tabs - commented for now */}
