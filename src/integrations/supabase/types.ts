@@ -2100,11 +2100,7 @@ export type Database = {
       }
       get_book_pages:
         | {
-            Args: {
-              p_book_id: string
-              p_canto_id?: string
-              p_language?: string
-            }
+            Args: { p_book_id: string; p_language?: string }
             Returns: {
               content: Json
               id: string
@@ -2115,7 +2111,11 @@ export type Database = {
             }[]
           }
         | {
-            Args: { p_book_id: string; p_language?: string }
+            Args: {
+              p_book_id: string
+              p_canto_id?: string
+              p_language?: string
+            }
             Returns: {
               content: Json
               id: string
