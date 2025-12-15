@@ -149,15 +149,6 @@ export const EnhancedInlineEditor = ({
     }
   }, [editor, editable, content]);
 
-  // Debug log
-  useEffect(() => {
-    console.log('[EnhancedInlineEditor] Props:', {
-      label,
-      editable,
-      hasEditor: !!editor,
-      contentLength: content?.length || 0
-    });
-  }, [label, editable, editor, content]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");
@@ -233,10 +224,6 @@ export const EnhancedInlineEditor = ({
     <div
       className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative`}
     >
-      {/* DEBUG INDICATOR */}
-      <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-t-md">
-        ✅ EnhancedInlineEditor: {label} (editable: {String(editable)})
-      </div>
 
       {/* STICKY TOOLBAR */}
       {editable && (

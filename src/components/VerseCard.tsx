@@ -447,7 +447,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Послівний переклад"
-                editable={true}
+                editable={isEditing}
               />
             ) : (
               <p className="synonyms-text text-foreground" style={{ fontSize: `${fontSize}px`, lineHeight }}>
@@ -544,7 +544,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Переклад"
-                editable={true}
+                editable={isEditing}
               />
             ) : (
               <p className="prose-reader text-foreground font-semibold font-serif text-justify">{stripParagraphTags(translation)}</p>
@@ -578,7 +578,7 @@ export const VerseCard = ({
                   }))
                 }
                 label="Пояснення"
-                editable={true}
+                editable={isEditing}
               />
             ) : (
               <TiptapRenderer
