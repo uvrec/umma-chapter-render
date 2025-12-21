@@ -194,6 +194,20 @@ export function convertIASTtoUkrainian(text: string): string {
     "\u012A": "Ī", // Ī
     "\u016A": "Ӯ", // Ū
 
+    // ============ ВЕЛИКІ PRECOMPOSED Unicode ============
+    "\u015A": "Ш́", // Ś → Ш́
+    "\u1E62": "Ш", // Ṣ → Ш
+    "\u1E6C": "Т̣", // Ṭ → Т̣
+    "\u1E0C": "Д̣", // Ḍ → Д̣
+    "\u1E5A": "Р̣", // Ṛ → Р̣
+    "\u1E46": "Н̣", // Ṇ → Н̣
+    "\u00D1": "Н̃", // Ñ → Н̃
+    "\u1E44": "Н̇", // Ṅ → Н̇
+    "\u1E40": "М̇", // Ṁ → М̇
+    "\u1E42": "М̣", // Ṃ → М̣
+    "\u1E24": "Х̣", // Ḥ → Х̣
+    "\u1E36": "Л̣", // Ḷ → Л̣
+
     // ============ COMBINING DIACRITICS (запасний варіант) ============
     // Якщо NFC нормалізація не спрацювала
     "a\u0304": "а̄", // a + combining macron
@@ -214,6 +228,19 @@ export function convertIASTtoUkrainian(text: string): string {
     "m\u0307": "м̇", // m + combining dot above
     "h\u0323": "х̣", // h + combining dot below
     "l\u0323": "л̣", // l + combining dot below
+
+    // ============ ВЕЛИКІ COMBINING DIACRITICS ============
+    "S\u0301": "Ш́", // S + acute
+    "S\u0323": "Ш", // S + dot below
+    "T\u0323": "Т̣", // T + dot below
+    "D\u0323": "Д̣", // D + dot below
+    "R\u0323": "Р̣", // R + dot below
+    "N\u0323": "Н̣", // N + dot below
+    "N\u0303": "Н̃", // N + tilde
+    "N\u0307": "Н̇", // N + dot above
+    "M\u0307": "М̇", // M + dot above
+    "H\u0323": "Х̣", // H + dot below
+    "L\u0323": "Л̣", // L + dot below
 
     // ============ 3 символи (СПОЧАТКУ!) ============
     nya: "нйа",
