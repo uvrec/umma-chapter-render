@@ -69,7 +69,6 @@ export const IAST_TO_CYRILLIC: Record<string, string> = {
   ḥ: "х̣",
 
   // Великі приголосні з діакритикою
-  Ś: "Ш́",
   Ṣ: "Ш",
   Ṭ: "Т̣",
   Ḍ: "Д̣",
