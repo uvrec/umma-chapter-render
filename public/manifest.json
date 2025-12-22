@@ -1,0 +1,47 @@
+{
+  "name": "Vedavoice — Прабгупада Солов'їною",
+  "short_name": "Vedavoice",
+  "description": "Читай і слухай ведичні тексти українською. Бхагавад-Гіта, Шрімад-Бхагаватам з коментарями Шріли Прабгупади.",
+  "theme_color": "#d97706",
+  "background_color": "#1a1a2e",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["education", "books", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Бібліотека",
+      "short_name": "Бібліотека",
+      "url": "/library",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Аудіо",
+      "short_name": "Аудіо",
+      "url": "/audio",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}
