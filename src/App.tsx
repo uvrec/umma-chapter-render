@@ -87,7 +87,7 @@ import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import Highlights from "./pages/admin/Highlights";
 import NumCal from "./pages/admin/NumCal";
-
+import Install from "./pages/Install";
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -163,6 +163,7 @@ const App = () => (
                   <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
                   <Route path="/tools/synonyms" element={<SynonymsSearch />} />
                   <Route path="/tools/dictionary" element={<SanskritDictionary />} />
+                  <Route path="/install" element={<Install />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
