@@ -28,6 +28,7 @@ const LS = {
   cont: "vv_reader_continuous",
   showNumbers: "vv_reader_showNumbers",
   flowMode: "vv_reader_flowMode",
+  mobileSafeMode: "vv_reader_mobileSafeMode",
 };
 
 function readNum(key: string, def: number) {
@@ -97,6 +98,7 @@ export function useReaderSettings() {
   );
   const [showNumbers, setShowNumbers] = useState<boolean>(() => readBool(LS.showNumbers, true));
   const [flowMode, setFlowMode] = useState<boolean>(() => readBool(LS.flowMode, false));
+  const [mobileSafeMode, setMobileSafeMode] = useState<boolean>(() => readBool(LS.mobileSafeMode, false));
 
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -109,6 +111,7 @@ export function useReaderSettings() {
     continuousReadingSettings,
     showNumbers,
     flowMode,
+    mobileSafeMode,
   });
 
   // Оновлюємо refs при кожній зміні
@@ -121,8 +124,9 @@ export function useReaderSettings() {
       continuousReadingSettings,
       showNumbers,
       flowMode,
+      mobileSafeMode,
     };
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode]);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode]);
 
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
@@ -196,6 +200,13 @@ export function useReaderSettings() {
     dispatchPrefs();
   }, [flowMode, dispatchPrefs]);
 
+  useEffect(() => {
+    localStorage.setItem(LS.mobileSafeMode, String(mobileSafeMode));
+    // Додаємо/видаляємо data-атрибут для CSS
+    document.documentElement.setAttribute('data-mobile-safe-mode', String(mobileSafeMode));
+    dispatchPrefs();
+  }, [mobileSafeMode, dispatchPrefs]);
+
   // синхронізація між вкладками
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -207,6 +218,7 @@ export function useReaderSettings() {
       if (e.key === LS.cont) setContinuousReadingSettings(readJSON(LS.cont, DEFAULT_CONT));
       if (e.key === LS.showNumbers) setShowNumbers(readBool(LS.showNumbers, true));
       if (e.key === LS.flowMode) setFlowMode(readBool(LS.flowMode, false));
+      if (e.key === LS.mobileSafeMode) setMobileSafeMode(readBool(LS.mobileSafeMode, false));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -224,6 +236,7 @@ export function useReaderSettings() {
       const newCont = readJSON(LS.cont, DEFAULT_CONT);
       const newShowNumbers = readBool(LS.showNumbers, true);
       const newFlowMode = readBool(LS.flowMode, false);
+      const newMobileSafeMode = readBool(LS.mobileSafeMode, false);
 
       // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
       const current = stateRefs.current;
@@ -235,6 +248,7 @@ export function useReaderSettings() {
       if (JSON.stringify(newCont) !== JSON.stringify(current.continuousReadingSettings)) setContinuousReadingSettings(newCont);
       if (newShowNumbers !== current.showNumbers) setShowNumbers(newShowNumbers);
       if (newFlowMode !== current.flowMode) setFlowMode(newFlowMode);
+      if (newMobileSafeMode !== current.mobileSafeMode) setMobileSafeMode(newMobileSafeMode);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -289,6 +303,8 @@ export function useReaderSettings() {
     setShowNumbers,
     flowMode,
     setFlowMode,
+    mobileSafeMode,
+    setMobileSafeMode,
     multipliers,
   };
 }

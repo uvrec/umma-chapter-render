@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Settings, Globe, Palette, Minus, Plus, RotateCcw } from "lucide-react";
+import { Settings, Globe, Palette, Minus, Plus, RotateCcw, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -25,6 +25,7 @@ const DEFAULTS = {
   dualLanguageMode: false,
   showNumbers: true,
   flowMode: false,
+  mobileSafeMode: false,
   blocks: {
     showSanskrit: true,
     showTransliteration: true,
@@ -117,6 +118,8 @@ export const GlobalSettingsPanel = () => {
     setShowNumbers,
     flowMode,
     setFlowMode,
+    mobileSafeMode,
+    setMobileSafeMode,
   } = useReaderSettings();
 
   // Функція скидання до початкових значень
@@ -129,6 +132,7 @@ export const GlobalSettingsPanel = () => {
     setTextDisplaySettings(DEFAULTS.blocks);
     setShowNumbers(DEFAULTS.showNumbers);
     setFlowMode(DEFAULTS.flowMode);
+    setMobileSafeMode(DEFAULTS.mobileSafeMode);
     setContinuousReadingSettings(DEFAULTS.continuousReading);
   };
 
@@ -270,6 +274,19 @@ export const GlobalSettingsPanel = () => {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="flow-mode">{t("Суцільний текст (без рамок)", "Continuous Text (No Borders)")}</Label>
                   <Switch id="flow-mode" checked={flowMode} onCheckedChange={(v) => setFlowMode(v)} />
+                </div>
+
+                <div className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Smartphone className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <Label htmlFor="mobile-safe-mode">{t("Мобільний safe mode", "Mobile Safe Mode")}</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t("Вимикає blur/складні ефекти", "Disables blur/complex effects")}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch id="mobile-safe-mode" checked={mobileSafeMode} onCheckedChange={(v) => setMobileSafeMode(v)} />
                 </div>
               </div>
             </div>

@@ -574,3 +574,55 @@ textarea.transliteration-output {
     transform: none;
   }
 }
+
+/* =========================
+   MOBILE SAFE MODE
+   Вимикає складні ефекти для старих телефонів
+   ========================= */
+[data-mobile-safe-mode="true"] {
+  /* Вимикаємо backdrop-blur всюди */
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Вимикаємо складні тіні */
+  .shadow-glow,
+  [class*="shadow-glow"] {
+    box-shadow: none !important;
+  }
+
+  /* Спрощуємо градієнти на фоні */
+  .bg-gradient-to-br,
+  .bg-gradient-to-r,
+  .bg-gradient-to-b,
+  [class*="bg-gradient"] {
+    background-image: none !important;
+    background-color: hsl(var(--background)) !important;
+  }
+
+  /* Вимикаємо анімації розмиття */
+  * {
+    filter: none !important;
+  }
+
+  /* Замінюємо напівпрозорі фони на solid */
+  .bg-background\/80,
+  .bg-background\/90,
+  .bg-card\/80,
+  .bg-card\/90,
+  [class*="\/80"],
+  [class*="\/90"] {
+    opacity: 1 !important;
+  }
+
+  /* Спрощуємо sticky headers */
+  .sticky {
+    background-color: hsl(var(--background)) !important;
+  }
+}
