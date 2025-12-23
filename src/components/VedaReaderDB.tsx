@@ -573,13 +573,13 @@ export const VedaReaderDB = () => {
     setSelectedTextForHighlight(selectedText);
     setSelectionContext({ before, after });
 
-    // ✅ Затримка перед показом діалогу
+    // ✅ Затримка перед показом діалогу (800ms щоб встигнути скопіювати)
     setTimeout(() => {
       const currentSelection = window.getSelection()?.toString().trim();
       if (currentSelection === selectedText) {
         setHighlightDialogOpen(true);
       }
-    }, 300);
+    }, 800);
   }, []);
 
   // Mouseup listener for highlights
