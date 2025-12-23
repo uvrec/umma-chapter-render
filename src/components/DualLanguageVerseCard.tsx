@@ -351,11 +351,17 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-8 text-center">
-                <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
+            <div className="grid grid-cols-2 gap-8 text-center">
+                <div
+                  className="font-[Noto_Sans_Devanagari] whitespace-pre-line"
+                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                >
                   {processedSanskritUa}
                 </div>
-                <div className="font-[Noto_Sans_Devanagari] text-2xl whitespace-pre-line leading-relaxed">
+                <div
+                  className="font-[Noto_Sans_Devanagari] whitespace-pre-line"
+                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                >
                   {processedSanskritEn}
                 </div>
               </div>
@@ -391,10 +397,16 @@ export const DualLanguageVerseCard = ({
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-8">
-                <div className="italic text-lg whitespace-pre-line leading-relaxed text-center">
+                <div
+                  className="italic whitespace-pre-line text-center"
+                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                >
                   {isEditing ? edited.transliterationUa : transliterationUa}
                 </div>
-                <div className="italic text-lg whitespace-pre-line leading-relaxed text-center">
+                <div
+                  className="italic whitespace-pre-line text-center"
+                  style={{ fontSize: `${fontSize}px`, lineHeight }}
+                >
                   {isEditing ? edited.transliterationEn : transliterationEn}
                 </div>
               </div>
