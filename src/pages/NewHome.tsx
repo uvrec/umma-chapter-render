@@ -2,6 +2,7 @@
 // Оновлена домашня сторінка з Hero + "Продовжити прослуховування", Latest, Playlists, Support
 // Інтегровано з GlobalAudioPlayer (useAudio) і динамічним Hero з БД (site_settings.home_hero)
 // + DailyQuoteBanner для відображення щоденних цитат
+// + ContinueReadingSection для відображення прогресу читання
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,6 +15,7 @@ import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
+import { ContinueReadingSection } from "@/components/ContinueReadingSection";
 import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, ExternalLink } from "lucide-react";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -502,6 +504,9 @@ export const NewHome = () => {
       <Header />
       <main>
         <Hero />
+        <div className="container mx-auto px-4 py-8">
+          <ContinueReadingSection className="mb-8" maxItems={3} />
+        </div>
         <LatestContent />
         <FeaturedBooks />
         <Playlists />
