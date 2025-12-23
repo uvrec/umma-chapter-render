@@ -74,7 +74,7 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
       )}
     >
 
-      <div className="relative p-3 md:p-4">
+      <div className="relative p-3 md:p-4 -mt-0.5">
         {/* Іконка лапок з блиском */}
         <div className="absolute top-3 left-3 text-white/10 dark:text-white/5 transition-all duration-500 group-hover:text-white/15 dark:group-hover:text-white/10">
           <Quote className="w-6 h-6 md:w-8 md:h-8" strokeWidth={1.5} />
