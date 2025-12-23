@@ -88,6 +88,8 @@ import { PageView } from "./pages/PageView";
 import Highlights from "./pages/admin/Highlights";
 import NumCal from "./pages/admin/NumCal";
 import Install from "./pages/Install";
+import BookSearch from "./pages/BookSearch";
+import { OfflineIndicator } from "./components/OfflineIndicator";
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -164,6 +166,7 @@ const App = () => (
                   <Route path="/tools/synonyms" element={<SynonymsSearch />} />
                   <Route path="/tools/dictionary" element={<SanskritDictionary />} />
                   <Route path="/install" element={<Install />} />
+                  <Route path="/search" element={<BookSearch />} />
                   <Route path="/contact" element={<Contact />} />
 
                   {/* Платежі */}
@@ -223,6 +226,7 @@ const App = () => (
                 </Routes>
 
                 {/* Сучасний глобальний плеєр і панель налаштувань */}
+                <OfflineIndicator />
                 <ModernGlobalPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>

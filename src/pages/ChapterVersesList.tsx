@@ -16,6 +16,7 @@ import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { stripParagraphTags } from "@/utils/import/normalizers";
+import { useReadingProgress } from "@/hooks/useReadingProgress";
 
 // Type for verse data
 interface Verse {
@@ -274,6 +275,16 @@ export const ChapterVersesList = () => {
     fontSize: `${fontSize}px`,
     lineHeight: lineHeight,
   };
+
+  // Трекінг прогресу читання
+  useReadingProgress({
+    bookId: book?.id || '',
+    bookSlug: bookId || '',
+    bookTitle: bookTitle || '',
+    chapterNumber: parseInt(effectiveChapterParam || '1'),
+    chapterTitle: chapterTitle || '',
+    cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+  });
 
   if (isLoading) {
     return (
