@@ -60,7 +60,7 @@ export const VerseNumberEditor = ({
   };
   if (!isEditing) {
     return <div className="flex items-center gap-2">
-        <span className="font-semibold text-primary text-3xl">Вірш {currentNumber}</span>
+        <span className="font-semibold text-primary text-5xl">Вірш {currentNumber}</span>
         <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="h-7 w-7 p-0" title="Редагувати номер вірша">
           <Edit2 className="h-3.5 w-3.5" />
         </Button>
