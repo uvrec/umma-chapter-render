@@ -7,6 +7,19 @@ const config: CapacitorConfig = {
   server: {
     url: 'https://caf8c97b-0aea-4eba-8bd0-7e77e5a22197.lovableproject.com?forceHideBadge=true',
     cleartext: true
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      launchFadeOutDuration: 500,
+      backgroundColor: '#1a1a2e',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: false,
+      splashFullScreen: true,
+      splashImmersive: true,
+    }
   }
 };
 
