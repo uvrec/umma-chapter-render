@@ -37,6 +37,12 @@ export function useKeyboardShortcuts({
 
     if (isEditable) return;
 
+    // Ігнорувати якщо натиснуто Ctrl, Command (Meta) або Alt
+    // Це дозволяє стандартним комбінаціям (Ctrl+C, Cmd+C, Alt+Tab тощо) працювати нормально
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
     // Знайти відповідний shortcut
     const shortcut = shortcutsRef.current.find(s => {
       // Підтримка Shift+key (для { і })
