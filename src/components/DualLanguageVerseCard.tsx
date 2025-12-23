@@ -69,7 +69,9 @@ function parseSynonyms(raw: string): Array<{
   meaning: string;
 }> {
   if (!raw) return [];
-  const parts = raw
+  // Видаляємо HTML-теги перед парсингом
+  const cleaned = raw.replace(/<[^>]*>/g, '').trim();
+  const parts = cleaned
     .split(/[;]+/g)
     .map((p) => p.trim())
     .filter(Boolean);
