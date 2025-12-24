@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
-import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
@@ -547,7 +546,12 @@ export const VerseCard = ({
                 editable={isEditing}
               />
             ) : (
-              <p className="prose-reader text-foreground font-semibold font-serif text-justify" style={{ fontSize: `${fontSize}px`, lineHeight }}>{stripParagraphTags(translation)}</p>
+              <p
+                className="text-foreground text-justify"
+                style={{ fontSize: `${fontSize}px`, lineHeight }}
+              >
+                {stripParagraphTags(translation)}
+              </p>
             )}
           </div>
         )}
@@ -581,11 +585,10 @@ export const VerseCard = ({
                 editable={isEditing}
               />
             ) : (
-              <TiptapRenderer
-                content={commentary || ""}
-                className="commentary-text"
-                fontSize={fontSize}
-                lineHeight={lineHeight}
+              <div
+                className="text-foreground text-justify"
+                style={{ fontSize: `${fontSize}px`, lineHeight }}
+                dangerouslySetInnerHTML={{ __html: commentary || "" }}
               />
             )}
           </div>
