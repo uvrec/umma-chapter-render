@@ -7,7 +7,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- 1. СТВОРЮЄМО ІНДЕКСИ для повнотекстового пошуку по синонімах
 CREATE INDEX IF NOT EXISTS idx_verses_synonyms_ua_gin
-  ON verses USING gin(to_tsvector('ukrainian', COALESCE(synonyms_ua, '')));
+  ON verses USING gin(to_tsvector('simple', COALESCE(synonyms_ua, '')));
 
 CREATE INDEX IF NOT EXISTS idx_verses_synonyms_en_gin
   ON verses USING gin(to_tsvector('english', COALESCE(synonyms_en, '')));
@@ -53,7 +53,7 @@ BEGIN
     synonyms_column := 'synonyms_ua';
     translation_column := 'translation_ua';
     transliteration_column := 'transliteration_ua';
-    tsconfig := 'ukrainian';
+    tsconfig := 'simple';
   ELSE
     synonyms_column := 'synonyms_en';
     translation_column := 'translation_en';
