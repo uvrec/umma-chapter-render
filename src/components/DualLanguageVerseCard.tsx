@@ -467,7 +467,7 @@ export const DualLanguageVerseCard = ({
                                 }}
                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                                 title="Відкрити у глосарії"
-                                className="cursor-pointer italic underline decoration-dotted underline-offset-2"
+                                className="cursor-pointer italic"
                                 style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                               >
                                 {w}
@@ -525,7 +525,7 @@ export const DualLanguageVerseCard = ({
                                 }}
                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                                 title="Open in glossary"
-                                className="cursor-pointer italic underline decoration-dotted underline-offset-2"
+                                className="cursor-pointer italic"
                                 style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                               >
                                 {w}
