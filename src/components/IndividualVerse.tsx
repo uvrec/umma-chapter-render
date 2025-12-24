@@ -186,8 +186,9 @@ export const IndividualVerse = () => {
     return pairs;
   };
 
+  // ✅ Використовуємо navigate замість window.open для мобільних додатків
   const openGlossary = (term: string) => {
-    window.open(`/glossary?search=${encodeURIComponent(term)}`, "_blank", "noopener,noreferrer");
+    navigate(`/glossary?search=${encodeURIComponent(term)}`);
   };
 
   const synonymPairs = parseSynonyms(currentVerse.synonyms || "");
