@@ -186,8 +186,9 @@ export const IndividualVerse = () => {
     return pairs;
   };
 
+  // ✅ Використовуємо navigate замість window.open для мобільних додатків
   const openGlossary = (term: string) => {
-    window.open(`/glossary?search=${encodeURIComponent(term)}`, "_blank", "noopener,noreferrer");
+    navigate(`/glossary?search=${encodeURIComponent(term)}`);
   };
 
   const synonymPairs = parseSynonyms(currentVerse.synonyms || "");
@@ -320,9 +321,13 @@ export const IndividualVerse = () => {
                           role="link"
                           tabIndex={0}
                           onClick={() => openGlossary(w)}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            openGlossary(w);
+                          }}
                           onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                           className="cursor-pointer italic"
-                          style={{ color: '#BC731B' }}
+                          style={{ color: '#BC731B', WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                           title="Відкрити у глосарії"
                         >
                           {w}
