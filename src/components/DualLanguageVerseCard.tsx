@@ -1,7 +1,7 @@
 // DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
+import { Edit, Save, X, Volume2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -274,16 +274,16 @@ export const DualLanguageVerseCard = ({
             )}
             {/* Кнопка "Додати до вивчення" */}
             {verseId && (
-              <Button
-                variant="ghost"
-                size="sm"
+              <button
                 onClick={handleAddToLearning}
                 disabled={isAddedToLearning}
-                className={`transition-colors ${isAddedToLearning ? 'text-green-600' : 'text-muted-foreground hover:text-primary'}`}
+                className="transition-colors disabled:cursor-default"
                 title={isAddedToLearning ? "Вже у списку для вивчення" : "Додати до вивчення"}
               >
-                <GraduationCap className="h-5 w-5" />
-              </Button>
+                <Star
+                  className={`h-4 w-4 ${isAddedToLearning ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground hover:text-amber-400'}`}
+                />
+              </button>
             )}
           </div>
         )}
