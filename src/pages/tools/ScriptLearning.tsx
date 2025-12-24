@@ -25,6 +25,9 @@ import {
   Achievement,
   LearningProgress
 } from "@/utils/achievements";
+import { useLearningSync } from "@/hooks/useLearningSync";
+import { useAuth } from "@/contexts/AuthContext";
+import { LearningProgressChart, ActivityHeatmap } from "@/components/learning/LearningProgressChart";
 import {
   Volume2,
   RefreshCw,
@@ -42,7 +45,11 @@ import {
   Clock,
   Target,
   Award,
-  Zap
+  Zap,
+  Cloud,
+  CloudOff,
+  RefreshCcw,
+  BarChart3
 } from "lucide-react";
 import { toast } from "sonner";
 import { stripParagraphTags } from "@/utils/import/normalizers";
@@ -213,6 +220,24 @@ const COMMON_WORDS = {
 
 export default function ScriptLearning() {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
+
+  // Cloud sync hook
+  const {
+    isSyncing,
+    lastSyncedAt,
+    isOnline,
+    syncToCloud,
+    syncFromCloud,
+    recordActivity,
+    getActivityHistory,
+    words: syncedWords,
+    verses: syncedVerses,
+    progress: syncedProgress,
+    setWords: setSyncedWords,
+    setVerses: setSyncedVerses,
+    setProgress: setSyncedProgress,
+  } = useLearningSync();
 
   const [scriptType, setScriptType] = useState<ScriptType>("devanagari");
   const [letterType, setLetterType] = useState<LetterType | "all">("all");
@@ -228,6 +253,15 @@ export default function ScriptLearning() {
   const [learningProgress, setLearningProgress] = useState<LearningProgress>(getLearningProgress());
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
+  const [showProgressChart, setShowProgressChart] = useState(false);
+  const [activityData, setActivityData] = useState<Array<{
+    activity_date: string;
+    reviews_count: number;
+    correct_count: number;
+    words_added: number;
+    verses_added: number;
+    time_spent_seconds: number;
+  }>>([]);
   const [stats, setStats] = useState<LearningStats>({
     correct: 0,
     incorrect: 0,
@@ -235,6 +269,32 @@ export default function ScriptLearning() {
     streak: 0,
     bestStreak: 0
   });
+
+  // Sync local state with cloud data
+  useEffect(() => {
+    if (syncedWords.length > 0) {
+      setImportedWords(syncedWords);
+    }
+  }, [syncedWords]);
+
+  useEffect(() => {
+    if (syncedVerses.length > 0) {
+      setLearningVerses(syncedVerses);
+    }
+  }, [syncedVerses]);
+
+  useEffect(() => {
+    if (syncedProgress.totalReviews > 0 || syncedProgress.currentStreak > 0) {
+      setLearningProgress(syncedProgress);
+    }
+  }, [syncedProgress]);
+
+  // Load activity data for chart
+  useEffect(() => {
+    if (user && showProgressChart) {
+      getActivityHistory(30).then(setActivityData);
+    }
+  }, [user, showProgressChart, getActivityHistory]);
 
   // Web Speech API for pronunciation
   const speak = useCallback((text: string, lang: string = 'hi-IN') => {
@@ -488,7 +548,11 @@ export default function ScriptLearning() {
     // Record review and update daily goal
     const newProgress = recordReview(true);
     setLearningProgress(newProgress);
+    setSyncedProgress(newProgress);
     updateDailyGoal(1);
+
+    // Record activity to cloud
+    recordActivity({ reviews_count: 1, correct_count: 1 });
 
     // Check for new achievements
     checkAndShowAchievements();
@@ -513,6 +577,10 @@ export default function ScriptLearning() {
     // Record review
     const newProgress = recordReview(false);
     setLearningProgress(newProgress);
+    setSyncedProgress(newProgress);
+
+    // Record activity to cloud
+    recordActivity({ reviews_count: 1, correct_count: 0 });
 
     handleNext();
   };
@@ -540,10 +608,15 @@ export default function ScriptLearning() {
           `Імпортовано ${newWords.length} нових слів`,
           `Imported ${newWords.length} new words`
         ));
+        // Sync to cloud
+        const updatedWords = [...prev, ...newWords];
+        setSyncedWords(updatedWords);
+        recordActivity({ words_added: newWords.length });
+        return updatedWords;
       } else {
         toast.info(t("Всі ці слова вже імпортовані", "All these words are already imported"));
       }
-      return [...prev, ...newWords];
+      return prev;
     });
     setLearningMode("words");
   };
@@ -661,16 +734,55 @@ export default function ScriptLearning() {
           
           {/* Заголовок */}
           <div className="text-center space-y-2">
-            <h1 className="text-4xl font-bold">
-              {t("Вивчення санскриту та бенгалі", "Learn Sanskrit & Bengali")}
-            </h1>
+            <div className="flex items-center justify-center gap-3">
+              <h1 className="text-4xl font-bold">
+                {t("Вивчення санскриту та бенгалі", "Learn Sanskrit & Bengali")}
+              </h1>
+              {/* Sync indicator */}
+              {user && (
+                <div className="flex items-center gap-2">
+                  {isSyncing ? (
+                    <RefreshCcw className="w-5 h-5 text-blue-500 animate-spin" />
+                  ) : isOnline ? (
+                    <Cloud className="w-5 h-5 text-green-500" title={t("Синхронізовано", "Synced")} />
+                  ) : (
+                    <CloudOff className="w-5 h-5 text-gray-400" title={t("Офлайн", "Offline")} />
+                  )}
+                </div>
+              )}
+            </div>
             <p className="text-muted-foreground">
               {t(
                 "Інтерактивний інструмент для вивчення деванагарі та бенгальського письма",
                 "Interactive tool for learning Devanagari and Bengali scripts"
               )}
             </p>
+            {/* Progress chart toggle button */}
+            <div className="flex justify-center pt-2">
+              <Button
+                variant={showProgressChart ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowProgressChart(!showProgressChart)}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                {showProgressChart
+                  ? t("Сховати графік", "Hide Chart")
+                  : t("Показати графік прогресу", "Show Progress Chart")}
+              </Button>
+            </div>
           </div>
+
+          {/* Progress Chart */}
+          {showProgressChart && (
+            <div className="space-y-4">
+              <LearningProgressChart
+                activityData={activityData}
+                isLoading={isSyncing}
+                onRefresh={() => getActivityHistory(30).then(setActivityData)}
+              />
+              <ActivityHeatmap activityData={activityData} />
+            </div>
+          )}
 
           {/* Вибір режиму навчання */}
           <Tabs value={learningMode} onValueChange={(v) => setLearningMode(v as LearningMode)} className="w-full">
