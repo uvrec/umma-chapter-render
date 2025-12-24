@@ -423,6 +423,31 @@ export const defaultRules: NormalizationRule[] = [
   { id: "transl_differentiated", incorrect: "діференційовані", correct: "відокремлені", category: "translation" },
   { id: "transl_initiation", incorrect: "ініціація", correct: "посвята", category: "translation" },
 
+  // Additional rules from editorial guidelines
+  { id: "transl_false_ego2", incorrect: "фальшиве его", correct: "оманне его", category: "translation" },
+  { id: "transl_control_mind", incorrect: "контролювати розум", correct: "опанувати розум", category: "translation" },
+  { id: "transl_verify", incorrect: "верифікувати", correct: "підтвердити", category: "translation" },
+  { id: "transl_reservoir", incorrect: "резервуар", correct: "вмістище", category: "translation" },
+  { id: "transl_emphasize", incorrect: "акцентувати", correct: "наголосити", category: "translation" },
+  { id: "transl_ingredients", incorrect: "інгредієнти", correct: "складники", category: "translation" },
+  { id: "transl_fix_mind", incorrect: "зафіксувати розум", correct: "зосередити розум", category: "translation" },
+  { id: "transl_transmigrate", incorrect: "трансмігрувати", correct: "переселятися", category: "translation" },
+  { id: "transl_identity", incorrect: "ідентичність", correct: "тотожність", category: "translation" },
+  { id: "transl_intimate", incorrect: "інтимні стосунки", correct: "близькі стосунки", category: "translation" },
+  { id: "transl_status", incorrect: "статус життя", correct: "стан життя", category: "translation" },
+  { id: "transl_demonstrate", incorrect: "демонструє", correct: "показує", category: "translation" },
+  { id: "transl_demonstrate2", incorrect: "продемонструвати", correct: "показати", category: "translation" },
+  { id: "transl_focus", incorrect: "фокусуватися", correct: "зосереджуватися", category: "translation" },
+  { id: "transl_mechanism", incorrect: "механізм", correct: "спосіб", category: "translation" },
+  { id: "transl_activate", incorrect: "активувати", correct: "пробудити", category: "translation" },
+  { id: "transl_process", incorrect: "процесувати", correct: "опрацьовувати", category: "translation" },
+  { id: "transl_fixate", incorrect: "фіксувати", correct: "закріплювати", category: "translation" },
+  { id: "transl_manifest", incorrect: "маніфестувати", correct: "проявляти", category: "translation" },
+  { id: "transl_manifest2", incorrect: "маніфестація", correct: "прояв", category: "translation" },
+  { id: "transl_eternal_servant", incorrect: "вічний слуга", correct: "вічний слуга", category: "translation", caseSensitive: true },
+  { id: "transl_degraded", incorrect: "деградувати", correct: "занепадати", category: "translation" },
+  { id: "transl_degradation", incorrect: "деградація", correct: "занепад", category: "translation" },
+
   // =====================================================
   // ТИПОГРАФІКА
   // =====================================================
@@ -433,6 +458,27 @@ export const defaultRules: NormalizationRule[] = [
   { id: "typo_ending_passion", incorrect: "пристрасти", correct: "пристрасті", category: "typography" },
   { id: "typo_ending_death", incorrect: "смерти", correct: "смерті", category: "typography" },
   { id: "typo_господu", incorrect: "Господу", correct: "Господеві", category: "typography" },
+
+  // Additional typography and grammar rules from editorial guidelines
+  { id: "typo_ending_radosti", incorrect: "радости", correct: "радості", category: "typography" },
+  { id: "typo_ending_milosti", incorrect: "милости", correct: "милості", category: "typography" },
+  { id: "typo_ending_vtichi", incorrect: "втіхи", correct: "втіхи", category: "typography", caseSensitive: true },
+  { id: "typo_ending_viddanosti", incorrect: "віддаености", correct: "відданості", category: "typography" },
+  { id: "typo_ending_svidomosti", incorrect: "свідомости", correct: "свідомості", category: "typography" },
+  { id: "typo_ending_mudrolsti", incorrect: "мудрости", correct: "мудрості", category: "typography" },
+  { id: "typo_ending_chesnosti", incorrect: "чесности", correct: "чесності", category: "typography" },
+  { id: "typo_ending_yunosti", incorrect: "юности", correct: "юності", category: "typography" },
+  { id: "typo_ending_mozhlivosti", incorrect: "можливости", correct: "можливості", category: "typography" },
+  { id: "typo_ending_osoblivosti", incorrect: "особливости", correct: "особливості", category: "typography" },
+  { id: "typo_ending_diyalnosti", incorrect: "діяльности", correct: "діяльності", category: "typography" },
+  { id: "typo_ending_vichnosti", incorrect: "вічности", correct: "вічності", category: "typography" },
+  { id: "typo_ending_sutnosti", incorrect: "сутности", correct: "сутності", category: "typography" },
+  { id: "typo_ending_yakosti", incorrect: "якости", correct: "якості", category: "typography" },
+  { id: "typo_ending_osobystosti", incorrect: "особистости", correct: "особистості", category: "typography" },
+  { id: "typo_ending_sili", incorrect: "сили", correct: "сили", category: "typography", caseSensitive: true },
+
+  // Genitive plural with -іп ending (лотосових стіп)
+  { id: "typo_lotus_feet", incorrect: "лотосових стоп", correct: "лотосових стіп", category: "typography" },
 ];
 
 /**
