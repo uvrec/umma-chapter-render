@@ -19,7 +19,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
+import { FONT_SIZE_MULTIPLIERS } from "@/constants/typography";
 import { stripParagraphTags } from "@/utils/import/normalizers";
 
 export const IndividualVerse = () => {
@@ -258,10 +258,7 @@ export const IndividualVerse = () => {
             </div>
             <div
               className="text-center leading-relaxed font-sanskrit"
-              style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
-                lineHeight: LINE_HEIGHTS.NORMAL
-              }}
+              style={{ fontSize: `${fontSize}px`, lineHeight }}
             >
               {currentVerse.sanskrit.split("\n").map((line, i) => (
                 <div key={i} className="mb-4">
@@ -277,10 +274,7 @@ export const IndividualVerse = () => {
           <section className="mb-12">
             <div
               className="text-center italic text-muted-foreground font-sanskrit-italic"
-              style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
-                lineHeight: LINE_HEIGHTS.NORMAL
-              }}
+              style={{ fontSize: `${fontSize}px`, lineHeight }}
             >
               {currentVerse.transliteration.split("\n").map((line, i) => (
                 <div key={i} className="mb-3">
@@ -311,10 +305,7 @@ export const IndividualVerse = () => {
                 <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
-            <p style={{
-              fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM} - 1px)`,
-              lineHeight: LINE_HEIGHTS.NORMAL
-            }}>
+            <p style={{ fontSize: `${fontSize}px`, lineHeight }}>
               {synonymPairs.map((pair, i) => {
                 const words = pair.term
                   .split(/\s+/)
@@ -370,10 +361,7 @@ export const IndividualVerse = () => {
             </div>
             <div
               className="font-bold"
-              style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
-                lineHeight: LINE_HEIGHTS.NORMAL
-              }}
+              style={{ fontSize: `${fontSize}px`, lineHeight }}
             >
               {stripParagraphTags(currentVerse.translation)}
             </div>
@@ -401,10 +389,7 @@ export const IndividualVerse = () => {
               </button>
             </div>
             <div
-              style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
-                lineHeight: LINE_HEIGHTS.NORMAL
-              }}
+              style={{ fontSize: `${fontSize}px`, lineHeight }}
             >
               {currentVerse.commentary.split("\n\n").map((para, i) => (
                 <p key={i} className="mb-6 last:mb-0">
