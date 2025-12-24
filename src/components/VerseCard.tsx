@@ -173,21 +173,8 @@ export const VerseCard = ({
     },
   };
   const labels = blockLabels[language];
-  const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
+  const { playTrack, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
-
-  // Debug: перевірка isAdmin та textDisplaySettings
-  useEffect(() => {
-    console.log('[VerseCard] Debug:', {
-      isAdmin,
-      verseId,
-      verseNumber,
-      hasSynonyms: !!synonyms,
-      hasTranslation: !!translation,
-      hasCommentary: !!commentary,
-      textDisplaySettings
-    });
-  }, [isAdmin, verseId, verseNumber, synonyms, translation, commentary, textDisplaySettings]);
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
@@ -206,7 +193,6 @@ export const VerseCard = ({
       commentary: commentary || "",
     });
   }, [sanskritText, transliteration, synonyms, translation, commentary]);
-  const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
 
   // ✅ ВИДАЛЕНО: processedSanskrit - санскрит відображається як є, з \n
   // Автоматичні розриви застосовуються ТІЛЬКИ при імпорті, а не при рендерингу
