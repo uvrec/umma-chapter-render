@@ -28,6 +28,7 @@ import {
 import { useLearningSync } from "@/hooks/useLearningSync";
 import { useAuth } from "@/contexts/AuthContext";
 import { LearningProgressChart, ActivityHeatmap } from "@/components/learning/LearningProgressChart";
+import { AddCustomWordForm, CustomWordInput } from "@/components/learning/AddCustomWordForm";
 import {
   Volume2,
   RefreshCw,
@@ -673,11 +674,30 @@ export default function ScriptLearning() {
     setLearningMode("words");
   };
 
-  // Add custom word
-  const addCustomWord = (word: WordCard) => {
-    setCustomWords(prev => [...prev, word]);
+  // Add custom word - adds to importedWords and syncs to cloud
+  const handleAddCustomWord = (wordInput: CustomWordInput) => {
+    const newWord: WordCard = {
+      script: wordInput.script,
+      iast: wordInput.iast,
+      ukrainian: wordInput.ukrainian,
+      meaning: wordInput.meaning,
+      usageCount: 0,
+    };
+
+    setImportedWords(prev => {
+      const updatedWords = [...prev, newWord];
+      setSyncedWords(updatedWords);
+      return updatedWords;
+    });
+
+    recordActivity({ words_added: 1 });
     toast.success(t("Слово додано", "Word added"));
   };
+
+  // Get all existing IAST values for duplicate checking
+  const existingIasts = useMemo(() => {
+    return importedWords.map(w => w.iast.toLowerCase());
+  }, [importedWords]);
 
   // Remove word from imported (by iast)
   const removeImportedWord = (iast: string) => {
@@ -1087,6 +1107,10 @@ export default function ScriptLearning() {
                       {t("Очистити", "Clear")}
                     </Button>
                   )}
+                  <AddCustomWordForm
+                    onAdd={handleAddCustomWord}
+                    existingIasts={existingIasts}
+                  />
                 </div>
 
                 <div className="flex flex-wrap gap-2">
