@@ -23,7 +23,6 @@ import LectureImport from "@/pages/admin/LectureImport";
 import LetterImport from "@/pages/admin/LetterImport";
 
 import { NewHome } from "./pages/NewHome";
-import { IndividualVerse } from "./components/IndividualVerse";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
 import { PrabhupadaBooks } from "./pages/library/PrabhupadaBooks";
@@ -105,8 +104,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<NewHome />} />
 
-                  {/* Читалка */}
-                  <Route path="/verses/:bookId/:verseNumber" element={<IndividualVerse />} />
+                  {/* ВИДАЛЕНО: Старий роут /verses/:bookId/:verseNumber - використовуйте /veda-reader/ */}
 
                   {/* Нові маршрути читання БД */}
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
