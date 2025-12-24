@@ -4,32 +4,17 @@
 // + STICKY HEADER для верхньої панелі
 // + Inline редактор для коментарів з автозбереженням
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
-import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 // ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
-import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 import { stripParagraphTags } from "@/utils/import/normalizers";
-
-/* =========================
-   Допоміжні функції
-   ========================= */
-
-// Convert plain text to HTML (wrap in <p> tags, preserve line breaks)
-const textToHtml = (text: string | undefined): string => {
-  if (!text) return "";
-  // Якщо вже HTML (містить теги), повертаємо як є
-  if (text.includes("<") && text.includes(">")) return text;
-  // Інакше конвертуємо plain text в HTML
-  return text.split("\n").map(line => `<p>${line || '<br>'}</p>`).join("");
-};
 
 /* =========================
    Типи пропсів
@@ -188,27 +173,14 @@ export const VerseCard = ({
     },
   };
   const labels = blockLabels[language];
-  const { playTrack, currentTrack, isPlaying, togglePlay } = useAudio();
+  const { playTrack, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
-
-  // Debug: перевірка isAdmin та textDisplaySettings
-  useEffect(() => {
-    console.log('[VerseCard] Debug:', {
-      isAdmin,
-      verseId,
-      verseNumber,
-      hasSynonyms: !!synonyms,
-      hasTranslation: !!translation,
-      hasCommentary: !!commentary,
-      textDisplaySettings
-    });
-  }, [isAdmin, verseId, verseNumber, synonyms, translation, commentary, textDisplaySettings]);
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
-    synonyms: textToHtml(synonyms),
-    translation: textToHtml(translation),
-    commentary: textToHtml(commentary),
+    synonyms: synonyms || "",
+    translation: translation || "",
+    commentary: commentary || "",
   });
 
   // ✅ Оновлювати edited коли props змінюються (напр. при переході між віршами)
@@ -216,12 +188,11 @@ export const VerseCard = ({
     setEdited({
       sanskrit: sanskritText,
       transliteration: transliteration || "",
-      synonyms: textToHtml(synonyms),
-      translation: textToHtml(translation),
-      commentary: textToHtml(commentary),
+      synonyms: synonyms || "",
+      translation: translation || "",
+      commentary: commentary || "",
     });
   }, [sanskritText, transliteration, synonyms, translation, commentary]);
-  const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
 
   // ✅ ВИДАЛЕНО: processedSanskrit - санскрит відображається як є, з \n
   // Автоматичні розриви застосовуються ТІЛЬКИ при імпорті, а не при рендерингу
@@ -431,7 +402,7 @@ export const VerseCard = ({
         )}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (synonyms || isAdmin) && (
+        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -446,17 +417,16 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isAdmin ? (
-              <EnhancedInlineEditor
-                content={edited.synonyms}
-                onChange={(html) =>
+            {isEditing ? (
+              <Textarea
+                value={edited.synonyms}
+                onChange={(e) =>
                   setEdited((p) => ({
                     ...p,
-                    synonyms: html,
+                    synonyms: e.target.value,
                   }))
                 }
-                label="Послівний переклад"
-                editable={isEditing}
+                className="text-base min-h-[200px]"
               />
             ) : synonyms ? (
               <p
@@ -503,7 +473,7 @@ export const VerseCard = ({
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
                               className="cursor-pointer italic"
-                              style={{ color: "#BC731B" }}
+                              style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                             >
                               {w}
                             </span>
@@ -534,7 +504,7 @@ export const VerseCard = ({
         )}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (translation || isAdmin) && (
+        {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -549,17 +519,16 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isAdmin ? (
-              <EnhancedInlineEditor
-                content={edited.translation}
-                onChange={(html) =>
+            {isEditing ? (
+              <Textarea
+                value={edited.translation}
+                onChange={(e) =>
                   setEdited((p) => ({
                     ...p,
-                    translation: html,
+                    translation: e.target.value,
                   }))
                 }
-                label="Переклад"
-                editable={isEditing}
+                className="text-base min-h-[150px]"
               />
             ) : (
               <p
@@ -573,7 +542,7 @@ export const VerseCard = ({
         )}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (commentary || isAdmin) && (
+        {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div>
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -588,17 +557,16 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isAdmin ? (
-              <EnhancedInlineEditor
-                content={edited.commentary}
-                onChange={(html) =>
+            {isEditing ? (
+              <Textarea
+                value={edited.commentary}
+                onChange={(e) =>
                   setEdited((p) => ({
                     ...p,
-                    commentary: html,
+                    commentary: e.target.value,
                   }))
                 }
-                label="Пояснення"
-                editable={isEditing}
+                className="text-base min-h-[200px]"
               />
             ) : (
               <div
