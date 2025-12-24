@@ -959,8 +959,7 @@ export const VedaReaderDB = () => {
           const contSettings = {
             showSanskrit: continuousReadingSettings.showSanskrit,
             showTransliteration: continuousReadingSettings.showTransliteration,
-            showSynonyms: false,
-            // Завжди false в continuous mode
+            showSynonyms: continuousReadingSettings.showSynonyms,
             showTranslation: continuousReadingSettings.showTranslation,
             showCommentary: continuousReadingSettings.showCommentary
           };
