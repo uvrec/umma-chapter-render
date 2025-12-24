@@ -3,6 +3,9 @@
  *
  * Based on editorial standards from:
  * https://docs.google.com/spreadsheets/d/1YZT4-KaQBeEZu7R9qysirdt8yb-9psOIkXCalDPLuwY/edit?gid=627477148#gid=627477148
+ *
+ * This file contains rules extracted from the official translation glossary
+ * maintained by the Gaudiya Vaishnava translation team.
  */
 
 export interface NormalizationRule {
@@ -28,18 +31,11 @@ export interface RuleCategory {
  */
 export const ruleCategories: RuleCategory[] = [
   {
-    id: "apostrophe",
-    name_ua: "Апострофи та м'який знак",
-    name_en: "Apostrophes and soft sign",
-    description_ua: "Заміна апострофів на м'який знак після певних літер",
-    description_en: "Replace apostrophes with soft sign after certain letters",
-  },
-  {
-    id: "consonant_clusters",
-    name_ua: "Консонантні кластери",
-    name_en: "Consonant clusters",
-    description_ua: "Виправлення транслітерації складних приголосних",
-    description_en: "Fix transliteration of complex consonants",
+    id: "transliteration",
+    name_ua: "Транслітерація",
+    name_en: "Transliteration",
+    description_ua: "Правила транслітерації санскритських термінів (бх→бг, г→ґ)",
+    description_en: "Sanskrit transliteration rules (bh→bg, g→ґ)",
   },
   {
     id: "names",
@@ -49,6 +45,27 @@ export const ruleCategories: RuleCategory[] = [
     description_en: "Standardize names and terms spelling",
   },
   {
+    id: "scriptures",
+    name_ua: "Назви писань",
+    name_en: "Scripture names",
+    description_ua: "Правильне написання назв священних писань",
+    description_en: "Correct spelling of scripture names",
+  },
+  {
+    id: "apostrophe",
+    name_ua: "Апострофи та м'який знак",
+    name_en: "Apostrophes and soft sign",
+    description_ua: "Правила використання апострофа (санн'ясі→санньясі, від'я→відья)",
+    description_en: "Apostrophe usage rules",
+  },
+  {
+    id: "consonants",
+    name_ua: "Приголосні",
+    name_en: "Consonants",
+    description_ua: "Виправлення придихових приголосних (джг→джх, тг→тх)",
+    description_en: "Aspirated consonants fixes",
+  },
+  {
     id: "typography",
     name_ua: "Типографіка",
     name_en: "Typography",
@@ -56,18 +73,11 @@ export const ruleCategories: RuleCategory[] = [
     description_en: "Typography fixes (dashes, quotes, spaces)",
   },
   {
-    id: "diacritics",
-    name_ua: "Діакритика",
-    name_en: "Diacritics",
-    description_ua: "Виправлення діакритичних знаків",
-    description_en: "Diacritics fixes",
-  },
-  {
-    id: "spelling",
-    name_ua: "Правопис",
-    name_en: "Spelling",
-    description_ua: "Загальні правописні виправлення",
-    description_en: "General spelling fixes",
+    id: "translation",
+    name_ua: "Переклад термінів",
+    name_en: "Term translation",
+    description_ua: "Стандартні переклади англійських термінів",
+    description_en: "Standard translations of English terms",
   },
   {
     id: "custom",
@@ -80,287 +90,813 @@ export const ruleCategories: RuleCategory[] = [
 
 /**
  * Default normalization rules based on Gaudiya Vaishnava editorial standards
+ * Extracted from: https://docs.google.com/spreadsheets/d/1YZT4-KaQBeEZu7R9qysirdt8yb-9psOIkXCalDPLuwY
  */
 export const defaultRules: NormalizationRule[] = [
-  // === Апострофи та м'який знак ===
+  // =====================================================
+  // ТРАНСЛІТЕРАЦІЯ: бх → бг (основне правило)
+  // =====================================================
   {
-    id: "apostrophe_n_1",
-    incorrect: "н'я",
-    correct: "ння",
-    category: "apostrophe",
-    description: "н'я → ння",
-  },
-  {
-    id: "apostrophe_n_2",
-    incorrect: "н'ї",
-    correct: "ньї",
-    category: "apostrophe",
-    description: "н'ї → ньї",
-  },
-  {
-    id: "apostrophe_n_3",
-    incorrect: "н'є",
-    correct: "нє",
-    category: "apostrophe",
-    description: "н'є → нє",
-  },
-  {
-    id: "apostrophe_n_4",
-    incorrect: "н'ю",
-    correct: "ню",
-    category: "apostrophe",
-    description: "н'ю → ню",
-  },
-
-  // === Консонантні кластери ===
-  {
-    id: "cluster_jjg",
-    incorrect: "джджг",
-    correct: "джджх",
-    category: "consonant_clusters",
-    description: "джджг → джджх (аспірація)",
-  },
-  {
-    id: "cluster_jg",
-    incorrect: "джг",
-    correct: "джх",
-    category: "consonant_clusters",
-    description: "джг → джх (аспірація)",
-  },
-  {
-    id: "cluster_prodjjgita",
-    incorrect: "проджджгіта",
-    correct: "проджджхіта",
-    category: "consonant_clusters",
-    description: "проджджгіта → проджджхіта",
-  },
-
-  // === Імена та терміни ===
-  {
-    id: "sannyasi_1",
-    incorrect: "Санн'ясі",
-    correct: "Санньясі",
-    category: "names",
-    description: "Санн'ясі → Санньясі",
-  },
-  {
-    id: "sannyasi_2",
-    incorrect: "санн'ясі",
-    correct: "санньясі",
-    category: "names",
-    description: "санн'ясі → санньясі",
-  },
-  {
-    id: "sannyasi_3",
-    incorrect: "санн'яса",
-    correct: "санньяса",
-    category: "names",
-    description: "санн'яса → санньяса",
-  },
-  {
-    id: "sannyasi_4",
-    incorrect: "Санн'яса",
-    correct: "Санньяса",
-    category: "names",
-    description: "Санн'яса → Санньяса",
-  },
-  {
-    id: "sannyasi_5",
-    incorrect: "санн'ясу",
-    correct: "санньясу",
-    category: "names",
-    description: "санн'ясу → санньясу",
-  },
-  {
-    id: "sannyasi_6",
-    incorrect: "санн'ясам",
-    correct: "санньясам",
-    category: "names",
-    description: "санн'ясам → санньясам",
-  },
-  {
-    id: "sannyasi_7",
-    incorrect: "санн'ясом",
-    correct: "санньясом",
-    category: "names",
-    description: "санн'ясом → санньясом",
-  },
-
-  // Варіанти з "санн'яс"
-  {
-    id: "sannyasi_forms_1",
-    incorrect: "санн'яс",
-    correct: "санньяс",
-    category: "names",
-    description: "санн'яс → санньяс (всі форми)",
-  },
-  {
-    id: "sannyasi_forms_2",
-    incorrect: "Санн'яс",
-    correct: "Санньяс",
-    category: "names",
-    description: "Санн'яс → Санньяс (всі форми)",
-  },
-
-  // Бгаґаватам
-  {
-    id: "bhagavatam_1",
+    id: "translit_bh_bg_1",
     incorrect: "Бхаґаватам",
     correct: "Бгаґаватам",
-    category: "names",
+    category: "transliteration",
     description: "Бхаґаватам → Бгаґаватам",
   },
   {
-    id: "bhagavatam_2",
+    id: "translit_bh_bg_2",
+    incorrect: "Бхагаватам",
+    correct: "Бгаґаватам",
+    category: "transliteration",
+    description: "Бхагаватам → Бгаґаватам",
+  },
+  {
+    id: "translit_bh_bg_3",
     incorrect: "бхаґаватам",
     correct: "бгаґаватам",
-    category: "names",
+    category: "transliteration",
     description: "бхаґаватам → бгаґаватам",
   },
   {
-    id: "bhagavatam_3",
-    incorrect: "Бхагаватам",
-    correct: "Бгаґаватам",
-    category: "names",
-    description: "Бхагаватам → Бгаґаватам",
-  },
-
-  // Бгаґавад-ґіта
-  {
-    id: "gita_1",
-    incorrect: "Бхаґавад-ґіта",
-    correct: "Бгаґавад-ґіта",
-    category: "names",
-    description: "Бхаґавад-ґіта → Бгаґавад-ґіта",
+    id: "translit_bh_bg_4",
+    incorrect: "Бхаґавад",
+    correct: "Бгаґавад",
+    category: "transliteration",
+    description: "Бхаґавад → Бгаґавад",
   },
   {
-    id: "gita_2",
-    incorrect: "Бхагавад-гіта",
-    correct: "Бгаґавад-ґіта",
-    category: "names",
-    description: "Бхагавад-гіта → Бгаґавад-ґіта",
+    id: "translit_bh_bg_5",
+    incorrect: "Бхагавад",
+    correct: "Бгаґавад",
+    category: "transliteration",
+    description: "Бхагавад → Бгаґавад",
   },
   {
-    id: "gita_3",
-    incorrect: "Бхаґавад-гіта",
-    correct: "Бгаґавад-ґіта",
-    category: "names",
-    description: "Бхаґавад-гіта → Бгаґавад-ґіта",
+    id: "translit_bh_bg_6",
+    incorrect: "бхаґавад",
+    correct: "бгаґавад",
+    category: "transliteration",
+    description: "бхаґавад → бгаґавад",
   },
   {
-    id: "gita_4",
-    incorrect: "бхаґавад-ґіта",
-    correct: "бгаґавад-ґіта",
-    category: "names",
-    description: "бхаґавад-ґіта → бгаґавад-ґіта",
-  },
-
-  // Крішна / Кришна
-  {
-    id: "krishna_1",
-    incorrect: "Крішна",
-    correct: "Кр̣шн̣а",
-    category: "names",
-    description: "Крішна → Кр̣шн̣а (з діакритикою)",
+    id: "translit_bh_bg_7",
+    incorrect: "Бхаґаван",
+    correct: "Бгаґаван",
+    category: "transliteration",
+    description: "Бхаґаван → Бгаґаван",
   },
   {
-    id: "krishna_2",
-    incorrect: "Кришна",
-    correct: "Кр̣шн̣а",
-    category: "names",
-    description: "Кришна → Кр̣шн̣а (з діакритикою)",
+    id: "translit_bh_bg_8",
+    incorrect: "бхаґаван",
+    correct: "бгаґаван",
+    category: "transliteration",
+    description: "бхаґаван → бгаґаван",
   },
-
-  // Бгакті
   {
-    id: "bhakti_1",
+    id: "translit_bh_bg_9",
+    incorrect: "Бхакті",
+    correct: "Бгакті",
+    category: "transliteration",
+    description: "Бхакті → Бгакті",
+  },
+  {
+    id: "translit_bh_bg_10",
     incorrect: "бхакті",
     correct: "бгакті",
-    category: "names",
+    category: "transliteration",
     description: "бхакті → бгакті",
   },
   {
-    id: "bhakti_2",
-    incorrect: "Бхакті",
-    correct: "Бгакті",
-    category: "names",
-    description: "Бхакті → Бгакті",
+    id: "translit_bh_bg_11",
+    incorrect: "Прабхупада",
+    correct: "Прабгупада",
+    category: "transliteration",
+    description: "Прабхупада → Прабгупада",
+  },
+  {
+    id: "translit_bh_bg_12",
+    incorrect: "прабхупада",
+    correct: "прабгупада",
+    category: "transliteration",
+    description: "прабхупада → прабгупада",
+  },
+  {
+    id: "translit_bh_bg_13",
+    incorrect: "Махапрабху",
+    correct: "Махапрабгу",
+    category: "transliteration",
+    description: "Махапрабху → Махапрабгу",
+  },
+  {
+    id: "translit_bh_bg_14",
+    incorrect: "махапрабху",
+    correct: "махапрабгу",
+    category: "transliteration",
+    description: "махапрабху → махапрабгу",
+  },
+  {
+    id: "translit_bh_bg_15",
+    incorrect: "прабху",
+    correct: "прабгу",
+    category: "transliteration",
+    description: "прабху → прабгу",
+  },
+  {
+    id: "translit_bh_bg_16",
+    incorrect: "Брахман",
+    correct: "Брахман",
+    category: "transliteration",
+    description: "Брахман (залишаємо х після р)",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_bh_bg_17",
+    incorrect: "Брагман",
+    correct: "Брахман",
+    category: "transliteration",
+    description: "Брагман → Брахман",
+  },
+  {
+    id: "translit_bh_bg_18",
+    incorrect: "брагман",
+    correct: "брахман",
+    category: "transliteration",
+    description: "брагман → брахман",
   },
 
-  // Ґуру
+  // =====================================================
+  // ТРАНСЛІТЕРАЦІЯ: г → ґ (українське ґ)
+  // =====================================================
   {
-    id: "guru_1",
+    id: "translit_g_g_1",
     incorrect: "гуру",
     correct: "ґуру",
-    category: "names",
-    description: "гуру → ґуру (українське ґ)",
+    category: "transliteration",
+    description: "гуру → ґуру",
+    caseSensitive: true,
   },
   {
-    id: "guru_2",
+    id: "translit_g_g_2",
     incorrect: "Гуру",
     correct: "Ґуру",
-    category: "names",
-    description: "Гуру → Ґуру (українське ґ)",
+    category: "transliteration",
+    description: "Гуру → Ґуру",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_3",
+    incorrect: "Говінда",
+    correct: "Ґовінда",
+    category: "transliteration",
+    description: "Говінда → Ґовінда",
+  },
+  {
+    id: "translit_g_g_4",
+    incorrect: "говінда",
+    correct: "ґовінда",
+    category: "transliteration",
+    description: "говінда → ґовінда",
+  },
+  {
+    id: "translit_g_g_5",
+    incorrect: "Голока",
+    correct: "Ґолока",
+    category: "transliteration",
+    description: "Голока → Ґолока",
+  },
+  {
+    id: "translit_g_g_6",
+    incorrect: "голока",
+    correct: "ґолока",
+    category: "transliteration",
+    description: "голока → ґолока",
+  },
+  {
+    id: "translit_g_g_7",
+    incorrect: "Госвамі",
+    correct: "Ґосвамі",
+    category: "transliteration",
+    description: "Госвамі → Ґосвамі",
+  },
+  {
+    id: "translit_g_g_8",
+    incorrect: "госвамі",
+    correct: "ґосвамі",
+    category: "transliteration",
+    description: "госвамі → ґосвамі",
+  },
+  {
+    id: "translit_g_g_9",
+    incorrect: "гіта",
+    correct: "ґіта",
+    category: "transliteration",
+    description: "гіта → ґіта",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_10",
+    incorrect: "Гіта",
+    correct: "Ґіта",
+    category: "transliteration",
+    description: "Гіта → Ґіта",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_11",
+    incorrect: "гаудія",
+    correct: "ґаудія",
+    category: "transliteration",
+    description: "гаудія → ґаудія",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_12",
+    incorrect: "Гаудія",
+    correct: "Ґаудія",
+    category: "transliteration",
+    description: "Гаудія → Ґаудія",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_13",
+    incorrect: "гуни",
+    correct: "ґуни",
+    category: "transliteration",
+    description: "гуни → ґуни",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_14",
+    incorrect: "гуна",
+    correct: "ґуна",
+    category: "transliteration",
+    description: "гуна → ґуна",
+    caseSensitive: true,
+  },
+  {
+    id: "translit_g_g_15",
+    incorrect: "Гаятрі",
+    correct: "Ґаятрі",
+    category: "transliteration",
+    description: "Гаятрі → Ґаятрі",
+  },
+  {
+    id: "translit_g_g_16",
+    incorrect: "гаятрі",
+    correct: "ґаятрі",
+    category: "transliteration",
+    description: "гаятрі → ґаятрі",
+  },
+  {
+    id: "translit_g_g_17",
+    incorrect: "Гаруда",
+    correct: "Ґаруда",
+    category: "transliteration",
+    description: "Гаруда → Ґаруда",
+  },
+  {
+    id: "translit_g_g_18",
+    incorrect: "гаруда",
+    correct: "ґаруда",
+    category: "transliteration",
+    description: "гаруда → ґаруда",
   },
 
-  // Прабгупада
+  // =====================================================
+  // АПОСТРОФИ: санн'яс → санньяс, від'я → відья
+  // =====================================================
   {
-    id: "prabhupada_1",
-    incorrect: "Прабхупада",
-    correct: "Прабгупа̄да",
-    category: "names",
-    description: "Прабхупада → Прабгупа̄да",
+    id: "apostrophe_sannyasa_1",
+    incorrect: "санн'ясі",
+    correct: "санньясі",
+    category: "apostrophe",
+    description: "санн'ясі → санньясі",
   },
   {
-    id: "prabhupada_2",
-    incorrect: "прабхупада",
-    correct: "прабгупа̄да",
-    category: "names",
-    description: "прабхупада → прабгупа̄да",
-  },
-
-  // Махапрабгу
-  {
-    id: "mahaprabhu_1",
-    incorrect: "Махапрабху",
-    correct: "Маха̄прабгу",
-    category: "names",
-    description: "Махапрабху → Маха̄прабгу",
+    id: "apostrophe_sannyasa_2",
+    incorrect: "Санн'ясі",
+    correct: "Санньясі",
+    category: "apostrophe",
+    description: "Санн'ясі → Санньясі",
   },
   {
-    id: "mahaprabhu_2",
-    incorrect: "махапрабху",
-    correct: "маха̄прабгу",
-    category: "names",
-    description: "махапрабху → маха̄прабгу",
+    id: "apostrophe_sannyasa_3",
+    incorrect: "санн'яса",
+    correct: "санньяса",
+    category: "apostrophe",
+    description: "санн'яса → санньяса",
   },
-
-  // Чайтанья
   {
-    id: "chaitanya_1",
+    id: "apostrophe_sannyasa_4",
+    incorrect: "Санн'яса",
+    correct: "Санньяса",
+    category: "apostrophe",
+    description: "Санн'яса → Санньяса",
+  },
+  {
+    id: "apostrophe_sannyasa_5",
+    incorrect: "санн'яс",
+    correct: "санньяс",
+    category: "apostrophe",
+    description: "санн'яс → санньяс (всі форми)",
+  },
+  {
+    id: "apostrophe_vidya_1",
+    incorrect: "від'я",
+    correct: "відья",
+    category: "apostrophe",
+    description: "від'я → відья",
+  },
+  {
+    id: "apostrophe_vidya_2",
+    incorrect: "Від'я",
+    correct: "Відья",
+    category: "apostrophe",
+    description: "Від'я → Відья",
+  },
+  {
+    id: "apostrophe_gyana_1",
+    incorrect: "ґ'яна",
+    correct: "ґ'яна",
+    category: "apostrophe",
+    description: "ґ'яна (зберігаємо апостроф)",
+    caseSensitive: true,
+  },
+  {
+    id: "apostrophe_vyasa_1",
+    incorrect: "Вяса",
+    correct: "В'яса",
+    category: "apostrophe",
+    description: "Вяса → В'яса",
+  },
+  {
+    id: "apostrophe_antaryami_1",
+    incorrect: "антарямі",
+    correct: "антар'ямі",
+    category: "apostrophe",
+    description: "антарямі → антар'ямі",
+  },
+  {
+    id: "apostrophe_achintya_1",
+    incorrect: "ачінтя",
+    correct: "ачінтья",
+    category: "apostrophe",
+    description: "ачінтя → ачінтья",
+  },
+  {
+    id: "apostrophe_tatparya_1",
+    incorrect: "татпар'я",
+    correct: "татпар'я",
+    category: "apostrophe",
+    description: "татпар'я (зберігаємо апостроф)",
+    caseSensitive: true,
+  },
+  {
+    id: "apostrophe_chaitanya_1",
     incorrect: "Чайтаньа",
     correct: "Чайтанья",
-    category: "names",
+    category: "apostrophe",
     description: "Чайтаньа → Чайтанья",
   },
 
-  // Вайшнав
+  // =====================================================
+  // ПРИГОЛОСНІ: джг → джх, тг → тх (аспірація)
+  // =====================================================
   {
-    id: "vaishnava_1",
-    incorrect: "вайшнава",
-    correct: "вайшн̣ава",
-    category: "names",
-    description: "вайшнава → вайшн̣ава",
+    id: "consonant_jjh_1",
+    incorrect: "джджг",
+    correct: "джджх",
+    category: "consonants",
+    description: "джджг → джджх (аспірація)",
   },
   {
-    id: "vaishnava_2",
-    incorrect: "Вайшнав",
-    correct: "Вайшн̣ав",
-    category: "names",
-    description: "Вайшнав → Вайшн̣ав",
+    id: "consonant_jh_1",
+    incorrect: "джг",
+    correct: "джх",
+    category: "consonants",
+    description: "джг → джх (аспірація)",
+  },
+  {
+    id: "consonant_th_1",
+    incorrect: "Ведартга",
+    correct: "Ведартха",
+    category: "consonants",
+    description: "Ведартга → Ведартха (придих після т)",
+  },
+  {
+    id: "consonant_th_2",
+    incorrect: "ведартга",
+    correct: "ведартха",
+    category: "consonants",
+    description: "ведартга → ведартха",
+  },
+  {
+    id: "consonant_th_3",
+    incorrect: "Самграга",
+    correct: "Санґраха",
+    category: "consonants",
+    description: "Самграга → Санґраха",
   },
 
-  // === Типографіка ===
+  // =====================================================
+  // ІМЕНА ТА ТЕРМІНИ (з документа)
+  // =====================================================
+  {
+    id: "name_vayu_1",
+    incorrect: "Вайю",
+    correct: "Ваю",
+    category: "names",
+    description: "Вайю → Ваю",
+  },
+  {
+    id: "name_vayu_2",
+    incorrect: "вайю",
+    correct: "ваю",
+    category: "names",
+    description: "вайю → ваю",
+  },
+  {
+    id: "name_vaishnav_1",
+    incorrect: "Вайшнава",
+    correct: "вайшнав",
+    category: "names",
+    description: "Вайшнава → вайшнав (чоловічий рід)",
+  },
+  {
+    id: "name_hanuman_1",
+    incorrect: "Гануман",
+    correct: "Хануман",
+    category: "names",
+    description: "Гануман → Хануман",
+  },
+  {
+    id: "name_hanuman_2",
+    incorrect: "гануман",
+    correct: "хануман",
+    category: "names",
+    description: "гануман → хануман",
+  },
+  {
+    id: "name_hare_1",
+    incorrect: "Гаре",
+    correct: "Харе",
+    category: "names",
+    description: "Гаре → Харе",
+  },
+  {
+    id: "name_gopal_1",
+    incorrect: "Ґопала Бгатта",
+    correct: "Ґопал Бгатта",
+    category: "names",
+    description: "Ґопала Бгатта → Ґопал Бгатта",
+  },
+  {
+    id: "name_thakur_1",
+    incorrect: "Тхакура",
+    correct: "Тхакур",
+    category: "names",
+    description: "Тхакура → Тхакур",
+  },
+  {
+    id: "name_dhananjay_1",
+    incorrect: "Дгананджая",
+    correct: "Дгананджай",
+    category: "names",
+    description: "Дгананджая → Дгананджай",
+  },
+  {
+    id: "name_srinjay_1",
+    incorrect: "Срінджая",
+    correct: "Срінджай",
+    category: "names",
+    description: "Срінджая → Срінджай",
+  },
+  {
+    id: "name_karttikeya_1",
+    incorrect: "Карттікея",
+    correct: "Картікея",
+    category: "names",
+    description: "Карттікея → Картікея (одна т)",
+  },
+  {
+    id: "name_karttikeya_2",
+    incorrect: "карттікея",
+    correct: "картікея",
+    category: "names",
+    description: "карттікея → картікея",
+  },
+  {
+    id: "name_himalaya_1",
+    incorrect: "Гімалая",
+    correct: "Гімалаї",
+    category: "names",
+    description: "Гімалая → Гімалаї",
+  },
+  {
+    id: "name_kaikeyi_1",
+    incorrect: "Кайкейі",
+    correct: "Кайкеї",
+    category: "names",
+    description: "Кайкейі → Кайкеї",
+  },
+  {
+    id: "name_phulia_1",
+    incorrect: "Фуліа",
+    correct: "Фулія",
+    category: "names",
+    description: "Фуліа → Фулія",
+  },
+
+  // =====================================================
+  // НАЗВИ ПИСАНЬ
+  // =====================================================
+  {
+    id: "scripture_agni_1",
+    incorrect: "Агні Пурана",
+    correct: "Аґні Пурана",
+    category: "scriptures",
+    description: "Агні Пурана → Аґні Пурана",
+  },
+  {
+    id: "scripture_atharva_1",
+    incorrect: "Атхарваведа",
+    correct: "Атхарва Веда",
+    category: "scriptures",
+    description: "Атхарваведа → Атхарва Веда",
+  },
+  {
+    id: "scripture_atharva_2",
+    incorrect: "Атхарва-веда",
+    correct: "Атхарва Веда",
+    category: "scriptures",
+    description: "Атхарва-веда → Атхарва Веда",
+  },
+  {
+    id: "scripture_vishnu_1",
+    incorrect: "Вішну-пурана",
+    correct: "Вішну Пурана",
+    category: "scriptures",
+    description: "Вішну-пурана → Вішну Пурана",
+  },
+  {
+    id: "scripture_garuda_1",
+    incorrect: "Ґаруда-пурана",
+    correct: "Ґаруда Пурана",
+    category: "scriptures",
+    description: "Ґаруда-пурана → Ґаруда Пурана",
+  },
+  {
+    id: "scripture_bhagavata_1",
+    incorrect: "Бгаґавата-пурана",
+    correct: "Бгаґавата Пурана",
+    category: "scriptures",
+    description: "Бгаґавата-пурана → Бгаґавата Пурана",
+  },
+  {
+    id: "scripture_brahmasutra_1",
+    incorrect: "Брагма-сутра",
+    correct: "Брахма-сутра",
+    category: "scriptures",
+    description: "Брагма-сутра → Брахма-сутра",
+  },
+  {
+    id: "scripture_vedanta_1",
+    incorrect: "Веданта сутра",
+    correct: "Веданта-сутра",
+    category: "scriptures",
+    description: "Веданта сутра → Веданта-сутра",
+  },
+  {
+    id: "scripture_gitopanishad_1",
+    incorrect: "Ґітопанішад",
+    correct: "Ґітопанішада",
+    category: "scriptures",
+    description: "Ґітопанішад → Ґітопанішада",
+  },
+  {
+    id: "scripture_brihat_1",
+    incorrect: "Брігатсама",
+    correct: "Бріхат-сама",
+    category: "scriptures",
+    description: "Брігатсама → Бріхат-сама",
+  },
+  {
+    id: "scripture_shatapatha_1",
+    incorrect: "Шатапатха-брагмана",
+    correct: "Шатапатха-брахмана",
+    category: "scriptures",
+    description: "Шатапатха-брагмана → Шатапатха-брахмана",
+  },
+  {
+    id: "scripture_taittiriya_1",
+    incorrect: "Тайттірія-брагмана",
+    correct: "Тайттірія-брахмана",
+    category: "scriptures",
+    description: "Тайттірія-брагмана → Тайттірія-брахмана",
+  },
+  {
+    id: "scripture_brihadaranyaka_1",
+    incorrect: "Бріхад-араньака",
+    correct: "Бріхад-араньяка-упанішада",
+    category: "scriptures",
+    description: "Бріхад-араньака → Бріхад-араньяка-упанішада",
+  },
+
+  // =====================================================
+  // ТЕРМІНИ (з документа)
+  // =====================================================
+  {
+    id: "term_advaita_1",
+    incorrect: "адвайта веданта",
+    correct: "адвайта-веданта",
+    category: "names",
+    description: "адвайта веданта → адвайта-веданта",
+  },
+  {
+    id: "term_vishishtadvaita_1",
+    incorrect: "вішішта адвайта",
+    correct: "вішішта-адвайта",
+    category: "names",
+    description: "вішішта адвайта → вішішта-адвайта",
+  },
+  {
+    id: "term_vaisnavism_1",
+    incorrect: "вайшнавізм",
+    correct: "вайшнавізм",
+    category: "names",
+    description: "вайшнавізм (правильно)",
+    caseSensitive: true,
+  },
+  {
+    id: "term_gaudiya_1",
+    incorrect: "ґаудія вайшнавізм",
+    correct: "ґаудія-вайшнавізм",
+    category: "names",
+    description: "ґаудія вайшнавізм → ґаудія-вайшнавізм",
+  },
+  {
+    id: "term_sachchidananda_1",
+    incorrect: "сат-чіт-ананда",
+    correct: "сач-чід-ананда",
+    category: "names",
+    description: "сат-чіт-ананда → сач-чід-ананда",
+  },
+  {
+    id: "term_yogamaya_1",
+    incorrect: "йоґа-мая",
+    correct: "йоґамая",
+    category: "names",
+    description: "йоґа-мая → йоґамая",
+  },
+  {
+    id: "term_mahamaya_1",
+    incorrect: "маха-мая",
+    correct: "махамая",
+    category: "names",
+    description: "маха-мая → махамая",
+  },
+  {
+    id: "term_devamaya_1",
+    incorrect: "дева-мая",
+    correct: "девамая",
+    category: "names",
+    description: "дева-мая → девамая",
+  },
+  {
+    id: "term_parabrahman_1",
+    incorrect: "Пара-брахман",
+    correct: "Парабрахман",
+    category: "names",
+    description: "Пара-брахман → Парабрахман",
+  },
+  {
+    id: "term_vishnutattva_1",
+    incorrect: "Вішну таттва",
+    correct: "вішну-таттва",
+    category: "names",
+    description: "Вішну таттва → вішну-таттва",
+  },
+  {
+    id: "term_ashvamedha_1",
+    incorrect: "Ашвамедга",
+    correct: "ашвамедга",
+    category: "names",
+    description: "Ашвамедга → ашвамедга (з малої)",
+  },
+  {
+    id: "term_mahamantra_1",
+    incorrect: "Маха-мантра",
+    correct: "маха-мантра",
+    category: "names",
+    description: "Маха-мантра → маха-мантра (з малої)",
+  },
+  {
+    id: "term_digvijay_1",
+    incorrect: "Діґвіджая",
+    correct: "діґвіджай",
+    category: "names",
+    description: "Діґвіджая → діґвіджай (з малої)",
+  },
+  {
+    id: "term_lakh_1",
+    incorrect: "лакхи",
+    correct: "лакхів",
+    category: "names",
+    description: "лакхи → лакхів (відмінювання)",
+  },
+  {
+    id: "term_mataji_1",
+    incorrect: "матаджі",
+    correct: "матаджі",
+    category: "names",
+    description: "матаджі (правильно)",
+    caseSensitive: true,
+  },
+  {
+    id: "term_maharaj_1",
+    incorrect: "Ґуру Махарадж",
+    correct: "ґуру махарадж",
+    category: "names",
+    description: "Ґуру Махарадж → ґуру махарадж (з малої)",
+  },
+
+  // =====================================================
+  // ПЕРЕКЛАД ТЕРМІНІВ (з другого документа)
+  // =====================================================
+  {
+    id: "transl_false_ego",
+    incorrect: "помилкове его",
+    correct: "оманне его",
+    category: "translation",
+    description: "помилкове его → оманне его",
+  },
+  {
+    id: "transl_spirit_soul",
+    incorrect: "духова душа",
+    correct: "духовна душа",
+    category: "translation",
+    description: "духова душа → духовна душа",
+  },
+  {
+    id: "transl_goddess",
+    incorrect: "богиня процвітання",
+    correct: "богиня щастя",
+    category: "translation",
+    description: "богиня процвітання → богиня щастя",
+  },
+  {
+    id: "transl_householder",
+    incorrect: "домовласник",
+    correct: "домогосподар",
+    category: "translation",
+    description: "домовласник → домогосподар",
+  },
+  {
+    id: "transl_bona_fide",
+    incorrect: "справжній духовний",
+    correct: "істинний духовний",
+    category: "translation",
+    description: "справжній духовний → істинний духовний (bona fide)",
+  },
+  {
+    id: "transl_demigod",
+    incorrect: "напівбог",
+    correct: "півбог",
+    category: "translation",
+    description: "напівбог → півбог (основний варіант)",
+  },
+  {
+    id: "transl_devotee_1",
+    incorrect: "чистий бхакта",
+    correct: "чистий відданий",
+    category: "translation",
+    description: "чистий бхакта → чистий відданий",
+  },
+  {
+    id: "transl_penance",
+    incorrect: "покаяння",
+    correct: "аскеза",
+    category: "translation",
+    description: "покаяння → аскеза (penance)",
+  },
+  {
+    id: "transl_liberation_1",
+    incorrect: "освобождення",
+    correct: "визволення",
+    category: "translation",
+    description: "освобождення → визволення",
+  },
+  {
+    id: "transl_rounds",
+    incorrect: "раундів",
+    correct: "кіл",
+    category: "translation",
+    description: "раундів → кіл (16 кіл)",
+  },
+
+  // =====================================================
+  // ТИПОГРАФІКА
+  // =====================================================
   {
     id: "typo_dash_1",
     incorrect: " - ",
@@ -376,58 +912,32 @@ export const defaultRules: NormalizationRule[] = [
     description: "Подвійний дефіс → тире",
   },
   {
-    id: "typo_quotes_1",
-    incorrect: "\"",
-    correct: "«",
-    category: "typography",
-    description: "Прямі лапки → ялинки (відкриваюча)",
-    regex: true,
-  },
-  {
     id: "typo_ellipsis",
     incorrect: "...",
     correct: "…",
     category: "typography",
     description: "Три крапки → еліпсис",
   },
-
-  // === Діакритика ===
   {
-    id: "diac_a_macron_1",
-    incorrect: "а̄",
-    correct: "ā",
-    category: "diacritics",
-    description: "Нормалізація а̄ (кирилиця + макрон) → ā (латиниця)",
-  },
-
-  // === Правопис ===
-  {
-    id: "spell_tse_1",
-    incorrect: "являеться",
-    correct: "є",
-    category: "spelling",
-    description: "являеться → є",
+    id: "typo_ending_love",
+    incorrect: "любови",
+    correct: "любові",
+    category: "typography",
+    description: "любови → любові (закінчення -і)",
   },
   {
-    id: "spell_tse_2",
-    incorrect: "являється",
-    correct: "є",
-    category: "spelling",
-    description: "являється → є",
+    id: "typo_ending_passion",
+    incorrect: "пристрасти",
+    correct: "пристрасті",
+    category: "typography",
+    description: "пристрасти → пристрасті (закінчення -і)",
   },
   {
-    id: "spell_takozh",
-    incorrect: "такоже",
-    correct: "також",
-    category: "spelling",
-    description: "такоже → також",
-  },
-  {
-    id: "spell_vidpovidno",
-    incorrect: "відповідно до",
-    correct: "згідно з",
-    category: "spelling",
-    description: "відповідно до → згідно з",
+    id: "typo_ending_death",
+    incorrect: "смерти",
+    correct: "смерті",
+    category: "typography",
+    description: "смерти → смерті (закінчення -і)",
   },
 ];
 
@@ -439,32 +949,40 @@ export function parseCSVRules(csvContent: string): NormalizationRule[] {
   if (lines.length < 2) return [];
 
   const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const incorrectIdx = headers.findIndex((h) => h.includes("incorrect") || h.includes("неправильн") || h.includes("from") || h.includes("з"));
-  const correctIdx = headers.findIndex((h) => h.includes("correct") || h.includes("правильн") || h.includes("to") || h.includes("на"));
+  const incorrectIdx = headers.findIndex((h) =>
+    h.includes("incorrect") || h.includes("неправильн") || h.includes("from") ||
+    h.includes("під питанням") || h.includes("фраза")
+  );
+  const correctIdx = headers.findIndex((h) =>
+    h.includes("correct") || h.includes("правильн") || h.includes("to") ||
+    h.includes("затверджен") || h.includes("остаточн") || h.includes("переклад")
+  );
   const categoryIdx = headers.findIndex((h) => h.includes("category") || h.includes("категор"));
   const descriptionIdx = headers.findIndex((h) => h.includes("description") || h.includes("опис") || h.includes("comment") || h.includes("комент"));
 
-  if (incorrectIdx === -1 || correctIdx === -1) {
-    throw new Error("CSV must have 'incorrect'/'неправильно' and 'correct'/'правильно' columns");
-  }
+  // If standard columns not found, try first two columns
+  const col1 = incorrectIdx !== -1 ? incorrectIdx : 0;
+  const col2 = correctIdx !== -1 ? correctIdx : 1;
 
   const rules: NormalizationRule[] = [];
 
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
-    if (values.length <= Math.max(incorrectIdx, correctIdx)) continue;
+    if (values.length < 2) continue;
 
-    const incorrect = values[incorrectIdx]?.trim();
-    const correct = values[correctIdx]?.trim();
+    const incorrect = values[col1]?.trim();
+    const correct = values[col2]?.trim();
 
-    if (!incorrect || !correct) continue;
+    if (!incorrect || !correct || incorrect === correct) continue;
+    // Skip if correct contains complex instructions (multiple options)
+    if (correct.includes(" / ") || correct.includes("(") || correct.length > 100) continue;
 
     rules.push({
       id: `custom_${i}`,
       incorrect,
       correct,
       category: categoryIdx !== -1 ? values[categoryIdx]?.trim() || "custom" : "custom",
-      description: descriptionIdx !== -1 ? values[descriptionIdx]?.trim() : undefined,
+      description: descriptionIdx !== -1 ? values[descriptionIdx]?.trim() : `${incorrect} → ${correct}`,
     });
   }
 
@@ -516,7 +1034,7 @@ export function parseTSVRules(tsvContent: string): NormalizationRule[] {
       incorrect,
       correct,
       category: parts[2] || "custom",
-      description: parts[3],
+      description: parts[3] || `${incorrect} → ${correct}`,
     });
   }
 
@@ -558,7 +1076,7 @@ export function parseTextRules(textContent: string): NormalizationRule[] {
       incorrect,
       correct,
       category: "custom",
-      description: parts[2],
+      description: parts[2] || `${incorrect} → ${correct}`,
     });
   }
 
@@ -581,6 +1099,9 @@ export function applyNormalizationRules(
     if (enabledCategories && !enabledCategories.has(rule.category)) {
       continue;
     }
+
+    // Skip rules that would replace with the same value
+    if (rule.incorrect === rule.correct) continue;
 
     const flags = rule.caseSensitive ? "g" : "gi";
 
@@ -686,3 +1207,8 @@ export function exportRulesToCSV(rules: NormalizationRule[]): string {
 
   return lines.join("\n");
 }
+
+/**
+ * Google Sheets URL for the official rules document
+ */
+export const RULES_DOCUMENT_URL = "https://docs.google.com/spreadsheets/d/1YZT4-KaQBeEZu7R9qysirdt8yb-9psOIkXCalDPLuwY/edit?gid=627477148#gid=627477148";
