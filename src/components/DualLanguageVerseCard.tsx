@@ -1,7 +1,7 @@
 // DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2 } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -12,6 +12,8 @@ import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { stripParagraphTags } from "@/utils/import/normalizers";
 import { splitIntoParagraphs, alignParagraphs } from "@/utils/paragraphSync";
 import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
+import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/learningVerses";
+import { toast } from "sonner";
 
 interface DualLanguageVerseCardProps {
   verseId?: string;
@@ -119,6 +121,51 @@ export const DualLanguageVerseCard = ({
 
   const { playTrack, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddedToLearning, setIsAddedToLearning] = useState(false);
+
+  // Check if verse is already in learning list
+  useEffect(() => {
+    if (verseId) {
+      setIsAddedToLearning(isVerseInLearningList(verseId));
+    }
+  }, [verseId]);
+
+  // Add verse to learning list
+  const handleAddToLearning = useCallback(() => {
+    if (!verseId) {
+      toast.error("Не вдалося додати вірш - відсутній ID");
+      return;
+    }
+
+    const verse: LearningVerse = {
+      verseId,
+      verseNumber,
+      bookName: bookNameUa || bookNameEn || "Невідома книга",
+      bookSlug: undefined,
+      chapterNumber: undefined,
+      sanskritText: sanskritTextUa || sanskritTextEn || "",
+      transliteration: transliterationUa || transliterationEn,
+      translation: translationUa || translationEn || "",
+      commentary: commentaryUa || commentaryEn,
+      audioUrl,
+      audioSanskrit,
+      audioTranslation: audioTranslationUa || audioTranslationEn,
+    };
+
+    const added = addLearningVerse(verse);
+    if (added) {
+      setIsAddedToLearning(true);
+      toast.success("Вірш додано до вивчення");
+    } else {
+      toast.info("Вірш вже у списку для вивчення");
+    }
+  }, [
+    verseId, verseNumber, bookNameUa, bookNameEn,
+    sanskritTextUa, sanskritTextEn, transliterationUa, transliterationEn,
+    translationUa, translationEn, commentaryUa, commentaryEn,
+    audioUrl, audioSanskrit, audioTranslationUa, audioTranslationEn
+  ]);
+
   const [edited, setEdited] = useState({
     sanskritUa: sanskritTextUa,
     sanskritEn: sanskritTextEn,
@@ -217,13 +264,26 @@ export const DualLanguageVerseCard = ({
 
         {/* НОМЕР ВІРША */}
         {showNumbers && (
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-center gap-4 mb-8">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
               <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
                 Вірш {verseNumber}
               </span>
+            )}
+            {/* Кнопка "Додати до вивчення" */}
+            {verseId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAddToLearning}
+                disabled={isAddedToLearning}
+                className={`transition-colors ${isAddedToLearning ? 'text-green-600' : 'text-muted-foreground hover:text-primary'}`}
+                title={isAddedToLearning ? "Вже у списку для вивчення" : "Додати до вивчення"}
+              >
+                <GraduationCap className="h-5 w-5" />
+              </Button>
             )}
           </div>
         )}
