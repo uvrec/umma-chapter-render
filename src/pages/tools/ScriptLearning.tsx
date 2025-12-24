@@ -296,6 +296,57 @@ export default function ScriptLearning() {
     }
   }, [user, showProgressChart, getActivityHistory]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          // Previous card
+          handlePrev();
+          break;
+        case 'ArrowRight':
+          // Next card
+          handleNext();
+          break;
+        case ' ': // Space
+          // Toggle answer visibility
+          e.preventDefault();
+          setShowAnswer(prev => !prev);
+          break;
+        case '1':
+          // Mark as incorrect (in practice mode)
+          if (mode === 'practice' && showAnswer) {
+            handleIncorrect();
+          }
+          break;
+        case '2':
+          // Mark as correct (in practice mode)
+          if (mode === 'practice' && showAnswer) {
+            handleCorrect();
+          }
+          break;
+        case 's':
+        case 'S':
+          // Shuffle
+          shuffleItems();
+          break;
+        case 'p':
+        case 'P':
+          // Play pronunciation
+          playPronunciation();
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [mode, showAnswer, handleCorrect, handleIncorrect]);
+
   // Web Speech API for pronunciation
   const speak = useCallback((text: string, lang: string = 'hi-IN') => {
     if ('speechSynthesis' in window) {
