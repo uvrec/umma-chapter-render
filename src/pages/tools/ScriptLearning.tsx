@@ -333,7 +333,7 @@ export default function ScriptLearning() {
         case 's':
         case 'S':
           // Shuffle
-          shuffleItems();
+          handleShuffle();
           break;
         case 'p':
         case 'P':
@@ -345,7 +345,8 @@ export default function ScriptLearning() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, showAnswer, handleCorrect, handleIncorrect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, showAnswer]);
 
   // Web Speech API for pronunciation
   const speak = useCallback((text: string, lang: string = 'hi-IN') => {
