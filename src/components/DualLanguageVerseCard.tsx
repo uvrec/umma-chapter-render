@@ -461,10 +461,14 @@ export const DualLanguageVerseCard = ({
                                 role="link"
                                 tabIndex={0}
                                 onClick={() => openGlossary(w)}
+                                onTouchEnd={(e) => {
+                                  e.preventDefault();
+                                  openGlossary(w);
+                                }}
                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                                 title="Відкрити у глосарії"
-                                className="cursor-pointer italic"
-                                style={{ color: "#BC731B" }}
+                                className="cursor-pointer italic underline decoration-dotted underline-offset-2"
+                                style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                               >
                                 {w}
                               </span>
@@ -515,10 +519,14 @@ export const DualLanguageVerseCard = ({
                                 role="link"
                                 tabIndex={0}
                                 onClick={() => openGlossary(w)}
+                                onTouchEnd={(e) => {
+                                  e.preventDefault();
+                                  openGlossary(w);
+                                }}
                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                                 title="Open in glossary"
-                                className="cursor-pointer italic"
-                                style={{ color: "#BC731B" }}
+                                className="cursor-pointer italic underline decoration-dotted underline-offset-2"
+                                style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                               >
                                 {w}
                               </span>
