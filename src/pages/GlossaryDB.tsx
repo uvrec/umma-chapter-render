@@ -275,7 +275,10 @@ export default function GlossaryDB() {
                           </div>
                           {bookTerms.map((termItem, idx) => {
                             // Find the original verse data to get detailed reference
-                            const verseData = versesData.find(v => v.verse_number === termItem.verseNumber);
+                            // IMPORTANT: Match by BOTH verse_number AND book to avoid cross-book mismatches
+                            const verseData = versesData.find(v =>
+                              v.verse_number === termItem.verseNumber && v.book === termItem.book
+                            );
                             const cantoInfo = verseData?.cantoNumber 
                               ? `${language === 'ua' ? 'Пісня' : 'Canto'} ${verseData.cantoNumber}, ` 
                               : '';
