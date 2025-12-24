@@ -1,6 +1,7 @@
 // src/pages/SynonymsSearch.tsx
 // Система пошуку синонімів (як на vedabase.io/en/search/synonyms)
 import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -367,12 +368,12 @@ export default function SynonymsSearch() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-muted-foreground" />
-                      <a
-                        href={buildVerseLink(result)}
+                      <Link
+                        to={buildVerseLink(result)}
                         className="text-sm font-medium hover:underline"
                       >
                         {result.book_title} {result.canto_number ? `${result.canto_number}.` : ''}{result.chapter_number}.{result.verse_number}
-                      </a>
+                      </Link>
                     </div>
                     <Badge variant="outline">
                       {searchLanguage === "ua" ? "Ранг:" : "Rank:"}{" "}

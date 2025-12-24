@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -284,12 +284,12 @@ export default function GlossaryDB() {
                             return (
                               <div key={idx} className="border-l-2 border-primary/30 pl-4 py-1">
                                 <p className="text-foreground mb-1">{termItem.meaning}</p>
-                                <a 
-                                  href={verseData?.verseLink || termItem.link}
+                                <Link
+                                  to={verseData?.verseLink || termItem.link}
                                   className="text-sm text-primary hover:underline inline-flex items-center gap-1"
                                 >
                                   {detailedReference}
-                                </a>
+                                </Link>
                               </div>
                             );
                           })}
