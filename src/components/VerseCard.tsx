@@ -4,32 +4,17 @@
 // + STICKY HEADER для верхньої панелі
 // + Inline редактор для коментарів з автозбереженням
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
-import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 // ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
-import { FONT_SIZE_MULTIPLIERS, LINE_HEIGHTS } from "@/constants/typography";
 import { stripParagraphTags } from "@/utils/import/normalizers";
-
-/* =========================
-   Допоміжні функції
-   ========================= */
-
-// Convert plain text to HTML (wrap in <p> tags, preserve line breaks)
-const textToHtml = (text: string | undefined): string => {
-  if (!text) return "";
-  // Якщо вже HTML (містить теги), повертаємо як є
-  if (text.includes("<") && text.includes(">")) return text;
-  // Інакше конвертуємо plain text в HTML
-  return text.split("\n").map(line => `<p>${line || '<br>'}</p>`).join("");
-};
 
 /* =========================
    Типи пропсів
@@ -206,9 +191,9 @@ export const VerseCard = ({
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
-    synonyms: textToHtml(synonyms),
-    translation: textToHtml(translation),
-    commentary: textToHtml(commentary),
+    synonyms: synonyms || "",
+    translation: translation || "",
+    commentary: commentary || "",
   });
 
   // ✅ Оновлювати edited коли props змінюються (напр. при переході між віршами)
@@ -216,9 +201,9 @@ export const VerseCard = ({
     setEdited({
       sanskrit: sanskritText,
       transliteration: transliteration || "",
-      synonyms: textToHtml(synonyms),
-      translation: textToHtml(translation),
-      commentary: textToHtml(commentary),
+      synonyms: synonyms || "",
+      translation: translation || "",
+      commentary: commentary || "",
     });
   }, [sanskritText, transliteration, synonyms, translation, commentary]);
   const isThisPlaying = currentTrack?.id === verseNumber && isPlaying;
@@ -431,7 +416,7 @@ export const VerseCard = ({
         )}
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showSynonyms && (synonyms || isAdmin) && (
+        {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -533,7 +518,7 @@ export const VerseCard = ({
         )}
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showTranslation && (translation || isAdmin) && (
+        {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className="mb-6">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
@@ -571,7 +556,7 @@ export const VerseCard = ({
         )}
 
         {/* Пояснення з окремою кнопкою Volume2 */}
-        {textDisplaySettings.showCommentary && (commentary || isAdmin) && (
+        {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div>
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
