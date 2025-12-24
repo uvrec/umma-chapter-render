@@ -38,6 +38,7 @@ const DEFAULTS = {
     showVerseNumbers: true,
     showSanskrit: false,
     showTransliteration: false,
+    showSynonyms: true,
     showTranslation: true,
     showCommentary: false,
   },
