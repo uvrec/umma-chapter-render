@@ -176,18 +176,33 @@ export function useLearningSync(): UseLearningSync {
     if (!user) return;
 
     try {
-      await supabase.from('user_learning_progress').upsert({
-        user_id: user.id,
+      // Check if record exists
+      const { data: existing } = await supabase
+        .from('user_learning_progress')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      const progressData = {
         current_streak: progressToSync.currentStreak,
         longest_streak: progressToSync.longestStreak,
         last_login_date: progressToSync.lastLoginDate,
         total_reviews: progressToSync.totalReviews,
         total_correct: progressToSync.totalCorrect,
-        achievements: progressToSync.achievements,
-        daily_goals: progressToSync.dailyGoals,
-      }, {
-        onConflict: 'user_id',
-      });
+        achievements: JSON.parse(JSON.stringify(progressToSync.achievements)),
+        daily_goal: progressToSync.dailyGoals?.[0]?.target ?? 20,
+      };
+
+      if (existing) {
+        await supabase
+          .from('user_learning_progress')
+          .update(progressData)
+          .eq('user_id', user.id);
+      } else {
+        await supabase.from('user_learning_progress').insert([
+          { ...progressData, user_id: user.id }
+        ]);
+      }
     } catch (error) {
       console.error('Error syncing progress to cloud:', error);
     }
@@ -341,7 +356,7 @@ export function useLearningSync(): UseLearningSync {
           totalReviews: Math.max(cloudProgress.total_reviews ?? 0, localProgress.totalReviews),
           totalCorrect: Math.max(cloudProgress.total_correct ?? 0, localProgress.totalCorrect),
           achievements: mergedAchievements,
-          dailyGoals: (cloudProgress.daily_goals as typeof localProgress.dailyGoals) || localProgress.dailyGoals,
+          dailyGoals: localProgress.dailyGoals,
         };
       }
 
@@ -390,9 +405,9 @@ export function useLearningSync(): UseLearningSync {
         p_user_id: user.id,
         p_reviews: data.reviews_count ?? 0,
         p_correct: data.correct_count ?? 0,
-        p_words_added: data.words_added ?? 0,
-        p_verses_added: data.verses_added ?? 0,
-        p_time_spent: data.time_spent_seconds ?? 0,
+        p_words: data.words_added ?? 0,
+        p_verses: data.verses_added ?? 0,
+        p_time: data.time_spent_seconds ?? 0,
       });
     } catch (error) {
       console.error('Error recording activity:', error);
