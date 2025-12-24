@@ -15,17 +15,14 @@ import {
   Home,
 } from "lucide-react";
 import { verses } from "@/data/verses";
-import { useAuth } from "@/contexts/AuthContext";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { FONT_SIZE_MULTIPLIERS } from "@/constants/typography";
 import { stripParagraphTags } from "@/utils/import/normalizers";
 
 export const IndividualVerse = () => {
   const { bookId, verseNumber } = useParams();
   const navigate = useNavigate();
-  const { isAdmin } = useAuth(); // залишено, якщо треба
   const { playTrack } = useAudio();
 
   // ✅ Назви блоків (поки що UA, можна додати мовний контекст)
@@ -157,12 +154,14 @@ export const IndividualVerse = () => {
 
   const parseSynonyms = (raw: string): Array<{ term: string; meaning: string }> => {
     if (!raw) return [];
-    const parts = raw
+    // Видаляємо HTML-теги перед парсингом
+    const cleaned = raw.replace(/<[^>]*>/g, '').trim();
+    const parts = cleaned
       .split(/[;]+/g)
       .map((p) => p.trim())
       .filter(Boolean);
 
-    const dashVariants = [" — ", " – ", " - ", "—", "–", "-"];
+    const dashVariants = [" — ", " – ", " - ", "—", "–", "-", " —\n", " –\n", " -\n", "—\n", "–\n", "-\n"];
     const pairs: Array<{ term: string; meaning: string }> = [];
 
     for (const part of parts) {
@@ -289,24 +288,18 @@ export const IndividualVerse = () => {
         {/* Послівний переклад */}
         {currentVerse.synonyms && (
           <section className="mb-12">
-            <div className="mb-8 flex items-center justify-center gap-4">
-              <h2
-                className="font-bold"
-                style={{
-                  fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.HEADING})`
-                }}
-              >
-                {blockLabels.synonyms}
-              </h2>
+            <div className="section-header flex items-center justify-center gap-4 mb-8">
+              <h4 className="text-foreground">{blockLabels.synonyms}</h4>
               <button
-                className="rounded-full p-2 hover:bg-accent transition-colors"
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Слухати послівний переклад"
                 onClick={() => playSection("Послівний переклад")}
+                disabled={!currentVerse.audioUrl}
               >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
-            <p style={{ fontSize: `${fontSize}px`, lineHeight }}>
+            <p style={{ fontSize: `${fontSize}px`, lineHeight }} className="text-justify">
               {synonymPairs.map((pair, i) => {
                 const words = pair.term
                   .split(/\s+/)
@@ -347,61 +340,45 @@ export const IndividualVerse = () => {
         {/* Літературний переклад */}
         {currentVerse.translation && (
           <section className="mb-12">
-            <div className="mb-8 flex items-center justify-center gap-4">
-              <h2
-                className="font-bold"
-                style={{
-                  fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.HEADING})`
-                }}
-              >
-                {blockLabels.translation}
-              </h2>
+            <div className="section-header flex items-center justify-center gap-4 mb-8">
+              <h4 className="text-foreground font-serif">{blockLabels.translation}</h4>
               <button
-                className="rounded-full p-2 hover:bg-accent transition-colors"
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Слухати переклад"
                 onClick={() => playSection("Переклад")}
+                disabled={!currentVerse.audioUrl}
               >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
-            <div
-              className="font-bold"
+            <p
+              className="text-foreground text-justify"
               style={{ fontSize: `${fontSize}px`, lineHeight }}
             >
               {stripParagraphTags(currentVerse.translation)}
-            </div>
+            </p>
           </section>
         )}
 
         {/* Пояснення */}
         {currentVerse.commentary && (
           <section className="mb-12">
-            <div className="mb-8 flex items-center justify-center gap-4">
-              <h2
-                className="font-bold"
-                style={{
-                  fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.HEADING})`
-                }}
-              >
-                {blockLabels.commentary}
-              </h2>
+            <div className="section-header flex items-center justify-center gap-4 mb-8">
+              <h4 className="text-foreground font-serif">{blockLabels.commentary}</h4>
               <button
-                className="rounded-full p-2 hover:bg-accent transition-colors"
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 aria-label="Слухати пояснення"
                 onClick={() => playSection("Пояснення")}
+                disabled={!currentVerse.audioUrl}
               >
-                <Volume2 className="h-7 w-7 text-muted-foreground hover:text-foreground" />
+                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
               </button>
             </div>
             <div
+              className="text-foreground text-justify"
               style={{ fontSize: `${fontSize}px`, lineHeight }}
-            >
-              {currentVerse.commentary.split("\n\n").map((para, i) => (
-                <p key={i} className="mb-6 last:mb-0">
-                  {para}
-                </p>
-              ))}
-            </div>
+              dangerouslySetInnerHTML={{ __html: currentVerse.commentary || "" }}
+            />
           </section>
         )}
 
