@@ -68,6 +68,69 @@ export const normalizeSanskritText = (text: string): string => {
     .replace(/ом̇/g, 'ом');
 };
 
+// Simple synonym pair interface for VerseCard/DualLanguageVerseCard rendering
+export interface SynonymPair {
+  term: string;
+  meaning: string;
+}
+
+// Dash separators used to split term from meaning
+const DASH_SEPARATORS = [' — ', ' – ', ' - ', '—', '–', '-', ' —\n', ' –\n', ' -\n', '—\n', '–\n', '-\n'];
+
+/**
+ * Parse synonyms string into term-meaning pairs.
+ * Used by VerseCard and DualLanguageVerseCard for rendering.
+ * This is the single source of truth for synonym parsing.
+ */
+export const parseSynonymPairs = (raw: string): SynonymPair[] => {
+  if (!raw) return [];
+
+  // Remove HTML tags before parsing
+  const cleaned = raw.replace(/<[^>]*>/g, '').trim();
+
+  // Split ONLY by semicolon (comma is used inside meanings like "те, Верховний")
+  const parts = cleaned
+    .split(/;/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const pairs: SynonymPair[] = [];
+
+  for (const part of parts) {
+    let dashIndex = -1;
+    let separator = '';
+
+    for (const sep of DASH_SEPARATORS) {
+      dashIndex = part.indexOf(sep);
+      if (dashIndex !== -1) {
+        separator = sep;
+        break;
+      }
+    }
+
+    if (dashIndex === -1) {
+      // No separator found - add term without meaning
+      pairs.push({
+        term: part,
+        meaning: '',
+      });
+      continue;
+    }
+
+    const term = part.slice(0, dashIndex).trim();
+    const meaning = part.slice(dashIndex + separator.length).trim().replace(/^\n+/, '');
+
+    if (term) {
+      pairs.push({
+        term,
+        meaning,
+      });
+    }
+  }
+
+  return pairs;
+};
+
 export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
   if (!synonyms) return [];
 

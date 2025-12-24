@@ -15,6 +15,7 @@ import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 // ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
 import { stripParagraphTags } from "@/utils/import/normalizers";
+import { parseSynonymPairs } from "@/utils/glossaryParser";
 
 /* =========================
    Типи пропсів
@@ -64,55 +65,6 @@ interface VerseCardProps {
   onVerseNumberUpdate?: () => void; // коллбек після зміни номера
   language?: "ua" | "en"; // ✅ НОВЕ: мова інтерфейсу
 }
-
-/* =========================
-   Допоміжні функції
-   ========================= */
-
-function parseSynonyms(raw: string): Array<{
-  term: string;
-  meaning: string;
-}> {
-  if (!raw) return [];
-  // Видаляємо HTML-теги перед парсингом
-  const cleaned = raw.replace(/<[^>]*>/g, '').trim();
-  const parts = cleaned
-    .split(/[;]+/g)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  const dashVariants = [" — ", " – ", " - ", "—", "–", "-", " —\n", " –\n", " -\n", "—\n", "–\n", "-\n"];
-  const pairs: Array<{
-    term: string;
-    meaning: string;
-  }> = [];
-  for (const part of parts) {
-    let idx = -1;
-    let used = "";
-    for (const d of dashVariants) {
-      idx = part.indexOf(d);
-      if (idx !== -1) {
-        used = d;
-        break;
-      }
-    }
-    if (idx === -1) {
-      pairs.push({
-        term: part,
-        meaning: "",
-      });
-      continue;
-    }
-    const term = part.slice(0, idx).trim();
-    const meaning = part.slice(idx + used.length).trim();
-    if (term)
-      pairs.push({
-        term,
-        meaning,
-      });
-  }
-  return pairs;
-}
-// openGlossary function moved inside component to use useNavigate hook
 
 /* =========================
    Компонент
@@ -271,8 +223,8 @@ export const VerseCard = ({
     };
   }, [edited.synonyms, edited.translation, edited.commentary, synonyms, translation, commentary, isAdmin, verseId, onVerseUpdate, edited]);
 
-  // Парсинг синонімів - як в DualLanguageVerseCard, завжди парсимо
-  const synonymPairs = parseSynonyms(isEditing ? edited.synonyms : synonyms);
+  // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
+  const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
   return (
     <div
