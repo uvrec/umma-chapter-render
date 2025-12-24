@@ -300,7 +300,9 @@ export const VerseCard = ({
     };
   }, [edited.synonyms, edited.translation, edited.commentary, synonyms, translation, commentary, isAdmin, verseId, onVerseUpdate, edited]);
 
-  const synonymPairs = textDisplaySettings.showSynonyms ? parseSynonyms(isEditing ? edited.synonyms : synonyms) : [];
+  // Парсинг синонімів - як в DualLanguageVerseCard, завжди парсимо
+  const synonymPairs = parseSynonyms(isEditing ? edited.synonyms : synonyms);
+
   return (
     <div
       className="verse-surface w-full animate-fade-in"
@@ -456,7 +458,7 @@ export const VerseCard = ({
                 label="Послівний переклад"
                 editable={isEditing}
               />
-            ) : synonymPairs.length > 0 ? (
+            ) : synonyms ? (
               <p
                 style={{
                   fontSize: `${fontSize}px`,
