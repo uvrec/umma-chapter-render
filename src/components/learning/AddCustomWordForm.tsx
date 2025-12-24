@@ -68,7 +68,15 @@ export function AddCustomWordForm({ onAdd, existingIasts }: AddCustomWordFormPro
       return;
     }
 
-    onAdd(data);
+    // Cast to CustomWordInput - zod guarantees all fields are present after validation
+    const wordInput: CustomWordInput = {
+      script: data.script,
+      iast: data.iast,
+      ukrainian: data.ukrainian,
+      meaning: data.meaning,
+    };
+
+    onAdd(wordInput);
     form.reset();
     setOpen(false);
   };
