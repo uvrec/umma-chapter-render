@@ -47,6 +47,7 @@ import Auth from "./pages/Auth";
 import TransliterationTool from "./pages/TransliterationTool";
 import Numerology from "./pages/tools/Numerology";
 import ScriptLearning from "./pages/tools/ScriptLearning";
+import TextNormalization from "./pages/tools/TextNormalization";
 import KnowledgeCompiler from "./pages/KnowledgeCompiler";
 import SynonymsSearch from "./pages/SynonymsSearch";
 import SanskritDictionary from "./pages/SanskritDictionary";
@@ -159,6 +160,7 @@ const App = () => (
                   <Route path="/tools/transliteration" element={<TransliterationTool />} />
                   <Route path="/tools/numerology" element={<Numerology />} />
                   <Route path="/tools/learning" element={<ScriptLearning />} />
+                  <Route path="/tools/normalization" element={<TextNormalization />} />
                   <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
                   <Route path="/tools/synonyms" element={<SynonymsSearch />} />
                   <Route path="/tools/dictionary" element={<SanskritDictionary />} />
