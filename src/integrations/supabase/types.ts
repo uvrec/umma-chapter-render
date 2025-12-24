@@ -931,6 +931,13 @@ export type Database = {
             referencedRelation: "verses_with_structure"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "daily_quotes_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_synonyms"
+            referencedColumns: ["id"]
+          },
         ]
       }
       highlights: {
@@ -2010,6 +2017,24 @@ export type Database = {
           },
         ]
       }
+      verses_with_synonyms: {
+        Row: {
+          book_slug: string | null
+          chapter_number: number | null
+          id: string | null
+          sanskrit: string | null
+          synonyms_en: string | null
+          synonyms_ua: string | null
+          title_en: string | null
+          title_ua: string | null
+          translation_en: string | null
+          translation_ua: string | null
+          transliteration_en: string | null
+          transliteration_ua: string | null
+          verse_number: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       count_visible_blocks: { Args: { verse_id: string }; Returns: number }
@@ -2159,6 +2184,17 @@ export type Database = {
           verse_count: number
         }[]
       }
+      get_unique_synonym_terms: {
+        Args: {
+          limit_count?: number
+          prefix_filter?: string
+          search_language?: string
+        }
+        Returns: {
+          frequency: number
+          term: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2210,6 +2246,27 @@ export type Database = {
           word_devanagari: string
         }[]
       }
+      search_synonyms: {
+        Args: {
+          limit_count?: number
+          offset_count?: number
+          search_language?: string
+          search_mode?: string
+          search_term: string
+        }
+        Returns: {
+          book_slug: string
+          book_title: string
+          chapter_number: number
+          match_rank: number
+          sanskrit: string
+          synonyms: string
+          translation: string
+          transliteration: string
+          verse_id: string
+          verse_number: string
+        }[]
+      }
       search_verses_fulltext: {
         Args: {
           book_ids?: string[]
@@ -2244,6 +2301,8 @@ export type Database = {
           verse_number: string
         }[]
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { "": string }; Returns: string }
       update_intro_chapters_order: {
         Args: { p_items: Json }
