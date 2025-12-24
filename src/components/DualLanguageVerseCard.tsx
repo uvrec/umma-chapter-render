@@ -11,6 +11,7 @@ import { DualLanguageText } from "@/components/DualLanguageText";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { stripParagraphTags } from "@/utils/import/normalizers";
 import { splitIntoParagraphs, alignParagraphs } from "@/utils/paragraphSync";
+import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
 
 interface DualLanguageVerseCardProps {
   verseId?: string;
@@ -62,51 +63,6 @@ interface DualLanguageVerseCardProps {
   isAdmin?: boolean;
   onVerseUpdate?: (verseId: string, updates: any) => void;
   onVerseNumberUpdate?: () => void;
-}
-
-// Парсинг синонімів
-function parseSynonyms(raw: string): Array<{
-  term: string;
-  meaning: string;
-}> {
-  if (!raw) return [];
-  // Видаляємо HTML-теги перед парсингом
-  const cleaned = raw.replace(/<[^>]*>/g, '').trim();
-  const parts = cleaned
-    .split(/[;]+/g)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  const dashVariants = [" — ", " – ", " - ", "—", "–", "-", " —\n", " –\n", " -\n", "—\n", "–\n", "-\n"];
-  const pairs: Array<{
-    term: string;
-    meaning: string;
-  }> = [];
-  for (const part of parts) {
-    let idx = -1;
-    let used = "";
-    for (const d of dashVariants) {
-      idx = part.indexOf(d);
-      if (idx !== -1) {
-        used = d;
-        break;
-      }
-    }
-    if (idx === -1) {
-      pairs.push({
-        term: part,
-        meaning: "",
-      });
-      continue;
-    }
-    const term = part.slice(0, idx).trim();
-    const meaning = part.slice(idx + used.length).trim();
-    if (term)
-      pairs.push({
-        term,
-        meaning,
-      });
-  }
-  return pairs;
 }
 
 // openGlossary function moved inside component to use useNavigate hook
@@ -185,9 +141,9 @@ export const DualLanguageVerseCard = ({
     return addSanskritLineBreaks(sanskritTextEn);
   }, [sanskritTextEn]);
 
-  // Парсинг синонімів
-  const synonymsParsedUa = parseSynonyms(isEditing ? edited.synonymsUa : synonymsUa);
-  const synonymsParsedEn = parseSynonyms(isEditing ? edited.synonymsEn : synonymsEn);
+  // Парсинг синонімів - єдиний парсер з glossaryParser.ts
+  const synonymsParsedUa = parseSynonymPairs(isEditing ? edited.synonymsUa : synonymsUa);
+  const synonymsParsedEn = parseSynonymPairs(isEditing ? edited.synonymsEn : synonymsEn);
 
   // Функція для відтворення аудіо
   const playSection = (section: string, audioSrc?: string) => {

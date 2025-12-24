@@ -35,7 +35,7 @@ import { Audio } from "./pages/Audio";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
-import { Glossary } from "./pages/Glossary";
+// Glossary.tsx removed - using GlossaryDB instead
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -156,7 +156,6 @@ const App = () => (
                   <Route path="/blog/:slug" element={<BlogPost />} />
                   <Route path="/audio/podcasts" element={<Podcasts />} />
                   <Route path="/glossary" element={<GlossaryDB />} />
-                  <Route path="/glossary-old" element={<Glossary />} />
                   <Route path="/tools/transliteration" element={<TransliterationTool />} />
                   <Route path="/tools/numerology" element={<Numerology />} />
                   <Route path="/tools/learning" element={<ScriptLearning />} />

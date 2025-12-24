@@ -68,22 +68,86 @@ export const normalizeSanskritText = (text: string): string => {
     .replace(/ом̇/g, 'ом');
 };
 
-export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
-  if (!synonyms) return [];
-  
-  const terms: GlossaryTerm[] = [];
-  
-  // Split by semicolon or comma
-  const termPairs = synonyms.split(/[;,]/);
-  
-  termPairs.forEach((pair) => {
-    const trimmedPair = pair.trim();
-    
-    // Try all separator variations: regular dash, en dash, em dash with optional spaces and newlines
-    const separators = [' – ', ' — ', ' - ', '–', '—', '-', ' –\n', ' —\n', ' -\n', '–\n', '—\n', '-\n'];
+// Simple synonym pair interface for VerseCard/DualLanguageVerseCard rendering
+export interface SynonymPair {
+  term: string;
+  meaning: string;
+}
+
+// Dash separators used to split term from meaning
+const DASH_SEPARATORS = [' — ', ' – ', ' - ', '—', '–', '-', ' —\n', ' –\n', ' -\n', '—\n', '–\n', '-\n'];
+
+/**
+ * Parse synonyms string into term-meaning pairs.
+ * Used by VerseCard and DualLanguageVerseCard for rendering.
+ * This is the single source of truth for synonym parsing.
+ */
+export const parseSynonymPairs = (raw: string): SynonymPair[] => {
+  if (!raw) return [];
+
+  // Remove HTML tags before parsing
+  const cleaned = raw.replace(/<[^>]*>/g, '').trim();
+
+  // Split ONLY by semicolon (comma is used inside meanings like "те, Верховний")
+  const parts = cleaned
+    .split(/;/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+
+  const pairs: SynonymPair[] = [];
+
+  for (const part of parts) {
     let dashIndex = -1;
     let separator = '';
-    
+
+    for (const sep of DASH_SEPARATORS) {
+      dashIndex = part.indexOf(sep);
+      if (dashIndex !== -1) {
+        separator = sep;
+        break;
+      }
+    }
+
+    if (dashIndex === -1) {
+      // No separator found - add term without meaning
+      pairs.push({
+        term: part,
+        meaning: '',
+      });
+      continue;
+    }
+
+    const term = part.slice(0, dashIndex).trim();
+    const meaning = part.slice(dashIndex + separator.length).trim().replace(/^\n+/, '');
+
+    if (term) {
+      pairs.push({
+        term,
+        meaning,
+      });
+    }
+  }
+
+  return pairs;
+};
+
+export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
+  if (!synonyms) return [];
+
+  const terms: GlossaryTerm[] = [];
+
+  // Split ONLY by semicolon (comma is used inside meanings like "те, Верховний")
+  const termPairs = synonyms.split(/;/);
+
+  termPairs.forEach((pair) => {
+    const trimmedPair = pair.trim();
+    if (!trimmedPair) return;
+
+    // Try all separator variations (same order as VerseCard.tsx for consistency)
+    const separators = [' — ', ' – ', ' - ', '—', '–', '-', ' —\n', ' –\n', ' -\n', '—\n', '–\n', '-\n'];
+    let dashIndex = -1;
+    let separator = '';
+
     for (const sep of separators) {
       dashIndex = trimmedPair.indexOf(sep);
       if (dashIndex !== -1) {
@@ -91,15 +155,25 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
         break;
       }
     }
-    
-    if (dashIndex !== -1) {
+
+    const link = generateVerseLink(verseNumber);
+
+    if (dashIndex === -1) {
+      // No separator found - add term without meaning (same as VerseCard.tsx)
+      terms.push({
+        term: trimmedPair,
+        meaning: '',
+        reference: verseNumber,
+        book,
+        link,
+        verseNumber
+      });
+    } else {
       const term = trimmedPair.substring(0, dashIndex).trim();
       const meaning = trimmedPair.substring(dashIndex + separator.length).trim().replace(/^\n+/, '');
-      
-      if (term && meaning) {
-        // Generate link based on verse number
-        const link = generateVerseLink(verseNumber);
-        
+
+      // Add term even if meaning is empty (consistent with VerseCard.tsx)
+      if (term) {
         terms.push({
           term,
           meaning,
@@ -111,7 +185,7 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
       }
     }
   });
-  
+
   return terms;
 };
 
