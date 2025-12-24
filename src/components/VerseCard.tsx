@@ -502,7 +502,7 @@ export const VerseCard = ({
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
                               className="cursor-pointer italic"
-                              style={{ color: "#BC731B" }}
+                              style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                             >
                               {w}
                             </span>
