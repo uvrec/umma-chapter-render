@@ -259,8 +259,8 @@ export const IndividualVerse = () => {
             <div
               className="text-center leading-relaxed font-sanskrit"
               style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.SANSKRIT})`,
-                lineHeight: LINE_HEIGHTS.SANSKRIT
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
+                lineHeight: LINE_HEIGHTS.NORMAL
               }}
             >
               {currentVerse.sanskrit.split("\n").map((line, i) => (
@@ -278,8 +278,8 @@ export const IndividualVerse = () => {
             <div
               className="text-center italic text-muted-foreground font-sanskrit-italic"
               style={{
-                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.TRANSLIT})`,
-                lineHeight: LINE_HEIGHTS.RELAXED
+                fontSize: `calc(var(--vv-reader-font-size) * ${FONT_SIZE_MULTIPLIERS.MEDIUM})`,
+                lineHeight: LINE_HEIGHTS.NORMAL
               }}
             >
               {currentVerse.transliteration.split("\n").map((line, i) => (
