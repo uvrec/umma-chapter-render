@@ -446,17 +446,16 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isAdmin ? (
-              <EnhancedInlineEditor
-                content={edited.synonyms}
-                onChange={(html) =>
+            {isEditing ? (
+              <Textarea
+                value={edited.synonyms}
+                onChange={(e) =>
                   setEdited((p) => ({
                     ...p,
-                    synonyms: html,
+                    synonyms: e.target.value,
                   }))
                 }
-                label="Послівний переклад"
-                editable={isEditing}
+                className="text-base min-h-[200px]"
               />
             ) : synonyms ? (
               <p
@@ -549,17 +548,16 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isAdmin ? (
-              <EnhancedInlineEditor
-                content={edited.translation}
-                onChange={(html) =>
+            {isEditing ? (
+              <Textarea
+                value={edited.translation}
+                onChange={(e) =>
                   setEdited((p) => ({
                     ...p,
-                    translation: html,
+                    translation: e.target.value,
                   }))
                 }
-                label="Переклад"
-                editable={isEditing}
+                className="text-base min-h-[150px]"
               />
             ) : (
               <p
@@ -588,17 +586,16 @@ export const VerseCard = ({
               </button>
             </div>
 
-            {isAdmin ? (
-              <EnhancedInlineEditor
-                content={edited.commentary}
-                onChange={(html) =>
+            {isEditing ? (
+              <Textarea
+                value={edited.commentary}
+                onChange={(e) =>
                   setEdited((p) => ({
                     ...p,
-                    commentary: html,
+                    commentary: e.target.value,
                   }))
                 }
-                label="Пояснення"
-                editable={isEditing}
+                className="text-base min-h-[200px]"
               />
             ) : (
               <div
