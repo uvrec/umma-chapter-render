@@ -1,4 +1,54 @@
 /**
+ * Parse line (TSV format - tab-separated)
+ * Note: DCS dictionary.csv is actually TSV despite the .csv extension
+ */
+function parseLine(line: string): string[] {
+  return line.split("\t");
+}
+/**
+ * Read and parse the dictionary file (TSV format) - returns all entries
+ */
+async function readAllEntries(filePath: string): Promise<LexiconEntry[]> {
+  const fileStream = fs.createReadStream(filePath);
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
+
+  const entries: LexiconEntry[] = [];
+  let isFirstLine = true;
+
+  for await (const line of rl) {
+    if (isFirstLine) {
+      isFirstLine = false;
+      continue; // Skip header
+    }
+
+    const fields = parseLine(line);
+    if (fields.length < 2) continue;
+
+    const id = parseInt(fields[0], 10);
+    const word = fields[1] || "";
+    const grammar = fields[2] || null;
+    const preverbs = fields[3] || null;
+    const meanings = fields[4] || null;
+
+    if (isNaN(id) || !word) continue;
+
+    entries.push({
+      id,
+      word,
+      word_devanagari: iastToDevanagari(word),
+      grammar,
+      preverbs,
+      meanings,
+      word_normalized: normalizeWord(word),
+    });
+  }
+
+  return entries;
+}
+/**
  * Sanskrit Lexicon Import Script
  *
  * Imports the Digital Corpus of Sanskrit (DCS) dictionary into Supabase.
@@ -274,58 +324,6 @@ interface LexiconEntry {
   preverbs: string | null;
   meanings: string | null;
   word_normalized: string;
-}
-
-/**
- * Parse line (TSV format - tab-separated)
- * Note: DCS dictionary.csv is actually TSV despite the .csv extension
- */
-function parseLine(line: string): string[] {
-  return line.split("\t");
-}
-
-/**
- * Read and parse the dictionary file (TSV format) - returns all entries
- */
-async function readAllEntries(filePath: string): Promise<LexiconEntry[]> {
-  const fileStream = fs.createReadStream(filePath);
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity,
-  });
-
-  const entries: LexiconEntry[] = [];
-  let isFirstLine = true;
-
-  for await (const line of rl) {
-    if (isFirstLine) {
-      isFirstLine = false;
-      continue; // Skip header
-    }
-
-    const fields = parseLine(line);
-    if (fields.length < 2) continue;
-
-    const id = parseInt(fields[0], 10);
-    const word = fields[1] || "";
-    const grammar = fields[2] || null;
-    const preverbs = fields[3] || null;
-    const meanings = fields[4] || null;
-
-    if (isNaN(id) || !word) continue;
-
-    entries.push({
-      id,
-      word,
-      word_devanagari: iastToDevanagari(word),
-      grammar,
-      preverbs,
-      meanings,
-      word_normalized: normalizeWord(word),
-    });
-  }
-
-  return entries;
 }
 
 /**
