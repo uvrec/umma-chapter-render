@@ -744,9 +744,9 @@ export default function ScriptLearning() {
                   {isSyncing ? (
                     <RefreshCcw className="w-5 h-5 text-blue-500 animate-spin" />
                   ) : isOnline ? (
-                    <Cloud className="w-5 h-5 text-green-500" title={t("Синхронізовано", "Synced")} />
+                    <Cloud className="w-5 h-5 text-green-500" aria-label={t("Синхронізовано", "Synced")} />
                   ) : (
-                    <CloudOff className="w-5 h-5 text-gray-400" title={t("Офлайн", "Offline")} />
+                    <CloudOff className="w-5 h-5 text-gray-400" aria-label={t("Офлайн", "Offline")} />
                   )}
                 </div>
               )}

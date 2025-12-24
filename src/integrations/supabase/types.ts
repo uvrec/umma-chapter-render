@@ -1374,6 +1374,129 @@ export type Database = {
         }
         Relationships: []
       }
+      user_learning_activity: {
+        Row: {
+          activity_date: string
+          correct_count: number | null
+          created_at: string | null
+          id: string
+          reviews_count: number | null
+          time_spent_seconds: number | null
+          user_id: string
+          verses_added: number | null
+          words_added: number | null
+        }
+        Insert: {
+          activity_date?: string
+          correct_count?: number | null
+          created_at?: string | null
+          id?: string
+          reviews_count?: number | null
+          time_spent_seconds?: number | null
+          user_id: string
+          verses_added?: number | null
+          words_added?: number | null
+        }
+        Update: {
+          activity_date?: string
+          correct_count?: number | null
+          created_at?: string | null
+          id?: string
+          reviews_count?: number | null
+          time_spent_seconds?: number | null
+          user_id?: string
+          verses_added?: number | null
+          words_added?: number | null
+        }
+        Relationships: []
+      }
+      user_learning_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          item_data: Json
+          item_id: string
+          item_type: string
+          srs_ease_factor: number | null
+          srs_interval: number | null
+          srs_last_reviewed: string | null
+          srs_next_review: string | null
+          srs_repetitions: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          item_data: Json
+          item_id: string
+          item_type: string
+          srs_ease_factor?: number | null
+          srs_interval?: number | null
+          srs_last_reviewed?: string | null
+          srs_next_review?: string | null
+          srs_repetitions?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          item_data?: Json
+          item_id?: string
+          item_type?: string
+          srs_ease_factor?: number | null
+          srs_interval?: number | null
+          srs_last_reviewed?: string | null
+          srs_next_review?: string | null
+          srs_repetitions?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_learning_progress: {
+        Row: {
+          achievements: Json | null
+          created_at: string | null
+          current_streak: number | null
+          daily_goal: number | null
+          id: string
+          last_login_date: string | null
+          longest_streak: number | null
+          total_correct: number | null
+          total_reviews: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          achievements?: Json | null
+          created_at?: string | null
+          current_streak?: number | null
+          daily_goal?: number | null
+          id?: string
+          last_login_date?: string | null
+          longest_streak?: number | null
+          total_correct?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          achievements?: Json | null
+          created_at?: string | null
+          current_streak?: number | null
+          daily_goal?: number | null
+          id?: string
+          last_login_date?: string | null
+          longest_streak?: number | null
+          total_correct?: number | null
+          total_reviews?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -2306,6 +2429,17 @@ export type Database = {
       slugify: { Args: { "": string }; Returns: string }
       update_intro_chapters_order: {
         Args: { p_items: Json }
+        Returns: undefined
+      }
+      upsert_learning_activity: {
+        Args: {
+          p_correct?: number
+          p_reviews?: number
+          p_time?: number
+          p_user_id: string
+          p_verses?: number
+          p_words?: number
+        }
         Returns: undefined
       }
     }
