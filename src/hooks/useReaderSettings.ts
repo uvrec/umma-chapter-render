@@ -15,6 +15,7 @@ export type ContinuousReadingSettings = {
   showVerseNumbers: boolean;
   showSanskrit: boolean;
   showTransliteration: boolean;
+  showSynonyms: boolean;
   showTranslation: boolean;
   showCommentary: boolean;
 };
@@ -64,6 +65,7 @@ const DEFAULT_CONT: ContinuousReadingSettings = {
   showVerseNumbers: true,
   showSanskrit: false,
   showTransliteration: false,
+  showSynonyms: true,
   showTranslation: true,
   showCommentary: false,
 };
