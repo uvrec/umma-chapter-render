@@ -446,13 +446,13 @@ export const ChapterVersesList = () => {
                             className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0"
                           >
                             <div
-                              className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                              className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
                                 __html: paraUa || '<span class="italic text-muted-foreground">—</span>',
                               }}
                             />
                             <div
-                              className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6 prose-reader"
+                              className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
                               dangerouslySetInnerHTML={{
                                 __html: paraEn || '<span class="italic text-muted-foreground">—</span>',
                               }}
@@ -465,7 +465,7 @@ export const ChapterVersesList = () => {
                 })()
               ) : (
                 <div
-                  className="prose prose-slate dark:prose-invert max-w-none prose-reader"
+                  className="prose prose-slate dark:prose-invert max-w-none"
                   style={readerTextStyle}
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
@@ -480,7 +480,7 @@ export const ChapterVersesList = () => {
           )}
 
           {flowMode ? (
-            <div className="prose prose-lg max-w-none prose-reader" style={readerTextStyle}>
+            <div className="prose prose-lg max-w-none" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
                 const text = language === "ua" ? verse.translation_ua : verse.translation_en;
                 return (
@@ -512,7 +512,7 @@ export const ChapterVersesList = () => {
                               ВІРШ {verse.verse_number}
                             </Link>
                           )}
-                          <p className="text-foreground prose-reader text-justify" style={readerTextStyle}>
+                          <p className="text-foreground text-justify" style={readerTextStyle}>
                             {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
                         </div>
@@ -526,7 +526,7 @@ export const ChapterVersesList = () => {
                               TEXT {verse.verse_number}
                             </Link>
                           )}
-                          <p className="text-foreground prose-reader text-justify" style={readerTextStyle}>
+                          <p className="text-foreground text-justify" style={readerTextStyle}>
                             {stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                           </p>
                         </div>
@@ -541,7 +541,7 @@ export const ChapterVersesList = () => {
                             {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                           </Link>
                         )}
-                        <p className="text-foreground prose-reader" style={readerTextStyle}>
+                        <p className="text-foreground" style={readerTextStyle}>
                           {language === "ua"
                             ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>
                             : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
