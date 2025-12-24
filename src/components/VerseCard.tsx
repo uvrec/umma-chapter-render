@@ -456,12 +456,15 @@ export const VerseCard = ({
                 label="Послівний переклад"
                 editable={isEditing}
               />
-            ) : (
-              <p className="synonyms-text text-foreground" style={{ fontSize: `${fontSize}px`, lineHeight }}>
-                {synonymPairs.length === 0 ? (
-                  <span className="text-muted-foreground">{synonyms}</span>
-                ) : (
-                  synonymPairs.map((pair, i) => {
+            ) : synonymPairs.length > 0 ? (
+              <p
+                style={{
+                  fontSize: `${fontSize}px`,
+                  lineHeight,
+                }}
+                className="text-justify"
+              >
+                {synonymPairs.map((pair, i) => {
                     const words = pair.term
                       .split(/\s+/)
                       .map((w) => w.trim())
@@ -498,7 +501,7 @@ export const VerseCard = ({
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
                               className="cursor-pointer italic"
-                              style={{ color: '#BC731B', WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
+                              style={{ color: "#BC731B" }}
                             >
                               {w}
                             </span>
@@ -522,10 +525,9 @@ export const VerseCard = ({
                         {i < synonymPairs.length - 1 && <span>; </span>}
                       </span>
                     );
-                  })
-                )}
+                  })}
               </p>
-            )}
+            ) : null}
           </div>
         )}
 
