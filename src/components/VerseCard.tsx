@@ -390,7 +390,7 @@ export const VerseCard = ({
                 className="min-h-[100px] text-center sanskrit-text"
               />
             ) : (
-              <p className="whitespace-pre-line text-center sanskrit-text">{sanskritText}</p>
+              <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{sanskritText}</p>
             )}
           </div>
         )}
@@ -410,7 +410,7 @@ export const VerseCard = ({
                 className="min-h-[80px] text-center iast-text text-muted-foreground"
               />
             ) : (
-              <div className="space-y-1 text-center">
+              <div className="space-y-1 text-center" style={{ fontSize: `${fontSize}px`, lineHeight }}>
                 {transliteration.split("\n").map((line, idx) => (
                   <p key={idx} className="iast-text text-muted-foreground italic">
                     {line}
@@ -547,7 +547,7 @@ export const VerseCard = ({
                 editable={isEditing}
               />
             ) : (
-              <p className="prose-reader text-foreground font-semibold font-serif text-justify">{stripParagraphTags(translation)}</p>
+              <p className="prose-reader text-foreground font-semibold font-serif text-justify" style={{ fontSize: `${fontSize}px`, lineHeight }}>{stripParagraphTags(translation)}</p>
             )}
           </div>
         )}
