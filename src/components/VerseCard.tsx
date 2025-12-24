@@ -4,7 +4,8 @@
 // + STICKY HEADER для верхньої панелі
 // + Inline редактор для коментарів з автозбереженням
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Play, Pause, Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -125,10 +126,7 @@ function parseSynonyms(raw: string): Array<{
   }
   return pairs;
 }
-function openGlossary(term: string) {
-  const url = `/glossary?search=${encodeURIComponent(term)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
+// openGlossary function moved inside component to use useNavigate hook
 
 /* =========================
    Компонент
@@ -167,6 +165,14 @@ export const VerseCard = ({
   onVerseNumberUpdate,
   language = "ua",
 }: VerseCardProps) => {
+  const navigate = useNavigate();
+
+  // ✅ Функція для відкриття глосарію - використовує navigate замість window.open для мобільних
+  const openGlossary = useCallback((term: string) => {
+    const url = `/glossary?search=${encodeURIComponent(term)}`;
+    navigate(url);
+  }, [navigate]);
+
   // ✅ Назви блоків залежно від мови
   const blockLabels = {
     ua: {
@@ -484,10 +490,14 @@ export const VerseCard = ({
                               role="link"
                               tabIndex={0}
                               onClick={() => openGlossary(w)}
+                              onTouchEnd={(e) => {
+                                e.preventDefault();
+                                openGlossary(w);
+                              }}
                               onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                               title="Відкрити у глосарії"
                               className="cursor-pointer italic"
-                              style={{ color: '#BC731B' }}
+                              style={{ color: '#BC731B', WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                             >
                               {w}
                             </span>

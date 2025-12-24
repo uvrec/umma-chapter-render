@@ -1,5 +1,6 @@
 // DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -108,10 +109,7 @@ function parseSynonyms(raw: string): Array<{
   return pairs;
 }
 
-function openGlossary(term: string) {
-  const url = `/glossary?search=${encodeURIComponent(term)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
+// openGlossary function moved inside component to use useNavigate hook
 
 export const DualLanguageVerseCard = ({
   verseId,
@@ -155,6 +153,14 @@ export const DualLanguageVerseCard = ({
   onVerseUpdate,
   onVerseNumberUpdate,
 }: DualLanguageVerseCardProps) => {
+  const navigate = useNavigate();
+
+  // ✅ Функція для відкриття глосарію - використовує navigate замість window.open для мобільних
+  const openGlossary = useCallback((term: string) => {
+    const url = `/glossary?search=${encodeURIComponent(term)}`;
+    navigate(url);
+  }, [navigate]);
+
   const { playTrack, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
   const [edited, setEdited] = useState({
@@ -455,10 +461,14 @@ export const DualLanguageVerseCard = ({
                                 role="link"
                                 tabIndex={0}
                                 onClick={() => openGlossary(w)}
+                                onTouchEnd={(e) => {
+                                  e.preventDefault();
+                                  openGlossary(w);
+                                }}
                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                                 title="Відкрити у глосарії"
                                 className="cursor-pointer italic"
-                                style={{ color: "#BC731B" }}
+                                style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                               >
                                 {w}
                               </span>
@@ -509,10 +519,14 @@ export const DualLanguageVerseCard = ({
                                 role="link"
                                 tabIndex={0}
                                 onClick={() => openGlossary(w)}
+                                onTouchEnd={(e) => {
+                                  e.preventDefault();
+                                  openGlossary(w);
+                                }}
                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && openGlossary(w)}
                                 title="Open in glossary"
                                 className="cursor-pointer italic"
-                                style={{ color: "#BC731B" }}
+                                style={{ color: "#BC731B", WebkitTapHighlightColor: 'rgba(188, 115, 27, 0.3)' }}
                               >
                                 {w}
                               </span>
