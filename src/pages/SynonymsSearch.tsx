@@ -21,12 +21,53 @@ interface SynonymSearchResult {
   book_title: string;
   chapter_number: number;
   verse_number: string;
+  canto_number?: number; // For Srimad-Bhagavatam
   sanskrit: string;
   transliteration: string;
   synonyms: string;
   translation: string;
   match_rank: number;
 }
+
+// Helper to build verse link (must match App.tsx routes)
+const buildVerseLink = (result: SynonymSearchResult): string => {
+  if (result.canto_number) {
+    // Srimad-Bhagavatam structure: /veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber
+    return `/veda-reader/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`;
+  }
+  // Direct book-chapter structure: /veda-reader/:bookId/:chapterNumber/:verseNumber
+  return `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
+};
+
+// Escape special RegExp characters to prevent ReDoS and ensure correct matching
+const escapeRegExp = (str: string): string => {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
+// Escape HTML to prevent XSS
+const escapeHtml = (str: string): string => {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
+
+// Safely highlight search term in text
+const highlightSearchTerm = (text: string, term: string): string => {
+  if (!term || !text) return escapeHtml(text || '');
+
+  const escapedText = escapeHtml(text);
+  const escapedTerm = escapeRegExp(term);
+
+  try {
+    return escapedText.replace(
+      new RegExp(`(${escapedTerm})`, 'gi'),
+      '<mark class="bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 px-1 rounded font-semibold">$1</mark>'
+    );
+  } catch {
+    // If RegExp fails, return escaped text without highlighting
+    return escapedText;
+  }
+};
 
 interface AutocompleteItem {
   term: string;
@@ -327,10 +368,10 @@ export default function SynonymsSearch() {
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-muted-foreground" />
                       <a
-                        href={`/books/${result.book_slug}/chapters/${result.chapter_number}/verses/${result.verse_number}`}
+                        href={buildVerseLink(result)}
                         className="text-sm font-medium hover:underline"
                       >
-                        {result.book_title} {result.chapter_number}.{result.verse_number}
+                        {result.book_title} {result.canto_number ? `${result.canto_number}.` : ''}{result.chapter_number}.{result.verse_number}
                       </a>
                     </div>
                     <Badge variant="outline">
@@ -365,10 +406,7 @@ export default function SynonymsSearch() {
                     <p
                       className="text-sm leading-relaxed"
                       dangerouslySetInnerHTML={{
-                        __html: result.synonyms.replace(
-                          new RegExp(`(${searchTerm})`, "gi"),
-                          '<mark class="bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-100 px-1 rounded font-semibold">$1</mark>'
-                        ),
+                        __html: highlightSearchTerm(result.synonyms, searchTerm),
                       }}
                     />
                   </div>

@@ -71,14 +71,14 @@ export default function GlossaryDB() {
         const chapterNumber = verse.chapters.chapter_number;
         const bookSlug = bookData?.slug;
         
-        // Build verse link based on book structure
+        // Build verse link based on book structure (must match App.tsx routes)
         let verseLink = '';
         if (cantoNumber) {
-          // Srimad-Bhagavatam structure with cantos
-          verseLink = `/books/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/verse/${verse.verse_number}`;
+          // Srimad-Bhagavatam structure with cantos: /veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber
+          verseLink = `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse.verse_number}`;
         } else {
-          // Direct book-chapter structure
-          verseLink = `/books/${bookSlug}/chapter/${chapterNumber}/verse/${verse.verse_number}`;
+          // Direct book-chapter structure: /veda-reader/:bookId/:chapterNumber/:verseNumber
+          verseLink = `/veda-reader/${bookSlug}/${chapterNumber}/${verse.verse_number}`;
         }
         
         return {

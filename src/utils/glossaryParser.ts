@@ -70,20 +70,21 @@ export const normalizeSanskritText = (text: string): string => {
 
 export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
   if (!synonyms) return [];
-  
+
   const terms: GlossaryTerm[] = [];
-  
-  // Split by semicolon or comma
-  const termPairs = synonyms.split(/[;,]/);
-  
+
+  // Split ONLY by semicolon (comma is used inside meanings like "те, Верховний")
+  const termPairs = synonyms.split(/;/);
+
   termPairs.forEach((pair) => {
     const trimmedPair = pair.trim();
-    
-    // Try all separator variations: regular dash, en dash, em dash with optional spaces and newlines
-    const separators = [' – ', ' — ', ' - ', '–', '—', '-', ' –\n', ' —\n', ' -\n', '–\n', '—\n', '-\n'];
+    if (!trimmedPair) return;
+
+    // Try all separator variations (same order as VerseCard.tsx for consistency)
+    const separators = [' — ', ' – ', ' - ', '—', '–', '-', ' —\n', ' –\n', ' -\n', '—\n', '–\n', '-\n'];
     let dashIndex = -1;
     let separator = '';
-    
+
     for (const sep of separators) {
       dashIndex = trimmedPair.indexOf(sep);
       if (dashIndex !== -1) {
@@ -91,15 +92,25 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
         break;
       }
     }
-    
-    if (dashIndex !== -1) {
+
+    const link = generateVerseLink(verseNumber);
+
+    if (dashIndex === -1) {
+      // No separator found - add term without meaning (same as VerseCard.tsx)
+      terms.push({
+        term: trimmedPair,
+        meaning: '',
+        reference: verseNumber,
+        book,
+        link,
+        verseNumber
+      });
+    } else {
       const term = trimmedPair.substring(0, dashIndex).trim();
       const meaning = trimmedPair.substring(dashIndex + separator.length).trim().replace(/^\n+/, '');
-      
-      if (term && meaning) {
-        // Generate link based on verse number
-        const link = generateVerseLink(verseNumber);
-        
+
+      // Add term even if meaning is empty (consistent with VerseCard.tsx)
+      if (term) {
         terms.push({
           term,
           meaning,
@@ -111,7 +122,7 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
       }
     }
   });
-  
+
   return terms;
 };
 
