@@ -205,6 +205,27 @@ export const defaultRules: NormalizationRule[] = [
   { id: "apostrophe_chaitanya", incorrect: "Чайтаньа", correct: "Чайтанья", category: "apostrophe" },
   { id: "apostrophe_vyasa", incorrect: "Вяса", correct: "В'яса", category: "apostrophe" },
 
+  // Apostrophe rules: ь after шиплячих/губних/задньоязикових is incorrect
+  { id: "apostrophe_chyavana", incorrect: "Чьявана", correct: "Ч'явана", category: "apostrophe" },
+  { id: "apostrophe_shyama", incorrect: "Шьяма", correct: "Ш'яма", category: "apostrophe" },
+  { id: "apostrophe_bhavishya", incorrect: "Бгавішья", correct: "Бгавіш'я", category: "apostrophe" },
+  { id: "apostrophe_achyuta", incorrect: "Ачьюта", correct: "Ач'юта", category: "apostrophe" },
+  { id: "apostrophe_samkhya", incorrect: "санкхья", correct: "санкх'я", category: "apostrophe" },
+  { id: "apostrophe_gyana", incorrect: "гьяна", correct: "ґ'яна", category: "apostrophe" },
+  { id: "apostrophe_yagya", incorrect: "яґья", correct: "яґ'я", category: "apostrophe" },
+  { id: "apostrophe_yagya2", incorrect: "ягья", correct: "яґ'я", category: "apostrophe" },
+  { id: "apostrophe_prabhupada", incorrect: "Прабгьюпада", correct: "Прабгупада", category: "apostrophe" },
+  { id: "apostrophe_bhashya", incorrect: "бгашья", correct: "бгаш'я", category: "apostrophe" },
+  { id: "apostrophe_kavya", incorrect: "кавья", correct: "кав'я", category: "apostrophe" },
+  { id: "apostrophe_divya", incorrect: "дівья", correct: "дів'я", category: "apostrophe" },
+  { id: "apostrophe_saumya", incorrect: "саумья", correct: "саум'я", category: "apostrophe" },
+  { id: "apostrophe_ramya", incorrect: "рамья", correct: "рам'я", category: "apostrophe" },
+  { id: "apostrophe_bhavya", incorrect: "бгавья", correct: "бгав'я", category: "apostrophe" },
+  { id: "apostrophe_dhanya", incorrect: "дганья", correct: "дган'я", category: "apostrophe" },
+  { id: "apostrophe_arya", incorrect: "арья", correct: "ар'я", category: "apostrophe" },
+  { id: "apostrophe_karya", incorrect: "карья", correct: "кар'я", category: "apostrophe" },
+  { id: "apostrophe_surya", incorrect: "сурья", correct: "сур'я", category: "apostrophe" },
+
   // =====================================================
   // ІМЕНА ТА ТЕРМІНИ
   // =====================================================
