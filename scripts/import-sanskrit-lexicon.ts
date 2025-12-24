@@ -285,15 +285,16 @@ function parseLine(line: string): string[] {
 }
 
 /**
- * Read and parse the dictionary file (TSV format)
+ * Read and parse the dictionary file (TSV format) - returns all entries
  */
-async function* readDictionary(filePath: string): AsyncGenerator<LexiconEntry> {
+async function readAllEntries(filePath: string): Promise<LexiconEntry[]> {
   const fileStream = fs.createReadStream(filePath);
   const rl = readline.createInterface({
     input: fileStream,
     crlfDelay: Infinity,
   });
 
+  const entries: LexiconEntry[] = [];
   let isFirstLine = true;
 
   for await (const line of rl) {
@@ -313,7 +314,7 @@ async function* readDictionary(filePath: string): AsyncGenerator<LexiconEntry> {
 
     if (isNaN(id) || !word) continue;
 
-    yield {
+    entries.push({
       id,
       word,
       word_devanagari: iastToDevanagari(word),
@@ -321,8 +322,10 @@ async function* readDictionary(filePath: string): AsyncGenerator<LexiconEntry> {
       preverbs,
       meanings,
       word_normalized: normalizeWord(word),
-    };
+    });
   }
+
+  return entries;
 }
 
 /**
@@ -355,44 +358,29 @@ async function importLexicon() {
   console.log("Starting Sanskrit lexicon import...");
   console.log(`Reading from: ${dictionaryPath}`);
 
+  // Read all entries first to avoid readline closing during async DB operations
+  console.log("Reading dictionary file...");
+  const allEntries = await readAllEntries(dictionaryPath);
+  console.log(`Loaded ${allEntries.length} entries. Starting import...`);
+
   const BATCH_SIZE = 1000;
-  let batch: LexiconEntry[] = [];
   let totalImported = 0;
   let errors = 0;
 
-  for await (const entry of readDictionary(dictionaryPath)) {
-    batch.push(entry);
+  // Process in batches
+  for (let i = 0; i < allEntries.length; i += BATCH_SIZE) {
+    const batch = allEntries.slice(i, i + BATCH_SIZE);
 
-    if (batch.length >= BATCH_SIZE) {
-      try {
-        await retry(async () => {
-          const { error } = await supabase.from("sanskrit_lexicon").upsert(batch, { onConflict: "id" });
-          if (error) throw error;
-        });
-        totalImported += batch.length;
-        process.stdout.write(`\rImported: ${totalImported} entries...`);
-      } catch (err: any) {
-        console.error(
-          `\nError inserting batch (id range ${batch[0].id} - ${batch[batch.length - 1].id}): ${err.message || err}`,
-        );
-        errors++;
-      }
-
-      batch = [];
-    }
-  }
-
-  // Insert remaining entries
-  if (batch.length > 0) {
     try {
       await retry(async () => {
         const { error } = await supabase.from("sanskrit_lexicon").upsert(batch, { onConflict: "id" });
         if (error) throw error;
       });
       totalImported += batch.length;
+      process.stdout.write(`\rImported: ${totalImported} / ${allEntries.length} entries...`);
     } catch (err: any) {
       console.error(
-        `\nError inserting final batch (id range ${batch[0].id} - ${batch[batch.length - 1].id}): ${err.message || err}`,
+        `\nError inserting batch (id range ${batch[0].id} - ${batch[batch.length - 1].id}): ${err.message || err}`,
       );
       errors++;
     }
