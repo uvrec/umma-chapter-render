@@ -19,6 +19,8 @@ import {
   WrapText,
   FileEdit,
   Search,
+  Mic,
+  Mail,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
@@ -356,6 +358,27 @@ const Dashboard = () => {
                 <Link to="/admin/static-pages">
                   <FileEdit className="w-4 h-4 mr-2" />
                   Статичні сторінки
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Бібліотека</CardTitle>
+              <CardDescription>Лекції та листи Прабгупади</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/lectures">
+                  <Mic className="w-4 h-4 mr-2" />
+                  Лекції
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/admin/letters">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Листи
                 </Link>
               </Button>
             </CardContent>
