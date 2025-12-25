@@ -3,9 +3,9 @@
  * (Raja-Vidya: The King of Knowledge)
  */
 
-import { type GlossaryTerm } from "@/components/book/BookGlossary";
+import { type GlossaryTermData } from "@/components/book/BookGlossary";
 
-export const RAJA_VIDYA_GLOSSARY_UA: GlossaryTerm[] = [
+export const RAJA_VIDYA_GLOSSARY_UA: GlossaryTermData[] = [
   {
     term: "Ахам брахмасмі",
     definition: "Трансцендентне усвідомлення того, що людина є духом, а не матерією.",
