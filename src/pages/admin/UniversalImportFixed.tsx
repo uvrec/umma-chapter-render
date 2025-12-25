@@ -58,7 +58,7 @@ const LOCAL_PARSER_URL = "http://127.0.0.1:5003/admin/parse-web-chapter";
 
 // Типи станів
 type ImportSource = "file" | "vedabase" | "gitabase" | "bhaktivinoda";
-type Step = "source" | "file" | "intro" | "normalize" | "process" | "preview" | "save";
+type Step = "source" | "file" | "library" | "intro" | "normalize" | "process" | "preview" | "save";
 
 interface ImportData {
   source: ImportSource;
@@ -1890,7 +1890,7 @@ export default function UniversalImportFixed() {
           )}
 
           <Tabs value={currentStep} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
               <TabsTrigger value="source" onClick={() => setCurrentStep("source")}>
                 <Globe className="w-4 h-4 mr-2" />
                 Vedabase
@@ -1898,6 +1898,10 @@ export default function UniversalImportFixed() {
               <TabsTrigger value="file" onClick={() => setCurrentStep("file")}>
                 <Upload className="w-4 h-4 mr-2" />
                 Файл
+              </TabsTrigger>
+              <TabsTrigger value="library" onClick={() => setCurrentStep("library")}>
+                <BookOpen className="w-4 h-4 mr-2" />
+                Бібліотека
               </TabsTrigger>
               <TabsTrigger value="intro">Intro</TabsTrigger>
               <TabsTrigger value="normalize">Norm</TabsTrigger>
@@ -2343,8 +2347,13 @@ export default function UniversalImportFixed() {
                 )}
               </div>
 
-              {/* Додаткові імпортери: Лекції та Листи (без зміни існуючого UI) */}
-              <div className="mt-8 space-y-8">
+            </TabsContent>
+
+            <TabsContent value="library" className="space-y-6">
+              <p className="text-muted-foreground">
+                Імпорт лекцій та листів Шріли Прабгупади з Vedabase.io
+              </p>
+              <div className="grid md:grid-cols-2 gap-6">
                 <LectureImporter />
                 <LetterImporter />
               </div>
