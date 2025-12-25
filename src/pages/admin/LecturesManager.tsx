@@ -37,6 +37,7 @@ import {
   Save,
   Loader2,
   Languages,
+  Sparkles,
 } from "lucide-react";
 import { transliterateIAST } from "@/utils/text/transliteration";
 import type { Lecture, LectureParagraph } from "@/types/lecture";
@@ -176,6 +177,113 @@ export default function LecturesManager() {
       }))
     );
     toast.success("Транслітерацію застосовано до всіх параграфів");
+  };
+
+  // AI переклад через Claude
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [translatingIndex, setTranslatingIndex] = useState<number | null>(null);
+
+  const translateParagraphWithAI = async (index: number) => {
+    const p = editingParagraphs[index];
+    if (!p.content_en) return;
+
+    setTranslatingIndex(index);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            text: p.content_en,
+            context: "lecture",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Translation failed");
+      }
+
+      const data = await response.json();
+
+      setEditingParagraphs((prev) => {
+        const updated = [...prev];
+        updated[index] = { ...updated[index], content_ua: data.translated };
+        return updated;
+      });
+
+      toast.success(`Параграф #${p.paragraph_number} перекладено`);
+    } catch (error) {
+      toast.error("Помилка перекладу. Перевірте налаштування API.");
+      console.error(error);
+    } finally {
+      setTranslatingIndex(null);
+    }
+  };
+
+  const translateAllWithAI = async () => {
+    const untranslated = editingParagraphs.filter(
+      (p) => p.content_en && !p.content_ua
+    );
+
+    if (untranslated.length === 0) {
+      toast.info("Всі параграфи вже перекладено");
+      return;
+    }
+
+    setIsTranslating(true);
+    let translated = 0;
+
+    try {
+      for (let i = 0; i < editingParagraphs.length; i++) {
+        const p = editingParagraphs[i];
+        if (!p.content_en || p.content_ua) continue;
+
+        setTranslatingIndex(i);
+
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              text: p.content_en,
+              context: "lecture",
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          console.error(`Failed to translate paragraph ${i}`);
+          continue;
+        }
+
+        const data = await response.json();
+
+        setEditingParagraphs((prev) => {
+          const updated = [...prev];
+          updated[i] = { ...updated[i], content_ua: data.translated };
+          return updated;
+        });
+
+        translated++;
+      }
+
+      toast.success(`Перекладено ${translated} параграфів`);
+    } catch (error) {
+      toast.error("Помилка перекладу");
+      console.error(error);
+    } finally {
+      setIsTranslating(false);
+      setTranslatingIndex(null);
+    }
   };
 
   // Фільтровані лекції
@@ -400,29 +508,65 @@ export default function LecturesManager() {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">
                       Параграфи ({editingParagraphs.length})
+                      {isTranslating && (
+                        <span className="text-sm font-normal text-muted-foreground ml-2">
+                          Перекладаю {translatingIndex !== null ? `#${editingParagraphs[translatingIndex]?.paragraph_number}` : "..."}
+                        </span>
+                      )}
                     </h3>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={autoTransliterateAll}
-                    >
-                      <Languages className="w-4 h-4 mr-2" />
-                      Транслітерувати всі
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={autoTransliterateAll}
+                      >
+                        <Languages className="w-4 h-4 mr-2" />
+                        Транслітерувати
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={translateAllWithAI}
+                        disabled={isTranslating}
+                      >
+                        {isTranslating ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4 mr-2" />
+                        )}
+                        Перекласти AI
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="space-y-4 max-h-96 overflow-y-auto">
                     {editingParagraphs.map((p, idx) => (
-                      <Card key={p.id} className="p-4">
+                      <Card key={p.id} className={`p-4 ${translatingIndex === idx ? "ring-2 ring-primary" : ""}`}>
                         <div className="flex justify-between items-start mb-2">
                           <Badge>#{p.paragraph_number}</Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => autoTransliterate(idx)}
-                          >
-                            <Languages className="w-4 h-4" />
-                          </Button>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => autoTransliterate(idx)}
+                              title="Транслітерувати"
+                            >
+                              <Languages className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => translateParagraphWithAI(idx)}
+                              disabled={translatingIndex === idx}
+                              title="Перекласти AI"
+                            >
+                              {translatingIndex === idx ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Sparkles className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>

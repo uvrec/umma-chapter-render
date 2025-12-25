@@ -37,6 +37,7 @@ import {
   Save,
   Loader2,
   Languages,
+  Sparkles,
 } from "lucide-react";
 import { transliterateIAST } from "@/utils/text/transliteration";
 import type { Letter } from "@/types/letter";
@@ -115,6 +116,51 @@ export default function LettersManager() {
       content_ua: transliterated,
     });
     toast.success("Транслітерацію застосовано");
+  };
+
+  // AI переклад через Claude
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const translateWithAI = async () => {
+    if (!editingLetter?.content_en) return;
+
+    setIsTranslating(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            text: editingLetter.content_en,
+            context: "letter",
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Translation failed");
+      }
+
+      const data = await response.json();
+
+      setEditingLetter({
+        ...editingLetter,
+        content_ua: data.translated,
+      });
+
+      toast.success(
+        `Перекладено! Знайдено ${data.terms_found?.length || 0} санскритських термінів`
+      );
+    } catch (error) {
+      toast.error("Помилка перекладу. Перевірте налаштування API.");
+      console.error(error);
+    } finally {
+      setIsTranslating(false);
+    }
   };
 
   // Фільтровані листи
@@ -314,10 +360,25 @@ export default function LettersManager() {
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-lg font-semibold">Текст листа</h3>
-                    <Button variant="outline" size="sm" onClick={autoTransliterate}>
-                      <Languages className="w-4 h-4 mr-2" />
-                      Транслітерувати EN → UA
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={autoTransliterate}>
+                        <Languages className="w-4 h-4 mr-2" />
+                        Транслітерувати
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={translateWithAI}
+                        disabled={isTranslating}
+                      >
+                        {isTranslating ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-4 h-4 mr-2" />
+                        )}
+                        Перекласти AI
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
