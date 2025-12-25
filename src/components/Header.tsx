@@ -1,21 +1,4 @@
-import {
-  Menu,
-  LogIn,
-  Home,
-  BookOpen,
-  Book,
-  MessageCircle,
-  Heart,
-  Languages,
-  ChevronDown,
-  ChevronRight,
-  FileText,
-  User,
-  Plus,
-  GraduationCap,
-  BookMarked,
-  Wand2,
-} from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -25,23 +8,25 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
-
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [translationsOpen, setTranslationsOpen] = useState(false);
   const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
-
-  const { t } = useLanguage();
-  const { user, isAdmin } = useAuth();
-  const { pathname } = useLocation();
-
+  const {
+    t
+  } = useLanguage();
+  const {
+    user,
+    isAdmin
+  } = useAuth();
+  const {
+    pathname
+  } = useLocation();
   const navBtn = "hover:bg-foreground/5 hover:border hover:border-foreground/20 transition-colors";
 
   // ✅ показувати блок дій лише на сторінці керування постами І якщо користувач — адмін
   const showBlogAdminActions = isAdmin && pathname.startsWith("/admin/blog-posts");
-
-  return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
+  return <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md shadow-header">
       <div className="container mx-auto px-4 py-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
@@ -90,10 +75,7 @@ export const Header = () => {
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/tools/compiler" aria-label="Збірки знань">
-                <BookMarked className="mr-2 h-4 w-4" />
-                Збірки
-              </Link>
+              
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
@@ -107,22 +89,18 @@ export const Header = () => {
           {/* Desktop Controls */}
           <div className="hidden items-center gap-2 md:flex">
             <ThemeToggle />
-            {!user && (
-              <Button variant="outline" size="sm" asChild className={navBtn}>
+            {!user && <Button variant="outline" size="sm" asChild className={navBtn}>
                 <Link to="/auth" aria-label="Вхід">
                   <LogIn className="mr-2 h-4 w-4" />
                   Вхід
                 </Link>
-              </Button>
-            )}
-            {isAdmin && (
-              <Button variant="outline" size="sm" asChild className={navBtn}>
+              </Button>}
+            {isAdmin && <Button variant="outline" size="sm" asChild className={navBtn}>
                 <Link to="/admin/dashboard" aria-label="Адмін">
                   <User className="mr-2 h-4 w-4" />
                   {t("Адмін", "Admin")}
                 </Link>
-              </Button>
-            )}
+              </Button>}
           </div>
 
           {/* Mobile Navigation */}
@@ -140,20 +118,12 @@ export const Header = () => {
               </SheetHeader>
 
               <div className="mt-6 space-y-4">
-                <Link
-                  to="/"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Home className="h-5 w-5" />
                   <span>Головна</span>
                 </Link>
 
-                <Link
-                  to="/library"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/library" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <BookOpen className="h-5 w-5" />
                   <span>Бібліотека</span>
                 </Link>
@@ -175,156 +145,87 @@ export const Header = () => {
                       </CollapsibleTrigger>
 
                       <CollapsibleContent className="ml-4 mt-1 space-y-1">
-                        <Link
-                          to="/translations/prabhupada/letters"
-                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                          onClick={() => setOpen(false)}
-                        >
+                        <Link to="/translations/prabhupada/letters" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                           <span>Листи</span>
                         </Link>
-                        <Link
-                          to="/translations/prabhupada/lectures"
-                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                          onClick={() => setOpen(false)}
-                        >
+                        <Link to="/translations/prabhupada/lectures" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                           <span>Лекції</span>
                         </Link>
-                        <Link
-                          to="/translations/prabhupada/books"
-                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                          onClick={() => setOpen(false)}
-                        >
+                        <Link to="/translations/prabhupada/books" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                           <span>Книги</span>
                         </Link>
-                        <Link
-                          to="/translations/prabhupada/photos"
-                          className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                          onClick={() => setOpen(false)}
-                        >
+                        <Link to="/translations/prabhupada/photos" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                           <span>Фото</span>
                         </Link>
                       </CollapsibleContent>
                     </Collapsible>
 
-                    <Link
-                      to="/translations/aindra-prabhu"
-                      className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                      onClick={() => setOpen(false)}
-                    >
+                    <Link to="/translations/aindra-prabhu" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <span>Аіндри прабгу</span>
                     </Link>
 
-                    <Link
-                      to="/translations/acharya-books"
-                      className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                      onClick={() => setOpen(false)}
-                    >
+                    <Link to="/translations/acharya-books" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <span>Книги ачар'їв</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
 
-                <Link
-                  to="/glossary"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/glossary" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Book className="h-5 w-5" />
                   <span>Глосарій</span>
                 </Link>
 
-                <Link
-                  to="/tools/transliteration"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/tools/transliteration" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Languages className="h-5 w-5" />
                   <span>Транслітерація</span>
                 </Link>
 
-                <Link
-                  to="/tools/normalization"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/tools/normalization" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Wand2 className="h-5 w-5" />
                   <span>Нормалізація</span>
                 </Link>
 
-                <Link
-                  to="/tools/learning"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/tools/learning" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <GraduationCap className="h-5 w-5" />
                   <span>Вивчення мов</span>
                 </Link>
 
-                <Link
-                  to="/tools/compiler"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/tools/compiler" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <BookMarked className="h-5 w-5" />
                   <span>Збірки знань</span>
                 </Link>
 
-                <Link
-                  to="/blog"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/blog" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <FileText className="h-5 w-5" />
                   <span>Блог</span>
                 </Link>
 
-                <Link
-                  to="/contact"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/contact" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <MessageCircle className="h-5 w-5" />
                   <span>Контакти</span>
                 </Link>
 
-                <Link
-                  to="/donation"
-                  className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                  onClick={() => setOpen(false)}
-                >
+                <Link to="/donation" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Heart className="h-5 w-5" />
                   <span>Підтримати проєкт</span>
                 </Link>
 
-                {!user && (
-                  <Link
-                    to="/auth"
-                    className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                    onClick={() => setOpen(false)}
-                  >
+                {!user && <Link to="/auth" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                     <LogIn className="h-5 w-5" />
                     <span>Вхід</span>
-                  </Link>
-                )}
+                  </Link>}
 
-                {isAdmin && (
-                  <Link
-                    to="/admin/dashboard"
-                    className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20"
-                    onClick={() => setOpen(false)}
-                  >
+                {isAdmin && <Link to="/admin/dashboard" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                     <User className="h-5 w-5" />
                     <span>{t("Адмін", "Admin")}</span>
-                  </Link>
-                )}
+                  </Link>}
               </div>
             </SheetContent>
           </Sheet>
         </div>
 
         {/* === БЛОК ДІЙ ДЛЯ /admin/blog-posts === */}
-        {showBlogAdminActions && (
-          <div className="flex justify-between items-center mt-6 mb-2">
+        {showBlogAdminActions && <div className="flex justify-between items-center mt-6 mb-2">
             <h1 className="text-3xl font-bold">Керування постами блогу</h1>
             <div className="flex gap-2">
               <RefreshFeedButton />
@@ -334,10 +235,8 @@ export const Header = () => {
                 </Button>
               </Link>
             </div>
-          </div>
-        )}
+          </div>}
         {/* === /БЛОК ДІЙ === */}
       </div>
-    </header>
-  );
+    </header>;
 };
