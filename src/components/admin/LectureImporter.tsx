@@ -56,12 +56,12 @@ export const LectureImporter = () => {
    * Імпорт з Vedabase URL
    */
   const handleImportFromUrl = async () => {
-    // Extract slug from URL
-    const match = vedabaseUrl.match(/\/lectures\/([^\/]+)/);
+    // Extract slug from URL - support both /lectures/ and /transcripts/
+    const match = vedabaseUrl.match(/\/(?:lectures|transcripts)\/([^\/]+)/);
     if (!match) {
       toast({
         title: "Помилка",
-        description: "Невірний формат URL. Приклад: https://vedabase.io/en/library/lectures/660219bg-new-york/",
+        description: "Невірний формат URL. Приклад: https://vedabase.io/en/library/transcripts/660219bg-new-york/",
         variant: "destructive",
       });
       return;
@@ -281,7 +281,7 @@ export const LectureImporter = () => {
             <Input
               value={vedabaseUrl}
               onChange={(e) => setVedabaseUrl(e.target.value)}
-              placeholder="https://vedabase.io/en/library/lectures/660219bg-new-york/"
+              placeholder="https://vedabase.io/en/library/transcripts/660219bg-new-york/"
               disabled={isProcessing}
             />
             <Button
