@@ -105,13 +105,46 @@ class LettersImporter:
             "address_block": None,
         }
 
-        # Витягнути заголовок (отримувач)
-        title_tag = soup.find("h1")
-        if title_tag:
-            title_text = title_tag.get_text(strip=True)
-            # "Letter to: Mahatma Gandhi"
-            if "Letter to:" in title_text:
-                metadata["recipient_en"] = title_text.replace("Letter to:", "").strip()
+        # Vedabase структура: перші div.copy містять метадані
+        # [0] - "Letter to: Recipient"
+        # [1] - "YY-MM-DD" (reference/date)
+        # [2] - Address block
+        main_content = soup.find("main")
+        if main_content:
+            copy_divs = main_content.find_all("div", class_=lambda c: c and "copy" in c)
+
+            for i, div in enumerate(copy_divs[:5]):
+                text = div.get_text(strip=True)
+
+                # Отримувач - "Letter to: Name"
+                if "Letter to:" in text:
+                    metadata["recipient_en"] = text.replace("Letter to:", "").strip()
+
+                # Reference/Date у форматі YY-MM-DD
+                elif re.match(r"^\d{2}-\d{2}-\d{2}$", text):
+                    metadata["reference"] = text
+                    # Парсити дату: 47-07-12 -> 1947-07-12
+                    yy, mm, dd = text.split("-")
+                    year = f"19{yy}" if int(yy) > 20 else f"20{yy}"
+                    metadata["letter_date"] = f"{year}-{mm}-{dd}"
+
+                # Адресний блок (зазвичай містить місто/країну)
+                elif i <= 3 and len(text) > 10 and not text.startswith("Dear"):
+                    if not metadata["address_block"]:
+                        metadata["address_block"] = text
+                        # Спробувати витягнути локацію
+                        for city in LOCATION_TRANSLATIONS.keys():
+                            if city.lower() in text.lower():
+                                metadata["location_en"] = city
+                                break
+
+        # Fallback: витягнути заголовок з h1
+        if not metadata["recipient_en"]:
+            title_tag = soup.find("h1")
+            if title_tag:
+                title_text = title_tag.get_text(strip=True)
+                if "Letter to:" in title_text:
+                    metadata["recipient_en"] = title_text.replace("Letter to:", "").strip()
 
         # Шукаємо метадані в description list (dl/dt/dd)
         # Зазвичай формат:
@@ -167,52 +200,43 @@ class LettersImporter:
         soup = BeautifulSoup(html, "lxml")
 
         # Знайти основний контент листа
-        # Зазвичай це div з класом content, article, або main
-        content_div = (
-            soup.find("div", class_=re.compile(r"content|letter-text|main", re.I))
-            or soup.find("article")
-            or soup.find("main")
-        )
+        # Vedabase використовує div.copy для параграфів
+        main_content = soup.find("main")
 
-        if not content_div:
-            # Fallback: шукаємо body
-            content_div = soup.find("body")
+        if not main_content:
+            main_content = soup.find("body")
 
-        if not content_div:
+        if not main_content:
             print("[WARNING] Не знайдено контент листа")
             return ""
 
-        # Витягнути всі параграфи
+        # Vedabase структура: параграфи в div з класом "copy"
+        para_tags = main_content.find_all("div", class_=lambda c: c and "copy" in c)
+
+        # Якщо не знайдено, спробувати стандартні <p> теги
+        if not para_tags:
+            para_tags = main_content.find_all("p")
+
+        # Паттерни для пропуску
+        skip_patterns = ["previous", "next", "share", "download", "copyright", "vedabase.io"]
+
+        # Витягнути параграфи
         paragraphs = []
-        for p_tag in content_div.find_all("p"):
+        for p_tag in para_tags:
             text = p_tag.get_text(separator=" ", strip=True)
-            if text and len(text) > 10:
+            if text and len(text) > 5:
+                # Пропустити UI елементи
+                text_lower = text.lower()
+                if any(skip in text_lower for skip in skip_patterns):
+                    continue
+
                 paragraphs.append(text)
 
                 # Витягнути санскритські терміни
                 self._extract_sanskrit_terms(p_tag, text)
 
-        # Витягнути санскритські вірші (в курсиві або окремих блоках)
-        verses = []
-        for verse_tag in content_div.find_all(["blockquote", "div"], class_=re.compile(r"verse|sanskrit", re.I)):
-            verse_text = verse_tag.get_text(strip=True)
-            if verse_text:
-                verses.append(verse_text)
-
-        # Також шукаємо курсив з санскритом
-        for italic in content_div.find_all(["i", "em"]):
-            text = italic.get_text(strip=True)
-            # Санскрит зазвичай має діакритичні знаки або є віршем
-            if re.search(r'[āīūṛṝḷḹēōṃḥṇṭḍśṣñ]', text) and len(text) > 20:
-                if text not in verses:
-                    verses.append(text)
-
         # Об'єднати параграфи
         content = "\n\n".join(paragraphs)
-
-        # Додати вірші в кінець або між параграфами (залежно від структури)
-        if verses:
-            content += "\n\n" + "\n\n".join(verses)
 
         return content
 

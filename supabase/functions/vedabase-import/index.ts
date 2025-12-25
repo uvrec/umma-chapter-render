@@ -288,22 +288,33 @@ function parseLetter(html: string, slug: string) {
     reference = refMatch[1].trim();
   }
 
-  // Контент
-  const contentDiv = doc.querySelector(".r-text, .letter-content, .content, article");
-  let content = "";
+  // Контент - Vedabase використовує div.copy для параграфів
+  const mainContent = doc.querySelector("main") || doc.querySelector("body");
+  const paragraphs: string[] = [];
 
-  if (contentDiv) {
-    content = contentDiv.textContent?.trim() || "";
-  } else {
-    const paragraphs: string[] = [];
-    doc.querySelectorAll("p").forEach((el) => {
-      const text = el.textContent?.trim() || "";
-      if (text && text.length > 20) {
+  // Паттерни для пропуску
+  const skipPatterns = ["previous", "next", "share", "download", "copyright", "vedabase.io"];
+
+  // Шукаємо div елементи з класом "copy"
+  let paragraphElements = mainContent?.querySelectorAll('div[class*="copy"]');
+
+  // Якщо не знайдено, спробувати <p> теги
+  if (!paragraphElements || paragraphElements.length === 0) {
+    paragraphElements = mainContent?.querySelectorAll("p") || doc.querySelectorAll("p");
+  }
+
+  paragraphElements?.forEach((el) => {
+    const text = el.textContent?.trim() || "";
+    if (text && text.length > 5) {
+      const textLower = text.toLowerCase();
+      const shouldSkip = skipPatterns.some(pattern => textLower.includes(pattern));
+      if (!shouldSkip) {
         paragraphs.push(text);
       }
-    });
-    content = paragraphs.join("\n\n");
-  }
+    }
+  });
+
+  const content = paragraphs.join("\n\n");
 
   if (!content) {
     console.warn(`No content found for ${slug}`);
