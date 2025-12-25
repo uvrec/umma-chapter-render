@@ -1,14 +1,9 @@
+#!/usr/bin/env node
 /**
  * Масовий імпорт лекцій з Vedabase.io
  *
  * Використання:
- *   npx tsx scripts/import-lectures-vedabase.ts
- *
- * Етапи:
- * 1. Отримати список всіх slug'ів лекцій з vedabase.io
- * 2. Завантажити HTML кожної лекції
- * 3. Парсити метадані та контент
- * 4. Зберегти в БД через Supabase
+ *   node scripts/import-lectures-vedabase.js
  *
  * Опції:
  *   --limit <number>  - обмежити кількість лекцій для імпорту
@@ -22,10 +17,9 @@ import * as cheerio from "cheerio";
 
 // Конфігурація
 const VEDABASE_BASE_URL = "https://vedabase.io/en/library/transcripts";
-const DELAY_MS = 2000; // Затримка між запитами для rate limiting
-const BATCH_SIZE = 10; // Кількість лекцій в одному batch
+const DELAY_MS = 2000;
 
-// Supabase клієнт (використовуємо service role key для адмін-доступу)
+// Supabase клієнт
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 
@@ -36,30 +30,8 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Типи
-interface LectureMetadata {
-  slug: string;
-  title_en: string;
-  title_ua: string | null;
-  lecture_date: string;
-  location_en: string;
-  location_ua: string | null;
-  lecture_type: string;
-  audio_url: string | null;
-  book_slug: string | null;
-  chapter_number: number | null;
-  verse_number: string | null;
-}
-
-interface LectureParagraph {
-  paragraph_number: number;
-  content_en: string;
-  content_ua: string | null;
-  audio_timecode: number | null;
-}
-
 // Маппінг типів лекцій для української мови
-const LECTURE_TYPE_TRANSLATIONS: Record<string, string> = {
+const LECTURE_TYPE_TRANSLATIONS = {
   "Conversation": "Розмова",
   "Walk": "Прогулянка",
   "Morning Walk": "Ранкова прогулянка",
@@ -81,7 +53,7 @@ const LECTURE_TYPE_TRANSLATIONS: Record<string, string> = {
 };
 
 // Маппінг міст
-const LOCATION_TRANSLATIONS: Record<string, string> = {
+const LOCATION_TRANSLATIONS = {
   "New York": "Нью-Йорк",
   "Los Angeles": "Лос-Анджелес",
   "San Francisco": "Сан-Франциско",
@@ -109,11 +81,11 @@ const LOCATION_TRANSLATIONS: Record<string, string> = {
 };
 
 // Утиліти
-async function delay(ms: number): Promise<void> {
+async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchHtml(url: string): Promise<string | null> {
+async function fetchHtml(url) {
   try {
     const response = await fetch(url, {
       headers: {
@@ -133,8 +105,7 @@ async function fetchHtml(url: string): Promise<string | null> {
   }
 }
 
-function parseDateFromSlug(slug: string): string | null {
-  // Формат slug: YYMMDD... (наприклад, 660219bg-new-york)
+function parseDateFromSlug(slug) {
   const match = slug.match(/^(\d{2})(\d{2})(\d{2})/);
   if (!match) return null;
 
@@ -150,7 +121,7 @@ function parseDateFromSlug(slug: string): string | null {
   }
 }
 
-function detectLectureType(title: string, slug: string): { type: string; bookSlug: string | null } {
+function detectLectureType(title, slug) {
   const titleLower = title.toLowerCase();
   const slugLower = slug.toLowerCase();
 
@@ -179,7 +150,7 @@ function detectLectureType(title: string, slug: string): { type: string; bookSlu
   return { type: "Lecture", bookSlug: null };
 }
 
-function parseChapterVerse(title: string): { chapter: number | null; verse: string | null } {
+function parseChapterVerse(title) {
   const match = title.match(/(\d+)\.(\d+(?:-\d+)?)/);
   if (!match) return { chapter: null, verse: null };
 
@@ -189,8 +160,8 @@ function parseChapterVerse(title: string): { chapter: number | null; verse: stri
   };
 }
 
-function transliterateTitle(title: string): string {
-  const replacements: Record<string, string> = {
+function transliterateTitle(title) {
+  const replacements = {
     "Bhagavad-gita": "Бгаґавад-ґіта",
     "Bhagavad-gītā": "Бгаґавад-ґіта",
     "Srimad-Bhagavatam": "Шрімад-Бгаґаватам",
@@ -208,45 +179,35 @@ function transliterateTitle(title: string): string {
 }
 
 // Парсер лекції
-function parseLecture(html: string, slug: string): { metadata: LectureMetadata; paragraphs: LectureParagraph[] } | null {
+function parseLecture(html, slug) {
   const $ = cheerio.load(html);
 
-  // Витягти заголовок
   const title = $("h1").first().text().trim() || $("title").text().trim();
   if (!title) {
     console.warn(`No title found for ${slug}`);
     return null;
   }
 
-  // Витягти дату
   const lectureDate = parseDateFromSlug(slug);
   if (!lectureDate) {
     console.warn(`Could not parse date from slug: ${slug}`);
     return null;
   }
 
-  // Витягти локацію
   let location = "Unknown";
   const slugParts = slug.split("-");
   if (slugParts.length > 1) {
     location = slugParts.slice(1).join(" ").replace(/_/g, " ");
-    // Capitalize first letter of each word
     location = location.split(" ").map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(" ");
   }
 
-  // Визначити тип лекції
   const { type: lectureType, bookSlug } = detectLectureType(title, slug);
-
-  // Витягти главу/вірш
   const { chapter, verse } = parseChapterVerse(title);
-
-  // Витягти аудіо URL
   const audioUrl = $("audio source").attr("src") || $("audio").attr("src") || null;
 
-  // Витягти параграфи
-  const paragraphs: LectureParagraph[] = [];
+  const paragraphs = [];
   const contentDiv = $(".r-text, .content, article, main").first();
   const paragraphElements = contentDiv.length ? contentDiv.find("p") : $("p");
 
@@ -263,7 +224,7 @@ function parseLecture(html: string, slug: string): { metadata: LectureMetadata; 
     }
   });
 
-  const metadata: LectureMetadata = {
+  const metadata = {
     slug,
     title_en: title,
     title_ua: transliterateTitle(title),
@@ -280,8 +241,8 @@ function parseLecture(html: string, slug: string): { metadata: LectureMetadata; 
   return { metadata, paragraphs };
 }
 
-// Отримати список всіх slug'ів лекцій
-async function fetchLectureSlugs(): Promise<string[]> {
+// Отримати список slug'ів
+async function fetchLectureSlugs() {
   console.log("Fetching lecture list from Vedabase...");
 
   const html = await fetchHtml(`${VEDABASE_BASE_URL}/`);
@@ -291,9 +252,8 @@ async function fetchLectureSlugs(): Promise<string[]> {
   }
 
   const $ = cheerio.load(html);
-  const slugs: string[] = [];
+  const slugs = [];
 
-  // Шукаємо посилання на лекції
   $('a[href*="/transcripts/"]').each((_, el) => {
     const href = $(el).attr("href");
     if (href) {
@@ -304,15 +264,13 @@ async function fetchLectureSlugs(): Promise<string[]> {
     }
   });
 
-  // Унікальні slug'и
   return [...new Set(slugs)];
 }
 
-// Імпортувати одну лекцію в БД
-async function importLecture(slug: string, dryRun: boolean = false): Promise<boolean> {
+// Імпортувати одну лекцію
+async function importLecture(slug, dryRun = false) {
   console.log(`\nProcessing: ${slug}`);
 
-  // Перевірити чи вже існує
   const { data: existing } = await supabase
     .from("lectures")
     .select("id")
@@ -324,14 +282,12 @@ async function importLecture(slug: string, dryRun: boolean = false): Promise<boo
     return true;
   }
 
-  // Завантажити HTML
   const html = await fetchHtml(`${VEDABASE_BASE_URL}/${slug}/`);
   if (!html) {
     console.error(`  Failed to fetch: ${slug}`);
     return false;
   }
 
-  // Парсити
   const result = parseLecture(html, slug);
   if (!result) {
     console.error(`  Failed to parse: ${slug}`);
@@ -349,7 +305,6 @@ async function importLecture(slug: string, dryRun: boolean = false): Promise<boo
     return true;
   }
 
-  // Вставити лекцію
   const { data: lecture, error: lectureError } = await supabase
     .from("lectures")
     .insert(metadata)
@@ -361,7 +316,6 @@ async function importLecture(slug: string, dryRun: boolean = false): Promise<boo
     return false;
   }
 
-  // Вставити параграфи
   if (paragraphs.length > 0 && lecture) {
     const paragraphsWithLectureId = paragraphs.map((p) => ({
       ...p,
@@ -385,7 +339,6 @@ async function importLecture(slug: string, dryRun: boolean = false): Promise<boo
 async function main() {
   const args = process.argv.slice(2);
 
-  // Парсити аргументи
   const limitIndex = args.indexOf("--limit");
   const limit = limitIndex !== -1 ? parseInt(args[limitIndex + 1]) : undefined;
 
@@ -403,15 +356,13 @@ async function main() {
   if (offset) console.log(`Offset: ${offset}`);
   if (singleSlug) console.log(`Single slug: ${singleSlug}`);
 
-  let slugs: string[];
+  let slugs;
 
   if (singleSlug) {
     slugs = [singleSlug];
   } else {
     slugs = await fetchLectureSlugs();
     console.log(`Found ${slugs.length} lectures`);
-
-    // Застосувати offset та limit
     slugs = slugs.slice(offset, limit ? offset + limit : undefined);
   }
 
@@ -425,22 +376,17 @@ async function main() {
 
     try {
       const success = await importLecture(slug, dryRun);
-      if (success) {
-        successCount++;
-      } else {
-        failCount++;
-      }
+      if (success) successCount++;
+      else failCount++;
     } catch (error) {
       console.error(`Error processing ${slug}:`, error);
       failCount++;
     }
 
-    // Rate limiting
     if (i < slugs.length - 1) {
       await delay(DELAY_MS);
     }
 
-    // Прогрес
     if ((i + 1) % 10 === 0) {
       console.log(`\n--- Progress: ${i + 1}/${slugs.length} (${successCount} success, ${failCount} failed) ---\n`);
     }

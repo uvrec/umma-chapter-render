@@ -1,8 +1,9 @@
+#!/usr/bin/env node
 /**
  * Масовий імпорт листів Прабгупади з Vedabase.io
  *
  * Використання:
- *   npx tsx scripts/import-letters-vedabase.ts
+ *   node scripts/import-letters-vedabase.js
  *
  * Опції:
  *   --limit <number>  - обмежити кількість листів для імпорту
@@ -30,21 +31,8 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Типи
-interface LetterMetadata {
-  slug: string;
-  recipient_en: string;
-  recipient_ua: string | null;
-  letter_date: string;
-  location_en: string;
-  location_ua: string | null;
-  reference: string | null;
-  content_en: string;
-  content_ua: string | null;
-}
-
 // Маппінг локацій
-const LOCATION_TRANSLATIONS: Record<string, string> = {
+const LOCATION_TRANSLATIONS = {
   "New York": "Нью-Йорк",
   "Los Angeles": "Лос-Анджелес",
   "San Francisco": "Сан-Франциско",
@@ -61,11 +49,11 @@ const LOCATION_TRANSLATIONS: Record<string, string> = {
 };
 
 // Утиліти
-async function delay(ms: number): Promise<void> {
+async function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchHtml(url: string): Promise<string | null> {
+async function fetchHtml(url) {
   try {
     const response = await fetch(url, {
       headers: {
@@ -85,8 +73,7 @@ async function fetchHtml(url: string): Promise<string | null> {
   }
 }
 
-function parseDateFromSlug(slug: string): string | null {
-  // Формат: YYMMDD_recipient або подібні
+function parseDateFromSlug(slug) {
   const match = slug.match(/^(\d{2})(\d{2})(\d{2})/);
   if (!match) return null;
 
@@ -102,62 +89,51 @@ function parseDateFromSlug(slug: string): string | null {
   }
 }
 
-function parseRecipientFromSlug(slug: string): string {
-  // Видаляємо дату з початку та очищаємо
+function parseRecipientFromSlug(slug) {
   const withoutDate = slug.replace(/^\d{6}_?/, "");
-  // Замінюємо підкреслення на пробіли
   const cleaned = withoutDate.replace(/_/g, " ");
-  // Capitalize
   return cleaned.split(" ").map(word =>
     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
   ).join(" ");
 }
 
 // Парсер листа
-function parseLetter(html: string, slug: string): LetterMetadata | null {
+function parseLetter(html, slug) {
   const $ = cheerio.load(html);
 
-  // Витягти заголовок (зазвичай містить отримувача)
   const title = $("h1").first().text().trim();
 
-  // Витягти дату
   const letterDate = parseDateFromSlug(slug);
   if (!letterDate) {
     console.warn(`Could not parse date from slug: ${slug}`);
     return null;
   }
 
-  // Витягти отримувача
   let recipient = parseRecipientFromSlug(slug);
-  // Спробувати витягти з заголовка
   const titleMatch = title.match(/(?:to|Letter to)\s+(.+?)(?:\s*[-–—]|\s*$)/i);
   if (titleMatch) {
     recipient = titleMatch[1].trim();
   }
 
-  // Витягти локацію
   let location = "Unknown";
   const locationMatch = html.match(/(?:from|written in|written at)\s+([A-Za-z\s]+?)(?:[,\.\n])/i);
   if (locationMatch) {
     location = locationMatch[1].trim();
   }
 
-  // Витягти reference
-  let reference: string | null = null;
+  let reference = null;
   const refMatch = html.match(/(?:Ref|Reference)[:\s]+([^\n<]+)/i);
   if (refMatch) {
     reference = refMatch[1].trim();
   }
 
-  // Витягти контент листа
   const contentDiv = $(".r-text, .letter-content, .content, article").first();
   let content = "";
 
   if (contentDiv.length) {
     content = contentDiv.text().trim();
   } else {
-    // Fallback: витягти всі параграфи
-    const paragraphs: string[] = [];
+    const paragraphs = [];
     $("p").each((_, el) => {
       const text = $(el).text().trim();
       if (text && text.length > 20) {
@@ -185,8 +161,8 @@ function parseLetter(html: string, slug: string): LetterMetadata | null {
   };
 }
 
-// Отримати список slug'ів листів за рік
-async function fetchLetterSlugsByYear(year: number): Promise<string[]> {
+// Отримати slug'и за рік
+async function fetchLetterSlugsByYear(year) {
   console.log(`Fetching letters for year ${year}...`);
 
   const html = await fetchHtml(`${VEDABASE_BASE_URL}/${year}/`);
@@ -196,12 +172,11 @@ async function fetchLetterSlugsByYear(year: number): Promise<string[]> {
   }
 
   const $ = cheerio.load(html);
-  const slugs: string[] = [];
+  const slugs = [];
 
   $('a[href*="/letters/"]').each((_, el) => {
     const href = $(el).attr("href");
     if (href) {
-      // Шукаємо slug після /letters/YYYY/
       const match = href.match(/\/letters\/\d{4}\/([^/]+)/);
       if (match && match[1]) {
         slugs.push(match[1]);
@@ -213,7 +188,7 @@ async function fetchLetterSlugsByYear(year: number): Promise<string[]> {
 }
 
 // Отримати всі роки
-async function fetchAvailableYears(): Promise<number[]> {
+async function fetchAvailableYears() {
   console.log("Fetching available years...");
 
   const html = await fetchHtml(`${VEDABASE_BASE_URL}/`);
@@ -223,7 +198,7 @@ async function fetchAvailableYears(): Promise<number[]> {
   }
 
   const $ = cheerio.load(html);
-  const years: number[] = [];
+  const years = [];
 
   $('a[href*="/letters/"]').each((_, el) => {
     const href = $(el).attr("href");
@@ -239,10 +214,9 @@ async function fetchAvailableYears(): Promise<number[]> {
 }
 
 // Імпортувати один лист
-async function importLetter(slug: string, year: number, dryRun: boolean = false): Promise<boolean> {
+async function importLetter(slug, year, dryRun = false) {
   console.log(`  Processing: ${slug}`);
 
-  // Перевірити чи існує
   const { data: existing } = await supabase
     .from("letters")
     .select("id")
@@ -254,14 +228,12 @@ async function importLetter(slug: string, year: number, dryRun: boolean = false)
     return true;
   }
 
-  // Завантажити HTML
   const html = await fetchHtml(`${VEDABASE_BASE_URL}/${year}/${slug}/`);
   if (!html) {
     console.error(`    Failed to fetch`);
     return false;
   }
 
-  // Парсити
   const metadata = parseLetter(html, slug);
   if (!metadata) {
     console.error(`    Failed to parse`);
@@ -276,7 +248,6 @@ async function importLetter(slug: string, year: number, dryRun: boolean = false)
     return true;
   }
 
-  // Вставити в БД
   const { error } = await supabase.from("letters").insert(metadata);
 
   if (error) {
@@ -292,7 +263,6 @@ async function importLetter(slug: string, year: number, dryRun: boolean = false)
 async function main() {
   const args = process.argv.slice(2);
 
-  // Парсити аргументи
   const limitIndex = args.indexOf("--limit");
   const limit = limitIndex !== -1 ? parseInt(args[limitIndex + 1]) : undefined;
 
@@ -319,13 +289,11 @@ async function main() {
   let totalProcessed = 0;
 
   if (singleSlug && specificYear) {
-    // Імпортувати один конкретний лист
     const success = await importLetter(singleSlug, specificYear, dryRun);
     if (success) successCount++;
     else failCount++;
     totalProcessed = 1;
   } else {
-    // Отримати роки
     const years = specificYear ? [specificYear] : await fetchAvailableYears();
     console.log(`\nYears to process: ${years.join(", ")}`);
 
@@ -335,7 +303,6 @@ async function main() {
       const slugs = await fetchLetterSlugsByYear(year);
       console.log(`Found ${slugs.length} letters for ${year}`);
 
-      // Застосувати offset та limit
       let toProcess = slugs;
       if (offset > totalProcessed) {
         const skip = offset - totalProcessed;
