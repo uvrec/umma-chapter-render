@@ -28,7 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Mail, Search, Calendar, MapPin, User } from "lucide-react";
+import { Loader2, Mail, Search, Calendar, MapPin, User, BookOpen, Mic } from "lucide-react";
+import { Link } from "react-router-dom";
 import type {
   Letter,
   LetterFilters,
@@ -188,13 +189,39 @@ export const LettersLibrary = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Library Navigation Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6">
+          <Link
+            to="/library"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>{language === "ua" ? "Книги" : "Books"}</span>
+          </Link>
+          <Link
+            to="/library/lectures"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Mic className="w-4 h-4" />
+            <span>{language === "ua" ? "Лекції" : "Lectures"}</span>
+          </Link>
+          <Link
+            to="/library/letters"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm"
+          >
+            <Mail className="w-4 h-4" />
+            <span>{language === "ua" ? "Листи" : "Letters"}</span>
+            <span className="text-xs opacity-80">({letters.length})</span>
+          </Link>
+        </div>
+
         {/* Заголовок */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">
-            Листи Шріли Прабгупади
+            {language === "ua" ? "Листи Шріли Прабгупади" : "Letters of Srila Prabhupada"}
           </h1>
           <p className="text-muted-foreground">
-            Історична листівка (1947-1977)
+            {language === "ua" ? "Історична листівка (1947-1977)" : "Historical correspondence (1947-1977)"}
           </p>
         </div>
 
