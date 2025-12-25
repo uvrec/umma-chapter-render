@@ -85,6 +85,15 @@ import StaticPages from "./pages/admin/StaticPages";
 import { NoIRedirect } from "./pages/NoIRedirect";
 import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
+import { BookAuthorPage } from "./pages/book/BookAuthorPage";
+import { BookPronunciationPage } from "./pages/book/BookPronunciationPage";
+import { BookGlossaryPage } from "./pages/book/BookGlossaryPage";
+import { BookDedicationPage } from "./pages/book/BookDedicationPage";
+import { BookDisciplicSuccessionPage } from "./pages/book/BookDisciplicSuccessionPage";
+import { BookSettingsRoutePage } from "./pages/book/BookSettingsRoutePage";
+import { BookUserContentPage } from "./pages/book/BookUserContentPage";
+import { BookGalleriesPage } from "./pages/book/BookGalleriesPage";
+import { UserContentProvider } from "./contexts/UserContentContext";
 import Highlights from "./pages/admin/Highlights";
 import NumCal from "./pages/admin/NumCal";
 import Install from "./pages/Install";
@@ -99,6 +108,7 @@ const App = () => (
         <AuthProvider>
           <TooltipProvider>
             <ModernAudioProvider>
+              <UserContentProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
@@ -110,6 +120,28 @@ const App = () => (
                   {/* Нові маршрути читання БД */}
                   <Route path="/veda-reader/:bookId" element={<BookOverview />} />
                   <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+
+                  {/* Book resources pages */}
+                  <Route path="/veda-reader/:bookId/author" element={<BookAuthorPage />} />
+                  <Route path="/veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
+                  <Route path="/veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
+                  <Route path="/veda-reader/:bookId/dedication" element={<BookDedicationPage />} />
+                  <Route path="/veda-reader/:bookId/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+                  <Route path="/veda-reader/:bookId/settings" element={<BookSettingsRoutePage />} />
+                  <Route path="/veda-reader/:bookId/bookmarks" element={<BookUserContentPage />} />
+                  <Route path="/veda-reader/:bookId/notes" element={<BookUserContentPage />} />
+                  <Route path="/veda-reader/:bookId/highlights" element={<BookUserContentPage />} />
+                  <Route path="/veda-reader/:bookId/galleries" element={<BookGalleriesPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/author" element={<BookAuthorPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/pronunciation" element={<BookPronunciationPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/glossary" element={<BookGlossaryPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/dedication" element={<BookDedicationPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/settings" element={<BookSettingsRoutePage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/bookmarks" element={<BookUserContentPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
+                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
                   <Route
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
@@ -229,6 +261,7 @@ const App = () => (
                 <ModernGlobalPlayer />
                 <GlobalSettingsPanel />
               </BrowserRouter>
+              </UserContentProvider>
             </ModernAudioProvider>
           </TooltipProvider>
         </AuthProvider>
