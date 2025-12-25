@@ -199,15 +199,32 @@ function parseLecture(html: string, slug: string) {
     audio_timecode: number | null;
   }> = [];
 
-  const contentDiv = doc.querySelector(".r-text, .content, article, main");
-  const paragraphElements = contentDiv?.querySelectorAll("p") || doc.querySelectorAll("p");
+  // Vedabase використовує div з класом "copy" для параграфів
+  const mainContent = doc.querySelector("main") || doc.querySelector("body");
 
-  let paragraphNumber = 1;
-  paragraphElements.forEach((el) => {
+  // Шукаємо div елементи з класом "copy" (основний контент Vedabase)
+  let paragraphElements = mainContent?.querySelectorAll('div[class*="copy"]');
+
+  // Якщо не знайдено, спробувати <p> теги
+  if (!paragraphElements || paragraphElements.length === 0) {
+    paragraphElements = mainContent?.querySelectorAll("p") || doc.querySelectorAll("p");
+  }
+
+  // Паттерни для пропуску елементів навігації
+  const skipPatterns = ["previous", "next", "share", "download", "copyright", "all rights reserved", "vedabase.io"];
+
+  let paragraphNumber = 0;
+  paragraphElements?.forEach((el) => {
     const text = el.textContent?.trim() || "";
     if (text && text.length > 10) {
+      // Пропустити елементи навігації
+      const textLower = text.toLowerCase();
+      const shouldSkip = skipPatterns.some(pattern => textLower.includes(pattern));
+      if (shouldSkip) return;
+
+      paragraphNumber++;
       paragraphs.push({
-        paragraph_number: paragraphNumber++,
+        paragraph_number: paragraphNumber,
         content_en: text,
         content_ua: null,
         audio_timecode: null,

@@ -129,11 +129,10 @@ export const LectureView = () => {
     };
   }, [paragraphs]);
 
-  // Підсвітка санскритських термінів
-  const highlightSanskritTerms = (text: string): JSX.Element => {
-    // Знайти слова з діакритичними знаками або в курсиві
+  // Форматування тексту (санскритські терміни просто курсивом, без підкреслень)
+  const formatText = (text: string): JSX.Element => {
+    // Слова з діакритичними знаками - тільки курсив
     const diacriticPattern = /(\b\w*[āīūṛṝḷḹēōṃḥṇṭḍśṣ]\w*\b)/gi;
-
     const parts = text.split(diacriticPattern);
 
     return (
@@ -141,13 +140,9 @@ export const LectureView = () => {
         {parts.map((part, idx) => {
           if (part.match(diacriticPattern)) {
             return (
-              <span
-                key={idx}
-                className="italic text-primary cursor-help underline decoration-dotted"
-                title={`Санскритський термін: ${part}`}
-              >
+              <em key={idx} className="not-italic font-medium">
                 {part}
-              </span>
+              </em>
             );
           }
           return <span key={idx}>{part}</span>;
@@ -290,7 +285,7 @@ export const LectureView = () => {
 
         {/* Текст лекції */}
         <Card className="p-8">
-          <div className="prose prose-lg dark:prose-invert max-w-none">
+          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
             {paragraphs.map((paragraph) => {
               const content =
                 language === "ua" && paragraph.content_ua
@@ -301,21 +296,19 @@ export const LectureView = () => {
                 currentParagraph === paragraph.paragraph_number;
 
               return (
-                <div
+                <p
                   key={paragraph.id}
                   ref={(el) =>
                     (paragraphRefs.current[paragraph.paragraph_number] = el)
                   }
-                  className={`mb-6 p-4 rounded-lg transition-all ${
+                  className={`mb-4 leading-relaxed transition-colors ${
                     isCurrentParagraph
-                      ? "bg-primary/10 border-l-4 border-primary"
-                      : "hover:bg-muted/50"
+                      ? "bg-primary/10 -mx-2 px-2 py-1 rounded border-l-2 border-primary"
+                      : ""
                   }`}
                 >
-                  <p className="leading-relaxed text-foreground">
-                    {highlightSanskritTerms(content)}
-                  </p>
-                </div>
+                  {formatText(content)}
+                </p>
               );
             })}
           </div>
