@@ -9,7 +9,7 @@ export { GITA_GLOSSARY_EN, GITA_GLOSSARY_INFO } from "./gita-glossary";
 import { ISO_GLOSSARY_UA, ISO_GLOSSARY_EN } from "./iso-glossary";
 import { RAJA_VIDYA_GLOSSARY_UA } from "./raja-vidya-glossary";
 import { GITA_GLOSSARY_EN } from "./gita-glossary";
-import { type GlossaryTerm } from "@/components/book/BookGlossary";
+import { type GlossaryTermData } from "@/components/book/BookGlossary";
 
 /**
  * Get glossary for a specific book by slug
@@ -17,7 +17,7 @@ import { type GlossaryTerm } from "@/components/book/BookGlossary";
  * @param language - "ua" or "en"
  * @returns Array of glossary terms for the book
  */
-export const getGlossaryForBook = (bookSlug: string, language: string = "ua"): GlossaryTerm[] => {
+export const getGlossaryForBook = (bookSlug: string, language: string = "ua"): GlossaryTermData[] => {
   switch (bookSlug) {
     case "iso":
     case "sri-isopanishad":

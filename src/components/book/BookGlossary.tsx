@@ -16,7 +16,7 @@ interface BookGlossaryProps {
   terms?: GlossaryTermData[];
 }
 
-interface GlossaryTermData {
+export interface GlossaryTermData {
   term: string;
   termSanskrit?: string;
   definition: string;
