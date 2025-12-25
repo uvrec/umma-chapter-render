@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { LectureImporter } from "@/components/admin/LectureImporter";
+import { BulkVedabaseImporter } from "@/components/admin/BulkVedabaseImporter";
 import {
   ArrowLeft,
   BookOpen,
@@ -22,6 +23,7 @@ import {
   FileText,
   Info,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -168,10 +170,14 @@ export default function LectureImport() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="import">
               <FileText className="w-4 h-4 mr-2" />
-              Імпорт
+              Імпорт JSON
+            </TabsTrigger>
+            <TabsTrigger value="bulk">
+              <Download className="w-4 h-4 mr-2" />
+              Масовий імпорт
             </TabsTrigger>
             <TabsTrigger value="docs">
               <BookOpen className="w-4 h-4 mr-2" />
@@ -183,9 +189,14 @@ export default function LectureImport() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Tab: Імпорт */}
+          {/* Tab: Імпорт JSON */}
           <TabsContent value="import" className="mt-6">
             <LectureImporter />
+          </TabsContent>
+
+          {/* Tab: Масовий імпорт */}
+          <TabsContent value="bulk" className="mt-6">
+            <BulkVedabaseImporter type="lectures" />
           </TabsContent>
 
           {/* Tab: Документація */}
