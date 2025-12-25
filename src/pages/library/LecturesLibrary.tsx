@@ -38,7 +38,9 @@ import {
   SortDesc,
   Mic,
   Play,
+  Mail,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const LecturesLibrary = () => {
   const navigate = useNavigate();
@@ -220,6 +222,32 @@ export const LecturesLibrary = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
+        {/* Library Navigation Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6">
+          <Link
+            to="/library"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>{language === "ua" ? "Книги" : "Books"}</span>
+          </Link>
+          <Link
+            to="/library/lectures"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm"
+          >
+            <Mic className="w-4 h-4" />
+            <span>{language === "ua" ? "Лекції" : "Lectures"}</span>
+            <span className="text-xs opacity-80">({lectures.length})</span>
+          </Link>
+          <Link
+            to="/library/letters"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Mail className="w-4 h-4" />
+            <span>{language === "ua" ? "Листи" : "Letters"}</span>
+          </Link>
+        </div>
+
         {/* Заголовок */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
