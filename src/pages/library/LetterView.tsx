@@ -10,7 +10,7 @@
  * - Мовний переключач (UA/EN)
  */
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,32 +19,15 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   ArrowLeft,
   Calendar,
   MapPin,
   User,
-  FileText,
   Loader2,
 } from "lucide-react";
 import type { Letter } from "@/types/letter";
 
-// Санскритські терміни для підсвітки (можна розширити)
-const SANSKRIT_PATTERNS = [
-  /Kṛṣṇa/gi,
-  /Krishna/gi,
-  /Bhagavad-gītā/gi,
-  /Bhagavad-gita/gi,
-  /Śrīmad-Bhāgavatam/gi,
-  /Srimad-Bhagavatam/gi,
-  /dharma/gi,
-  /bhakti/gi,
-  /yoga/gi,
-  /karma/gi,
-  /Prabhupāda/gi,
-  /Prabhupada/gi,
-];
 
 export const LetterView = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -68,28 +51,6 @@ export const LetterView = () => {
     },
     enabled: !!slug,
   });
-
-  // Підсвітити санскритські терміни
-  const highlightedContent = useMemo(() => {
-    if (!letter) return "";
-
-    const content = language === "ua" && letter.content_ua
-      ? letter.content_ua
-      : letter.content_en;
-
-    let highlighted = content;
-
-    // Замінити кожен санскритський термін на span з класом
-    SANSKRIT_PATTERNS.forEach((pattern) => {
-      highlighted = highlighted.replace(
-        pattern,
-        (match) =>
-          `<span class="sanskrit-term font-semibold text-primary hover:underline cursor-help" title="Санскритський термін">${match}</span>`
-      );
-    });
-
-    return highlighted;
-  }, [letter, language]);
 
   if (isLoading) {
     return (
@@ -213,33 +174,12 @@ export const LetterView = () => {
 
         {/* Текст листа */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FileText className="w-5 h-5 mr-2" />
-              Текст листа
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div
-              className="prose prose-slate dark:prose-invert max-w-none leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: highlightedContent }}
-              style={{
-                whiteSpace: "pre-wrap",
-                fontSize: "1.05rem",
-                lineHeight: "1.8",
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Інфо про санскритські терміни */}
-        <Card className="mt-6 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
           <CardContent className="pt-6">
-            <p className="text-sm text-blue-900 dark:text-blue-100">
-              💡 <strong>Підказка:</strong> Санскритські терміни виділені{" "}
-              <span className="font-semibold text-primary">кольором</span>.
-              Наведіть курсор для більш детальної інформації.
-            </p>
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground whitespace-pre-wrap leading-relaxed">
+              {language === "ua" && letter.content_ua
+                ? letter.content_ua
+                : letter.content_en}
+            </div>
           </CardContent>
         </Card>
 
