@@ -346,7 +346,8 @@ async function fetchLectureSlugs(): Promise<string[]> {
 
   const slugs: string[] = [];
 
-  doc.querySelectorAll('a[href*="/transcripts/"]').forEach((el) => {
+  doc.querySelectorAll('a[href*="/transcripts/"]').forEach((node) => {
+    const el = node as unknown as Element;
     const href = el.getAttribute("href");
     if (href) {
       const match = href.match(/\/transcripts\/([^/]+)/);
@@ -371,7 +372,8 @@ async function fetchLetterSlugsByYear(year: number): Promise<string[]> {
 
   const slugs: string[] = [];
 
-  doc.querySelectorAll('a[href*="/letters/"]').forEach((el) => {
+  doc.querySelectorAll('a[href*="/letters/"]').forEach((node) => {
+    const el = node as unknown as Element;
     const href = el.getAttribute("href");
     if (href) {
       const match = href.match(/\/letters\/\d{4}\/([^/]+)/);
@@ -396,7 +398,8 @@ async function fetchLetterYears(): Promise<number[]> {
 
   const years: number[] = [];
 
-  doc.querySelectorAll('a[href*="/letters/"]').forEach((el) => {
+  doc.querySelectorAll('a[href*="/letters/"]').forEach((node) => {
+    const el = node as unknown as Element;
     const href = el.getAttribute("href");
     if (href) {
       const match = href.match(/\/letters\/(\d{4})/);
