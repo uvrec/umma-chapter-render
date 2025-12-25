@@ -182,24 +182,6 @@ export const LetterView = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Додаткова інформація */}
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>
-            Це історичний лист А.Ч. Бгактіведанти Свамі Прабгупади
-          </p>
-          <p className="mt-1">
-            Джерело:{" "}
-            <a
-              href={`https://vedabase.io/en/library/letters/${letter.slug}/`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              Vedabase
-            </a>
-          </p>
-        </div>
       </main>
       <Footer />
     </div>
