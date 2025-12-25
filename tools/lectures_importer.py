@@ -226,30 +226,42 @@ class LecturesImporter:
         paragraphs = []
 
         # Знайти основний контент лекції
-        # Зазвичай це div з класом content, article, або main
-        content_div = (
-            soup.find("div", class_=re.compile(r"content|transcript|lecture-text", re.I))
-            or soup.find("article")
-            or soup.find("main")
-        )
+        # Vedabase використовує div.copy для параграфів
+        main_content = soup.find("main")
 
-        if not content_div:
-            # Fallback: шукаємо всі параграфи на сторінці
-            content_div = soup.find("body")
+        if not main_content:
+            print("[WARNING] Не знайдено main контейнер")
+            main_content = soup.find("body")
 
-        if not content_div:
+        if not main_content:
             print("[WARNING] Не знайдено контент лекції")
             return []
 
-        # Витягнути всі параграфи
-        para_tags = content_div.find_all("p")
+        # Vedabase структура: параграфи в div з класом "copy" або "em-mb-4"
+        # Шукаємо div елементи з класом "copy" (основний контент)
+        para_tags = main_content.find_all("div", class_=lambda c: c and "copy" in c)
 
-        for idx, p_tag in enumerate(para_tags, start=1):
+        # Якщо не знайдено, спробувати стандартні <p> теги
+        if not para_tags:
+            para_tags = main_content.find_all("p")
+
+        paragraph_number = 0
+        for p_tag in para_tags:
             text = p_tag.get_text(separator=" ", strip=True)
 
             # Пропустити порожні або дуже короткі параграфи
             if not text or len(text) < 10:
                 continue
+
+            # Пропустити елементи навігації та UI (зазвичай містять специфічні паттерни)
+            text_lower = text.lower()
+            if any(skip in text_lower for skip in [
+                "previous", "next", "share", "download", "copyright",
+                "all rights reserved", "vedabase.io"
+            ]):
+                continue
+
+            paragraph_number += 1
 
             # Витягнути санскритські терміни (слова в курсиві або з діакритичними знаками)
             sanskrit_terms = self._extract_sanskrit_terms(p_tag, text)
@@ -258,7 +270,7 @@ class LecturesImporter:
             timecode = self._extract_timecode(p_tag)
 
             paragraph = {
-                "paragraph_number": idx,
+                "paragraph_number": paragraph_number,
                 "content_en": text,
                 "audio_timecode": timecode,
                 "sanskrit_terms": sanskrit_terms,
