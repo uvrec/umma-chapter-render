@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Skeleton } from '@/components/ui/skeleton';
+import { BookOpen, Mic, Mail } from 'lucide-react';
 export const Library = () => {
   const {
     language,
@@ -35,19 +36,31 @@ export const Library = () => {
           
         </div>
 
-        {/* Future tabs - commented for now */}
-        {/* <div className="flex gap-6 mb-8 border-b border-border">
-          <button className="pb-3 border-b-2 border-primary font-medium">
-            {t('Книги', 'Books')}
-            <span className="ml-2 text-sm text-muted-foreground">({books.length})</span>
-          </button>
-          <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-            {t('Лекції', 'Transcripts')}
-          </button>
-          <button className="pb-3 text-muted-foreground hover:text-foreground transition-colors">
-            {t('Листи', 'Letters')}
-          </button>
-         </div> */}
+        {/* Library Navigation Tabs */}
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+          <Link
+            to="/library"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium shadow-sm"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>{t('Книги', 'Books')}</span>
+            <span className="text-xs opacity-80">({books.length})</span>
+          </Link>
+          <Link
+            to="/library/lectures"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Mic className="w-4 h-4" />
+            <span>{t('Лекції', 'Lectures')}</span>
+          </Link>
+          <Link
+            to="/library/letters"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Mail className="w-4 h-4" />
+            <span>{t('Листи', 'Letters')}</span>
+          </Link>
+        </div>
 
         {/* Loading skeleton - адаптивна сітка */}
         {isLoading && <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
