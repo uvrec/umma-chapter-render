@@ -257,10 +257,52 @@ function parseLetter(html: string, slug: string) {
 
   const title = doc.querySelector("h1")?.textContent?.trim() || "";
 
-  const letterDate = parseDateFromSlug(slug);
+  // Спробувати отримати дату з slug (формат YYMMDD)
+  let letterDate = parseDateFromSlug(slug);
+
+  // Якщо не вдалося - шукаємо дату в контенті сторінки
   if (!letterDate) {
-    console.warn(`Could not parse date from slug: ${slug}`);
-    return null;
+    // Шукаємо дату у форматі "January 1, 1968" або "1 January 1968" або "68-01-01"
+    const datePatterns = [
+      /(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{4})/i,
+      /(January|February|March|April|May|June|July|August|September|October|November|December)\s+(\d{1,2}),?\s+(\d{4})/i,
+      /(\d{2})-(\d{2})-(\d{2})/,
+    ];
+
+    const months: Record<string, string> = {
+      january: "01", february: "02", march: "03", april: "04",
+      may: "05", june: "06", july: "07", august: "08",
+      september: "09", october: "10", november: "11", december: "12"
+    };
+
+    for (const pattern of datePatterns) {
+      const match = html.match(pattern);
+      if (match) {
+        if (pattern.source.includes("January|February")) {
+          // Format: "1 January 1968" or "January 1, 1968"
+          const monthName = (match[1].toLowerCase().match(/[a-z]+/) ? match[1] : match[2]).toLowerCase();
+          const day = match[1].match(/\d+/) ? match[1] : match[2];
+          const year = match[3];
+          const month = months[monthName];
+          if (month) {
+            letterDate = `${year}-${month}-${day.padStart(2, "0")}`;
+            break;
+          }
+        } else {
+          // Format: "68-01-01"
+          const [, yy, mm, dd] = match;
+          const year = parseInt(yy) > 50 ? `19${yy}` : `20${yy}`;
+          letterDate = `${year}-${mm}-${dd}`;
+          break;
+        }
+      }
+    }
+  }
+
+  // Якщо все ще немає дати - використовуємо placeholder
+  if (!letterDate) {
+    console.warn(`Could not parse date for letter: ${slug}, using placeholder`);
+    letterDate = "1900-01-01";
   }
 
   // Отримувач
@@ -466,7 +508,7 @@ async function importLecture(slug: string): Promise<{ success: boolean; error?: 
 }
 
 // Імпортувати лист
-async function importLetter(slug: string, year: number): Promise<{ success: boolean; error?: string }> {
+async function importLetter(slug: string, _year?: number): Promise<{ success: boolean; error?: string }> {
   // Перевірити чи існує
   const { data: existing } = await supabase
     .from("letters")
@@ -478,7 +520,8 @@ async function importLetter(slug: string, year: number): Promise<{ success: bool
     return { success: true }; // Already exists
   }
 
-  const html = await fetchHtml(`${VEDABASE_BASE_URL}/letters/${year}/${slug}/`);
+  // URL без року - Vedabase використовує прямий шлях до листа
+  const html = await fetchHtml(`${VEDABASE_BASE_URL}/letters/${slug}/`);
   if (!html) {
     return { success: false, error: "Failed to fetch HTML" };
   }
