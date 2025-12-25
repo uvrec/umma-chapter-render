@@ -2,7 +2,7 @@
  * Glossaries index - exports all book glossaries
  */
 
-export { ISO_GLOSSARY_UA, ISO_GLOSSARY_EN } from "./iso-glossary";
+export { ISO_GLOSSARY_UA, ISO_GLOSSARY_EN, type GlossaryTermData } from "./iso-glossary";
 export { RAJA_VIDYA_GLOSSARY_UA, RAJA_VIDYA_BOOK_INFO } from "./raja-vidya-glossary";
 
 import { ISO_GLOSSARY_UA, ISO_GLOSSARY_EN } from "./iso-glossary";
