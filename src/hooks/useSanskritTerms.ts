@@ -89,16 +89,31 @@ export const useSanskritTerms = (opts: Options = {}) => {
     },
   });
 
-  // Зведений масив віршів, уже з “book” та “synonyms”
+  // Зведений масив віршів, уже з "book" та "synonyms" та "verseLink"
   const verses = useMemo(() => {
     if (!data) return [];
     return data.map((verse) => {
       const bookNode = verse.chapters.cantos?.books || verse.chapters.books;
+      const bookSlug = bookNode?.slug;
+      const cantoNumber = verse.chapters.cantos?.canto_number;
+      const chapterNumber = verse.chapters.chapter_number;
+
+      // Build verseLink based on book structure (must match App.tsx routes)
+      let verseLink = "";
+      if (cantoNumber) {
+        // Srimad-Bhagavatam structure with cantos
+        verseLink = `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse.verse_number}`;
+      } else if (bookSlug && chapterNumber) {
+        // Direct book-chapter structure
+        verseLink = `/veda-reader/${bookSlug}/${chapterNumber}/${verse.verse_number}`;
+      }
+
       return {
         ...verse,
         book: bookNode?.title_ua || bookNode?.title_en || "",
-        book_slug: bookNode?.slug,
+        book_slug: bookSlug,
         synonyms: verse.synonyms_ua || verse.synonyms_en || "",
+        verseLink,
       };
     });
   }, [data]);

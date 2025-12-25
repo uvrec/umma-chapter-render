@@ -131,7 +131,7 @@ export const parseSynonymPairs = (raw: string): SynonymPair[] => {
   return pairs;
 };
 
-export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string): GlossaryTerm[] => {
+export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, book: string, verseLink?: string): GlossaryTerm[] => {
   if (!synonyms) return [];
 
   const terms: GlossaryTerm[] = [];
@@ -156,7 +156,8 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
       }
     }
 
-    const link = generateVerseLink(verseNumber);
+    // Use provided verseLink if available, otherwise fallback to glossary search
+    const link = verseLink || '/glossary';
 
     if (dashIndex === -1) {
       // No separator found - add term without meaning (same as VerseCard.tsx)
@@ -189,35 +190,23 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
   return terms;
 };
 
-const generateVerseLink = (verseNumber: string): string => {
-  const lowerVerse = verseNumber.toLowerCase();
-  
-  if (lowerVerse.includes('шб') || lowerVerse.includes('sb')) {
-    return `/verses/srimad-bhagavatam`;
-  } else if (lowerVerse.includes('бг') || lowerVerse.includes('bg')) {
-    return `/verses/bhagavad-gita`;
-  } else if (lowerVerse.includes('īшо') || lowerVerse.includes('iso')) {
-    return `/verses/isopanisad`;
-  }
-  
-  return '/verses';
-};
-
 // Extract all terms from verses data
+// Expects verses with: synonyms, verse_number, book, and optionally verseLink
 export const extractAllTerms = (verses: any[]): GlossaryTerm[] => {
   const allTerms: GlossaryTerm[] = [];
-  
+
   verses.forEach((verse) => {
     if (verse.synonyms) {
       const termsFromVerse = parseTermsFromSynonyms(
         verse.synonyms,
         verse.verse_number,
-        verse.book
+        verse.book,
+        verse.verseLink // Pass the correct verseLink from database query
       );
       allTerms.push(...termsFromVerse);
     }
   });
-  
+
   return allTerms;
 };
 
