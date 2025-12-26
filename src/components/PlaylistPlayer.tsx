@@ -64,7 +64,9 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
       const next = !v;
       try {
         localStorage.setItem("vv_repeat_on", next ? "1" : "0");
-      } catch {}
+      } catch {
+        // localStorage may be unavailable in private browsing mode
+      }
       return next;
     });
   };

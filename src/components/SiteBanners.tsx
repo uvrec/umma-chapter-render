@@ -43,7 +43,9 @@ export default function SiteBanners() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setDismissed(JSON.parse(raw));
-    } catch {}
+    } catch {
+      // localStorage may be unavailable in private browsing mode
+    }
   }, []);
 
   const { data } = useQuery({
@@ -80,7 +82,9 @@ export default function SiteBanners() {
     setDismissed(next);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {}
+    } catch {
+      // localStorage may be unavailable in private browsing mode
+    }
   };
 
   if (!banners.length) return null;

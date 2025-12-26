@@ -82,7 +82,9 @@ function readBlocks(): BlocksState {
         commentary: true,
         ...JSON.parse(raw),
       };
-  } catch {}
+  } catch {
+    // localStorage may be unavailable in private browsing mode
+  }
   return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
 }
 
@@ -90,7 +92,9 @@ function readContinuousReading(): ContinuousReadingState {
   try {
     const raw = localStorage.getItem(LS_KEYS.continuousReading);
     if (raw) return { ...DEFAULTS.continuousReading, ...JSON.parse(raw) };
-  } catch {}
+  } catch {
+    // localStorage may be unavailable in private browsing mode
+  }
   return DEFAULTS.continuousReading;
 }
 

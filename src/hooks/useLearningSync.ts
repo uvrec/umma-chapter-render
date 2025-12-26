@@ -78,10 +78,29 @@ export function useLearningSync(): UseLearningSync {
 
   // Sync from cloud when user logs in
   useEffect(() => {
-    if (user && isOnline) {
-      syncFromCloud();
-    }
-  }, [user?.id, isOnline]);
+    if (!user || !isOnline) return;
+
+    let isCancelled = false;
+
+    const doSync = async () => {
+      try {
+        // Check if cancelled before starting
+        if (isCancelled) return;
+        await syncFromCloud();
+      } catch (error) {
+        // Ignore errors if the effect was cancelled
+        if (!isCancelled) {
+          console.error('Error during initial sync:', error);
+        }
+      }
+    };
+
+    doSync();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user?.id, isOnline, syncFromCloud]);
 
   // Sync to cloud (debounced)
   const debouncedSyncToCloud = useCallback(() => {
@@ -94,7 +113,7 @@ export function useLearningSync(): UseLearningSync {
         syncToCloud();
       }
     }, 2000); // 2 second debounce
-  }, [user, isOnline]);
+  }, [user, isOnline, syncToCloud]);
 
   // Sync words to cloud
   const syncWordsToCloud = async (wordsToSync: LearningWord[]) => {
