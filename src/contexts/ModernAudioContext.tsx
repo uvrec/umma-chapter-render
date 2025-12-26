@@ -140,7 +140,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     [trackPlay],
   );
 
-  // ðŸ”§ Enhanced: Better format support
+  // 🔧 Enhanced: Better format support
   const playTrack = useCallback(
     (track: AudioTrack) => {
       const existingIndex = playlist.findIndex((t) => t.id === track.id);
@@ -148,8 +148,11 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       if (existingIndex >= 0) {
         setCurrentIndex(existingIndex);
       } else {
-        setPlaylist((prev) => [...prev, track]);
-        setCurrentIndex(playlist.length);
+        setPlaylist((prev) => {
+          // Set index to the new track position (end of new playlist)
+          setCurrentIndex(prev.length);
+          return [...prev, track];
+        });
       }
 
       setIsPlaying(true);

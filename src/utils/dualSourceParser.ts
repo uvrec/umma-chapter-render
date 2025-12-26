@@ -311,16 +311,22 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
  * Парсить Gitabase UA сторінку
  */
 export function parseGitabaseCC(html: string, url: string): GitabaseData | null {
-  console.log(`[Gitabase DEBUG] parseGitabaseCC called for URL: ${url}`);
-  console.log(`[Gitabase DEBUG] HTML length: ${html?.length || 0} chars`);
-  console.log(`[Gitabase DEBUG] HTML preview:`, html?.substring(0, 200));
+  const DEBUG = import.meta.env.DEV;
+
+  if (DEBUG) {
+    console.log(`[Gitabase DEBUG] parseGitabaseCC called for URL: ${url}`);
+    console.log(`[Gitabase DEBUG] HTML length: ${html?.length || 0} chars`);
+    console.log(`[Gitabase DEBUG] HTML preview:`, html?.substring(0, 200));
+  }
 
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    console.log(`[Gitabase DEBUG] DOM parsed, body exists:`, !!doc.body);
-    console.log(`[Gitabase DEBUG] All divs count:`, doc.querySelectorAll('div').length);
+    if (DEBUG) {
+      console.log(`[Gitabase DEBUG] DOM parsed, body exists:`, !!doc.body);
+      console.log(`[Gitabase DEBUG] All divs count:`, doc.querySelectorAll('div').length);
+    }
 
     // ⚠️ NOTE: transliteration_ua НЕ парситься з Gitabase!
     // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
@@ -334,14 +340,16 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     // 2. Переклад: div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)
     // 3. Пояснення: div.row:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > p (всі параграфи)
 
-    console.log('[Gitabase] Parsing with EXACT nth-child selectors from user...');
+    if (DEBUG) console.log('[Gitabase] Parsing with EXACT nth-child selectors from user...');
 
     // 1. СИНОНІМИ - div.dia_text
     const diaTextEl = doc.querySelector('div.dia_text');
     if (diaTextEl) {
       synonyms_ua = diaTextEl.textContent?.trim() || '';
-      console.log(`✅ [Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars)`);
-      console.log(`   First 200 chars:`, synonyms_ua.substring(0, 200));
+      if (DEBUG) {
+        console.log(`✅ [Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars)`);
+        console.log(`   First 200 chars:`, synonyms_ua.substring(0, 200));
+      }
 
       // Перевірка чи не англійські слова (ознака що Puppeteer не виконав JS)
       if (synonyms_ua.includes(' — by ') || synonyms_ua.includes(' — the ') ||
@@ -351,25 +359,25 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
         console.error(`   Edge function повернула статичний HTML замість rendered HTML.`);
         console.error(`   Перевірте чи задеплоїлась оновлена версія fetch-html з Puppeteer!`);
       } else {
-        console.log(`✅ [Gitabase] synonyms_ua виглядає коректно (українські переклади)`);
+        if (DEBUG) console.log(`✅ [Gitabase] synonyms_ua виглядає коректно (українські переклади)`);
       }
     } else {
       console.error('❌ [Gitabase] div.dia_text NOT FOUND - Puppeteer не спрацював або HTML порожній!');
-      console.error('   Перевірте логи edge function fetch-html для діагностики.');
+      if (DEBUG) console.error('   Перевірте логи edge function fetch-html для діагностики.');
     }
 
     // 2. ПЕРЕКЛАД - ТОЧНИЙ селектор
     const translationEl = doc.querySelector('div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)');
     if (translationEl) {
       translation_ua = translationEl.textContent?.trim() || '';
-      console.log(`[Gitabase] Found translation_ua via EXACT selector (${translation_ua.length} chars):`, translation_ua.substring(0, 100) + '...');
+      if (DEBUG) console.log(`[Gitabase] Found translation_ua via EXACT selector (${translation_ua.length} chars):`, translation_ua.substring(0, 100) + '...');
     } else {
-      console.warn('[Gitabase] EXACT translation selector NOT FOUND, trying fallback h4 > b');
+      if (DEBUG) console.warn('[Gitabase] EXACT translation selector NOT FOUND, trying fallback h4 > b');
       // Fallback
       const h4b = doc.querySelector('h4 > b');
       if (h4b) {
         translation_ua = h4b.textContent?.trim() || '';
-        console.log(`[Gitabase] Found translation_ua via h4>b fallback (${translation_ua.length} chars)`);
+        if (DEBUG) console.log(`[Gitabase] Found translation_ua via h4>b fallback (${translation_ua.length} chars)`);
       }
     }
 
@@ -384,7 +392,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
         paragraphs = Array.from(commentaryContainer.querySelectorAll('p'));
       }
 
-      console.log(`[Gitabase] Found commentary container with ${paragraphs.length} paragraphs`);
+      if (DEBUG) console.log(`[Gitabase] Found commentary container with ${paragraphs.length} paragraphs`);
 
       const parts: string[] = [];
       const seen = new Set<string>(); // Додаткова перевірка на дублікати
@@ -398,13 +406,13 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       });
 
       purport_ua = parts.join('\n\n');
-      console.log(`[Gitabase] Found purport_ua from EXACT selector (${purport_ua.length} chars total, ${parts.length} unique paragraphs)`);
+      if (DEBUG) console.log(`[Gitabase] Found purport_ua from EXACT selector (${purport_ua.length} chars total, ${parts.length} unique paragraphs)`);
     } else {
-      console.warn('[Gitabase] EXACT commentary selector NOT FOUND, trying fallback div.row');
+      if (DEBUG) console.warn('[Gitabase] EXACT commentary selector NOT FOUND, trying fallback div.row');
 
       // Fallback - всі div.row
       const rows = Array.from(doc.querySelectorAll('div.row'));
-      console.log(`[Gitabase] Fallback: Found ${rows.length} div.row elements`);
+      if (DEBUG) console.log(`[Gitabase] Fallback: Found ${rows.length} div.row elements`);
 
       const commentaryParts: string[] = [];
       const seen = new Set<string>(); // Перевірка на дублікати
@@ -422,18 +430,20 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
 
       if (commentaryParts.length > 0) {
         purport_ua = commentaryParts.join('\n\n');
-        console.log(`[Gitabase] Found purport_ua via fallback (${purport_ua.length} chars, ${commentaryParts.length} unique paragraphs)`);
+        if (DEBUG) console.log(`[Gitabase] Found purport_ua via fallback (${purport_ua.length} chars, ${commentaryParts.length} unique paragraphs)`);
       }
     }
 
-    console.log(`[Gitabase] FINAL RESULTS:`, {
-      hasSynonyms: !!synonyms_ua,
-      hasTranslation: !!translation_ua,
-      hasCommentary: !!purport_ua,
-      synonymsLength: synonyms_ua.length,
-      translationLength: translation_ua.length,
-      commentaryLength: purport_ua.length,
-    });
+    if (DEBUG) {
+      console.log(`[Gitabase] FINAL RESULTS:`, {
+        hasSynonyms: !!synonyms_ua,
+        hasTranslation: !!translation_ua,
+        hasCommentary: !!purport_ua,
+        synonymsLength: synonyms_ua.length,
+        translationLength: translation_ua.length,
+        commentaryLength: purport_ua.length,
+      });
+    }
 
     return {
       transliteration_ua: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього

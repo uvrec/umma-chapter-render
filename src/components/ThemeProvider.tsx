@@ -38,7 +38,9 @@ export function ThemeProvider({
     root.classList.add(theme);
     try {
       localStorage.setItem(storageKey, theme);
-    } catch {}
+    } catch {
+      // localStorage may be unavailable in private browsing mode
+    }
   }, [theme, storageKey]);
 
   const value = useMemo<ThemeProviderState>(
