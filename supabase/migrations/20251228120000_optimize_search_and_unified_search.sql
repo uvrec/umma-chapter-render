@@ -14,6 +14,20 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- ============================================================================
+-- Створюємо конфігурацію для українського тексту з unaccent (accent-insensitive)
+-- ============================================================================
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_ts_config WHERE cfgname = 'simple_unaccent'
+  ) THEN
+    CREATE TEXT SEARCH CONFIGURATION public.simple_unaccent (COPY = simple);
+    ALTER TEXT SEARCH CONFIGURATION public.simple_unaccent
+      ALTER MAPPING FOR hword, hword_part, word WITH unaccent, simple;
+  END IF;
+END $$;
+
+-- ============================================================================
 -- 1. ДОДАЄМО search_vector КОЛОНКИ
 -- ============================================================================
 
@@ -118,7 +132,8 @@ CREATE TRIGGER trg_blog_posts_search_vector
 -- 4. ОНОВЛЮЄМО ІСНУЮЧІ ЗАПИСИ
 -- ============================================================================
 
--- Оновити всі verses (може зайняти час на великих таблицях)
+-- Оновити всі verses (force refresh для всіх записів)
+-- Для ~15k записів це безпечно виконується за кілька секунд
 UPDATE public.verses SET
   search_vector_ua =
     setweight(to_tsvector('simple', COALESCE(translation_ua, '')), 'A') ||
@@ -130,10 +145,9 @@ UPDATE public.verses SET
     setweight(to_tsvector('english', COALESCE(commentary_en, '')), 'B') ||
     setweight(to_tsvector('english', COALESCE(synonyms_en, '')), 'C') ||
     setweight(to_tsvector('simple', COALESCE(transliteration_en, COALESCE(transliteration, ''))), 'D') ||
-    setweight(to_tsvector('simple', COALESCE(sanskrit, '')), 'D')
-WHERE search_vector_ua IS NULL OR search_vector_en IS NULL;
+    setweight(to_tsvector('simple', COALESCE(sanskrit, '')), 'D');
 
--- Оновити всі blog_posts
+-- Оновити всі blog_posts (force refresh)
 UPDATE public.blog_posts SET
   search_vector_ua =
     setweight(to_tsvector('simple', COALESCE(title_ua, '')), 'A') ||
@@ -142,8 +156,7 @@ UPDATE public.blog_posts SET
   search_vector_en =
     setweight(to_tsvector('english', COALESCE(title_en, '')), 'A') ||
     setweight(to_tsvector('english', COALESCE(excerpt_en, '')), 'B') ||
-    setweight(to_tsvector('english', COALESCE(content_en, '')), 'C')
-WHERE search_vector_ua IS NULL OR search_vector_en IS NULL;
+    setweight(to_tsvector('english', COALESCE(content_en, '')), 'C');
 
 -- ============================================================================
 -- 5. GIN ІНДЕКСИ ДЛЯ ШВИДКОГО ПОШУКУ
@@ -454,7 +467,8 @@ CREATE OR REPLACE FUNCTION public.unified_search(
   search_query text,
   language_code text DEFAULT 'ua',
   search_types text[] DEFAULT ARRAY['verses', 'blog', 'glossary'],
-  limit_per_type integer DEFAULT 10
+  limit_per_type integer DEFAULT 10,
+  overall_limit integer DEFAULT NULL  -- NULL = no overall limit, uses limit_per_type * types count
 )
 RETURNS TABLE(
   result_type text,
@@ -579,7 +593,9 @@ BEGIN
   ORDER BY relevance DESC
   LIMIT limit_per_type)
 
-  ORDER BY relevance DESC;
+  ORDER BY relevance DESC
+  -- Глобальний ліміт: або вказаний overall_limit, або limit_per_type * кількість типів
+  LIMIT COALESCE(overall_limit, limit_per_type * array_length(search_types, 1));
 END;
 $$;
 
