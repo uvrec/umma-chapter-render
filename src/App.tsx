@@ -102,177 +102,191 @@ import NumCal from "./pages/admin/NumCal";
 import Install from "./pages/Install";
 import BookSearch from "./pages/BookSearch";
 import { OfflineIndicator } from "./components/OfflineIndicator";
+import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
+
+// Внутрішній компонент з доступом до hooks
+function AppContent() {
+  const { open: searchOpen, setOpen: setSearchOpen } = useUnifiedSearch();
+
+  return (
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<NewHome />} />
+
+          {/* ВИДАЛЕНО: Старий роут /verses/:bookId/:verseNumber - використовуйте /veda-reader/ */}
+
+          {/* Нові маршрути читання БД */}
+          <Route path="/veda-reader/:bookId" element={<BookOverview />} />
+          <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+
+          {/* Book resources pages */}
+          <Route path="/veda-reader/:bookId/author" element={<BookAuthorPage />} />
+          <Route path="/veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
+          <Route path="/veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
+          <Route path="/veda-reader/:bookId/dedication" element={<BookDedicationPage />} />
+          <Route path="/veda-reader/:bookId/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+          <Route path="/veda-reader/:bookId/settings" element={<BookSettingsRoutePage />} />
+          <Route path="/veda-reader/:bookId/bookmarks" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/notes" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/highlights" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/galleries" element={<BookGalleriesPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/author" element={<BookAuthorPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/pronunciation" element={<BookPronunciationPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/glossary" element={<BookGlossaryPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/dedication" element={<BookDedicationPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/settings" element={<BookSettingsRoutePage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/bookmarks" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
+          <Route
+            path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
+            element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
+          />
+
+          {/* Special route for NoI: redirect to explicit chapter 1 */}
+          <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
+
+          <Route path="/veda-reader/:bookId/:chapterNumber" element={<ChapterVersesList />} />
+          <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>} />
+          <Route
+            path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
+            element={<ChapterVersesList />}
+          />
+          <Route
+            path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber"
+            element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
+          />
+
+          {/* Alias/redirects */}
+          <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
+          <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
+          <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/bhagavatam" replace />} />
+
+          {/* Бібліотека */}
+          <Route path="/library" element={<Library />} />
+          <Route path="/library/lectures" element={<LecturesLibrary />} />
+          <Route path="/library/lectures/:slug" element={<LectureView />} />
+          <Route path="/library/letters" element={<LettersLibrary />} />
+          <Route path="/library/letters/:slug" element={<LetterView />} />
+          <Route path="/library/:slug" element={<BookOverview />} />
+          <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
+          <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
+
+          {/* Аудіо */}
+          <Route path="/audio" element={<Audio />} />
+          <Route path="/audiobooks" element={<Audiobooks />} />
+          <Route path="/audiobooks/:id" element={<AudiobookView />} />
+          <Route path="/audio/lectures" element={<Lectures />} />
+          <Route path="/audio/music" element={<Music />} />
+
+          {/* Блог/інше */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/audio/podcasts" element={<Podcasts />} />
+          <Route path="/glossary" element={<GlossaryDB />} />
+          <Route path="/tools/transliteration" element={<TransliterationTool />} />
+          <Route path="/tools/numerology" element={<Numerology />} />
+          <Route path="/tools/learning" element={<ScriptLearning />} />
+          <Route path="/tools/normalization" element={<TextNormalization />} />
+          <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
+          <Route path="/tools/synonyms" element={<SynonymsSearch />} />
+          <Route path="/tools/dictionary" element={<SanskritDictionary />} />
+          <Route path="/install" element={<Install />} />
+          <Route path="/search" element={<BookSearch />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Платежі */}
+          <Route path="/payment/card" element={<CardPayment />} />
+          <Route path="/payment/bank" element={<BankTransfer />} />
+
+          {/* Auth */}
+          <Route path="/auth" element={<Auth />} />
+
+          {/* Admin */}
+          <Route path="/admin/banners" element={<AdminBanners />} />
+          <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+          <Route path="/admin/normalize-texts" element={<NormalizeTexts />} />
+          <Route path="/admin/books" element={<Books />} />
+          <Route path="/admin/books/new" element={<AddEditBook />} />
+          <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
+          <Route path="/admin/cantos/:bookId" element={<Cantos />} />
+          <Route path="/admin/cantos/:bookId/new" element={<AddEditCanto />} />
+          <Route path="/admin/cantos/:bookId/:id/edit" element={<AddEditCanto />} />
+          <Route path="/admin/intro-chapters/:bookId" element={<IntroChapters />} />
+          <Route path="/admin/intro-chapters/:bookId/new" element={<AddEditIntroChapter />} />
+          <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
+          <Route path="/admin/chapters/:bookId" element={<Chapters />} />
+          <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
+          <Route path="/admin/verses/new" element={<AddEditVerse />} />
+          <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
+          <Route path="/admin/scripture" element={<ScriptureManager />} />
+          <Route path="/admin/data-migration" element={<DataMigration />} />
+          <Route path="/admin/import-wizard" element={<ImportWizard />} />
+          <Route path="/admin/universal-import" element={<UniversalImportFixed />} />
+          <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
+          <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
+          <Route path="/admin/blog-posts" element={<BlogPosts />} />
+          <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
+          <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
+          <Route path="/admin/blog-categories" element={<BlogCategories />} />
+          <Route path="/admin/blog-tags" element={<BlogTags />} />
+          <Route path="/admin/audio-categories" element={<AudioCategories />} />
+          <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
+          <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
+          <Route path="/admin/pages" element={<Pages />} />
+          <Route path="/admin/pages/new" element={<EditPage />} />
+          <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
+          <Route path="/admin/static-pages" element={<StaticPages />} />
+          <Route path="/admin/merge-noi" element={<MergeNoiChapters />} />
+          <Route path="/admin/highlights" element={<Highlights />} />
+          <Route path="/admin/lecture-import" element={<LectureImport />} />
+          <Route path="/admin/letter-import" element={<LetterImport />} />
+          <Route path="/admin/lectures" element={<LecturesManager />} />
+          <Route path="/admin/letters" element={<LettersManager />} />
+          <Route path="/admin/numcal" element={<NumCal />} />
+
+          {/* Сторінки з CMS */}
+          <Route path="/:slug" element={<PageView />} />
+
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+
+        {/* Глобальні компоненти */}
+        <OfflineIndicator />
+        <ModernGlobalPlayer />
+        <GlobalSettingsPanel />
+        <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      </BrowserRouter>
+    </>
+  );
+}
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-    {/* craft — дефолт; storageKey узгоджений із ThemeProvider/ThemeToggle */}
-    <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
-      <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <ModernAudioProvider>
-              <UserContentProvider>
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<NewHome />} />
-
-                  {/* ВИДАЛЕНО: Старий роут /verses/:bookId/:verseNumber - використовуйте /veda-reader/ */}
-
-                  {/* Нові маршрути читання БД */}
-                  <Route path="/veda-reader/:bookId" element={<BookOverview />} />
-                  <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
-
-                  {/* Book resources pages */}
-                  <Route path="/veda-reader/:bookId/author" element={<BookAuthorPage />} />
-                  <Route path="/veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
-                  <Route path="/veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
-                  <Route path="/veda-reader/:bookId/dedication" element={<BookDedicationPage />} />
-                  <Route path="/veda-reader/:bookId/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
-                  <Route path="/veda-reader/:bookId/settings" element={<BookSettingsRoutePage />} />
-                  <Route path="/veda-reader/:bookId/bookmarks" element={<BookUserContentPage />} />
-                  <Route path="/veda-reader/:bookId/notes" element={<BookUserContentPage />} />
-                  <Route path="/veda-reader/:bookId/highlights" element={<BookUserContentPage />} />
-                  <Route path="/veda-reader/:bookId/galleries" element={<BookGalleriesPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/author" element={<BookAuthorPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/pronunciation" element={<BookPronunciationPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/glossary" element={<BookGlossaryPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/dedication" element={<BookDedicationPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/settings" element={<BookSettingsRoutePage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/bookmarks" element={<BookUserContentPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
-                  <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
-                  <Route
-                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
-                    element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
-                  />
-
-                  {/* Special route for NoI: redirect to explicit chapter 1 */}
-                  <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
-
-                  <Route path="/veda-reader/:bookId/:chapterNumber" element={<ChapterVersesList />} />
-                  <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>} />
-                  <Route
-                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
-                    element={<ChapterVersesList />}
-                  />
-                  <Route
-                    path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber"
-                    element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
-                  />
-
-                  {/* Alias/redirects */}
-                  <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
-                  <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
-                  <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/bhagavatam" replace />} />
-
-                  {/* Бібліотека */}
-                  <Route path="/library" element={<Library />} />
-                  <Route path="/library/lectures" element={<LecturesLibrary />} />
-                  <Route path="/library/lectures/:slug" element={<LectureView />} />
-                  <Route path="/library/letters" element={<LettersLibrary />} />
-                  <Route path="/library/letters/:slug" element={<LetterView />} />
-                  <Route path="/library/:slug" element={<BookOverview />} />
-                  <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
-                  <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
-
-                  {/* Аудіо */}
-                  <Route path="/audio" element={<Audio />} />
-                  <Route path="/audiobooks" element={<Audiobooks />} />
-                  <Route path="/audiobooks/:id" element={<AudiobookView />} />
-                  <Route path="/audio/lectures" element={<Lectures />} />
-                  <Route path="/audio/music" element={<Music />} />
-
-                  {/* Блог/інше */}
-                  <Route path="/blog" element={<Blog />} />
-                  <Route path="/blog/:slug" element={<BlogPost />} />
-                  <Route path="/audio/podcasts" element={<Podcasts />} />
-                  <Route path="/glossary" element={<GlossaryDB />} />
-                  <Route path="/tools/transliteration" element={<TransliterationTool />} />
-                  <Route path="/tools/numerology" element={<Numerology />} />
-                  <Route path="/tools/learning" element={<ScriptLearning />} />
-                  <Route path="/tools/normalization" element={<TextNormalization />} />
-                  <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
-                  <Route path="/tools/synonyms" element={<SynonymsSearch />} />
-                  <Route path="/tools/dictionary" element={<SanskritDictionary />} />
-                  <Route path="/install" element={<Install />} />
-                  <Route path="/search" element={<BookSearch />} />
-                  <Route path="/contact" element={<Contact />} />
-
-                  {/* Платежі */}
-                  <Route path="/payment/card" element={<CardPayment />} />
-                  <Route path="/payment/bank" element={<BankTransfer />} />
-
-                  {/* Auth */}
-                  <Route path="/auth" element={<Auth />} />
-
-                  {/* Admin */}
-                  <Route path="/admin/banners" element={<AdminBanners />} />
-                  <Route path="/admin/audiobooks" element={<AdminAudiobooks />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/normalize-texts" element={<NormalizeTexts />} />
-                  <Route path="/admin/books" element={<Books />} />
-                  <Route path="/admin/books/new" element={<AddEditBook />} />
-                  <Route path="/admin/books/:id/edit" element={<AddEditBook />} />
-                  <Route path="/admin/cantos/:bookId" element={<Cantos />} />
-                  <Route path="/admin/cantos/:bookId/new" element={<AddEditCanto />} />
-                  <Route path="/admin/cantos/:bookId/:id/edit" element={<AddEditCanto />} />
-                  <Route path="/admin/intro-chapters/:bookId" element={<IntroChapters />} />
-                  <Route path="/admin/intro-chapters/:bookId/new" element={<AddEditIntroChapter />} />
-                  <Route path="/admin/intro-chapters/:bookId/:id/edit" element={<AddEditIntroChapter />} />
-                  <Route path="/admin/chapters/:bookId" element={<Chapters />} />
-                  <Route path="/admin/chapters/canto/:cantoId" element={<Chapters />} />
-                  <Route path="/admin/verses/new" element={<AddEditVerse />} />
-                  <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
-                  <Route path="/admin/scripture" element={<ScriptureManager />} />
-                  <Route path="/admin/data-migration" element={<DataMigration />} />
-                  <Route path="/admin/import-wizard" element={<ImportWizard />} />
-                  <Route path="/admin/universal-import" element={<UniversalImportFixed />} />
-                  <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
-                  <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
-                  <Route path="/admin/blog-posts" element={<BlogPosts />} />
-                  <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
-                  <Route path="/admin/blog-posts/:id/edit" element={<AddEditBlogPost />} />
-                  <Route path="/admin/blog-categories" element={<BlogCategories />} />
-                  <Route path="/admin/blog-tags" element={<BlogTags />} />
-                  <Route path="/admin/audio-categories" element={<AudioCategories />} />
-                  <Route path="/admin/audio-playlists" element={<AudioPlaylists />} />
-                  <Route path="/admin/audio-playlists/:id" element={<AudioPlaylistEdit />} />
-                  <Route path="/admin/pages" element={<Pages />} />
-                  <Route path="/admin/pages/new" element={<EditPage />} />
-                  <Route path="/admin/pages/:slug/edit" element={<EditPage />} />
-                  <Route path="/admin/static-pages" element={<StaticPages />} />
-                  <Route path="/admin/merge-noi" element={<MergeNoiChapters />} />
-                  <Route path="/admin/highlights" element={<Highlights />} />
-                  <Route path="/admin/lecture-import" element={<LectureImport />} />
-                  <Route path="/admin/letter-import" element={<LetterImport />} />
-                  <Route path="/admin/lectures" element={<LecturesManager />} />
-                  <Route path="/admin/letters" element={<LettersManager />} />
-                  <Route path="/admin/numcal" element={<NumCal />} />
-
-                  {/* Сторінки з CMS */}
-                  <Route path="/:slug" element={<PageView />} />
-
-                  {/* 404 */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-
-                {/* Сучасний глобальний плеєр і панель налаштувань */}
-                <OfflineIndicator />
-                <ModernGlobalPlayer />
-                <GlobalSettingsPanel />
-              </BrowserRouter>
-              </UserContentProvider>
-            </ModernAudioProvider>
-          </TooltipProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+      {/* craft — дефолт; storageKey узгоджений із ThemeProvider/ThemeToggle */}
+      <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
+        <LanguageProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <ModernAudioProvider>
+                <UserContentProvider>
+                  <Toaster />
+                  <Sonner />
+                  <AppContent />
+                </UserContentProvider>
+              </ModernAudioProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   </ErrorBoundary>
 );
 
