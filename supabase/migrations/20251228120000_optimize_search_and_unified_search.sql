@@ -69,12 +69,12 @@ END $$;
 CREATE OR REPLACE FUNCTION update_verse_search_vector()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Український вектор (simple конфіг для кирилиці)
+  -- Український вектор (simple_unaccent для accent-insensitive пошуку кирилицею)
   NEW.search_vector_ua :=
-    setweight(to_tsvector('simple', COALESCE(NEW.translation_ua, '')), 'A') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.commentary_ua, '')), 'B') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.synonyms_ua, '')), 'C') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.transliteration_ua, COALESCE(NEW.transliteration, ''))), 'D');
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.translation_ua, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.commentary_ua, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.synonyms_ua, '')), 'C') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.transliteration_ua, COALESCE(NEW.transliteration, ''))), 'D');
 
   -- Англійський вектор
   NEW.search_vector_en :=
@@ -93,9 +93,9 @@ CREATE OR REPLACE FUNCTION update_blog_post_search_vector()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.search_vector_ua :=
-    setweight(to_tsvector('simple', COALESCE(NEW.title_ua, '')), 'A') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.excerpt_ua, '')), 'B') ||
-    setweight(to_tsvector('simple', COALESCE(NEW.content_ua, '')), 'C');
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.title_ua, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.excerpt_ua, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.content_ua, '')), 'C');
 
   NEW.search_vector_en :=
     setweight(to_tsvector('english', COALESCE(NEW.title_en, '')), 'A') ||
@@ -136,10 +136,10 @@ CREATE TRIGGER trg_blog_posts_search_vector
 -- Для ~15k записів це безпечно виконується за кілька секунд
 UPDATE public.verses SET
   search_vector_ua =
-    setweight(to_tsvector('simple', COALESCE(translation_ua, '')), 'A') ||
-    setweight(to_tsvector('simple', COALESCE(commentary_ua, '')), 'B') ||
-    setweight(to_tsvector('simple', COALESCE(synonyms_ua, '')), 'C') ||
-    setweight(to_tsvector('simple', COALESCE(transliteration_ua, COALESCE(transliteration, ''))), 'D'),
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(translation_ua, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(commentary_ua, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(synonyms_ua, '')), 'C') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(transliteration_ua, COALESCE(transliteration, ''))), 'D'),
   search_vector_en =
     setweight(to_tsvector('english', COALESCE(translation_en, '')), 'A') ||
     setweight(to_tsvector('english', COALESCE(commentary_en, '')), 'B') ||
@@ -150,9 +150,9 @@ UPDATE public.verses SET
 -- Оновити всі blog_posts (force refresh)
 UPDATE public.blog_posts SET
   search_vector_ua =
-    setweight(to_tsvector('simple', COALESCE(title_ua, '')), 'A') ||
-    setweight(to_tsvector('simple', COALESCE(excerpt_ua, '')), 'B') ||
-    setweight(to_tsvector('simple', COALESCE(content_ua, '')), 'C'),
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(title_ua, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(excerpt_ua, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(content_ua, '')), 'C'),
   search_vector_en =
     setweight(to_tsvector('english', COALESCE(title_en, '')), 'A') ||
     setweight(to_tsvector('english', COALESCE(excerpt_en, '')), 'B') ||
@@ -213,9 +213,9 @@ DECLARE
   pattern text;
   search_config text;
 BEGIN
-  -- Визначаємо конфіг для мови
+  -- Визначаємо конфіг для мови (simple_unaccent для accent-insensitive пошуку українською)
   IF language_code = 'ua' THEN
-    search_config := 'simple';
+    search_config := 'public.simple_unaccent';
   ELSE
     search_config := 'english';
   END IF;
@@ -490,9 +490,9 @@ DECLARE
   search_config text;
   pattern text;
 BEGIN
-  -- Конфіг для мови
+  -- Конфіг для мови (simple_unaccent для accent-insensitive пошуку українською)
   IF language_code = 'ua' THEN
-    search_config := 'simple';
+    search_config := 'public.simple_unaccent';
   ELSE
     search_config := 'english';
   END IF;
