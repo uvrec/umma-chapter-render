@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { X, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { errorLogger } from "@/utils/errorLogger";
 
 /**
  * Очікувана структура таблиці `site_banners` (мінімум):
@@ -43,8 +44,8 @@ export default function SiteBanners() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setDismissed(JSON.parse(raw));
-    } catch {
-      // localStorage may be unavailable in private browsing mode
+    } catch (e) {
+      errorLogger.logSilent(e, 'localStorage read - dismissed banners');
     }
   }, []);
 
@@ -82,8 +83,8 @@ export default function SiteBanners() {
     setDismissed(next);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // localStorage may be unavailable in private browsing mode
+    } catch (e) {
+      errorLogger.logSilent(e, 'localStorage write - dismissed banners');
     }
   };
 
