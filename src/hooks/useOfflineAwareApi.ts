@@ -20,7 +20,7 @@ export class OfflineError extends Error {
   }
 }
 
-interface FetchWithRetryOptions extends RequestInit {
+interface FetchWithRetryOptions extends Omit<RequestInit, 'priority'> {
   /** Додати в чергу якщо офлайн (default: false) */
   queueIfOffline?: boolean;
   /** Пріоритет запиту в черзі */

@@ -1,6 +1,6 @@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ChatContainer } from "@/components/chat";
-import PageMeta from "@/components/PageMeta";
+import { PageMeta } from "@/components/PageMeta";
 import SiteBanners from "@/components/SiteBanners";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,16 +8,16 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, BookOpen, MessageCircle, Sparkles } from "lucide-react";
 
 export function Chat() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   return (
     <>
       <PageMeta
-        title={t("VedaVOICE Чат | Запитай Прабгупаду", "VedaVOICE Chat | Ask Prabhupada")}
-        description={t(
-          "AI-асистент для вивчення вчень Шріли Прабгупади. Задавайте запитання та отримуйте відповіді з його книг, лекцій та листів.",
-          "AI assistant for studying Srila Prabhupada's teachings. Ask questions and get answers from his books, lectures, and letters."
-        )}
+        titleUa="VedaVOICE Чат | Запитай Прабгупаду"
+        titleEn="VedaVOICE Chat | Ask Prabhupada"
+        metaDescriptionUa="AI-асистент для вивчення вчень Шріли Прабгупади. Задавайте запитання та отримуйте відповіді з його книг, лекцій та листів."
+        metaDescriptionEn="AI assistant for studying Srila Prabhupada's teachings. Ask questions and get answers from his books, lectures, and letters."
+        language={language}
       />
 
       <SiteBanners />

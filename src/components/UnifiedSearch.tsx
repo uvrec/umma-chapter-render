@@ -67,22 +67,41 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
   const debouncedPrefix = useDebounce(query, 200);
   const { data: suggestions = [], isLoading: isLoadingSuggestions } = useQuery({
     queryKey: ['search-suggestions', debouncedPrefix, language],
-    queryFn: async () => {
+    queryFn: async (): Promise<SuggestionResult[]> => {
       if (!debouncedPrefix || debouncedPrefix.length < 1) return [];
 
       try {
-        const { data, error } = await supabase.rpc('search_suggest_terms', {
-          search_prefix: debouncedPrefix,
-          language_code: language,
-          limit_count: 6,
-        });
+        // RPC функція може не існувати - використовуємо fallback
+        const { data, error } = await supabase
+          .from('verses')
+          .select('translation_ua, translation_en')
+          .or(
+            language === 'ua'
+              ? `translation_ua.ilike.%${debouncedPrefix}%`
+              : `translation_en.ilike.%${debouncedPrefix}%`
+          )
+          .limit(6);
 
         if (error) {
           console.error('Suggestions error:', error);
           return [];
         }
 
-        return (data || []) as SuggestionResult[];
+        // Витягуємо ключові слова з результатів
+        const words = new Set<string>();
+        data?.forEach((verse) => {
+          const text = language === 'ua' ? verse.translation_ua : verse.translation_en;
+          if (text) {
+            const matches = text.toLowerCase().match(new RegExp(`\\b\\w*${debouncedPrefix.toLowerCase()}\\w*\\b`, 'g'));
+            matches?.forEach((w: string) => w.length > 2 && words.add(w));
+          }
+        });
+
+        return Array.from(words).slice(0, 6).map((w, i) => ({
+          suggestion: w,
+          frequency: 6 - i,
+          source: 'verses',
+        }));
       } catch {
         return [];
       }
@@ -92,26 +111,12 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
     gcTime: 30 * 60 * 1000,
   });
 
-  // Уніфікований пошук
+  // Уніфікований пошук - використовуємо fallback оскільки RPC ще не розгорнутий
   const { data: results = [], isLoading } = useQuery({
     queryKey: ['unified-search', debouncedQuery, language],
-    queryFn: async () => {
+    queryFn: async (): Promise<UnifiedSearchResult[]> => {
       if (!debouncedQuery || debouncedQuery.length < 2) return [];
-
-      const { data, error } = await supabase.rpc('unified_search', {
-        search_query: debouncedQuery,
-        language_code: language,
-        search_types: ['verses', 'blog'],
-        limit_per_type: 8,
-      });
-
-      if (error) {
-        console.error('Search error:', error);
-        // Fallback до простого пошуку якщо unified_search не існує
-        return fallbackSearch(debouncedQuery);
-      }
-
-      return (data || []) as UnifiedSearchResult[];
+      return fallbackSearch(debouncedQuery);
     },
     enabled: debouncedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 хвилин
