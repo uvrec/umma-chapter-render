@@ -21,11 +21,17 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, BookOpen, FileText, Clock, X, ArrowRight } from 'lucide-react';
+import { Loader2, BookOpen, FileText, Clock, X, ArrowRight, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
 import { useDebounce } from '@/hooks/useDebounce';
+
+interface SuggestionResult {
+  suggestion: string;
+  frequency: number;
+  source: string;
+}
 
 interface UnifiedSearchResult {
   result_type: string;
@@ -56,6 +62,35 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
       setQuery('');
     }
   }, [open]);
+
+  // Автокомпліт підказки (показуємо при 1+ символах)
+  const debouncedPrefix = useDebounce(query, 200);
+  const { data: suggestions = [], isLoading: isLoadingSuggestions } = useQuery({
+    queryKey: ['search-suggestions', debouncedPrefix, language],
+    queryFn: async () => {
+      if (!debouncedPrefix || debouncedPrefix.length < 1) return [];
+
+      try {
+        const { data, error } = await supabase.rpc('search_suggest_terms', {
+          search_prefix: debouncedPrefix,
+          language_code: language,
+          limit_count: 6,
+        });
+
+        if (error) {
+          console.error('Suggestions error:', error);
+          return [];
+        }
+
+        return (data || []) as SuggestionResult[];
+      } catch {
+        return [];
+      }
+    },
+    enabled: debouncedPrefix.length >= 1 && debouncedPrefix.length < 3,
+    staleTime: 10 * 60 * 1000, // 10 хвилин
+    gcTime: 30 * 60 * 1000,
+  });
 
   // Уніфікований пошук
   const { data: results = [], isLoading } = useQuery({
@@ -285,6 +320,27 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           </CommandGroup>
         )}
 
+        {/* Автокомпліт підказки (при 1-2 символах) */}
+        {suggestions.length > 0 && query.length >= 1 && query.length < 2 && !isLoading && (
+          <CommandGroup heading={t('Підказки', 'Suggestions')}>
+            {suggestions.map((item, idx) => (
+              <CommandItem
+                key={`suggestion-${idx}`}
+                onSelect={() => setQuery(item.suggestion)}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  <span>{item.suggestion}</span>
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {item.frequency}
+                </Badge>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
+
         {/* Порожній стан */}
         {!isLoading && query.length >= 2 && !hasResults && (
           <CommandEmpty>
@@ -292,8 +348,8 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           </CommandEmpty>
         )}
 
-        {/* Підказка для короткого запиту */}
-        {!isLoading && query.length > 0 && query.length < 2 && (
+        {/* Підказка для короткого запиту (тільки якщо немає підказок) */}
+        {!isLoading && query.length > 0 && query.length < 2 && suggestions.length === 0 && !isLoadingSuggestions && (
           <CommandEmpty>
             {t('Введіть мінімум 2 символи', 'Enter at least 2 characters')}
           </CommandEmpty>
