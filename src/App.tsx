@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { queryClient } from "@/lib/queryClient";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 
 import SiteBanners from "@/components/SiteBanners";
 import { ChapterVersesList } from "@/pages/ChapterVersesList";
@@ -147,21 +148,21 @@ const App = () => (
                   <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<CantoOverview />} />
                   <Route
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId"
-                    element={<VedaReaderDB />}
+                    element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
                   />
 
                   {/* Special route for NoI: redirect to explicit chapter 1 */}
                   <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
 
                   <Route path="/veda-reader/:bookId/:chapterNumber" element={<ChapterVersesList />} />
-                  <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<VedaReaderDB />} />
+                  <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>} />
                   <Route
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber"
                     element={<ChapterVersesList />}
                   />
                   <Route
                     path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber"
-                    element={<VedaReaderDB />}
+                    element={<RouteErrorBoundary routeName="VedaReader"><VedaReaderDB /></RouteErrorBoundary>}
                   />
 
                   {/* Alias/redirects */}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Settings, Globe, Palette, Minus, Plus, RotateCcw, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { AdminTypographyPanel } from "@/components/AdminTypographyPanel";
+import { errorLogger } from "@/utils/errorLogger";
 
 const MIN_FONT = 12;
 const MAX_FONT = 24;
@@ -82,8 +83,8 @@ function readBlocks(): BlocksState {
         commentary: true,
         ...JSON.parse(raw),
       };
-  } catch {
-    // localStorage may be unavailable in private browsing mode
+  } catch (e) {
+    errorLogger.logSilent(e, 'localStorage read - blocks settings');
   }
   return { sanskrit: true, translit: true, synonyms: true, translation: true, commentary: true };
 }
@@ -92,8 +93,8 @@ function readContinuousReading(): ContinuousReadingState {
   try {
     const raw = localStorage.getItem(LS_KEYS.continuousReading);
     if (raw) return { ...DEFAULTS.continuousReading, ...JSON.parse(raw) };
-  } catch {
-    // localStorage may be unavailable in private browsing mode
+  } catch (e) {
+    errorLogger.logSilent(e, 'localStorage read - continuous reading settings');
   }
   return DEFAULTS.continuousReading;
 }

@@ -76,45 +76,6 @@ export function useLearningSync(): UseLearningSync {
     };
   }, []);
 
-  // Sync from cloud when user logs in
-  useEffect(() => {
-    if (!user || !isOnline) return;
-
-    let isCancelled = false;
-
-    const doSync = async () => {
-      try {
-        // Check if cancelled before starting
-        if (isCancelled) return;
-        await syncFromCloud();
-      } catch (error) {
-        // Ignore errors if the effect was cancelled
-        if (!isCancelled) {
-          console.error('Error during initial sync:', error);
-        }
-      }
-    };
-
-    doSync();
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [user?.id, isOnline, syncFromCloud]);
-
-  // Sync to cloud (debounced)
-  const debouncedSyncToCloud = useCallback(() => {
-    if (syncTimerRef.current) {
-      clearTimeout(syncTimerRef.current);
-    }
-
-    syncTimerRef.current = setTimeout(() => {
-      if (user && isOnline) {
-        syncToCloud();
-      }
-    }, 2000); // 2 second debounce
-  }, [user, isOnline, syncToCloud]);
-
   // Sync words to cloud
   const syncWordsToCloud = async (wordsToSync: LearningWord[]) => {
     if (!user) return;
@@ -414,6 +375,45 @@ export function useLearningSync(): UseLearningSync {
       setIsSyncing(false);
     }
   }, [user, isOnline, isSyncing]);
+
+  // Sync to cloud (debounced) - defined after syncToCloud
+  const debouncedSyncToCloud = useCallback(() => {
+    if (syncTimerRef.current) {
+      clearTimeout(syncTimerRef.current);
+    }
+
+    syncTimerRef.current = setTimeout(() => {
+      if (user && isOnline) {
+        syncToCloud();
+      }
+    }, 2000); // 2 second debounce
+  }, [user, isOnline, syncToCloud]);
+
+  // Sync from cloud when user logs in - defined after syncFromCloud
+  useEffect(() => {
+    if (!user || !isOnline) return;
+
+    let isCancelled = false;
+
+    const doSync = async () => {
+      try {
+        // Check if cancelled before starting
+        if (isCancelled) return;
+        await syncFromCloud();
+      } catch (error) {
+        // Ignore errors if the effect was cancelled
+        if (!isCancelled) {
+          console.error('Error during initial sync:', error);
+        }
+      }
+    };
+
+    doSync();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user?.id, isOnline, syncFromCloud]);
 
   // Record learning activity
   const recordActivity = useCallback(async (data: Partial<LearningActivity>) => {
