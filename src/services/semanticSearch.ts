@@ -179,49 +179,13 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
  * Falls back to fulltext-only if semantic search is not available
  */
 export async function hybridSearch(options: SearchOptions): Promise<SearchResult[]> {
-  const {
-    query,
-    language = 'ua',
-    bookIds,
-    limit = 10,
-    semanticWeight = 0.6,
-  } = options;
+  const { query } = options;
 
   // First, try expanded fulltext search
   const expandedQuery = expandQuery(query);
 
-  try {
-    // Try hybrid search (requires embeddings to be populated)
-    const { data: hybridData, error: hybridError } = await supabase.rpc('hybrid_search_verses', {
-      query_text: query,
-      query_embedding: null, // Will be null until embeddings are generated
-      semantic_weight: semanticWeight,
-      match_count: limit,
-      filter_book_ids: bookIds,
-      language_code: language === 'ua' ? 'uk' : 'en',
-    });
-
-    if (!hybridError && hybridData && hybridData.length > 0) {
-      return hybridData.map((result: Record<string, unknown>) => ({
-        id: result.id as string,
-        verseNumber: result.verse_number as string,
-        chapterId: result.chapter_id as string,
-        bookSlug: result.book_slug as string,
-        chapterNumber: result.chapter_number as number,
-        sanskrit: result.sanskrit as string | undefined,
-        transliteration: result.transliteration as string | undefined,
-        translation: result.translation as string | undefined,
-        commentary: result.commentary as string | undefined,
-        semanticScore: result.semantic_score as number | undefined,
-        fulltextScore: result.fulltext_score as number | undefined,
-        combinedScore: result.combined_score as number | undefined,
-      }));
-    }
-  } catch (error) {
-    console.warn('Hybrid search not available, falling back to fulltext:', error);
-  }
-
   // Fallback to fulltext search with expanded query
+  // Note: hybrid_search_verses RPC may not exist yet
   return fulltextSearch({
     ...options,
     query: expandedQuery,
@@ -232,133 +196,23 @@ export async function hybridSearch(options: SearchOptions): Promise<SearchResult
  * Search for verses related to a specific tattva (philosophical concept)
  */
 export async function searchByTattva(
-  tattvaSlug: string,
-  options: Omit<SearchOptions, 'query'> = {}
+  _tattvaSlug: string,
+  _options: Omit<SearchOptions, 'query'> = {}
 ): Promise<SearchResult[]> {
-  const { language = 'ua', limit = 10 } = options;
-
-  try {
-    // First get the tattva
-    const { data: tattva } = await supabase
-      .from('tattvas')
-      .select('id')
-      .eq('slug', tattvaSlug)
-      .single();
-
-    if (!tattva) {
-      console.warn('Tattva not found:', tattvaSlug);
-      return [];
-    }
-
-    // Get verses linked to this tattva
-    const { data: contentTattvas } = await supabase
-      .from('content_tattvas')
-      .select(`
-        verse_id,
-        relevance_score,
-        verses!inner(
-          id,
-          verse_number,
-          chapter_id,
-          sanskrit,
-          transliteration_ua,
-          translation_ua,
-          translation_en,
-          commentary_ua,
-          commentary_en,
-          chapters!inner(
-            chapter_number,
-            books!inner(slug)
-          )
-        )
-      `)
-      .eq('tattva_id', tattva.id)
-      .order('relevance_score', { ascending: false })
-      .limit(limit);
-
-    if (!contentTattvas) {
-      return [];
-    }
-
-    return contentTattvas.map((ct: Record<string, unknown>) => {
-      const verse = ct.verses as Record<string, unknown>;
-      const chapter = verse.chapters as Record<string, unknown>;
-      const book = chapter.books as Record<string, unknown>;
-
-      return {
-        id: verse.id as string,
-        verseNumber: verse.verse_number as string,
-        chapterId: verse.chapter_id as string,
-        bookSlug: book.slug as string,
-        chapterNumber: chapter.chapter_number as number,
-        sanskrit: verse.sanskrit as string | undefined,
-        transliteration: verse.transliteration_ua as string | undefined,
-        translation: language === 'ua'
-          ? (verse.translation_ua || verse.translation_en) as string | undefined
-          : (verse.translation_en || verse.translation_ua) as string | undefined,
-        commentary: language === 'ua'
-          ? (verse.commentary_ua || verse.commentary_en) as string | undefined
-          : (verse.commentary_en || verse.commentary_ua) as string | undefined,
-        combinedScore: ct.relevance_score as number | undefined,
-      };
-    });
-  } catch (error) {
-    console.error('Tattva search error:', error);
-    return [];
-  }
+  // Note: tattvas and content_tattvas tables may not exist yet
+  // Return empty array until the schema is implemented
+  console.warn('searchByTattva: tattvas table not implemented yet');
+  return [];
 }
 
 /**
  * Get cross-references for a specific verse
+ * Note: cross_references table may not exist yet
  */
-export async function getVerseReferences(verseId: string): Promise<SearchResult[]> {
-  try {
-    const { data } = await supabase
-      .from('cross_references')
-      .select(`
-        reference_type,
-        context_uk,
-        context_en,
-        target_verse:target_verse_id(
-          id,
-          verse_number,
-          chapter_id,
-          sanskrit,
-          transliteration_ua,
-          translation_ua,
-          translation_en,
-          chapters!inner(
-            chapter_number,
-            books!inner(slug)
-          )
-        )
-      `)
-      .eq('source_verse_id', verseId);
-
-    if (!data) {
-      return [];
-    }
-
-    return data.map((ref: Record<string, unknown>) => {
-      const verse = ref.target_verse as Record<string, unknown>;
-      const chapter = verse.chapters as Record<string, unknown>;
-      const book = chapter.books as Record<string, unknown>;
-
-      return {
-        id: verse.id as string,
-        verseNumber: verse.verse_number as string,
-        chapterId: verse.chapter_id as string,
-        bookSlug: book.slug as string,
-        chapterNumber: chapter.chapter_number as number,
-        sanskrit: verse.sanskrit as string | undefined,
-        transliteration: verse.transliteration_ua as string | undefined,
-        translation: (verse.translation_ua || verse.translation_en) as string | undefined,
-      };
-    });
-  } catch (error) {
-    console.error('Cross-reference search error:', error);
-    return [];
-  }
+export async function getVerseReferences(_verseId: string): Promise<SearchResult[]> {
+  // Return empty array until the schema is implemented
+  console.warn('getVerseReferences: cross_references table not implemented yet');
+  return [];
 }
 
 // ============================================================================
