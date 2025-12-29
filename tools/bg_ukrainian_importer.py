@@ -87,6 +87,53 @@ class Chapter:
             'verse_count': len(self.verses)
         }
 
+
+@dataclass
+class IntroPage:
+    """Вступна сторінка (Про автора, Передмова тощо)"""
+    slug: str
+    title_ua: str
+    content_ua: str
+    display_order: int = 0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'slug': self.slug,
+            'title_ua': self.title_ua,
+            'content_ua': self.content_ua,
+            'display_order': self.display_order
+        }
+
+
+# Маппінг файлів на slug та порядок відображення
+# Порядок відповідає структурі книги BBT
+INTRO_FILE_MAP = {
+    # Передня частина
+    'UKBG00DC': ('dedication', 'Посвята', 1),
+    'UKBG00SS': ('background', 'Передісторія «Бгаґавад-ґіти»', 2),
+    'UKBG00PF': ('preface', 'Передмова до англійського видання', 3),
+    'UKBG00NT': ('note', 'Коментар до другого англійського видання', 4),
+    'UKBG00ID': ('introduction', 'Вступ', 5),
+    # Після глав
+    'UKBG00DS': ('disciplic-succession', 'Ланцюг учнівської послідовності', 100),
+    'UKBG00AU': ('about-author', 'Про автора', 101),
+    'UKBG00KU': ('reviews', 'Відгуки про «Бгаґавад-ґіту як вона є»', 102),
+    'UKBG00PG': ('pronunciation', 'Як читати санскрит', 103),
+    'UKBG00GL': ('glossary', 'Словничок імен і термінів', 104),
+    'UKBG00QV': ('verse-index', 'Покажчик цитованих віршів', 105),
+    'UKBG00XS': ('sanskrit-index', 'Покажчик санскритських віршів', 106),
+    'UKBG00RF': ('references', 'Список цитованої літератури', 107),
+    'UKBG00BL': ('books', 'Книги Його Божественної Милості', 108),
+    # Технічні сторінки (пропускаємо):
+    # 'UKBG00HT': Half-title page
+    # 'UKBG00TP': Title page
+    # 'UKBG00PI': Publication info
+    # 'UKBG00CR': Copyright
+    # 'UKBG00TC': Зміст (динамічно на сайті)
+    # 'UKBG00AP': Appendix/Додатки
+    # 'UKBG00BB': порожній
+}
+
 # =============================================================================
 # TEXT PROCESSING
 # =============================================================================
@@ -496,6 +543,150 @@ def parse_ventura(text: str) -> Chapter:
     )
 
 
+def parse_intro_page(text: str, file_prefix: str) -> Optional[IntroPage]:
+    """Парсить вступну сторінку (Про автора, Передмова тощо)"""
+
+    # Отримуємо інформацію з маппінгу
+    if file_prefix not in INTRO_FILE_MAP:
+        return None
+
+    slug, default_title, display_order = INTRO_FILE_MAP[file_prefix]
+
+    lines = text.split('\n')
+    title = default_title
+    paragraphs: List[str] = []
+
+    # Для нумерованих списків
+    current_list_number = None
+
+    current_tag = None
+    current_content: List[str] = []
+
+    def flush_block():
+        nonlocal title, paragraphs, current_list_number
+
+        if not current_tag:
+            return
+
+        content = ' '.join(current_content).strip()
+        if not content:
+            return
+
+        # Заголовки (різні варіанти)
+        if current_tag in ('h1-fb', 'h1', 'h1-pg', 'h1-rv', 'h1-bl', 'h1-ds'):
+            title = process_prose(content, keep_html=False)
+            # Прибираємо можливі переноси рядків у заголовку
+            title = ' '.join(title.split())
+
+        # Підзаголовки
+        elif current_tag in ('h2', 'h2-gl', 'h2-rv'):
+            sub = process_prose(content, keep_html=True)
+            if sub:
+                paragraphs.append(f'<strong>{sub}</strong>')
+
+        # Абзаци — зберігаємо HTML
+        elif current_tag in ('p0', 'p', 'p1', 'p-indent', 'p-gl', 'p-au', 'p-rv', 'p-bl', 'p0-ku', 'p1-ku'):
+            para = process_prose(content, keep_html=True)
+            if para:
+                paragraphs.append(para)
+
+        # Підписи (відгуки)
+        elif current_tag == 'ku-signature':
+            sig = process_prose(content, keep_html=True)
+            if sig:
+                # Замінюємо переноси рядків на <br>
+                sig = sig.replace('\n', '<br>')
+                paragraphs.append(f'<p class="signature"><em>{sig}</em></p>')
+
+        # Посвята (dc тег)
+        elif current_tag == 'dc':
+            # Спеціальне форматування для посвяти
+            para = process_prose(content, keep_html=True)
+            if para:
+                # Замінюємо переноси рядків на <br>
+                para = para.replace('\n', '<br>')
+                paragraphs.append(f'<p class="dedication">{para}</p>')
+
+        # Нумеровані списки (ланцюг учнівської послідовності)
+        elif current_tag in ('li-number', 'li-number-0'):
+            # Зберігаємо номер для наступного li-p
+            num = process_prose(content, keep_html=False).strip()
+            # Витягуємо тільки число
+            num_match = re.search(r'(\d+)', num)
+            current_list_number = num_match.group(1) if num_match else num
+
+        elif current_tag == 'li-p':
+            item = process_prose(content, keep_html=True)
+            if item:
+                if current_list_number:
+                    paragraphs.append(f'{current_list_number}. {item}')
+                else:
+                    paragraphs.append(f'• {item}')
+            current_list_number = None
+
+        # Словникові статті (glossary)
+        elif current_tag == 'li-gl':
+            # Формат: <_dt>термін<_/dt><D> <_dd>значення<_/dd>
+            item = process_synonyms(content)
+            if item:
+                paragraphs.append(item)
+
+        # Список книг
+        elif current_tag == 'li-bl':
+            item = process_prose(content, keep_html=True)
+            if item:
+                paragraphs.append(f'• {item}')
+
+        # Вступ до покажчика
+        elif current_tag in ('intro-qv', 'intro-xs'):
+            intro_text = process_prose(content, keep_html=True)
+            if intro_text:
+                paragraphs.append(intro_text)
+
+        # Покажчик цитованих віршів та санскритських віршів
+        elif current_tag in ('li-qv', 'li-xs'):
+            item = process_prose(content, keep_html=True)
+            if item:
+                paragraphs.append(item)
+
+        # Блоки цитат
+        elif current_tag in ('ql', 'q', 'q-p'):
+            quote = process_prose(content, keep_html=True)
+            if quote:
+                paragraphs.append(f'<blockquote>{quote}</blockquote>')
+
+    # Парсимо рядки
+    for line in lines:
+        line = line.rstrip()
+
+        if line.startswith('@') and ' = ' in line:
+            flush_block()
+
+            match = re.match(r'@([\w-]+)\s*=\s*(.*)', line)
+            if match:
+                current_tag = match.group(1)
+                c = match.group(2).strip()
+                current_content = [c] if c else []
+        elif current_tag and line:
+            current_content.append(line)
+
+    # Останній блок
+    flush_block()
+
+    if not paragraphs:
+        return None
+
+    # Об'єднуємо параграфи з \n\n
+    content_ua = '\n\n'.join(paragraphs)
+
+    return IntroPage(
+        slug=slug,
+        title_ua=title,
+        content_ua=content_ua,
+        display_order=display_order
+    )
+
+
 # =============================================================================
 # CLI
 # =============================================================================
@@ -506,16 +697,20 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Приклади:
-  %(prog)s docs/UKBG02XT.H93                      # Вивід у stdout
+  %(prog)s docs/UKBG02XT.H93                      # Глава - вивід у stdout
   %(prog)s docs/UKBG02XT.H93 -o chapter2.json     # Зберегти у файл
-  %(prog)s --batch docs/ -o output/               # Batch конвертація
-  %(prog)s docs/UKBG02XT.H93 --format sql         # SQL формат
+  %(prog)s --batch docs/ -o output/               # Batch конвертація глав
+  %(prog)s --intro docs/UKBG00PF.H29              # Вступна сторінка
+  %(prog)s --batch --intro docs/ -o output/       # Batch конвертація intro
+  %(prog)s --batch --all docs/ -o output/         # Все (глави + intro)
 '''
     )
 
     parser.add_argument('input', nargs='?', help='Вхідний .H## файл')
     parser.add_argument('-o', '--output', help='Вихідний файл або директорія')
     parser.add_argument('--batch', action='store_true', help='Batch режим')
+    parser.add_argument('--intro', action='store_true', help='Обробляти intro файли (UKBG00*.H*)')
+    parser.add_argument('--all', action='store_true', help='Обробляти всі файли (глави + intro)')
     parser.add_argument('--format', choices=['json', 'sql'], default='json',
                         help='Формат виводу (default: json)')
     parser.add_argument('--pretty', action='store_true', help='Гарне форматування JSON')
@@ -530,20 +725,61 @@ def main():
         output_dir.mkdir(parents=True, exist_ok=True)
 
         total_verses = 0
-        for h_file in sorted(input_dir.glob('UKBG*XT.H*')):
-            text = read_file(h_file)
-            chapter = parse_ventura(text)
+        total_intro = 0
 
-            if chapter.verses:
-                out_file = output_dir / f'chapter{chapter.chapter_number:02d}.json'
-                indent = 2 if args.pretty else None
-                with open(out_file, 'w', encoding='utf-8') as f:
-                    json.dump(chapter.to_dict(), f, ensure_ascii=False, indent=indent)
+        # Обробка глав (якщо не --intro або --all)
+        if not args.intro or args.all:
+            for h_file in sorted(input_dir.glob('UKBG*XT.H*')):
+                text = read_file(h_file)
+                chapter = parse_ventura(text)
 
-                print(f"✓ {h_file.name} → {out_file.name} ({len(chapter.verses)} віршів)")
-                total_verses += len(chapter.verses)
+                if chapter.verses:
+                    out_file = output_dir / f'chapter{chapter.chapter_number:02d}.json'
+                    indent = 2 if args.pretty else None
+                    with open(out_file, 'w', encoding='utf-8') as f:
+                        json.dump(chapter.to_dict(), f, ensure_ascii=False, indent=indent)
 
-        print(f"\nГотово! Загалом {total_verses} віршів")
+                    print(f"✓ {h_file.name} → {out_file.name} ({len(chapter.verses)} віршів)")
+                    total_verses += len(chapter.verses)
+
+            if total_verses:
+                print(f"\nГлави: {total_verses} віршів")
+
+        # Обробка intro файлів (якщо --intro або --all)
+        if args.intro or args.all:
+            intro_dir = output_dir / 'intro_pages'
+            intro_dir.mkdir(parents=True, exist_ok=True)
+
+            for h_file in sorted(input_dir.glob('UKBG00*.H*')):
+                # Витягуємо префікс файлу (UKBG00XX)
+                file_prefix = h_file.stem.split('.')[0]
+                if len(file_prefix) > 8:
+                    file_prefix = file_prefix[:8]
+
+                text = read_file(h_file)
+                intro = parse_intro_page(text, file_prefix)
+
+                if intro:
+                    out_file = intro_dir / f'{intro.slug}.json'
+                    indent = 2 if args.pretty else None
+                    with open(out_file, 'w', encoding='utf-8') as f:
+                        json.dump(intro.to_dict(), f, ensure_ascii=False, indent=indent)
+
+                    para_count = intro.content_ua.count('\n\n') + 1
+                    print(f"✓ {h_file.name} → intro_pages/{intro.slug}.json ({para_count} параграфів)")
+                    total_intro += 1
+                else:
+                    if file_prefix in INTRO_FILE_MAP:
+                        print(f"⚠ {h_file.name} — порожній контент")
+                    # Файли не в маппінгу просто пропускаємо
+
+            if total_intro:
+                print(f"\nВступні сторінки: {total_intro} файлів")
+
+        if args.all:
+            print(f"\n=== ГОТОВО ===")
+            print(f"Глави: {total_verses} віршів")
+            print(f"Intro: {total_intro} сторінок")
 
     else:
         # Одиночний файл
@@ -553,34 +789,68 @@ def main():
 
         input_path = Path(args.input)
         text = read_file(input_path)
-        chapter = parse_ventura(text)
 
-        if args.stats:
-            print(f"Глава {chapter.chapter_number}: {chapter.title_ua}")
-            print(f"Віршів: {len(chapter.verses)}")
-            for v in chapter.verses:
-                print(f"  {v.verse_number}: ", end='')
-                parts = []
-                if v.transliteration_ua:
-                    parts.append('транслітерація')
-                if v.synonyms_ua:
-                    parts.append('синоніми')
-                if v.translation_ua:
-                    parts.append('переклад')
-                if v.commentary_ua:
-                    parts.append(f'коментар ({len(v.commentary_ua)} символів)')
-                print(', '.join(parts) if parts else '(порожній)')
-            return
+        if args.intro:
+            # Intro файл
+            file_prefix = input_path.stem.split('.')[0]
+            if len(file_prefix) > 8:
+                file_prefix = file_prefix[:8]
 
-        indent = 2 if args.pretty else None
-        output = json.dumps(chapter.to_dict(), ensure_ascii=False, indent=indent)
+            intro = parse_intro_page(text, file_prefix)
 
-        if args.output:
-            with open(args.output, 'w', encoding='utf-8') as f:
-                f.write(output)
-            print(f"✓ Збережено: {args.output}")
+            if not intro:
+                print(f"Помилка: файл {file_prefix} не знайдено в INTRO_FILE_MAP")
+                return
+
+            if args.stats:
+                print(f"Slug: {intro.slug}")
+                print(f"Заголовок: {intro.title_ua}")
+                print(f"Порядок: {intro.display_order}")
+                print(f"Параграфів: {intro.content_ua.count(chr(10)+chr(10)) + 1}")
+                print(f"\n--- Контент (перші 500 символів) ---")
+                print(intro.content_ua[:500])
+                return
+
+            indent = 2 if args.pretty else None
+            output = json.dumps(intro.to_dict(), ensure_ascii=False, indent=indent)
+
+            if args.output:
+                with open(args.output, 'w', encoding='utf-8') as f:
+                    f.write(output)
+                print(f"✓ Збережено: {args.output}")
+            else:
+                print(output)
+
         else:
-            print(output)
+            # Глава
+            chapter = parse_ventura(text)
+
+            if args.stats:
+                print(f"Глава {chapter.chapter_number}: {chapter.title_ua}")
+                print(f"Віршів: {len(chapter.verses)}")
+                for v in chapter.verses:
+                    print(f"  {v.verse_number}: ", end='')
+                    parts = []
+                    if v.transliteration_ua:
+                        parts.append('транслітерація')
+                    if v.synonyms_ua:
+                        parts.append('синоніми')
+                    if v.translation_ua:
+                        parts.append('переклад')
+                    if v.commentary_ua:
+                        parts.append(f'коментар ({len(v.commentary_ua)} символів)')
+                    print(', '.join(parts) if parts else '(порожній)')
+                return
+
+            indent = 2 if args.pretty else None
+            output = json.dumps(chapter.to_dict(), ensure_ascii=False, indent=indent)
+
+            if args.output:
+                with open(args.output, 'w', encoding='utf-8') as f:
+                    f.write(output)
+                print(f"✓ Збережено: {args.output}")
+            else:
+                print(output)
 
 
 if __name__ == '__main__':
