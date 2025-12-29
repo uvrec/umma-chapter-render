@@ -1,6 +1,7 @@
 -- ============================================================================
 -- БЕЗПЕЧНА МІГРАЦІЯ: Security Fixes - RLS на backup таблиці + security_invoker views
 -- ============================================================================
+-- Гібридний підхід: найкраще з обох варіантів
 -- Виконується в транзакції для атомарності
 
 BEGIN;
@@ -19,7 +20,12 @@ BEGIN
     RAISE EXCEPTION 'ABORT: Function public.has_role does not exist! Please create it first.';
   END IF;
 
-  RAISE NOTICE 'Prerequisites OK: has_role function exists';
+  -- Перевірка версії Postgres (для security_invoker потрібно 15+)
+  IF current_setting('server_version_num')::int < 150000 THEN
+    RAISE WARNING 'Postgres version < 15 detected. security_invoker may not work as expected.';
+  END IF;
+
+  RAISE NOTICE 'Prerequisites OK: has_role function exists, Postgres version: %', current_setting('server_version');
 END $$;
 
 -- ============================================================================
@@ -35,29 +41,61 @@ BEGIN
     -- Вмикаємо RLS
     ALTER TABLE public.verses_backup_danda_fix ENABLE ROW LEVEL SECURITY;
 
-    -- Видаляємо стару політику якщо є
+    -- Відкликаємо доступ від PUBLIC (безпечніше)
+    REVOKE ALL ON public.verses_backup_danda_fix FROM PUBLIC;
+
+    -- Видаляємо старі політики
     DROP POLICY IF EXISTS "Admin only access to backup" ON public.verses_backup_danda_fix;
     DROP POLICY IF EXISTS "Admins can access backup table" ON public.verses_backup_danda_fix;
+    DROP POLICY IF EXISTS "verses_backup_danda_fix_admin_read" ON public.verses_backup_danda_fix;
+    DROP POLICY IF EXISTS "verses_backup_danda_fix_admin_write" ON public.verses_backup_danda_fix;
 
-    -- Створюємо нову політику (тільки для адмінів)
-    CREATE POLICY "Admin only access to backup"
+    -- Окремі політики для кожної операції (чіткіше для аудиту)
+    CREATE POLICY "verses_backup_danda_fix_admin_read"
       ON public.verses_backup_danda_fix
-      FOR ALL
+      FOR SELECT
+      TO authenticated
+      USING (public.has_role(auth.uid(), 'admin'::app_role));
+
+    CREATE POLICY "verses_backup_danda_fix_admin_insert"
+      ON public.verses_backup_danda_fix
+      FOR INSERT
+      TO authenticated
+      WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));
+
+    CREATE POLICY "verses_backup_danda_fix_admin_update"
+      ON public.verses_backup_danda_fix
+      FOR UPDATE
       TO authenticated
       USING (public.has_role(auth.uid(), 'admin'::app_role))
       WITH CHECK (public.has_role(auth.uid(), 'admin'::app_role));
 
-    RAISE NOTICE 'Step 1 complete: RLS enabled on verses_backup_danda_fix';
+    CREATE POLICY "verses_backup_danda_fix_admin_delete"
+      ON public.verses_backup_danda_fix
+      FOR DELETE
+      TO authenticated
+      USING (public.has_role(auth.uid(), 'admin'::app_role));
+
+    RAISE NOTICE 'Step 1 complete: RLS enabled on verses_backup_danda_fix with granular policies';
   ELSE
     RAISE NOTICE 'Table verses_backup_danda_fix does not exist, skipping...';
   END IF;
 END $$;
 
 -- ============================================================================
--- КРОК 2: Оновлення views з security_invoker = true
+-- КРОК 2: Індекс для продуктивності фільтрів is_published/deleted_at
+-- ============================================================================
+CREATE INDEX IF NOT EXISTS idx_verses_published_not_deleted
+  ON public.verses (is_published, deleted_at)
+  WHERE is_published = true AND deleted_at IS NULL;
+
+COMMENT ON INDEX idx_verses_published_not_deleted IS 'Partial index for filtering published and non-deleted verses';
+
+-- ============================================================================
+-- КРОК 3: Оновлення views з security_invoker = true
 -- ============================================================================
 
--- 2.1 verses_with_synonyms (додаємо security_invoker)
+-- 3.1 verses_with_synonyms (додаємо security_invoker)
 DROP VIEW IF EXISTS public.verses_with_synonyms;
 CREATE VIEW public.verses_with_synonyms
 WITH (security_invoker = true)
@@ -85,7 +123,7 @@ WHERE v.is_published = true
 
 COMMENT ON VIEW public.verses_with_synonyms IS 'Published verses with synonyms - uses SECURITY INVOKER for RLS';
 
--- 2.2 verses_with_structure (додаємо фільтр is_published та deleted_at)
+-- 3.2 verses_with_structure (додаємо фільтр is_published та deleted_at)
 DROP VIEW IF EXISTS public.verses_with_structure;
 CREATE VIEW public.verses_with_structure
 WITH (security_invoker = true)
@@ -127,7 +165,7 @@ WHERE v.deleted_at IS NULL
 
 COMMENT ON VIEW public.verses_with_structure IS 'Verse structure analysis - uses SECURITY INVOKER for RLS, filters unpublished';
 
--- 2.3 verses_with_metadata (створюємо з фільтрами!)
+-- 3.3 verses_with_metadata (створюємо з фільтрами!)
 DROP VIEW IF EXISTS public.verses_with_metadata;
 CREATE VIEW public.verses_with_metadata
 WITH (security_invoker = true)
@@ -180,7 +218,7 @@ WHERE v.deleted_at IS NULL
 
 COMMENT ON VIEW public.verses_with_metadata IS 'Verses with chapter/book info - uses SECURITY INVOKER for RLS, filters unpublished';
 
--- 2.4 books_with_mapping (вже має security_invoker, перевіряємо)
+-- 3.4 books_with_mapping (вже має security_invoker, перевіряємо)
 DROP VIEW IF EXISTS public.books_with_mapping;
 CREATE VIEW public.books_with_mapping
 WITH (security_invoker = true)
@@ -204,7 +242,7 @@ WHERE b.deleted_at IS NULL;
 
 COMMENT ON VIEW public.books_with_mapping IS 'Books with chapter/verse counts - uses SECURITY INVOKER for RLS';
 
--- 2.5 readable_chapters (вже має security_invoker)
+-- 3.5 readable_chapters (вже має security_invoker)
 DROP VIEW IF EXISTS public.readable_chapters;
 CREATE VIEW public.readable_chapters
 WITH (security_invoker = true)
@@ -248,7 +286,7 @@ END) > 0;
 
 COMMENT ON VIEW public.readable_chapters IS 'Chapters with completion stats - uses SECURITY INVOKER for RLS';
 
--- 2.6 audio_track_daily_stats (вже має security_invoker)
+-- 3.6 audio_track_daily_stats (вже має security_invoker)
 DROP VIEW IF EXISTS public.audio_track_daily_stats;
 CREATE VIEW public.audio_track_daily_stats
 WITH (security_invoker = true)
@@ -269,7 +307,7 @@ GROUP BY track_id, DATE(created_at AT TIME ZONE 'UTC');
 
 COMMENT ON VIEW public.audio_track_daily_stats IS 'Audio analytics by day - uses SECURITY INVOKER for RLS';
 
--- 2.7 blog_posts_public (вже має security_invoker)
+-- 3.7 blog_posts_public (вже має security_invoker)
 DROP VIEW IF EXISTS public.blog_posts_public;
 CREATE VIEW public.blog_posts_public
 WITH (security_invoker = true)
@@ -308,7 +346,7 @@ WHERE is_published = true;
 
 COMMENT ON VIEW public.blog_posts_public IS 'Published blog posts - uses SECURITY INVOKER for RLS';
 
--- 2.8 book_pages_with_metadata (вже має security_invoker)
+-- 3.8 book_pages_with_metadata (вже має security_invoker)
 DROP VIEW IF EXISTS public.book_pages_with_metadata;
 CREATE VIEW public.book_pages_with_metadata
 WITH (security_invoker = true)
