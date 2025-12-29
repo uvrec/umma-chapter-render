@@ -80,6 +80,7 @@ import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import UniversalImportFixed from "./pages/admin/UniversalImportFixed";
+import BBTImport from "./pages/admin/BBTImport";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
@@ -230,6 +231,7 @@ function AppContent() {
           <Route path="/admin/data-migration" element={<DataMigration />} />
           <Route path="/admin/import-wizard" element={<ImportWizard />} />
           <Route path="/admin/universal-import" element={<UniversalImportFixed />} />
+          <Route path="/admin/bbt-import" element={<BBTImport />} />
           <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
           <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
           <Route path="/admin/blog-posts" element={<BlogPosts />} />

@@ -45,6 +45,15 @@ except Exception as e:
 else:
     IMPORT_ERROR = None
 
+# Import BBT Ukrainian importer
+try:
+    from tools import bg_ukrainian_importer
+except Exception as e:
+    bg_ukrainian_importer = None
+    BBT_IMPORT_ERROR = str(e)
+else:
+    BBT_IMPORT_ERROR = None
+
 app = Flask(__name__)
 CORS(app)
 
@@ -119,11 +128,130 @@ def parse_web_chapter():
     
     return jsonify(result)
 
+@app.route('/admin/parse-bbt', methods=['GET', 'POST'])
+def parse_bbt():
+    """
+    Parse BBT Bhagavad-gita files (Ventura format).
+
+    GET: Returns list of available files
+    POST: Parse specific files
+
+    POST JSON:
+    {
+      "mode": "chapters" | "intro" | "all",
+      "chapter": 2  // optional: specific chapter number
+    }
+    """
+    if BBT_IMPORT_ERROR:
+        return jsonify({"error": "bg_ukrainian_importer not importable", "detail": BBT_IMPORT_ERROR}), 500
+
+    docs_dir = os.path.join(repo_root, 'docs')
+
+    if request.method == 'GET':
+        # List available files
+        chapters = []
+        intros = []
+
+        import glob
+        for f in sorted(glob.glob(os.path.join(docs_dir, 'UKBG*XT.H*'))):
+            fname = os.path.basename(f)
+            chapters.append(fname)
+
+        for f in sorted(glob.glob(os.path.join(docs_dir, 'UKBG00*.H*'))):
+            fname = os.path.basename(f)
+            prefix = fname[:8]
+            if prefix in bg_ukrainian_importer.INTRO_FILE_MAP:
+                slug, title, order = bg_ukrainian_importer.INTRO_FILE_MAP[prefix]
+                intros.append({'file': fname, 'slug': slug, 'title': title, 'order': order})
+
+        return jsonify({
+            'chapters': chapters,
+            'intros': intros,
+            'docs_dir': docs_dir
+        })
+
+    # POST: parse files
+    data = request.get_json() or {}
+    mode = data.get('mode', 'all')
+    specific_chapter = data.get('chapter')
+
+    results = {
+        'chapters': [],
+        'intros': [],
+        'errors': []
+    }
+
+    try:
+        import glob
+        from pathlib import Path
+
+        # Parse chapters
+        if mode in ('chapters', 'all'):
+            for h_file in sorted(glob.glob(os.path.join(docs_dir, 'UKBG*XT.H*'))):
+                try:
+                    text = bg_ukrainian_importer.read_file(Path(h_file))
+                    chapter = bg_ukrainian_importer.parse_ventura(text)
+
+                    if specific_chapter and chapter.chapter_number != specific_chapter:
+                        continue
+
+                    if chapter.verses:
+                        results['chapters'].append(chapter.to_dict())
+                except Exception as e:
+                    results['errors'].append({
+                        'file': os.path.basename(h_file),
+                        'error': str(e)
+                    })
+
+        # Parse intro pages
+        if mode in ('intro', 'all'):
+            for h_file in sorted(glob.glob(os.path.join(docs_dir, 'UKBG00*.H*'))):
+                fname = os.path.basename(h_file)
+                prefix = fname.split('.')[0][:8]
+
+                if prefix not in bg_ukrainian_importer.INTRO_FILE_MAP:
+                    continue
+
+                try:
+                    text = bg_ukrainian_importer.read_file(Path(h_file))
+                    intro = bg_ukrainian_importer.parse_intro_page(text, prefix)
+
+                    if intro:
+                        results['intros'].append(intro.to_dict())
+                except Exception as e:
+                    results['errors'].append({
+                        'file': fname,
+                        'error': str(e)
+                    })
+
+        results['summary'] = {
+            'total_chapters': len(results['chapters']),
+            'total_verses': sum(c.get('verse_count', 0) for c in results['chapters']),
+            'total_intros': len(results['intros']),
+            'errors': len(results['errors'])
+        }
+
+    except Exception as e:
+        tb = traceback.format_exc()
+        return jsonify({
+            'error': 'parse_failed',
+            'detail': str(e),
+            'trace': tb
+        }), 500
+
+    return jsonify(results)
+
+
 @app.route('/health')
 def health():
+    status = {'status': 'ok'}
     if IMPORT_ERROR:
-        return jsonify({'status': 'error', 'import_error': IMPORT_ERROR}), 500
-    return jsonify({'status': 'ok'})
+        status['playwright_error'] = IMPORT_ERROR
+    if BBT_IMPORT_ERROR:
+        status['bbt_error'] = BBT_IMPORT_ERROR
+    if IMPORT_ERROR or BBT_IMPORT_ERROR:
+        status['status'] = 'partial'
+    return jsonify(status)
 
 if __name__ == '__main__':
     print('Starting parse_server on http://127.0.0.1:5003')
