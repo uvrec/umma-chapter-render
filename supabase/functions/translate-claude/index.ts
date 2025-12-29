@@ -17,7 +17,10 @@
  * }
  *
  * Потрібен секрет: ANTHROPIC_API_KEY
+ * REQUIRES AUTHENTICATION: Admin only
  */
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +28,8 @@ const corsHeaders = {
 };
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 // Правила транслітерації IAST → українська кирилиця
 const TRANSLITERATION_RULES: Record<string, string> = {
@@ -95,9 +100,67 @@ const SANSKRIT_GLOSSARY: Record<string, string> = {
   "ISKCON": "ІСКОН",
 };
 
+/**
+ * Validate user authentication and admin role
+ */
+async function validateAdminAuth(req: Request): Promise<{ user: { id: string; email?: string } } | Response> {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(
+      JSON.stringify({ error: "Supabase credentials not configured" }),
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return new Response(
+      JSON.stringify({ error: "Authorization header required" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    console.error("Auth error:", error?.message);
+    return new Response(
+      JSON.stringify({ error: "Unauthorized - invalid token" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  // Check if user has admin role
+  const { data: roleData, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .eq("role", "admin")
+    .maybeSingle();
+
+  if (roleError || !roleData) {
+    console.warn(`User ${user.id} attempted to access translate-claude without admin role`);
+    return new Response(
+      JSON.stringify({ error: "Forbidden - admin role required" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  return { user };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Validate admin authentication
+  const authResult = await validateAdminAuth(req);
+  if (authResult instanceof Response) {
+    return authResult;
   }
 
   if (!ANTHROPIC_API_KEY) {
@@ -116,6 +179,8 @@ Deno.serve(async (req) => {
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    console.log(`Translation request from user ${authResult.user.id}, text length: ${text.length}`);
 
     // Знайти санскритські терміни
     const termsFound: string[] = [];
@@ -189,7 +254,7 @@ Deno.serve(async (req) => {
       const errorText = await response.text();
       console.error("Claude API error:", errorText);
       return new Response(
-        JSON.stringify({ error: "Translation API error", details: errorText }),
+        JSON.stringify({ error: "Translation API error" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -216,7 +281,7 @@ Deno.serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Translation error:", errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Translation failed" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
