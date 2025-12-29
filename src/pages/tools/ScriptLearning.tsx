@@ -1,5 +1,5 @@
 // src/pages/tools/ScriptLearning.tsx
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -12,8 +12,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { convertIASTtoUkrainian, devanagariToIAST, bengaliToIAST } from "@/utils/textNormalizer";
 import { supabase } from "@/integrations/supabase/client";
 import { extractAllTerms, calculateTermUsage, GlossaryTerm } from "@/utils/glossaryParser";
-import { getLearningWords, saveLearningWords, removeLearningWord, LearningWord } from "@/utils/learningWords";
-import { getLearningVerses, saveLearningVerses, removeLearningVerse, LearningVerse } from "@/utils/learningVerses";
+import { getLearningWords, LearningWord } from "@/utils/learningWords";
+import { getLearningVerses, LearningVerse } from "@/utils/learningVerses";
 import { calculateNextReview, sortByReviewPriority, getDueItems, getReviewStats, formatTimeUntilReview, SRSMetadata } from "@/utils/spacedRepetition";
 import {
   getLearningProgress,
@@ -524,6 +524,8 @@ export default function ScriptLearning() {
         const newSRS = calculateNextReview(quality, updated[index].srs);
         updated[index] = { ...updated[index], srs: newSRS };
 
+        // Sync to cloud/localStorage via hook
+        setSyncedWords(updated);
         return updated;
       });
     } else if (learningMode === "slokas" && currentItem && 'verseId' in currentItem) {
@@ -535,10 +537,12 @@ export default function ScriptLearning() {
         const newSRS = calculateNextReview(quality, updated[index].srs);
         updated[index] = { ...updated[index], srs: newSRS };
 
+        // Sync to cloud/localStorage via hook
+        setSyncedVerses(updated);
         return updated;
       });
     }
-  }, [learningMode, currentItem]);
+  }, [learningMode, currentItem, setSyncedWords, setSyncedVerses]);
 
   // Check and show new achievements
   const checkAndShowAchievements = useCallback(() => {
@@ -701,8 +705,12 @@ export default function ScriptLearning() {
 
   // Remove word from imported (by iast)
   const removeImportedWord = (iast: string) => {
-    removeLearningWord(iast);
-    setImportedWords(prev => prev.filter((word) => word.iast !== iast));
+    setImportedWords(prev => {
+      const filtered = prev.filter((word) => word.iast !== iast);
+      // Sync to cloud/localStorage via hook
+      setSyncedWords(filtered);
+      return filtered;
+    });
     toast.success(t("Слово видалено", "Word removed"));
   };
 
@@ -736,21 +744,19 @@ export default function ScriptLearning() {
     }
   }, []);
 
-  // Check achievements when counts change
+  // Store checkAndShowAchievements in ref to avoid dependency cycle
+  const checkAndShowAchievementsRef = useRef(checkAndShowAchievements);
+  useEffect(() => { checkAndShowAchievementsRef.current = checkAndShowAchievements; }, [checkAndShowAchievements]);
+
+  // Check achievements when counts change (uses ref to avoid circular dependency)
   useEffect(() => {
     if (importedWords.length > 0 || learningVerses.length > 0) {
-      checkAndShowAchievements();
+      checkAndShowAchievementsRef.current();
     }
-  }, [importedWords.length, learningVerses.length, checkAndShowAchievements]);
+  }, [importedWords.length, learningVerses.length]);
 
-  // Save imported words to LocalStorage using utility
-  useEffect(() => {
-    try {
-      saveLearningWords(importedWords);
-    } catch (error) {
-      console.error('Error saving imported words to LocalStorage:', error);
-    }
-  }, [importedWords]);
+  // Note: imported words are saved to localStorage via useLearningSync hook
+  // when setSyncedWords is called, so no need to save here
 
   // Save custom words to LocalStorage
   useEffect(() => {
@@ -782,14 +788,8 @@ export default function ScriptLearning() {
     }
   }, []);
 
-  // Save learning verses to LocalStorage
-  useEffect(() => {
-    try {
-      saveLearningVerses(learningVerses);
-    } catch (error) {
-      console.error('Error saving learning verses to LocalStorage:', error);
-    }
-  }, [learningVerses]);
+  // Note: learning verses are saved to localStorage via useLearningSync hook
+  // when setSyncedVerses is called, so no need to save here
 
   // Скинути індекс при зміні фільтрів
   useEffect(() => {
@@ -1028,6 +1028,7 @@ export default function ScriptLearning() {
                     <Button
                       onClick={() => {
                         setLearningVerses([]);
+                        setSyncedVerses([]);
                         toast.info(t("Список віршів очищено", "Verse list cleared"));
                       }}
                       variant="outline"
@@ -1099,6 +1100,7 @@ export default function ScriptLearning() {
                     <Button
                       onClick={() => {
                         setImportedWords([]);
+                        setSyncedWords([]);
                         toast.info(t("Список слів очищено", "Word list cleared"));
                       }}
                       variant="outline"
@@ -1706,8 +1708,11 @@ export default function ScriptLearning() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            removeLearningVerse(verse.verseId);
-                            setLearningVerses(prev => prev.filter(v => v.verseId !== verse.verseId));
+                            setLearningVerses(prev => {
+                              const filtered = prev.filter(v => v.verseId !== verse.verseId);
+                              setSyncedVerses(filtered);
+                              return filtered;
+                            });
                             toast.success(t("Вірш видалено", "Verse removed"));
                           }}
                           className="p-1 rounded-md bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 opacity-0 group-hover:opacity-100 transition-opacity"
