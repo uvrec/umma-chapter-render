@@ -71,7 +71,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   return (
     <div className={`space-y-4 ${className}`}>
       {Array.from({ length: maxLength }).map((_, idx) => (
-        <div key={idx} className="grid grid-cols-2 gap-8 items-start">
+        <div key={idx} className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8 items-start">
           <p
             className="text-justify"
             dangerouslySetInnerHTML={{

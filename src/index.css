@@ -266,6 +266,15 @@ body {
   font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Запобігання горизонтальному скролу на мобільних */
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Контейнер #root - також запобігаємо overflow */
+#root {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* =========================
@@ -441,10 +450,28 @@ body {
     padding: 1rem 1rem 1.5rem;
   }
 
-  /* Touch targets - стандарт доступності */
+  /* Touch targets - стандарт доступності Apple HIG (44x44px) */
   button,
-  a {
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
     min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Винятки для inline посилань у тексті */
+  p a,
+  span a,
+  .prose a {
+    min-height: unset;
+    min-width: unset;
+  }
+
+  /* Збільшуємо tap area для іконок у кнопках */
+  button[class*="size-icon"] {
+    min-height: 44px;
+    min-width: 44px;
   }
 
   /* Секції між віршами */

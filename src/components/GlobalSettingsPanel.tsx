@@ -160,7 +160,7 @@ export const GlobalSettingsPanel = () => {
 
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="right" className="w-96 overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:w-96 max-w-[100vw] overflow-y-auto">
           <SheetHeader className="pb-4">
             <SheetTitle>{t("Налаштування", "Settings")}</SheetTitle>
           </SheetHeader>
