@@ -44,6 +44,9 @@ BEGIN
     -- Відкликаємо доступ від PUBLIC (безпечніше)
     REVOKE ALL ON public.verses_backup_danda_fix FROM PUBLIC;
 
+    -- Надаємо доступ authenticated (політики RLS далі обмежать до адмінів)
+    GRANT SELECT, INSERT, UPDATE, DELETE ON public.verses_backup_danda_fix TO authenticated;
+
     -- Видаляємо старі політики
     DROP POLICY IF EXISTS "Admin only access to backup" ON public.verses_backup_danda_fix;
     DROP POLICY IF EXISTS "Admins can access backup table" ON public.verses_backup_danda_fix;
@@ -83,13 +86,21 @@ BEGIN
 END $$;
 
 -- ============================================================================
--- КРОК 2: Індекс для продуктивності фільтрів is_published/deleted_at
+-- КРОК 2: Індекси для продуктивності
 -- ============================================================================
+
+-- 2.1 Partial index для фільтрів is_published/deleted_at у views
 CREATE INDEX IF NOT EXISTS idx_verses_published_not_deleted
   ON public.verses (is_published, deleted_at)
   WHERE is_published = true AND deleted_at IS NULL;
 
 COMMENT ON INDEX idx_verses_published_not_deleted IS 'Partial index for filtering published and non-deleted verses';
+
+-- 2.2 Індекс для швидкої перевірки ролей у RLS політиках
+CREATE INDEX IF NOT EXISTS idx_user_roles_user_role
+  ON public.user_roles (user_id, role);
+
+COMMENT ON INDEX idx_user_roles_user_role IS 'Index for RLS policy performance (has_role function)';
 
 -- ============================================================================
 -- КРОК 3: Оновлення views з security_invoker = true
@@ -274,7 +285,10 @@ SELECT
   END AS completion_percentage
 FROM public.chapters c
 LEFT JOIN public.books b ON c.book_id = b.id
-LEFT JOIN public.verses v ON v.chapter_id = c.id AND v.deleted_at IS NULL
+LEFT JOIN public.verses v
+  ON v.chapter_id = c.id
+  AND v.deleted_at IS NULL
+  AND v.is_published = true
 WHERE c.chapter_type = 'verses'
   AND c.is_published = true
 GROUP BY c.id, c.chapter_number, c.title_ua, c.title_en, c.chapter_type, c.book_id, b.slug, b.title_ua, b.title_en
