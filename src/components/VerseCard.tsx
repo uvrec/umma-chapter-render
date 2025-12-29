@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { useAudio } from "@/contexts/ModernAudioContext";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
@@ -485,15 +486,17 @@ export const VerseCard = ({
             </div>
 
             {isEditing ? (
-              <Textarea
-                value={edited.translation}
-                onChange={(e) =>
+              <EnhancedInlineEditor
+                content={edited.translation}
+                onChange={(html) =>
                   setEdited((p) => ({
                     ...p,
-                    translation: e.target.value,
+                    translation: html,
                   }))
                 }
-                className="text-base min-h-[150px]"
+                label="Редагувати переклад"
+                minHeight="150px"
+                compact={true}
               />
             ) : (
               <p
@@ -523,15 +526,17 @@ export const VerseCard = ({
             </div>
 
             {isEditing ? (
-              <Textarea
-                value={edited.commentary}
-                onChange={(e) =>
+              <EnhancedInlineEditor
+                content={edited.commentary}
+                onChange={(html) =>
                   setEdited((p) => ({
                     ...p,
-                    commentary: e.target.value,
+                    commentary: html,
                   }))
                 }
-                className="text-base min-h-[200px]"
+                label="Редагувати пояснення"
+                minHeight="200px"
+                compact={true}
               />
             ) : (
               <div
