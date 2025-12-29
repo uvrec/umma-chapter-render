@@ -1,0 +1,577 @@
+/**
+ * Ventura Import Edge Function
+ *
+ * Parses BBT Ventura files (.H93) and extracts Ukrainian content
+ * for Bhagavad-gita import.
+ *
+ * POST /ventura-import
+ * Content-Type: multipart/form-data
+ *
+ * Body:
+ *   file: .H93 file (Ventura format)
+ *   type: "chapter" | "intro"
+ *   file_prefix?: string (for intro files, e.g., "UKBG00PF")
+ *
+ * Response:
+ *   For chapters: { chapter_number, title_ua, verses: [...] }
+ *   For intros: { slug, title_ua, content_ua, display_order }
+ *
+ * REQUIRES AUTHENTICATION: Admin only
+ */
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// =============================================================================
+// PUA MAPPING - Ukrainian diacritics
+// =============================================================================
+
+const UKRAINIAN_PUA_MAP: Record<string, string> = {
+  '\uf101': 'а̄',   // ā → а з макроном
+  '\uf102': 'і̄',   // ī → і з макроном
+  '\uf121': 'і̄',   // ī → і з макроном (alt)
+  '\uf123': 'ӯ',   // ū → у з макроном
+  '\uf115': 'р̣',   // ṛ → р з точкою знизу
+  '\uf125': 'р̣̄',  // ṝ → р з точкою знизу та макроном
+  '\uf127': 'л̣',   // ḷ → л з точкою знизу
+  '\uf129': 'л̣̄',  // ḹ → л з точкою знизу та макроном
+  '\uf10f': 'н̇',   // ṅ → н з точкою зверху
+  '\uf113': 'н̃',   // ñ → н з тильдою
+  '\uf111': 'н̣',   // ṇ → н з точкою знизу
+  '\uf109': 'м̇',   // ṁ → м з точкою зверху (анусвара)
+  '\uf119': 'т̣',   // ṭ → т з точкою знизу
+  '\uf103': 'д̣',   // ḍ → д з точкою знизу
+  '\uf11d': 'ш́',   // ś → ш з акутом (палатальний)
+  '\uf11f': 'ш̣',   // ṣ → ш з точкою знизу (ретрофлексний)
+  '\uf11b': 'х̣',   // ḥ → х з точкою знизу (вісарга)
+  '\uf11c': 'Ш́',   // Ś → Ш з акутом (велика)
+};
+
+// Intro file mapping
+const INTRO_FILE_MAP: Record<string, [string, string, number]> = {
+  'UKBG00DC': ['dedication', 'Посвята', 1],
+  'UKBG00SS': ['background', 'Передісторія «Бгаґавад-ґіти»', 2],
+  'UKBG00PF': ['preface', 'Передмова до англійського видання', 3],
+  'UKBG00NT': ['note', 'Коментар до другого англійського видання', 4],
+  'UKBG00ID': ['introduction', 'Вступ', 5],
+  'UKBG00DS': ['disciplic-succession', 'Ланцюг учнівської послідовності', 100],
+  'UKBG00AU': ['about-author', 'Про автора', 101],
+  'UKBG00KU': ['reviews', 'Відгуки про «Бгаґавад-ґіту як вона є»', 102],
+  'UKBG00PG': ['pronunciation', 'Як читати санскрит', 103],
+  'UKBG00GL': ['glossary', 'Словничок імен і термінів', 104],
+  'UKBG00QV': ['verse-index', 'Покажчик цитованих віршів', 105],
+  'UKBG00XS': ['sanskrit-index', 'Покажчик санскритських віршів', 106],
+  'UKBG00RF': ['references', 'Список цитованої літератури', 107],
+  'UKBG00BL': ['books', 'Книги Його Божественної Милості', 108],
+};
+
+// Ukrainian ordinal numbers for chapter detection
+const ORDINALS: [string, number][] = [
+  ['ВІСІМНАДЦЯТА', 18], ['СІМНАДЦЯТА', 17], ['ШІСТНАДЦЯТА', 16], ["П'ЯТНАДЦЯТА", 15],
+  ['ЧОТИРНАДЦЯТА', 14], ['ТРИНАДЦЯТА', 13], ['ДВАНАДЦЯТА', 12], ['ОДИНАДЦЯТА', 11],
+  ['ДЕСЯТА', 10], ["ДЕВ'ЯТА", 9], ['ВОСЬМА', 8], ["С'ОМА", 7], ['СЬОМА', 7],
+  ['ШОСТА', 6], ["П'ЯТА", 5], ['ЧЕТВЕРТА', 4], ['ТРЕТЯ', 3], ['ДРУГА', 2], ['ПЕРША', 1]
+];
+
+// Tags to skip
+const SKIP_TAGS = new Set(['rh-verso', 'rh-recto', 'logo', 'text-rh', 'special']);
+const DEVANAGARI_TAGS = new Set(['d-uvaca', 'd-anustubh', 'd-tristubh']);
+
+// =============================================================================
+// TEXT PROCESSING
+// =============================================================================
+
+function decodePua(text: string): string {
+  let result = text;
+  for (const [pua, uni] of Object.entries(UKRAINIAN_PUA_MAP)) {
+    result = result.split(pua).join(uni);
+  }
+  return result;
+}
+
+function processLineContinuations(text: string): string {
+  const lines = text.split('\n');
+  const result: string[] = [];
+  let buffer = "";
+
+  for (const line of lines) {
+    const stripped = line.trimEnd();
+
+    if (stripped.endsWith('<->')) {
+      let l = stripped.slice(0, -3);
+      if (l.endsWith('-')) l = l.slice(0, -1);
+      buffer += l;
+    } else if (stripped.endsWith('-<&>')) {
+      buffer += stripped.slice(0, -4);
+    } else if (stripped.endsWith('<&>')) {
+      buffer += stripped.slice(0, -3);
+    } else {
+      if (buffer) {
+        result.push(buffer + line);
+        buffer = "";
+      } else {
+        result.push(line);
+      }
+    }
+  }
+
+  if (buffer) result.push(buffer);
+  return result.join('\n');
+}
+
+function processInlineTags(text: string, keepHtml: boolean = false): string {
+  let result = processLineContinuations(text);
+
+  // Unicode escapes
+  result = result.split('<u003C>').join('<');
+
+  // Whitespace and line breaks
+  result = result.replace(/<->\s*/g, '');
+  result = result.replace(/<&>\s*/g, '');
+  result = result.replace(/<_?R>/g, '\n');
+  result = result.replace(/<N\|?>/g, '');
+  result = result.replace(/<S>/g, ' ');
+  result = result.replace(/<_>/g, ' ');
+
+  // Single-letter prepositions
+  result = result.replace(/<_oneletter>([^<]*)<_N>/g, '$1 ');
+
+  if (keepHtml) {
+    // Bold + Italic
+    result = result.replace(/<BI>([^<]*)<\/?D>/g, '<strong><em>$1</em></strong>');
+
+    // Bold
+    result = result.replace(/<B>([^<]*)<\/?D>/g, '<strong>$1</strong>');
+    result = result.replace(/<B>/g, '<strong>');
+
+    // Italic
+    result = result.replace(/<MI>([^<]*)<\/?D>/g, '<em>$1</em>');
+    result = result.replace(/<MI>/g, '<em>');
+    result = result.replace(/<\/?D>/g, '</em>');
+
+    // Clean up punctuation in italic/bold
+    result = result.replace(/<\/em>\s*<em>([,.\;:])/g, '</em>$1');
+    result = result.replace(/<\/strong>\s*<strong>([,.\;:])/g, '</strong>$1');
+
+    // Remove empty tags
+    result = result.replace(/<em><\/em>/g, '');
+    result = result.replace(/<strong><\/strong>/g, '');
+    result = result.replace(/<\/em>\s*<em>/g, ' ');
+    result = result.replace(/<\/strong>\s*<strong>/g, ' ');
+
+    // Remove spaces before closing tags
+    result = result.replace(/\s+<\/em>/g, '</em>');
+    result = result.replace(/\s+<\/strong>/g, '</strong>');
+
+    // Remove empty tags again
+    result = result.replace(/<em><\/em>/g, '');
+    result = result.replace(/<strong><\/strong>/g, '');
+  } else {
+    // Strip formatting
+    result = result.replace(/<BI>([^<]*)<\/?D>/g, '$1');
+    result = result.replace(/<B>([^<]*)<\/?D>/g, '$1');
+    result = result.replace(/<B>/g, '');
+    result = result.replace(/<MI>([^<]*)<\/?D>/g, '$1');
+    result = result.replace(/<MI>/g, '');
+    result = result.replace(/<\/?D>/g, '');
+  }
+
+  // Book titles
+  result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '«$1»');
+
+  // Quotes - just remove tags (quotes already in text)
+  result = result.replace(/<_qm>/g, '');
+  result = result.replace(/<\/_qm>/g, '');
+
+  // Terms (for synonyms)
+  result = result.replace(/<_dt>([^<]*)<_\/dt>/g, '$1');
+  result = result.replace(/<_dt>|<_\/dt>/g, '');
+  result = result.replace(/<_dd>|<_\/dd>/g, '');
+
+  // Slash
+  result = result.replace(/<_slash>\/<_\/slash>/g, '/');
+
+  // Monospace - ignore
+  result = result.replace(/<mon>[^<]*<\/mon>/g, '');
+
+  // Decode PUA
+  result = decodePua(result);
+
+  // Remove remaining Ventura tags (but not HTML if keepHtml)
+  if (keepHtml) {
+    result = result.replace(/<(?!\/?(em|strong|br))[^>]*>/g, '');
+  } else {
+    result = result.replace(/<[^>]*>/g, '');
+  }
+
+  // Normalize whitespace
+  result = result.replace(/[ \t]+/g, ' ');
+  result = result.replace(/\n\s*\n/g, '\n\n');
+
+  return result.trim();
+}
+
+function processSynonyms(text: string): string {
+  let result = processLineContinuations(text);
+  result = result.split('\n').join(' ');
+
+  // Convert <_dt>...<_/dt> <_dd>...<_/dd> → term — meaning
+  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*<_dd>([^<]*)<_\/dd>/g, '$1 — $2');
+  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*<_dd>([^<]*)<_\/dd>/g, '$1 — $2');
+
+  result = processInlineTags(result, false);
+  result = result.replace(/\s+/g, ' ').trim();
+
+  // Normalize dashes
+  result = result.replace(/ – /g, ' — ');
+  result = result.replace(/ - /g, ' — ');
+
+  return result;
+}
+
+function processProse(text: string, keepHtml: boolean = false): string {
+  let result = processLineContinuations(text);
+  result = result.split('\n').join(' ');
+  result = processInlineTags(result, keepHtml);
+  result = result.replace(/\s+/g, ' ').trim();
+  return result;
+}
+
+function processTransliteration(text: string): string {
+  let result = processLineContinuations(text);
+  result = result.replace(/<_R><_>/g, '\n');
+  result = result.replace(/<R>/g, '\n');
+  result = result.replace(/<_>/g, ' ');
+  result = processInlineTags(result);
+  return result.split('\n').map(l => l.trim()).filter(l => l).join('\n');
+}
+
+function extractVerseNumber(text: string): string {
+  const match = text.match(/(?:Вірш[иі]?|ВІРШ[ИІ]?)\s*(\d+(?:\s*[-–]\s*\d+)?)/i);
+  if (match) return match[1].replace(/\s+/g, '');
+  const numMatch = text.match(/(\d+(?:\s*[-–]\s*\d+)?)/);
+  if (numMatch) return numMatch[1].replace(/\s+/g, '');
+  return text.trim();
+}
+
+function extractChapterNumber(text: string): number {
+  let norm = text.toUpperCase();
+  norm = norm.replace(/ʼ/g, "'").replace(/\u2019/g, "'").replace(/`/g, "'");
+
+  for (const [name, num] of ORDINALS) {
+    if (norm.includes(name)) return num;
+  }
+
+  const match = text.match(/(\d+)/);
+  if (match) return parseInt(match[1]);
+  return 0;
+}
+
+// =============================================================================
+// PARSERS
+// =============================================================================
+
+interface Verse {
+  verse_number: string;
+  transliteration_ua?: string;
+  synonyms_ua?: string;
+  translation_ua?: string;
+  commentary_ua?: string;
+}
+
+interface Chapter {
+  chapter_number: number;
+  title_ua: string;
+  verses: Verse[];
+}
+
+interface IntroPage {
+  slug: string;
+  title_ua: string;
+  content_ua: string;
+  display_order: number;
+}
+
+function parseVentura(text: string): Chapter {
+  const lines = text.split('\n');
+
+  let chapterNumber = 0;
+  let chapterTitle = "";
+  const verses: Verse[] = [];
+  let currentVerse: Verse | null = null;
+
+  let currentTag: string | null = null;
+  let currentContent: string[] = [];
+
+  function flushBlock() {
+    if (!currentTag || SKIP_TAGS.has(currentTag) || DEVANAGARI_TAGS.has(currentTag)) {
+      return;
+    }
+
+    const content = currentContent.join(' ').trim();
+    if (!content) return;
+
+    if (currentTag === 'h1-number') {
+      chapterNumber = extractChapterNumber(content);
+    } else if (currentTag === 'h1') {
+      chapterTitle = processInlineTags(content);
+    } else if (['h2-number', 'h2-number-2', 'ch'].includes(currentTag)) {
+      if (currentVerse) verses.push(currentVerse);
+      currentVerse = { verse_number: extractVerseNumber(content) };
+    } else if (['v-uvaca', 'v-anustubh', 'v-tristubh'].includes(currentTag)) {
+      if (currentVerse) {
+        const translit = processTransliteration(content);
+        currentVerse.transliteration_ua = currentVerse.transliteration_ua
+          ? currentVerse.transliteration_ua + '\n' + translit
+          : translit;
+      }
+    } else if (currentTag === 'eqs') {
+      if (currentVerse) {
+        const synonyms = processSynonyms(content);
+        currentVerse.synonyms_ua = currentVerse.synonyms_ua
+          ? currentVerse.synonyms_ua + ' ' + synonyms
+          : synonyms;
+      }
+    } else if (currentTag === 'translation') {
+      if (currentVerse) {
+        currentVerse.translation_ua = processProse(content, false);
+      }
+    } else if (['p-indent', 'p', 'p0', 'p1'].includes(currentTag)) {
+      if (currentVerse) {
+        const para = processProse(content, true);
+        if (para) {
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + '\n\n' + para
+            : para;
+        }
+      }
+    }
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trimEnd();
+
+    if (trimmed.startsWith('@') && trimmed.includes(' = ')) {
+      flushBlock();
+
+      const match = trimmed.match(/^@([\w-]+)\s*=\s*(.*)/);
+      if (match) {
+        currentTag = match[1];
+        const c = match[2].trim();
+        currentContent = c ? [c] : [];
+      }
+    } else if (currentTag && line) {
+      currentContent.push(line);
+    }
+  }
+
+  flushBlock();
+  if (currentVerse) verses.push(currentVerse);
+
+  return { chapter_number: chapterNumber, title_ua: chapterTitle, verses };
+}
+
+function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
+  const mapping = INTRO_FILE_MAP[filePrefix];
+  if (!mapping) return null;
+
+  const [slug, defaultTitle, displayOrder] = mapping;
+  const lines = text.split('\n');
+
+  let title = defaultTitle;
+  const paragraphs: string[] = [];
+  let currentListNumber: string | null = null;
+
+  let currentTag: string | null = null;
+  let currentContent: string[] = [];
+
+  function flushBlock() {
+    if (!currentTag) return;
+
+    const content = currentContent.join(' ').trim();
+    if (!content) return;
+
+    // Headers
+    if (['h1-fb', 'h1', 'h1-pg', 'h1-rv', 'h1-bl', 'h1-ds'].includes(currentTag)) {
+      title = processProse(content, false).split(/\s+/).join(' ');
+    }
+    // Subheaders
+    else if (['h2', 'h2-gl', 'h2-rv'].includes(currentTag)) {
+      const sub = processProse(content, true);
+      if (sub) paragraphs.push(`<strong>${sub}</strong>`);
+    }
+    // Paragraphs
+    else if (['p0', 'p', 'p1', 'p-indent', 'p-gl', 'p-au', 'p-rv', 'p-bl', 'p0-ku', 'p1-ku'].includes(currentTag)) {
+      const para = processProse(content, true);
+      if (para) paragraphs.push(para);
+    }
+    // Signatures (reviews)
+    else if (currentTag === 'ku-signature') {
+      const sig = processProse(content, true).replace(/\n/g, '<br>');
+      if (sig) paragraphs.push(`<p class="signature"><em>${sig}</em></p>`);
+    }
+    // Dedication
+    else if (currentTag === 'dc') {
+      const para = processProse(content, true).replace(/\n/g, '<br>');
+      if (para) paragraphs.push(`<p class="dedication">${para}</p>`);
+    }
+    // Numbered lists
+    else if (['li-number', 'li-number-0'].includes(currentTag)) {
+      const num = processProse(content, false).trim();
+      const numMatch = num.match(/(\d+)/);
+      currentListNumber = numMatch ? numMatch[1] : num;
+    }
+    else if (currentTag === 'li-p') {
+      const item = processProse(content, true);
+      if (item) {
+        paragraphs.push(currentListNumber ? `${currentListNumber}. ${item}` : `• ${item}`);
+      }
+      currentListNumber = null;
+    }
+    // Glossary entries
+    else if (currentTag === 'li-gl') {
+      const item = processSynonyms(content);
+      if (item) paragraphs.push(item);
+    }
+    // Book list
+    else if (currentTag === 'li-bl') {
+      const item = processProse(content, true);
+      if (item) paragraphs.push(`• ${item}`);
+    }
+    // Index intro
+    else if (['intro-qv', 'intro-xs'].includes(currentTag)) {
+      const intro = processProse(content, true);
+      if (intro) paragraphs.push(intro);
+    }
+    // Index items
+    else if (['li-qv', 'li-xs'].includes(currentTag)) {
+      const item = processProse(content, true);
+      if (item) paragraphs.push(item);
+    }
+    // Quotes
+    else if (['ql', 'q', 'q-p'].includes(currentTag)) {
+      const quote = processProse(content, true);
+      if (quote) paragraphs.push(`<blockquote>${quote}</blockquote>`);
+    }
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trimEnd();
+
+    if (trimmed.startsWith('@') && trimmed.includes(' = ')) {
+      flushBlock();
+
+      const match = trimmed.match(/^@([\w-]+)\s*=\s*(.*)/);
+      if (match) {
+        currentTag = match[1];
+        const c = match[2].trim();
+        currentContent = c ? [c] : [];
+      }
+    } else if (currentTag && line) {
+      currentContent.push(line);
+    }
+  }
+
+  flushBlock();
+
+  if (paragraphs.length === 0) return null;
+
+  return {
+    slug,
+    title_ua: title,
+    content_ua: paragraphs.join('\n\n'),
+    display_order: displayOrder,
+  };
+}
+
+// =============================================================================
+// MAIN HANDLER
+// =============================================================================
+
+Deno.serve(async (req) => {
+  // Handle CORS
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    // Parse multipart form data
+    const formData = await req.formData();
+    const file = formData.get("file") as File | null;
+    const type = formData.get("type") as string || "chapter";
+    const filePrefix = formData.get("file_prefix") as string || "";
+
+    if (!file) {
+      return new Response(
+        JSON.stringify({ error: "No file provided" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Read file content
+    const arrayBuffer = await file.arrayBuffer();
+    let text: string;
+
+    // Try UTF-16LE first (typical BBT format)
+    try {
+      const decoder = new TextDecoder("utf-16le");
+      text = decoder.decode(arrayBuffer);
+      if (text.startsWith('\ufeff')) {
+        text = text.slice(1);
+      }
+    } catch {
+      // Fallback to UTF-8
+      const decoder = new TextDecoder("utf-8");
+      text = decoder.decode(arrayBuffer);
+      if (text.startsWith('\ufeff')) {
+        text = text.slice(1);
+      }
+    }
+
+    let result: any;
+
+    if (type === "intro") {
+      // Get file prefix from filename if not provided
+      let prefix = filePrefix;
+      if (!prefix && file.name) {
+        prefix = file.name.split('.')[0].slice(0, 8);
+      }
+
+      result = parseIntroPage(text, prefix);
+
+      if (!result) {
+        return new Response(
+          JSON.stringify({ error: "Invalid intro file or unknown prefix", prefix }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      // Parse as chapter
+      result = parseVentura(text);
+
+      if (!result.verses || result.verses.length === 0) {
+        return new Response(
+          JSON.stringify({ error: "No verses found in file" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
+    return new Response(
+      JSON.stringify({ success: true, type, data: result }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("Error parsing file:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Parse failed",
+        detail: error instanceof Error ? error.message : "Unknown error"
+      }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

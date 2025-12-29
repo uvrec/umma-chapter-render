@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.publish-scheduled-posts]
 # keep default auth behavior
+
+[functions.ventura-import]
+verify_jwt = false

@@ -396,7 +396,7 @@ function extractCitations(response: string, searchResults: SearchResult[], langu
 /**
  * Find related topics from tattvas
  */
-async function findRelatedTopics(_supabase: ReturnType<typeof createClient>, _query: string, language: 'uk' | 'en'): Promise<string[]> {
+async function findRelatedTopics(_supabase: any, _query: string, language: 'uk' | 'en'): Promise<string[]> {
   // Note: tattvas table may not exist yet
   // Return predefined topics for now
   const defaultTopics = language === 'uk' 
