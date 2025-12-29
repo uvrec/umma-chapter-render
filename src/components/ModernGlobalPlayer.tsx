@@ -234,7 +234,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
         {/* Mini Player (Compact) */}
         {!isExpanded && (
-          <div className="bg-card/95 backdrop-blur border-t border-border px-4 py-3">
+          <div className="bg-card/95 backdrop-blur border-t border-border px-4 py-3 safe-bottom">
             <div className="max-w-6xl mx-auto">
               {/* Progress bar (thin) */}
               <div 

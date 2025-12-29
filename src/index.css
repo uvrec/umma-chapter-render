@@ -275,6 +275,14 @@ body {
 #root {
   overflow-x: hidden;
   max-width: 100vw;
+  /* iOS/Android Safe Area - для notch, home indicator, Dynamic Island */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  /* Мінімальна висота для повного екрану */
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height для iOS Safari */
 }
 
 /* =========================
@@ -651,5 +659,57 @@ textarea.transliteration-output {
   /* Спрощуємо sticky headers */
   .sticky {
     background-color: hsl(var(--background)) !important;
+  }
+}
+
+/* =========================
+   SAFE AREA UTILITIES
+   Для iOS notch, Dynamic Island, home indicator
+   Для Android edge-to-edge mode
+   ========================= */
+
+/* Fixed bottom elements need safe-area padding */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* For fixed elements - position offset instead of padding */
+.fixed-safe-bottom {
+  bottom: env(safe-area-inset-bottom);
+}
+
+.fixed-safe-top {
+  top: env(safe-area-inset-top);
+}
+
+/* Capacitor/Cordova specific - iOS keyboard handling */
+body.keyboard-open {
+  --keyboard-height: var(--keyboard-height, 0px);
+}
+
+/* iOS specific: prevent rubber-banding on fixed elements */
+@supports (-webkit-touch-callout: none) {
+  .fixed, [class*="fixed"] {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* Android navigation bar gesture hint area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .gesture-safe {
+    padding-bottom: max(env(safe-area-inset-bottom), 8px);
   }
 }
