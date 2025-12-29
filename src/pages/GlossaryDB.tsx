@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -34,7 +34,7 @@ export default function GlossaryDB() {
   }, [searchParams]);
 
   // Fetch all verses with their book information
-  const { data: versesData = [] } = useQuery({
+  const { data: versesData = [], isLoading: isLoadingVerses } = useQuery({
     queryKey: ['glossary-verses', language],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -229,7 +229,16 @@ export default function GlossaryDB() {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-3 space-y-4">
-              {!hasSearch ? (
+              {isLoadingVerses ? (
+                <Card className="p-8 text-center">
+                  <div className="text-muted-foreground space-y-2">
+                    <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
+                    <p className="text-lg">
+                      {t('Завантаження термінів...', 'Loading terms...')}
+                    </p>
+                  </div>
+                </Card>
+              ) : !hasSearch ? (
                 <Card className="p-8 text-center">
                   <div className="text-muted-foreground space-y-2">
                     <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
