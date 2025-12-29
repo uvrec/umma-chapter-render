@@ -162,7 +162,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
   }, [language]);
 
   return (
-    <Card className={cn("flex flex-col h-[600px] md:h-[700px]", className)}>
+    <Card className={cn("flex flex-col h-[calc(100vh-200px)] min-h-[400px] max-h-[700px] sm:h-[600px] md:h-[700px]", className)}>
       {/* Header */}
       <CardHeader className="flex-shrink-0 border-b py-3 px-4">
         <div className="flex items-center justify-between">

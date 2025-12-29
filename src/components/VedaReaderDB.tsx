@@ -857,30 +857,30 @@ export const VedaReaderDB = () => {
 
       {/* 🆕 Sticky Header з іконками */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <a href="/" className="hover:text-foreground transition-colors flex items-center gap-1">
+        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center justify-between gap-2">
+            {/* Breadcrumbs - responsive with overflow handling */}
+            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground min-w-0 overflow-hidden">
+              <a href="/" className="hover:text-foreground transition-colors flex items-center gap-1 flex-shrink-0">
                 <Home className="h-4 w-4" />
-                {t("Бібліотека", "Library")}
+                <span className="hidden sm:inline">{t("Бібліотека", "Library")}</span>
               </a>
-              <span>›</span>
-              <a href={`/veda-reader/${bookId}`} className="hover:text-foreground transition-colors">
+              <span className="flex-shrink-0">›</span>
+              <a href={`/veda-reader/${bookId}`} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
                 {bookTitle}
               </a>
               {cantoTitle && <>
-                  <span>›</span>
-                  <a href={`/veda-reader/${bookId}/canto/${cantoNumber}`} className="hover:text-foreground transition-colors">
+                  <span className="flex-shrink-0">›</span>
+                  <a href={`/veda-reader/${bookId}/canto/${cantoNumber}`} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
                     {cantoTitle}
                   </a>
                 </>}
-              <span>›</span>
-              <span className="text-foreground font-medium">{chapterTitle}</span>
+              <span className="flex-shrink-0">›</span>
+              <span className="text-foreground font-medium truncate">{chapterTitle}</span>
             </div>
 
-            {/* Icons */}
-            <div className="flex items-center gap-1">
+            {/* Icons - responsive */}
+            <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
               <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
                 <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
               </Button>
