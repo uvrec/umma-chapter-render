@@ -1,5 +1,5 @@
 // EnhancedInlineEditor.tsx — Розширений inline редактор з повним набором функцій
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -77,6 +77,16 @@ export const EnhancedInlineEditor = ({
   minHeight = "200px",
   compact = false,
 }: EnhancedInlineEditorProps) => {
+  // Track if component is mounted for async operations
+  const isMountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   // Ensure content is valid HTML
   const initialContent = content || "<p></p>";
 
@@ -123,55 +133,99 @@ export const EnhancedInlineEditor = ({
       onUpdate: ({ editor }) => onChange(editor.getHTML()),
       editorProps: {
         attributes: {
-          class: `prose prose-sm dark:prose-invert max-w-none min-h-[${minHeight}] focus:outline-none p-4`,
-        },
-        // Зберігаємо форматування при вставці з буфера обміну
-        handlePaste: (view, event, slice) => {
-          // Дозволяємо стандартну поведінку вставки з HTML
-          return false;
-        },
-        transformPastedHTML(html) {
-          // Зберігаємо весь HTML без змін
-          return html;
+          class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none p-4",
+          style: `min-height: ${minHeight}`,
         },
       },
     },
     [editable]
   );
 
+  // Handle editable state changes
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable);
-      const newContent = content || "<p></p>";
-      if (newContent !== editor.getHTML()) {
-        editor.commands.setContent(newContent);
-      }
     }
-  }, [editor, editable, content]);
+  }, [editor, editable]);
+
+  // Sync content from props (with normalized comparison to avoid update loops)
+  useEffect(() => {
+    if (!editor) return;
+    const newContent = content || "<p></p>";
+    const currentHTML = editor.getHTML();
+    // Normalize HTML for comparison to avoid false positives from whitespace differences
+    const normalizeHTML = (html: string) => html.trim().replace(/\s+/g, " ");
+    if (normalizeHTML(newContent) !== normalizeHTML(currentHTML)) {
+      editor.commands.setContent(newContent);
+    }
+  }, [editor, content]);
 
 
-  const handleImageUpload = async () => {
+  // Image upload with proper memory cleanup and validation
+  const handleImageUpload = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = async (e) => {
+
+    const handleChange = async (e: Event) => {
+      // Clean up event listener and input element
+      input.removeEventListener("change", handleChange);
+
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+
+      // Validate file size (max 5MB)
+      const MAX_FILE_SIZE = 5 * 1024 * 1024;
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Файл занадто великий",
+          description: "Максимальний розмір 5МБ",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate MIME type
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Невірний тип файлу",
+          description: "Дозволені тільки зображення",
+          variant: "destructive",
+        });
+        return;
+      }
+
       try {
-        const ext = file.name.split(".").pop();
+        // Extract extension safely
+        const lastDotIndex = file.name.lastIndexOf(".");
+        const ext = lastDotIndex > 0 ? file.name.slice(lastDotIndex + 1).toLowerCase() : "jpg";
         const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
         const { error: uploadError } = await supabase.storage.from("blog-media").upload(fileName, file);
-        if (uploadError) throw uploadError;
+        if (uploadError) throw new Error(uploadError.message || "Помилка завантаження");
+
         const { data } = supabase.storage.from("blog-media").getPublicUrl(fileName);
-        editor?.chain().focus().setImage({ src: data.publicUrl }).run();
-        toast({ title: "✅ Зображення завантажено" });
+
+        // Only update editor if component is still mounted
+        if (isMountedRef.current && editor) {
+          editor.chain().focus().setImage({ src: data.publicUrl }).run();
+          toast({ title: "Зображення завантажено" });
+        }
       } catch (error) {
-        console.error(error);
-        toast({ title: "Помилка завантаження зображення", variant: "destructive" });
+        if (isMountedRef.current) {
+          const message = error instanceof Error ? error.message : "Невідома помилка";
+          toast({
+            title: "Помилка завантаження зображення",
+            description: message,
+            variant: "destructive",
+          });
+        }
       }
     };
+
+    input.addEventListener("change", handleChange);
     input.click();
-  };
+  }, [editor]);
 
   const addLink = () => {
     const url = window.prompt("Введіть URL:");
@@ -184,7 +238,7 @@ export const EnhancedInlineEditor = ({
 
   const addYoutubeVideo = () => {
     const url = window.prompt("Введіть YouTube URL:");
-    if (url) editor?.commands.setYoutubeVideo({ src: url });
+    if (url) editor?.chain().focus().setYoutubeVideo({ src: url }).run();
   };
 
   const insertTable = () => {
@@ -212,10 +266,9 @@ export const EnhancedInlineEditor = ({
   };
 
   if (!editor) {
-    console.log('[EnhancedInlineEditor] Editor is null, returning placeholder');
     return (
       <div className="p-4 border border-dashed border-gray-300 rounded-md text-gray-500">
-        Завантаження редактора... (label: {label})
+        Завантаження редактора...
       </div>
     );
   }
@@ -445,21 +498,23 @@ export const EnhancedInlineEditor = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2" onMouseDown={(e) => e.preventDefault()}>
                   {[
-                    "#000000",
-                    "#E11D48",
-                    "#F59E0B",
-                    "#10B981",
-                    "#3B82F6",
-                    "#8B5CF6",
-                    "#EC4899",
-                    "#6B7280",
-                    "#FFFFFF",
-                  ].map((color) => (
+                    { color: "#000000", name: "Чорний" },
+                    { color: "#E11D48", name: "Червоний" },
+                    { color: "#F59E0B", name: "Помаранчевий" },
+                    { color: "#10B981", name: "Зелений" },
+                    { color: "#3B82F6", name: "Синій" },
+                    { color: "#8B5CF6", name: "Фіолетовий" },
+                    { color: "#EC4899", name: "Рожевий" },
+                    { color: "#6B7280", name: "Сірий" },
+                    { color: "#FFFFFF", name: "Білий" },
+                  ].map(({ color, name }) => (
                     <DropdownMenuItem
                       key={color}
                       className="p-0 w-5 h-5 rounded-full cursor-pointer border"
                       style={{ backgroundColor: color }}
                       onClick={() => setColor(color)}
+                      aria-label={name}
+                      title={name}
                     />
                   ))}
                 </DropdownMenuContent>
@@ -479,18 +534,27 @@ export const EnhancedInlineEditor = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2" onMouseDown={(e) => e.preventDefault()}>
                   <DropdownMenuItem
-                    className="p-0 w-5 h-5 rounded-full cursor-pointer border"
+                    className="p-0 w-5 h-5 rounded-full cursor-pointer border flex items-center justify-center"
                     onClick={() => setHighlight("none")}
+                    aria-label="Видалити маркер"
                     title="Видалити маркер"
                   >
                     ✕
                   </DropdownMenuItem>
-                  {["#FEF3C7", "#DBEAFE", "#D1FAE5", "#FCE7F3", "#E0E7FF"].map((color) => (
+                  {[
+                    { color: "#FEF3C7", name: "Жовтий маркер" },
+                    { color: "#DBEAFE", name: "Синій маркер" },
+                    { color: "#D1FAE5", name: "Зелений маркер" },
+                    { color: "#FCE7F3", name: "Рожевий маркер" },
+                    { color: "#E0E7FF", name: "Фіолетовий маркер" },
+                  ].map(({ color, name }) => (
                     <DropdownMenuItem
                       key={color}
                       className="p-0 w-5 h-5 rounded-full cursor-pointer border"
                       style={{ backgroundColor: color }}
                       onClick={() => setHighlight(color)}
+                      aria-label={name}
+                      title={name}
                     />
                   ))}
                 </DropdownMenuContent>
