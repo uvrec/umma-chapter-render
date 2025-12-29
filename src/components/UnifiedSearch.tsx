@@ -63,7 +63,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
     }
   }, [open]);
 
-  // Автокомпліт підказки (показуємо при 1+ символах)
+  // Автокомпліт підказки (показуємо при 1+ символах) - використовуємо RPC search_suggest_terms
   const debouncedPrefix = useDebounce(query, 200);
   const { data: suggestions = [], isLoading: isLoadingSuggestions } = useQuery({
     queryKey: ['search-suggestions', debouncedPrefix, language],
@@ -71,39 +71,26 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
       if (!debouncedPrefix || debouncedPrefix.length < 1) return [];
 
       try {
-        // RPC функція може не існувати - використовуємо fallback
-        const { data, error } = await supabase
-          .from('verses')
-          .select('translation_ua, translation_en')
-          .or(
-            language === 'ua'
-              ? `translation_ua.ilike.%${debouncedPrefix}%`
-              : `translation_en.ilike.%${debouncedPrefix}%`
-          )
-          .limit(6);
-
-        if (error) {
-          console.error('Suggestions error:', error);
-          return [];
-        }
-
-        // Витягуємо ключові слова з результатів
-        const words = new Set<string>();
-        data?.forEach((verse) => {
-          const text = language === 'ua' ? verse.translation_ua : verse.translation_en;
-          if (text) {
-            const matches = text.toLowerCase().match(new RegExp(`\\b\\w*${debouncedPrefix.toLowerCase()}\\w*\\b`, 'g'));
-            matches?.forEach((w: string) => w.length > 2 && words.add(w));
-          }
+        // Використовуємо RPC функцію search_suggest_terms
+        const { data, error } = await supabase.rpc('search_suggest_terms', {
+          search_prefix: debouncedPrefix,
+          language_code: language,
+          limit_count: 6,
         });
 
-        return Array.from(words).slice(0, 6).map((w, i) => ({
-          suggestion: w,
-          frequency: 6 - i,
-          source: 'verses',
+        if (error) {
+          console.error('Suggestions RPC error:', error);
+          // Fallback на простий пошук якщо RPC не працює
+          return fallbackSuggestions(debouncedPrefix);
+        }
+
+        return (data || []).map((item: { term: string; frequency: number; source_type: string }) => ({
+          suggestion: item.term,
+          frequency: item.frequency,
+          source: item.source_type,
         }));
       } catch {
-        return [];
+        return fallbackSuggestions(debouncedPrefix);
       }
     },
     enabled: debouncedPrefix.length >= 1 && debouncedPrefix.length < 3,
@@ -111,12 +98,68 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
     gcTime: 30 * 60 * 1000,
   });
 
-  // Уніфікований пошук - використовуємо fallback оскільки RPC ще не розгорнутий
+  // Fallback для підказок якщо RPC не доступний
+  const fallbackSuggestions = async (prefix: string): Promise<SuggestionResult[]> => {
+    const { data } = await supabase
+      .from('verses')
+      .select('translation_ua, translation_en')
+      .or(
+        language === 'ua'
+          ? `translation_ua.ilike.%${prefix}%`
+          : `translation_en.ilike.%${prefix}%`
+      )
+      .limit(6);
+
+    const words = new Set<string>();
+    data?.forEach((verse) => {
+      const text = language === 'ua' ? verse.translation_ua : verse.translation_en;
+      if (text) {
+        const matches = text.toLowerCase().match(new RegExp(`\\b\\w*${prefix.toLowerCase()}\\w*\\b`, 'g'));
+        matches?.forEach((w: string) => w.length > 2 && words.add(w));
+      }
+    });
+
+    return Array.from(words).slice(0, 6).map((w, i) => ({
+      suggestion: w,
+      frequency: 6 - i,
+      source: 'verses',
+    }));
+  };
+
+  // Уніфікований пошук - використовуємо RPC unified_search з fallback
   const { data: results = [], isLoading } = useQuery({
     queryKey: ['unified-search', debouncedQuery, language],
     queryFn: async (): Promise<UnifiedSearchResult[]> => {
       if (!debouncedQuery || debouncedQuery.length < 2) return [];
-      return fallbackSearch(debouncedQuery);
+
+      try {
+        // Використовуємо RPC функцію unified_search з Full-Text Search
+        const { data, error } = await supabase.rpc('unified_search', {
+          search_query: debouncedQuery,
+          language_code: language,
+          search_types: ['verses', 'blog'],
+          limit_per_type: 8,
+        });
+
+        if (error) {
+          console.error('Unified search RPC error:', error);
+          // Fallback на простий пошук якщо RPC не працює
+          return fallbackSearch(debouncedQuery);
+        }
+
+        return (data || []).map((item: UnifiedSearchResult) => ({
+          result_type: item.result_type,
+          result_id: item.result_id,
+          title: item.title,
+          subtitle: item.subtitle,
+          snippet: item.snippet,
+          href: item.href,
+          relevance: item.relevance,
+          matched_in: item.matched_in,
+        }));
+      } catch {
+        return fallbackSearch(debouncedQuery);
+      }
     },
     enabled: debouncedQuery.length >= 2,
     staleTime: 5 * 60 * 1000, // 5 хвилин
