@@ -861,7 +861,7 @@ export const VedaReaderDB = () => {
           <div className="flex items-center justify-between gap-2">
             {/* Breadcrumbs - responsive with overflow handling */}
             <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground min-w-0 overflow-hidden">
-              <a href="/" className="hover:text-foreground transition-colors flex items-center gap-1 flex-shrink-0">
+              <a href="/library" className="hover:text-foreground transition-colors flex items-center gap-1 flex-shrink-0">
                 <Home className="h-4 w-4" />
                 <span className="hidden sm:inline">{t("Бібліотека", "Library")}</span>
               </a>
