@@ -32,20 +32,52 @@ const LS = {
   mobileSafeMode: "vv_reader_mobileSafeMode",
 };
 
+// Перевірка доступності localStorage (Firefox private mode, Enhanced Tracking Protection)
+function isLocalStorageAvailable(): boolean {
+  try {
+    const testKey = '__ls_test__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const localStorageAvailable = typeof window !== 'undefined' && isLocalStorageAvailable();
+
+function safeGetItem(key: string): string | null {
+  if (!localStorageAvailable) return null;
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSetItem(key: string, value: string): void {
+  if (!localStorageAvailable) return;
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore - localStorage is not available
+  }
+}
+
 function readNum(key: string, def: number) {
-  const raw = localStorage.getItem(key);
+  const raw = safeGetItem(key);
   const n = raw ? Number(raw) : NaN;
   return Number.isFinite(n) ? n : def;
 }
 function readBool(key: string, def: boolean) {
-  const raw = localStorage.getItem(key);
+  const raw = safeGetItem(key);
   if (raw === "true") return true;
   if (raw === "false") return false;
   return def;
 }
 function readJSON<T>(key: string, def: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = safeGetItem(key);
     return raw ? (JSON.parse(raw) as T) : def;
   } catch {
     return def;
@@ -137,8 +169,8 @@ export function useReaderSettings() {
   // Синхронізувати CSS змінні з React state
   useEffect(() => {
     document.documentElement.style.setProperty('--vv-reader-font-size', `${fontSize}px`);
-    localStorage.setItem(LS.fontSize, String(fontSize));
-    localStorage.setItem(LS.fontSizeAdjustment, String(fontSizeAdjustment));
+    safeSetItem(LS.fontSize, String(fontSize));
+    safeSetItem(LS.fontSizeAdjustment, String(fontSizeAdjustment));
     dispatchPrefs();
   }, [fontSize, fontSizeAdjustment, dispatchPrefs]);
 
@@ -166,7 +198,7 @@ export function useReaderSettings() {
   useEffect(() => {
     // Оновити CSS змінну для глобального використання
     document.documentElement.style.setProperty('--vv-reader-line-height', String(lineHeight));
-    localStorage.setItem(LS.lineHeight, String(lineHeight));
+    safeSetItem(LS.lineHeight, String(lineHeight));
     // застосувати до контейнера з data-reader-root="true"
     if (!rootRef.current) {
       rootRef.current = document.querySelector<HTMLElement>('[data-reader-root="true"]');
@@ -178,32 +210,32 @@ export function useReaderSettings() {
   }, [lineHeight, dispatchPrefs]);
 
   useEffect(() => {
-    localStorage.setItem(LS.dual, String(dualLanguageMode));
+    safeSetItem(LS.dual, String(dualLanguageMode));
     dispatchPrefs();
   }, [dualLanguageMode, dispatchPrefs]);
 
   useEffect(() => {
-    localStorage.setItem(LS.blocks, JSON.stringify(textDisplaySettings));
+    safeSetItem(LS.blocks, JSON.stringify(textDisplaySettings));
     dispatchPrefs();
   }, [textDisplaySettings, dispatchPrefs]);
 
   useEffect(() => {
-    localStorage.setItem(LS.cont, JSON.stringify(continuousReadingSettings));
+    safeSetItem(LS.cont, JSON.stringify(continuousReadingSettings));
     dispatchPrefs();
   }, [continuousReadingSettings, dispatchPrefs]);
 
   useEffect(() => {
-    localStorage.setItem(LS.showNumbers, String(showNumbers));
+    safeSetItem(LS.showNumbers, String(showNumbers));
     dispatchPrefs();
   }, [showNumbers, dispatchPrefs]);
 
   useEffect(() => {
-    localStorage.setItem(LS.flowMode, String(flowMode));
+    safeSetItem(LS.flowMode, String(flowMode));
     dispatchPrefs();
   }, [flowMode, dispatchPrefs]);
 
   useEffect(() => {
-    localStorage.setItem(LS.mobileSafeMode, String(mobileSafeMode));
+    safeSetItem(LS.mobileSafeMode, String(mobileSafeMode));
     // Додаємо/видаляємо data-атрибут для CSS
     document.documentElement.setAttribute('data-mobile-safe-mode', String(mobileSafeMode));
     dispatchPrefs();
