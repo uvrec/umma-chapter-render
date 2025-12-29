@@ -79,6 +79,16 @@ BEGIN
       TO authenticated
       USING (public.has_role(auth.uid(), 'admin'::app_role));
 
+    -- Коментарі для аудиту
+    COMMENT ON POLICY "verses_backup_danda_fix_admin_read" ON public.verses_backup_danda_fix
+      IS 'Admin-only SELECT via public.has_role(auth.uid(), admin)';
+    COMMENT ON POLICY "verses_backup_danda_fix_admin_insert" ON public.verses_backup_danda_fix
+      IS 'Admin-only INSERT via public.has_role(auth.uid(), admin)';
+    COMMENT ON POLICY "verses_backup_danda_fix_admin_update" ON public.verses_backup_danda_fix
+      IS 'Admin-only UPDATE via public.has_role(auth.uid(), admin)';
+    COMMENT ON POLICY "verses_backup_danda_fix_admin_delete" ON public.verses_backup_danda_fix
+      IS 'Admin-only DELETE via public.has_role(auth.uid(), admin)';
+
     RAISE NOTICE 'Step 1 complete: RLS enabled on verses_backup_danda_fix with granular policies';
   ELSE
     RAISE NOTICE 'Table verses_backup_danda_fix does not exist, skipping...';
