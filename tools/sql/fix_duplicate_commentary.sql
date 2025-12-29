@@ -9,14 +9,15 @@
 -- 2. Видаляє дублікати, зберігаючи порядок
 -- ============================================================================
 
--- Функція для видалення дублікатів параграфів
-CREATE OR REPLACE FUNCTION remove_duplicate_paragraphs(input_text TEXT)
+-- Функція для видалення СУСІДНІХ дублікатів параграфів (безпечно!)
+-- Видаляє тільки коли той самий текст йде підряд - це точно помилка імпорту
+CREATE OR REPLACE FUNCTION remove_adjacent_duplicate_paragraphs(input_text TEXT)
 RETURNS TEXT AS $$
 DECLARE
     paragraphs TEXT[];
-    unique_paragraphs TEXT[] := '{}';
+    result_paragraphs TEXT[] := '{}';
     para TEXT;
-    seen_hashes TEXT[] := '{}';
+    prev_hash TEXT := '';
     para_hash TEXT;
 BEGIN
     IF input_text IS NULL OR input_text = '' THEN
@@ -36,14 +37,14 @@ BEGIN
             CONTINUE;
         END IF;
 
-        -- Перевіряємо чи вже бачили цей параграф
-        IF NOT para_hash = ANY(seen_hashes) THEN
-            seen_hashes := array_append(seen_hashes, para_hash);
-            unique_paragraphs := array_append(unique_paragraphs, trim(para));
+        -- Додаємо тільки якщо НЕ збігається з ПОПЕРЕДНІМ (сусіднім) параграфом
+        IF para_hash != prev_hash THEN
+            result_paragraphs := array_append(result_paragraphs, trim(para));
+            prev_hash := para_hash;
         END IF;
     END LOOP;
 
-    RETURN array_to_string(unique_paragraphs, E'\n\n');
+    RETURN array_to_string(result_paragraphs, E'\n\n');
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -58,7 +59,7 @@ SELECT
 FROM verses
 WHERE commentary_en IS NOT NULL
   AND commentary_en != ''
-  AND length(remove_duplicate_paragraphs(commentary_en)) < length(commentary_en)
+  AND length(remove_adjacent_duplicate_paragraphs(commentary_en)) < length(commentary_en)
 
 UNION ALL
 
@@ -68,7 +69,7 @@ SELECT
 FROM verses
 WHERE commentary_ua IS NOT NULL
   AND commentary_ua != ''
-  AND length(remove_duplicate_paragraphs(commentary_ua)) < length(commentary_ua);
+  AND length(remove_adjacent_duplicate_paragraphs(commentary_ua)) < length(commentary_ua);
 
 -- ============================================================================
 -- ВИПРАВЛЕННЯ: Оновити commentary_en (видалити дублікати)
@@ -78,10 +79,10 @@ WHERE commentary_ua IS NOT NULL
 
 /*
 UPDATE verses
-SET commentary_en = remove_duplicate_paragraphs(commentary_en)
+SET commentary_en = remove_adjacent_duplicate_paragraphs(commentary_en)
 WHERE commentary_en IS NOT NULL
   AND commentary_en != ''
-  AND length(remove_duplicate_paragraphs(commentary_en)) < length(commentary_en);
+  AND length(remove_adjacent_duplicate_paragraphs(commentary_en)) < length(commentary_en);
 */
 
 -- ============================================================================
@@ -90,10 +91,10 @@ WHERE commentary_en IS NOT NULL
 
 /*
 UPDATE verses
-SET commentary_ua = remove_duplicate_paragraphs(commentary_ua)
+SET commentary_ua = remove_adjacent_duplicate_paragraphs(commentary_ua)
 WHERE commentary_ua IS NOT NULL
   AND commentary_ua != ''
-  AND length(remove_duplicate_paragraphs(commentary_ua)) < length(commentary_ua);
+  AND length(remove_adjacent_duplicate_paragraphs(commentary_ua)) < length(commentary_ua);
 */
 
 -- ============================================================================
@@ -106,9 +107,9 @@ SELECT
     v.verse_number,
     c.chapter_number,
     length(v.commentary_en) as original_length,
-    length(remove_duplicate_paragraphs(v.commentary_en)) as fixed_length,
+    length(remove_adjacent_duplicate_paragraphs(v.commentary_en)) as fixed_length,
     v.commentary_en as original,
-    remove_duplicate_paragraphs(v.commentary_en) as fixed
+    remove_adjacent_duplicate_paragraphs(v.commentary_en) as fixed
 FROM verses v
 JOIN chapters c ON c.id = v.chapter_id
 WHERE c.chapter_number = 6
@@ -119,4 +120,4 @@ LIMIT 1;
 -- ============================================================================
 -- ВИДАЛЕННЯ ФУНКЦІЇ (опційно, після завершення)
 -- ============================================================================
--- DROP FUNCTION IF EXISTS remove_duplicate_paragraphs(TEXT);
+-- DROP FUNCTION IF EXISTS remove_adjacent_duplicate_paragraphs(TEXT);
