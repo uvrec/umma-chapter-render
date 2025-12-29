@@ -194,19 +194,29 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
     }
 
     // 5. PURPORT - РЕАЛЬНА структура: .av-purport (може не бути)
+    // ✅ FIX: Беремо тільки прямі дочірні <p> щоб уникнути дублювання тексту
     let purport = '';
     const purportContainer = doc.querySelector('.av-purport');
     if (purportContainer) {
-      const paragraphs = purportContainer.querySelectorAll('p, div');
+      // querySelectorAll(':scope > p') - тільки direct children
+      let paragraphs = purportContainer.querySelectorAll(':scope > p');
+
+      // Якщо немає прямих <p>, пробуємо взяти всі <p> (fallback для різних структур)
+      if (paragraphs.length === 0) {
+        paragraphs = purportContainer.querySelectorAll('p');
+      }
+
       const parts: string[] = [];
-      
+      const seen = new Set<string>(); // Додаткова перевірка на дублікати
+
       paragraphs.forEach(p => {
         const text = p.textContent?.trim();
-        if (text && text.length > 10) {
+        if (text && text.length > 10 && !seen.has(text)) {
+          seen.add(text);
           parts.push(text);
         }
       });
-      
+
       purport = parts.join('\n\n');
     }
 
