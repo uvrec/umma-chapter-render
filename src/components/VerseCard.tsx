@@ -105,10 +105,22 @@ export const VerseCard = ({
 }: VerseCardProps) => {
   const navigate = useNavigate();
 
-  // ✅ Функція для відкриття глосарію - використовує navigate замість window.open для мобільних
+  // Ref для запобігання подвійному спрацюванню на мобільних (touch + click)
+  const glossaryNavigationRef = useRef<boolean>(false);
+
+  // ✅ Функція для відкриття глосарію - з захистом від подвійного виклику
   const openGlossary = useCallback((term: string) => {
+    // Запобігаємо подвійному спрацюванню (touch + click на мобільних)
+    if (glossaryNavigationRef.current) return;
+    glossaryNavigationRef.current = true;
+
     const url = `/glossary?search=${encodeURIComponent(term)}`;
     navigate(url);
+
+    // Скидаємо флаг після короткої затримки
+    setTimeout(() => {
+      glossaryNavigationRef.current = false;
+    }, 300);
   }, [navigate]);
 
   // ✅ Назви блоків залежно від мови
