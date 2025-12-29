@@ -62,6 +62,19 @@ export function useLearningSync(): UseLearningSync {
   // Debounce timer for cloud sync
   const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Refs for stable function references (prevents circular dependency)
+  const wordsRef = useRef(words);
+  const versesRef = useRef(verses);
+  const progressRef = useRef(progress);
+  const isSyncingRef = useRef(isSyncing);
+  const hasSyncedOnMount = useRef(false);
+
+  // Keep refs in sync with state
+  useEffect(() => { wordsRef.current = words; }, [words]);
+  useEffect(() => { versesRef.current = verses; }, [verses]);
+  useEffect(() => { progressRef.current = progress; }, [progress]);
+  useEffect(() => { isSyncingRef.current = isSyncing; }, [isSyncing]);
+
   // Track online status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -188,16 +201,16 @@ export function useLearningSync(): UseLearningSync {
     }
   };
 
-  // Full sync to cloud
+  // Full sync to cloud - uses refs for stable function reference
   const syncToCloud = useCallback(async () => {
-    if (!user || !isOnline || isSyncing) return;
+    if (!user || !isOnline || isSyncingRef.current) return;
 
     setIsSyncing(true);
     try {
       await Promise.all([
-        syncWordsToCloud(words),
-        syncVersesToCloud(verses),
-        syncProgressToCloud(progress),
+        syncWordsToCloud(wordsRef.current),
+        syncVersesToCloud(versesRef.current),
+        syncProgressToCloud(progressRef.current),
       ]);
       setLastSyncedAt(new Date());
     } catch (error) {
@@ -205,11 +218,11 @@ export function useLearningSync(): UseLearningSync {
     } finally {
       setIsSyncing(false);
     }
-  }, [user, isOnline, isSyncing, words, verses, progress]);
+  }, [user, isOnline]);
 
-  // Sync from cloud
+  // Sync from cloud - uses refs for stable function reference
   const syncFromCloud = useCallback(async () => {
-    if (!user || !isOnline || isSyncing) return;
+    if (!user || !isOnline || isSyncingRef.current) return;
 
     setIsSyncing(true);
     try {
@@ -374,9 +387,13 @@ export function useLearningSync(): UseLearningSync {
     } finally {
       setIsSyncing(false);
     }
-  }, [user, isOnline, isSyncing]);
+  }, [user, isOnline]);
 
-  // Sync to cloud (debounced) - defined after syncToCloud
+  // Store syncToCloud in a ref for stable access in debouncedSyncToCloud
+  const syncToCloudRef = useRef(syncToCloud);
+  useEffect(() => { syncToCloudRef.current = syncToCloud; }, [syncToCloud]);
+
+  // Sync to cloud (debounced) - uses ref for stable function reference
   const debouncedSyncToCloud = useCallback(() => {
     if (syncTimerRef.current) {
       clearTimeout(syncTimerRef.current);
@@ -384,14 +401,33 @@ export function useLearningSync(): UseLearningSync {
 
     syncTimerRef.current = setTimeout(() => {
       if (user && isOnline) {
-        syncToCloud();
+        syncToCloudRef.current();
       }
     }, 2000); // 2 second debounce
-  }, [user, isOnline, syncToCloud]);
+  }, [user, isOnline]);
 
-  // Sync from cloud when user logs in - defined after syncFromCloud
+  // Store syncFromCloud in a ref for stable access in useEffect
+  const syncFromCloudRef = useRef(syncFromCloud);
+  useEffect(() => { syncFromCloudRef.current = syncFromCloud; }, [syncFromCloud]);
+
+  // Store debouncedSyncToCloud in a ref for stable access in setters
+  const debouncedSyncToCloudRef = useRef(debouncedSyncToCloud);
+  useEffect(() => { debouncedSyncToCloudRef.current = debouncedSyncToCloud; }, [debouncedSyncToCloud]);
+
+  // Reset hasSyncedOnMount when user logs out
+  useEffect(() => {
+    if (!user) {
+      hasSyncedOnMount.current = false;
+    }
+  }, [user]);
+
+  // Sync from cloud when user logs in - only triggers once per user session
   useEffect(() => {
     if (!user || !isOnline) return;
+
+    // Prevent multiple syncs during the same session
+    if (hasSyncedOnMount.current) return;
+    hasSyncedOnMount.current = true;
 
     let isCancelled = false;
 
@@ -399,7 +435,7 @@ export function useLearningSync(): UseLearningSync {
       try {
         // Check if cancelled before starting
         if (isCancelled) return;
-        await syncFromCloud();
+        await syncFromCloudRef.current();
       } catch (error) {
         // Ignore errors if the effect was cancelled
         if (!isCancelled) {
@@ -413,7 +449,7 @@ export function useLearningSync(): UseLearningSync {
     return () => {
       isCancelled = true;
     };
-  }, [user?.id, isOnline, syncFromCloud]);
+  }, [user?.id, isOnline]);
 
   // Record learning activity
   const recordActivity = useCallback(async (data: Partial<LearningActivity>) => {
@@ -464,24 +500,24 @@ export function useLearningSync(): UseLearningSync {
     }
   }, [user, isOnline]);
 
-  // Setters that sync to cloud
+  // Setters that sync to cloud - use refs for stable function references
   const setWords = useCallback((newWords: LearningWord[]) => {
     setWordsLocal(newWords);
     saveLearningWords(newWords);
-    debouncedSyncToCloud();
-  }, [debouncedSyncToCloud]);
+    debouncedSyncToCloudRef.current();
+  }, []);
 
   const setVerses = useCallback((newVerses: LearningVerse[]) => {
     setVersesLocal(newVerses);
     saveLearningVerses(newVerses);
-    debouncedSyncToCloud();
-  }, [debouncedSyncToCloud]);
+    debouncedSyncToCloudRef.current();
+  }, []);
 
   const setProgress = useCallback((newProgress: LearningProgress) => {
     setProgressLocal(newProgress);
     saveLearningProgress(newProgress);
-    debouncedSyncToCloud();
-  }, [debouncedSyncToCloud]);
+    debouncedSyncToCloudRef.current();
+  }, []);
 
   // Cleanup timer on unmount
   useEffect(() => {
