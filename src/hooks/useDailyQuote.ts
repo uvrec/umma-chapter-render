@@ -24,6 +24,12 @@ export type DailyQuote = {
       canto_id?: string;
       canto?: {
         canto_number: number;
+        book?: {
+          slug: string;
+          title_ua: string;
+          title_en?: string;
+          has_cantos?: boolean;
+        };
       };
       book?: {
         slug: string;
@@ -154,7 +160,13 @@ export function useDailyQuote() {
               title_en,
               canto_id,
               canto:cantos (
-                canto_number
+                canto_number,
+                book:books (
+                  slug,
+                  title_ua,
+                  title_en,
+                  has_cantos
+                )
               ),
               book:books (
                 slug,
@@ -246,7 +258,9 @@ export function useDailyQuote() {
 
     source: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
-          const bookTitle = quote.verse.chapter.book?.[language === 'ua' ? 'title_ua' : 'title_en'] || quote.verse.chapter.book?.title_ua || '';
+          // Для книг з кантами book доступний через canto, інакше напряму
+          const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
+          const bookTitle = book?.[language === 'ua' ? 'title_ua' : 'title_en'] || book?.title_ua || '';
           const chapterNumber = quote.verse.chapter.chapter_number;
           const verseNumber = quote.verse.verse_number;
 
@@ -264,11 +278,15 @@ export function useDailyQuote() {
     sanskrit: quote.quote_type === 'verse' ? quote.verse?.sanskrit_ua : null,
     transliteration: quote.quote_type === 'verse' ? quote.verse?.transliteration_ua : null,
 
-    link: quote.quote_type === 'verse' && quote.verse?.chapter?.book
+    link: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
-          const bookSlug = quote.verse.chapter.book.slug;
+          // Для книг з кантами book доступний через canto, інакше напряму
+          const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
+          if (!book) return null;
+
+          const bookSlug = book.slug;
           const verseNumber = quote.verse.verse_number;
-          const hasCantos = quote.verse.chapter.book.has_cantos;
+          const hasCantos = book.has_cantos;
           const cantoNumber = quote.verse.chapter.canto?.canto_number;
           const chapterNumber = quote.verse.chapter.chapter_number;
 
@@ -322,7 +340,13 @@ export function useDailyQuotesAdmin() {
               title_en,
               canto_id,
               canto:cantos (
-                canto_number
+                canto_number,
+                book:books (
+                  slug,
+                  title_ua,
+                  title_en,
+                  has_cantos
+                )
               ),
               book:books (
                 slug,
