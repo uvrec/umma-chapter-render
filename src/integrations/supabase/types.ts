@@ -352,6 +352,8 @@ export type Database = {
           sanskrit: string | null
           scheduled_publish_at: string | null
           search_vector: unknown
+          search_vector_en: unknown
+          search_vector_ua: unknown
           slug: string
           substack_embed_url: string | null
           synonyms_en: string | null
@@ -402,6 +404,8 @@ export type Database = {
           sanskrit?: string | null
           scheduled_publish_at?: string | null
           search_vector?: unknown
+          search_vector_en?: unknown
+          search_vector_ua?: unknown
           slug: string
           substack_embed_url?: string | null
           synonyms_en?: string | null
@@ -452,6 +456,8 @@ export type Database = {
           sanskrit?: string | null
           scheduled_publish_at?: string | null
           search_vector?: unknown
+          search_vector_en?: unknown
+          search_vector_ua?: unknown
           slug?: string
           substack_embed_url?: string | null
           synonyms_en?: string | null
@@ -853,6 +859,158 @@ export type Database = {
           title_ua?: string | null
         }
         Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          citations: Json | null
+          content: string
+          created_at: string | null
+          id: string
+          response_level: string | null
+          role: string
+          session_id: string
+          tattva_ids: string[] | null
+        }
+        Insert: {
+          citations?: Json | null
+          content: string
+          created_at?: string | null
+          id?: string
+          response_level?: string | null
+          role: string
+          session_id: string
+          tattva_ids?: string[] | null
+        }
+        Update: {
+          citations?: Json | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          response_level?: string | null
+          role?: string
+          session_id?: string
+          tattva_ids?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "chat_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          language: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          language?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      cross_references: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          id: string
+          reference_type: string | null
+          source_verse_id: string
+          target_verse_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          reference_type?: string | null
+          source_verse_id: string
+          target_verse_id: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          reference_type?: string | null
+          source_verse_id?: string
+          target_verse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cross_references_source_verse_id_fkey"
+            columns: ["source_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_source_verse_id_fkey"
+            columns: ["source_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_source_verse_id_fkey"
+            columns: ["source_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_structure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_source_verse_id_fkey"
+            columns: ["source_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_synonyms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_target_verse_id_fkey"
+            columns: ["target_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_target_verse_id_fkey"
+            columns: ["target_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_target_verse_id_fkey"
+            columns: ["target_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_structure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cross_references_target_verse_id_fkey"
+            columns: ["target_verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_synonyms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       daily_quotes: {
         Row: {
@@ -1374,6 +1532,53 @@ export type Database = {
         }
         Relationships: []
       }
+      tattvas: {
+        Row: {
+          created_at: string | null
+          description_en: string | null
+          description_ua: string | null
+          display_order: number | null
+          id: string
+          name_en: string
+          name_sanskrit: string | null
+          name_ua: string
+          parent_id: string | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          display_order?: number | null
+          id?: string
+          name_en: string
+          name_sanskrit?: string | null
+          name_ua: string
+          parent_id?: string | null
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          description_en?: string | null
+          description_ua?: string | null
+          display_order?: number | null
+          id?: string
+          name_en?: string
+          name_sanskrit?: string | null
+          name_ua?: string
+          parent_id?: string | null
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tattvas_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tattvas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_learning_activity: {
         Row: {
           activity_date: string
@@ -1527,6 +1732,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           display_blocks: Json | null
+          embedding: string | null
           end_verse: number | null
           explanation_en_audio_url: string | null
           explanation_ua_audio_url: string | null
@@ -1539,6 +1745,8 @@ export type Database = {
           sanskrit_en: string | null
           sanskrit_ua: string | null
           search_vector: unknown
+          search_vector_en: unknown
+          search_vector_ua: unknown
           sort_key: number | null
           start_verse: number | null
           synonyms_en: string | null
@@ -1563,6 +1771,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
+          embedding?: string | null
           end_verse?: number | null
           explanation_en_audio_url?: string | null
           explanation_ua_audio_url?: string | null
@@ -1575,6 +1784,8 @@ export type Database = {
           sanskrit_en?: string | null
           sanskrit_ua?: string | null
           search_vector?: unknown
+          search_vector_en?: unknown
+          search_vector_ua?: unknown
           sort_key?: number | null
           start_verse?: number | null
           synonyms_en?: string | null
@@ -1599,6 +1810,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           display_blocks?: Json | null
+          embedding?: string | null
           end_verse?: number | null
           explanation_en_audio_url?: string | null
           explanation_ua_audio_url?: string | null
@@ -1611,6 +1823,8 @@ export type Database = {
           sanskrit_en?: string | null
           sanskrit_ua?: string | null
           search_vector?: unknown
+          search_vector_en?: unknown
+          search_vector_ua?: unknown
           sort_key?: number | null
           start_verse?: number | null
           synonyms_en?: string | null
@@ -2212,6 +2426,8 @@ export type Database = {
           sanskrit: string | null
           scheduled_publish_at: string | null
           search_vector: unknown
+          search_vector_en: unknown
+          search_vector_ua: unknown
           slug: string
           substack_embed_url: string | null
           synonyms_en: string | null
@@ -2325,6 +2541,24 @@ export type Database = {
         }
         Returns: boolean
       }
+      hybrid_search_verses: {
+        Args: {
+          language_code?: string
+          match_count?: number
+          query_embedding?: string
+          query_text: string
+          semantic_weight?: number
+        }
+        Returns: {
+          book_slug: string
+          chapter_id: string
+          combined_score: number
+          commentary: string
+          id: string
+          translation: string
+          verse_number: string
+        }[]
+      }
       increment_blog_post_views: {
         Args: { post_id: string }
         Returns: undefined
@@ -2340,7 +2574,36 @@ export type Database = {
           v_suffix: string
         }[]
       }
+      remove_adjacent_duplicate_paragraphs: {
+        Args: { input_text: string }
+        Returns: string
+      }
+      remove_adjacent_duplicate_sentences: {
+        Args: { input_text: string }
+        Returns: string
+      }
       remove_duplicate_words_in_synonyms: { Args: never; Returns: undefined }
+      search_glossary_terms: {
+        Args: {
+          book_filter?: string
+          limit_count?: number
+          search_language?: string
+          search_mode?: string
+          search_term: string
+        }
+        Returns: {
+          book_id: string
+          book_slug: string
+          book_title: string
+          canto_number: number
+          chapter_number: number
+          meaning: string
+          term: string
+          verse_id: string
+          verse_link: string
+          verse_number: string
+        }[]
+      }
       search_sanskrit_by_meaning: {
         Args: { result_limit?: number; search_term: string }
         Returns: {
@@ -2367,6 +2630,18 @@ export type Database = {
           relevance: number
           word: string
           word_devanagari: string
+        }[]
+      }
+      search_suggest_terms: {
+        Args: {
+          language_code?: string
+          limit_count?: number
+          search_prefix: string
+        }
+        Returns: {
+          frequency: number
+          source: string
+          suggestion: string
         }[]
       }
       search_synonyms: {
@@ -2424,9 +2699,47 @@ export type Database = {
           verse_number: string
         }[]
       }
+      semantic_search_verses: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          book_slug: string
+          chapter_id: string
+          commentary_en: string
+          commentary_ua: string
+          id: string
+          similarity: number
+          translation_en: string
+          translation_ua: string
+          verse_number: string
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       slugify: { Args: { "": string }; Returns: string }
+      unaccent: { Args: { "": string }; Returns: string }
+      unified_search: {
+        Args: {
+          language_code?: string
+          limit_per_type?: number
+          overall_limit?: number
+          search_query: string
+          search_types?: string[]
+        }
+        Returns: {
+          href: string
+          matched_in: string[]
+          relevance: number
+          result_id: string
+          result_type: string
+          snippet: string
+          subtitle: string
+          title: string
+        }[]
+      }
       update_intro_chapters_order: {
         Args: { p_items: Json }
         Returns: undefined

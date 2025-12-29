@@ -448,13 +448,13 @@ export const ChapterVersesList = () => {
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
-                                __html: paraUa || '<span class="italic text-muted-foreground">—</span>',
+                                __html: DOMPurify.sanitize(paraUa || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
                               dangerouslySetInnerHTML={{
-                                __html: paraEn || '<span class="italic text-muted-foreground">—</span>',
+                                __html: DOMPurify.sanitize(paraEn || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                           </div>

@@ -9,6 +9,8 @@
  * - Always cite exact sources for every claim
  * - Respond in the user's preferred language (Ukrainian or English)
  *
+ * REQUIRES AUTHENTICATION: User must be logged in
+ *
  * POST /vedavoice-chat
  * Body: {
  *   message: string,        // User's question
@@ -80,6 +82,53 @@ interface ChatResponse {
   citations: Citation[];
   responseLevel: 'direct' | 'synthesis' | 'insufficient';
   relatedTopics?: string[];
+}
+
+interface AuthResult {
+  user: { id: string; email?: string };
+  supabaseClient: ReturnType<typeof createClient>;
+}
+
+// ============================================================================
+// AUTHENTICATION
+// ============================================================================
+
+/**
+ * Validate user authentication
+ * Returns authenticated user or error Response
+ */
+async function validateAuth(req: Request): Promise<AuthResult | Response> {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return new Response(
+      JSON.stringify({ error: "Supabase credentials not configured" }),
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return new Response(
+      JSON.stringify({ error: "Authorization header required" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  // Create client with user's auth context
+  const supabaseClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+  if (error || !user) {
+    console.error("Auth error:", error?.message);
+    return new Response(
+      JSON.stringify({ error: "Unauthorized - invalid token" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  return { user, supabaseClient };
 }
 
 // ============================================================================
@@ -347,8 +396,7 @@ function extractCitations(response: string, searchResults: SearchResult[], langu
 /**
  * Find related topics from tattvas
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function findRelatedTopics(_supabase: any, _query: string, language: 'uk' | 'en'): Promise<string[]> {
+async function findRelatedTopics(_supabase: ReturnType<typeof createClient>, _query: string, language: 'uk' | 'en'): Promise<string[]> {
   // Note: tattvas table may not exist yet
   // Return predefined topics for now
   const defaultTopics = language === 'uk' 
@@ -367,17 +415,18 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate authentication first
+  const authResult = await validateAuth(req);
+  if (authResult instanceof Response) {
+    return authResult;
+  }
+
+  const { user, supabaseClient } = authResult;
+
   // Validate required environment variables
   if (!ANTHROPIC_API_KEY) {
     return new Response(
       JSON.stringify({ error: "ANTHROPIC_API_KEY not configured" }),
-      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-    );
-  }
-
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    return new Response(
-      JSON.stringify({ error: "Supabase credentials not configured" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
@@ -393,8 +442,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    console.log(`Chat request from user ${user.id}, message length: ${message.length}`);
+
+    // Use service role client for database operations
+    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
 
     // ========================================================================
     // STEP 1: Query Expansion
@@ -507,10 +558,10 @@ Deno.serve(async (req) => {
           .map(m => ({ role: m.role, content: m.content }));
       }
     } else {
-      // Create new session
+      // Create new session with user_id
       const { data: newSession, error: sessionError } = await supabase
         .from('chat_sessions')
-        .insert({ language })
+        .insert({ language, user_id: user.id })
         .select('id')
         .single();
 
@@ -551,7 +602,7 @@ Deno.serve(async (req) => {
       const errorText = await claudeResponse.text();
       console.error("Claude API error:", errorText);
       return new Response(
-        JSON.stringify({ error: "Failed to generate response", details: errorText }),
+        JSON.stringify({ error: "Failed to generate response" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -589,9 +640,6 @@ Deno.serve(async (req) => {
         content: cleanedResponse,
         citations: citations,
         response_level: responseLevel,
-        related_topics: relatedTopics || [],
-        input_tokens: claudeResult.usage?.input_tokens,
-        output_tokens: claudeResult.usage?.output_tokens,
       });
     }
 
@@ -615,7 +663,7 @@ Deno.serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("VedaVOICE chat error:", errorMessage);
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: "Chat request failed" }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }

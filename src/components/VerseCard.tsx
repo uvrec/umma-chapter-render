@@ -13,6 +13,7 @@ import { useAudio } from "@/contexts/ModernAudioContext";
 import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
+import DOMPurify from "dompurify";
 // ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
 import { stripParagraphTags } from "@/utils/import/normalizers";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
@@ -536,7 +537,7 @@ export const VerseCard = ({
               <div
                 className="text-foreground text-justify"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: commentary || "" }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(commentary || "") }}
               />
             )}
           </div>
