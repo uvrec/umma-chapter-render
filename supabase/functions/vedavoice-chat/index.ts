@@ -86,7 +86,7 @@ interface ChatResponse {
 
 interface AuthResult {
   user: { id: string; email?: string };
-  supabaseClient: ReturnType<typeof createClient>;
+  supabaseClient: any;  // Type simplified - client only used for auth.getUser()
 }
 
 // ============================================================================
