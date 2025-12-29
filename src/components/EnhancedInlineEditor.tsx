@@ -239,6 +239,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("bold") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleBold().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Жирний (Ctrl+B)"
               >
                 <Bold className="h-3 w-3" />
@@ -249,6 +250,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("italic") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleItalic().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Курсив (Ctrl+I)"
               >
                 <Italic className="h-3 w-3" />
@@ -259,6 +261,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("underline") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleUnderline().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Підкреслений (Ctrl+U)"
               >
                 <UnderlineIcon className="h-3 w-3" />
@@ -269,6 +272,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("strike") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleStrike().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Закреслений"
               >
                 <Strikethrough className="h-3 w-3" />
@@ -287,6 +291,7 @@ export const EnhancedInlineEditor = ({
                   size="icon"
                   className={`h-8 w-8 ${editor.isActive("heading", { level: lvl }) ? "bg-accent" : ""}`}
                   onClick={() => editor.chain().focus().toggleHeading({ level: lvl as 1 | 2 | 3 }).run()}
+                  onMouseDown={(e) => e.preventDefault()}
                   title={`Заголовок ${lvl}`}
                 >
                   {lvl === 1 ? (
@@ -310,6 +315,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("bulletList") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleBulletList().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Маркований список"
               >
                 <List className="h-3 w-3" />
@@ -320,6 +326,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("orderedList") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Нумерований список"
               >
                 <ListOrdered className="h-3 w-3" />
@@ -336,6 +343,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive({ textAlign: "left" }) ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().setTextAlign("left").run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="По лівому краю"
               >
                 <AlignLeft className="h-3 w-3" />
@@ -346,6 +354,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive({ textAlign: "center" }) ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().setTextAlign("center").run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="По центру"
               >
                 <AlignCenter className="h-3 w-3" />
@@ -356,6 +365,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive({ textAlign: "right" }) ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().setTextAlign("right").run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="По правому краю"
               >
                 <AlignRight className="h-3 w-3" />
@@ -366,6 +376,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive({ textAlign: "justify" }) ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="По ширині"
               >
                 <AlignJustify className="h-3 w-3" />
@@ -382,6 +393,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("subscript") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleSubscript().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Підрядковий"
               >
                 <SubscriptIcon className="h-3 w-3" />
@@ -392,6 +404,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("superscript") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleSuperscript().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Надрядковий"
               >
                 <SuperscriptIcon className="h-3 w-3" />
@@ -402,6 +415,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("blockquote") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Цитата"
               >
                 <Quote className="h-3 w-3" />
@@ -412,6 +426,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("code") ? "bg-accent" : ""}`}
                 onClick={() => editor.chain().focus().toggleCode().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Код"
               >
                 <Code className="h-3 w-3" />
@@ -424,11 +439,11 @@ export const EnhancedInlineEditor = ({
             <div className="flex gap-1">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Колір тексту">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Колір тексту" onMouseDown={(e) => e.preventDefault()}>
                     <Palette className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2">
+                <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2" onMouseDown={(e) => e.preventDefault()}>
                   {[
                     "#000000",
                     "#E11D48",
@@ -457,11 +472,12 @@ export const EnhancedInlineEditor = ({
                     size="icon"
                     className={`h-8 w-8 ${editor.isActive("highlight") ? "bg-accent" : ""}`}
                     title="Маркер"
+                    onMouseDown={(e) => e.preventDefault()}
                   >
                     <Highlighter className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2">
+                <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2" onMouseDown={(e) => e.preventDefault()}>
                   <DropdownMenuItem
                     className="p-0 w-5 h-5 rounded-full cursor-pointer border"
                     onClick={() => setHighlight("none")}
@@ -482,11 +498,11 @@ export const EnhancedInlineEditor = ({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Розмір шрифту">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Розмір шрифту" onMouseDown={(e) => e.preventDefault()}>
                     <Type className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
+                <DropdownMenuContent onMouseDown={(e) => e.preventDefault()}>
                   {["12px", "14px", "16px", "18px", "20px", "24px", "28px", "32px"].map((size) => (
                     <DropdownMenuItem key={size} onClick={() => setFontSize(size)}>
                       {size}
@@ -506,6 +522,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("link") ? "bg-accent" : ""}`}
                 onClick={addLink}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Додати посилання"
               >
                 <LinkIcon className="h-3 w-3" />
@@ -516,6 +533,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className={`h-8 w-8 ${editor.isActive("link") ? "bg-accent text-accent-foreground" : "opacity-50"}`}
                 onClick={removeLink}
+                onMouseDown={(e) => e.preventDefault()}
                 title={editor.isActive("link") ? "Видалити посилання" : "Виділіть текст з посиланням"}
               >
                 <Unlink className="h-3 w-3" />
@@ -526,6 +544,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={handleImageUpload}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Зображення"
               >
                 <ImageIcon className="h-3 w-3" />
@@ -536,6 +555,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={addYoutubeVideo}
+                onMouseDown={(e) => e.preventDefault()}
                 title="YouTube"
               >
                 <YoutubeIcon className="h-3 w-3" />
@@ -546,6 +566,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={insertTable}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Таблиця"
               >
                 <TableIcon className="h-3 w-3" />
@@ -556,6 +577,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Горизонтальна лінія"
               >
                 <Minus className="h-3 w-3" />
@@ -572,6 +594,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => editor.chain().focus().undo().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 disabled={!editor.can().undo()}
                 title="Скасувати (Ctrl+Z)"
               >
@@ -583,6 +606,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={() => editor.chain().focus().redo().run()}
+                onMouseDown={(e) => e.preventDefault()}
                 disabled={!editor.can().redo()}
                 title="Повторити (Ctrl+Y)"
               >
@@ -594,6 +618,7 @@ export const EnhancedInlineEditor = ({
                 size="icon"
                 className="h-8 w-8"
                 onClick={clearFormatting}
+                onMouseDown={(e) => e.preventDefault()}
                 title="Очистити форматування"
               >
                 <RemoveFormatting className="h-3 w-3" />
