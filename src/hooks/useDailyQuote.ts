@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { stripParagraphTags } from "@/utils/import/normalizers";
 
 export type DailyQuote = {
   id: string;
@@ -250,9 +251,10 @@ export function useDailyQuote() {
 
   // Форматуємо цитату для відображення
   const formattedQuote = quote ? {
-    text: language === 'ua'
-      ? (quote.quote_type === 'verse' ? quote.verse?.translation_ua : quote.quote_ua)
-      : (quote.quote_type === 'verse' ? quote.verse?.translation_en : quote.quote_en),
+    // Очищаємо текст від HTML тегів (<p>, </p> тощо)
+    text: stripParagraphTags(language === 'ua'
+      ? (quote.quote_type === 'verse' ? quote.verse?.translation_ua : quote.quote_ua) || ''
+      : (quote.quote_type === 'verse' ? quote.verse?.translation_en : quote.quote_en) || ''),
 
     author: language === 'ua' ? quote.author_ua : quote.author_en,
 

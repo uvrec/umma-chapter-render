@@ -963,7 +963,7 @@ export const VedaReaderDB = () => {
             showTranslation: continuousReadingSettings.showTranslation,
             showCommentary: continuousReadingSettings.showCommentary
           };
-          return dualLanguageMode ? <DualLanguageVerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} sanskritTextUa={cleanSanskrit((verse as any).sanskrit_ua || (verse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliterationUa={(verse as any).transliteration_ua || ""} synonymsUa={(verse as any).synonyms_ua || ""} translationUa={(verse as any).translation_ua || ""} commentaryUa={(verse as any).commentary_ua || ""} transliterationEn={(verse as any).transliteration_en || ""} synonymsEn={(verse as any).synonyms_en || ""} translationEn={(verse as any).translation_en || ""} commentaryEn={(verse as any).commentary_en || ""} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+          return dualLanguageMode ? <DualLanguageVerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((verse as any).sanskrit_ua || (verse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliterationUa={(verse as any).transliteration_ua || ""} synonymsUa={(verse as any).synonyms_ua || ""} translationUa={(verse as any).translation_ua || ""} commentaryUa={(verse as any).commentary_ua || ""} transliterationEn={(verse as any).transliteration_en || ""} synonymsEn={(verse as any).synonyms_en || ""} translationEn={(verse as any).translation_en || ""} commentaryEn={(verse as any).commentary_en || ""} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
             verseId,
             updates,
             chapterId: effectiveChapter?.id,
@@ -981,7 +981,7 @@ export const VedaReaderDB = () => {
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
           return <div className="space-y-6">
                   {/* Навігація зверху */}
-                  <div className="flex items-center justify-between pb-6 mb-8">
+                  <div className="flex items-center justify-between">
                     <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
                       <ChevronLeft className="mr-2 h-4 w-4" />
                       {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
@@ -993,7 +993,7 @@ export const VedaReaderDB = () => {
                     </Button>
                   </div>
 
-                  {dualLanguageMode ? <DualLanguageVerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliterationUa={(currentVerse as any).transliteration_ua || ""} synonymsUa={(currentVerse as any).synonyms_ua || ""} translationUa={(currentVerse as any).translation_ua || ""} commentaryUa={(currentVerse as any).commentary_ua || ""} transliterationEn={(currentVerse as any).transliteration_en || ""} synonymsEn={(currentVerse as any).synonyms_en || ""} translationEn={(currentVerse as any).translation_en || ""} commentaryEn={(currentVerse as any).commentary_en || ""} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                  {dualLanguageMode ? <DualLanguageVerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliterationUa={(currentVerse as any).transliteration_ua || ""} synonymsUa={(currentVerse as any).synonyms_ua || ""} translationUa={(currentVerse as any).translation_ua || ""} commentaryUa={(currentVerse as any).commentary_ua || ""} transliterationEn={(currentVerse as any).transliteration_en || ""} synonymsEn={(currentVerse as any).synonyms_en || ""} translationEn={(currentVerse as any).translation_en || ""} commentaryEn={(currentVerse as any).commentary_en || ""} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
               verseId,
               updates,
               chapterId: effectiveChapter?.id,
