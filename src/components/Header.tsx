@@ -1,4 +1,4 @@
-import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2 } from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -6,12 +6,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const [translationsOpen, setTranslationsOpen] = useState(false);
   const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const {
     t
   } = useLanguage();
@@ -53,26 +55,41 @@ export const Header = () => {
               </Link>
             </Button>
 
-            <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/tools/transliteration" aria-label="Транслітерація">
-                <Languages className="mr-2 h-4 w-4" />
-                Транслітерація
-              </Link>
-            </Button>
-
-            <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/tools/normalization" aria-label="Нормалізація">
-                <Wand2 className="mr-2 h-4 w-4" />
-                Нормалізація
-              </Link>
-            </Button>
-
-            <Button variant="ghost" size="sm" asChild className={navBtn}>
-              <Link to="/tools/learning" aria-label="Вивчення мов">
-                <GraduationCap className="mr-2 h-4 w-4" />
-                Вивчення
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className={navBtn}>
+                  <Wrench className="mr-2 h-4 w-4" />
+                  Інструменти
+                  <ChevronDown className="ml-1 h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/transliteration" className="flex items-center cursor-pointer">
+                    <Languages className="mr-2 h-4 w-4" />
+                    Транслітерація
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/normalization" className="flex items-center cursor-pointer">
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Нормалізація
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/learning" className="flex items-center cursor-pointer">
+                    <GraduationCap className="mr-2 h-4 w-4" />
+                    Вивчення
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/tools/numerology" className="flex items-center cursor-pointer">
+                    <Hash className="mr-2 h-4 w-4" />
+                    Нумерологія
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/blog" aria-label="Блог">
@@ -171,25 +188,42 @@ export const Header = () => {
                   <span>Глосарій</span>
                 </Link>
 
-                <Link to="/tools/transliteration" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                  <Languages className="h-5 w-5" />
-                  <span>Транслітерація</span>
-                </Link>
+                <Collapsible open={toolsOpen} onOpenChange={setToolsOpen}>
+                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
+                    <div className="flex items-center space-x-3">
+                      <Wrench className="h-5 w-5" />
+                      <span>Інструменти</span>
+                    </div>
+                    {toolsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </CollapsibleTrigger>
 
-                <Link to="/tools/normalization" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                  <Wand2 className="h-5 w-5" />
-                  <span>Нормалізація</span>
-                </Link>
+                  <CollapsibleContent className="ml-6 mt-2 space-y-2">
+                    <Link to="/tools/transliteration" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                      <Languages className="h-4 w-4" />
+                      <span>Транслітерація</span>
+                    </Link>
 
-                <Link to="/tools/learning" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                  <GraduationCap className="h-5 w-5" />
-                  <span>Вивчення мов</span>
-                </Link>
+                    <Link to="/tools/normalization" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                      <Wand2 className="h-4 w-4" />
+                      <span>Нормалізація</span>
+                    </Link>
 
-                <Link to="/tools/compiler" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                  <BookMarked className="h-5 w-5" />
-                  <span>Збірки знань</span>
-                </Link>
+                    <Link to="/tools/learning" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                      <GraduationCap className="h-4 w-4" />
+                      <span>Вивчення мов</span>
+                    </Link>
+
+                    <Link to="/tools/numerology" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                      <Hash className="h-4 w-4" />
+                      <span>Нумерологія</span>
+                    </Link>
+
+                    <Link to="/tools/compiler" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                      <BookMarked className="h-4 w-4" />
+                      <span>Збірки знань</span>
+                    </Link>
+                  </CollapsibleContent>
+                </Collapsible>
 
                 <Link to="/blog" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <FileText className="h-5 w-5" />
