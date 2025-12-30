@@ -21,8 +21,6 @@ interface DualLanguageVerseCardProps {
   verseNumber: string;
   bookNameUa?: string;
   bookNameEn?: string;
-  chapterTitleUa?: string;
-  chapterTitleEn?: string;
   sanskritTextUa: string;
   sanskritTextEn: string;
 
@@ -75,8 +73,6 @@ export const DualLanguageVerseCard = ({
   verseNumber,
   bookNameUa,
   bookNameEn,
-  chapterTitleUa,
-  chapterTitleEn,
   sanskritTextUa,
   sanskritTextEn,
   transliterationUa,
@@ -273,13 +269,6 @@ export const DualLanguageVerseCard = ({
       }}
     >
       <div className={flowMode ? "py-6" : "p-6"}>
-        {/* НАЗВА ГЛАВИ */}
-        {(chapterTitleUa || chapterTitleEn) && (
-          <div className="mb-8">
-            <h1 className="text-center font-extrabold text-5xl">{chapterTitleUa || chapterTitleEn}</h1>
-          </div>
-        )}
-
         {/* НОМЕР ВІРША */}
         {showNumbers && (
           <div className="flex items-center justify-center gap-4 mb-8">
