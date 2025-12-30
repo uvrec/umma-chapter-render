@@ -131,9 +131,19 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   }
 
   if (keepHtml) {
-    result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '<strong>«$1»</strong>');
+    // Book titles - wrap in strong, handle existing quotes
+    result = result.replace(/<_bt>([^<]*)<_\/bt>/g, (_, content) => {
+      const trimmed = content.trim();
+      // Remove existing quotes if present, then add them back
+      const cleaned = trimmed.replace(/^«+/, '').replace(/»+$/, '');
+      return `<strong>«${cleaned}»</strong>`;
+    });
   } else {
-    result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '«$1»');
+    result = result.replace(/<_bt>([^<]*)<_\/bt>/g, (_, content) => {
+      const trimmed = content.trim();
+      const cleaned = trimmed.replace(/^«+/, '').replace(/»+$/, '');
+      return `«${cleaned}»`;
+    });
   }
 
   result = result.replace(/<_qm>/g, '');
@@ -146,13 +156,11 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   result = decodePua(result);
 
   if (keepHtml) {
-    const allowedTags = ['em', 'strong', 'br', 'span', 'p', 'blockquote'];
-    const tempMarker = '\x00KEEP\x00';
-    for (const tag of allowedTags) {
-      result = result.replace(new RegExp(`<(/?)(${tag})([^>]*)>`, 'gi'), `${tempMarker}<$1$2$3>${tempMarker}`);
-    }
-    result = result.replace(/<[^>]*>/g, '');
-    result = result.replace(/\x00KEEP\x00/g, '');
+    // Remove Ventura-specific tags but keep HTML tags
+    // First, remove all remaining Ventura tags (start with <_ or are Ventura-specific)
+    result = result.replace(/<_[^>]*>/g, '');  // Remove <_...> tags
+    result = result.replace(/<\/?[A-Z][^>]*>/g, '');  // Remove uppercase tags like <B>, <MI>, <D>, <R>, <S>, <N>
+    // Note: HTML tags like <em>, <strong>, <p>, <span>, <blockquote> start with lowercase and are preserved
   } else {
     result = result.replace(/<[^>]*>/g, '');
   }
