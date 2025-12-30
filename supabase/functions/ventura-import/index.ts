@@ -269,12 +269,13 @@ function processFirstParagraph(text: string): string {
         // Found first actual character
         const firstChar = result[i];
         const rest = result.slice(i + 1);
-        return `${leadingTags}<span class="drop-cap">${firstChar}</span>${rest}`;
+        // Wrap in <p class="purport first"> with drop cap
+        return `<p class="purport first">${leadingTags}<span class="drop-cap">${firstChar}</span>${rest}</p>`;
       }
     }
   }
 
-  return result;
+  return `<p class="purport first">${result}</p>`;
 }
 
 function processTransliteration(text: string): string {
@@ -283,7 +284,9 @@ function processTransliteration(text: string): string {
   result = result.replace(/<R>/g, '\n');
   result = result.replace(/<_>/g, ' ');
   result = processInlineTags(result);
-  return result.split('\n').map(l => l.trim()).filter(l => l).join('\n');
+  // Wrap each line in <span class="line">
+  const lines = result.split('\n').map(l => l.trim()).filter(l => l);
+  return lines.map(l => `<span class="line">${l}</span>`).join('\n');
 }
 
 function extractVerseNumber(text: string): string {
@@ -390,9 +393,11 @@ function parseVentura(text: string): Chapter {
       if (currentVerse) {
         const para = processProse(content, true);
         if (para) {
+          // Wrap in <p class="purport">
+          const wrapped = `<p class="purport">${para}</p>`;
           currentVerse.commentary_ua = currentVerse.commentary_ua
-            ? currentVerse.commentary_ua + '\n\n' + para
-            : para;
+            ? currentVerse.commentary_ua + '\n\n' + wrapped
+            : wrapped;
         }
       }
     } else if (currentTag === 'p-purport') {
