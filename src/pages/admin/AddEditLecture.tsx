@@ -89,7 +89,7 @@ import {
   Mic,
   Upload,
   Settings,
-  Waveform,
+  AudioWaveform,
   Timer,
   Music,
 } from "lucide-react";
