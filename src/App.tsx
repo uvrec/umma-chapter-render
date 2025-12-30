@@ -24,8 +24,6 @@ import LectureImport from "@/pages/admin/LectureImport";
 import LetterImport from "@/pages/admin/LetterImport";
 import LecturesManager from "@/pages/admin/LecturesManager";
 import LettersManager from "@/pages/admin/LettersManager";
-import AddEditLecture from "@/pages/admin/AddEditLecture";
-import AddEditLetter from "@/pages/admin/AddEditLetter";
 
 import { NewHome } from "./pages/NewHome";
 import NotFound from "./pages/NotFound";
@@ -253,11 +251,7 @@ function AppContent() {
           <Route path="/admin/lecture-import" element={<LectureImport />} />
           <Route path="/admin/letter-import" element={<LetterImport />} />
           <Route path="/admin/lectures" element={<LecturesManager />} />
-          <Route path="/admin/lectures/new" element={<AddEditLecture />} />
-          <Route path="/admin/lectures/:id/edit" element={<AddEditLecture />} />
           <Route path="/admin/letters" element={<LettersManager />} />
-          <Route path="/admin/letters/new" element={<AddEditLetter />} />
-          <Route path="/admin/letters/:id/edit" element={<AddEditLetter />} />
           <Route path="/admin/numcal" element={<NumCal />} />
           {/* Redirect /admin to dashboard */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
