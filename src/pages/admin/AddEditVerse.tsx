@@ -136,8 +136,8 @@ export default function AddEditVerse() {
     if (verse) {
       setChapterId(verse.chapter_id);
       setVerseNumber(verse.verse_number);
-      setSanskritUa(verse.sanskrit_ua || "");
-      setSanskritEn(verse.sanskrit_en || "");
+      setSanskritUa(verse.sanskrit_ua || (verse as any).sanskrit || "");
+      setSanskritEn(verse.sanskrit_en || (verse as any).sanskrit || "");
       setTransliterationUa(verse.transliteration_ua || "");
       setTransliterationEn(verse.transliteration_en || "");
       setSynonymsUa(verse.synonyms_ua || "");
