@@ -287,7 +287,7 @@ export const DualLanguageVerseCard = ({
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
               <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
-                Вірш {verseNumber}
+                ВІРШ {verseNumber}
               </span>
             )}
             {/* Кнопка "Додати до вивчення" */}

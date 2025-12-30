@@ -60,14 +60,14 @@ export const VerseNumberEditor = ({
   };
   if (!isEditing) {
     return <div className="flex items-center gap-2">
-        <span className="font-semibold text-primary text-5xl text-center">Вірш {currentNumber}</span>
+        <span className="font-semibold text-5xl text-center" style={{ color: "rgb(188, 115, 26)" }}>ВІРШ {currentNumber}</span>
         <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="h-7 w-7 p-0" title="Редагувати номер вірша">
           <Edit2 className="h-3.5 w-3.5" />
         </Button>
       </div>;
   }
   return <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground">Вірш</span>
+      <span className="text-sm text-muted-foreground">ВІРШ</span>
       <Input value={newNumber} onChange={e => setNewNumber(e.target.value)} className="h-8 w-24 text-sm" placeholder="1 або 16-18" disabled={isSaving} />
       <Button variant="default" size="sm" onClick={handleSave} disabled={isSaving || newNumber === currentNumber} className="h-8 w-8 p-0" title="Зберегти">
         <Check className="h-4 w-4" />

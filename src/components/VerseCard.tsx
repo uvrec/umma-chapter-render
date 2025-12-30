@@ -257,63 +257,68 @@ export const VerseCard = ({
           lineHeight,
         }}
       >
-        {/* 🆕 STICKY HEADER - Верхня панель: номер/книга + кнопка редагування */}
-        <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Якщо адмін — показуємо VerseNumberEditor */}
-              {showNumbers &&
-                (isAdmin && verseId ? (
-                  <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
-                ) : (
-                  <div className="flex h-8 items-center justify-center rounded-full bg-primary/10 px-3">
-                    <span className="text-sm font-semibold text-primary">Вірш {verseNumber}</span>
-                  </div>
-                ))}
-
-              {/* ✅ ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
-              {isAdmin && is_composite && verse_count && start_verse && end_verse && (
-                <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>
-                    Складений вірш: {verse_count} {verse_count === 1 ? "вірш" : verse_count < 5 ? "вірші" : "віршів"} (
-                    {start_verse}-{end_verse})
-                  </span>
-                </div>
-              )}
-
-              {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
-            </div>
-
-            {isAdmin && (
-              <div className="flex gap-2">
-                {isEditing ? (
-                  <>
-                    <Button variant="default" size="sm" onClick={saveEdit}>
-                      <Save className="mr-2 h-4 w-4" />
-                      Зберегти
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={cancelEdit}>
-                      <X className="mr-2 h-4 w-4" />
-                      Скасувати
-                    </Button>
-                  </>
-                ) : (
-                  <Button variant="ghost" size="sm" onClick={startEdit}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Редагувати
-                  </Button>
-                )}
-              </div>
+        {/* НОМЕР ВІРША - відцентрований */}
+        {showNumbers && (
+          <div className="flex items-center justify-center gap-4 mb-8">
+            {isAdmin && verseId ? (
+              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+            ) : (
+              <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
+                ВІРШ {verseNumber}
+              </span>
             )}
           </div>
-        </div>
+        )}
+
+        {/* 🆕 STICKY HEADER - Верхня панель: книга + кнопка редагування */}
+        {(isAdmin || bookName || (is_composite && verse_count && start_verse && end_verse)) && (
+          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center gap-3">
+                {/* ✅ ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
+                {isAdmin && is_composite && verse_count && start_verse && end_verse && (
+                  <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <span>
+                      Складений вірш: {verse_count} {verse_count === 1 ? "вірш" : verse_count < 5 ? "вірші" : "віршів"} (
+                      {start_verse}-{end_verse})
+                    </span>
+                  </div>
+                )}
+
+                {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
+              </div>
+
+              {isAdmin && (
+                <div className="flex gap-2">
+                  {isEditing ? (
+                    <>
+                      <Button variant="default" size="sm" onClick={saveEdit}>
+                        <Save className="mr-2 h-4 w-4" />
+                        Зберегти
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={cancelEdit}>
+                        <X className="mr-2 h-4 w-4" />
+                        Скасувати
+                      </Button>
+                    </>
+                  ) : (
+                    <Button variant="ghost" size="sm" onClick={startEdit}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Редагувати
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Деванагарі з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
