@@ -92,6 +92,11 @@ function decodePua(text: string): string {
 }
 
 function processLineContinuations(text: string): string {
+  // Early return if no line continuations present
+  if (!text.includes('<->') && !text.includes('<&>')) {
+    return text;
+  }
+
   const lines = text.split('\n');
   const result: string[] = [];
   let buffer = "";
@@ -205,8 +210,22 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 
   // Remove remaining Ventura tags (but not HTML if keepHtml)
   if (keepHtml) {
-    // Keep em, strong, br, span, p, blockquote (for styling)
-    result = result.replace(/<(?!\/?(em|strong|br|span|p|blockquote)[^a-z])[^>]*>/g, '');
+    // OPTIMIZED: Use positive approach instead of slow negative lookahead
+    // The old regex `/<(?!\/?(em|strong|br|span|p|blockquote)[^a-z])[^>]*>/g` caused
+    // catastrophic backtracking on large files (5+ minutes for 450KB)
+    const allowedTags = ['em', 'strong', 'br', 'span', 'p', 'blockquote'];
+    const tempMarker = '\x00KEEP\x00';
+
+    // 1. Mark allowed tags with unique marker
+    for (const tag of allowedTags) {
+      result = result.replace(new RegExp(`<(/?)(${tag})([^>]*)>`, 'gi'), `${tempMarker}<$1$2$3>${tempMarker}`);
+    }
+
+    // 2. Remove all other tags (simple fast regex)
+    result = result.replace(/<[^>]*>/g, '');
+
+    // 3. Remove markers, keeping the preserved tags
+    result = result.replace(/\x00KEEP\x00/g, '');
   } else {
     result = result.replace(/<[^>]*>/g, '');
   }
@@ -337,6 +356,7 @@ interface IntroPage {
 
 function parseVentura(text: string): Chapter {
   const lines = text.split('\n');
+  console.log(`parseVentura: ${lines.length} lines`);
 
   let chapterNumber = 0;
   let chapterTitle = "";
@@ -345,6 +365,8 @@ function parseVentura(text: string): Chapter {
 
   let currentTag: string | null = null;
   let currentContent: string[] = [];
+
+  const foundTags = new Set<string>();
 
   function flushBlock() {
     if (!currentTag || SKIP_TAGS.has(currentTag) || DEVANAGARI_TAGS.has(currentTag)) {
@@ -439,6 +461,7 @@ function parseVentura(text: string): Chapter {
       const match = trimmed.match(/^@([\w-]+)\s*=\s*(.*)/);
       if (match) {
         currentTag = match[1];
+        foundTags.add(currentTag);
         const c = match[2].trim();
         currentContent = c ? [c] : [];
       }
@@ -449,6 +472,9 @@ function parseVentura(text: string): Chapter {
 
   flushBlock();
   if (currentVerse) verses.push(currentVerse);
+
+  console.log(`parseVentura result: chapter=${chapterNumber}, title="${chapterTitle}", verses=${verses.length}`);
+  console.log(`Found tags: ${Array.from(foundTags).join(', ')}`);
 
   return { chapter_number: chapterNumber, title_ua: chapterTitle, verses };
 }
@@ -612,6 +638,7 @@ Deno.serve(async (req) => {
       );
     }
 
+    const startTime = Date.now();
     console.log(`Processing file: ${file.name}, size: ${file.size}, type: ${type}`);
 
     // Read file content
@@ -640,6 +667,16 @@ Deno.serve(async (req) => {
 
     console.log(`Decoded text length: ${text.length}`);
 
+    // Debug: show first 500 chars of decoded text
+    console.log(`First 500 chars: ${text.slice(0, 500)}`);
+
+    // Debug: check for @ tags
+    const tagMatches = text.match(/^@[\w-]+\s*=/gm);
+    console.log(`Found ${tagMatches?.length || 0} @ tags in file`);
+    if (tagMatches && tagMatches.length > 0) {
+      console.log(`First 10 tags: ${tagMatches.slice(0, 10).join(', ')}`);
+    }
+
     let result: any;
 
     if (type === "intro") {
@@ -662,15 +699,31 @@ Deno.serve(async (req) => {
       result = parseVentura(text);
 
       if (!result.verses || result.verses.length === 0) {
+        // Return diagnostic info instead of just error
+        const tagMatches = text.match(/^@[\w-]+\s*=/gm) || [];
         return new Response(
-          JSON.stringify({ error: "No verses found in file" }),
+          JSON.stringify({
+            error: "No verses found in file",
+            diagnostics: {
+              text_length: text.length,
+              line_count: text.split('\n').length,
+              first_200_chars: text.slice(0, 200),
+              tag_count: tagMatches.length,
+              first_10_tags: tagMatches.slice(0, 10),
+              chapter_number_found: result.chapter_number,
+              title_found: result.title_ua,
+            }
+          }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     }
 
+    const elapsed = Date.now() - startTime;
+    console.log(`Parse completed in ${elapsed}ms, ${type === 'intro' ? 'intro page' : `${result.verses?.length || 0} verses`}`);
+
     return new Response(
-      JSON.stringify({ success: true, type, data: result }),
+      JSON.stringify({ success: true, type, data: result, elapsed_ms: elapsed }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 

@@ -203,16 +203,21 @@ export default function BBTImport() {
             }
           );
 
+          const data = await response.json().catch(() => ({}));
+
           if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
+            // Include diagnostics if available
+            let errorMsg = data.error || data.detail || `HTTP ${response.status}`;
+            if (data.diagnostics) {
+              errorMsg += ` | tags: ${data.diagnostics.tag_count}, first_tags: ${data.diagnostics.first_10_tags?.slice(0, 3).join(', ')}, chapter: ${data.diagnostics.chapter_number_found}`;
+              console.log("Parse diagnostics:", data.diagnostics);
+            }
             errors.push({
               file: file.name,
-              error: errorData.error || errorData.detail || `HTTP ${response.status}`
+              error: errorMsg
             });
             continue;
           }
-
-          const data = await response.json();
 
           if (data.success) {
             if (data.type === "intro") {
