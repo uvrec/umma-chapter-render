@@ -46,7 +46,7 @@
   /* Шрифтова сім'я для ДЕВАНАГАРІ (!important для пріоритету) */
   font-family: "Noto Sans Devanagari", sans-serif !important;
   font-style: normal !important;
-  font-weight: 400 !important;
+  font-weight: 700 !important;
 
   /* Розмір шрифту - трохи більший ніж базовий (+15%) */
   font-size: calc(var(--vv-reader-font-size) * 1.15) !important;
