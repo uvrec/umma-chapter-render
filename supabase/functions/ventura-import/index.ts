@@ -571,14 +571,36 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
 // =============================================================================
 
 Deno.serve(async (req) => {
-  // Handle CORS
+  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Always wrap in try-catch to ensure CORS headers are returned
   try {
-    // Parse multipart form data
-    const formData = await req.formData();
+    // Check method
+    if (req.method !== "POST") {
+      return new Response(
+        JSON.stringify({ error: "Method not allowed" }),
+        { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Parse multipart form data with explicit error handling
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch (formError) {
+      console.error("FormData parsing error:", formError);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to parse form data",
+          detail: formError instanceof Error ? formError.message : "Unknown error"
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const file = formData.get("file") as File | null;
     const type = formData.get("type") as string || "chapter";
     const filePrefix = formData.get("file_prefix") as string || "";
@@ -589,6 +611,8 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log(`Processing file: ${file.name}, size: ${file.size}, type: ${type}`);
 
     // Read file content
     const arrayBuffer = await file.arrayBuffer();
@@ -601,6 +625,10 @@ Deno.serve(async (req) => {
       if (text.startsWith('\ufeff')) {
         text = text.slice(1);
       }
+      // Check if decoded correctly - should have readable content
+      if (!text || text.length < 100 || !/[@\w]/.test(text.slice(0, 500))) {
+        throw new Error("UTF-16LE decode produced invalid content");
+      }
     } catch {
       // Fallback to UTF-8
       const decoder = new TextDecoder("utf-8");
@@ -609,6 +637,8 @@ Deno.serve(async (req) => {
         text = text.slice(1);
       }
     }
+
+    console.log(`Decoded text length: ${text.length}`);
 
     let result: any;
 
