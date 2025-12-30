@@ -325,6 +325,16 @@ function parseVentura(text: string): Chapter {
             ? currentVerse.commentary_ua + '\n\n' + blockquote : blockquote;
         }
       }
+    } else if (['p-anustubh', 'p-uvaca', 'p-tristubh', 'p-gayatri', 'p-indravajra'].includes(currentTag)) {
+      // Quoted verse transliteration inside commentary (like verse quotes from other texts)
+      if (currentVerse) {
+        const translit = processTransliteration(content);
+        if (translit) {
+          const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + '\n\n' + blockquote : blockquote;
+        }
+      }
     } else if (currentTag === 'p-outro') {
       if (currentVerse) {
         const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
