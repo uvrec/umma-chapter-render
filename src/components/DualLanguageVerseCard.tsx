@@ -638,7 +638,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} bold fontSize={fontSize} lineHeight={lineHeight} />
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} bold />
             )}
           </div>
         )}
@@ -704,7 +704,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} enableDropCap fontSize={fontSize} lineHeight={lineHeight} />
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} enableDropCap />
             )}
           </div>
         )}

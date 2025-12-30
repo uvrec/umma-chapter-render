@@ -17,10 +17,6 @@ interface DualLanguageTextProps {
   enableDropCap?: boolean;
   /** Make text bold (for translation blocks) */
   bold?: boolean;
-  /** Font size in pixels (from useReaderSettings) */
-  fontSize?: number;
-  /** Line height (from useReaderSettings) */
-  lineHeight?: number;
 }
 
 /**
@@ -67,8 +63,6 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   enText,
   enableDropCap = false,
   bold = false,
-  fontSize,
-  lineHeight,
 }) => {
   // Використовуємо передані параграфи або парсимо текст
   const uaParas = uaParagraphs && uaParagraphs.length > 0 ? uaParagraphs : parseTextToParagraphs(uaText);
@@ -89,14 +83,10 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
         const enContent = enParas[idx]?.text || "&nbsp;";
         const isFirstParagraph = idx === 0;
 
-        // Inline style для динамічного розміру шрифту
-        const textStyle = fontSize ? { fontSize: `${fontSize}px`, lineHeight } : undefined;
-
         return (
           <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
             <p
-              className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
-              style={textStyle}
+              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               dangerouslySetInnerHTML={{
                 __html: isFirstParagraph && enableDropCap && uaContent !== "&nbsp;"
                   ? applyDropCap(uaContent)
@@ -104,8 +94,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               }}
             />
             <p
-              className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
-              style={textStyle}
+              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               dangerouslySetInnerHTML={{
                 __html: isFirstParagraph && enableDropCap && enContent !== "&nbsp;"
                   ? applyDropCap(enContent)
