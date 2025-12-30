@@ -63,7 +63,7 @@ SANSKRIT_TRANSLITERATIONS = {
     "guru": "ґуру",
     "mantra": "мантра",
     "kirtan": "кіртан",
-    "kīrtana": "кīртана",
+    "kīrtana": "кı̄ртана",  # kīrtana → кı̄ртана (dotless i + макрон, БЕЗ крапки!)
     "prasadam": "прасадам",
     "prasādam": "прасадам",
     "sadhana": "садгана",
@@ -93,7 +93,7 @@ SANSKRIT_TRANSLITERATIONS = {
 # Діакритичні маппінги (IAST -> UA)
 DIACRITIC_MAPPINGS = {
     "ā": "а̄",
-    "ī": "ī",
+    "ī": "ı̄",  # ī → ı̄ (dotless i + макрон, БЕЗ крапки!)
     "ū": "ӯ",
     "ṛ": "р̣",
     "ṝ": "р̣̄",

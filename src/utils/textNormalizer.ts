@@ -169,12 +169,12 @@ export function convertIASTtoUkrainian(text: string): string {
     // ============ PRECOMPOSED Unicode (як повертає Sanscript) ============
     // y + довгі голосні (ПЕРШІ!)
     "y\u0101": "йа̄", // yā
-    "y\u012B": "йī", // yī
+    "y\u012B": "йı̄", // yī → йı̄ (латинська dotless і + макрон)
     "y\u016B": "йӯ", // yū
 
     // Довгі голосні (precomposed)
     "\u0101": "а̄", // ā
-    "\u012B": "ī", // ī
+    "\u012B": "ı̄", // ī → ı̄ (латинська dotless i + макрон, БЕЗ крапки!)
     "\u016B": "ӯ", // ū
     "\u1E5D": "р̣̄", // ṝ
     "\u1E38": "л̣̄", // ḹ
@@ -191,7 +191,7 @@ export function convertIASTtoUkrainian(text: string): string {
     "\u1E25": "х̣", // ḥ
     "\u1E37": "л̣", // ḷ
     "\u0100": "А̄", // Ā
-    "\u012A": "Ī", // Ī
+    "\u012A": "Ī", // Ī → Ī (велика I + макрон, БЕЗ крапки!)
     "\u016A": "Ӯ", // Ū
 
     // ============ ВЕЛИКІ PRECOMPOSED Unicode ============
@@ -211,10 +211,10 @@ export function convertIASTtoUkrainian(text: string): string {
     // ============ COMBINING DIACRITICS (запасний варіант) ============
     // Якщо NFC нормалізація не спрацювала
     "a\u0304": "а̄", // a + combining macron
-    "i\u0304": "ī", // i + combining macron
+    "i\u0304": "ı̄", // i + combining macron → ı̄ (dotless i + макрон, БЕЗ крапки!)
     "u\u0304": "ӯ", // u + combining macron
     "A\u0304": "А̄", // A + combining macron
-    "I\u0304": "Ī", // I + combining macron
+    "I\u0304": "Ī", // I + combining macron → Ī (БЕЗ крапки!)
     "U\u0304": "Ӯ", // U + combining macron
     "r\u0323\u0304": "р̣̄", // r + combining dot below + macron
     "r\u0323": "р̣", // r + combining dot below
