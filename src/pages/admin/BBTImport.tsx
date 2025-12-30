@@ -489,7 +489,7 @@ export default function BBTImport() {
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept=".h93,.H93"
+                  accept=".h01,.h02,.h03,.h04,.h05,.h06,.h07,.h08,.h09,.h10,.h11,.h12,.h13,.h14,.h15,.h16,.h17,.h18,.h93,.H01,.H02,.H03,.H04,.H05,.H06,.H07,.H08,.H09,.H10,.H11,.H12,.H13,.H14,.H15,.H16,.H17,.H18,.H93"
                   onChange={handleFileUpload}
                   className="hidden"
                 />
@@ -502,7 +502,7 @@ export default function BBTImport() {
                   Вибрати файли
                 </Button>
                 <p className="text-sm text-muted-foreground">
-                  Підтримуються файли Ventura (.H93)
+                  Підтримуються файли Ventura (.H01-.H18, .H93)
                 </p>
               </div>
 
