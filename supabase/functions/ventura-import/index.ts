@@ -178,8 +178,12 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
     result = result.replace(/<\/?D>/g, '');
   }
 
-  // Book titles
-  result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '«$1»');
+  // Book titles - wrap in strong and quotes
+  if (keepHtml) {
+    result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '<strong>«$1»</strong>');
+  } else {
+    result = result.replace(/<_bt>([^<]*)<_\/bt>/g, '«$1»');
+  }
 
   // Quotes - just remove tags (quotes already in text)
   result = result.replace(/<_qm>/g, '');
@@ -201,7 +205,8 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 
   // Remove remaining Ventura tags (but not HTML if keepHtml)
   if (keepHtml) {
-    result = result.replace(/<(?!\/?(em|strong|br))[^>]*>/g, '');
+    // Keep em, strong, br, span, p, blockquote (for styling)
+    result = result.replace(/<(?!\/?(em|strong|br|span|p|blockquote)[^a-z])[^>]*>/g, '');
   } else {
     result = result.replace(/<[^>]*>/g, '');
   }
@@ -217,11 +222,13 @@ function processSynonyms(text: string): string {
   let result = processLineContinuations(text);
   result = result.split('\n').join(' ');
 
-  // Convert <_dt>...<_/dt> <_dd>...<_/dd> → term — meaning
-  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*<_dd>([^<]*)<_\/dd>/g, '$1 — $2');
-  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*<_dd>([^<]*)<_\/dd>/g, '$1 — $2');
+  // Convert <MI><_dt>...<_/dt><D> <_dd>...<_/dd> → <em>term</em> — meaning
+  // Keep <em> tags for terms (italic formatting)
+  result = result.replace(/<MI><_dt>([^<]*)<_\/dt><D>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
+  result = result.replace(/<_dt>([^<]*)<_\/dt>\s*[-–—]?\s*<_dd>([^<]*)<_\/dd>/g, '<em>$1</em> — $2');
 
-  result = processInlineTags(result, false);
+  // Process inline tags but KEEP HTML for formatting
+  result = processInlineTags(result, true);
   result = result.replace(/\s+/g, ' ').trim();
 
   // Normalize dashes
@@ -244,13 +251,26 @@ function processFirstParagraph(text: string): string {
 
   // Add drop cap to first letter
   if (result && result.length > 0) {
-    // Skip any leading HTML tags to find the first actual character
-    const match = result.match(/^(<[^>]+>)*(.)/);
-    if (match) {
-      const leadingTags = match[1] || '';
-      const firstChar = match[2];
-      const rest = result.slice(leadingTags.length + 1);
-      return `${leadingTags}<span class="drop-cap">${firstChar}</span>${rest}`;
+    // Find the first non-HTML-tag character
+    let i = 0;
+    let leadingTags = '';
+
+    while (i < result.length) {
+      if (result[i] === '<') {
+        // Find the end of this tag
+        const tagEnd = result.indexOf('>', i);
+        if (tagEnd !== -1) {
+          leadingTags += result.slice(i, tagEnd + 1);
+          i = tagEnd + 1;
+        } else {
+          break;
+        }
+      } else {
+        // Found first actual character
+        const firstChar = result[i];
+        const rest = result.slice(i + 1);
+        return `${leadingTags}<span class="drop-cap">${firstChar}</span>${rest}`;
+      }
     }
   }
 
@@ -374,6 +394,33 @@ function parseVentura(text: string): Chapter {
             ? currentVerse.commentary_ua + '\n\n' + para
             : para;
         }
+      }
+    } else if (currentTag === 'p-purport') {
+      // "КОМЕНТАР" header - styled as centered header
+      if (currentVerse) {
+        const header = `<p class="purport-title">${processInlineTags(content)}</p>`;
+        currentVerse.commentary_ua = currentVerse.commentary_ua
+          ? currentVerse.commentary_ua + '\n\n' + header
+          : header;
+      }
+    } else if (['ql', 'q', 'q-p'].includes(currentTag)) {
+      // Quotes inside purport - centered blockquote
+      if (currentVerse) {
+        const quote = processProse(content, true);
+        if (quote) {
+          const blockquote = `<blockquote class="verse-quote">${quote}</blockquote>`;
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + '\n\n' + blockquote
+            : blockquote;
+        }
+      }
+    } else if (currentTag === 'p-outro') {
+      // Outro paragraph (end of chapter) - styled differently
+      if (currentVerse) {
+        const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
+        currentVerse.commentary_ua = currentVerse.commentary_ua
+          ? currentVerse.commentary_ua + '\n\n' + outro
+          : outro;
       }
     }
   }

@@ -594,6 +594,68 @@ textarea.transliteration-output {
 }
 
 /* =========================
+   DROP CAP для коментарів
+   ========================= */
+
+.drop-cap {
+  float: left;
+  font-size: 3.5em;
+  line-height: 0.8;
+  padding-right: 8px;
+  padding-top: 4px;
+  color: hsl(var(--primary));
+  font-weight: bold;
+  font-family: serif;
+}
+
+/* Забезпечуємо успадкування font-size в HTML контенті */
+div[style*="fontSize"] *,
+p[style*="fontSize"] * {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Виключення для drop-cap - він має власний розмір */
+div[style*="fontSize"] .drop-cap,
+p[style*="fontSize"] .drop-cap {
+  font-size: 3.5em;
+  line-height: 0.8;
+}
+
+/* =========================
+   PURPORT STYLING
+   ========================= */
+
+/* Заголовок "КОМЕНТАР" */
+.purport-title {
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.1em;
+  margin: 1.5em 0 1em 0;
+  font-size: inherit;
+}
+
+/* Цитати всередині пояснення - відцентровані */
+.verse-quote,
+blockquote.verse-quote {
+  text-align: center;
+  font-style: italic;
+  margin: 1.5em 2em;
+  padding: 1em;
+  border-left: 3px solid hsl(var(--primary) / 0.5);
+  background: hsl(var(--muted) / 0.3);
+  border-radius: 0 0.5em 0.5em 0;
+}
+
+/* Завершальний параграф */
+.purport-outro {
+  text-align: center;
+  font-style: italic;
+  margin-top: 2em;
+  color: hsl(var(--muted-foreground));
+}
+
+/* =========================
    СКИДАННЯ VITE СТИЛІВ
    ========================= */
 
