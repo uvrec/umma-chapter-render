@@ -163,6 +163,19 @@ export default function BBTImport() {
     const errors: { file: string; error: string }[] = [];
 
     try {
+      // Get auth session for Authorization header
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast({
+          title: "Помилка авторизації",
+          description: "Увійдіть в систему для імпорту файлів",
+          variant: "destructive",
+        });
+        setUploadParsing(false);
+        return;
+      }
+
       for (const file of uploadedFiles) {
         const formData = new FormData();
         formData.append("file", file);
@@ -177,16 +190,30 @@ export default function BBTImport() {
         }
 
         try {
-          const res = await supabase.functions.invoke("ventura-import", {
-            body: formData,
-          });
+          // Use fetch directly to properly handle FormData
+          // supabase.functions.invoke() doesn't set correct Content-Type boundary
+          const response = await fetch(
+            `${SUPABASE_URL}/functions/v1/ventura-import`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${session.access_token}`,
+              },
+              body: formData, // Browser auto-sets Content-Type with boundary
+            }
+          );
 
-          if (res.error) {
-            errors.push({ file: file.name, error: res.error.message });
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            errors.push({
+              file: file.name,
+              error: errorData.error || errorData.detail || `HTTP ${response.status}`
+            });
             continue;
           }
 
-          const data = res.data;
+          const data = await response.json();
+
           if (data.success) {
             if (data.type === "intro") {
               intros.push(data.data);
