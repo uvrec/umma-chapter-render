@@ -75,10 +75,6 @@ export const Header = () => {
             </Button>
 
             <Button variant="ghost" size="sm" asChild className={navBtn}>
-              
-            </Button>
-
-            <Button variant="ghost" size="sm" asChild className={navBtn}>
               <Link to="/blog" aria-label="Блог">
                 <FileText className="mr-2 h-4 w-4" />
                 Блог
