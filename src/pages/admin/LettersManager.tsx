@@ -5,21 +5,14 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -29,17 +22,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   ArrowLeft,
   Edit,
   Trash2,
   Search,
   ExternalLink,
-  Save,
   Loader2,
-  Languages,
-  Sparkles,
+  Plus,
+  Upload,
 } from "lucide-react";
-import { transliterateIAST } from "@/utils/text/transliteration";
 import type { Letter } from "@/types/letter";
 import { toast } from "sonner";
 
@@ -47,7 +48,7 @@ export default function LettersManager() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
-  const [editingLetter, setEditingLetter] = useState<Letter | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Завантажити листи
   const { data: letters = [], isLoading } = useQuery({
@@ -60,33 +61,6 @@ export default function LettersManager() {
 
       if (error) throw error;
       return data as Letter[];
-    },
-  });
-
-  // Мутація для оновлення листа
-  const updateLetter = useMutation({
-    mutationFn: async (letter: Partial<Letter> & { id: string }) => {
-      const { error } = await (supabase as any)
-        .from("letters")
-        .update({
-          recipient_en: letter.recipient_en,
-          recipient_ua: letter.recipient_ua,
-          location_en: letter.location_en,
-          location_ua: letter.location_ua,
-          content_en: letter.content_en,
-          content_ua: letter.content_ua,
-        })
-        .eq("id", letter.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-letters"] });
-      toast.success("Лист оновлено");
-      setEditingLetter(null);
-    },
-    onError: (error) => {
-      toast.error(`Помилка: ${error.message}`);
     },
   });
 
@@ -103,65 +77,9 @@ export default function LettersManager() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-letters"] });
       toast.success("Лист видалено");
+      setDeleteId(null);
     },
   });
-
-  // Авто-транслітерація контенту
-  const autoTransliterate = () => {
-    if (!editingLetter?.content_en) return;
-
-    const transliterated = transliterateIAST(editingLetter.content_en);
-    setEditingLetter({
-      ...editingLetter,
-      content_ua: transliterated,
-    });
-    toast.success("Транслітерацію застосовано");
-  };
-
-  // AI переклад через Claude
-  const [isTranslating, setIsTranslating] = useState(false);
-
-  const translateWithAI = async () => {
-    if (!editingLetter?.content_en) return;
-
-    setIsTranslating(true);
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            text: editingLetter.content_en,
-            context: "letter",
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Translation failed");
-      }
-
-      const data = await response.json();
-
-      setEditingLetter({
-        ...editingLetter,
-        content_ua: data.translated,
-      });
-
-      toast.success(
-        `Перекладено! Знайдено ${data.terms_found?.length || 0} санскритських термінів`
-      );
-    } catch (error) {
-      toast.error("Помилка перекладу. Перевірте налаштування API.");
-      console.error(error);
-    } finally {
-      setIsTranslating(false);
-    }
-  };
 
   // Фільтровані листи
   const filteredLetters = letters.filter(
@@ -182,9 +100,18 @@ export default function LettersManager() {
             Назад
           </Button>
 
-          <Button onClick={() => navigate("/admin/letter-import")}>
-            Імпорт листів
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/admin/letter-import")}>
+              <Upload className="w-4 h-4 mr-2" />
+              Імпорт
+            </Button>
+            <Button asChild>
+              <Link to="/admin/letters/new">
+                <Plus className="w-4 h-4 mr-2" />
+                Новий лист
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Заголовок */}
@@ -255,9 +182,11 @@ export default function LettersManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setEditingLetter(letter)}
+                            asChild
                           >
-                            <Edit className="w-4 h-4" />
+                            <Link to={`/admin/letters/${letter.id}/edit`}>
+                              <Edit className="w-4 h-4" />
+                            </Link>
                           </Button>
                           <Button
                             variant="ghost"
@@ -274,11 +203,7 @@ export default function LettersManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              if (confirm("Видалити лист?")) {
-                                deleteLetter.mutate(letter.id);
-                              }
-                            }}
+                            onClick={() => setDeleteId(letter.id)}
                           >
                             <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
@@ -292,154 +217,26 @@ export default function LettersManager() {
           </CardContent>
         </Card>
 
-        {/* Діалог редагування */}
-        <Dialog
-          open={!!editingLetter}
-          onOpenChange={() => setEditingLetter(null)}
-        >
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Редагування листа</DialogTitle>
-            </DialogHeader>
-
-            {editingLetter && (
-              <div className="space-y-6">
-                {/* Метадані */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Отримувач (EN)</label>
-                    <Input
-                      value={editingLetter.recipient_en || ""}
-                      onChange={(e) =>
-                        setEditingLetter({
-                          ...editingLetter,
-                          recipient_en: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Отримувач (UA)</label>
-                    <Input
-                      value={editingLetter.recipient_ua || ""}
-                      onChange={(e) =>
-                        setEditingLetter({
-                          ...editingLetter,
-                          recipient_ua: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Локація (EN)</label>
-                    <Input
-                      value={editingLetter.location_en || ""}
-                      onChange={(e) =>
-                        setEditingLetter({
-                          ...editingLetter,
-                          location_en: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Локація (UA)</label>
-                    <Input
-                      value={editingLetter.location_ua || ""}
-                      onChange={(e) =>
-                        setEditingLetter({
-                          ...editingLetter,
-                          location_ua: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-
-                {/* Контент */}
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Текст листа</h3>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={autoTransliterate}>
-                        <Languages className="w-4 h-4 mr-2" />
-                        Транслітерувати
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="sm"
-                        onClick={translateWithAI}
-                        disabled={isTranslating}
-                      >
-                        {isTranslating ? (
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                          <Sparkles className="w-4 h-4 mr-2" />
-                        )}
-                        Перекласти AI
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm text-muted-foreground">
-                        English
-                      </label>
-                      <Textarea
-                        value={editingLetter.content_en || ""}
-                        onChange={(e) =>
-                          setEditingLetter({
-                            ...editingLetter,
-                            content_en: e.target.value,
-                          })
-                        }
-                        rows={15}
-                        className="font-mono text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm text-muted-foreground">
-                        Українська
-                      </label>
-                      <Textarea
-                        value={editingLetter.content_ua || ""}
-                        onChange={(e) =>
-                          setEditingLetter({
-                            ...editingLetter,
-                            content_ua: e.target.value,
-                          })
-                        }
-                        rows={15}
-                        className="font-mono text-sm"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Кнопки */}
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setEditingLetter(null)}
-                  >
-                    Скасувати
-                  </Button>
-                  <Button
-                    onClick={() => updateLetter.mutate(editingLetter)}
-                    disabled={updateLetter.isPending}
-                  >
-                    {updateLetter.isPending && (
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    )}
-                    <Save className="w-4 h-4 mr-2" />
-                    Зберегти
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        {/* Діалог підтвердження видалення */}
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Видалити лист?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ця дія видалить лист назавжди. Цю дію неможливо скасувати.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Скасувати</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteId && deleteLetter.mutate(deleteId)}
+                className="bg-destructive text-destructive-foreground"
+              >
+                Видалити
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
       <Footer />
     </div>
