@@ -219,7 +219,8 @@ function processTransliteration(text: string): string {
   result = result.replace(/<_>/g, ' ');
   result = processInlineTags(result);
   const lines = result.split('\n').map(l => l.trim()).filter(l => l);
-  return lines.map(l => `<span class="line">${l}</span>`).join('\n');
+  // Just join with newlines - UI handles the formatting
+  return lines.join('\n');
 }
 
 function extractVerseNumber(text: string): string {
