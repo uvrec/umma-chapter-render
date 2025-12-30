@@ -19,8 +19,7 @@ import DOMPurify from "dompurify";
 interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
-  bookNameUa?: string;
-  bookNameEn?: string;
+  bookName?: string;
   sanskritTextUa: string;
   sanskritTextEn: string;
 
@@ -71,8 +70,7 @@ interface DualLanguageVerseCardProps {
 export const DualLanguageVerseCard = ({
   verseId,
   verseNumber,
-  bookNameUa,
-  bookNameEn,
+  bookName,
   sanskritTextUa,
   sanskritTextEn,
   transliterationUa,
@@ -271,26 +269,31 @@ export const DualLanguageVerseCard = ({
       <div className={flowMode ? "py-6" : "p-6"}>
         {/* НОМЕР ВІРША */}
         {showNumbers && (
-          <div className="flex items-center justify-center gap-4 mb-8">
-            {isAdmin && verseId ? (
-              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
-            ) : (
-              <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
-                ВІРШ {verseNumber}
-              </span>
-            )}
-            {/* Кнопка "Додати до вивчення" */}
-            {verseId && (
-              <button
-                onClick={handleAddToLearning}
-                disabled={isAddedToLearning}
-                className="transition-colors disabled:cursor-default"
-                title={isAddedToLearning ? "Вже у списку для вивчення" : "Додати до вивчення"}
-              >
-                <Star
-                  className={`h-4 w-4 ${isAddedToLearning ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground hover:text-amber-400'}`}
-                />
-              </button>
+          <div className="flex flex-col items-center mb-8">
+            <div className="flex items-center justify-center gap-4">
+              {isAdmin && verseId ? (
+                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+              ) : (
+                <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
+                  ВІРШ {verseNumber}
+                </span>
+              )}
+              {/* Кнопка "Додати до вивчення" */}
+              {verseId && (
+                <button
+                  onClick={handleAddToLearning}
+                  disabled={isAddedToLearning}
+                  className="transition-colors disabled:cursor-default"
+                  title={isAddedToLearning ? "Вже у списку для вивчення" : "Додати до вивчення"}
+                >
+                  <Star
+                    className={`h-4 w-4 ${isAddedToLearning ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground hover:text-amber-400'}`}
+                  />
+                </button>
+              )}
+            </div>
+            {bookName && (
+              <span className="mt-2 text-sm text-muted-foreground">{bookName}</span>
             )}
           </div>
         )}
