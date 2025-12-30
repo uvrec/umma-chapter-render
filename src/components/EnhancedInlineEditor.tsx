@@ -2,6 +2,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Mark, mergeAttributes } from "@tiptap/core";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Youtube from "@tiptap/extension-youtube";
@@ -57,6 +58,80 @@ import {
   Minus,
   RemoveFormatting,
 } from "lucide-react";
+
+/**
+ * Custom Span mark to preserve <span> elements with class, style, id and data-* attributes
+ * This prevents TipTap from stripping formatted content during HTML parsing
+ */
+const SpanMark = Mark.create({
+  name: "span",
+
+  // Include span mark when pasting/copying
+  inclusive: true,
+
+  // Group with other inline marks
+  group: "inline",
+
+  // Lower priority to not interfere with other marks
+  priority: 1000,
+
+  parseHTML() {
+    return [
+      {
+        tag: "span",
+        getAttrs: (node) => {
+          const element = node as HTMLElement;
+          // Collect all data-* attributes
+          const dataAttrs: Record<string, string> = {};
+          Array.from(element.attributes).forEach(attr => {
+            if (attr.name.startsWith("data-")) {
+              dataAttrs[attr.name] = attr.value;
+            }
+          });
+          return {
+            class: element.getAttribute("class"),
+            style: element.getAttribute("style"),
+            id: element.getAttribute("id"),
+            ...dataAttrs,
+          };
+        },
+      },
+    ];
+  },
+
+  addAttributes() {
+    return {
+      class: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("class"),
+        renderHTML: (attributes) => {
+          if (!attributes.class) return {};
+          return { class: attributes.class };
+        },
+      },
+      style: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("style"),
+        renderHTML: (attributes) => {
+          if (!attributes.style) return {};
+          return { style: attributes.style };
+        },
+      },
+      id: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("id"),
+        renderHTML: (attributes) => {
+          if (!attributes.id) return {};
+          return { id: attributes.id };
+        },
+      },
+    };
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ["span", mergeAttributes(HTMLAttributes), 0];
+  },
+});
 
 interface EnhancedInlineEditorProps {
   content: string;
@@ -126,6 +201,7 @@ export const EnhancedInlineEditor = ({
         TextAlign.configure({
           types: ["heading", "paragraph"],
         }),
+        SpanMark, // Custom mark to preserve <span> elements with class/style attributes
         Placeholder.configure({ placeholder }),
       ],
       content: initialContent,
