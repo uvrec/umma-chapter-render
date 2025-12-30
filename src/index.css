@@ -594,6 +594,35 @@ textarea.transliteration-output {
 }
 
 /* =========================
+   DROP CAP для коментарів
+   ========================= */
+
+.drop-cap {
+  float: left;
+  font-size: 3.5em;
+  line-height: 0.8;
+  padding-right: 8px;
+  padding-top: 4px;
+  color: hsl(var(--primary));
+  font-weight: bold;
+  font-family: serif;
+}
+
+/* Забезпечуємо успадкування font-size в HTML контенті */
+div[style*="fontSize"] *,
+p[style*="fontSize"] * {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* Виключення для drop-cap - він має власний розмір */
+div[style*="fontSize"] .drop-cap,
+p[style*="fontSize"] .drop-cap {
+  font-size: 3.5em;
+  line-height: 0.8;
+}
+
+/* =========================
    СКИДАННЯ VITE СТИЛІВ
    ========================= */
 
