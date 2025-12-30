@@ -374,12 +374,12 @@ export const EnhancedInlineEditor = ({
 
   return (
     <div
-      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative`}
+      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative max-h-[70vh] overflow-y-auto`}
     >
 
-      {/* STICKY TOOLBAR */}
+      {/* STICKY TOOLBAR - залишається видимим при прокрутці довгого тексту */}
       {editable && (
-        <div className="sticky top-16 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2">
+        <div className="sticky top-0 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2 rounded-t-md">
           {label && <span className="text-sm font-medium text-muted-foreground">{label}</span>}
 
           <div className={`flex flex-wrap gap-1 ${compact ? "gap-0.5" : "gap-1"}`}>
