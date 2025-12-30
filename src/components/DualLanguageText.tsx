@@ -1,4 +1,5 @@
 import React from "react";
+import { applyDropCap } from "@/utils/text/dropCap";
 
 interface Paragraph {
   index: number;
@@ -12,6 +13,8 @@ interface DualLanguageTextProps {
   /** Fallback якщо paragraphs відсутні */
   uaText?: string;
   enText?: string;
+  /** Enable drop-cap styling for the first paragraph */
+  enableDropCap?: boolean;
 }
 
 /**
@@ -56,6 +59,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   className = "",
   uaText,
   enText,
+  enableDropCap = false,
 }) => {
   // Використовуємо передані параграфи або парсимо текст
   const uaParas = uaParagraphs && uaParagraphs.length > 0 ? uaParagraphs : parseTextToParagraphs(uaText);
@@ -70,22 +74,33 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {Array.from({ length: maxLength }).map((_, idx) => (
-        <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
-          <p
-            className="text-justify text-sm sm:text-base"
-            dangerouslySetInnerHTML={{
-              __html: uaParas[idx]?.text || "&nbsp;",
-            }}
-          />
-          <p
-            className="text-justify text-sm sm:text-base"
-            dangerouslySetInnerHTML={{
-              __html: enParas[idx]?.text || "&nbsp;",
-            }}
-          />
-        </div>
-      ))}
+      {Array.from({ length: maxLength }).map((_, idx) => {
+        // Apply drop-cap to first paragraph only if enabled and text exists
+        const uaContent = uaParas[idx]?.text || "&nbsp;";
+        const enContent = enParas[idx]?.text || "&nbsp;";
+        const isFirstParagraph = idx === 0;
+
+        return (
+          <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
+            <p
+              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''}`}
+              dangerouslySetInnerHTML={{
+                __html: isFirstParagraph && enableDropCap && uaContent !== "&nbsp;"
+                  ? applyDropCap(uaContent)
+                  : uaContent,
+              }}
+            />
+            <p
+              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''}`}
+              dangerouslySetInnerHTML={{
+                __html: isFirstParagraph && enableDropCap && enContent !== "&nbsp;"
+                  ? applyDropCap(enContent)
+                  : enContent,
+              }}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 };

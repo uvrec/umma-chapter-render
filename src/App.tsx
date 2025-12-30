@@ -253,6 +253,11 @@ function AppContent() {
           <Route path="/admin/lectures" element={<LecturesManager />} />
           <Route path="/admin/letters" element={<LettersManager />} />
           <Route path="/admin/numcal" element={<NumCal />} />
+          {/* Redirect /admin to dashboard */}
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+
+          {/* Explicit /404 route to prevent CMS catch-all loop */}
+          <Route path="/404" element={<NotFound />} />
 
           {/* Сторінки з CMS */}
           <Route path="/:slug" element={<PageView />} />
