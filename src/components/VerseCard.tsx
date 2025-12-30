@@ -356,13 +356,11 @@ export const VerseCard = ({
                 className="min-h-[80px] text-center iast-text text-muted-foreground"
               />
             ) : (
-              <div className="space-y-1 text-center" style={{ fontSize: `${fontSize}px`, lineHeight }}>
-                {transliteration.split("\n").map((line, idx) => (
-                  <p key={idx} className="iast-text text-muted-foreground italic">
-                    {line}
-                  </p>
-                ))}
-              </div>
+              <div
+                className="text-center iast-text text-muted-foreground italic transliteration-lines"
+                style={{ fontSize: `${fontSize}px`, lineHeight }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(transliteration) }}
+              />
             )}
           </div>
         )}
