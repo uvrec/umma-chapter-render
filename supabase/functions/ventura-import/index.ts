@@ -239,6 +239,24 @@ function processProse(text: string, keepHtml: boolean = false): string {
   return result;
 }
 
+function processFirstParagraph(text: string): string {
+  let result = processProse(text, true);
+
+  // Add drop cap to first letter
+  if (result && result.length > 0) {
+    // Skip any leading HTML tags to find the first actual character
+    const match = result.match(/^(<[^>]+>)*(.)/);
+    if (match) {
+      const leadingTags = match[1] || '';
+      const firstChar = match[2];
+      const rest = result.slice(leadingTags.length + 1);
+      return `${leadingTags}<span class="drop-cap">${firstChar}</span>${rest}`;
+    }
+  }
+
+  return result;
+}
+
 function processTransliteration(text: string): string {
   let result = processLineContinuations(text);
   result = result.replace(/<_R><_>/g, '\n');
@@ -338,7 +356,17 @@ function parseVentura(text: string): Chapter {
       if (currentVerse) {
         currentVerse.translation_ua = processProse(content, false);
       }
-    } else if (['p-indent', 'p', 'p0', 'p1'].includes(currentTag)) {
+    } else if (currentTag === 'p-indent') {
+      // First paragraph with drop cap
+      if (currentVerse) {
+        const para = processFirstParagraph(content);
+        if (para) {
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + '\n\n' + para
+            : para;
+        }
+      }
+    } else if (['p', 'p0', 'p1'].includes(currentTag)) {
       if (currentVerse) {
         const para = processProse(content, true);
         if (para) {
