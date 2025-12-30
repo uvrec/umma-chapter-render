@@ -578,6 +578,16 @@ textarea.transliteration-output {
 }
 
 /* =========================
+   TRANSLITERATION LINES
+   ========================= */
+
+/* Кожен рядок транслітерації на окремому рядку */
+.transliteration-lines .line {
+  display: block;
+  margin-bottom: 0.25em;
+}
+
+/* =========================
    UTILITY CLASSES
    ========================= */
 
