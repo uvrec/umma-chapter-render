@@ -101,13 +101,13 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         setVerse(data);
         setVerseNumber(data.verse_number || "");
         // Ukrainian fields
-        setSanskritUa(data.sanskrit_ua || "");
+        setSanskritUa(data.sanskrit_ua || (data as any).sanskrit || "");
         setTransliterationUa(data.transliteration_ua || "");
         setSynonymsUa(data.synonyms_ua || "");
         setTranslationUa(data.translation_ua || "");
         setCommentaryUa(data.commentary_ua || "");
         // English fields
-        setSanskritEn(data.sanskrit_en || "");
+        setSanskritEn(data.sanskrit_en || (data as any).sanskrit || "");
         setTransliterationEn(data.transliteration_en || "");
         setSynonymsEn(data.synonyms_en || "");
         setTranslationEn(data.translation_en || "");
