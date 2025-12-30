@@ -440,12 +440,12 @@ export const DualLanguageVerseCard = ({
                 <div
                   className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(isEditing ? edited.transliterationUa : transliterationUa, { ADD_TAGS: ['span'], ADD_ATTR: ['class'] }) }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((transliterationUa || '').replace(/\n/g, '<br>'), { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }) }}
                 />
                 <div
                   className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(isEditing ? edited.transliterationEn : transliterationEn, { ADD_TAGS: ['span'], ADD_ATTR: ['class'] }) }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((transliterationEn || '').replace(/\n/g, '<br>'), { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }) }}
                 />
               </div>
             )}
