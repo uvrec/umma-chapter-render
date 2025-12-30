@@ -14,6 +14,7 @@ import { splitIntoParagraphs, alignParagraphs } from "@/utils/paragraphSync";
 import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
 import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/learningVerses";
 import { toast } from "sonner";
+import DOMPurify from "dompurify";
 
 interface DualLanguageVerseCardProps {
   verseId?: string;
@@ -432,17 +433,15 @@ export const DualLanguageVerseCard = ({
             ) : (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <div
-                  className="italic whitespace-pre-line text-center"
+                  className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
-                >
-                  {isEditing ? edited.transliterationUa : transliterationUa}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(isEditing ? edited.transliterationUa : transliterationUa, { ADD_TAGS: ['span'], ADD_ATTR: ['class'] }) }}
+                />
                 <div
-                  className="italic whitespace-pre-line text-center"
+                  className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
-                >
-                  {isEditing ? edited.transliterationEn : transliterationEn}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(isEditing ? edited.transliterationEn : transliterationEn, { ADD_TAGS: ['span'], ADD_ATTR: ['class'] }) }}
+                />
               </div>
             )}
           </div>
