@@ -2,7 +2,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Mark, Node, mergeAttributes } from "@tiptap/core";
+import { Mark, mergeAttributes } from "@tiptap/core";
 import Paragraph from "@tiptap/extension-paragraph";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -13,6 +13,38 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
+import { Extension } from "@tiptap/core";
+
+// Custom FontSize extension to properly handle font sizes
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: element => element.style.fontSize || null,
+            renderHTML: attributes => {
+              if (!attributes.fontSize) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 import { Highlight } from "@tiptap/extension-highlight";
 import { Underline } from "@tiptap/extension-underline";
 import { Subscript } from "@tiptap/extension-subscript";
@@ -215,6 +247,7 @@ export const EnhancedInlineEditor = ({
         TableCell,
         Color,
         TextStyle,
+        FontSize,
         Highlight.configure({
           multicolor: true,
         }),
@@ -259,6 +292,26 @@ export const EnhancedInlineEditor = ({
     }
   }, [editor, content]);
 
+  // URL validation helper
+  const isValidUrl = useCallback((urlString: string): boolean => {
+    try {
+      const url = new URL(urlString);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // YouTube URL validation
+  const isValidYoutubeUrl = useCallback((urlString: string): boolean => {
+    if (!isValidUrl(urlString)) return false;
+    try {
+      const url = new URL(urlString);
+      return url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be');
+    } catch {
+      return false;
+    }
+  }, [isValidUrl]);
 
   // Image upload with proper memory cleanup and validation
   const handleImageUpload = useCallback(() => {
@@ -326,43 +379,65 @@ export const EnhancedInlineEditor = ({
     input.click();
   }, [editor]);
 
-  const addLink = () => {
+  const addLink = useCallback(() => {
+    if (!editor) return;
+
     const url = window.prompt("Введіть URL:");
-    if (url) editor?.chain().focus().setLink({ href: url }).run();
-  };
+    if (!url) return;
 
-  const removeLink = () => {
+    if (!isValidUrl(url)) {
+      toast({ title: "Невірний формат URL", variant: "destructive" });
+      return;
+    }
+
+    editor.chain().focus().setLink({ href: url }).run();
+  }, [editor, isValidUrl]);
+
+  const removeLink = useCallback(() => {
     editor?.chain().focus().unsetLink().run();
-  };
+  }, [editor]);
 
-  const addYoutubeVideo = () => {
+  const addYoutubeVideo = useCallback(() => {
+    if (!editor) return;
+
     const url = window.prompt("Введіть YouTube URL:");
-    if (url) editor?.chain().focus().setYoutubeVideo({ src: url }).run();
-  };
+    if (!url) return;
 
-  const insertTable = () => {
+    if (!isValidYoutubeUrl(url)) {
+      toast({ title: "Невірний YouTube URL", variant: "destructive" });
+      return;
+    }
+
+    editor.chain().focus().setYoutubeVideo({ src: url }).run();
+  }, [editor, isValidYoutubeUrl]);
+
+  const insertTable = useCallback(() => {
     editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-  };
+  }, [editor]);
 
-  const setColor = (color: string) => {
-    editor?.chain().focus().setColor(color).run();
-  };
+  const setColor = useCallback((color: string) => {
+    if (color === "none") {
+      editor?.chain().focus().unsetColor().run();
+    } else {
+      editor?.chain().focus().setColor(color).run();
+    }
+  }, [editor]);
 
-  const setHighlight = (color: string) => {
+  const setHighlight = useCallback((color: string) => {
     if (color === "none") {
       editor?.chain().focus().unsetHighlight().run();
     } else {
       editor?.chain().focus().setHighlight({ color }).run();
     }
-  };
+  }, [editor]);
 
-  const setFontSize = (size: string) => {
+  const setFontSize = useCallback((size: string) => {
     editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
-  };
+  }, [editor]);
 
-  const clearFormatting = () => {
+  const clearFormatting = useCallback(() => {
     editor?.chain().focus().clearNodes().unsetAllMarks().run();
-  };
+  }, [editor]);
 
   if (!editor) {
     return (
@@ -596,6 +671,13 @@ export const EnhancedInlineEditor = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2" onMouseDown={(e) => e.preventDefault()}>
+                  <DropdownMenuItem
+                    className="p-0 w-5 h-5 rounded-full cursor-pointer border flex items-center justify-center text-xs"
+                    onClick={() => setColor("none")}
+                    title="Видалити колір"
+                  >
+                    ✕
+                  </DropdownMenuItem>
                   {[
                     { color: "#000000", name: "Чорний" },
                     { color: "#E11D48", name: "Червоний" },
