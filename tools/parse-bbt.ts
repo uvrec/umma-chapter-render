@@ -307,12 +307,7 @@ function parseVentura(text: string): Chapter {
             ? currentVerse.commentary_ua + '\n\n' + wrapped : wrapped;
         }
       }
-    } else if (currentTag === 'p-purport') {
-      if (currentVerse) {
-        const header = `<p class="purport-title">${processInlineTags(content)}</p>`;
-        currentVerse.commentary_ua = currentVerse.commentary_ua
-          ? currentVerse.commentary_ua + '\n\n' + header : header;
-      }
+    // p-purport (ПОЯСНЕННЯ: header) - SKIP, UI already has "Пояснення" header
     } else if (['ql', 'q', 'q-p'].includes(currentTag)) {
       if (currentVerse) {
         const quote = processProse(content, true);
