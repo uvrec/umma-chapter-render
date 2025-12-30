@@ -205,8 +205,8 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
 
   // Remove remaining Ventura tags (but not HTML if keepHtml)
   if (keepHtml) {
-    // Keep em, strong, br, span (for drop-cap and other styling)
-    result = result.replace(/<(?!\/?(em|strong|br|span)[^a-z])[^>]*>/g, '');
+    // Keep em, strong, br, span, p, blockquote (for styling)
+    result = result.replace(/<(?!\/?(em|strong|br|span|p|blockquote)[^a-z])[^>]*>/g, '');
   } else {
     result = result.replace(/<[^>]*>/g, '');
   }
@@ -394,6 +394,33 @@ function parseVentura(text: string): Chapter {
             ? currentVerse.commentary_ua + '\n\n' + para
             : para;
         }
+      }
+    } else if (currentTag === 'p-purport') {
+      // "КОМЕНТАР" header - styled as centered header
+      if (currentVerse) {
+        const header = `<p class="purport-title">${processInlineTags(content)}</p>`;
+        currentVerse.commentary_ua = currentVerse.commentary_ua
+          ? currentVerse.commentary_ua + '\n\n' + header
+          : header;
+      }
+    } else if (['ql', 'q', 'q-p'].includes(currentTag)) {
+      // Quotes inside purport - centered blockquote
+      if (currentVerse) {
+        const quote = processProse(content, true);
+        if (quote) {
+          const blockquote = `<blockquote class="verse-quote">${quote}</blockquote>`;
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + '\n\n' + blockquote
+            : blockquote;
+        }
+      }
+    } else if (currentTag === 'p-outro') {
+      // Outro paragraph (end of chapter) - styled differently
+      if (currentVerse) {
+        const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
+        currentVerse.commentary_ua = currentVerse.commentary_ua
+          ? currentVerse.commentary_ua + '\n\n' + outro
+          : outro;
       }
     }
   }
