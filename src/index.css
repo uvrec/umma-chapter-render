@@ -626,13 +626,35 @@ p[style*="fontSize"] .drop-cap {
    PURPORT STYLING
    ========================= */
 
-/* Заголовок "КОМЕНТАР" */
+/* Заголовок "КОМЕНТАР" / "ПОЯСНЕННЯ" */
 .purport-title {
   font-weight: bold;
   text-align: center;
   letter-spacing: 0.1em;
   margin: 1.5em 0 1em 0;
   font-size: inherit;
+}
+
+/* Параграфи пояснення */
+.purport {
+  text-align: justify;
+  margin-bottom: 1em;
+  text-indent: 25px;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.purport em {
+  font-style: italic;
+}
+
+.purport strong {
+  font-weight: bold;
+}
+
+/* Перший параграф - без відступу (бо є drop cap) */
+.purport.first {
+  text-indent: 0;
 }
 
 /* Цитати всередині пояснення - відцентровані */
