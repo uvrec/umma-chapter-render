@@ -10,7 +10,7 @@ import { devanagariToIAST, bengaliToIAST, convertIASTtoUkrainian } from "@/utils
 export const IAST_TO_CYRILLIC: Record<string, string> = {
   // Голосні
   ā: "а̄",
-  ī: "ī",
+  ī: "ı̄",  // ī → ı̄ (dotless i + макрон, БЕЗ крапки!)
   ū: "ӯ",
   a: "а",
   i: "і",
@@ -20,7 +20,7 @@ export const IAST_TO_CYRILLIC: Record<string, string> = {
 
   // Великі голосні з діакритикою
   Ā: "А̄",
-  Ī: "Ī",
+  Ī: "Ī",  // Ī → Ī (велика I + макрон, БЕЗ крапки!)
   Ū: "Ӯ",
   A: "А",
   I: "І",
@@ -121,7 +121,7 @@ export const DEVANAGARI_TO_CYRILLIC: Record<string, string> = {
   अ: "а",
   आ: "а̄",
   इ: "і",
-  ई: "ī",
+  ई: "ı̄",  // ई → ı̄ (dotless i + макрон, БЕЗ крапки!)
   उ: "у",
   ऊ: "ӯ",
   ए: "е",
@@ -171,7 +171,7 @@ export const DEVANAGARI_TO_CYRILLIC: Record<string, string> = {
   // Матри (знаки голосних)
   "ा": "а̄",
   "ि": "і",
-  "ी": "ī",
+  "ी": "ı̄",  // ी → ı̄ (dotless i + макрон, БЕЗ крапки!)
   "ु": "у",
   "ू": "ӯ",
   "े": "е",
@@ -195,7 +195,7 @@ export const BENGALI_TO_CYRILLIC: Record<string, string> = {
   অ: "а",
   আ: "а̄",
   ই: "і",
-  ঈ: "ī",
+  ঈ: "ı̄",  // ঈ → ı̄ (dotless i + макрон, БЕЗ крапки!)
   উ: "у",
   ঊ: "ӯ",
   এ: "е",
@@ -244,7 +244,7 @@ export const BENGALI_TO_CYRILLIC: Record<string, string> = {
   // Матри
   "া": "а̄",
   "ি": "і",
-  "ী": "ī",
+  "ী": "ı̄",  // ী → ı̄ (dotless i + макрон, БЕЗ крапки!)
   "ু": "у",
   "ূ": "ӯ",
   "ে": "е",

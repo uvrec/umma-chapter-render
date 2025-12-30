@@ -38,7 +38,7 @@ from balaram_decoder_v4_full import decode, OutputFormat
 # === UKRAINIAN PUA DECODING ===
 UKRAINIAN_PUA_MAP = {
     '\uf101': 'а̄',   # a-macron
-    '\uf121': 'і̄',   # i-macron
+    '\uf121': 'ı̄',   # i-macron (dotless i + macron, БЕЗ крапки!)
     '\uf123': 'ӯ',   # u-macron
     '\uf115': 'р̣',   # r-underdot
     '\uf125': 'р̣̄',  # r-underdot-macron

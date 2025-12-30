@@ -38,7 +38,7 @@ const TRANSLITERATION_RULES: Record<string, string> = {
   "dh": "дг", "jh": "джх", "th": "тх", "kh": "кх", "ch": "чх",
   "ph": "пх", "ṅg": "н̇ґ",
   // Голосні
-  "ā": "а̄", "ī": "ī", "ū": "ӯ", "ṛ": "р̣", "ṝ": "р̣̄",
+  "ā": "а̄", "ī": "ı̄", "ū": "ӯ", "ṛ": "р̣", "ṝ": "р̣̄",  // ī → ı̄ (dotless i + макрон!)
   "ai": "аі", "au": "ау",
   // Приголосні з діакритикою
   "ś": "ш́", "ṣ": "ш", "ṭ": "т̣", "ḍ": "д̣", "ṇ": "н̣",
@@ -71,9 +71,9 @@ const SANSKRIT_GLOSSARY: Record<string, string> = {
   "Krishna": "Крішна",
   "Prabhupāda": "Прабгупа̄да",
   "Prabhupada": "Прабгупада",
-  "Bhagavad-gītā": "Бгаґавад-ґīта̄",
+  "Bhagavad-gītā": "Бгаґавад-ґı̄та̄",  // ī → ı̄ (dotless i + макрон!)
   "Bhagavad-gita": "Бгаґавад-ґіта",
-  "Śrīmad-Bhāgavatam": "Шрīмад-Бга̄ґаватам",
+  "Śrīmad-Bhāgavatam": "Шрı̄мад-Бга̄ґаватам",  // ī → ı̄ (dotless i + макрон!)
   "Srimad-Bhagavatam": "Шрімад-Бгаґаватам",
   "Vedānta": "Веда̄нта",
   "Vedanta": "Веданта",
@@ -89,7 +89,7 @@ const SANSKRIT_GLOSSARY: Record<string, string> = {
   "guru": "ґуру",
   "mantra": "мантра",
   "ācārya": "а̄ча̄рйа",
-  "sannyāsī": "саннйа̄сī",
+  "sannyāsī": "саннйа̄сı̄",  // ī → ı̄ (dotless i + макрон!)
   "brāhmaṇa": "бра̄хман̣а",
   "kṣatriya": "кшатрійа",
   "vaiśya": "ваіш́йа",
