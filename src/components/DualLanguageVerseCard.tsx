@@ -699,7 +699,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} />
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={commentaryUa} enText={commentaryEn} enableDropCap />
             )}
           </div>
         )}
