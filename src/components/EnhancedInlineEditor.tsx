@@ -1,5 +1,5 @@
 // EnhancedInlineEditor.tsx — Розширений inline редактор з повним набором функцій
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -11,6 +11,38 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { Color } from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
+import { Extension } from "@tiptap/core";
+
+// Custom FontSize extension to properly handle font sizes
+const FontSize = Extension.create({
+  name: 'fontSize',
+  addOptions() {
+    return {
+      types: ['textStyle'],
+    };
+  },
+  addGlobalAttributes() {
+    return [
+      {
+        types: this.options.types,
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: element => element.style.fontSize || null,
+            renderHTML: attributes => {
+              if (!attributes.fontSize) {
+                return {};
+              }
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 import { Highlight } from "@tiptap/extension-highlight";
 import { Underline } from "@tiptap/extension-underline";
 import { Subscript } from "@tiptap/extension-subscript";
@@ -77,6 +109,11 @@ export const EnhancedInlineEditor = ({
   minHeight = "200px",
   compact = false,
 }: EnhancedInlineEditorProps) => {
+  // Track if the content change came from the editor itself
+  const isInternalChange = useRef(false);
+  // Keep a ref to the editor for use in async callbacks
+  const editorRef = useRef<ReturnType<typeof useEditor>>(null);
+
   // Ensure content is valid HTML
   const initialContent = content || "<p></p>";
 
@@ -107,6 +144,7 @@ export const EnhancedInlineEditor = ({
         TableCell,
         Color,
         TextStyle,
+        FontSize,
         Highlight.configure({
           multicolor: true,
         }),
@@ -120,10 +158,14 @@ export const EnhancedInlineEditor = ({
       ],
       content: initialContent,
       editable,
-      onUpdate: ({ editor }) => onChange(editor.getHTML()),
+      onUpdate: ({ editor }) => {
+        isInternalChange.current = true;
+        onChange(editor.getHTML());
+      },
       editorProps: {
         attributes: {
-          class: `prose prose-sm dark:prose-invert max-w-none min-h-[${minHeight}] focus:outline-none p-4`,
+          class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none p-4",
+          style: `min-height: ${minHeight}`,
         },
         // Зберігаємо форматування при вставці з буфера обміну
         handlePaste: (view, event, slice) => {
@@ -139,77 +181,196 @@ export const EnhancedInlineEditor = ({
     [editable]
   );
 
+  // Keep editorRef in sync
+  useEffect(() => {
+    editorRef.current = editor;
+  }, [editor]);
+
   useEffect(() => {
     if (editor) {
       editor.setEditable(editable);
+
+      // Only sync content from props if it's an external change (not from our own onUpdate)
+      if (isInternalChange.current) {
+        isInternalChange.current = false;
+        return;
+      }
+
       const newContent = content || "<p></p>";
+      // Compare normalized content to avoid unnecessary updates
       if (newContent !== editor.getHTML()) {
-        editor.commands.setContent(newContent);
+        // Save cursor position
+        const { from, to } = editor.state.selection;
+        editor.commands.setContent(newContent, false);
+        // Try to restore cursor position if within bounds
+        try {
+          const maxPos = editor.state.doc.content.size;
+          const safeFrom = Math.min(from, maxPos);
+          const safeTo = Math.min(to, maxPos);
+          editor.commands.setTextSelection({ from: safeFrom, to: safeTo });
+        } catch {
+          // If restoration fails, just let it be at the start
+        }
       }
     }
   }, [editor, editable, content]);
 
 
-  const handleImageUpload = async () => {
+  // URL validation helper
+  const isValidUrl = useCallback((urlString: string): boolean => {
+    try {
+      const url = new URL(urlString);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // YouTube URL validation
+  const isValidYoutubeUrl = useCallback((urlString: string): boolean => {
+    if (!isValidUrl(urlString)) return false;
+    try {
+      const url = new URL(urlString);
+      return url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be');
+    } catch {
+      return false;
+    }
+  }, [isValidUrl]);
+
+  const handleImageUpload = useCallback(async () => {
+    // Save selection before any async operations
+    const currentEditor = editorRef.current;
+    if (!currentEditor) return;
+
+    const savedSelection = {
+      from: currentEditor.state.selection.from,
+      to: currentEditor.state.selection.to,
+    };
+
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+
+      // File size validation (max 5MB)
+      const MAX_SIZE = 5 * 1024 * 1024;
+      if (file.size > MAX_SIZE) {
+        toast({ title: "Файл занадто великий (макс. 5MB)", variant: "destructive" });
+        return;
+      }
+
       try {
         const ext = file.name.split(".").pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error: uploadError } = await supabase.storage.from("blog-media").upload(fileName, file);
         if (uploadError) throw uploadError;
         const { data } = supabase.storage.from("blog-media").getPublicUrl(fileName);
-        editor?.chain().focus().setImage({ src: data.publicUrl }).run();
-        toast({ title: "✅ Зображення завантажено" });
+
+        // Use editorRef to avoid stale closure
+        const ed = editorRef.current;
+        if (ed) {
+          ed.chain()
+            .focus()
+            .setTextSelection(savedSelection)
+            .setImage({ src: data.publicUrl })
+            .run();
+        }
+        toast({ title: "Зображення завантажено" });
       } catch (error) {
         console.error(error);
         toast({ title: "Помилка завантаження зображення", variant: "destructive" });
       }
     };
     input.click();
-  };
+  }, []);
 
-  const addLink = () => {
+  const addLink = useCallback(() => {
+    const currentEditor = editorRef.current;
+    if (!currentEditor) return;
+
+    // Save the current selection before prompt
+    const { from, to } = currentEditor.state.selection;
+    const hasSelection = from !== to;
+
     const url = window.prompt("Введіть URL:");
-    if (url) editor?.chain().focus().setLink({ href: url }).run();
-  };
+    if (!url) return;
 
-  const removeLink = () => {
-    editor?.chain().focus().unsetLink().run();
-  };
-
-  const addYoutubeVideo = () => {
-    const url = window.prompt("Введіть YouTube URL:");
-    if (url) editor?.commands.setYoutubeVideo({ src: url });
-  };
-
-  const insertTable = () => {
-    editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-  };
-
-  const setColor = (color: string) => {
-    editor?.chain().focus().setColor(color).run();
-  };
-
-  const setHighlight = (color: string) => {
-    if (color === "none") {
-      editor?.chain().focus().unsetHighlight().run();
-    } else {
-      editor?.chain().focus().setHighlight({ color }).run();
+    if (!isValidUrl(url)) {
+      toast({ title: "Невірний формат URL", variant: "destructive" });
+      return;
     }
-  };
 
-  const setFontSize = (size: string) => {
-    editor?.chain().focus().setMark("textStyle", { fontSize: size }).run();
-  };
+    // Restore selection and apply link
+    currentEditor
+      .chain()
+      .focus()
+      .setTextSelection({ from, to })
+      .setLink({ href: url })
+      .run();
 
-  const clearFormatting = () => {
-    editor?.chain().focus().clearNodes().unsetAllMarks().run();
-  };
+    if (!hasSelection) {
+      toast({ title: "Виділіть текст для створення посилання", variant: "destructive" });
+    }
+  }, [isValidUrl]);
+
+  const removeLink = useCallback(() => {
+    editorRef.current?.chain().focus().unsetLink().run();
+  }, []);
+
+  const addYoutubeVideo = useCallback(() => {
+    const currentEditor = editorRef.current;
+    if (!currentEditor) return;
+
+    // Save selection
+    const { from, to } = currentEditor.state.selection;
+
+    const url = window.prompt("Введіть YouTube URL:");
+    if (!url) return;
+
+    if (!isValidYoutubeUrl(url)) {
+      toast({ title: "Невірний YouTube URL", variant: "destructive" });
+      return;
+    }
+
+    // Restore selection and insert video
+    currentEditor
+      .chain()
+      .focus()
+      .setTextSelection({ from, to })
+      .setYoutubeVideo({ src: url })
+      .run();
+  }, [isValidYoutubeUrl]);
+
+  const insertTable = useCallback(() => {
+    editorRef.current?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+  }, []);
+
+  const setColor = useCallback((color: string) => {
+    if (color === "none") {
+      editorRef.current?.chain().focus().unsetColor().run();
+    } else {
+      editorRef.current?.chain().focus().setColor(color).run();
+    }
+  }, []);
+
+  const setHighlight = useCallback((color: string) => {
+    if (color === "none") {
+      editorRef.current?.chain().focus().unsetHighlight().run();
+    } else {
+      editorRef.current?.chain().focus().setHighlight({ color }).run();
+    }
+  }, []);
+
+  const setFontSize = useCallback((size: string) => {
+    // Use updateAttributes on TextStyle mark for font size
+    editorRef.current?.chain().focus().setMark("textStyle", { fontSize: size }).run();
+  }, []);
+
+  const clearFormatting = useCallback(() => {
+    editorRef.current?.chain().focus().clearNodes().unsetAllMarks().run();
+  }, []);
 
   if (!editor) {
     console.log('[EnhancedInlineEditor] Editor is null, returning placeholder');
@@ -444,6 +605,13 @@ export const EnhancedInlineEditor = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="grid grid-cols-5 gap-1 p-2" onMouseDown={(e) => e.preventDefault()}>
+                  <DropdownMenuItem
+                    className="p-0 w-5 h-5 rounded-full cursor-pointer border flex items-center justify-center text-xs"
+                    onClick={() => setColor("none")}
+                    title="Видалити колір"
+                  >
+                    ✕
+                  </DropdownMenuItem>
                   {[
                     "#000000",
                     "#E11D48",
