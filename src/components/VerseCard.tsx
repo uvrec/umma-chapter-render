@@ -4,7 +4,7 @@
 // + STICKY HEADER для верхньої панелі
 // + Inline редактор для коментарів з автозбереженням
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,8 @@ import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
-// ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
 import { stripParagraphTags } from "@/utils/import/normalizers";
+import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { applyDropCap } from "@/utils/text/dropCap";
 
@@ -238,6 +238,11 @@ export const VerseCard = ({
     };
   }, [edited.synonyms, edited.translation, edited.commentary, synonyms, translation, commentary, isAdmin, verseId, onVerseUpdate, edited]);
 
+  // Обробка санскриту для автоматичних розривів рядків (як у двомовному режимі)
+  const processedSanskrit = useMemo(() => {
+    return addSanskritLineBreaks(sanskritText);
+  }, [sanskritText]);
+
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
@@ -337,7 +342,7 @@ export const VerseCard = ({
                 className="min-h-[100px] text-center sanskrit-text"
               />
             ) : (
-              <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{sanskritText}</p>
+              <p className="whitespace-pre-line text-center sanskrit-text" style={{ fontSize: `${fontSize}px`, lineHeight }}>{processedSanskrit}</p>
             )}
           </div>
         )}
