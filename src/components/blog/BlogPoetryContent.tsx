@@ -198,7 +198,7 @@ export function BlogPoetryContent({
               </Button>
             )}
           </div>
-          <div className="prose-reader font-semibold whitespace-pre-wrap">{poetryTranslation}</div>
+          <div className="prose-reader font-bold whitespace-pre-wrap">{poetryTranslation}</div>
         </div>
       )}
 

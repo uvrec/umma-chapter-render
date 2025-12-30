@@ -499,7 +499,7 @@ export const VerseCard = ({
               />
             ) : (
               <p
-                className="text-foreground text-justify"
+                className="text-foreground text-justify font-bold"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
               >
                 {stripParagraphTags(translation)}

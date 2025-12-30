@@ -15,6 +15,8 @@ interface DualLanguageTextProps {
   enText?: string;
   /** Enable drop-cap styling for the first paragraph */
   enableDropCap?: boolean;
+  /** Make text bold (for translation blocks) */
+  bold?: boolean;
 }
 
 /**
@@ -60,6 +62,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
   uaText,
   enText,
   enableDropCap = false,
+  bold = false,
 }) => {
   // Використовуємо передані параграфи або парсимо текст
   const uaParas = uaParagraphs && uaParagraphs.length > 0 ? uaParagraphs : parseTextToParagraphs(uaText);
@@ -83,7 +86,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
         return (
           <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
             <p
-              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''}`}
+              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               dangerouslySetInnerHTML={{
                 __html: isFirstParagraph && enableDropCap && uaContent !== "&nbsp;"
                   ? applyDropCap(uaContent)
@@ -91,7 +94,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               }}
             />
             <p
-              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''}`}
+              className={`text-justify text-sm sm:text-base ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               dangerouslySetInnerHTML={{
                 __html: isFirstParagraph && enableDropCap && enContent !== "&nbsp;"
                   ? applyDropCap(enContent)

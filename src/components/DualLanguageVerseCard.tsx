@@ -638,7 +638,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} />
+              <DualLanguageText uaParagraphs={null} enParagraphs={null} uaText={translationUa} enText={translationEn} bold />
             )}
           </div>
         )}

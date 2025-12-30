@@ -46,7 +46,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
             <div className="synonyms text-sm"><strong>Послівний переклад:</strong> {block.content.synonyms}</div>
           )}
           {display_blocks.translation && (
-            <div className="translation">
+            <div className="translation font-bold">
               {language === "ua" && block.content.translation_ua && <TiptapRenderer content={block.content.translation_ua} />}
               {language === "en" && block.content.translation_en && <TiptapRenderer content={block.content.translation_en} />}
             </div>
