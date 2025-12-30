@@ -981,7 +981,7 @@ export const VedaReaderDB = () => {
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
           return <div className="space-y-6">
                   {/* Навігація зверху */}
-                  <div className="flex items-center justify-between pb-6 mb-8">
+                  <div className="flex items-center justify-between">
                     <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
                       <ChevronLeft className="mr-2 h-4 w-4" />
                       {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
