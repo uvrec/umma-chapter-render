@@ -18,6 +18,7 @@ import DOMPurify from "dompurify";
 // ✅ ВИДАЛЕНО: addSanskritLineBreaks - санскрит зберігається як звичайний текст з \n
 import { stripParagraphTags } from "@/utils/import/normalizers";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
+import { applyDropCap } from "@/utils/text/dropCap";
 
 /* =========================
    Типи пропсів
@@ -538,9 +539,9 @@ export const VerseCard = ({
               />
             ) : (
               <div
-                className="text-foreground text-justify"
+                className="text-foreground text-justify purport first"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(commentary || "") }}
+                dangerouslySetInnerHTML={{ __html: applyDropCap(DOMPurify.sanitize(commentary || "")) }}
               />
             )}
           </div>
