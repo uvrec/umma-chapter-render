@@ -1,4 +1,5 @@
-import { useParams, Navigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -161,14 +162,14 @@ export const PageView = () => {
     );
   }
 
-  // If page not found or error, redirect to 404
+  // If page not found or error, show NotFound directly (no redirect to avoid loops)
   if (error || !page) {
-    return <Navigate to="/404" replace />;
+    return <NotFound />;
   }
 
-  // If page is not published and user is not admin, redirect to 404
+  // If page is not published and user is not admin, show NotFound
   if (!page.is_published && !isAdmin) {
-    return <Navigate to="/404" replace />;
+    return <NotFound />;
   }
 
   const title = isEditMode 
