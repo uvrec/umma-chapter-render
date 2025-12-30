@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mark, mergeAttributes } from "@tiptap/core";
+import Paragraph from "@tiptap/extension-paragraph";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Youtube from "@tiptap/extension-youtube";
@@ -112,6 +113,25 @@ const SpanMark = Mark.create({
   },
 });
 
+/**
+ * Custom Paragraph node that preserves class attributes on <p> elements
+ */
+const CustomParagraph = Paragraph.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      class: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("class"),
+        renderHTML: (attributes) => {
+          if (!attributes.class) return {};
+          return { class: attributes.class };
+        },
+      },
+    };
+  },
+});
+
 interface TiptapEditorProps {
   content: string;
   onChange: (content: string) => void;
@@ -123,8 +143,10 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
     extensions: [
       StarterKit.configure({
         gapcursor: false,
+        paragraph: false, // Disable default paragraph, use CustomParagraph
         blockquote: false  // Вимикаємо blockquote
       }),
+      CustomParagraph, // Custom paragraph that preserves class attributes
       Image,
       Link.configure({
         openOnClick: false,

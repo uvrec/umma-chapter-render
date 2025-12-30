@@ -2,7 +2,8 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { Mark, mergeAttributes } from "@tiptap/core";
+import { Mark, Node, mergeAttributes } from "@tiptap/core";
+import Paragraph from "@tiptap/extension-paragraph";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Youtube from "@tiptap/extension-youtube";
@@ -133,6 +134,26 @@ const SpanMark = Mark.create({
   },
 });
 
+/**
+ * Custom Paragraph node that preserves class attributes on <p> elements
+ * This allows keeping classes like "purport first" when editing
+ */
+const CustomParagraph = Paragraph.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      class: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("class"),
+        renderHTML: (attributes) => {
+          if (!attributes.class) return {};
+          return { class: attributes.class };
+        },
+      },
+    };
+  },
+});
+
 interface EnhancedInlineEditorProps {
   content: string;
   onChange: (content: string) => void;
@@ -170,10 +191,12 @@ export const EnhancedInlineEditor = ({
       extensions: [
         StarterKit.configure({
           gapcursor: false,
+          paragraph: false, // Disable default paragraph, we use CustomParagraph
           heading: {
             levels: [1, 2, 3, 4, 5, 6],
           },
         }),
+        CustomParagraph, // Custom paragraph that preserves class attributes
         Image.configure({
           HTMLAttributes: {
             class: 'max-w-full h-auto',
@@ -351,12 +374,12 @@ export const EnhancedInlineEditor = ({
 
   return (
     <div
-      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative`}
+      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative max-h-[70vh] overflow-y-auto`}
     >
 
-      {/* STICKY TOOLBAR */}
+      {/* STICKY TOOLBAR - залишається видимим при прокрутці довгого тексту */}
       {editable && (
-        <div className="sticky top-16 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2">
+        <div className="sticky top-0 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2 rounded-t-md">
           {label && <span className="text-sm font-medium text-muted-foreground">{label}</span>}
 
           <div className={`flex flex-wrap gap-1 ${compact ? "gap-0.5" : "gap-1"}`}>
