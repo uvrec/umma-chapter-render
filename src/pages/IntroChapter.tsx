@@ -270,6 +270,7 @@ export const IntroChapter = () => {
                     {/* Ukrainian paragraph */}
                     <div
                       className="prose prose-slate dark:prose-invert max-w-none"
+                      style={{ fontSize: `${fontSize}px`, lineHeight }}
                       dangerouslySetInnerHTML={{
                         __html: pair.ua
                       }}
@@ -278,6 +279,7 @@ export const IntroChapter = () => {
                     {/* English paragraph */}
                     <div
                       className="prose prose-slate dark:prose-invert max-w-none"
+                      style={{ fontSize: `${fontSize}px`, lineHeight }}
                       dangerouslySetInnerHTML={{
                         __html: pair.en
                       }}
@@ -289,6 +291,7 @@ export const IntroChapter = () => {
               // Single mode - one language
               <div
                 className="prose prose-slate dark:prose-invert max-w-none"
+                style={{ fontSize: `${fontSize}px`, lineHeight }}
                 dangerouslySetInnerHTML={{
                   __html: DOMPurify.sanitize(
                     language === 'ua'
