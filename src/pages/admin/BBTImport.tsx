@@ -63,15 +63,15 @@ export default function BBTImport() {
     let savedIntros = 0;
 
     try {
-      // Get book_id for 'bg'
+      // Get book_id for 'gita'
       const { data: book, error: bookError } = await supabase
         .from("books")
         .select("id")
-        .eq("slug", "bg")
+        .eq("slug", "gita")
         .single();
 
       if (bookError || !book) {
-        throw new Error("Книгу 'bg' не знайдено в базі даних");
+        throw new Error("Книгу 'gita' не знайдено в базі даних");
       }
 
       const bookId = book.id;
