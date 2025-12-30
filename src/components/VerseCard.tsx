@@ -16,7 +16,7 @@ import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { stripParagraphTags } from "@/utils/import/normalizers";
-import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
+import { addSanskritLineBreaks, addTransliterationLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { applyDropCap } from "@/utils/text/dropCap";
 
@@ -243,6 +243,15 @@ export const VerseCard = ({
     return addSanskritLineBreaks(sanskritText);
   }, [sanskritText]);
 
+  // Обробка транслітерації - розбиваємо на рядки відповідно до санскриту
+  const processedTransliteration = useMemo(() => {
+    if (!transliteration) return "";
+    // Використовуємо оброблений санскрит як референс для кількості рядків
+    const result = addTransliterationLineBreaks(processedSanskrit, transliteration);
+    // Конвертуємо \n в <span class="line"> для CSS стилізації
+    return result.split('\n').map(line => `<span class="line">${line}</span>`).join('');
+  }, [transliteration, processedSanskrit]);
+
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
@@ -365,7 +374,7 @@ export const VerseCard = ({
               <div
                 className="text-center iast-text text-muted-foreground italic transliteration-lines"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(transliteration, { ADD_TAGS: ['span'], ADD_ATTR: ['class'] }) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processedTransliteration, { ADD_TAGS: ['span'], ADD_ATTR: ['class'] }) }}
               />
             )}
           </div>
