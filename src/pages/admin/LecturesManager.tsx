@@ -189,13 +189,19 @@ export default function LecturesManager() {
 
     setTranslatingIndex(index);
     try {
+      // Get the current user's session token for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Необхідно увійти в систему");
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             text: p.content_en,
@@ -205,7 +211,8 @@ export default function LecturesManager() {
       );
 
       if (!response.ok) {
-        throw new Error("Translation failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Translation failed");
       }
 
       const data = await response.json();
@@ -217,8 +224,8 @@ export default function LecturesManager() {
       });
 
       toast.success(`Параграф #${p.paragraph_number} перекладено`);
-    } catch (error) {
-      toast.error("Помилка перекладу. Перевірте налаштування API.");
+    } catch (error: any) {
+      toast.error(error.message || "Помилка перекладу. Перевірте налаштування API.");
       console.error(error);
     } finally {
       setTranslatingIndex(null);
@@ -239,6 +246,12 @@ export default function LecturesManager() {
     let translated = 0;
 
     try {
+      // Get the current user's session token for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Необхідно увійти в систему");
+      }
+
       for (let i = 0; i < editingParagraphs.length; i++) {
         const p = editingParagraphs[i];
         if (!p.content_en || p.content_ua) continue;
@@ -251,7 +264,7 @@ export default function LecturesManager() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              Authorization: `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({
               text: p.content_en,

@@ -305,15 +305,29 @@ function parseLetter(html: string, slug: string) {
     letterDate = "1900-01-01";
   }
 
-  // Отримувач
-  let recipient = slug.replace(/^\d{6}_?/, "").replace(/_/g, " ");
-  recipient = recipient.split(" ").map(word =>
-    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-  ).join(" ");
+  // Отримувач - спочатку пробуємо з H1 заголовку
+  let recipient = "";
 
-  const titleMatch = title.match(/(?:to|Letter to)\s+(.+?)(?:\s*[-–—]|\s*$)/i);
-  if (titleMatch) {
+  // Спробувати отримати з H1 (формат: "Letter to Someone Name" або просто "Someone Name")
+  const titleMatch = title.match(/(?:Letter\s+to\s+)?(.+?)(?:\s*[-–—]|\s*$)/i);
+  if (titleMatch && titleMatch[1]) {
     recipient = titleMatch[1].trim();
+    // Видалити "Letter to" якщо залишилось
+    recipient = recipient.replace(/^Letter\s+to\s+/i, "").trim();
+  }
+
+  // Якщо не вдалося з H1 - отримати з slug
+  if (!recipient) {
+    // Видалити числовий префікс (YYMMDD) якщо є
+    let slugRecipient = slug.replace(/^\d{6}_?/, "");
+    // Видалити "letter-to-" префікс
+    slugRecipient = slugRecipient.replace(/^letter-to-/i, "");
+    // Замінити дефіси та підкреслення на пробіли
+    slugRecipient = slugRecipient.replace(/[-_]/g, " ");
+    // Капіталізувати кожне слово
+    recipient = slugRecipient.split(" ").map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(" ");
   }
 
   // Локація
