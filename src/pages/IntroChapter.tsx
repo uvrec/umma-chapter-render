@@ -247,18 +247,22 @@ export const IntroChapter = () => {
 
           {/* Content */}
           {isEditingContent ? (
-            // Editing mode - EnhancedInlineEditor
-            <div className="space-y-6">
-              <EnhancedInlineEditor
-                content={editedContentUa}
-                onChange={setEditedContentUa}
-                label="Українська"
-              />
-              <EnhancedInlineEditor
-                content={editedContentEn}
-                onChange={setEditedContentEn}
-                label="English"
-              />
+            // Editing mode - Side-by-side EnhancedInlineEditor
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">Українська</h3>
+                <EnhancedInlineEditor
+                  content={editedContentUa}
+                  onChange={setEditedContentUa}
+                />
+              </div>
+              <div>
+                <h3 className="text-sm font-medium text-muted-foreground mb-2">English</h3>
+                <EnhancedInlineEditor
+                  content={editedContentEn}
+                  onChange={setEditedContentEn}
+                />
+              </div>
             </div>
           ) : (
             // Reading mode
