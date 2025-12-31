@@ -449,12 +449,12 @@ export const EnhancedInlineEditor = ({
 
   return (
     <div
-      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative max-h-[70vh] overflow-y-auto`}
+      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative flex flex-col max-h-[70vh]`}
     >
 
-      {/* STICKY TOOLBAR - залишається видимим при прокрутці довгого тексту */}
+      {/* STICKY TOOLBAR - завжди видимий, поза скрольним контейнером */}
       {editable && (
-        <div className="sticky top-0 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2 rounded-t-md">
+        <div className="flex-shrink-0 z-40 flex flex-col gap-2 border-b bg-background/95 backdrop-blur-sm px-4 py-2 rounded-t-md">
           {label && <span className="text-sm font-medium text-muted-foreground">{label}</span>}
 
           <div className={`flex flex-wrap gap-1 ${compact ? "gap-0.5" : "gap-1"}`}>
@@ -873,8 +873,10 @@ export const EnhancedInlineEditor = ({
         </div>
       )}
 
-      {/* EDITOR CONTENT */}
-      <EditorContent editor={editor} />
+      {/* EDITOR CONTENT - скрольний контейнер */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 };
