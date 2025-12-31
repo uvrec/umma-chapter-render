@@ -55,7 +55,7 @@ export const DEFAULT_ADMIN_TYPOGRAPHY: AdminTypographyConfig = {
   sanskrit: {
     fontFamily: 'var(--font-devanagari)', // Noto Sans Devanagari
     fontSize: 1.5, // 150% від базового (як на Vedabase)
-    fontWeight: 700, // Bold
+    fontWeight: 400, // Regular
     fontStyle: 'normal',
     color: 'hsl(var(--foreground))',
     letterSpacing: '0em',
