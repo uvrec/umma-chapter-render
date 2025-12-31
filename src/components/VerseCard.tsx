@@ -370,7 +370,12 @@ export const VerseCard = ({
               <div
                 className="text-center iast-text text-muted-foreground italic transliteration-lines"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(transliteration.replace(/\n/g, '<br>'), { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }) }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(
+                  transliteration.includes('<span class="line">')
+                    ? transliteration
+                    : transliteration.replace(/\n/g, '<br>'),
+                  { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }
+                ) }}
               />
             )}
           </div>
