@@ -261,22 +261,21 @@ export default function AddEditIntroChapter() {
                 </div>
               </div>
 
-              <div>
-                <Label>Контент (українською)</Label>
-                <EnhancedInlineEditor
-                  content={form.content_ua}
-                  onChange={(html) => setForm((f) => ({ ...f, content_ua: html }))}
-                  label="Редагувати контент українською"
-                />
-              </div>
-
-              <div>
-                <Label>Контент (англійською)</Label>
-                <EnhancedInlineEditor
-                  content={form.content_en}
-                  onChange={(html) => setForm((f) => ({ ...f, content_en: html }))}
-                  label="Редагувати контент англійською"
-                />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <Label className="mb-2 block">Контент (українською)</Label>
+                  <EnhancedInlineEditor
+                    content={form.content_ua}
+                    onChange={(html) => setForm((f) => ({ ...f, content_ua: html }))}
+                  />
+                </div>
+                <div>
+                  <Label className="mb-2 block">Контент (англійською)</Label>
+                  <EnhancedInlineEditor
+                    content={form.content_en}
+                    onChange={(html) => setForm((f) => ({ ...f, content_en: html }))}
+                  />
+                </div>
               </div>
 
               <div className="flex gap-4">
