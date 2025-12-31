@@ -432,12 +432,22 @@ export const DualLanguageVerseCard = ({
                 <div
                   className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((transliterationUa || '').replace(/\n/g, '<br>'), { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }) }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(
+                    (transliterationUa || '').includes('<span class="line">')
+                      ? (transliterationUa || '')
+                      : (transliterationUa || '').replace(/\n/g, '<br>'),
+                    { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }
+                  ) }}
                 />
                 <div
                   className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
-                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize((transliterationEn || '').replace(/\n/g, '<br>'), { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }) }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(
+                    (transliterationEn || '').includes('<span class="line">')
+                      ? (transliterationEn || '')
+                      : (transliterationEn || '').replace(/\n/g, '<br>'),
+                    { ADD_TAGS: ['span', 'br'], ADD_ATTR: ['class'] }
+                  ) }}
                 />
               </div>
             )}
