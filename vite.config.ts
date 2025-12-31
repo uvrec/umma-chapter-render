@@ -4,8 +4,14 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Версія білда - ISO timestamp
+const BUILD_TIME = new Date().toISOString();
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  define: {
+    '__BUILD_TIME__': JSON.stringify(BUILD_TIME),
+  },
   server: {
     host: "::",
     port: 8080,
@@ -64,30 +70,70 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        skipWaiting: false, // Не пропускаємо waiting - даємо користувачу контроль
+        // ВАЖЛИВО: skipWaiting + clientsClaim = миттєва активація нового SW
+        skipWaiting: true,
         clientsClaim: true,
-        cleanupOutdatedCaches: true, // Автоматично видаляє старі кеші
-        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'], // БЕЗ html - не кешуємо index.html в precache!
-        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15 MB
-        navigateFallback: null, // Вимикаємо - нехай документи йдуть через runtimeCaching
+        cleanupOutdatedCaches: true,
+
+        // КРИТИЧНО: НЕ precache-имо js/css - вони мають хеші в іменах
+        // Precache тільки статичні ресурси без хешів
+        globPatterns: ['**/*.{ico,png,svg,woff2}'],
+
+        // Виключаємо великі файли та assets з хешами
+        globIgnores: ['**/assets/**', '**/node_modules/**'],
+
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
+        navigateFallback: null,
         navigateFallbackDenylist: [/^\/api/, /^\/supabase/, /^\/functions/],
+
         runtimeCaching: [
-          // КРИТИЧНО: Документи (HTML) - завжди спочатку мережа!
+          // 1. Документи (HTML) - ЗАВЖДИ мережа першою
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'pages-cache',
+              cacheName: 'pages-cache-v2',
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 // 1 день
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 // 1 година
               },
-              networkTimeoutSeconds: 3, // Якщо мережа не відповіла за 3 сек - fallback на кеш
+              networkTimeoutSeconds: 3,
               cacheableResponse: {
                 statuses: [0, 200]
               }
             }
           },
+          // 2. JS/CSS assets - StaleWhileRevalidate (показуємо кеш, оновлюємо в фоні)
+          {
+            urlPattern: /\/assets\/.*\.(js|css)$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'assets-cache-v2',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 днів
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // 3. Зображення - CacheFirst (вони рідко змінюються)
+          {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache-v2',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 днів
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          // 4. Google Fonts
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
@@ -95,7 +141,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -109,7 +155,7 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
