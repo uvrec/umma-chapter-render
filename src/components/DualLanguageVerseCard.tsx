@@ -147,7 +147,7 @@ export const DualLanguageVerseCard = ({
     const verse: LearningVerse = {
       verseId,
       verseNumber,
-      bookName: bookNameUa || bookNameEn || "Невідома книга",
+      bookName: bookName || "Невідома книга",
       bookSlug: undefined,
       chapterNumber: undefined,
       sanskritText: sanskritTextUa || sanskritTextEn || "",
@@ -167,7 +167,7 @@ export const DualLanguageVerseCard = ({
       toast.info("Вірш вже у списку для вивчення");
     }
   }, [
-    verseId, verseNumber, bookNameUa, bookNameEn,
+    verseId, verseNumber, bookName,
     sanskritTextUa, sanskritTextEn, transliterationUa, transliterationEn,
     translationUa, translationEn, commentaryUa, commentaryEn,
     audioUrl, audioSanskrit, audioTranslationUa, audioTranslationEn
