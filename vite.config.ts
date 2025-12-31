@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt', // Дає контроль користувачу над оновленням
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
         name: 'Vedavoice — Прабгупада Солов\'їною',
@@ -64,13 +64,30 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        skipWaiting: true,
+        skipWaiting: false, // Не пропускаємо waiting - даємо користувачу контроль
         clientsClaim: true,
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        cleanupOutdatedCaches: true, // Автоматично видаляє старі кеші
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'], // БЕЗ html - не кешуємо index.html в precache!
         maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15 MB
-        navigateFallback: '/index.html',
+        navigateFallback: null, // Вимикаємо - нехай документи йдуть через runtimeCaching
         navigateFallbackDenylist: [/^\/api/, /^\/supabase/, /^\/functions/],
         runtimeCaching: [
+          // КРИТИЧНО: Документи (HTML) - завжди спочатку мережа!
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'pages-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 день
+              },
+              networkTimeoutSeconds: 3, // Якщо мережа не відповіла за 3 сек - fallback на кеш
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
