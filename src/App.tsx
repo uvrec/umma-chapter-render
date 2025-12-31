@@ -80,7 +80,7 @@ import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
 import ImportWizard from "./pages/admin/ImportWizard";
 import UniversalImportFixed from "./pages/admin/UniversalImportFixed";
-import BBTImport from "./pages/admin/BBTImport";
+import BBTImport from "./pages/admin/BBTImportUniversal";
 import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
