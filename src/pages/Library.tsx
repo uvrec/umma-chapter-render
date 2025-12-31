@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, Mic, Mail, ChevronRight } from 'lucide-react';
+import { BookOpen, Mic, Mail } from 'lucide-react';
+import { LecturesContent } from '@/components/library/LecturesContent';
+import { LettersContent } from '@/components/library/LettersContent';
 export const Library = () => {
   const {
     language,
@@ -26,33 +27,6 @@ export const Library = () => {
       return data;
     }
   });
-  // Section cards for navigation
-  const sectionCards = [
-    {
-      id: 'lectures',
-      icon: Mic,
-      title: t('Лекції', 'Transcripts'),
-      description: t(
-        'Лекції та бесіди Шріли Прабгупади',
-        'Lectures and conversations by Srila Prabhupada'
-      ),
-      href: '/library/lectures',
-      color: 'from-blue-500/20 to-blue-600/20',
-      iconColor: 'text-blue-500',
-    },
-    {
-      id: 'letters',
-      icon: Mail,
-      title: t('Листи', 'Letters'),
-      description: t(
-        'Листування Шріли Прабгупади (1947-1977)',
-        'Correspondence of Srila Prabhupada (1947-1977)'
-      ),
-      href: '/library/letters',
-      color: 'from-amber-500/20 to-amber-600/20',
-      iconColor: 'text-amber-500',
-    },
-  ];
 
   return <div className="min-h-screen bg-background">
       <Header />
@@ -125,84 +99,12 @@ export const Library = () => {
 
           {/* Lectures Tab */}
           <TabsContent value="lectures">
-            <div className="space-y-6">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
-                <Link to="/library/lectures">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-lg bg-gradient-to-br from-blue-500/20 to-blue-600/20`}>
-                          <Mic className="w-8 h-8 text-blue-500" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold mb-1">
-                            {t('Лекції та бесіди', 'Lectures & Conversations')}
-                          </h3>
-                          <p className="text-muted-foreground">
-                            {t(
-                              'Транскрипти лекцій Шріли Прабгупади з Бгаґавад-ґіти, Шрімад-Бгаґаватам та інших',
-                              'Transcripts of Srila Prabhupada\'s lectures on Bhagavad-gita, Srimad-Bhagavatam and more'
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
-
-              <div className="text-center py-8">
-                <Link
-                  to="/library/lectures"
-                  className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
-                >
-                  {t('Переглянути всі лекції', 'Browse all lectures')}
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
+            <LecturesContent />
           </TabsContent>
 
           {/* Letters Tab */}
           <TabsContent value="letters">
-            <div className="space-y-6">
-              <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
-                <Link to="/library/letters">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-lg bg-gradient-to-br from-amber-500/20 to-amber-600/20`}>
-                          <Mail className="w-8 h-8 text-amber-500" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-semibold mb-1">
-                            {t('Листи Шріли Прабгупади', 'Letters of Srila Prabhupada')}
-                          </h3>
-                          <p className="text-muted-foreground">
-                            {t(
-                              'Листування з учнями та відомими особами (1947-1977)',
-                              'Correspondence with disciples and notable figures (1947-1977)'
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
-
-              <div className="text-center py-8">
-                <Link
-                  to="/library/letters"
-                  className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
-                >
-                  {t('Переглянути всі листи', 'Browse all letters')}
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
+            <LettersContent />
           </TabsContent>
         </Tabs>
       </div>
