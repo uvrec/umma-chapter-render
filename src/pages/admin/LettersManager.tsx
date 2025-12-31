@@ -126,13 +126,19 @@ export default function LettersManager() {
 
     setIsTranslating(true);
     try {
+      // Get the current user's session token for authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Необхідно увійти в систему");
+      }
+
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-claude`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             text: editingLetter.content_en,
@@ -142,7 +148,8 @@ export default function LettersManager() {
       );
 
       if (!response.ok) {
-        throw new Error("Translation failed");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Translation failed");
       }
 
       const data = await response.json();
@@ -155,8 +162,8 @@ export default function LettersManager() {
       toast.success(
         `Перекладено! Знайдено ${data.terms_found?.length || 0} санскритських термінів`
       );
-    } catch (error) {
-      toast.error("Помилка перекладу. Перевірте налаштування API.");
+    } catch (error: any) {
+      toast.error(error.message || "Помилка перекладу. Перевірте налаштування API.");
       console.error(error);
     } finally {
       setIsTranslating(false);
