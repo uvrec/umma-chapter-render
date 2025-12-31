@@ -1,11 +1,11 @@
 #!/usr/bin/env npx ts-node
 /**
- * POY (Perfection of Yoga) Ventura Parser
+ * EA (Easy Journey to Other Planets) Ventura Parser
  *
- * Parses BBT Ventura files from /docs/poy folder and outputs JSON
+ * Parses BBT Ventura files from /docs/ea folder and outputs JSON
  * This book has continuous text chapters (no verses like Gita)
  *
- * Usage: npx ts-node tools/parse-poy.ts
+ * Usage: npx ts-node tools/parse-ea.ts
  */
 
 import * as fs from "fs";
@@ -15,7 +15,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DOCS_DIR = path.join(__dirname, "..", "docs", "poy");
+const DOCS_DIR = path.join(__dirname, "..", "docs", "ea");
 const OUTPUT_DIR = path.join(__dirname, "..", "src", "data");
 
 // PUA Mapping for Ukrainian diacritics (same as parse-bbt.ts)
@@ -40,13 +40,13 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf11c": "Ш́",
 };
 
-// Intro file mapping for POY
+// Intro file mapping for EA
 const INTRO_FILE_MAP: Record<string, [string, string, number]> = {
-  UKPY00DC: ["dedication", "Посвята", 1],
-  UKPY00FW: ["foreword", "Передмова", 2],
-  UKPY00AU: ["about-author", "Про автора", 100],
-  UKPY00PG: ["pronunciation", "Як читати санскрит", 101],
-  UKPY00BL: ["books", "Книги Його Божественної Милості", 102],
+  UKEJ00DC: ["dedication", "Посвята", 1],
+  UKEJ00FW: ["foreword", "Передмова", 2],
+  UKEJ00AU: ["about-author", "Про автора", 100],
+  UKEJ00PG: ["pronunciation", "Як читати санскрит", 101],
+  UKEJ00BL: ["books", "Книги Його Божественної Милості", 102],
 };
 
 const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special", "h1-digit-rh", "h1-digit"]);
@@ -304,12 +304,12 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
     const content = currentContent.join(" ").trim();
     if (!content) return;
 
-    if (["h1-fb", "h1", "h1-pg", "h1-rv", "h1-bl", "h1-ds", "h1-au"].includes(currentTag)) {
+    if (["h1-fb", "h1", "h1-pg", "h1-rv", "h1-bl", "h1-ds", "h1-au", "h1-fw"].includes(currentTag)) {
       title = processProse(content, false).split(/\s+/).join(" ");
     } else if (["h2", "h2-gl", "h2-rv"].includes(currentTag)) {
       const sub = processProse(content, true);
       if (sub) paragraphs.push(`<strong>${sub}</strong>`);
-    } else if (["p0", "p", "p1", "p-indent", "p-gl", "p-au", "p-rv", "p-bl"].includes(currentTag)) {
+    } else if (["p0", "p", "p1", "p-indent", "p-gl", "p-au", "p-rv", "p-bl", "p-fw"].includes(currentTag)) {
       const para = processProse(content, true);
       if (para) paragraphs.push(para);
     } else if (currentTag === "dc") {
@@ -361,7 +361,7 @@ function readFile(filePath: string): string {
 // ============= MAIN =============
 
 function main() {
-  console.log("POY (Perfection of Yoga) Ventura Parser\n");
+  console.log("EA (Easy Journey to Other Planets) Ventura Parser\n");
 
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -371,9 +371,9 @@ function main() {
   const chapters: Chapter[] = [];
   const intros: IntroPage[] = [];
 
-  // Parse chapter files (UKPY01XT - UKPY08XT)
-  for (let i = 1; i <= 8; i++) {
-    const prefix = `UKPY${String(i).padStart(2, "0")}XT`;
+  // Parse chapter files (UKEJ01XT, UKEJ02XT)
+  for (let i = 1; i <= 2; i++) {
+    const prefix = `UKEJ${String(i).padStart(2, "0")}XT`;
     const chapterFile = files.find((f) => f.startsWith(prefix) && !f.endsWith(".bak"));
 
     if (chapterFile) {
@@ -410,14 +410,14 @@ function main() {
 
   // Write output
   const output = {
-    book_slug: "poy",
-    book_title_ua: "Досконалість йоґи",
-    book_title_en: "The Perfection of Yoga",
+    book_slug: "ea",
+    book_title_ua: "Легка подорож до інших планет",
+    book_title_en: "Easy Journey to Other Planets",
     chapters,
     intros,
   };
 
-  const outputPath = path.join(OUTPUT_DIR, "poy-parsed.json");
+  const outputPath = path.join(OUTPUT_DIR, "ea-parsed.json");
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
 
   console.log(`\n✅ Done!`);

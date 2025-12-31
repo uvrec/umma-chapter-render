@@ -19,6 +19,7 @@ import {
 // Import pre-parsed data for different books
 import bbtGitaData from "@/data/bbt-parsed.json";
 import poyData from "@/data/poy-parsed.json";
+import eaData from "@/data/ea-parsed.json";
 
 // Book configurations
 interface BookConfig {
@@ -73,6 +74,13 @@ const BOOK_CONFIGS: BookConfig[] = [
     title_en: "The Perfection of Yoga",
     hasVerses: false,
     data: poyData as ParsedBookData,
+  },
+  {
+    slug: "ea",
+    title_ua: "Легка подорож до інших планет",
+    title_en: "Easy Journey to Other Planets",
+    hasVerses: false,
+    data: eaData as ParsedBookData,
   },
 ];
 
