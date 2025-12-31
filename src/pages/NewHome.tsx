@@ -4,7 +4,7 @@
 // + DailyQuoteBanner для відображення щоденних цитат
 // + ContinueReadingSection для відображення прогресу читання
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,6 +21,51 @@ import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
 
 // --- Types ---
+type HeroSettings = {
+  background_image: string;
+  logo_image: string;
+  subtitle_ua: string;
+  subtitle_en: string;
+  quote_ua?: string;
+  quote_en?: string;
+  quote_author_ua?: string;
+  quote_author_en?: string;
+};
+
+// localStorage key для last-known-good hero settings
+const HERO_SETTINGS_LS_KEY = 'vv_home_hero_last_good';
+
+// Нейтральні дефолти (не "старий дизайн", а просто placeholder)
+const NEUTRAL_DEFAULTS: HeroSettings = {
+  background_image: "/pwa-512x512.png", // Нейтральний fallback
+  logo_image: "/pwa-512x512.png",
+  subtitle_ua: "Завантаження...",
+  subtitle_en: "Loading..."
+};
+
+// Отримати last-known-good з localStorage
+function getLastKnownGoodHero(): HeroSettings | null {
+  try {
+    const stored = localStorage.getItem(HERO_SETTINGS_LS_KEY);
+    if (stored) {
+      return JSON.parse(stored) as HeroSettings;
+    }
+  } catch (e) {
+    console.warn('[Hero] Failed to read last-known-good from localStorage:', e);
+  }
+  return null;
+}
+
+// Зберегти в localStorage
+function saveLastKnownGoodHero(settings: HeroSettings): void {
+  try {
+    localStorage.setItem(HERO_SETTINGS_LS_KEY, JSON.stringify(settings));
+    console.log('[Hero] Saved last-known-good settings to localStorage');
+  } catch (e) {
+    console.warn('[Hero] Failed to save to localStorage:', e);
+  }
+}
+
 type ContentItem = {
   id: string;
   type: "audio" | "text" | "blog";
@@ -62,37 +107,59 @@ function Hero() {
     language
   } = useLanguage();
 
+  // Отримуємо last-known-good з localStorage для initialData
+  const lastKnownGood = getLastKnownGoodHero();
+
   // Завантаження налаштувань з БД
   const {
     data: settingsData,
-    refetch
+    refetch,
+    isError,
+    error: queryError
   } = useQuery({
     queryKey: ["site-settings", "home_hero"],
     queryFn: async () => {
+      console.log('[Hero] Fetching home_hero from Supabase...');
       const {
         data,
         error
       } = await (supabase as any).from("site_settings").select("value").eq("key", "home_hero").single();
       if (error) {
-        console.error("Failed to load home hero settings:", error);
-        return null; // Return null instead of throwing
+        console.error("[Hero] Failed to load home hero settings:", error);
+        throw error; // Throw щоб React Query знав що це помилка
       }
-      return (data as any)?.value as {
-        background_image: string;
-        logo_image: string;
-        subtitle_ua: string;
-        subtitle_en: string;
-      };
-    }
+      console.log('[Hero] Successfully loaded home_hero from Supabase');
+      return (data as any)?.value as HeroSettings;
+    },
+    // Використовуємо last-known-good як initialData
+    initialData: lastKnownGood || undefined,
+    // Налаштування для стабільності
+    staleTime: 5 * 60 * 1000, // 5 хвилин - не перезапитувати занадто часто
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    refetchOnWindowFocus: false, // Не перезапитувати при фокусі вкладки
   });
 
-  // Дефолти поки не завантажилось
-  const settings = settingsData || {
-    background_image: "/lovable-uploads/38e84a84-ccf1-4f23-9197-595040426276.png",
-    logo_image: "/lovable-uploads/6248f7f9-3439-470f-92cd-bcc91e90b9ab.png",
-    subtitle_ua: "Бібліотека ведичних аудіокниг",
-    subtitle_en: "Library of Vedic audiobooks"
-  };
+  // Зберігаємо успішні дані в localStorage
+  useEffect(() => {
+    if (settingsData && !isError) {
+      saveLastKnownGoodHero(settingsData);
+    }
+  }, [settingsData, isError]);
+
+  // Логування для діагностики
+  useEffect(() => {
+    if (isError) {
+      console.warn('[Hero] Query failed, using fallback. Error:', queryError);
+      console.log('[Hero] Last-known-good available:', !!lastKnownGood);
+    }
+  }, [isError, queryError, lastKnownGood]);
+
+  // Визначаємо фінальні settings:
+  // 1. Якщо є дані з БД - використовуємо їх
+  // 2. Якщо є last-known-good - використовуємо його
+  // 3. Інакше - нейтральні дефолти (НЕ старий дизайн!)
+  const settings: HeroSettings = settingsData || lastKnownGood || NEUTRAL_DEFAULTS;
 
   // Формат часу
   const formatTime = (seconds: number) => {
@@ -110,10 +177,10 @@ function Hero() {
     logo_image: settings.logo_image || "",
     subtitle_ua: settings.subtitle_ua || "",
     subtitle_en: settings.subtitle_en || "",
-    quote_ua: (settingsData as any)?.quote_ua || "",
-    quote_en: (settingsData as any)?.quote_en || "",
-    quote_author_ua: (settingsData as any)?.quote_author_ua || "",
-    quote_author_en: (settingsData as any)?.quote_author_en || ""
+    quote_ua: settings.quote_ua || "",
+    quote_en: settings.quote_en || "",
+    quote_author_ua: settings.quote_author_ua || "",
+    quote_author_en: settings.quote_author_en || ""
   };
   return <section className="relative min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
     backgroundImage: `linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url(${settings.background_image})`

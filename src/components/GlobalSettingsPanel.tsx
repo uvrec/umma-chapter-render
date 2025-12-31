@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Settings, Globe, Palette, Minus, Plus, RotateCcw, Smartphone } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Settings, Globe, Palette, Minus, Plus, RotateCcw, Smartphone, Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -141,6 +141,51 @@ export const GlobalSettingsPanel = () => {
     setMobileSafeMode(DEFAULTS.mobileSafeMode);
     setContinuousReadingSettings(DEFAULTS.continuousReading);
   };
+
+  // Стан для кнопки очистки кешів
+  const [isClearing, setIsClearing] = useState(false);
+
+  // Функція ядерного очищення кешів (тільки для адміна)
+  const clearAllCachesAndReload = useCallback(async () => {
+    if (!confirm(t(
+      'Це видалить всі кеші та Service Worker. Сторінка перезавантажиться. Продовжити?',
+      'This will delete all caches and Service Worker. Page will reload. Continue?'
+    ))) {
+      return;
+    }
+
+    setIsClearing(true);
+
+    try {
+      console.log('[CacheClear] Початок очищення...');
+
+      // 1. Видаляємо всі кеші
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        console.log('[CacheClear] Видаляємо кеші:', cacheNames);
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
+
+      // 2. Видаляємо всі Service Workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        console.log('[CacheClear] Видаляємо SW реєстрації:', registrations.length);
+        await Promise.all(registrations.map(r => r.unregister()));
+      }
+
+      // 3. Очищаємо localStorage версії білда (щоб kill-switch не спрацював знову)
+      localStorage.removeItem('vv_build_version');
+
+      console.log('[CacheClear] Очищення завершено. Перезавантаження...');
+
+      // 4. Перезавантажуємо
+      window.location.reload();
+    } catch (e) {
+      console.error('[CacheClear] Помилка:', e);
+      setIsClearing(false);
+      alert(t('Помилка очищення кешів', 'Error clearing caches'));
+    }
+  }, [t]);
 
   // ✅ Функції increaseFont, decreaseFont, increaseLH, decreaseLH тепер з хука useReaderSettings
 
@@ -388,7 +433,7 @@ export const GlobalSettingsPanel = () => {
             <Separator />
 
             {/* Скидання налаштувань */}
-            <div>
+            <div className="space-y-3">
               <Button
                 variant="outline"
                 onClick={resetToDefaults}
@@ -397,6 +442,28 @@ export const GlobalSettingsPanel = () => {
                 <RotateCcw className="h-4 w-4" />
                 {t("Скинути до початкових", "Reset to Defaults")}
               </Button>
+
+              {/* Ядерна кнопка очистки кешів - тільки для адміна */}
+              {isAdmin && (
+                <Button
+                  variant="destructive"
+                  onClick={clearAllCachesAndReload}
+                  disabled={isClearing}
+                  className="w-full gap-2"
+                >
+                  {isClearing ? (
+                    <>
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      {t("Очищення...", "Clearing...")}
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      {t("Очистити кеші та SW", "Clear Caches & SW")}
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
             </TabsContent>
 
