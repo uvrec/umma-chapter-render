@@ -224,10 +224,15 @@ function processTransliteration(text: string): string {
 }
 
 function extractVerseNumber(text: string): string {
-  const match = text.match(/(?:Вірш[иі]?|ВІРШ[ИІ]?)\s*(\d+(?:\s*[-–]\s*\d+)?)/i);
-  if (match) return match[1].replace(/\s+/g, '');
-  const numMatch = text.match(/(\d+(?:\s*[-–]\s*\d+)?)/);
-  if (numMatch) return numMatch[1].replace(/\s+/g, '');
+  const match = text.match(/(?:Вірш[иі]?|ВІРШ[ИІ]?)\s*(\d+(?:\s*[-–—]\s*\d+)?)/i);
+  if (match) {
+    // Normalize: remove spaces, convert en-dash/em-dash to hyphen
+    return match[1].replace(/\s+/g, '').replace(/[–—]/g, '-');
+  }
+  const numMatch = text.match(/(\d+(?:\s*[-–—]\s*\d+)?)/);
+  if (numMatch) {
+    return numMatch[1].replace(/\s+/g, '').replace(/[–—]/g, '-');
+  }
   return text.trim();
 }
 
