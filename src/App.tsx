@@ -104,6 +104,7 @@ import Install from "./pages/Install";
 import BookSearch from "./pages/BookSearch";
 import Chat from "./pages/Chat";
 import { OfflineIndicator } from "./components/OfflineIndicator";
+import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
 
 // Внутрішній компонент з доступом до hooks
@@ -268,6 +269,7 @@ function AppContent() {
 
         {/* Глобальні компоненти */}
         <OfflineIndicator />
+        <PWAUpdatePrompt />
         <ModernGlobalPlayer />
         <GlobalSettingsPanel />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
