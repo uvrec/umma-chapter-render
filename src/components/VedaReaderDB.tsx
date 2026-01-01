@@ -920,7 +920,7 @@ export const VedaReaderDB = () => {
             </div>
           </Card>}
 
-        {isTextChapter ? <Card className="verse-surface p-8">
+        {isTextChapter ? <div className="verse-surface">
             {/* Навігація зверху для текстових глав */}
             <div className="mb-8 flex items-center justify-between pb-6">
               <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
@@ -950,7 +950,7 @@ export const VedaReaderDB = () => {
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
-          </Card> : continuousReadingSettings.enabled ? <div className="space-y-8">
+          </div> : continuousReadingSettings.enabled ? <div className="space-y-8">
             {verses.map(verse => {
           const verseIdx = getDisplayVerseNumber(verse.verse_number);
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
