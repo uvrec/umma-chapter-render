@@ -324,7 +324,8 @@ export const ChapterVersesList = () => {
                     <Edit className="h-4 w-4" />
                     {language === "ua" ? "Редагувати" : "Edit"}
                   </Button>
-                </div>}
+                </div>
+              )}
 
               {isEditingContent ? (
                 <div className="space-y-4">
@@ -346,7 +347,9 @@ export const ChapterVersesList = () => {
                       {language === "ua" ? "Скасувати" : "Cancel"}
                     </Button>
                   </div>
-                </div> : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (() => {
+                </div>
+              ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+                (() => {
             const splitHtmlIntoParagraphs = (html: string): string[] => {
               const sanitized = DOMPurify.sanitize(html);
               const div = document.createElement("div");
@@ -404,8 +407,7 @@ export const ChapterVersesList = () => {
                           </div>
                         );
                       })}
-                    </div>
-                  );
+                    </div>;
                 })()
               ) : (
                 <div
