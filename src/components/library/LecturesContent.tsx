@@ -6,7 +6,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -238,8 +237,8 @@ export const LecturesContent = () => {
       </div>
 
       {/* Пошук та фільтри */}
-      <Card className="p-4 sm:p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Пошук */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -357,7 +356,7 @@ export const LecturesContent = () => {
             </SelectContent>
           </Select>
         </div>
-      </Card>
+      </div>
 
       {/* Список лекцій */}
       <div className="space-y-8">
@@ -367,45 +366,50 @@ export const LecturesContent = () => {
           .map((groupKey) => (
             <div key={groupKey}>
               <h3 className="text-xl font-bold mb-4 text-foreground">{groupKey}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-4">
                 {groupedLectures[groupKey].map((lecture) => (
-                  <Card
+                  <div
                     key={lecture.id}
-                    className="p-4 sm:p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    className="py-3 cursor-pointer hover:bg-muted/30 transition-colors"
                     onClick={() => navigate(`/library/lectures/${lecture.slug}`)}
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <Badge variant="secondary">{lecture.lecture_type}</Badge>
-                      {lecture.audio_url && (
-                        <Play className="w-4 h-4 text-primary" />
-                      )}
-                    </div>
-
-                    <h4 className="text-lg font-semibold mb-2 text-foreground line-clamp-2">
-                      {getLectureTitle(lecture)}
-                    </h4>
-
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <div className="flex items-center">
-                        <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span className="truncate">{formatDate(lecture.lecture_date)}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span className="truncate">{getLectureLocation(lecture)}</span>
-                      </div>
-                      {lecture.book_slug && (
-                        <div className="flex items-center">
-                          <BookOpen className="w-4 h-4 mr-2 flex-shrink-0" />
-                          <span>
-                            {lecture.book_slug.toUpperCase()}
-                            {lecture.chapter_number && ` ${lecture.chapter_number}`}
-                            {lecture.verse_number && `.${lecture.verse_number}`}
-                          </span>
+                    <div className="flex items-start gap-3">
+                      <Mic className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="secondary">{lecture.lecture_type}</Badge>
+                          {lecture.audio_url && (
+                            <Play className="w-4 h-4 text-primary" />
+                          )}
                         </div>
-                      )}
+
+                        <h4 className="text-lg font-semibold text-foreground line-clamp-2">
+                          {getLectureTitle(lecture)}
+                        </h4>
+
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-1">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{formatDate(lecture.lecture_date)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            <span className="truncate">{getLectureLocation(lecture)}</span>
+                          </div>
+                          {lecture.book_slug && (
+                            <div className="flex items-center gap-1">
+                              <BookOpen className="w-4 h-4" />
+                              <span>
+                                {lecture.book_slug.toUpperCase()}
+                                {lecture.chapter_number && ` ${lecture.chapter_number}`}
+                                {lecture.verse_number && `.${lecture.verse_number}`}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </Card>
+                  </div>
                 ))}
               </div>
             </div>

@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Play, BookOpen, Clock, ArrowRight } from "lucide-react";
@@ -135,71 +134,67 @@ export const ContinueListening = () => {
       {audioLoading ? (
         <div className="grid gap-4 sm:grid-cols-2">
           {[1, 2].map((i) => (
-            <Card key={i}>
-              <CardContent className="space-y-3 p-5">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-9 w-28" />
-                  <Skeleton className="h-3 w-16" />
-                </div>
-              </CardContent>
-            </Card>
+            <div key={i} className="space-y-3 py-4">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-9 w-28" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
           ))}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {continueItems.map((item) => (
-            <Card key={item.id} className="transition-shadow hover:shadow-md">
-              <CardContent className="p-5">
-                <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  {item.type === "audio" ? "Продовжити прослуховування" : "Продовжити читання"}
-                </div>
+            <div key={item.id} className="py-4 hover:bg-muted/30 transition-colors">
+              <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4" />
+                {item.type === "audio" ? "Продовжити прослуховування" : "Продовжити читання"}
+              </div>
 
-                <div className="mb-2 text-base font-semibold">{item.title}</div>
+              <div className="mb-2 text-base font-semibold">{item.title}</div>
 
-                {item.subtitle && <div className="mb-3 truncate text-sm text-muted-foreground">{item.subtitle}</div>}
+              {item.subtitle && <div className="mb-3 truncate text-sm text-muted-foreground">{item.subtitle}</div>}
 
-                {item.progress > 0 && (
-                  <div className="mb-3">
-                    <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Прогрес: {item.progress}%</span>
-                      {item.duration && (
-                        <span>
-                          {formatTime(Math.round((item.progress / 100) * item.duration))} / {formatTime(item.duration)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="h-1.5 rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all"
-                        style={{ width: `${item.progress}%` }}
-                      />
-                    </div>
+              {item.progress > 0 && (
+                <div className="mb-3">
+                  <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Прогрес: {item.progress}%</span>
+                    {item.duration && (
+                      <span>
+                        {formatTime(Math.round((item.progress / 100) * item.duration))} / {formatTime(item.duration)}
+                      </span>
+                    )}
                   </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <Button variant="secondary" size="sm" asChild>
-                    <a href={item.href}>
-                      {item.type === "audio" ? (
-                        <>
-                          <Play className="mr-2 h-4 w-4" />
-                          Продовжити
-                        </>
-                      ) : (
-                        <>
-                          <ArrowRight className="mr-2 h-4 w-4" />
-                          Відкрити
-                        </>
-                      )}
-                    </a>
-                  </Button>
-                  {item.timestamp && <span className="text-xs text-muted-foreground">{item.timestamp}</span>}
+                  <div className="h-1.5 bg-muted">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${item.progress}%` }}
+                    />
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              )}
+
+              <div className="flex items-center justify-between">
+                <Button variant="secondary" size="sm" asChild>
+                  <a href={item.href}>
+                    {item.type === "audio" ? (
+                      <>
+                        <Play className="mr-2 h-4 w-4" />
+                        Продовжити
+                      </>
+                    ) : (
+                      <>
+                        <ArrowRight className="mr-2 h-4 w-4" />
+                        Відкрити
+                      </>
+                    )}
+                  </a>
+                </Button>
+                {item.timestamp && <span className="text-xs text-muted-foreground">{item.timestamp}</span>}
+              </div>
+            </div>
           ))}
         </div>
       )}

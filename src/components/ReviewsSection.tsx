@@ -1,5 +1,4 @@
 // ReviewsSection.tsx — адаптовано під craft/dark/light теми, бурштинові акценти
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, StarHalf } from "lucide-react";
@@ -49,82 +48,80 @@ export const ReviewsSection = ({
   reviews,
 }: ReviewsSectionProps) => {
   return (
-    <Card className="mt-10 verse-surface border border-border/40 shadow-sm transition-colors">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center text-foreground">Відгуки та рецензії</CardTitle>
+    <section className="mt-10">
+      <h2 className="text-2xl font-bold text-center text-foreground mb-6">Відгуки та рецензії</h2>
 
-        {/* Overall Stats */}
-        <div className="mt-6 grid gap-6 md:grid-cols-2">
-          {/* Book Rating */}
-          <div className="text-center">
-            <h3 className="mb-2 text-lg font-semibold text-foreground">Книга</h3>
-            <div className="mb-2 flex items-center justify-center gap-2">
-              <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{bookRating.toFixed(1)}</span>
-              <StarRating rating={bookRating} size="lg" />
-            </div>
-            <p className="text-sm text-muted-foreground">{totalReviews} відгуків</p>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-              >
-                Надихаючий
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-              >
-                Добре написано
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-              >
-                Цікаво
-              </Badge>
-            </div>
+      {/* Overall Stats */}
+      <div className="grid gap-6 md:grid-cols-2 mb-6">
+        {/* Book Rating */}
+        <div className="text-center">
+          <h3 className="mb-2 text-lg font-semibold text-foreground">Книга</h3>
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{bookRating.toFixed(1)}</span>
+            <StarRating rating={bookRating} size="lg" />
           </div>
-
-          {/* Speaker Rating */}
-          <div className="text-center">
-            <h3 className="mb-2 text-lg font-semibold text-foreground">Диктор</h3>
-            <div className="mb-2 flex items-center justify-center gap-2">
-              <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{speakerRating.toFixed(1)}</span>
-              <StarRating rating={speakerRating} size="lg" />
-            </div>
-            <p className="text-sm text-muted-foreground">{totalReviews} відгуків</p>
-            <div className="mt-2 flex flex-wrap justify-center gap-2">
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-              >
-                Виразно
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-              >
-                Чіткий голос
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-              >
-                Ідеальна відповідність
-              </Badge>
-            </div>
+          <p className="text-sm text-muted-foreground">{totalReviews} відгуків</p>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+              Надихаючий
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+              Добре написано
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+              Цікаво
+            </Badge>
           </div>
         </div>
 
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          Відгуки написані слухачами з активною підпискою, які оцінили цю книгу. Додаткова перевірка не проводиться.
-        </p>
-      </CardHeader>
+        {/* Speaker Rating */}
+        <div className="text-center">
+          <h3 className="mb-2 text-lg font-semibold text-foreground">Диктор</h3>
+          <div className="mb-2 flex items-center justify-center gap-2">
+            <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{speakerRating.toFixed(1)}</span>
+            <StarRating rating={speakerRating} size="lg" />
+          </div>
+          <p className="text-sm text-muted-foreground">{totalReviews} відгуків</p>
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+              Виразно
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+              Чіткий голос
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+            >
+              Ідеальна відповідність
+            </Badge>
+          </div>
+        </div>
+      </div>
 
-      <CardContent className="space-y-8">
-        {/* Individual Reviews */}
+      <p className="text-center text-sm text-muted-foreground mb-8">
+        Відгуки написані слухачами з активною підпискою, які оцінили цю книгу. Додаткова перевірка не проводиться.
+      </p>
+
+      {/* Individual Reviews */}
+      <div className="space-y-8">
         {reviews.map((review) => (
-          <div key={review.id} className="border-b border-border/40 last:border-0 pb-6 last:pb-0">
+          <div key={review.id} className="pb-6">
             <div className="flex items-start gap-4">
               {/* Avatar */}
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
@@ -176,17 +173,17 @@ export const ReviewsSection = ({
             </div>
           </div>
         ))}
+      </div>
 
-        {/* Show More Button */}
-        <div className="pt-6 text-center">
-          <Button
-            variant="outline"
-            className="border-amber-500/50 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-900/20"
-          >
-            Показати більше відгуків
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Show More Button */}
+      <div className="pt-6 text-center">
+        <Button
+          variant="outline"
+          className="border-amber-500/50 text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-900/20"
+        >
+          Показати більше відгуків
+        </Button>
+      </div>
+    </section>
   );
 };

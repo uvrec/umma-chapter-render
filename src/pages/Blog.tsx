@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, ArrowRight, Search } from "lucide-react";
@@ -157,60 +156,56 @@ export const Blog = () => {
                 : post.blog_categories?.name_en;
 
               return (
-                <Link key={post.id} to={`/blog/${post.slug}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full">
-                    {post.cover_image_url && (
-                      <div className="aspect-video bg-muted">
-                        <img
-                          src={post.cover_image_url}
-                          alt={title}
-                          className="w-full h-full object-cover"
-                        />
+                <Link key={post.id} to={`/blog/${post.slug}`} className="block hover:bg-muted/30 transition-colors py-4">
+                  {post.cover_image_url && (
+                    <div className="aspect-video mb-4">
+                      <img
+                        src={post.cover_image_url}
+                        alt={title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 mb-3">
+                    {categoryName && (
+                      <Badge variant="secondary">{categoryName}</Badge>
+                    )}
+                    {post.read_time > 0 && (
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Clock className="w-3 h-3 mr-1" />
+                        {post.read_time} {language === 'ua' ? 'хв' : 'min'}
                       </div>
                     )}
-                    
-                    <div className="p-6">
-                      <div className="flex items-center gap-2 mb-3">
-                        {categoryName && (
-                          <Badge variant="secondary">{categoryName}</Badge>
+                  </div>
+
+                  <h3 className="blog-heading text-xl text-foreground mb-3 line-clamp-2">
+                    {title}
+                  </h3>
+
+                  {excerpt && (
+                    <p className="text-muted-foreground mb-4 line-clamp-3">
+                      {excerpt}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <User className="w-3 h-3 mr-1" />
+                      <span>{post.author_display_name}</span>
+                      <span className="mx-2">•</span>
+                      <Calendar className="w-3 h-3 mr-1" />
+                      <span>
+                        {new Date(post.published_at || post.created_at).toLocaleDateString(
+                          language === 'ua' ? 'uk-UA' : 'en-US'
                         )}
-                        {post.read_time > 0 && (
-                          <div className="flex items-center text-sm text-muted-foreground">
-                            <Clock className="w-3 h-3 mr-1" />
-                            {post.read_time} {language === 'ua' ? 'хв' : 'min'}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <h3 className="blog-heading text-xl text-foreground mb-3 line-clamp-2">
-                        {title}
-                      </h3>
-                      
-                      {excerpt && (
-                        <p className="text-muted-foreground mb-4 line-clamp-3">
-                          {excerpt}
-                        </p>
-                      )}
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <User className="w-3 h-3 mr-1" />
-                          <span>{post.author_display_name}</span>
-                          <span className="mx-2">•</span>
-                          <Calendar className="w-3 h-3 mr-1" />
-                          <span>
-                            {new Date(post.published_at || post.created_at).toLocaleDateString(
-                              language === 'ua' ? 'uk-UA' : 'en-US'
-                            )}
-                          </span>
-                        </div>
-                        
-                        <Button variant="ghost" size="sm">
-                          <ArrowRight className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      </span>
                     </div>
-                  </Card>
+
+                    <Button variant="ghost" size="sm">
+                      <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </Link>
               );
             })}

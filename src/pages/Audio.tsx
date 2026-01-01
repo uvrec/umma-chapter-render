@@ -1,6 +1,5 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Play, Clock, User, ChevronDown, Headphones } from "lucide-react";
@@ -103,13 +102,13 @@ export const Audio = () => {
           
           <div className="max-w-6xl mx-auto space-y-12">
             {/* Srimad Bhagavatam Playlist */}
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="mb-8">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+                <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
                   <Play className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-card-foreground">Шрімад-Бгаґаватам</h3>
+                  <h3 className="text-2xl font-bold text-foreground">Шрімад-Бгаґаватам</h3>
                   <p className="text-muted-foreground">Перший том • 3 треки • 19:29</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="secondary">
@@ -123,8 +122,8 @@ export const Audio = () => {
                   </div>
                 </div>
               </div>
-              
-              <PlaylistPlayer 
+
+              <PlaylistPlayer
                 tracks={srimadBhagavatamTracks}
                 title="Шрімад-Бгаґаватам - Перший том"
                 albumCover="/assets/srimad-bhagavatam-1-cover.webp"
@@ -132,13 +131,13 @@ export const Audio = () => {
             </div>
 
             {/* Bhagavad Gita Playlist */}
-            <div className="bg-card border border-border rounded-lg p-6">
+            <div className="mb-8">
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
+                <div className="w-16 h-16 bg-primary/10 flex items-center justify-center">
                   <Play className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-card-foreground">Бгаґавад-ґіта</h3>
+                  <h3 className="text-2xl font-bold text-foreground">Бгаґавад-ґіта</h3>
                   <p className="text-muted-foreground">Друга глава • 3 треки • 16:16</p>
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="secondary">
@@ -148,8 +147,8 @@ export const Audio = () => {
                   </div>
                 </div>
               </div>
-              
-              <PlaylistPlayer 
+
+              <PlaylistPlayer
                 tracks={bhagavadGitaTracks}
                 title="Бгаґавад-ґіта - Друга глава"
                 albumCover="/assets/bhagavad-gita-cover.webp"
@@ -167,124 +166,118 @@ export const Audio = () => {
           </h2>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Bhagavad Gita Card */}
-            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
-                  <img 
-                    src="/assets/bhagavad-gita-cover.webp" 
-                    alt="Бгаґавад-ґіта"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Play className="w-12 h-12 text-white" />
-                  </div>
+            {/* Bhagavad Gita */}
+            <div className="group">
+              <div className="aspect-[4/3] mb-4 relative overflow-hidden">
+                <img
+                  src="/assets/bhagavad-gita-cover.webp"
+                  alt="Бгаґавад-ґіта"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Play className="w-12 h-12 text-white" />
                 </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    18 глав
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">Повна версія</Badge>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  Бгаґавад-ґіта як вона є
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Повна версія з коментарями А.Ч. Бгактіведанти Свамі Прабгупади
-                </p>
-                <div className="flex gap-2">
-                  <Button asChild size="sm" className="flex-1">
-                    <Link to="/audiobooks/gita">
-                      <Play className="w-4 h-4 mr-1" />
-                      Аудіокнига
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/audio/lectures">Прабгупада</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary" className="text-xs">
+                  <Clock className="w-3 h-3 mr-1" />
+                  18 глав
+                </Badge>
+                <Badge variant="outline" className="text-xs">Повна версія</Badge>
+              </div>
+              <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                Бгаґавад-ґіта як вона є
+              </h3>
+              <p className="text-muted-foreground text-sm mb-3">
+                Повна версія з коментарями А.Ч. Бгактіведанти Свамі Прабгупади
+              </p>
+              <div className="flex gap-2">
+                <Button asChild size="sm" className="flex-1">
+                  <Link to="/audiobooks/gita">
+                    <Play className="w-4 h-4 mr-1" />
+                    Аудіокнига
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/audio/lectures">Прабгупада</Link>
+                </Button>
+              </div>
+            </div>
 
-            {/* Srimad Bhagavatam Card */}
-            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
-                  <img 
-                    src="/assets/srimad-bhagavatam-1-cover.webp" 
-                    alt="Шрімад-Бгаґаватам"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Play className="w-12 h-12 text-white" />
-                  </div>
+            {/* Srimad Bhagavatam */}
+            <div className="group">
+              <div className="aspect-[4/3] mb-4 relative overflow-hidden">
+                <img
+                  src="/assets/srimad-bhagavatam-1-cover.webp"
+                  alt="Шрімад-Бгаґаватам"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Play className="w-12 h-12 text-white" />
                 </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    12 томів
-                  </Badge>
-                  <Badge variant="outline" className="text-xs">Новинка</Badge>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  Шрімад-Бгаґаватам
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Прекрасна Пурана про життя та діяння Всевишнього Господа
-                </p>
-                <div className="flex gap-2">
-                  <Button asChild size="sm" className="flex-1">
-                    <Link to="/audiobooks/bhagavatam">
-                      <Play className="w-4 h-4 mr-1" />
-                      Аудіокнига
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/audio/lectures">Прабгупада</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary" className="text-xs">
+                  <Clock className="w-3 h-3 mr-1" />
+                  12 томів
+                </Badge>
+                <Badge variant="outline" className="text-xs">Новинка</Badge>
+              </div>
+              <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                Шрімад-Бгаґаватам
+              </h3>
+              <p className="text-muted-foreground text-sm mb-3">
+                Прекрасна Пурана про життя та діяння Всевишнього Господа
+              </p>
+              <div className="flex gap-2">
+                <Button asChild size="sm" className="flex-1">
+                  <Link to="/audiobooks/bhagavatam">
+                    <Play className="w-4 h-4 mr-1" />
+                    Аудіокнига
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/audio/lectures">Прабгупада</Link>
+                </Button>
+              </div>
+            </div>
 
-            {/* Sri Isopanishad Card */}
-            <Card className="group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="aspect-[4/3] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg mb-4 flex items-center justify-center relative overflow-hidden">
-                  <img 
-                    src="/assets/sri-isopanishad-cover.webp" 
-                    alt="Шрі Ішопанішад"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Play className="w-12 h-12 text-white" />
-                  </div>
+            {/* Sri Isopanishad */}
+            <div className="group">
+              <div className="aspect-[4/3] mb-4 relative overflow-hidden">
+                <img
+                  src="/assets/sri-isopanishad-cover.webp"
+                  alt="Шрі Ішопанішад"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <Play className="w-12 h-12 text-white" />
                 </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className="text-xs">
-                    <Clock className="w-3 h-3 mr-1" />
-                    18 мантр
-                  </Badge>
-                </div>
-                <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
-                  Шрі Ішопанішад
-                </h3>
-                <p className="text-muted-foreground text-sm mb-3">
-                  Найголовніша з усіх Упанішад, яка містить суть ведичного знання
-                </p>
-                <div className="flex gap-2">
-                  <Button asChild size="sm" className="flex-1">
-                    <Link to="/audiobooks/iso">
-                      <Play className="w-4 h-4 mr-1" />
-                      Аудіокнига
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm" variant="outline">
-                    <Link to="/audio/lectures">Прабгупада</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="secondary" className="text-xs">
+                  <Clock className="w-3 h-3 mr-1" />
+                  18 мантр
+                </Badge>
+              </div>
+              <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
+                Шрі Ішопанішад
+              </h3>
+              <p className="text-muted-foreground text-sm mb-3">
+                Найголовніша з усіх Упанішад, яка містить суть ведичного знання
+              </p>
+              <div className="flex gap-2">
+                <Button asChild size="sm" className="flex-1">
+                  <Link to="/audiobooks/iso">
+                    <Play className="w-4 h-4 mr-1" />
+                    Аудіокнига
+                  </Link>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/audio/lectures">Прабгупада</Link>
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </section>

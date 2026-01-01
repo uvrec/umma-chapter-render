@@ -17,7 +17,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
@@ -125,33 +124,31 @@ export const LetterView = () => {
         </div>
 
         {/* Метадані листа */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-start gap-3">
-              <User className="w-6 h-6 mt-1 flex-shrink-0" />
-              <div className="flex-1">
-                <div className="text-2xl mb-2">Лист до {recipient}</div>
-                <div className="flex flex-wrap gap-4 text-sm text-muted-foreground font-normal">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    {new Date(letter.letter_date).toLocaleDateString("uk-UA", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    {location}
-                  </div>
+        <div className="mb-8">
+          <div className="flex items-start gap-3 mb-4">
+            <User className="w-6 h-6 mt-1 flex-shrink-0 text-muted-foreground" />
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold mb-2">Лист до {recipient}</h1>
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  {new Date(letter.letter_date).toLocaleDateString("uk-UA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  {location}
                 </div>
               </div>
-            </CardTitle>
-          </CardHeader>
+            </div>
+          </div>
 
           {/* Reference та адреса */}
           {(letter.reference || letter.address_block) && (
-            <CardContent className="space-y-4">
+            <div className="space-y-4 mt-4">
               {letter.reference && (
                 <div>
                   <Badge variant="outline">Reference: {letter.reference}</Badge>
@@ -159,29 +156,25 @@ export const LetterView = () => {
               )}
 
               {letter.address_block && (
-                <div className="bg-muted p-4 rounded-lg">
+                <div className="mt-4">
                   <div className="text-xs font-semibold text-muted-foreground mb-2">
                     АДРЕСА:
                   </div>
-                  <div className="text-sm whitespace-pre-line font-mono">
+                  <div className="text-sm whitespace-pre-line font-mono text-muted-foreground">
                     {letter.address_block}
                   </div>
                 </div>
               )}
-            </CardContent>
+            </div>
           )}
-        </Card>
+        </div>
 
         {/* Текст листа */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground whitespace-pre-wrap leading-relaxed">
-              {language === "ua" && letter.content_ua
-                ? letter.content_ua
-                : letter.content_en}
-            </div>
-          </CardContent>
-        </Card>
+        <div className="prose prose-lg dark:prose-invert max-w-none text-foreground whitespace-pre-wrap leading-relaxed">
+          {language === "ua" && letter.content_ua
+            ? letter.content_ua
+            : letter.content_en}
+        </div>
       </main>
       <Footer />
     </div>

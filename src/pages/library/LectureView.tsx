@@ -15,7 +15,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -215,7 +214,7 @@ export const LectureView = () => {
         </Button>
 
         {/* Заголовок лекції */}
-        <Card className="p-8 mb-8">
+        <div className="mb-8">
           <div className="mb-4">
             <Badge variant="secondary" className="mb-2">
               {lecture.lecture_type}
@@ -224,7 +223,7 @@ export const LectureView = () => {
 
           <h1 className="text-3xl font-bold mb-4 text-foreground">{title}</h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-muted-foreground">
+          <div className="flex flex-wrap gap-4 text-muted-foreground">
             <div className="flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
               {formatDate(lecture.lecture_date)}
@@ -256,35 +255,31 @@ export const LectureView = () => {
           {/* Аудіо плеєр */}
           {lecture.audio_url && (
             <div className="mt-6">
-              <Card className="p-4 bg-muted/50">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={togglePlayPause}
-                      className="w-12 h-12 rounded-full"
-                    >
-                      {isPlaying ? (
-                        <Pause className="w-6 h-6" />
-                      ) : (
-                        <Play className="w-6 h-6" />
-                      )}
-                    </Button>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Volume2 className="w-4 h-4 mr-2" />
-                      {language === "ua" ? "Аудіо лекція" : "Audio lecture"}
-                    </div>
-                  </div>
+              <div className="flex items-center space-x-4">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={togglePlayPause}
+                  className="w-12 h-12 rounded-full"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-6 h-6" />
+                  ) : (
+                    <Play className="w-6 h-6" />
+                  )}
+                </Button>
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Volume2 className="w-4 h-4 mr-2" />
+                  {language === "ua" ? "Аудіо лекція" : "Audio lecture"}
                 </div>
-                <audio ref={audioRef} src={lecture.audio_url} preload="metadata" />
-              </Card>
+              </div>
+              <audio ref={audioRef} src={lecture.audio_url} preload="metadata" />
             </div>
           )}
-        </Card>
+        </div>
 
         {/* Текст лекції */}
-        <Card className="p-8">
+        <div>
           <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
             {paragraphs.map((paragraph) => {
               const content =
@@ -303,7 +298,7 @@ export const LectureView = () => {
                   }
                   className={`mb-4 leading-relaxed transition-colors ${
                     isCurrentParagraph
-                      ? "bg-primary/10 -mx-2 px-2 py-1 rounded border-l-2 border-primary"
+                      ? "bg-primary/10 -mx-2 px-2 py-1"
                       : ""
                   }`}
                 >
@@ -321,7 +316,7 @@ export const LectureView = () => {
                 : "Lecture text not yet added"}
             </div>
           )}
-        </Card>
+        </div>
 
         {/* Навігація між лекціями */}
         <div className="flex justify-between mt-8">
