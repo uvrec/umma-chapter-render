@@ -126,6 +126,7 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   result = result.split("<u003C>").join("<");
   result = result.replace(/<->\s*/g, "");
   result = result.replace(/<&>\s*/g, "");
+  result = result.replace(/<=>\s*/g, "");
   result = result.replace(/<_?R>/g, "\n");
   result = result.replace(/<N\|?>/g, "");
   result = result.replace(/<S>/g, " ");
