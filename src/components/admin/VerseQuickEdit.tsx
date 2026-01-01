@@ -9,7 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, X, Clock } from "lucide-react";
+import { Loader2, Save, X, Clock, ChevronDown, ChevronUp, Volume2 } from "lucide-react";
+import { AudioUploader } from "@/components/admin/shared/AudioUploader";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Verse {
   id: string;
@@ -25,6 +27,9 @@ interface Verse {
   commentary_ua?: string;
   commentary_en?: string;
   full_verse_audio_url?: string;
+  recitation_audio_url?: string;
+  explanation_ua_audio_url?: string;
+  explanation_en_audio_url?: string;
 }
 
 interface VerseQuickEditProps {
@@ -56,6 +61,13 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
   const [translationEn, setTranslationEn] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
 
+  // Audio fields
+  const [fullVerseAudioUrl, setFullVerseAudioUrl] = useState("");
+  const [recitationAudioUrl, setRecitationAudioUrl] = useState("");
+  const [explanationUaAudioUrl, setExplanationUaAudioUrl] = useState("");
+  const [explanationEnAudioUrl, setExplanationEnAudioUrl] = useState("");
+  const [isAudioOpen, setIsAudioOpen] = useState(false);
+
   // Load verse data or reset for create mode
   useEffect(() => {
     if (isCreateMode) {
@@ -72,6 +84,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       setSynonymsEn("");
       setTranslationEn("");
       setCommentaryEn("");
+      // Reset audio fields
+      setFullVerseAudioUrl("");
+      setRecitationAudioUrl("");
+      setExplanationUaAudioUrl("");
+      setExplanationEnAudioUrl("");
       return;
     }
 
@@ -112,6 +129,16 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         setSynonymsEn(data.synonyms_en || "");
         setTranslationEn(data.translation_en || "");
         setCommentaryEn(data.commentary_en || "");
+        // Audio fields
+        setFullVerseAudioUrl(data.full_verse_audio_url || "");
+        setRecitationAudioUrl(data.recitation_audio_url || "");
+        setExplanationUaAudioUrl(data.explanation_ua_audio_url || "");
+        setExplanationEnAudioUrl(data.explanation_en_audio_url || "");
+        // Auto-open audio section if verse has audio
+        if (data.full_verse_audio_url || data.recitation_audio_url ||
+            data.explanation_ua_audio_url || data.explanation_en_audio_url) {
+          setIsAudioOpen(true);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -136,6 +163,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         synonyms_en: synonymsEn || null,
         translation_en: translationEn || null,
         commentary_en: commentaryEn || null,
+        // Audio fields
+        full_verse_audio_url: fullVerseAudioUrl || null,
+        recitation_audio_url: recitationAudioUrl || null,
+        explanation_ua_audio_url: explanationUaAudioUrl || null,
+        explanation_en_audio_url: explanationEnAudioUrl || null,
       };
 
       if (isCreateMode) {
@@ -366,6 +398,65 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Audio Section */}
+          <Collapsible open={isAudioOpen} onOpenChange={setIsAudioOpen}>
+            <CollapsibleTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-between"
+              >
+                <span className="flex items-center gap-2">
+                  <Volume2 className="h-4 w-4" />
+                  Аудіо
+                  {(fullVerseAudioUrl || recitationAudioUrl || explanationUaAudioUrl || explanationEnAudioUrl) && (
+                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                      {[fullVerseAudioUrl, recitationAudioUrl, explanationUaAudioUrl, explanationEnAudioUrl].filter(Boolean).length}
+                    </span>
+                  )}
+                </span>
+                {isAudioOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4 pt-4">
+              {/* Primary Audio - Full Verse */}
+              <AudioUploader
+                label="Повний вірш (лекція)"
+                value={fullVerseAudioUrl}
+                onChange={setFullVerseAudioUrl}
+                primary={true}
+                showManualInput={false}
+              />
+
+              {/* Secondary Audio - Recitation */}
+              <AudioUploader
+                label="Читання санскриту/бенгалі"
+                value={recitationAudioUrl}
+                onChange={setRecitationAudioUrl}
+                compact={true}
+                showManualInput={false}
+              />
+
+              {/* Explanation Audio - Ukrainian */}
+              <AudioUploader
+                label="Пояснення (українською)"
+                value={explanationUaAudioUrl}
+                onChange={setExplanationUaAudioUrl}
+                compact={true}
+                showManualInput={false}
+              />
+
+              {/* Explanation Audio - English */}
+              <AudioUploader
+                label="Explanation (English)"
+                value={explanationEnAudioUrl}
+                onChange={setExplanationEnAudioUrl}
+                compact={true}
+                showManualInput={false}
+              />
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Actions */}
           <div className="flex gap-2 pt-4 border-t sticky bottom-0 bg-background">
