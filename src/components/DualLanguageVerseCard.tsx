@@ -260,7 +260,7 @@ export const DualLanguageVerseCard = ({
 
   return (
     <div
-      className={`w-full max-w-7xl mx-auto ${flowMode ? "" : "bg-card"}`}
+      className="w-full max-w-7xl mx-auto"
       style={{
         fontSize: `${fontSize}px`,
         lineHeight,
