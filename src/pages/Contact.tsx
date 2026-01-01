@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { MessageCircle, Mail, Phone, MapPin } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,21 +117,21 @@ export const Contact = () => {
             <h1 className="text-3xl font-bold text-foreground">{title}</h1>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card className="p-6">
+          <div className="grid gap-8 md:grid-cols-2">
+            <div>
               <h3 className="font-semibold text-foreground mb-4">Зв'яжіться з нами</h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-primary" />
                   <span className="text-sm text-muted-foreground">contact@example.com</span>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-primary" />
                   <span className="text-sm text-muted-foreground">+380 (XX) XXX-XX-XX</span>
                 </div>
-                
+
                 <div className="flex items-center space-x-3">
                   <MapPin className="w-5 h-5 text-primary" />
                   <span className="text-sm text-muted-foreground">Україна</span>
@@ -157,44 +156,44 @@ export const Contact = () => {
                   </div>
                 </div>
               </div>
-            </Card>
-            
-            <Card className="p-6">
+            </div>
+
+            <div>
               <h3 className="font-semibold text-foreground mb-4">Написати повідомлення</h3>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <Input 
-                    placeholder="Ваше ім'я" 
+                  <Input
+                    placeholder="Ваше ім'я"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                   {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
                 </div>
-                
+
                 <div>
-                  <Input 
-                    type="email" 
+                  <Input
+                    type="email"
                     placeholder="Email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   />
                   {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
                 </div>
-                
+
                 <div>
-                  <Textarea 
-                    placeholder="Повідомлення" 
+                  <Textarea
+                    placeholder="Повідомлення"
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   />
                   {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
                 </div>
-                
+
                 <Button type="submit" className="w-full">Надіслати</Button>
               </form>
-            </Card>
+            </div>
           </div>
         </div>
       </main>

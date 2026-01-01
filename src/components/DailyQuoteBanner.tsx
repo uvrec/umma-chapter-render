@@ -1,7 +1,6 @@
 // src/components/DailyQuoteBanner.tsx
 import { useEffect, useState } from "react";
 import { useDailyQuote } from "@/hooks/useDailyQuote";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ExternalLink, Quote, Sparkles } from "lucide-react";
@@ -46,9 +45,9 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
     console.log('[DailyQuoteBanner] Завантаження...');
     return (
       <div className={cn("animate-pulse", className)}>
-        <Card className="p-8 bg-gradient-to-br from-amber-50/50 via-background to-orange-50/30 dark:from-amber-950/20 dark:via-background dark:to-orange-950/10">
-          <div className="h-40 bg-muted/50 rounded" />
-        </Card>
+        <div className="p-8">
+          <div className="h-40 bg-muted/50" />
+        </div>
       </div>
     );
   }
@@ -59,14 +58,11 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
   }
 
   return (
-    <Card
+    <div
       className={cn(
         "relative overflow-hidden group",
         "backdrop-blur-[10px]",
         "bg-white/10 dark:bg-white/5",
-        "border border-white/20 dark:border-white/10",
-        "shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.3)]",
-        "dark:hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.15)]",
         "transition-all duration-700 ease-out",
         "transform hover:scale-[1.02]",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
@@ -160,6 +156,6 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
         </div>
       </div>
 
-    </Card>
+    </div>
   );
 }

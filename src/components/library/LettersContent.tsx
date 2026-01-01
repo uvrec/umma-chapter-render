@@ -9,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -224,14 +223,11 @@ export const LettersContent = () => {
       </div>
 
       {/* Пошук та фільтри */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center text-lg">
-            <Search className="w-5 h-5 mr-2" />
-            {t("Пошук та фільтри", "Search & filters")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div className="space-y-4">
+        <div className="flex items-center text-lg font-semibold mb-4">
+          <Search className="w-5 h-5 mr-2" />
+          {t("Пошук та фільтри", "Search & filters")}
+        </div>
           {/* Пошук */}
           <div>
             <Input
@@ -329,7 +325,7 @@ export const LettersContent = () => {
           </div>
 
           {/* Сортування та групування */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
             <div>
               <label className="text-sm font-medium mb-2 block">
                 {t("Сортувати за", "Sort by")}
@@ -377,8 +373,7 @@ export const LettersContent = () => {
               </Select>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </div>
 
       {/* Результати */}
       <div className="mb-4 text-sm text-muted-foreground">
@@ -389,58 +384,55 @@ export const LettersContent = () => {
         {groupedLetters.map((group) => (
           <div key={group.label}>
             <h3 className="text-xl font-bold mb-4">{group.label}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="space-y-4">
               {group.letters.map((letter) => (
-                <Card
+                <div
                   key={letter.id}
-                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  className="cursor-pointer hover:bg-muted/30 transition-colors py-3"
                   onClick={() => navigate(`/library/letters/${letter.slug}`)}
                 >
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg flex items-start gap-2">
-                      <Mail className="w-5 h-5 mt-1 flex-shrink-0" />
-                      <span className="line-clamp-2">
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-lg font-semibold line-clamp-2">
                         {contentLanguage === "ua" && letter.recipient_ua
                           ? letter.recipient_ua
                           : letter.recipient_en}
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4 flex-shrink-0" />
-                      {new Date(letter.letter_date).toLocaleDateString(
-                        contentLanguage === "ua" ? "uk-UA" : "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )}
+                      </h4>
+                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-1">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(letter.letter_date).toLocaleDateString(
+                            contentLanguage === "ua" ? "uk-UA" : "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          <span className="truncate">
+                            {contentLanguage === "ua" && letter.location_ua
+                              ? letter.location_ua
+                              : letter.location_en}
+                          </span>
+                        </div>
+                        {letter.reference && (
+                          <Badge variant="outline">
+                            Ref: {letter.reference}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
+                        {contentLanguage === "ua" && letter.content_ua
+                          ? letter.content_ua.substring(0, 150) + "..."
+                          : letter.content_en.substring(0, 150) + "..."}
+                      </p>
                     </div>
-
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      <span className="truncate">
-                        {contentLanguage === "ua" && letter.location_ua
-                          ? letter.location_ua
-                          : letter.location_en}
-                      </span>
-                    </div>
-
-                    {letter.reference && (
-                      <Badge variant="outline" className="mt-2">
-                        Ref: {letter.reference}
-                      </Badge>
-                    )}
-
-                    <p className="text-sm line-clamp-3 mt-3">
-                      {contentLanguage === "ua" && letter.content_ua
-                        ? letter.content_ua.substring(0, 150) + "..."
-                        : letter.content_en.substring(0, 150) + "..."}
-                    </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
