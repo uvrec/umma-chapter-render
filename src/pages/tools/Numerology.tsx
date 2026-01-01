@@ -110,9 +110,9 @@ const Numerology = () => {
             {/* Пояснення чисел */}
             <div className="grid md:grid-cols-2 gap-6 mt-6">
               {/* Число Розуму */}
-              <Card>
+              <div>
                 <div>
-                  <CardTitle className="text-lg">Число Розуму (Свідомості)</h3>
+                  <h3 className="text-lg font-semibold">Число Розуму (Свідомості)</h3>
                   <p className="text-sm text-muted-foreground">День народження</p>
                 </div>
                 <div>
@@ -127,9 +127,9 @@ const Numerology = () => {
               </div>
 
               {/* Число Дії */}
-              <Card>
+              <div>
                 <div>
-                  <CardTitle className="text-lg">Число Дії</h3>
+                  <h3 className="text-lg font-semibold">Число Дії</h3>
                   <p className="text-sm text-muted-foreground">Сума всіх цифр дати</p>
                 </div>
                 <div>
@@ -144,9 +144,9 @@ const Numerology = () => {
               </div>
 
               {/* Число Реалізації */}
-              <Card>
+              <div>
                 <div>
-                  <CardTitle className="text-lg">Число Реалізації</h3>
+                  <h3 className="text-lg font-semibold">Число Реалізації</h3>
                   <p className="text-sm text-muted-foreground">Розум + Дія</p>
                 </div>
                 <div>
@@ -161,9 +161,9 @@ const Numerology = () => {
               </div>
 
               {/* Число Підсумку */}
-              <Card>
+              <div>
                 <div>
-                  <CardTitle className="text-lg">Число Підсумку</h3>
+                  <h3 className="text-lg font-semibold">Число Підсумку</h3>
                   <p className="text-sm text-muted-foreground">Загальна сума всіх трьох чисел</p>
                 </div>
                 <div>
@@ -194,7 +194,7 @@ const Numerology = () => {
             {/* Цикли розвитку енергії */}
             <div className="border-2 border-primary/20 mt-6">
               <div>
-                <CardTitle className="text-xl">Цикли розвитку енергії</h3>
+                <h3 className="text-xl font-semibold">Цикли розвитку енергії</h3>
                 <p className="text-sm text-muted-foreground">
                   Кожна енергія розвивається через проходження трьох етапів (+3 на кожному кроці)
                 </p>
@@ -317,15 +317,15 @@ const Numerology = () => {
             {lastYearDigitDescriptions[result.lastYearDigit] && (
               <div className="border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 mt-6">
                 <div>
-                  <CardTitle className="text-2xl text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
+                  <h3 className="text-2xl font-semibold text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
                     <span className="text-3xl">🎯</span>
                     Ваше Життєве Завдання
                   </h3>
-                  <CardDescription className="text-base">
+                  <p className="text-base text-muted-foreground">
                     Остання цифра року народження: <strong>{result.lastYearDigit}</strong>
                   </p>
                 </div>
-                <CardContent className="space-y-4">
+                <div className="space-y-4 mt-4">
                   <div className="text-center p-6 bg-white/50 dark:bg-black/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
                     <h3 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
                       {lastYearDigitDescriptions[result.lastYearDigit].title}
@@ -371,15 +371,15 @@ const Numerology = () => {
             {/* Грошовий код */}
             <div className="border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 mt-6">
               <div>
-                <CardTitle className="text-2xl text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                <h3 className="text-2xl font-semibold text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
                   <span className="text-3xl">💰</span>
                   Ваш Грошовий Код
                 </h3>
-                <CardDescription className="text-base">
+                <p className="text-base text-muted-foreground">
                   Особистий 4-цифровий код для фінансового успіху
                 </p>
               </div>
-              <CardContent className="space-y-4">
+              <div className="space-y-4 mt-4">
                 <div className="text-center p-6 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                   <h3 className="text-5xl font-bold text-emerald-600 dark:text-emerald-400 mb-4 tracking-wider">
                     {result.moneyCode.code}
@@ -433,15 +433,15 @@ const Numerology = () => {
             {/* Персональні цикли */}
             <div className="border-2 border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 mt-6">
               <div>
-                <CardTitle className="text-2xl text-violet-700 dark:text-violet-300 flex items-center gap-2">
+                <h3 className="text-2xl font-semibold text-violet-700 dark:text-violet-300 flex items-center gap-2">
                   <span className="text-3xl">🌟</span>
                   Ваші Персональні Цикли
                 </h3>
-                <CardDescription className="text-base">
+                <p className="text-base text-muted-foreground">
                   Енергія поточного року, місяця та дня
                 </p>
               </div>
-              <CardContent className="space-y-6">
+              <div className="space-y-6 mt-4">
                 {/* Персональний рік */}
                 <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-violet-200 dark:border-violet-800">
                   <div className="flex items-center justify-between mb-3">
@@ -530,14 +530,14 @@ const Numerology = () => {
               {numberDescriptions[result.mindNumber] && (
                 <div className="border-l-4 border-l-blue-500">
                   <div>
-                    <CardTitle className="text-xl text-blue-600 dark:text-blue-400">
+                    <h3 className="text-xl font-semibold text-blue-600 dark:text-blue-400">
                       Число Розуму (Свідомості) {result.mindNumber}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {numberDescriptions[result.mindNumber].birthDates}
                     </p>
                   </div>
-                  <CardContent className="space-y-4">
+                  <div className="space-y-4 mt-4">
                     <div>
                       <p className="whitespace-pre-line">{numberDescriptions[result.mindNumber].mainDescription}</p>
                     </div>
@@ -647,11 +647,11 @@ const Numerology = () => {
               {actionNumberDescriptions[result.actionNumber] && (
                 <div className="border-l-4 border-l-green-500">
                   <div>
-                    <CardTitle className="text-xl text-green-600 dark:text-green-400">
+                    <h3 className="text-xl font-semibold text-green-600 dark:text-green-400">
                       Число Дії {result.actionNumber}
                     </h3>
                   </div>
-                  <CardContent className="space-y-4">
+                  <div className="space-y-4 mt-4">
                     <div>
                       <p className="whitespace-pre-line">{actionNumberDescriptions[result.actionNumber].mainDescription}</p>
                     </div>
@@ -689,11 +689,11 @@ const Numerology = () => {
               {realizationNumberDescriptions[result.realizationNumber] && (
                 <div className="border-l-4 border-l-purple-500">
                   <div>
-                    <CardTitle className="text-xl text-purple-600 dark:text-purple-400">
+                    <h3 className="text-xl font-semibold text-purple-600 dark:text-purple-400">
                       Число Реалізації {result.realizationNumber}
                     </h3>
                   </div>
-                  <CardContent className="space-y-4">
+                  <div className="space-y-4 mt-4">
                     <div>
                       <p className="whitespace-pre-line">{realizationNumberDescriptions[result.realizationNumber].mainDescription}</p>
                     </div>
@@ -731,11 +731,11 @@ const Numerology = () => {
               {resultNumberDescriptions[result.resultNumber] && (
                 <div className="border-l-4 border-l-amber-500">
                   <div>
-                    <CardTitle className="text-xl text-amber-600 dark:text-amber-400">
+                    <h3 className="text-xl font-semibold text-amber-600 dark:text-amber-400">
                       Число Підсумку {result.resultNumber}
                     </h3>
                   </div>
-                  <CardContent className="space-y-4">
+                  <div className="space-y-4 mt-4">
                     <div>
                       <p className="whitespace-pre-line">{resultNumberDescriptions[result.resultNumber].mainDescription}</p>
                     </div>
