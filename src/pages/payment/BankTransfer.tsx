@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Banknote, Copy, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -43,7 +42,7 @@ export const BankTransfer = () => {
 
           <div className="space-y-6">
             {/* Bank Details */}
-            <Card className="p-6">
+            <div className="py-6">
               <h2 className="text-xl font-semibold text-foreground mb-4">Реквізити для переказу</h2>
               <div className="space-y-4">
                 {Object.entries({
@@ -69,10 +68,10 @@ export const BankTransfer = () => {
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
 
             {/* Instructions */}
-            <Card className="p-6">
+            <div className="py-6">
               <h3 className="font-semibold text-foreground mb-3">Інструкції для переказу</h3>
               <ol className="text-sm text-muted-foreground space-y-2">
                 <li>1. Скопіюйте необхідні реквізити</li>
@@ -81,10 +80,10 @@ export const BankTransfer = () => {
                 <li>4. Вкажіть суму та призначення платежу</li>
                 <li>5. Підтвердіть операцію</li>
               </ol>
-            </Card>
+            </div>
 
             {/* Monthly Support */}
-            <Card className="p-6">
+            <div className="py-6">
               <h3 className="font-semibold text-foreground mb-3">Щомісячна підтримка</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Для оформлення регулярної підтримки напишіть нам на пошту з вказанням суми та частоти переказів
@@ -92,7 +91,7 @@ export const BankTransfer = () => {
               <Button asChild variant="outline">
                 <a href="mailto:support@vedic-portal.com?subject=Щомісячна підтримка">Написати листа</a>
               </Button>
-            </Card>
+            </div>
           </div>
         </div>
       </main>
