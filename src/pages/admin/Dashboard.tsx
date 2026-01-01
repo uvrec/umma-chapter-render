@@ -274,6 +274,12 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent className="space-y-2">
               <Button asChild className="w-full">
+                <Link to="/admin/bbt-import">
+                  <Upload className="w-4 h-4 mr-2" />
+                  BBT Імпорт (Ґіта, POY, EA)
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
                 <Link to="/admin/universal-import">
                   <Upload className="w-4 h-4 mr-2" />
                   Універсальний імпорт
