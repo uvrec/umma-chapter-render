@@ -232,7 +232,7 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex items-center justify-center gap-4 mb-8">
+          <div className="flex flex-col items-center justify-center gap-2 mb-8">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
@@ -240,11 +240,15 @@ export const VerseCard = ({
                 ВІРШ {verseNumber}
               </span>
             )}
+            {/* Назва глави - відцентрована під номером вірша */}
+            {bookName && (
+              <span className="text-sm text-muted-foreground text-center">{bookName}</span>
+            )}
           </div>
         )}
 
-        {/* 🆕 STICKY HEADER - Верхня панель: книга + кнопка редагування */}
-        {(isAdmin || bookName || (is_composite && verse_count && start_verse && end_verse)) && (
+        {/* 🆕 STICKY HEADER - Верхня панель: індикатор складених віршів + кнопка редагування */}
+        {(isAdmin || (is_composite && verse_count && start_verse && end_verse)) && (
           <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap items-center gap-3">
@@ -264,8 +268,6 @@ export const VerseCard = ({
                     </span>
                   </div>
                 )}
-
-                {bookName && <span className="rounded bg-muted px-2 py-1 text-sm text-muted-foreground">{bookName}</span>}
               </div>
 
               {isAdmin && (
