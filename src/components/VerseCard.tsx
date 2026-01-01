@@ -272,7 +272,7 @@ export const VerseCard = ({
 
         {/* 🆕 STICKY HEADER - Верхня панель: книга + кнопка редагування */}
         {(isAdmin || bookName || (is_composite && verse_count && start_verse && end_verse)) && (
-          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap items-center gap-3">
                 {/* ✅ ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
