@@ -11,14 +11,18 @@
  */
 
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import type { Lecture, LectureParagraph } from "@/types/lecture";
 import {
   ArrowLeft,
@@ -30,16 +34,34 @@ import {
   ChevronLeft,
   ChevronRight,
   Volume2,
+  Edit,
+  Save,
+  X,
 } from "lucide-react";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
+
   const [language, setLanguage] = useState<"ua" | "en">("ua");
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const paragraphRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+
+  // Inline editing state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedLecture, setEditedLecture] = useState<{
+    title_ua: string;
+    title_en: string;
+    location_ua: string;
+    location_en: string;
+  } | null>(null);
+  const [editedParagraphs, setEditedParagraphs] = useState<{
+    [id: string]: { content_ua: string; content_en: string };
+  }>({});
 
   // Завантаження лекції
   const { data: lecture, isLoading: lectureLoading } = useQuery({
@@ -165,6 +187,85 @@ export const LectureView = () => {
         });
   };
 
+  // Mutation for saving lecture changes
+  const saveLectureMutation = useMutation({
+    mutationFn: async () => {
+      if (!lecture || !editedLecture) return;
+
+      // Update lecture metadata
+      const lectureUpdates: Partial<Lecture> = {};
+      if (editedLecture.title_ua !== lecture.title_ua) lectureUpdates.title_ua = editedLecture.title_ua;
+      if (editedLecture.title_en !== lecture.title_en) lectureUpdates.title_en = editedLecture.title_en;
+      if (editedLecture.location_ua !== lecture.location_ua) lectureUpdates.location_ua = editedLecture.location_ua;
+      if (editedLecture.location_en !== lecture.location_en) lectureUpdates.location_en = editedLecture.location_en;
+
+      if (Object.keys(lectureUpdates).length > 0) {
+        const { error } = await (supabase as any)
+          .from("lectures")
+          .update(lectureUpdates)
+          .eq("id", lecture.id);
+        if (error) throw error;
+      }
+
+      // Update paragraphs
+      for (const [paragraphId, content] of Object.entries(editedParagraphs)) {
+        const originalParagraph = paragraphs.find((p) => p.id === paragraphId);
+        if (!originalParagraph) continue;
+
+        const updates: Partial<LectureParagraph> = {};
+        if (content.content_ua !== originalParagraph.content_ua) updates.content_ua = content.content_ua;
+        if (content.content_en !== originalParagraph.content_en) updates.content_en = content.content_en;
+
+        if (Object.keys(updates).length > 0) {
+          const { error } = await (supabase as any)
+            .from("lecture_paragraphs")
+            .update(updates)
+            .eq("id", paragraphId);
+          if (error) throw error;
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["lecture", slug] });
+      queryClient.invalidateQueries({ queryKey: ["lecture-paragraphs", lecture?.id] });
+      setIsEditing(false);
+      toast.success("Зміни збережено");
+    },
+    onError: (error) => {
+      console.error("Save error:", error);
+      toast.error("Помилка збереження");
+    },
+  });
+
+  const startEdit = () => {
+    if (!lecture) return;
+    setEditedLecture({
+      title_ua: lecture.title_ua || "",
+      title_en: lecture.title_en,
+      location_ua: lecture.location_ua || "",
+      location_en: lecture.location_en,
+    });
+    const paragraphEdits: { [id: string]: { content_ua: string; content_en: string } } = {};
+    paragraphs.forEach((p) => {
+      paragraphEdits[p.id] = {
+        content_ua: p.content_ua || "",
+        content_en: p.content_en,
+      };
+    });
+    setEditedParagraphs(paragraphEdits);
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setEditedLecture(null);
+    setEditedParagraphs({});
+  };
+
+  const saveEdit = () => {
+    saveLectureMutation.mutate();
+  };
+
   if (lectureLoading || paragraphsLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -213,6 +314,45 @@ export const LectureView = () => {
           {language === "ua" ? "Назад до бібліотеки" : "Back to library"}
         </Button>
 
+        {/* Admin Edit Header */}
+        {isAdmin && (
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4 -mx-4 px-4 border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {isEditing && (
+                  <span className="text-sm text-muted-foreground">
+                    Режим редагування
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={saveEdit}
+                      disabled={saveLectureMutation.isPending}
+                    >
+                      <Save className="mr-2 h-4 w-4" />
+                      {saveLectureMutation.isPending ? "Збереження..." : "Зберегти"}
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={cancelEdit}>
+                      <X className="mr-2 h-4 w-4" />
+                      Скасувати
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="ghost" size="sm" onClick={startEdit}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Редагувати
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Заголовок лекції */}
         <div className="mb-8">
           <div className="mb-4">
@@ -221,17 +361,58 @@ export const LectureView = () => {
             </Badge>
           </div>
 
-          <h1 className="text-3xl font-bold mb-4 text-foreground">{title}</h1>
+          {isEditing && editedLecture ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Заголовок UA</label>
+                <Input
+                  value={editedLecture.title_ua}
+                  onChange={(e) => setEditedLecture({ ...editedLecture, title_ua: e.target.value })}
+                  className="text-xl font-bold"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Title EN</label>
+                <Input
+                  value={editedLecture.title_en}
+                  onChange={(e) => setEditedLecture({ ...editedLecture, title_en: e.target.value })}
+                  className="text-xl font-bold"
+                />
+              </div>
+            </div>
+          ) : (
+            <h1 className="text-3xl font-bold mb-4 text-foreground">{title}</h1>
+          )}
 
           <div className="flex flex-wrap gap-4 text-muted-foreground">
             <div className="flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
               {formatDate(lecture.lecture_date)}
             </div>
-            <div className="flex items-center">
-              <MapPin className="w-5 h-5 mr-2" />
-              {location}
-            </div>
+            {isEditing && editedLecture ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center">
+                  <MapPin className="w-5 h-5 mr-2" />
+                  <Input
+                    value={editedLecture.location_ua}
+                    onChange={(e) => setEditedLecture({ ...editedLecture, location_ua: e.target.value })}
+                    placeholder="Локація UA"
+                    className="w-40"
+                  />
+                </div>
+                <Input
+                  value={editedLecture.location_en}
+                  onChange={(e) => setEditedLecture({ ...editedLecture, location_en: e.target.value })}
+                  placeholder="Location EN"
+                  className="w-40"
+                />
+              </div>
+            ) : (
+              <div className="flex items-center">
+                <MapPin className="w-5 h-5 mr-2" />
+                {location}
+              </div>
+            )}
             {lecture.book_slug && (
               <div className="flex items-center">
                 <BookOpen className="w-5 h-5 mr-2" />
@@ -280,33 +461,79 @@ export const LectureView = () => {
 
         {/* Текст лекції */}
         <div>
-          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
-            {paragraphs.map((paragraph) => {
-              const content =
-                language === "ua" && paragraph.content_ua
-                  ? paragraph.content_ua
-                  : paragraph.content_en;
+          {isEditing ? (
+            <div className="space-y-6">
+              {paragraphs.map((paragraph) => (
+                <div key={paragraph.id} className="border rounded-lg p-4 bg-muted/20">
+                  <div className="text-xs text-muted-foreground mb-2">
+                    Параграф {paragraph.paragraph_number}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block">Українська</label>
+                      <EnhancedInlineEditor
+                        content={editedParagraphs[paragraph.id]?.content_ua || ""}
+                        onChange={(html) =>
+                          setEditedParagraphs((prev) => ({
+                            ...prev,
+                            [paragraph.id]: {
+                              ...prev[paragraph.id],
+                              content_ua: html,
+                            },
+                          }))
+                        }
+                        label="Редагувати текст UA"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm text-muted-foreground mb-1 block">English</label>
+                      <EnhancedInlineEditor
+                        content={editedParagraphs[paragraph.id]?.content_en || ""}
+                        onChange={(html) =>
+                          setEditedParagraphs((prev) => ({
+                            ...prev,
+                            [paragraph.id]: {
+                              ...prev[paragraph.id],
+                              content_en: html,
+                            },
+                          }))
+                        }
+                        label="Edit text EN"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
+              {paragraphs.map((paragraph) => {
+                const content =
+                  language === "ua" && paragraph.content_ua
+                    ? paragraph.content_ua
+                    : paragraph.content_en;
 
-              const isCurrentParagraph =
-                currentParagraph === paragraph.paragraph_number;
+                const isCurrentParagraph =
+                  currentParagraph === paragraph.paragraph_number;
 
-              return (
-                <p
-                  key={paragraph.id}
-                  ref={(el) =>
-                    (paragraphRefs.current[paragraph.paragraph_number] = el)
-                  }
-                  className={`mb-4 leading-relaxed transition-colors ${
-                    isCurrentParagraph
-                      ? "bg-primary/10 -mx-2 px-2 py-1"
-                      : ""
-                  }`}
-                >
-                  {formatText(content)}
-                </p>
-              );
-            })}
-          </div>
+                return (
+                  <p
+                    key={paragraph.id}
+                    ref={(el) =>
+                      (paragraphRefs.current[paragraph.paragraph_number] = el)
+                    }
+                    className={`mb-4 leading-relaxed transition-colors ${
+                      isCurrentParagraph
+                        ? "bg-primary/10 -mx-2 px-2 py-1"
+                        : ""
+                    }`}
+                  >
+                    {formatText(content)}
+                  </p>
+                );
+              })}
+            </div>
+          )}
 
           {/* Якщо немає параграфів */}
           {paragraphs.length === 0 && (
