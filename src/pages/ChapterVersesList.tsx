@@ -316,17 +316,22 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && <div className="mb-8 rounded-lg border border-border bg-card p-6">
-              {user && !isEditingContent && <div className="mb-4 flex justify-end">
+          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
+            <div className="mb-8">
+              {user && !isEditingContent && (
+                <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
                     {language === "ua" ? "Редагувати" : "Edit"}
                   </Button>
                 </div>}
 
-              {isEditingContent ? <div className="space-y-4">
-                  <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
-                  <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
+              {isEditingContent ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
+                    <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
+                  </div>
                   <div className="flex gap-2">
                     <Button onClick={() => saveContentMutation.mutate()} disabled={saveContentMutation.isPending} className="gap-2">
                       <Save className="h-4 w-4" />
@@ -378,21 +383,45 @@ export const ChapterVersesList = () => {
             const alignedEn = [...paragraphsEn, ...Array(maxLen - paragraphsEn.length).fill("")];
             return <div className="space-y-4" style={readerTextStyle}>
                       {alignedUa.map((paraUa, idx) => {
-                const paraEn = alignedEn[idx];
-                return <div key={idx} className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0">
-                            <div className="prose prose-slate dark:prose-invert max-w-none" dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(paraUa || '<span class="italic text-muted-foreground">—</span>')
-                  }} />
-                            <div className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6" dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(paraEn || '<span class="italic text-muted-foreground">—</span>')
-                  }} />
-                          </div>;
-              })}
-                    </div>;
-          })() : <div className="prose prose-slate dark:prose-invert max-w-none" style={readerTextStyle} dangerouslySetInnerHTML={{
-            __html: DOMPurify.sanitize(language === "ua" ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || "" : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "")
-          }} />}
-            </div>}
+                        const paraEn = alignedEn[idx];
+                        return (
+                          <div
+                            key={idx}
+                            className="grid gap-6 md:grid-cols-2"
+                          >
+                            <div
+                              className="prose prose-slate dark:prose-invert max-w-none"
+                              dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(paraUa || '<span class="italic text-muted-foreground">—</span>'),
+                              }}
+                            />
+                            <div
+                              className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
+                              dangerouslySetInnerHTML={{
+                                __html: DOMPurify.sanitize(paraEn || '<span class="italic text-muted-foreground">—</span>'),
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
+              ) : (
+                <div
+                  className="prose prose-slate dark:prose-invert max-w-none"
+                  style={readerTextStyle}
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      language === "ua"
+                        ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || ""
+                        : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "",
+                    ),
+                  }}
+                />
+              )}
+            </div>
+          )}
 
           {flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
