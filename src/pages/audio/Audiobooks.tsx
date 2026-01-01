@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, BookOpen, Play, Music, ImageOff, Edit } from "lucide-react";
@@ -140,7 +139,7 @@ export const Audiobooks = () => {
               const coverUrl = book.cover_image_url?.trim() || FALLBACK_COVER;
 
               return (
-                <Card key={book.id} className="group overflow-hidden hover:shadow-xl transition-all relative">
+                <div key={book.id} className="group overflow-hidden transition-all relative">
                   {/* Кнопка редагування для адмінів */}
                   {!authLoading && isAdmin && (
                     <Button
@@ -194,7 +193,7 @@ export const Audiobooks = () => {
                       </div>
                     </div>
                   </Link>
-                </Card>
+                </div>
               );
             })}
           </div>

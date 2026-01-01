@@ -4,7 +4,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
-import { Card } from "@/components/ui/card";
 import { ArrowLeft, User, Music } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -135,8 +134,8 @@ export const AudiobookView = () => {
           <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
             {/* Ліва колонка: Картинка + Опис */}
             <div>
-              <Card className="p-6">
-                {/* ВИПРАВЛЕНО: Зменшена картинка */}
+              <div>
+                {/* Зменшена картинка */}
                 {audiobook.cover_image_url && (
                   <div className="w-full max-w-xs mx-auto mb-6 bg-muted rounded-lg overflow-hidden">
                     <img
@@ -187,7 +186,7 @@ export const AudiobookView = () => {
                     </div>
                   )}
                 </div>
-              </Card>
+              </div>
             </div>
 
             {/* Права колонка: Плеєр */}
@@ -199,9 +198,9 @@ export const AudiobookView = () => {
                   albumCover={audiobook.cover_image_url || undefined}
                 />
               ) : (
-                <Card className="p-8 text-center">
+                <div className="py-8 text-center">
                   <p className="text-muted-foreground">Немає доступних треків</p>
-                </Card>
+                </div>
               )}
             </div>
           </div>

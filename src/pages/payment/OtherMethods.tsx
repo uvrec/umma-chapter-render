@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Heart, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -61,7 +60,7 @@ export const OtherMethods = () => {
 
           <div className="space-y-4">
             {paymentMethods.map((method) => (
-              <Card key={method.name} className="p-6">
+              <div key={method.name} className="py-6">
                 <div className="flex items-start gap-4">
                   <div className="text-3xl" aria-hidden>
                     {method.icon}
@@ -92,17 +91,17 @@ export const OtherMethods = () => {
                     ) : null}
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
 
           {/* Security Notice */}
-          <Card className="p-6 mt-8 border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950">
-            <h3 className="font-semibold text-foreground mb-2">⚠️ Важливо</h3>
+          <div className="py-6 mt-8 bg-yellow-50 dark:bg-yellow-950">
+            <h3 className="font-semibold text-foreground mb-2">Важливо</h3>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Зберігайте hash транзакції для підтвердження</li>
+              <li>Зберігайте hash транзакції для підтвердження</li>
             </ul>
-          </Card>
+          </div>
         </div>
       </main>
     </div>

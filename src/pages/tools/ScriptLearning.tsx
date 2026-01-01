@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -882,7 +881,7 @@ export default function ScriptLearning() {
 
           {/* Налаштування для алфавіту */}
           {learningMode === "alphabet" && (
-            <Card className="p-6">
+            <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                 {/* Вибір письма */}
@@ -968,12 +967,12 @@ export default function ScriptLearning() {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Інформація про шлоки */}
           {learningMode === "slokas" && (
-            <Card className="p-6">
+            <div className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1041,12 +1040,12 @@ export default function ScriptLearning() {
                   </div>
                 )}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Імпорт слів з глосарію */}
           {learningMode === "words" && (
-            <Card className="p-6">
+            <div className="p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -1142,12 +1141,12 @@ export default function ScriptLearning() {
                   </Button>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
           
           {/* SRS Статистика */}
           {(learningMode === "words" || learningMode === "slokas") && srsStats.total > 0 && (
-            <Card className="p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950">
+            <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-950 dark:to-teal-950">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-semibold flex items-center gap-2">
                   <Clock className="w-4 h-4" />
@@ -1201,11 +1200,11 @@ export default function ScriptLearning() {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Досягнення та щоденні цілі */}
-          <Card className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950">
+          <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950 dark:to-yellow-950">
             <div className="space-y-3">
               {/* Streak та щоденна ціль */}
               <div className="flex items-center justify-between">
@@ -1278,11 +1277,11 @@ export default function ScriptLearning() {
                 </div>
               )}
             </div>
-          </Card>
+          </div>
 
           {/* Статистика */}
           {stats.total > 0 && (
-            <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-6">
                   <div className="text-center">
@@ -1338,12 +1337,12 @@ export default function ScriptLearning() {
                 </Button>
               </div>
               <Progress value={accuracy} className="mt-3 h-2" />
-            </Card>
+            </div>
           )}
           
           {/* Основна картка */}
           {currentLearningItems.length > 0 && (
-            <Card className="p-8">
+            <div className="p-8">
               <div className="space-y-6">
 
                 {/* Прогрес */}
@@ -1570,12 +1569,12 @@ export default function ScriptLearning() {
                 </Button>
               </div>
             </div>
-          </Card>
+          </div>
           )}
 
           {/* Таблиця алфавіту - тільки для режиму алфавіту */}
           {learningMode === "alphabet" && (
-            <Card className="p-6">
+            <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">
                 {t("Повний алфавіт", "Full Alphabet")}
               </h3>
@@ -1601,12 +1600,12 @@ export default function ScriptLearning() {
                   </button>
                 ))}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Список імпортованих слів - тільки для режиму слів */}
           {learningMode === "words" && importedWords.length > 0 && (
-            <Card className="p-6">
+            <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">
                   {t("Імпортовані слова", "Imported Words")}
@@ -1665,12 +1664,12 @@ export default function ScriptLearning() {
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Список збережених віршів - тільки для режиму шлок */}
           {learningMode === "slokas" && learningVerses.length > 0 && (
-            <Card className="p-6">
+            <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">
                   {t("Збережені вірші", "Saved Verses")}
@@ -1728,12 +1727,12 @@ export default function ScriptLearning() {
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
           )}
 
           {/* Популярні слова - тільки для режиму алфавіту */}
           {learningMode === "alphabet" && (
-            <Card className="p-6">
+            <div className="p-6">
               <h3 className="text-lg font-semibold mb-4">
                 {t("Популярні слова для практики", "Common Words for Practice")}
               </h3>
@@ -1757,7 +1756,7 @@ export default function ScriptLearning() {
                   </div>
                 ))}
               </div>
-            </Card>
+            </div>
           )}
           
         </div>

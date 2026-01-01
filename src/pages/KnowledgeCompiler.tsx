@@ -6,7 +6,6 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -704,19 +703,19 @@ export default function KnowledgeCompiler() {
 
           {/* Search Tab */}
           <TabsContent value="search" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Search className="w-5 h-5" />
                   {language === 'ua' ? 'Пошук по темі' : 'Search by Topic'}
-                </CardTitle>
-                <CardDescription>
+                </h3>
+                <p className="text-sm text-muted-foreground">
                   {language === 'ua'
                     ? 'Введіть тему або ключові слова для пошуку віршів'
                     : 'Enter a topic or keywords to search for verses'}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
+                </p>
+              </div>
+              <div className="space-y-6">
                 {/* Search Input */}
                 <div className="space-y-2">
                   <Label htmlFor="search-query">
@@ -852,23 +851,23 @@ export default function KnowledgeCompiler() {
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Search Results */}
             {searchResults.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>
+              <div>
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold">
                     {language === 'ua' ? 'Результати пошуку' : 'Search Results'} ({searchResults.length})
-                  </CardTitle>
-                  <CardDescription>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
                     {language === 'ua'
                       ? 'Натисніть на вірш щоб додати його до збірки'
                       : 'Click on a verse to add it to your compilation'}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                  </p>
+                </div>
+                <div className="space-y-4">
                   {searchResults.map((verse) => {
                     const isExpanded = expandedVerses.has(verse.verse_id);
                     const isInCompilation = compilation.some(v => v.verse_id === verse.verse_id);
@@ -877,14 +876,14 @@ export default function KnowledgeCompiler() {
                       : `${verse.book_title} ${verse.chapter_number}.${verse.verse_number}`;
 
                     return (
-                      <Card key={verse.verse_id} className="overflow-hidden hover:shadow-md transition-shadow">
-                        <CardHeader className="pb-3">
+                      <div key={verse.verse_id} className="overflow-hidden py-4">
+                        <div className="mb-3">
                           <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1 flex-1">
-                              <CardTitle className="text-lg">{reference}</CardTitle>
-                              <CardDescription className="text-sm">
+                              <h4 className="text-lg font-semibold">{reference}</h4>
+                              <p className="text-sm text-muted-foreground">
                                 {verse.chapter_title}
-                              </CardDescription>
+                              </p>
                               {verse.matched_in && verse.matched_in.length > 0 && (
                                 <div className="flex gap-1 flex-wrap">
                                   {verse.matched_in.map(field => (
@@ -923,10 +922,10 @@ export default function KnowledgeCompiler() {
                               </Button>
                             </div>
                           </div>
-                        </CardHeader>
+                        </div>
 
                         {isExpanded && (
-                          <CardContent className="space-y-3 pt-0">
+                          <div className="space-y-3">
                             {verse.sanskrit && (
                               <div>
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
@@ -964,11 +963,11 @@ export default function KnowledgeCompiler() {
                                 </p>
                               </div>
                             )}
-                          </CardContent>
+                          </div>
                         )}
 
                         {!isExpanded && (
-                          <CardContent className="pt-0 space-y-2">
+                          <div className="space-y-2">
                             {verse.search_snippet && (
                               <div className="bg-muted/50 p-3 rounded-md border border-border">
                                 <p className="text-xs text-muted-foreground mb-1 font-semibold">
@@ -979,31 +978,31 @@ export default function KnowledgeCompiler() {
                                 />
                               </div>
                             )}
-                          </CardContent>
+                          </div>
                         )}
-                      </Card>
+                      </div>
                     );
                   })}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
           </TabsContent>
 
           {/* Compilation Tab */}
           <TabsContent value="compilation" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
                   {language === 'ua' ? 'Моя збірка' : 'My Compilation'}
-                </CardTitle>
-                <CardDescription>
+                </h3>
+                <p className="text-sm text-muted-foreground">
                   {language === 'ua'
                     ? `${compilation.length} віршів у збірці`
                     : `${compilation.length} verses in compilation`}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </p>
+              </div>
+              <div className="space-y-4">
                 {/* Compilation Title */}
                 <div className="space-y-2">
                   <Label htmlFor="compilation-title">
@@ -1044,17 +1043,17 @@ export default function KnowledgeCompiler() {
                         : `${verse.book_title} ${verse.chapter_number}.${verse.verse_number}`;
 
                       return (
-                        <Card key={verse.verse_id}>
-                          <CardHeader>
+                        <div key={verse.verse_id} className="py-4">
+                          <div className="mb-4">
                             <div className="flex items-start justify-between gap-4">
                               <div className="space-y-1">
                                 <div className="flex items-center gap-2">
                                   <Badge variant="secondary">{index + 1}</Badge>
-                                  <CardTitle className="text-base">{reference}</CardTitle>
+                                  <h4 className="text-base font-semibold">{reference}</h4>
                                 </div>
-                                <CardDescription className="text-sm">
+                                <p className="text-sm text-muted-foreground">
                                   {verse.chapter_title}
-                                </CardDescription>
+                                </p>
                               </div>
                               <Button
                                 variant="ghost"
@@ -1064,36 +1063,36 @@ export default function KnowledgeCompiler() {
                                 <Minus className="w-4 h-4" />
                               </Button>
                             </div>
-                          </CardHeader>
-                          <CardContent className="space-y-2">
+                          </div>
+                          <div className="space-y-2">
                             {verse.translation && (
                               <p className="text-sm">{stripParagraphTags(verse.translation)}</p>
                             )}
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </TabsContent>
 
           {/* Statistics Tab */}
           <TabsContent value="statistics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div>
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
                   {language === 'ua' ? 'Статистика по темі' : 'Topic Statistics'}
-                </CardTitle>
+                </h3>
                 {searchQuery && (
-                  <CardDescription>
+                  <p className="text-sm text-muted-foreground">
                     {language === 'ua' ? 'Тема:' : 'Topic:'} <strong>{searchQuery}</strong>
-                  </CardDescription>
+                  </p>
                 )}
-              </CardHeader>
-              <CardContent>
+              </div>
+              <div>
                 {topicStats.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-20" />
@@ -1106,35 +1105,35 @@ export default function KnowledgeCompiler() {
                 ) : (
                   <div className="space-y-4">
                     {topicStats.map((stat) => (
-                      <Card key={stat.book_id}>
-                        <CardHeader>
+                      <div key={stat.book_id} className="py-4">
+                        <div className="mb-4">
                           <div className="flex items-start justify-between">
                             <div>
-                              <CardTitle className="text-lg">{stat.book_title}</CardTitle>
-                              <CardDescription>
+                              <h4 className="text-lg font-semibold">{stat.book_title}</h4>
+                              <p className="text-sm text-muted-foreground">
                                 {language === 'ua'
                                   ? `${stat.verse_count} віршів знайдено`
                                   : `${stat.verse_count} verses found`}
-                              </CardDescription>
+                              </p>
                             </div>
                             <Badge variant="secondary" className="text-lg">
                               {stat.verse_count}
                             </Badge>
                           </div>
-                        </CardHeader>
-                        <CardContent>
+                        </div>
+                        <div>
                           <p className="text-sm text-muted-foreground">
                             {language === 'ua' ? 'Приклади віршів:' : 'Sample verses:'}{' '}
                             {stat.sample_verses.slice(0, 10).join(', ')}
                             {stat.sample_verses.length > 10 && '...'}
                           </p>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </main>

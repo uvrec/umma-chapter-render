@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Play, Pause, SkipBack, SkipForward, Volume2, List, Shuffle, Repeat } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -95,7 +94,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       {/* Main Player */}
-      <Card className="p-6">
+      <div className="p-6">
         <div className="space-y-4">
           {/* Album Cover and Track Info */}
           <div className="flex items-center space-x-4">
@@ -195,11 +194,11 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
             </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Playlist */}
       {showPlaylist && (
-        <Card className="p-4">
+        <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold text-foreground">Плейлист</h4>
             <span className="text-sm text-muted-foreground">{tracks.length} треків</span>
@@ -230,7 +229,7 @@ export const PlaylistPlayer: React.FC<PlaylistPlayerProps> = ({ tracks, title, a
               ))}
             </div>
           </ScrollArea>
-        </Card>
+        </div>
       )}
     </div>
   );

@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CreditCard, Shield, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -27,7 +26,7 @@ export const CardPayment = () => {
 
           <div className="space-y-6">
             {/* Payment Options */}
-            <Card className="p-6">
+            <div className="py-6">
               <h2 className="text-xl font-semibold text-foreground mb-4">Оберіть суму підтримки</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[100, 200, 500, 1000].map((amount) => (
@@ -44,10 +43,10 @@ export const CardPayment = () => {
                 />
                 <Button>Підтримати</Button>
               </div>
-            </Card>
+            </div>
 
             {/* Security Info */}
-            <Card className="p-6">
+            <div className="py-6">
               <div className="flex items-start gap-4">
                 <Shield className="w-6 h-6 text-green-500 mt-1" />
                 <div>
@@ -60,10 +59,10 @@ export const CardPayment = () => {
                   </ul>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Recurring Option */}
-            <Card className="p-6">
+            <div className="py-6">
               <div className="flex items-start gap-4">
                 <Clock className="w-6 h-6 text-primary mt-1" />
                 <div>
@@ -77,7 +76,7 @@ export const CardPayment = () => {
                       { amount: 100, description: "Стандартна підтримка" },
                       { amount: 200, description: "Преміум підтримка" }
                     ].map((plan) => (
-                      <div key={plan.amount} className="flex items-center justify-between p-3 border border-border rounded-md">
+                      <div key={plan.amount} className="flex items-center justify-between p-3">
                         <div>
                           <span className="font-medium">{plan.amount} ₴/міс</span>
                           <p className="text-sm text-muted-foreground">{plan.description}</p>
@@ -88,7 +87,7 @@ export const CardPayment = () => {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </main>

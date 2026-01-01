@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -402,7 +401,7 @@ export default function TextNormalization() {
           {/* Normalization Tab */}
           <TabsContent value="normalize" className="space-y-6">
             {/* Categories filter */}
-            <Card className="p-4">
+            <div className="p-4">
               <Collapsible open={categoriesOpen} onOpenChange={setCategoriesOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
@@ -442,10 +441,10 @@ export default function TextNormalization() {
                   </div>
                 </CollapsibleContent>
               </Collapsible>
-            </Card>
+            </div>
 
             {/* Statistics */}
-            <Card className="p-4">
+            <div className="p-4">
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-primary">{inputText.length}</div>
@@ -492,12 +491,12 @@ export default function TextNormalization() {
                   </div>
                 </div>
               )}
-            </Card>
+            </div>
 
             {/* Text areas */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Input */}
-              <Card className="p-4 space-y-3">
+              <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">{t("Вхідний текст", "Input text")}</h2>
                   <Button variant="ghost" size="sm" onClick={handleClear}>
@@ -516,10 +515,10 @@ export default function TextNormalization() {
                   spellCheck={false}
                   className="resize-none"
                 />
-              </Card>
+              </div>
 
               {/* Output */}
-              <Card className="p-4 space-y-3">
+              <div className="p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold flex items-center gap-2">
                     {t("Результат", "Result")}
@@ -579,12 +578,12 @@ export default function TextNormalization() {
                     )}
                   </p>
                 )}
-              </Card>
+              </div>
             </div>
 
             {/* Changes list */}
             {changes.length > 0 && (
-              <Card className="p-4">
+              <div className="p-4">
                 <h3 className="font-semibold mb-4">{t("Застосовані зміни:", "Applied changes:")}</h3>
                 <div className="max-h-48 overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -605,14 +604,14 @@ export default function TextNormalization() {
                     </p>
                   )}
                 </div>
-              </Card>
+              </div>
             )}
           </TabsContent>
 
           {/* Rules Tab */}
           <TabsContent value="rules" className="space-y-6">
             {/* Actions */}
-            <Card className="p-4">
+            <div className="p-4">
               <div className="flex flex-wrap gap-4 items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center space-x-2">
@@ -648,10 +647,10 @@ export default function TextNormalization() {
                   </Button>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Add custom rule */}
-            <Card className="p-4">
+            <div className="p-4">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <Plus className="w-4 h-4" />
                 {t("Додати власне правило", "Add custom rule")}
@@ -685,11 +684,11 @@ export default function TextNormalization() {
                   </Button>
                 </div>
               </div>
-            </Card>
+            </div>
 
             {/* Custom rules list */}
             {customRules.length > 0 && (
-              <Card className="p-4">
+              <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold">
                     {t("Користувацькі правила", "Custom rules")} ({customRules.length})
@@ -720,12 +719,12 @@ export default function TextNormalization() {
                     </div>
                   ))}
                 </div>
-              </Card>
+              </div>
             )}
 
             {/* Default rules preview */}
             {includeDefaultRules && (
-              <Card className="p-4">
+              <div className="p-4">
                 <h3 className="font-semibold mb-4">
                   {t("Стандартні правила", "Default rules")} ({defaultRules.length})
                 </h3>
@@ -759,11 +758,11 @@ export default function TextNormalization() {
                       );
                     })}
                 </div>
-              </Card>
+              </div>
             )}
 
             {/* File format help */}
-            <Card className="p-4 bg-muted/50">
+            <div className="p-4 bg-muted/50">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
                 <AlertCircle className="w-4 h-4" />
                 {t("Формати файлів правил", "Rules file formats")}
@@ -791,7 +790,7 @@ export default function TextNormalization() {
                   </code>
                 </div>
               </div>
-            </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </main>

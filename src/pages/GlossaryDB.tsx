@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Header } from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -147,40 +146,34 @@ export default function GlossaryDB() {
           {/* Statistics - only show when search is active */}
           {hasSearch && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">
-                    {Object.keys(displayTerms).length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {t('Знайдено термінів', 'Terms found')}
-                  </div>
+              <div className="p-4 text-center">
+                <div className="text-3xl font-bold text-primary">
+                  {Object.keys(displayTerms).length}
                 </div>
-              </Card>
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">
-                    {filteredAndSearchedTerms.length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {t('Всього використань', 'Total usages')}
-                  </div>
+                <div className="text-sm text-muted-foreground">
+                  {t('Знайдено термінів', 'Terms found')}
                 </div>
-              </Card>
-              <Card className="p-4">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">
-                    {new Set(filteredAndSearchedTerms.map(t => t.book)).size}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {t('Книг', 'Books')}
-                  </div>
+              </div>
+              <div className="p-4 text-center">
+                <div className="text-3xl font-bold text-primary">
+                  {filteredAndSearchedTerms.length}
                 </div>
-              </Card>
+                <div className="text-sm text-muted-foreground">
+                  {t('Всього використань', 'Total usages')}
+                </div>
+              </div>
+              <div className="p-4 text-center">
+                <div className="text-3xl font-bold text-primary">
+                  {new Set(filteredAndSearchedTerms.map(t => t.book)).size}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {t('Книг', 'Books')}
+                </div>
+              </div>
             </div>
           )}
 
-          <Card className="p-6 mb-8">
+          <div className="py-6 mb-8">
             <div className="space-y-4">
               <div className="flex gap-4">
                 <div className="flex-1">
@@ -225,21 +218,21 @@ export default function GlossaryDB() {
                 </Button>
               </div>
             </div>
-          </Card>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-3 space-y-4">
               {isLoadingVerses ? (
-                <Card className="p-8 text-center">
+                <div className="py-8 text-center">
                   <div className="text-muted-foreground space-y-2">
                     <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
                     <p className="text-lg">
                       {t('Завантаження термінів...', 'Loading terms...')}
                     </p>
                   </div>
-                </Card>
+                </div>
               ) : !hasSearch ? (
-                <Card className="p-8 text-center">
+                <div className="py-8 text-center">
                   <div className="text-muted-foreground space-y-2">
                     <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-semibold">
@@ -249,16 +242,16 @@ export default function GlossaryDB() {
                       {t('Введіть термін або переклад, або оберіть категорію', 'Enter a term or translation, or select a category')}
                     </p>
                   </div>
-                </Card>
+                </div>
               ) : Object.keys(displayTerms).length === 0 ? (
-                <Card className="p-8 text-center">
+                <div className="py-8 text-center">
                   <p className="text-muted-foreground">
                     {t('Термінів не знайдено', 'No terms found')}
                   </p>
-                </Card>
+                </div>
               ) : (
                 Object.entries(displayTerms).map(([term, termsList]) => (
-                  <Card key={term} className="p-6">
+                  <div key={term} className="py-6">
                     <div className="flex items-start justify-between mb-4">
                       <h3 className="text-xl font-semibold text-primary">
                         {term}
@@ -308,13 +301,13 @@ export default function GlossaryDB() {
                         </div>
                       ))}
                     </div>
-                  </Card>
+                  </div>
                 ))
               )}
             </div>
 
             <div className="lg:col-span-1">
-              <Card className="p-6 sticky top-8">
+              <div className="py-6 sticky top-8">
                 <h3 className="font-semibold mb-4">
                   {t('Категорії', 'Categories')}
                 </h3>
@@ -353,7 +346,7 @@ export default function GlossaryDB() {
                     </button>
                   ))}
                 </div>
-              </Card>
+              </div>
             </div>
           </div>
         </div>

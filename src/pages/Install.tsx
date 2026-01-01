@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Smartphone, CheckCircle, Share, MoreVertical } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -85,31 +84,29 @@ const Install = () => {
             </div>
 
             {isInstalled ? (
-              <Card className="border-green-500/50 bg-green-500/10">
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-4">
-                    <CheckCircle className="w-12 h-12 text-green-500" />
-                    <div>
-                      <h3 className="text-xl font-semibold text-green-500">Застосунок встановлено!</h3>
-                      <p className="text-muted-foreground">
-                        Vedavoice вже доступний на вашому пристрої
-                      </p>
-                    </div>
+              <div className="py-6 bg-green-500/10">
+                <div className="flex items-center gap-4">
+                  <CheckCircle className="w-12 h-12 text-green-500" />
+                  <div>
+                    <h3 className="text-xl font-semibold text-green-500">Застосунок встановлено!</h3>
+                    <p className="text-muted-foreground">
+                      Vedavoice вже доступний на вашому пристрої
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : isIOS ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <div>
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
                     <Share className="w-5 h-5" />
                     Інструкція для iPhone/iPad
-                  </CardTitle>
-                  <CardDescription>
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
                     На iOS застосунок встановлюється через Safari
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                  </p>
+                </div>
+                <div className="space-y-4">
                   <div className="flex items-start gap-4">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm">
                       1
@@ -154,34 +151,32 @@ const Install = () => {
                       </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : deferredPrompt ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-4">
-                    <p className="text-muted-foreground">
-                      Натисніть кнопку нижче, щоб встановити застосунок
-                    </p>
-                    <Button size="lg" onClick={handleInstallClick} className="gap-2">
-                      <Download className="w-5 h-5" />
-                      Встановити Vedavoice
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="py-6">
+                <div className="text-center space-y-4">
+                  <p className="text-muted-foreground">
+                    Натисніть кнопку нижче, щоб встановити застосунок
+                  </p>
+                  <Button size="lg" onClick={handleInstallClick} className="gap-2">
+                    <Download className="w-5 h-5" />
+                    Встановити Vedavoice
+                  </Button>
+                </div>
+              </div>
             ) : (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              <div>
+                <div className="mb-4">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
                     <MoreVertical className="w-5 h-5" />
                     Інструкція для Android
-                  </CardTitle>
-                  <CardDescription>
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
                     Встановіть через меню браузера
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                  </p>
+                </div>
+                <div className="space-y-4">
                   <div className="flex items-start gap-4">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold text-sm">
                       1
@@ -215,45 +210,39 @@ const Install = () => {
                       </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
 
             {/* Features */}
             <div className="grid md:grid-cols-3 gap-4 mt-8">
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Download className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-1">Офлайн доступ</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Читайте тексти без інтернету
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Smartphone className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-1">Як справжній застосунок</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Повноекранний режим
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6 text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="w-6 h-6 text-primary" />
-                  </div>
-                  <h3 className="font-semibold mb-1">Швидкий запуск</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Прямо з головного екрана
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="py-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Download className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-1">Офлайн доступ</h3>
+                <p className="text-sm text-muted-foreground">
+                  Читайте тексти без інтернету
+                </p>
+              </div>
+              <div className="py-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <Smartphone className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-1">Як справжній застосунок</h3>
+                <p className="text-sm text-muted-foreground">
+                  Повноекранний режим
+                </p>
+              </div>
+              <div className="py-6 text-center">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-1">Швидкий запуск</h3>
+                <p className="text-sm text-muted-foreground">
+                  Прямо з головного екрана
+                </p>
+              </div>
             </div>
           </div>
         </main>
