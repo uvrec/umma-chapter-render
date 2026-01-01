@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { calculateNumCal, isValidBirthDate, formatDate, NumCalResult } from "@/utils/numcal";
@@ -58,14 +57,14 @@ const Numerology = () => {
         </p>
 
         {/* Форма вводу */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Введіть дату народження</CardTitle>
-            <CardDescription>
+        <div className="mb-8">
+          <div>
+            <h3 className="text-lg font-semibold">Введіть дату народження</h3>
+            <p className="text-sm text-muted-foreground">
               Оберіть дату для розрахунку нумерологічних чисел
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+          </div>
+          <div>
             <div className="flex gap-4 items-end">
               <div className="flex-1">
                 <Label htmlFor="birthDate">Дата народження</Label>
@@ -83,20 +82,20 @@ const Numerology = () => {
                 Розрахувати
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Результати */}
         {result && (
           <>
-            <Card className="border-primary">
-              <CardHeader>
-                <CardTitle>Результат</CardTitle>
-                <CardDescription>
+            <div className="border-primary">
+              <div>
+                <h3 className="text-lg font-semibold">Результат</h3>
+                <p className="text-sm text-muted-foreground">
                   Дата народження: {birthDate.split('-').reverse().join('.')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                </p>
+              </div>
+              <div>
                 <div className="text-center p-6 bg-muted rounded-lg">
                   <div className="text-5xl font-bold mb-2 font-mono">
                     {result.formatted}
@@ -105,18 +104,18 @@ const Numerology = () => {
                     {result.mindNumber} - {result.actionNumber} - {result.realizationNumber} - {result.resultNumber}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Пояснення чисел */}
             <div className="grid md:grid-cols-2 gap-6 mt-6">
               {/* Число Розуму */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Число Розуму (Свідомості)</CardTitle>
-                  <CardDescription>День народження</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <div>
+                  <CardTitle className="text-lg">Число Розуму (Свідомості)</h3>
+                  <p className="text-sm text-muted-foreground">День народження</p>
+                </div>
+                <div>
                   <div className="text-4xl font-bold mb-4 text-blue-600 dark:text-blue-400">
                     {result.mindNumber}
                   </div>
@@ -124,16 +123,16 @@ const Numerology = () => {
                     Розраховується як день народження, зведений до однієї цифри.
                     Показує вашу природну схильність до мислення та сприйняття світу.
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Число Дії */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Число Дії</CardTitle>
-                  <CardDescription>Сума всіх цифр дати</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <div>
+                  <CardTitle className="text-lg">Число Дії</h3>
+                  <p className="text-sm text-muted-foreground">Сума всіх цифр дати</p>
+                </div>
+                <div>
                   <div className="text-4xl font-bold mb-4 text-green-600 dark:text-green-400">
                     {result.actionNumber}
                   </div>
@@ -141,16 +140,16 @@ const Numerology = () => {
                     Сума всіх цифр дати народження, зведена до однієї цифри.
                     Відображає вашу енергію дії та те, як ви діє в світі.
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Число Реалізації */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Число Реалізації</CardTitle>
-                  <CardDescription>Розум + Дія</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <div>
+                  <CardTitle className="text-lg">Число Реалізації</h3>
+                  <p className="text-sm text-muted-foreground">Розум + Дія</p>
+                </div>
+                <div>
                   <div className="text-4xl font-bold mb-4 text-purple-600 dark:text-purple-400">
                     {result.realizationNumber}
                   </div>
@@ -158,16 +157,16 @@ const Numerology = () => {
                     Сума Числа Розуму та Числа Дії.
                     Показує, як ви можете реалізувати свій потенціал у житті.
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Число Підсумку */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Число Підсумку</CardTitle>
-                  <CardDescription>Загальна сума всіх трьох чисел</CardDescription>
-                </CardHeader>
-                <CardContent>
+                <div>
+                  <CardTitle className="text-lg">Число Підсумку</h3>
+                  <p className="text-sm text-muted-foreground">Загальна сума всіх трьох чисел</p>
+                </div>
+                <div>
                   <div className="flex items-baseline gap-2">
                     <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">
                       {result.resultNumber}
@@ -188,19 +187,19 @@ const Numerology = () => {
                       </span>
                     )}
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
 
             {/* Цикли розвитку енергії */}
-            <Card className="border-2 border-primary/20 mt-6">
-              <CardHeader>
-                <CardTitle className="text-xl">Цикли розвитку енергії</CardTitle>
-                <CardDescription>
+            <div className="border-2 border-primary/20 mt-6">
+              <div>
+                <CardTitle className="text-xl">Цикли розвитку енергії</h3>
+                <p className="text-sm text-muted-foreground">
                   Кожна енергія розвивається через проходження трьох етапів (+3 на кожному кроці)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
+                </p>
+              </div>
+              <div>
                 <div className="grid md:grid-cols-2 gap-4">
                   {/* Цикл Розуму */}
                   <div className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
@@ -311,21 +310,21 @@ const Numerology = () => {
                     набутими на попередніх етапах.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Життєве завдання - Остання цифра року */}
             {lastYearDigitDescriptions[result.lastYearDigit] && (
-              <Card className="border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 mt-6">
-                <CardHeader>
+              <div className="border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 mt-6">
+                <div>
                   <CardTitle className="text-2xl text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
                     <span className="text-3xl">🎯</span>
                     Ваше Життєве Завдання
-                  </CardTitle>
+                  </h3>
                   <CardDescription className="text-base">
                     Остання цифра року народження: <strong>{result.lastYearDigit}</strong>
-                  </CardDescription>
-                </CardHeader>
+                  </p>
+                </div>
                 <CardContent className="space-y-4">
                   <div className="text-center p-6 bg-white/50 dark:bg-black/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
                     <h3 className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">
@@ -365,21 +364,21 @@ const Numerology = () => {
                     </h4>
                     <p className="text-sm italic">{lastYearDigitDescriptions[result.lastYearDigit].nextStepHint}</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )}
 
             {/* Грошовий код */}
-            <Card className="border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 mt-6">
-              <CardHeader>
+            <div className="border-2 border-emerald-500 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30 mt-6">
+              <div>
                 <CardTitle className="text-2xl text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
                   <span className="text-3xl">💰</span>
                   Ваш Грошовий Код
-                </CardTitle>
+                </h3>
                 <CardDescription className="text-base">
                   Особистий 4-цифровий код для фінансового успіху
-                </CardDescription>
-              </CardHeader>
+                </p>
+              </div>
               <CardContent className="space-y-4">
                 <div className="text-center p-6 bg-white/50 dark:bg-black/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
                   <h3 className="text-5xl font-bold text-emerald-600 dark:text-emerald-400 mb-4 tracking-wider">
@@ -428,20 +427,20 @@ const Numerology = () => {
                     <li>Медитуйте на ці цифри під час фінансових рішень</li>
                   </ul>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Персональні цикли */}
-            <Card className="border-2 border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 mt-6">
-              <CardHeader>
+            <div className="border-2 border-violet-500 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 mt-6">
+              <div>
                 <CardTitle className="text-2xl text-violet-700 dark:text-violet-300 flex items-center gap-2">
                   <span className="text-3xl">🌟</span>
                   Ваші Персональні Цикли
-                </CardTitle>
+                </h3>
                 <CardDescription className="text-base">
                   Енергія поточного року, місяця та дня
-                </CardDescription>
-              </CardHeader>
+                </p>
+              </div>
               <CardContent className="space-y-6">
                 {/* Персональний рік */}
                 <div className="p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-violet-200 dark:border-violet-800">
@@ -520,8 +519,8 @@ const Numerology = () => {
                     Персональний день показує енергію сьогоднішнього дня та підказує, чим краще займатися.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Детальні описи чисел */}
             <div className="space-y-6 mt-8">
@@ -529,15 +528,15 @@ const Numerology = () => {
 
               {/* Число Розуму (Свідомості) */}
               {numberDescriptions[result.mindNumber] && (
-                <Card className="border-l-4 border-l-blue-500">
-                  <CardHeader>
+                <div className="border-l-4 border-l-blue-500">
+                  <div>
                     <CardTitle className="text-xl text-blue-600 dark:text-blue-400">
                       Число Розуму (Свідомості) {result.mindNumber}
-                    </CardTitle>
-                    <CardDescription>
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
                       {numberDescriptions[result.mindNumber].birthDates}
-                    </CardDescription>
-                  </CardHeader>
+                    </p>
+                  </div>
                   <CardContent className="space-y-4">
                     <div>
                       <p className="whitespace-pre-line">{numberDescriptions[result.mindNumber].mainDescription}</p>
@@ -640,18 +639,18 @@ const Numerology = () => {
                         <p className="whitespace-pre-line">{numberDescriptions[result.mindNumber].additionalInfo}</p>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* Число Дії */}
               {actionNumberDescriptions[result.actionNumber] && (
-                <Card className="border-l-4 border-l-green-500">
-                  <CardHeader>
+                <div className="border-l-4 border-l-green-500">
+                  <div>
                     <CardTitle className="text-xl text-green-600 dark:text-green-400">
                       Число Дії {result.actionNumber}
-                    </CardTitle>
-                  </CardHeader>
+                    </h3>
+                  </div>
                   <CardContent className="space-y-4">
                     <div>
                       <p className="whitespace-pre-line">{actionNumberDescriptions[result.actionNumber].mainDescription}</p>
@@ -682,18 +681,18 @@ const Numerology = () => {
                         </div>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* Число Реалізації */}
               {realizationNumberDescriptions[result.realizationNumber] && (
-                <Card className="border-l-4 border-l-purple-500">
-                  <CardHeader>
+                <div className="border-l-4 border-l-purple-500">
+                  <div>
                     <CardTitle className="text-xl text-purple-600 dark:text-purple-400">
                       Число Реалізації {result.realizationNumber}
-                    </CardTitle>
-                  </CardHeader>
+                    </h3>
+                  </div>
                   <CardContent className="space-y-4">
                     <div>
                       <p className="whitespace-pre-line">{realizationNumberDescriptions[result.realizationNumber].mainDescription}</p>
@@ -724,18 +723,18 @@ const Numerology = () => {
                         </div>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* Число Підсумку */}
               {resultNumberDescriptions[result.resultNumber] && (
-                <Card className="border-l-4 border-l-amber-500">
-                  <CardHeader>
+                <div className="border-l-4 border-l-amber-500">
+                  <div>
                     <CardTitle className="text-xl text-amber-600 dark:text-amber-400">
                       Число Підсумку {result.resultNumber}
-                    </CardTitle>
-                  </CardHeader>
+                    </h3>
+                  </div>
                   <CardContent className="space-y-4">
                     <div>
                       <p className="whitespace-pre-line">{resultNumberDescriptions[result.resultNumber].mainDescription}</p>
@@ -766,8 +765,8 @@ const Numerology = () => {
                         </div>
                       </div>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
             </div>
           </>

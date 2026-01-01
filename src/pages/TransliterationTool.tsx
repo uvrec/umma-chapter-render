@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { Copy, Download, Trash2, BookOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { processText } from "@/utils/text/transliteration";
@@ -136,7 +135,7 @@ export default function TransliterationTool() {
         </div>
 
         {/* Контролі */}
-        <Card className="p-6 mb-8">
+        <div className="p-6 mb-8">
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label>Режим транслітерації</Label>
@@ -165,7 +164,7 @@ export default function TransliterationTool() {
               </Select>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Текстові поля */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
@@ -235,7 +234,7 @@ export default function TransliterationTool() {
         </div>
 
         {/* Правила транслітерації */}
-        <Card className="p-6">
+        <div className="p-6">
           <Button
             onClick={() => setShowRules(!showRules)}
             variant="ghost"
@@ -407,7 +406,7 @@ export default function TransliterationTool() {
               </div>
             </div>
           )}
-        </Card>
+        </div>
       </main>
 
       <Footer />

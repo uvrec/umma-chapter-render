@@ -4,7 +4,6 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { Calculator, Copy, Trash2, Info } from "lucide-react";
 import { toast } from "sonner";
 import { createBirthDate } from "@/utils/numerology/birthDateProcessor";
@@ -82,7 +81,7 @@ ${getNumberInterpretation(reading.numbers.lifeNumber)}`;
         </div>
 
         {/* Форма введення */}
-        <Card className="p-6 mb-8">
+        <div className="p-6 mb-8">
           <div className="space-y-6">
             <div>
               <Label className="text-lg font-semibold mb-4 block">Введіть дату народження</Label>
@@ -143,11 +142,11 @@ ${getNumberInterpretation(reading.numbers.lifeNumber)}`;
               </Button>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Результати */}
         {reading && (
-          <Card className="p-6 mb-8">
+          <div className="p-6 mb-8">
             <div className="space-y-6">
               <div className="text-center">
                 <h2 className="text-2xl font-bold mb-2">Результат розрахунку</h2>
@@ -202,12 +201,12 @@ ${getNumberInterpretation(reading.numbers.lifeNumber)}`;
                 </Button>
               </div>
             </div>
-          </Card>
+          </div>
         )}
 
         {/* Інтерпретація */}
         {reading && (
-          <Card className="p-6 mb-8">
+          <div className="p-6 mb-8">
             <Button
               onClick={() => setShowInterpretation(!showInterpretation)}
               variant="ghost"
@@ -255,11 +254,11 @@ ${getNumberInterpretation(reading.numbers.lifeNumber)}`;
                 </div>
               </div>
             )}
-          </Card>
+          </div>
         )}
 
         {/* Інформація про розрахунок */}
-        <Card className="p-6">
+        <div className="p-6">
           <h3 className="font-semibold text-lg mb-4">Про Число Підсумку</h3>
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>
@@ -283,7 +282,7 @@ ${getNumberInterpretation(reading.numbers.lifeNumber)}`;
               Але при цьому ви відчуваєте фоновий вплив цієї енергії протягом усього життя.
             </p>
           </div>
-        </Card>
+        </div>
       </main>
 
       <Footer />
