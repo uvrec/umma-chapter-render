@@ -360,7 +360,7 @@ export const ChapterVersesList = () => {
           </div>
 
           {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
-            <div className="mb-8 rounded-lg border border-border bg-card p-6">
+            <div className="mb-8">
               {user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
@@ -372,8 +372,10 @@ export const ChapterVersesList = () => {
 
               {isEditingContent ? (
                 <div className="space-y-4">
-                  <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
-                  <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
+                    <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
+                  </div>
                   <div className="flex gap-2">
                     <Button
                       onClick={() => saveContentMutation.mutate()}
@@ -443,7 +445,7 @@ export const ChapterVersesList = () => {
                         return (
                           <div
                             key={idx}
-                            className="grid gap-6 md:grid-cols-2 border-b border-border/30 pb-4 last:border-b-0"
+                            className="grid gap-6 md:grid-cols-2"
                           >
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
