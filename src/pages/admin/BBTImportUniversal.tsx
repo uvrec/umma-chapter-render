@@ -194,9 +194,10 @@ export default function BBTImportUniversal() {
             title_ua: chapter.title_ua.replace(/\n/g, ' '),
           };
 
-          // For books with continuous text, also update content_ua
+          // For books with continuous text, also update content_ua and set chapter_type
           if (!bookConfig.hasVerses && hasContent(chapter)) {
             updateData.content_ua = chapter.content_ua;
+            updateData.chapter_type = "text";
           }
 
           await supabase
@@ -212,9 +213,10 @@ export default function BBTImportUniversal() {
             title_en: chapter.title_ua.replace(/\n/g, ' '), // Fallback
           };
 
-          // For books with continuous text, also add content_ua
+          // For books with continuous text, also add content_ua and set chapter_type
           if (!bookConfig.hasVerses && hasContent(chapter)) {
             insertData.content_ua = chapter.content_ua;
+            insertData.chapter_type = "text";
           }
 
           const { data: newChapter, error: chapterError } = await supabase

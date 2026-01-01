@@ -209,6 +209,35 @@ function processTransliteration(text: string): string {
   return lines.join("\n");
 }
 
+/**
+ * Process quotes preserving line breaks
+ * Uses <br> for single line breaks, paragraph separation for double breaks
+ */
+function processQuote(text: string): string {
+  let result = processLineContinuations(text);
+
+  // Convert explicit line break tags to markers
+  result = result.replace(/<_R><_>/g, "\n");
+  result = result.replace(/<_?R>/g, "\n");
+  result = result.replace(/<_>/g, " ");
+
+  // Process inline formatting (bold, italic, etc.)
+  result = processInlineTags(result, true);
+
+  // Split into paragraphs (double newlines or more)
+  const paragraphs = result.split(/\n{2,}/).map(p => p.trim()).filter(p => p);
+
+  // Within each paragraph, convert single newlines to <br>
+  const processedParagraphs = paragraphs.map(para => {
+    // Replace single newlines with <br>
+    const lines = para.split("\n").map(l => l.trim()).filter(l => l);
+    return lines.join("<br>\n");
+  });
+
+  // Join paragraphs with double newline (will be rendered as separate <p> or spacing)
+  return processedParagraphs.join("</p>\n<p>");
+}
+
 // ============= INTERFACES =============
 
 interface Chapter {
@@ -259,8 +288,8 @@ function parseChapter(text: string, chapterNum: number): Chapter {
         paragraphs.push(`<div class="verse-quote">${lines}</div>`);
       }
     } else if (["ql", "q", "q-p", "q1"].includes(currentTag)) {
-      const quote = processProse(content, true);
-      if (quote) paragraphs.push(`<blockquote class="quote">${quote}</blockquote>`);
+      const quote = processQuote(content);
+      if (quote) paragraphs.push(`<blockquote class="quote"><p>${quote}</p></blockquote>`);
     }
   }
 
@@ -316,8 +345,8 @@ function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
       const para = processProse(content, true).replace(/\n/g, "<br>");
       if (para) paragraphs.push(`<p class="dedication">${para}</p>`);
     } else if (["ql", "q", "q-p"].includes(currentTag)) {
-      const quote = processProse(content, true);
-      if (quote) paragraphs.push(`<blockquote>${quote}</blockquote>`);
+      const quote = processQuote(content);
+      if (quote) paragraphs.push(`<blockquote><p>${quote}</p></blockquote>`);
     }
   }
 

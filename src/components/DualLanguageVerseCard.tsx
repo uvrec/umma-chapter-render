@@ -300,7 +300,7 @@ export const DualLanguageVerseCard = ({
 
         {/* STICKY HEADER - Кнопки редагування */}
         {isAdmin && (
-          <div className="sticky top-0 z-10 bg-card/95 backdrop-blur-sm pb-4 mb-4">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4">
             <div className="flex items-center justify-between">
               <div className="flex flex-wrap items-center gap-3">
                 {/* Індикатор складених віршів */}
