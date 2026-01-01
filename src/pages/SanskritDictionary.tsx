@@ -14,7 +14,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -183,11 +182,9 @@ export const SanskritDictionary = () => {
               ))}
             </div>
           ) : error ? (
-            <Card className="border-destructive">
-              <CardContent className="pt-6 text-center text-destructive">
-                {language === "ua" ? "Помилка пошуку. Спробуйте пізніше." : "Search error. Please try again later."}
-              </CardContent>
-            </Card>
+            <div className="py-6 text-center text-destructive">
+              {language === "ua" ? "Помилка пошуку. Спробуйте пізніше." : "Search error. Please try again later."}
+            </div>
           ) : results && results.length > 0 ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
@@ -196,18 +193,18 @@ export const SanskritDictionary = () => {
                   : `Found ${results.length} results`}
               </p>
               {results.map((entry) => (
-                <Card key={entry.id} className="transition-shadow hover:shadow-md">
-                  <CardHeader className="pb-2">
+                <div key={entry.id} className="py-4 hover:bg-muted/30 transition-colors">
+                  <div className="pb-2">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <CardTitle className="text-xl">
+                        <h3 className="text-xl font-semibold">
                           <span className="font-serif text-primary">{entry.word}</span>
                           {entry.word_devanagari && (
                             <span className="ml-3 text-2xl text-muted-foreground">
                               {entry.word_devanagari}
                             </span>
                           )}
-                        </CardTitle>
+                        </h3>
                       </div>
                       <div className="flex gap-2">
                         {getGrammarBadge(entry.grammar)}
@@ -218,8 +215,8 @@ export const SanskritDictionary = () => {
                         )}
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
+                  </div>
+                  <div>
                     {entry.meanings ? (
                       <p className="text-foreground leading-relaxed">{entry.meanings}</p>
                     ) : (
@@ -227,32 +224,28 @@ export const SanskritDictionary = () => {
                         {language === "ua" ? "Значення не вказано" : "No meaning provided"}
                       </p>
                     )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           ) : debouncedSearch.length >= 2 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                <p className="text-lg text-muted-foreground">
-                  {language === "ua"
-                    ? "Нічого не знайдено. Спробуйте інший запит."
-                    : "No results found. Try a different search term."}
-                </p>
-              </CardContent>
-            </Card>
+            <div className="py-12 text-center">
+              <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-lg text-muted-foreground">
+                {language === "ua"
+                  ? "Нічого не знайдено. Спробуйте інший запит."
+                  : "No results found. Try a different search term."}
+              </p>
+            </div>
           ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                <p className="text-lg text-muted-foreground">
-                  {language === "ua"
-                    ? "Почніть вводити слово для пошуку"
-                    : "Start typing to search"}
-                </p>
-              </CardContent>
-            </Card>
+            <div className="py-12 text-center">
+              <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+              <p className="text-lg text-muted-foreground">
+                {language === "ua"
+                  ? "Почніть вводити слово для пошуку"
+                  : "Start typing to search"}
+              </p>
+            </div>
           )}
 
           {/* Attribution */}

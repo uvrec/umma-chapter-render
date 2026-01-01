@@ -13,7 +13,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
 import { ContinueReadingSection } from "@/components/ContinueReadingSection";
 import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, ExternalLink } from "lucide-react";
@@ -132,10 +131,9 @@ function Hero() {
 
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
-          {/* Continue Listening Card - адаптивний */}
+          {/* Continue Listening - адаптивний */}
           {currentTrack && <div className="mt-6 sm:mt-8">
-              <Card className="backdrop-blur bg-white/95 dark:bg-gray-900/95">
-                <CardContent className="p-4 sm:p-6">
+              <div className="backdrop-blur bg-white/95 dark:bg-gray-900/95 p-4 sm:p-6">
                   <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                     <Headphones className="h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="hidden xs:inline">Продовжити прослуховування</span>
@@ -160,8 +158,7 @@ function Hero() {
                       <span className="hidden xs:inline">{isPlaying ? "Пауза" : "Продовжити"}</span>
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+              </div>
             </div>}
         </div>
 
@@ -311,8 +308,7 @@ function LatestContent() {
 
       {/* Responsive grid - 1 колонка на мобільних */}
       <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {latestContent.map(item => <Card key={item.id} className="transition-shadow hover:shadow-md">
-            <CardContent className="p-3 sm:p-4">
+        {latestContent.map(item => <div key={item.id} className="py-3 hover:bg-muted/30 transition-colors">
               {/* Заголовок з іконкою */}
               <div className="mb-2 flex items-start gap-2">
                 {item.type === "audio" ? <Headphones className="h-4 w-4 flex-shrink-0 mt-0.5" /> : <BookOpen className="h-4 w-4 flex-shrink-0 mt-0.5" />}
@@ -338,8 +334,7 @@ function LatestContent() {
                     {item.duration}
                   </div>}
               </div>
-            </CardContent>
-          </Card>)}
+            </div>)}
       </div>
     </section>;
 }

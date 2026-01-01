@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Search, Loader2, BookOpen, MessageSquare } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { debounce } from "lodash";
@@ -204,18 +203,18 @@ export default function SynonymsSearch() {
           </div>
 
           {/* Форма пошуку */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle>
+          <div className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">
                 {searchLanguage === "ua" ? "Параметри пошуку" : "Search Parameters"}
-              </CardTitle>
-              <CardDescription>
+              </h2>
+              <p className="text-sm text-muted-foreground">
                 {searchLanguage === "ua"
                   ? "Налаштуйте параметри для точного пошуку"
                   : "Configure parameters for precise search"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </p>
+            </div>
+            <div className="space-y-6">
               {/* Мова */}
               <div>
                 <Label className="mb-2 block">
@@ -345,8 +344,8 @@ export default function SynonymsSearch() {
                   </>
                 )}
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Результати */}
           {totalResults > 0 && (
@@ -360,11 +359,11 @@ export default function SynonymsSearch() {
 
           <div className="space-y-4">
             {results.map((result) => (
-              <Card
+              <div
                 key={result.verse_id}
-                className="hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+                className="py-4 hover:bg-muted/30 transition-colors"
               >
-                <CardContent className="pt-6">
+                <div>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-muted-foreground" />
@@ -421,45 +420,41 @@ export default function SynonymsSearch() {
                       <p className="text-sm leading-relaxed">{result.translation}</p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
           {/* Порожній стан */}
           {!isSearching && results.length === 0 && searchTerm && (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-medium mb-2">
-                  {searchLanguage === "ua" ? "Нічого не знайдено" : "No results found"}
-                </h3>
-                <p className="text-muted-foreground">
-                  {searchLanguage === "ua"
-                    ? "Спробуйте змінити пошуковий термін або режим пошуку"
-                    : "Try changing your search term or search mode"}
-                </p>
-              </CardContent>
-            </Card>
+            <div className="py-12 text-center">
+              <MessageSquare className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium mb-2">
+                {searchLanguage === "ua" ? "Нічого не знайдено" : "No results found"}
+              </h3>
+              <p className="text-muted-foreground">
+                {searchLanguage === "ua"
+                  ? "Спробуйте змінити пошуковий термін або режим пошуку"
+                  : "Try changing your search term or search mode"}
+              </p>
+            </div>
           )}
 
           {/* Підказка якщо нічого не шукали */}
           {!isSearching && results.length === 0 && !searchTerm && (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-medium mb-2">
-                  {searchLanguage === "ua"
-                    ? "Розпочніть пошук синонімів"
-                    : "Start searching for synonyms"}
-                </h3>
-                <p className="text-muted-foreground">
-                  {searchLanguage === "ua"
-                    ? "Введіть санскритський термін вгорі, щоб знайти його переклади та значення"
-                    : "Enter a Sanskrit term above to find its translations and meanings"}
-                </p>
-              </CardContent>
-            </Card>
+            <div className="py-12 text-center">
+              <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-medium mb-2">
+                {searchLanguage === "ua"
+                  ? "Розпочніть пошук синонімів"
+                  : "Start searching for synonyms"}
+              </h3>
+              <p className="text-muted-foreground">
+                {searchLanguage === "ua"
+                  ? "Введіть санскритський термін вгорі, щоб знайти його переклади та значення"
+                  : "Enter a Sanskrit term above to find its translations and meanings"}
+              </p>
+            </div>
           )}
         </div>
       </main>

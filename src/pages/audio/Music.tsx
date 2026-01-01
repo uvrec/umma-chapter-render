@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlaylistPlayer } from "@/components/PlaylistPlayer";
 import { ArrowLeft, Music as MusicIcon, Users, Calendar } from "lucide-react";
@@ -135,10 +134,10 @@ export const Music = () => {
         <div className="space-y-12">
           {albums.map((album) => (
             <div key={album.id} className="space-y-6">
-              <Card className="p-6">
+              <div className="py-4">
                 <div className="flex flex-col lg:flex-row gap-6">
                   <div className="lg:w-64 flex-shrink-0">
-                    <div className="aspect-square bg-muted rounded-lg overflow-hidden shadow-lg">
+                    <div className="aspect-square bg-muted rounded-lg overflow-hidden">
                       <img
                         src={album.cover}
                         alt={`Обкладинка: ${album.title}`}
@@ -168,29 +167,20 @@ export const Music = () => {
                     </div>
                   </div>
                 </div>
-              </Card>
+              </div>
 
               {album.tracks.length > 0 ? (
                 <PlaylistPlayer tracks={album.tracks} title={album.title} albumCover={album.cover} />
               ) : (
-                <Card className="p-6 text-center text-sm text-muted-foreground">
+                <div className="py-6 text-center text-sm text-muted-foreground">
                   Для цього альбому відсутні локальні треки. Додайте MP3 у /public/audio або використайте зовнішні
                   посилання як окремі <code>&lt;a&gt;</code>.
-                </Card>
+                </div>
               )}
             </div>
           ))}
         </div>
 
-        <Card className="p-8 text-center mt-12 bg-gradient-to-r from-primary/5 to-secondary/5">
-          <h3 className="text-2xl font-semibold text-foreground mb-4">Підтримайте музикантів</h3>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Допоможіть нам підтримувати духовних музикантів та створювати нову якісну музику
-          </p>
-          <Link to="/donation">
-            <Button size="lg">Підтримати проєкт</Button>
-          </Link>
-        </Card>
       </main>
       <Footer />
     </div>

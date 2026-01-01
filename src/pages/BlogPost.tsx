@@ -15,7 +15,6 @@ import { TelegramEmbed } from "@/components/blog/TelegramEmbed";
 import { SubstackEmbed } from "@/components/blog/SubstackEmbed";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, Clock, Eye, Share2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -313,7 +312,7 @@ export default function BlogPost() {
         <div className={dualLanguageMode ? "max-w-7xl mx-auto" : "max-w-4xl mx-auto"}>
           {/* ✅ ДОДАНО: Панель налаштувань блоків (тільки для адміна) */}
           {isAdmin && (
-            <Card className="mb-6 p-4 bg-card/50">
+            <div className="mb-6 p-4 bg-card/50">
               <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
                 {language === "ua" ? "Налаштування відображення блоків" : "Display Blocks Settings"}
               </h3>
@@ -354,7 +353,7 @@ export default function BlogPost() {
                   <span className="text-sm">{language === "ua" ? "Пояснення" : "Commentary"}</span>
                 </label>
               </div>
-            </Card>
+            </div>
           )}
           
           {/* Breadcrumbs */}
