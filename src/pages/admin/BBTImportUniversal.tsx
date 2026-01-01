@@ -190,15 +190,13 @@ export default function BBTImportUniversal() {
           chapterId = existingChapter.id;
 
           // Update chapter
-          const updateData: Record<string, unknown> = {
+          const updateData = {
             title_ua: chapter.title_ua.replace(/\n/g, ' '),
+            ...(!bookConfig.hasVerses && hasContent(chapter) && {
+              content_ua: chapter.content_ua,
+              chapter_type: "text" as const,
+            }),
           };
-
-          // For books with continuous text, also update content_ua and set chapter_type
-          if (!bookConfig.hasVerses && hasContent(chapter)) {
-            updateData.content_ua = chapter.content_ua;
-            updateData.chapter_type = "text";
-          }
 
           await supabase
             .from("chapters")
@@ -206,18 +204,16 @@ export default function BBTImportUniversal() {
             .eq("id", chapterId);
         } else {
           // Create new chapter
-          const insertData: Record<string, unknown> = {
+          const insertData = {
             book_id: bookId,
             chapter_number: chapter.chapter_number,
             title_ua: chapter.title_ua.replace(/\n/g, ' '),
             title_en: chapter.title_ua.replace(/\n/g, ' '), // Fallback
+            ...(!bookConfig.hasVerses && hasContent(chapter) && {
+              content_ua: chapter.content_ua,
+              chapter_type: "text" as const,
+            }),
           };
-
-          // For books with continuous text, also add content_ua and set chapter_type
-          if (!bookConfig.hasVerses && hasContent(chapter)) {
-            insertData.content_ua = chapter.content_ua;
-            insertData.chapter_type = "text";
-          }
 
           const { data: newChapter, error: chapterError } = await supabase
             .from("chapters")
