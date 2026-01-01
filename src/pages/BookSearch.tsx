@@ -12,7 +12,6 @@ import { Footer } from '@/components/Footer';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
@@ -246,8 +245,7 @@ export default function BookSearch() {
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent className="mb-6">
-            <Card>
-              <CardContent className="pt-4 space-y-4">
+            <div className="py-4 space-y-4">
                 {/* Фільтр по книгах */}
                 <div>
                   <Label className="text-sm font-medium mb-2 block">
@@ -321,8 +319,7 @@ export default function BookSearch() {
                     </label>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+            </div>
           </CollapsibleContent>
         </Collapsible>
 
@@ -352,12 +349,12 @@ export default function BookSearch() {
 
                 <div className="space-y-2">
                   {group.results.map((result) => (
-                    <Card
+                    <div
                       key={result.verse_id}
-                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      className="cursor-pointer hover:bg-muted/50 transition-colors py-3"
                       onClick={() => navigateToVerse(result)}
                     >
-                      <CardContent className="py-3 px-4">
+                      <div>
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             {/* Референс */}
@@ -403,8 +400,8 @@ export default function BookSearch() {
 
                           <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -414,15 +411,13 @@ export default function BookSearch() {
             {(isLoading || isFetching) && (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <Card key={i}>
-                    <CardContent className="py-4">
+                  <div key={i} className="py-4">
                       <div className="animate-pulse space-y-2">
                         <div className="h-4 bg-muted rounded w-1/4" />
                         <div className="h-3 bg-muted rounded w-3/4" />
                         <div className="h-3 bg-muted rounded w-1/2" />
                       </div>
-                    </CardContent>
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}

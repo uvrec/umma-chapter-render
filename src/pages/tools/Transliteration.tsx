@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -165,7 +164,7 @@ export default function TransliterationTool() {
         </div>
 
         {/* Налаштування */}
-        <Card className="p-6 mb-6">
+        <div className="py-6 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="mode">{t("Режим", "Mode")}</Label>
@@ -196,10 +195,10 @@ export default function TransliterationTool() {
               </Select>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Статистика */}
-        <Card className="p-4 mb-6">
+        <div className="py-4 mb-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-primary">{inputText.length}</div>
@@ -218,11 +217,11 @@ export default function TransliterationTool() {
               <div className="text-xs text-muted-foreground">{t("Слів результат", "Output words")}</div>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Текстові поля */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="p-4 space-y-3">
+          <div className="py-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">{t("Вхід", "Input")}</h2>
               <Button variant="ghost" size="sm" onClick={handleClear}>
@@ -251,9 +250,9 @@ className={`resize-none ${
                     : "bengali-text"
               }`}
             />
-          </Card>
+          </div>
 
-          <Card className="p-4 space-y-3">
+          <div className="py-4 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">{t("Результат", "Result")}</h2>
               <div className="flex gap-2">
@@ -275,11 +274,11 @@ className={`resize-none ${
               data-script={mode}
               spellCheck={false}
             />
-          </Card>
+          </div>
         </div>
 
         {/* Приклади */}
-        <Card className="mt-8 p-6 bg-muted/50">
+        <div className="mt-8 py-6 bg-muted/50">
           <h3 className="font-semibold mb-4">{t("Приклади:", "Examples:")}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="space-y-2">
@@ -307,7 +306,7 @@ className={`resize-none ${
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       </main>
       <Footer />
     </div>
