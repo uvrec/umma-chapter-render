@@ -209,34 +209,7 @@ export const VerseCard = ({
     }
   };
 
-  // ✅ НОВЕ: Автозбереження для адмінів
-  const saveTimeoutRef = useRef<NodeJS.Timeout>();
-  useEffect(() => {
-    if (!isAdmin || !verseId || !onVerseUpdate) return;
-
-    // Перевіряємо чи щось змінилося
-    const hasChanges =
-      edited.synonyms !== (synonyms || "") ||
-      edited.translation !== translation ||
-      edited.commentary !== (commentary || "");
-
-    if (hasChanges) {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-
-      saveTimeoutRef.current = setTimeout(() => {
-        onVerseUpdate(verseId, edited);
-        toast.success("Зміни збережено", { duration: 1500 });
-      }, 2000);
-    }
-
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [edited.synonyms, edited.translation, edited.commentary, synonyms, translation, commentary, isAdmin, verseId, onVerseUpdate, edited]);
+  // Автозбереження видалено - користувач зберігає вручну через кнопку "Зберегти"
 
   // Обробка санскриту для автоматичних розривів рядків (як у двомовному режимі)
   const processedSanskrit = useMemo(() => {
