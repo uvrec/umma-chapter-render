@@ -914,11 +914,11 @@ export const VedaReaderDB = () => {
           </div>}
 
         {/* Intro/preface block (render above verses if present) */}
-        {(language === "ua" ? effectiveChapter.content_ua : effectiveChapter.content_en) && !isTextChapter && <Card className="verse-surface p-8 mb-8">
+        {(language === "ua" ? effectiveChapter.content_ua : effectiveChapter.content_en) && !isTextChapter && <div className="verse-surface mb-8">
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <TiptapRenderer content={language === "ua" ? effectiveChapter.content_ua || "" : effectiveChapter.content_en || ""} />
             </div>
-          </Card>}
+          </div>}
 
         {isTextChapter ? <div className="verse-surface">
             {/* Навігація зверху для текстових глав */}
