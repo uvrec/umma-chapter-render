@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -140,7 +140,31 @@ export const VerseCard = ({
     },
   };
   const labels = blockLabels[language];
-  const { playTrack, currentTrack, togglePlay } = useAudio();
+  const { playTrack, currentTrack, togglePlay, isPlaying } = useAudio();
+
+  // Check if this verse is currently playing
+  const isNowPlaying = useMemo(() => {
+    if (!currentTrack || !isPlaying) return false;
+    // Check by verseId first
+    if (currentTrack.verseId && verseId) {
+      return currentTrack.verseId === verseId;
+    }
+    // Fallback: check if track ID contains verse number
+    return currentTrack.id?.startsWith(`${verseNumber}-`) || false;
+  }, [currentTrack, verseId, verseNumber, isPlaying]);
+
+  const verseRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to this verse when it starts playing
+  useEffect(() => {
+    if (isNowPlaying && verseRef.current) {
+      verseRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [isNowPlaying]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
@@ -178,8 +202,12 @@ export const VerseCard = ({
     playTrack({
       id: trackId,
       title: `${verseNumber} — ${section}`,
+      subtitle: bookName,
       src,
       url: src,
+      // Verse sync data for audio-text highlighting
+      verseId: verseId,
+      verseNumber: verseNumber,
     });
   };
   const startEdit = () => {
@@ -221,7 +249,10 @@ export const VerseCard = ({
 
   return (
     <div
-      className="verse-surface w-full animate-fade-in"
+      ref={verseRef}
+      className={`verse-surface w-full animate-fade-in ${
+        isNowPlaying ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing' : ''
+      }`}
     >
       <div
         className="py-6"
@@ -243,6 +274,34 @@ export const VerseCard = ({
             {/* Назва глави - відцентрована під номером вірша */}
             {bookName && (
               <span className="text-sm text-muted-foreground text-center">{bookName}</span>
+            )}
+
+            {/* Tap-to-jump: кнопка відтворення всього вірша */}
+            {(audioUrl || audioSanskrit || audioTranslation || audioCommentary) && (
+              <button
+                onClick={() => playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
+                className={`
+                  mt-2 flex items-center gap-2 px-4 py-2 rounded-full
+                  transition-all duration-200
+                  ${isNowPlaying
+                    ? 'bg-primary text-primary-foreground shadow-lg'
+                    : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+                  }
+                `}
+                aria-label={isNowPlaying ? "Пауза" : "Слухати вірш"}
+              >
+                {isNowPlaying ? (
+                  <>
+                    <Pause className="h-4 w-4" />
+                    <span className="text-sm font-medium">{language === 'ua' ? 'Грає...' : 'Playing...'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4" />
+                    <span className="text-sm font-medium">{language === 'ua' ? 'Слухати' : 'Listen'}</span>
+                  </>
+                )}
+              </button>
             )}
           </div>
         )}
