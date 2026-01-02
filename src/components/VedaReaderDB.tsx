@@ -22,8 +22,12 @@ import { HighlightDialog } from "@/components/HighlightDialog";
 import { useHighlights } from "@/hooks/useHighlights";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
+import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
+import { SwipeIndicator } from "@/components/SwipeIndicator";
+import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 export const VedaReaderDB = () => {
   const {
     bookId,
@@ -58,6 +62,9 @@ export const VedaReaderDB = () => {
 
   // Keyboard shortcuts state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
+
+  // Jump to verse dialog state
+  const [showJumpDialog, setShowJumpDialog] = useState(false);
 
   // ✅ Використовуємо централізовану систему через useReaderSettings
   const {
@@ -665,6 +672,16 @@ export const VedaReaderDB = () => {
       setCurrentVerseIndex(0);
     }
   };
+
+  // Swipe navigation for mobile
+  const swipeState = useSwipeNavigation({
+    onSwipeLeft: handleNextVerse,
+    onSwipeRight: handlePrevVerse,
+    threshold: 80,
+    velocityThreshold: 0.3,
+    enabled: !continuousReadingSettings.enabled, // Disable in continuous mode to allow scrolling
+  });
+
   const handleSaveHighlight = useCallback((notes: string) => {
     if (!book?.id || !effectiveChapter?.id) return;
     createHighlight({
@@ -803,6 +820,13 @@ export const VedaReaderDB = () => {
     handler: () => setCraftPaperMode(prev => !prev),
     category: 'modes'
   },
+  // Navigation - Jump to verse
+  {
+    key: 'g',
+    description: t('Перейти до вірша (go to)', 'Go to verse'),
+    handler: () => setShowJumpDialog(true),
+    category: 'navigation'
+  },
   // Help
   {
     key: '?',
@@ -814,6 +838,7 @@ export const VedaReaderDB = () => {
     description: t('Закрити модальне вікно', 'Close modal'),
     handler: () => {
       setShowKeyboardShortcuts(false);
+      setShowJumpDialog(false);
       setSettingsOpen(false);
     },
     category: 'help'
@@ -1030,5 +1055,52 @@ export const VedaReaderDB = () => {
       <HighlightDialog isOpen={highlightDialogOpen} onClose={() => setHighlightDialogOpen(false)} onSave={handleSaveHighlight} selectedText={selectedTextForHighlight} />
 
       <KeyboardShortcutsModal isOpen={showKeyboardShortcuts} onClose={() => setShowKeyboardShortcuts(false)} shortcuts={shortcuts} />
+
+      <JumpToVerseDialog
+        isOpen={showJumpDialog}
+        onClose={() => setShowJumpDialog(false)}
+        currentBookId={bookId}
+        currentCantoNumber={cantoNumber}
+        isCantoMode={isCantoMode}
+      />
+
+      {/* Swipe navigation indicator */}
+      <SwipeIndicator
+        isSwiping={swipeState.isSwiping}
+        direction={swipeState.direction}
+        progress={swipeState.progress}
+        leftLabel={currentVerseIndex === 0
+          ? t("Попередня глава", "Previous chapter")
+          : t("Попередній вірш", "Previous verse")
+        }
+        rightLabel={currentVerseIndex === verses.length - 1
+          ? t("Наступна глава", "Next chapter")
+          : t("Наступний вірш", "Next verse")
+        }
+      />
+
+      {/* Chapter minimap - only in single verse mode */}
+      {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 1 && (
+        <>
+          {/* Desktop: vertical sidebar */}
+          <ChapterMinimap
+            verses={verses}
+            currentVerseIndex={currentVerseIndex}
+            bookId={bookId}
+            cantoNumber={cantoNumber}
+            chapterNumber={effectiveChapterParam}
+            isCantoMode={isCantoMode}
+          />
+          {/* Mobile: horizontal bottom bar */}
+          <ChapterMinimapCompact
+            verses={verses}
+            currentVerseIndex={currentVerseIndex}
+            bookId={bookId}
+            cantoNumber={cantoNumber}
+            chapterNumber={effectiveChapterParam}
+            isCantoMode={isCantoMode}
+          />
+        </>
+      )}
     </div>;
 };
