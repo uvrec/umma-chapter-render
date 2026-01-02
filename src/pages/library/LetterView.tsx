@@ -354,11 +354,14 @@ export const LetterView = () => {
             </div>
           </div>
         ) : (
-          <div className="prose prose-lg dark:prose-invert max-w-none text-foreground whitespace-pre-wrap leading-relaxed">
-            {language === "ua" && letter.content_ua
-              ? letter.content_ua
-              : letter.content_en}
-          </div>
+          <div
+            className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: language === "ua" && letter.content_ua
+                ? letter.content_ua
+                : letter.content_en
+            }}
+          />
         )}
       </main>
       <Footer />
