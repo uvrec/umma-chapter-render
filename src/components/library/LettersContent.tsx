@@ -65,13 +65,13 @@ export const LettersContent = () => {
 
   // Отримати унікальні значення для фільтрів
   const recipients = useMemo(() => {
-    const unique = new Set(letters.map((l) => l.recipient_en));
-    return Array.from(unique).sort();
+    const unique = new Set(letters.map((l) => l.recipient_en).filter(Boolean));
+    return Array.from(unique).sort() as string[];
   }, [letters]);
 
   const locations = useMemo(() => {
-    const unique = new Set(letters.map((l) => l.location_en));
-    return Array.from(unique).sort();
+    const unique = new Set(letters.map((l) => l.location_en).filter(Boolean));
+    return Array.from(unique).sort() as string[];
   }, [letters]);
 
   // Фільтрувати та сортувати листи
