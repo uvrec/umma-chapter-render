@@ -70,9 +70,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        // ВАЖЛИВО: skipWaiting + clientsClaim = миттєва активація нового SW
-        skipWaiting: true,
-        clientsClaim: true,
+        // registerType: 'prompt' — SW чекає дозволу користувача через PWAUpdatePrompt
+        skipWaiting: false,
+        clientsClaim: false,
         cleanupOutdatedCaches: true,
 
         // КРИТИЧНО: НЕ precache-имо js/css - вони мають хеші в іменах
@@ -87,7 +87,7 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/api/, /^\/supabase/, /^\/functions/],
 
         runtimeCaching: [
-          // 1. Документи (HTML) - ЗАВЖДИ мережа першою
+          // 1. Документи (HTML) - мережа першою, кеш як fallback для офлайн
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
@@ -97,7 +97,7 @@ export default defineConfig(({ mode }) => ({
                 maxEntries: 30,
                 maxAgeSeconds: 60 * 60 // 1 година
               },
-              networkTimeoutSeconds: 3,
+              // Без networkTimeoutSeconds — чекаємо мережу без обмежень
               cacheableResponse: {
                 statuses: [0, 200]
               }
