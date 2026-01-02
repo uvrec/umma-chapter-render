@@ -29,6 +29,7 @@ import { RelatedVerses } from "@/components/RelatedVerses";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { useReadingSession } from "@/hooks/useReadingSession";
 export const VedaReaderDB = () => {
   const {
     bookId,
@@ -261,6 +262,27 @@ export const VedaReaderDB = () => {
   const {
     createHighlight
   } = useHighlights(effectiveChapter?.id);
+
+  // Reading session tracking
+  const { trackVerseView } = useReadingSession({
+    bookSlug: bookId || '',
+    bookTitle: language === 'ua' ? book?.title_ua : book?.title_en,
+    cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+    chapterNumber: parseInt(effectiveChapterParam || '1'),
+    chapterTitle: language === 'ua' ? effectiveChapter?.title_ua : effectiveChapter?.title_en,
+    totalVerses: verses.length,
+    enabled: !!bookId && !!effectiveChapter,
+  });
+
+  // Track current verse view
+  useEffect(() => {
+    if (verses.length > 0 && currentVerseIndex >= 0) {
+      const verse = verses[currentVerseIndex];
+      if (verse) {
+        trackVerseView(verse.verse_number);
+      }
+    }
+  }, [currentVerseIndex, verses, trackVerseView]);
 
   // Jump to verse from URL if provided
   useEffect(() => {
