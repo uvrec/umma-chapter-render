@@ -1,11 +1,12 @@
 // ModernGlobalPlayer.tsx - Інтегрована версія для VedaVoice
 import React from 'react';
-import { 
+import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
   Repeat, Repeat1, Shuffle, ChevronUp, ChevronDown,
   Heart, MoreVertical, Music
 } from 'lucide-react';
 import { useAudio } from '@/contexts/ModernAudioContext';
+import { WaveformProgressBar } from './WaveformProgressBar';
 
 interface ModernGlobalPlayerProps {
   className?: string;
@@ -39,18 +40,6 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Progress percentage
-  const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-  // Progress bar click handler
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percent = x / rect.width;
-    const newTime = percent * duration;
-    seek(newTime);
   };
 
   // Volume change handler
@@ -125,20 +114,18 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
               )}
             </div>
 
-            {/* Progress Bar (Large) */}
+            {/* Progress Bar (Large) - Waveform */}
             <div className="max-w-md mx-auto mb-4">
-              <div 
-                onClick={handleProgressClick}
-                className="h-2 bg-foreground/20 rounded-full cursor-pointer group relative"
-              >
-                <div 
-                  className="absolute h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${progressPercent}%` }}
-                >
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary-foreground rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition" />
-                </div>
-              </div>
-              
+              <WaveformProgressBar
+                audioUrl={currentTrack.src}
+                currentTime={currentTime}
+                duration={duration}
+                onSeek={seek}
+                variant="expanded"
+                height={48}
+                barCount={60}
+              />
+
               <div className="flex justify-between text-sm text-muted-foreground mt-2">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
@@ -236,16 +223,15 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
         {!isExpanded && (
           <div className="bg-card/95 backdrop-blur border-t border-border px-4 py-3 safe-bottom">
             <div className="max-w-6xl mx-auto">
-              {/* Progress bar (thin) */}
-              <div 
-                onClick={handleProgressClick}
-                className="h-1 bg-muted rounded-full cursor-pointer mb-3 group relative"
-              >
-                <div 
-                  className="absolute h-full bg-primary rounded-full transition-all"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div>
+              {/* Progress bar (thin waveform) */}
+              <WaveformProgressBar
+                audioUrl={currentTrack.src}
+                currentTime={currentTime}
+                duration={duration}
+                onSeek={seek}
+                variant="mini"
+                className="mb-3"
+              />
 
               <div className="flex items-center justify-between gap-4">
                 {/* Track Info + Cover */}
