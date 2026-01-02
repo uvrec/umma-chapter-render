@@ -25,6 +25,7 @@ import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
 import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
+import { RelatedVerses } from "@/components/RelatedVerses";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
@@ -1032,6 +1033,15 @@ export const VedaReaderDB = () => {
                 queryKey: ["verses"]
               });
             }} />}
+
+                  {/* Related verses */}
+                  {currentVerse?.id && (
+                    <RelatedVerses
+                      verseId={currentVerse.id}
+                      defaultExpanded={false}
+                      limit={5}
+                    />
+                  )}
 
                   {/* Навігація знизу */}
                   <div className="flex items-center justify-between pt-6">
