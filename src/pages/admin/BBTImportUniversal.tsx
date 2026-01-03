@@ -32,6 +32,7 @@ interface BookConfig {
   title_en: string;
   hasVerses: boolean; // true for Gita-like, false for continuous text books
   data: ParsedBookData;
+  cantoNumber?: number; // For multi-canto books like Bhagavatam
 }
 
 interface ParsedChapterWithVerses {
@@ -113,6 +114,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     hasVerses: true,
     data: sb4Data as ParsedBookData,
+    cantoNumber: 4,
   },
 ];
 
@@ -207,16 +209,59 @@ export default function BBTImportUniversal() {
 
       const bookId = book.id;
 
+      // Handle canto for multi-canto books (like Bhagavatam)
+      let cantoId: string | null = null;
+      if (bookConfig.cantoNumber) {
+        // Find existing canto
+        const { data: existingCanto } = await supabase
+          .from("cantos")
+          .select("id")
+          .eq("book_id", bookId)
+          .eq("canto_number", bookConfig.cantoNumber)
+          .single();
+
+        if (existingCanto) {
+          cantoId = existingCanto.id;
+          console.log(`Found existing canto ${bookConfig.cantoNumber}: ${cantoId}`);
+        } else {
+          // Create the canto
+          const { data: newCanto, error: cantoError } = await supabase
+            .from("cantos")
+            .insert({
+              book_id: bookId,
+              canto_number: bookConfig.cantoNumber,
+              title_ua: `Пісня ${bookConfig.cantoNumber}`,
+              title_en: `Canto ${bookConfig.cantoNumber}`,
+            })
+            .select("id")
+            .single();
+
+          if (cantoError || !newCanto) {
+            console.error(`Error creating canto ${bookConfig.cantoNumber}:`, cantoError);
+          } else {
+            cantoId = newCanto.id;
+            console.log(`Created new canto ${bookConfig.cantoNumber}: ${cantoId}`);
+          }
+        }
+      }
+
       // Save chapters
       for (const chapter of selectedChapters) {
         let chapterId: string;
 
-        const { data: existingChapter } = await supabase
+        // Build query for finding existing chapter
+        let chapterQuery = supabase
           .from("chapters")
           .select("id")
           .eq("book_id", bookId)
-          .eq("chapter_number", chapter.chapter_number)
-          .single();
+          .eq("chapter_number", chapter.chapter_number);
+
+        // For canto-based books, also filter by canto_id
+        if (cantoId) {
+          chapterQuery = chapterQuery.eq("canto_id", cantoId);
+        }
+
+        const { data: existingChapter } = await chapterQuery.single();
 
         if (existingChapter) {
           chapterId = existingChapter.id;
@@ -224,6 +269,7 @@ export default function BBTImportUniversal() {
           // Update chapter
           const updateData = {
             title_ua: chapter.title_ua.replace(/\n/g, ' '),
+            ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
               content_ua: chapter.content_ua,
               chapter_type: "text" as const,
@@ -241,6 +287,7 @@ export default function BBTImportUniversal() {
             chapter_number: chapter.chapter_number,
             title_ua: chapter.title_ua.replace(/\n/g, ' '),
             title_en: chapter.title_ua.replace(/\n/g, ' '), // Fallback
+            ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
               content_ua: chapter.content_ua,
               chapter_type: "text" as const,
