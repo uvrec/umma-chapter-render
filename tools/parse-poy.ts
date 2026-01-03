@@ -20,24 +20,29 @@ const OUTPUT_DIR = path.join(__dirname, "..", "src", "data");
 
 // PUA Mapping for Ukrainian diacritics (same as parse-bbt.ts)
 const UKRAINIAN_PUA_MAP: Record<string, string> = {
+  "\uf100": "А",    // Capital A
   "\uf101": "а̄",
   "\uf102": "ī",
   "\uf121": "ī",
   "\uf123": "ӯ",
+  "\uf103": "д̣",
+  "\uf105": "",     // Style marker, remove
+  "\uf107": "\u0310", // Candrabindu variant
+  "\uf109": "м̇",
+  "\uf10d": "\u0310", // Candrabindu (combining) - м̐, М̐, л̐, Л̐
+  "\uf10f": "н̇",
+  "\uf111": "н̣",
+  "\uf113": "н̃",
   "\uf115": "р̣",
+  "\uf117": "р̣",   // Alternative р̣ encoding
+  "\uf119": "т̣",
+  "\uf11b": "х̣",
+  "\uf11c": "Ш́",
+  "\uf11d": "ш́",
+  "\uf11f": "ш̣",
   "\uf125": "р̣̄",
   "\uf127": "л̣",
   "\uf129": "л̣̄",
-  "\uf10f": "н̇",
-  "\uf113": "н̃",
-  "\uf111": "н̣",
-  "\uf109": "м̇",
-  "\uf119": "т̣",
-  "\uf103": "д̣",
-  "\uf11d": "ш́",
-  "\uf11f": "ш̣",
-  "\uf11b": "х̣",
-  "\uf11c": "Ш́",
 };
 
 // Intro file mapping for POY
