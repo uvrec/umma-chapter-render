@@ -332,7 +332,7 @@ function parseChapter(text: string): Chapter {
             : blockquote;
         }
       }
-    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra"].includes(currentTag)) {
+    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra", "p-bengali", "p-bengali-s", "p-jagati", "p-sakkari"].includes(currentTag)) {
       if (currentVerse) {
         const translit = processTransliteration(content);
         if (translit) {

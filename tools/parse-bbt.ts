@@ -402,7 +402,7 @@ function parseVentura(text: string): Chapter {
             : blockquote;
         }
       }
-    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra"].includes(currentTag)) {
+    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra", "p-sakkari"].includes(currentTag)) {
       // Quoted verse transliteration inside commentary (like verse quotes from other texts)
       if (currentVerse) {
         const translit = processTransliteration(content);
