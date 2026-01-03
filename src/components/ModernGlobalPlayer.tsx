@@ -1,5 +1,5 @@
 // ModernGlobalPlayer.tsx - Інтегрована версія для VedaVoice
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
   Repeat, Repeat1, Shuffle, ChevronUp, ChevronDown, X,
@@ -8,12 +8,15 @@ import {
 import { useAudio } from '@/contexts/ModernAudioContext';
 import { WaveformProgressBar } from './WaveformProgressBar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { SleepTimerDialog, SleepTimerIndicator } from '@/components/SleepTimerDialog';
 
 interface ModernGlobalPlayerProps {
   className?: string;
 }
 
 export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ className = '' }) => {
+  const [showSleepTimer, setShowSleepTimer] = useState(false);
+
   const {
     currentTrack,
     isPlaying,
@@ -371,9 +374,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 />
               </div>
 
-              <button className="text-muted-foreground hover:text-foreground transition">
-                <MoreVertical className="w-6 h-6" />
-              </button>
+              <SleepTimerIndicator onClick={() => setShowSleepTimer(true)} />
             </div>
           </div>
         )}
@@ -475,6 +476,11 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                   />
                 </div>
 
+                {/* Sleep Timer (Desktop) */}
+                <div className="hidden md:block">
+                  <SleepTimerIndicator onClick={() => setShowSleepTimer(true)} />
+                </div>
+
                 {/* Time */}
                 <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
                   <span>{formatTime(currentTime)}</span>
@@ -498,6 +504,12 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
           </div>
         )}
       </div>
+
+      {/* Sleep Timer Dialog */}
+      <SleepTimerDialog
+        isOpen={showSleepTimer}
+        onClose={() => setShowSleepTimer(false)}
+      />
     </>
   );
 };

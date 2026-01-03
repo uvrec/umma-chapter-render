@@ -17,9 +17,22 @@ export interface AudioTrack {
   track_number?: number;
   title_ua?: string;
   title_en?: string;
+  // Verse sync fields
+  verseId?: string;         // ID of the verse this audio belongs to
+  bookSlug?: string;        // Book slug for navigation
+  chapterNumber?: number;   // Chapter number
+  cantoNumber?: number;     // Canto number (for SB, CC)
+  verseNumber?: string;     // Verse number
 }
 
 type RepeatMode = "off" | "all" | "one";
+
+// Sleep timer modes
+export type SleepTimerMode =
+  | { type: 'minutes'; value: number }     // Stop after X minutes
+  | { type: 'tracks'; value: number }      // Stop after X tracks
+  | { type: 'endOfTrack' }                 // Stop at end of current track
+  | null;
 
 interface AudioContextState {
   // Playlist
@@ -46,6 +59,12 @@ interface AudioContextState {
 
   // History & Analytics
   playHistory: AudioTrack[];
+
+  // Sleep Timer
+  sleepTimer: SleepTimerMode;
+  sleepTimerRemaining: number | null;  // seconds remaining
+  setSleepTimer: (mode: SleepTimerMode) => void;
+  cancelSleepTimer: () => void;
 
   // Enhanced methods
   playTrack: (track: AudioTrack) => void;
@@ -106,6 +125,12 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [playHistory, setPlayHistory] = useState<AudioTrack[]>([]);
+
+  // Sleep Timer state
+  const [sleepTimer, setSleepTimerState] = useState<SleepTimerMode>(null);
+  const [sleepTimerRemaining, setSleepTimerRemaining] = useState<number | null>(null);
+  const sleepTimerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const sleepTimerTracksRemaining = useRef<number>(0);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const originalPlaylistOrder = useRef<AudioTrack[]>([]);
@@ -338,7 +363,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     [playlist],
   );
 
-  // ðŸ”§ Enhanced: Analytics (localStorage based)
+  // ðŸ"§ Enhanced: Analytics (localStorage based)
   const getPlayStats = useCallback(async () => {
     try {
       const playStats = JSON.parse(localStorage.getItem("audio-play-stats") || "{}");
@@ -352,6 +377,70 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       return [];
     }
   }, []);
+
+  // Sleep Timer functions
+  const cancelSleepTimer = useCallback(() => {
+    if (sleepTimerIntervalRef.current) {
+      clearInterval(sleepTimerIntervalRef.current);
+      sleepTimerIntervalRef.current = null;
+    }
+    setSleepTimerState(null);
+    setSleepTimerRemaining(null);
+    sleepTimerTracksRemaining.current = 0;
+  }, []);
+
+  const setSleepTimer = useCallback((mode: SleepTimerMode) => {
+    // Clear existing timer
+    cancelSleepTimer();
+
+    if (!mode) return;
+
+    setSleepTimerState(mode);
+
+    if (mode.type === 'minutes') {
+      // Set countdown in seconds
+      const totalSeconds = mode.value * 60;
+      setSleepTimerRemaining(totalSeconds);
+
+      // Start countdown interval
+      sleepTimerIntervalRef.current = setInterval(() => {
+        setSleepTimerRemaining((prev) => {
+          if (prev === null || prev <= 1) {
+            // Timer expired - stop playback
+            pause();
+            cancelSleepTimer();
+            return null;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else if (mode.type === 'tracks') {
+      sleepTimerTracksRemaining.current = mode.value;
+    }
+    // 'endOfTrack' mode is handled in handleEnded
+  }, [cancelSleepTimer, pause]);
+
+  // Handle sleep timer track counting (called when track ends)
+  const handleSleepTimerTrackEnd = useCallback(() => {
+    if (!sleepTimer) return false;
+
+    if (sleepTimer.type === 'endOfTrack') {
+      pause();
+      cancelSleepTimer();
+      return true; // Prevent next track
+    }
+
+    if (sleepTimer.type === 'tracks') {
+      sleepTimerTracksRemaining.current--;
+      if (sleepTimerTracksRemaining.current <= 0) {
+        pause();
+        cancelSleepTimer();
+        return true; // Prevent next track
+      }
+    }
+
+    return false;
+  }, [sleepTimer, pause, cancelSleepTimer]);
 
   // Audio setup and event listeners (same as original)
   useEffect(() => {
@@ -401,6 +490,11 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       }
     };
     const handleEnded = () => {
+      // Check sleep timer first
+      if (handleSleepTimerTrackEnd()) {
+        return; // Sleep timer stopped playback
+      }
+
       if (repeatMode === "one") {
         audio.currentTime = 0;
         audio.play();
@@ -432,7 +526,7 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       audio.removeEventListener("pause", handlePause);
       audio.removeEventListener("error", handleError as any);
     };
-  }, [repeatMode]);
+  }, [repeatMode, handleSleepTimerTrackEnd]);
 
   // Update audio source when track changes
   useEffect(() => {
@@ -495,6 +589,10 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     isExpanded,
     showPlaylist,
     playHistory,
+    sleepTimer,
+    sleepTimerRemaining,
+    setSleepTimer,
+    cancelSleepTimer,
     playTrack,
     playPlaylist,
     addToPlaylist,

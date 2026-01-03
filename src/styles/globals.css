@@ -129,3 +129,33 @@ mark {
    ========================================== */
 
 /* prose-reader більше не має спеціальних стилів - весь текст однаковий */
+
+/* ==========================================
+   Now Playing - Audio-Text Sync стилі
+   ========================================== */
+
+/* Плавна анімація рамки для вірша що зараз грає */
+@keyframes now-playing-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+  }
+}
+
+.now-playing {
+  animation: now-playing-pulse 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+/* Tap-to-play індикатор */
+.verse-tap-indicator {
+  @apply absolute -left-3 top-1/2 -translate-y-1/2;
+  @apply w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center;
+  @apply opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer;
+}
+
+.verse-tap-indicator:hover {
+  @apply bg-primary/40;
+}
