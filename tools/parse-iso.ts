@@ -50,11 +50,14 @@ const INTRO_FILE_MAP: Record<string, [string, string, number]> = {
   UKIS00PF: ["preface", "Передмова до англійського видання", 3],
   UKIS00ID: ["introduction", "Вступ", 4],
   UKIS00IV: ["invocation", "Молитва", 5],
+  UKIS00CR: ["credits", "Подяки", 6],
   UKIS00AU: ["about-author", "Про автора", 100],
   UKIS00PG: ["pronunciation", "Як читати санскрит", 101],
   UKIS00BL: ["books", "Книги Його Божественної Милості", 102],
   UKIS00GL: ["glossary", "Словничок", 103],
   UKIS00TC: ["contents", "Зміст", 104],
+  UKIS00QV: ["verse-index", "Покажчик віршів", 105],
+  UKIS00XS: ["summary", "Підсумок", 106],
 };
 
 const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special", "h1-digit-rh", "h1-digit"]);

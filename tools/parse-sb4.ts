@@ -1,14 +1,13 @@
 #!/usr/bin/env npx ts-node
 /**
- * NOI (Nectar of Instruction / Нектар настанов) Ventura Parser
+ * SB4 (Srimad Bhagavatam Canto 4, Part 2) Ventura Parser
  *
- * Parses BBT Ventura files from /docs/noi folder and outputs JSON
- * NOI has 11 texts (upadeshas), each with verses structure like Gita
- * All 11 texts are in a single "chapter 1"
+ * Parses BBT Ventura files from /docs/SB/4 folder and outputs JSON
+ * This canto has chapters 20-31, each with verses structure
  *
- * File pattern: UKNI##XT.* (UKNI01XT through UKNI11XT)
+ * File pattern: UKS4##XT.* (UKS420XT through UKS431XT)
  *
- * Usage: npx ts-node tools/parse-noi.ts
+ * Usage: npx ts-node tools/parse-sb4.ts
  */
 
 import * as fs from "fs";
@@ -18,7 +17,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DOCS_DIR = path.join(__dirname, "..", "docs", "noi");
+const DOCS_DIR = path.join(__dirname, "..", "docs", "SB", "4");
 const OUTPUT_DIR = path.join(__dirname, "..", "src", "data");
 
 // PUA Mapping for Ukrainian diacritics
@@ -43,23 +42,19 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf11c": "Ш́",
 };
 
-// Intro file mapping for NOI
+// Intro file mapping for SB4 (prefix UKS402 for intros)
 const INTRO_FILE_MAP: Record<string, [string, string, number]> = {
-  UKNI00DC: ["dedication", "Посвята", 1],
-  UKNI00FW: ["foreword", "Передмова", 2],
-  UKNI00PF: ["preface", "Передмова до англійського видання", 3],
-  UKNI00CR: ["credits", "Подяки", 4],
-  UKNI00AU: ["about-author", "Про автора", 100],
-  UKNI00PG: ["pronunciation", "Як читати санскрит", 101],
-  UKNI00BL: ["books", "Книги Його Божественної Милості", 102],
-  UKNI00GL: ["glossary", "Словничок", 103],
-  UKNI00TC: ["contents", "Зміст", 104],
-  UKNI00RF: ["references", "Список цитованої літератури", 105],
-  UKNI00XS: ["summary", "Підсумок", 106],
+  UKS402FW: ["foreword", "Передмова", 1],
+  UKS402PF: ["preface", "Передмова до англійського видання", 2],
+  UKS402AU: ["about-author", "Про автора", 100],
+  UKS402PG: ["pronunciation", "Як читати санскрит", 101],
+  UKS402BL: ["books", "Книги Його Божественної Милості", 102],
+  UKS402GL: ["glossary", "Словничок", 103],
+  UKS402TC: ["contents", "Зміст", 104],
 };
 
-const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special", "h1-digit-rh", "h1-digit"]);
-const DEVANAGARI_TAGS = new Set(["d-uvaca", "d-anustubh", "d-tristubh"]);
+const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special"]);
+const DEVANAGARI_TAGS = new Set(["d-uvaca", "d-anustubh", "d-tristubh", "devanagari"]);
 
 // ============= TEXT PROCESSING =============
 
@@ -163,6 +158,7 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   result = result.replace(/<_dd>|<_\/dd>/g, "");
   result = result.replace(/<_slash>\/<_\/slash>/g, "/");
   result = result.replace(/<mon>[^<]*<\/mon>/g, "");
+  result = result.replace(/<qc>/g, "");
   result = decodePua(result);
 
   if (keepHtml) {
@@ -197,28 +193,6 @@ function processProse(text: string, keepHtml: boolean = false): string {
   return result;
 }
 
-function processFirstParagraph(text: string): string {
-  let result = processProse(text, true);
-  if (result && result.length > 0) {
-    let i = 0;
-    let leadingTags = "";
-    while (i < result.length) {
-      if (result[i] === "<") {
-        const tagEnd = result.indexOf(">", i);
-        if (tagEnd !== -1) {
-          leadingTags += result.slice(i, tagEnd + 1);
-          i = tagEnd + 1;
-        } else break;
-      } else {
-        const firstChar = result[i];
-        const rest = result.slice(i + 1);
-        return `<p class="purport first">${leadingTags}<span class="drop-cap">${firstChar}</span>${rest}</p>`;
-      }
-    }
-  }
-  return `<p class="purport first">${result}</p>`;
-}
-
 function processTransliteration(text: string): string {
   let result = processLineContinuations(text);
   result = result.replace(/<_R><_>/g, "\n");
@@ -249,34 +223,21 @@ function processQuote(text: string): string {
 }
 
 function extractVerseNumber(text: string): string {
-  // NOI uses "Вірш перший", "Вірш другий" etc. or just numbers
-  const ordinals: [string, string][] = [
-    ["ОДИНАДЦЯТИЙ", "11"],
-    ["ДЕСЯТИЙ", "10"],
-    ["ДЕВ'ЯТИЙ", "9"],
-    ["ВОСЬМИЙ", "8"],
-    ["СЬОМИЙ", "7"],
-    ["С'ОМИЙ", "7"],
-    ["ШОСТИЙ", "6"],
-    ["П'ЯТИЙ", "5"],
-    ["ЧЕТВЕРТИЙ", "4"],
-    ["ТРЕТІЙ", "3"],
-    ["ДРУГИЙ", "2"],
-    ["ПЕРШИЙ", "1"],
-  ];
-
-  const upper = text.toUpperCase().replace(/ʼ/g, "'").replace(/\u2019/g, "'");
-  for (const [name, num] of ordinals) {
-    if (upper.includes(name)) return num;
+  const match = text.match(/(?:Вірш[иі]?|ВІРШ[ИІ]?|ТЕКСТ)\s*(\d+(?:\s*[-–—]\s*\d+)?)/i);
+  if (match) {
+    return match[1].replace(/\s+/g, "").replace(/[–—]/g, "-");
   }
-
-  const match = text.match(/(?:Вірш|ВІРШ|Текст|ТЕКСТ)\s*(\d+)/i);
-  if (match) return match[1];
-
-  const numMatch = text.match(/(\d+)/);
-  if (numMatch) return numMatch[1];
-
+  const numMatch = text.match(/(\d+(?:\s*[-–—]\s*\d+)?)/);
+  if (numMatch) {
+    return numMatch[1].replace(/\s+/g, "").replace(/[–—]/g, "-");
+  }
   return text.trim();
+}
+
+function extractChapterNumber(text: string): number {
+  const match = text.match(/(\d+)/);
+  if (match) return parseInt(match[1]);
+  return 0;
 }
 
 // ============= INTERFACES =============
@@ -304,9 +265,12 @@ interface IntroPage {
 
 // ============= PARSERS =============
 
-function parseVerse(text: string, verseNum: number): Verse {
+function parseChapter(text: string): Chapter {
   const lines = text.split("\n");
-  const verse: Verse = { verse_number: String(verseNum) };
+  let chapterNumber = 0;
+  let chapterTitle = "";
+  const verses: Verse[] = [];
+  let currentVerse: Verse | null = null;
   let currentTag: string | null = null;
   let currentContent: string[] = [];
 
@@ -315,45 +279,62 @@ function parseVerse(text: string, verseNum: number): Verse {
     const content = currentContent.join(" ").trim();
     if (!content) return;
 
-    if (["h1", "h1-fb", "h1-fb1", "h2-number"].includes(currentTag)) {
-      const extracted = extractVerseNumber(content);
-      if (extracted) verse.verse_number = extracted;
-    } else if (["v-uvaca", "v-anustubh", "v-tristubh", "p-tristubh"].includes(currentTag)) {
-      const translit = processTransliteration(content);
-      verse.transliteration_ua = verse.transliteration_ua
-        ? verse.transliteration_ua + "\n" + translit
-        : translit;
-    } else if (currentTag === "eqs") {
-      const synonyms = processSynonyms(content);
-      verse.synonyms_ua = verse.synonyms_ua ? verse.synonyms_ua + " " + synonyms : synonyms;
-    } else if (currentTag === "translation") {
-      verse.translation_ua = processProse(content, false);
-    } else if (currentTag === "p-indent") {
-      const para = processFirstParagraph(content);
-      if (para) {
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + para : para;
+    if (currentTag === "h1-number") {
+      chapterNumber = extractChapterNumber(content);
+    } else if (currentTag === "h1") {
+      chapterTitle = processInlineTags(content);
+    } else if (["h2-number", "h2-number-2", "ch"].includes(currentTag)) {
+      if (currentVerse) verses.push(currentVerse);
+      currentVerse = { verse_number: extractVerseNumber(content) };
+    } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
+      if (currentVerse) {
+        const translit = processTransliteration(content);
+        currentVerse.transliteration_ua = currentVerse.transliteration_ua
+          ? currentVerse.transliteration_ua + "\n" + translit
+          : translit;
       }
-    } else if (["p", "p0", "p1"].includes(currentTag)) {
-      const para = processProse(content, true);
-      if (para) {
-        const wrapped = `<p class="purport">${para}</p>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + wrapped : wrapped;
+    } else if (["eqs", "h3-synonyms"].includes(currentTag)) {
+      if (currentVerse) {
+        const synonyms = processSynonyms(content);
+        currentVerse.synonyms_ua = currentVerse.synonyms_ua ? currentVerse.synonyms_ua + " " + synonyms : synonyms;
+      }
+    } else if (currentTag === "translation") {
+      if (currentVerse) currentVerse.translation_ua = processProse(content, false);
+    } else if (["p", "p0", "p1", "p-purport", "p-h3-inline"].includes(currentTag)) {
+      if (currentVerse) {
+        const para = processProse(content, true);
+        if (para) {
+          const wrapped = `<p class="purport">${para}</p>`;
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + "\n\n" + wrapped
+            : wrapped;
+        }
       }
     } else if (["ql", "q", "q-p"].includes(currentTag)) {
-      const quote = processQuote(content);
-      if (quote) {
-        const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
+      if (currentVerse) {
+        const quote = processQuote(content);
+        if (quote) {
+          const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + "\n\n" + blockquote
+            : blockquote;
+        }
       }
-    } else if (["p-anustubh", "p-uvaca", "p-gayatri", "p-indravajra"].includes(currentTag)) {
-      const translit = processTransliteration(content);
-      if (translit) {
-        const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
-        verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
+    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra"].includes(currentTag)) {
+      if (currentVerse) {
+        const translit = processTransliteration(content);
+        if (translit) {
+          const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
+          currentVerse.commentary_ua = currentVerse.commentary_ua
+            ? currentVerse.commentary_ua + "\n\n" + blockquote
+            : blockquote;
+        }
       }
     } else if (currentTag === "p-outro") {
-      const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
-      verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + outro : outro;
+      if (currentVerse) {
+        const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
+        currentVerse.commentary_ua = currentVerse.commentary_ua ? currentVerse.commentary_ua + "\n\n" + outro : outro;
+      }
     }
   }
 
@@ -373,7 +354,8 @@ function parseVerse(text: string, verseNum: number): Verse {
   }
 
   flushBlock();
-  return verse;
+  if (currentVerse) verses.push(currentVerse);
+  return { chapter_number: chapterNumber, title_ua: chapterTitle, verses };
 }
 
 function parseIntroPage(text: string, filePrefix: string): IntroPage | null {
@@ -449,7 +431,7 @@ function readFile(filePath: string): string {
 // ============= MAIN =============
 
 function main() {
-  console.log("NOI (Nectar of Instruction / Нектар настанов) Ventura Parser\n");
+  console.log("SB4 (Srimad Bhagavatam Canto 4, Part 2) Ventura Parser\n");
 
   if (!fs.existsSync(OUTPUT_DIR)) {
     fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -458,36 +440,44 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "noi",
-      book_title_ua: "Нектар настанов",
-      book_title_en: "The Nectar of Instruction",
+      book_slug: "sb4",
+      book_title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+      book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
       chapters: [],
       intros: [],
     };
-    const outputPath = path.join(OUTPUT_DIR, "noi-parsed.json");
+    const outputPath = path.join(OUTPUT_DIR, "sb4-parsed.json");
     fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
     console.log(`Created empty output: ${outputPath}`);
     return;
   }
 
   const files = fs.readdirSync(DOCS_DIR);
-  const verses: Verse[] = [];
+  const chapters: Chapter[] = [];
   const intros: IntroPage[] = [];
 
-  // NOI has 11 texts/verses, all in one chapter
-  // File pattern: UKNI01XT through UKNI11XT
-  for (let i = 1; i <= 11; i++) {
-    const prefix = `UKNI${String(i).padStart(2, "0")}XT`;
-    const verseFile = files.find((f) => f.startsWith(prefix) && !f.endsWith(".bak"));
+  // SB4 Part 2 has chapters 20-31
+  // File pattern: UKS420XT through UKS431XT
+  for (let i = 20; i <= 31; i++) {
+    const prefix = `UKS4${String(i).padStart(2, "0")}XT`;
+    const chapterFile = files.find((f) => f.startsWith(prefix) && !f.endsWith(".bak"));
 
-    if (verseFile) {
-      console.log(`Parsing text ${i}: ${verseFile}`);
-      const text = readFile(path.join(DOCS_DIR, verseFile));
-      const verse = parseVerse(text, i);
-      verses.push(verse);
-      console.log(`  → Verse ${verse.verse_number}`);
+    if (chapterFile) {
+      console.log(`Parsing chapter ${i}: ${chapterFile}`);
+      const text = readFile(path.join(DOCS_DIR, chapterFile));
+      const chapter = parseChapter(text);
+
+      // Override chapter number from file pattern
+      chapter.chapter_number = i;
+
+      if (chapter.verses.length > 0) {
+        chapters.push(chapter);
+        console.log(`  → ${chapter.verses.length} verses, title: "${chapter.title_ua}"`);
+      } else {
+        console.log(`  → WARNING: No verses found!`);
+      }
     } else {
-      console.log(`Text ${i}: NOT FOUND`);
+      console.log(`Chapter ${i}: NOT FOUND`);
     }
   }
 
@@ -507,27 +497,21 @@ function main() {
     }
   }
 
-  // Create single chapter with all verses
-  const chapter: Chapter = {
-    chapter_number: 1,
-    title_ua: "Нектар настанов",
-    verses,
-  };
-
   // Write output
   const output = {
-    book_slug: "noi",
-    book_title_ua: "Нектар настанов",
-    book_title_en: "The Nectar of Instruction",
-    chapters: verses.length > 0 ? [chapter] : [],
+    book_slug: "sb4",
+    book_title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+    book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
+    chapters,
     intros,
   };
 
-  const outputPath = path.join(OUTPUT_DIR, "noi-parsed.json");
+  const outputPath = path.join(OUTPUT_DIR, "sb4-parsed.json");
   fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), "utf8");
 
   console.log(`\n✅ Done!`);
-  console.log(`   Texts/Verses: ${verses.length}`);
+  console.log(`   Chapters: ${chapters.length}`);
+  console.log(`   Total verses: ${chapters.reduce((sum, c) => sum + c.verses.length, 0)}`);
   console.log(`   Intro pages: ${intros.length}`);
   console.log(`   Output: ${outputPath}`);
 }
