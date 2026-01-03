@@ -20,6 +20,9 @@ import {
 import bbtGitaData from "@/data/bbt-parsed.json";
 import poyData from "@/data/poy-parsed.json";
 import eaData from "@/data/ea-parsed.json";
+import noiData from "@/data/noi-parsed.json";
+import isoData from "@/data/iso-parsed.json";
+import pqnData from "@/data/pqn-parsed.json";
 
 // Book configurations
 interface BookConfig {
@@ -81,6 +84,27 @@ const BOOK_CONFIGS: BookConfig[] = [
     title_en: "Easy Journey to Other Planets",
     hasVerses: false,
     data: eaData as ParsedBookData,
+  },
+  {
+    slug: "noi",
+    title_ua: "Нектар настанов",
+    title_en: "The Nectar of Instruction",
+    hasVerses: true,
+    data: noiData as ParsedBookData,
+  },
+  {
+    slug: "iso",
+    title_ua: "Шрі Ішопанішада",
+    title_en: "Sri Isopanisad",
+    hasVerses: true,
+    data: isoData as ParsedBookData,
+  },
+  {
+    slug: "pqn",
+    title_ua: "Досконалі питання, досконалі відповіді",
+    title_en: "Perfect Questions, Perfect Answers",
+    hasVerses: false,
+    data: pqnData as ParsedBookData,
   },
 ];
 
