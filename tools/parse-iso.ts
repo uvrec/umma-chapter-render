@@ -6,7 +6,7 @@
  * ISO has 18 mantras, each with verses structure like Gita
  * All 18 mantras are in a single "chapter 1"
  *
- * File pattern: UKIO##XT.* (UKIO01XT through UKIO18XT)
+ * File pattern: UKIS##XT.* (UKIS01XT through UKIS18XT)
  *
  * Usage: npx ts-node tools/parse-iso.ts
  */
@@ -43,15 +43,21 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf11c": "Ш́",
 };
 
-// Intro file mapping for ISO
+// Intro file mapping for ISO (prefix UKIS)
 const INTRO_FILE_MAP: Record<string, [string, string, number]> = {
-  UKIO00DC: ["dedication", "Посвята", 1],
-  UKIO00FW: ["foreword", "Передмова", 2],
-  UKIO00PF: ["preface", "Передмова до англійського видання", 3],
-  UKIO00ID: ["introduction", "Вступ", 4],
-  UKIO00AU: ["about-author", "Про автора", 100],
-  UKIO00PG: ["pronunciation", "Як читати санскрит", 101],
-  UKIO00BL: ["books", "Книги Його Божественної Милості", 102],
+  UKIS00DC: ["dedication", "Посвята", 1],
+  UKIS00FW: ["foreword", "Передмова", 2],
+  UKIS00PF: ["preface", "Передмова до англійського видання", 3],
+  UKIS00ID: ["introduction", "Вступ", 4],
+  UKIS00IV: ["invocation", "Молитва", 5],
+  UKIS00CR: ["credits", "Подяки", 6],
+  UKIS00AU: ["about-author", "Про автора", 100],
+  UKIS00PG: ["pronunciation", "Як читати санскрит", 101],
+  UKIS00BL: ["books", "Книги Його Божественної Милості", 102],
+  UKIS00GL: ["glossary", "Словничок", 103],
+  UKIS00TC: ["contents", "Зміст", 104],
+  UKIS00QV: ["verse-index", "Покажчик віршів", 105],
+  UKIS00XS: ["summary", "Підсумок", 106],
 };
 
 const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special", "h1-digit-rh", "h1-digit"]);
@@ -478,9 +484,9 @@ function main() {
   const intros: IntroPage[] = [];
 
   // ISO has 18 mantras, all in one chapter
-  // File pattern: UKIO01XT through UKIO18XT
+  // File pattern: UKIS01XT through UKIS18XT
   for (let i = 1; i <= 18; i++) {
-    const prefix = `UKIO${String(i).padStart(2, "0")}XT`;
+    const prefix = `UKIS${String(i).padStart(2, "0")}XT`;
     const mantraFile = files.find((f) => f.startsWith(prefix) && !f.endsWith(".bak"));
 
     if (mantraFile) {

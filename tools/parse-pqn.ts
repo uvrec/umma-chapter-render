@@ -42,14 +42,19 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf11c": "Ш́",
 };
 
-// Intro file mapping for PQN
+// Intro file mapping for PQN (both UKPQ00 and UK0000 prefixes)
 const INTRO_FILE_MAP: Record<string, [string, string, number]> = {
   UKPQ00DC: ["dedication", "Посвята", 1],
   UKPQ00FW: ["foreword", "Передмова", 2],
   UKPQ00PF: ["preface", "Передмова до англійського видання", 3],
-  UKPQ00AU: ["about-author", "Про автора", 100],
-  UKPQ00PG: ["pronunciation", "Як читати санскрит", 101],
-  UKPQ00BL: ["books", "Книги Його Божественної Милості", 102],
+  UKPQ00ID: ["introduction", "Вступ", 4],
+  UKPQ00CW: ["copyright", "Видавнича інформація", 5],
+  UKPQ00CR: ["credits", "Подяки", 6],
+  UK0000AU: ["about-author", "Про автора", 100],
+  UK0000PG: ["pronunciation", "Як читати санскрит", 101],
+  UK0000BL: ["books", "Книги Його Божественної Милості", 102],
+  UKPQ00GL: ["glossary", "Словничок", 103],
+  UKPQ00TC: ["contents", "Зміст", 104],
 };
 
 const SKIP_TAGS = new Set(["rh-verso", "rh-recto", "logo", "text-rh", "special", "h1-digit-rh", "h1-digit"]);

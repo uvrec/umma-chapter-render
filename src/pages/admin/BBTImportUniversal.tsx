@@ -23,6 +23,7 @@ import eaData from "@/data/ea-parsed.json";
 import noiData from "@/data/noi-parsed.json";
 import isoData from "@/data/iso-parsed.json";
 import pqnData from "@/data/pqn-parsed.json";
+import sb4Data from "@/data/sb4-parsed.json";
 
 // Book configurations
 interface BookConfig {
@@ -105,6 +106,13 @@ const BOOK_CONFIGS: BookConfig[] = [
     title_en: "Perfect Questions, Perfect Answers",
     hasVerses: false,
     data: pqnData as ParsedBookData,
+  },
+  {
+    slug: "bhagavatam",
+    title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+    title_en: "Srimad Bhagavatam, Canto 4, Part 2",
+    hasVerses: true,
+    data: sb4Data as ParsedBookData,
   },
 ];
 
