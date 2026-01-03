@@ -308,7 +308,9 @@ function parseChapter(text: string): Chapter {
       if (currentVerse) currentVerse.translation_ua = processProse(content, false);
     } else if (["p", "p0", "p1", "p-purport", "p-h3-inline"].includes(currentTag)) {
       if (currentVerse) {
-        const para = processProse(content, true);
+        let para = processProse(content, true);
+        // Remove redundant "ПОЯСНЕННЯ:" header - UI already shows purport section
+        para = para.replace(/^ПОЯСНЕННЯ:\s*/i, "");
         if (para) {
           const wrapped = `<p class="purport">${para}</p>`;
           currentVerse.commentary_ua = currentVerse.commentary_ua
