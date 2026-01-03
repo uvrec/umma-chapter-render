@@ -332,7 +332,7 @@ function parseChapter(text: string, chapterNum: number): Chapter {
     } else if (["p", "p1"].includes(currentTag)) {
       const para = processProse(content, true);
       if (para) paragraphs.push(`<p class="purport">${para}</p>`);
-    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra"].includes(currentTag)) {
+    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra", "p-sakkari"].includes(currentTag)) {
       const translit = processTransliteration(content);
       if (translit) {
         const lines = translit.split("\n").map(l => `<span class="line">${l}</span>`).join("\n");

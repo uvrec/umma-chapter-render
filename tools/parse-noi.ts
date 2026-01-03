@@ -328,7 +328,7 @@ function parseVerse(text: string, verseNum: number): Verse {
     if (["h1", "h1-fb", "h1-fb1", "h2-number"].includes(currentTag)) {
       const extracted = extractVerseNumber(content);
       if (extracted) verse.verse_number = extracted;
-    } else if (["v-uvaca", "v-anustubh", "v-tristubh", "p-tristubh"].includes(currentTag)) {
+    } else if (["v-uvaca", "v-anustubh", "v-tristubh"].includes(currentTag)) {
       const translit = processTransliteration(content);
       verse.transliteration_ua = verse.transliteration_ua
         ? verse.transliteration_ua + "\n" + translit
@@ -355,7 +355,7 @@ function parseVerse(text: string, verseNum: number): Verse {
         const blockquote = `<blockquote class="verse-quote"><p>${quote}</p></blockquote>`;
         verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + blockquote : blockquote;
       }
-    } else if (["p-anustubh", "p-uvaca", "p-gayatri", "p-indravajra"].includes(currentTag)) {
+    } else if (["p-anustubh", "p-uvaca", "p-tristubh", "p-gayatri", "p-indravajra", "p-sakkari"].includes(currentTag)) {
       const translit = processTransliteration(content);
       if (translit) {
         const blockquote = `<blockquote class="verse-quote verse-translit">${translit}</blockquote>`;
