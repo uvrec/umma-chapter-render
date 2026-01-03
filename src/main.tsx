@@ -31,24 +31,9 @@ async function cleanupOldCaches() {
   }
 }
 
-// Примусове оновлення Service Worker
-async function forceUpdateServiceWorker() {
-  if ('serviceWorker' in navigator) {
-    try {
-      const registration = await navigator.serviceWorker.getRegistration();
-      if (registration) {
-        await registration.update();
-        console.log('[Vedavoice] Service Worker оновлено');
-      }
-    } catch (e) {
-      console.warn('[Vedavoice] Помилка оновлення SW:', e);
-    }
-  }
-}
-
-// Запускаємо очищення при завантаженні
+// Запускаємо очищення старих кешів при завантаженні
+// (оновлення SW обробляється через PWAUpdatePrompt)
 cleanupOldCaches();
-forceUpdateServiceWorker();
 
 // Ініціалізація error tracking (Sentry в production якщо налаштовано)
 initErrorTracking();

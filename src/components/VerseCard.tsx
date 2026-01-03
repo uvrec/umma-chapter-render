@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap, Play, Pause } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -67,6 +67,13 @@ interface VerseCardProps {
   ) => void;
   onVerseNumberUpdate?: () => void; // коллбек після зміни номера
   language?: "ua" | "en"; // ✅ НОВЕ: мова інтерфейсу
+  // Навігація між віршами
+  onPrevVerse?: () => void;
+  onNextVerse?: () => void;
+  isPrevDisabled?: boolean;
+  isNextDisabled?: boolean;
+  prevLabel?: string;
+  nextLabel?: string;
 }
 
 /* =========================
@@ -105,6 +112,12 @@ export const VerseCard = ({
   onVerseUpdate,
   onVerseNumberUpdate,
   language = "ua",
+  onPrevVerse,
+  onNextVerse,
+  isPrevDisabled,
+  isNextDisabled,
+  prevLabel,
+  nextLabel,
 }: VerseCardProps) => {
   const navigate = useNavigate();
 
@@ -263,7 +276,7 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex flex-col items-center justify-center gap-2 mb-8">
+          <div className="flex flex-col items-center justify-center gap-2 mb-4">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
@@ -306,50 +319,58 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* 🆕 STICKY HEADER - Верхня панель: індикатор складених віршів + кнопка редагування */}
-        {(isAdmin || (is_composite && verse_count && start_verse && end_verse)) && (
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-4 -mx-6 px-6 -mt-6 pt-6">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-wrap items-center gap-3">
-                {/* ✅ ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
-                {isAdmin && is_composite && verse_count && start_verse && end_verse && (
-                  <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span>
-                      Складений вірш: {verse_count} {verse_count === 1 ? "вірш" : verse_count < 5 ? "вірші" : "віршів"} (
-                      {start_verse}-{end_verse})
-                    </span>
-                  </div>
-                )}
+        {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша */}
+        {isAdmin && (
+          <div className="flex justify-center mb-4">
+            {isEditing ? (
+              <div className="flex gap-2">
+                <Button variant="default" size="sm" onClick={saveEdit}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Зберегти
+                </Button>
+                <Button variant="outline" size="sm" onClick={cancelEdit}>
+                  <X className="mr-2 h-4 w-4" />
+                  Скасувати
+                </Button>
               </div>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={startEdit}>
+                <Edit className="mr-2 h-4 w-4" />
+                Редагувати
+              </Button>
+            )}
+          </div>
+        )}
 
-              {isAdmin && (
-                <div className="flex gap-2">
-                  {isEditing ? (
-                    <>
-                      <Button variant="default" size="sm" onClick={saveEdit}>
-                        <Save className="mr-2 h-4 w-4" />
-                        Зберегти
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={cancelEdit}>
-                        <X className="mr-2 h-4 w-4" />
-                        Скасувати
-                      </Button>
-                    </>
-                  ) : (
-                    <Button variant="ghost" size="sm" onClick={startEdit}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Редагувати
-                    </Button>
-                  )}
-                </div>
-              )}
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ */}
+        {onPrevVerse && onNextVerse && (
+          <div className="flex items-center justify-between mb-8">
+            <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
+              <ChevronLeft className="mr-2 h-4 w-4" />
+              {prevLabel}
+            </Button>
+            <Button variant="outline" onClick={onNextVerse} disabled={isNextDisabled}>
+              {nextLabel}
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* ІНДИКАТОР СКЛАДЕНИХ ВІРШІВ (тільки для адміна) */}
+        {isAdmin && is_composite && verse_count && start_verse && end_verse && (
+          <div className="flex justify-center mb-4">
+            <div className="flex items-center gap-1 rounded-md bg-blue-50 dark:bg-blue-900/20 px-2 py-1 text-xs text-blue-900 dark:text-blue-100 border border-blue-200 dark:border-blue-800">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>
+                Складений вірш: {verse_count} {verse_count === 1 ? "вірш" : verse_count < 5 ? "вірші" : "віршів"} (
+                {start_verse}-{end_verse})
+              </span>
             </div>
           </div>
         )}
