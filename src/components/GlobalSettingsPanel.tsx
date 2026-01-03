@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Settings, Globe, Palette, Minus, Plus, RotateCcw, Smartphone } from "lucide-react";
+import { Settings, Globe, Palette, RotateCcw, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -108,11 +109,10 @@ export const GlobalSettingsPanel = () => {
   // ✅ Використовуємо централізовану responsive систему
   const {
     fontSize,
+    baseFontSize,
+    setFontSize,
     lineHeight,
-    increaseFont,
-    decreaseFont,
-    increaseLH,
-    decreaseLH,
+    setLineHeight,
     resetTypography,
     dualLanguageMode,
     setDualLanguageMode,
@@ -127,6 +127,18 @@ export const GlobalSettingsPanel = () => {
     mobileSafeMode,
     setMobileSafeMode,
   } = useReaderSettings();
+
+  // Handle font size slider change
+  const handleFontSizeChange = (values: number[]) => {
+    const newSize = values[0];
+    const adjustment = newSize - baseFontSize;
+    setFontSize(adjustment);
+  };
+
+  // Handle line height slider change
+  const handleLineHeightChange = (values: number[]) => {
+    setLineHeight(values[0]);
+  };
 
   // Функція скидання до початкових значень
   const resetToDefaults = () => {
@@ -216,54 +228,54 @@ export const GlobalSettingsPanel = () => {
             {/* Налаштування читання */}
             <div>
               <h3 className="text-lg font-semibold mb-2">{t("Відображення тексту", "Text Display")}</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label>{t("Розмір шрифта", "Font Size")}</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={decreaseFont}
-                      disabled={fontSize <= MIN_FONT}
-                      aria-label="Зменшити"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-10 text-center text-sm tabular-nums">{fontSize}px</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={increaseFont}
-                      disabled={fontSize >= MAX_FONT}
-                      aria-label="Збільшити"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+              <div className="space-y-5">
+                {/* Kindle-style Font Size Slider */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>{t("Розмір шрифта", "Font Size")}</Label>
+                    <span className="text-sm text-muted-foreground tabular-nums">{fontSize}px</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-serif select-none" style={{ fontSize: '12px' }}>Aa</span>
+                    <Slider
+                      value={[fontSize]}
+                      min={MIN_FONT}
+                      max={MAX_FONT}
+                      step={1}
+                      onValueChange={handleFontSizeChange}
+                      className="flex-1"
+                      aria-label={t("Розмір шрифта", "Font Size")}
+                    />
+                    <span className="text-xl font-serif select-none" style={{ fontSize: '20px' }}>Aa</span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <Label>{t("Міжряддя", "Line Height")}</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={decreaseLH}
-                      disabled={lineHeight <= MIN_LH}
-                      aria-label="Зменшити"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-12 text-center text-sm tabular-nums">{lineHeight.toFixed(2)}</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={increaseLH}
-                      disabled={lineHeight >= MAX_LH}
-                      aria-label="Збільшити"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+                {/* Kindle-style Line Height Slider */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>{t("Міжряддя", "Line Height")}</Label>
+                    <span className="text-sm text-muted-foreground tabular-nums">{lineHeight.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="4" y1="6" x2="20" y2="6" />
+                      <line x1="4" y1="12" x2="20" y2="12" />
+                      <line x1="4" y1="18" x2="20" y2="18" />
+                    </svg>
+                    <Slider
+                      value={[lineHeight]}
+                      min={MIN_LH}
+                      max={MAX_LH}
+                      step={0.05}
+                      onValueChange={handleLineHeightChange}
+                      className="flex-1"
+                      aria-label={t("Міжряддя", "Line Height")}
+                    />
+                    <svg className="w-5 h-5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="4" y1="4" x2="20" y2="4" />
+                      <line x1="4" y1="12" x2="20" y2="12" />
+                      <line x1="4" y1="20" x2="20" y2="20" />
+                    </svg>
                   </div>
                 </div>
 
