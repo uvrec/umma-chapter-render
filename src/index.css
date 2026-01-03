@@ -708,6 +708,20 @@ blockquote.verse-quote {
   color: hsl(var(--muted-foreground));
 }
 
+/* Нумеровані списки в поясненні */
+.purport-list {
+  list-style-type: decimal;
+  list-style-position: outside;
+  margin: 1em 0 1em 2em;
+  padding-left: 0.5em;
+}
+
+.purport-list li {
+  text-align: justify;
+  margin-bottom: 0.75em;
+  padding-left: 0.5em;
+}
+
 /* =========================
    СКИДАННЯ VITE СТИЛІВ
    ========================= */
