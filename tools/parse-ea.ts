@@ -27,9 +27,9 @@ const UKRAINIAN_PUA_MAP: Record<string, string> = {
   "\uf123": "ӯ",
   "\uf103": "д̣",
   "\uf105": "",     // Style marker, remove
-  "\uf107": "\u0310", // Candrabindu variant
+  "\uf107": "м\u0310", // Candrabindu variant
   "\uf109": "м̇",
-  "\uf10d": "\u0310", // Candrabindu (combining) - м̐, М̐, л̐, Л̐
+  "\uf10d": "м\u0310", // Candrabindu (combining) - м̐, М̐, л̐, Л̐
   "\uf10f": "н̇",
   "\uf111": "н̣",
   "\uf113": "н̃",
