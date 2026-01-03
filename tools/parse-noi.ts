@@ -168,6 +168,12 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   if (keepHtml) {
     result = result.replace(/<_[^>]*>/g, "");
     result = result.replace(/<\/?[A-Z][^>]*>/g, "");
+    // Clean up stray artifacts
+    result = result.replace(/<\|>/g, "");
+    result = result.replace(/<\/em><\/em>/g, "</em>");
+    result = result.replace(/<\/em>,<\/em>/g, "</em>,");
+    result = result.replace(/<\/em>\.<\/em>/g, "</em>.");
+    result = result.replace(/<\/strong><\/strong>/g, "</strong>");
   } else {
     result = result.replace(/<[^>]*>/g, "");
   }
