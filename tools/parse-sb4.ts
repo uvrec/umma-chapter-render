@@ -440,7 +440,7 @@ function main() {
   if (!fs.existsSync(DOCS_DIR)) {
     console.log(`Directory ${DOCS_DIR} not found. Creating empty output.`);
     const output = {
-      book_slug: "sb4",
+      book_slug: "bhagavatam",
       book_title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
       book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
       chapters: [],
@@ -499,7 +499,7 @@ function main() {
 
   // Write output
   const output = {
-    book_slug: "sb4",
+    book_slug: "bhagavatam",
     book_title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
     book_title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     chapters,

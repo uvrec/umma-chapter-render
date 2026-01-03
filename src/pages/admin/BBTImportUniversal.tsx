@@ -108,7 +108,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: pqnData as ParsedBookData,
   },
   {
-    slug: "sb4",
+    slug: "bhagavatam",
     title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
     title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     hasVerses: true,
