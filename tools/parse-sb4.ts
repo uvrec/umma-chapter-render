@@ -22,24 +22,28 @@ const OUTPUT_DIR = path.join(__dirname, "..", "src", "data");
 
 // PUA Mapping for Ukrainian diacritics
 const UKRAINIAN_PUA_MAP: Record<string, string> = {
+  "\uf100": "А",    // Capital A
   "\uf101": "а̄",
   "\uf102": "ī",
   "\uf121": "ī",
   "\uf123": "ӯ",
+  "\uf103": "д̣",
+  "\uf105": "",     // Style marker, remove
+  "\uf109": "м̇",
+  "\uf10d": "м\u0310", // Candrabindu (combining) - м̐, М̐
+  "\uf10f": "н̇",
+  "\uf111": "н̣",
+  "\uf113": "н̃",
   "\uf115": "р̣",
+  "\uf117": "р̣",   // Alternative р̣ encoding
+  "\uf119": "т̣",
+  "\uf11b": "х̣",
+  "\uf11c": "Ш́",
+  "\uf11d": "ш́",
+  "\uf11f": "ш̣",
   "\uf125": "р̣̄",
   "\uf127": "л̣",
   "\uf129": "л̣̄",
-  "\uf10f": "н̇",
-  "\uf113": "н̃",
-  "\uf111": "н̣",
-  "\uf109": "м̇",
-  "\uf119": "т̣",
-  "\uf103": "д̣",
-  "\uf11d": "ш́",
-  "\uf11f": "ш̣",
-  "\uf11b": "х̣",
-  "\uf11c": "Ш́",
 };
 
 // Intro file mapping for SB4 (prefix UKS402 for intros)
@@ -308,7 +312,9 @@ function parseChapter(text: string): Chapter {
       if (currentVerse) currentVerse.translation_ua = processProse(content, false);
     } else if (["p", "p0", "p1", "p-purport", "p-h3-inline"].includes(currentTag)) {
       if (currentVerse) {
-        const para = processProse(content, true);
+        let para = processProse(content, true);
+        // Remove redundant "ПОЯСНЕННЯ:" header - UI already shows purport section
+        para = para.replace(/^ПОЯСНЕННЯ:\s*/i, "");
         if (para) {
           const wrapped = `<p class="purport">${para}</p>`;
           currentVerse.commentary_ua = currentVerse.commentary_ua
