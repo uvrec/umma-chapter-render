@@ -166,6 +166,12 @@ function processInlineTags(text: string, keepHtml: boolean = false): string {
   if (keepHtml) {
     result = result.replace(/<_[^>]*>/g, "");
     result = result.replace(/<\/?[A-Z][^>]*>/g, "");
+    // Clean up stray artifacts
+    result = result.replace(/<\|>/g, "");
+    result = result.replace(/<\/em><\/em>/g, "</em>");
+    result = result.replace(/<\/em>,<\/em>/g, "</em>,");
+    result = result.replace(/<\/em>\.<\/em>/g, "</em>.");
+    result = result.replace(/<\/strong><\/strong>/g, "</strong>");
   } else {
     result = result.replace(/<[^>]*>/g, "");
   }
@@ -234,6 +240,36 @@ function processQuote(text: string): string {
   return processedParagraphs.join("</p>\n<p>");
 }
 
+function processSpeech(text: string): string {
+  let result = processLineContinuations(text);
+  result = result.split("\n").join(" ");
+
+  // First, clean up <N> tags in speaker names (non-breaking space markers)
+  // Also handle <N|> variant
+  result = result.replace(/<N\|?>/g, " ");
+
+  // Process speaker names - various formats:
+  // <F1><B>Боб:<D><F> - format 1
+  // <B><F1>Шріла Прабгупада:<F><D> - format 2
+  // The name may include spaces
+  // Match everything up to colon, then the closing tags
+
+  // Format: <F1><B>Name:<D><F> or <F1><B>Name:<F><D>
+  result = result.replace(/<F1><B>([^<]+):<\/?(D|F)><\/?(F|D)?>/g, '<strong class="speaker">$1:</strong> ');
+
+  // Format: <B><F1>Name:<F><D> or <B><F1>Name:<D><F>
+  result = result.replace(/<B><F1>([^<]+):<\/?(F|D)><\/?(D|F)?>/g, '<strong class="speaker">$1:</strong> ');
+
+  // Format without colon (for mid-sentence speaker refs): <B><F1>Name<F><D>
+  result = result.replace(/<B><F1>([^<:]+)<\/?(F|D)><\/?(D|F)?>/g, '<strong>$1</strong>');
+
+  // Clean up any remaining formatting tags
+  result = processInlineTags(result, true);
+  result = result.replace(/\s+/g, " ").trim();
+
+  return result;
+}
+
 // ============= INTERFACES =============
 
 interface Chapter {
@@ -266,6 +302,21 @@ function parseChapter(text: string, chapterNum: number): Chapter {
 
     if (currentTag === "h1") {
       chapterTitle = processProse(content, false).replace(/\n/g, " ");
+    } else if (currentTag === "h2") {
+      // Subheading like date
+      const sub = processProse(content, true);
+      if (sub) paragraphs.push(`<p class="chapter-date"><em>${sub}</em></p>`);
+    } else if (["speech0", "speech"].includes(currentTag)) {
+      // Dialogue content - main content of PQN book
+      const para = processSpeech(content);
+      if (para) {
+        if (isFirstParagraph && currentTag === "speech0") {
+          paragraphs.push(`<p class="speech first">${para}</p>`);
+          isFirstParagraph = false;
+        } else {
+          paragraphs.push(`<p class="speech">${para}</p>`);
+        }
+      }
     } else if (["p0", "p-indent"].includes(currentTag)) {
       if (isFirstParagraph) {
         paragraphs.push(processFirstParagraph(content));
