@@ -328,11 +328,26 @@ function parseMantra(text: string, mantraNum: number): Verse {
   const verse: Verse = { verse_number: String(mantraNum) };
   let currentTag: string | null = null;
   let currentContent: string[] = [];
+  let pendingListDigit: string = "";
+  let inList: boolean = false;
+
+  function closeListIfNeeded() {
+    if (inList && verse.commentary_ua) {
+      verse.commentary_ua = verse.commentary_ua + "\n</ol>";
+      inList = false;
+    }
+  }
 
   function flushBlock() {
     if (!currentTag || SKIP_TAGS.has(currentTag) || DEVANAGARI_TAGS.has(currentTag)) return;
     const content = currentContent.join(" ").trim();
     if (!content) return;
+
+    // Close list before non-list content
+    const isListTag = currentTag === "li-digit" || currentTag === "li-digit-0" || currentTag === "li-body";
+    if (!isListTag && inList) {
+      closeListIfNeeded();
+    }
 
     if (["h1", "h1-fb", "h1-fb1", "h2-number"].includes(currentTag)) {
       const extracted = extractMantraNumber(content);
@@ -373,7 +388,28 @@ function parseMantra(text: string, mantraNum: number): Verse {
     } else if (currentTag === "p-outro") {
       const outro = `<p class="purport-outro"><em>${processProse(content, true)}</em></p>`;
       verse.commentary_ua = verse.commentary_ua ? verse.commentary_ua + "\n\n" + outro : outro;
+    } else if (currentTag === "li-digit" || currentTag === "li-digit-0") {
+      // Close previous list if not in one, then store digit for next li-body
+      pendingListDigit = content.replace(/<[^>]+>/g, "").replace(/[.\s]/g, "").trim();
+    } else if (currentTag === "li-body") {
+      const body = processProse(content, true);
+      if (body) {
+        const digit = pendingListDigit || "";
+        const li = `<li value="${digit}">${body}</li>`;
+        if (!inList) {
+          // Start new list
+          verse.commentary_ua = verse.commentary_ua
+            ? verse.commentary_ua + `\n\n<ol class="purport-list">\n${li}`
+            : `<ol class="purport-list">\n${li}`;
+          inList = true;
+        } else {
+          // Continue existing list
+          verse.commentary_ua = verse.commentary_ua + `\n${li}`;
+        }
+        pendingListDigit = "";
+      }
     }
+    // Note: list closing is handled at the start of flushBlock for non-list tags
   }
 
   for (const line of lines) {
@@ -392,6 +428,7 @@ function parseMantra(text: string, mantraNum: number): Verse {
   }
 
   flushBlock();
+  closeListIfNeeded();
   return verse;
 }
 
