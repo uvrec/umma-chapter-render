@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Search, Loader2 } from 'lucide-react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { Search, Loader2, ChevronDown, BookOpen, Plus, GraduationCap, Star, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { extractAllTerms, groupTermsByText, searchTerms, calculateTermUsage, GlossaryTerm } from '@/utils/glossaryParser';
 import { Badge } from '@/components/ui/badge';
+import { debounce } from 'lodash';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -16,155 +17,335 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { addLearningWord, isWordInLearningList, LearningWord } from '@/utils/learningWords';
+import { addSavedTerm, isTermVerseSaved, getSavedTerms, removeSavedTerm, SavedTerm } from '@/utils/savedTerms';
+import { useSanskritLexicon, LexiconEntry, GRAMMAR_LABELS } from '@/hooks/useSanskritLexicon';
+
+interface GlossaryTermResult {
+  term: string;
+  meaning: string;
+  verse_id: string;
+  verse_number: string;
+  chapter_number: number;
+  canto_number: number | null;
+  book_title: string;
+  book_slug: string;
+  verse_link: string;
+  total_count: number;
+}
+
+interface GlossaryStats {
+  total_terms: number;
+  unique_terms: number;
+  books_count: number;
+  book_stats: Array<{
+    slug: string;
+    title: string;
+    total: number;
+    unique: number;
+  }>;
+}
+
+interface GroupedTermResult {
+  term: string;
+  usage_count: number;
+  books: string[];
+  sample_meanings: string[];
+  total_unique_terms: number;
+}
+
+const PAGE_SIZE = 30;
 
 export default function GlossaryDB() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { language, t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [searchType, setSearchType] = useState<'exact' | 'contains' | 'starts'>('contains');
   const [translation, setTranslation] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [debouncedTranslation, setDebouncedTranslation] = useState('');
+  const [selectedBook, setSelectedBook] = useState<string>('all');
+  const [expandedTerms, setExpandedTerms] = useState<Set<string>>(new Set());
+
+  // State for saved terms and learning words (for reactivity)
+  const [savedTermsState, setSavedTermsState] = useState<SavedTerm[]>(() => getSavedTerms());
+  const [learningWordsSet, setLearningWordsSet] = useState<Set<string>>(() => {
+    // Initialize with existing learning words
+    try {
+      const stored = localStorage.getItem('scriptLearning_importedWords');
+      if (stored) {
+        const words = JSON.parse(stored) as LearningWord[];
+        return new Set(words.map(w => w.iast.toLowerCase()));
+      }
+    } catch {}
+    return new Set();
+  });
+
+  // Handle adding term to learning
+  const handleAddToLearning = (item: GlossaryTermResult) => {
+    const word: LearningWord = {
+      script: '', // No devanagari script available from glossary
+      iast: item.term,
+      ukrainian: item.meaning,
+      meaning: item.meaning,
+      book: item.book_title,
+      verseReference: item.verse_link,
+      addedAt: Date.now(),
+    };
+
+    const added = addLearningWord(word);
+    if (added) {
+      setLearningWordsSet(prev => new Set(prev).add(item.term.toLowerCase()));
+      toast.success(t('Додано до вивчення', 'Added to learning'));
+    } else {
+      toast.info(t('Вже у списку вивчення', 'Already in learning list'));
+    }
+  };
+
+  // Handle saving term (bookmark)
+  const handleSaveTerm = (item: GlossaryTermResult) => {
+    const isSaved = isTermVerseSaved(item.term, item.verse_link);
+
+    if (isSaved) {
+      // Find and remove the saved term
+      const saved = savedTermsState.find(
+        st => st.term.toLowerCase() === item.term.toLowerCase() && st.verseLink === item.verse_link
+      );
+      if (saved) {
+        removeSavedTerm(saved.id);
+        setSavedTermsState(getSavedTerms());
+        toast.success(t('Видалено зі збережених', 'Removed from saved'));
+      }
+    } else {
+      const newTerm = addSavedTerm({
+        term: item.term,
+        meaning: item.meaning,
+        bookSlug: item.book_slug,
+        bookTitle: item.book_title,
+        verseNumber: item.verse_number,
+        chapterNumber: item.chapter_number,
+        cantoNumber: item.canto_number ?? undefined,
+        verseLink: item.verse_link,
+      });
+
+      if (newTerm) {
+        setSavedTermsState(getSavedTerms());
+        toast.success(t('Збережено', 'Saved'));
+      }
+    }
+  };
+
+  // Check if term is in learning list
+  const isInLearning = (term: string) => learningWordsSet.has(term.toLowerCase());
+
+  // Check if term+verse is saved
+  const isSaved = (term: string, verseLink: string) =>
+    savedTermsState.some(
+      st => st.term.toLowerCase() === term.toLowerCase() && st.verseLink === verseLink
+    );
+
+  // Sanskrit lexicon for etymology
+  const { lookupWord, lexiconAvailable, getGrammarLabel, getDictionaryLink } = useSanskritLexicon();
+  const [etymologyData, setEtymologyData] = useState<Record<string, LexiconEntry[]>>({});
+  const [loadingEtymology, setLoadingEtymology] = useState<Set<string>>(new Set());
+
+  // Fetch etymology when term is expanded
+  const fetchEtymology = useCallback(async (term: string) => {
+    if (!lexiconAvailable || etymologyData[term] || loadingEtymology.has(term)) return;
+
+    setLoadingEtymology(prev => new Set(prev).add(term));
+    try {
+      const results = await lookupWord(term);
+      setEtymologyData(prev => ({ ...prev, [term]: results }));
+    } finally {
+      setLoadingEtymology(prev => {
+        const next = new Set(prev);
+        next.delete(term);
+        return next;
+      });
+    }
+  }, [lexiconAvailable, lookupWord, etymologyData, loadingEtymology]);
+
+  // Debounce search inputs
+  const debouncedSetSearch = useCallback(
+    debounce((term: string) => setDebouncedSearchTerm(term), 400),
+    []
+  );
+
+  const debouncedSetTranslation = useCallback(
+    debounce((term: string) => setDebouncedTranslation(term), 400),
+    []
+  );
+
+  useEffect(() => {
+    debouncedSetSearch(searchTerm);
+  }, [searchTerm, debouncedSetSearch]);
+
+  useEffect(() => {
+    debouncedSetTranslation(translation);
+  }, [translation, debouncedSetTranslation]);
 
   useEffect(() => {
     const searchParam = searchParams.get('search');
     if (searchParam) {
       setSearchTerm(searchParam);
+      setDebouncedSearchTerm(searchParam);
     }
   }, [searchParams]);
 
-  // Fetch all verses with their book information
-  const { data: versesData = [], isLoading: isLoadingVerses } = useQuery({
-    queryKey: ['glossary-verses', language],
+  // Fetch glossary statistics (книги з їх кількістю термінів)
+  const { data: statsData, isLoading: isLoadingStats } = useQuery({
+    queryKey: ['glossary-stats', language],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('verses')
-        .select(`
-          *,
-          chapters!inner(
-            chapter_number,
-            book_id,
-            canto_id,
-            books(
-              title_ua,
-              title_en,
-              slug
-            ),
-            cantos(
-              canto_number,
-              books(
-                title_ua,
-                title_en,
-                slug
-              )
-            )
-          )
-        `);
-      
-      if (error) throw error;
-      
-      // Transform data to match the expected format for glossary parser
-      return data.map(verse => {
-        // Check if chapter belongs to a canto (Srimad-Bhagavatam structure)
-        const bookData = verse.chapters.cantos?.books || verse.chapters.books;
-        const cantoNumber = verse.chapters.cantos?.canto_number;
-        const chapterNumber = verse.chapters.chapter_number;
-        const bookSlug = bookData?.slug;
-        
-        // Build verse link based on book structure (must match App.tsx routes)
-        let verseLink = '';
-        if (cantoNumber) {
-          // Srimad-Bhagavatam structure with cantos: /veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber
-          verseLink = `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse.verse_number}`;
-        } else {
-          // Direct book-chapter structure: /veda-reader/:bookId/:chapterNumber/:verseNumber
-          verseLink = `/veda-reader/${bookSlug}/${chapterNumber}/${verse.verse_number}`;
-        }
-        
-        return {
-          ...verse,
-          book: language === 'ua' 
-            ? bookData?.title_ua 
-            : bookData?.title_en,
-          bookSlug,
-          cantoNumber,
-          chapterNumber,
-          verseLink,
-          synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
-          verse_number: verse.verse_number
-        };
+      const { data, error } = await (supabase as any).rpc('get_glossary_stats', {
+        search_language: language
       });
-    }
+
+      if (error) throw error;
+      return data?.[0] as GlossaryStats | undefined;
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
-  // Extract and process terms
-  const allTerms = extractAllTerms(versesData);
-  const termsWithUsage = calculateTermUsage(allTerms);
-
-  // Get unique categories (books) with term counts
-  const categories = Array.from(new Set(allTerms.map(term => term.book))).sort();
-  const categoryTermCounts = categories.reduce((acc, category) => {
-    const uniqueTerms = new Set(
-      allTerms.filter(t => t.book === category).map(t => t.term.toLowerCase().trim())
-    );
-    acc[category] = uniqueTerms.size;
-    return acc;
-  }, {} as { [key: string]: number });
-
   // Check if there's an active search
-  const hasSearch = searchTerm || translation || selectedCategory !== 'all';
+  const hasSearch = debouncedSearchTerm || debouncedTranslation || selectedBook !== 'all';
 
-  // Filter and search terms
-  let filteredAndSearchedTerms = allTerms;
-  
-  if (selectedCategory !== 'all') {
-    filteredAndSearchedTerms = filteredAndSearchedTerms.filter(
-      term => term.book === selectedCategory
-    );
-  }
+  // Convert search mode
+  const searchMode = searchType === 'starts' ? 'starts_with' : searchType;
 
-  if (searchTerm || translation) {
-    filteredAndSearchedTerms = searchTerms(
-      filteredAndSearchedTerms,
-      searchTerm || translation,
-      searchType
-    );
-  }
+  // Server-side search with pagination - grouped terms
+  const {
+    data: groupedData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isLoadingGrouped,
+    isError: isErrorGrouped,
+  } = useInfiniteQuery({
+    queryKey: ['glossary-grouped', language, debouncedSearchTerm, debouncedTranslation, searchMode, selectedBook],
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data, error } = await (supabase as any).rpc('get_glossary_terms_grouped', {
+        search_term: debouncedSearchTerm || null,
+        search_translation: debouncedTranslation || null,
+        search_language: language,
+        search_mode: searchMode,
+        book_filter: selectedBook !== 'all' ? selectedBook : null,
+        page_number: pageParam,
+        page_size: PAGE_SIZE
+      });
 
-  // Group filtered terms for display - only if there's a search
-  const displayTerms = hasSearch ? groupTermsByText(filteredAndSearchedTerms) : {};
+      if (error) throw error;
+      return {
+        terms: (data || []) as GroupedTermResult[],
+        page: pageParam,
+        totalCount: data?.[0]?.total_unique_terms || 0
+      };
+    },
+    getNextPageParam: (lastPage, allPages) => {
+      const loadedCount = allPages.reduce((acc, page) => acc + page.terms.length, 0);
+      if (loadedCount < lastPage.totalCount) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+    enabled: hasSearch,
+  });
+
+  // Fetch details for expanded term
+  const fetchTermDetails = async (termText: string) => {
+    const { data, error } = await (supabase as any).rpc('get_glossary_term_details', {
+      term_text: termText,
+      search_language: language
+    });
+
+    if (error) throw error;
+    return data as GlossaryTermResult[];
+  };
+
+  // Query for expanded term details
+  const [expandedTermDetails, setExpandedTermDetails] = useState<Record<string, GlossaryTermResult[]>>({});
+  const [loadingTerms, setLoadingTerms] = useState<Set<string>>(new Set());
+
+  const toggleTermExpanded = async (term: string) => {
+    const newExpanded = new Set(expandedTerms);
+
+    if (newExpanded.has(term)) {
+      newExpanded.delete(term);
+    } else {
+      newExpanded.add(term);
+
+      // Fetch details if not already loaded
+      if (!expandedTermDetails[term]) {
+        setLoadingTerms(prev => new Set(prev).add(term));
+        try {
+          const details = await fetchTermDetails(term);
+          setExpandedTermDetails(prev => ({ ...prev, [term]: details }));
+        } finally {
+          setLoadingTerms(prev => {
+            const next = new Set(prev);
+            next.delete(term);
+            return next;
+          });
+        }
+      }
+
+      // Fetch etymology in parallel
+      fetchEtymology(term);
+    }
+
+    setExpandedTerms(newExpanded);
+  };
+
+  // Aggregate all pages
+  const allGroupedTerms = groupedData?.pages.flatMap(page => page.terms) || [];
+  const totalUniqueTerms = groupedData?.pages[0]?.totalCount || 0;
+
+  // Handle search button click
+  const handleSearch = () => {
+    if (searchTerm) {
+      setSearchParams({ search: searchTerm });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
-          <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8 text-center">
             {t('Глосарій', 'Glossary')}
           </h1>
 
-          {/* Statistics - only show when search is active */}
-          {hasSearch && (
+          {/* Statistics - show when we have stats */}
+          {statsData && !hasSearch && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="p-4 text-center">
+              <div className="p-4 text-center bg-muted/30 rounded-lg">
                 <div className="text-3xl font-bold text-primary">
-                  {Object.keys(displayTerms).length}
+                  {statsData.unique_terms?.toLocaleString()}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {t('Знайдено термінів', 'Terms found')}
+                  {t('Унікальних термінів', 'Unique terms')}
                 </div>
               </div>
-              <div className="p-4 text-center">
+              <div className="p-4 text-center bg-muted/30 rounded-lg">
                 <div className="text-3xl font-bold text-primary">
-                  {filteredAndSearchedTerms.length}
+                  {statsData.total_terms?.toLocaleString()}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {t('Всього використань', 'Total usages')}
                 </div>
               </div>
-              <div className="p-4 text-center">
+              <div className="p-4 text-center bg-muted/30 rounded-lg">
                 <div className="text-3xl font-bold text-primary">
-                  {new Set(filteredAndSearchedTerms.map(t => t.book)).size}
+                  {statsData.books_count}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {t('Книг', 'Books')}
@@ -173,14 +354,28 @@ export default function GlossaryDB() {
             </div>
           )}
 
-          <div className="py-6 mb-8">
+          {/* Search results statistics */}
+          {hasSearch && totalUniqueTerms > 0 && (
+            <div className="mb-6 p-4 bg-muted/30 rounded-lg">
+              <p className="text-center text-muted-foreground">
+                {t('Знайдено', 'Found')} <span className="font-bold text-foreground">{totalUniqueTerms}</span> {t('термінів', 'terms')}
+                {allGroupedTerms.length < totalUniqueTerms && (
+                  <span className="text-sm"> ({t('показано', 'showing')} {allGroupedTerms.length})</span>
+                )}
+              </p>
+            </div>
+          )}
+
+          {/* Search form */}
+          <div className="py-6 mb-8 bg-card rounded-lg border p-6">
             <div className="space-y-4">
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
                   <Input
                     placeholder={t('Шукати термін...', 'Search term...')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     className="w-full"
                   />
                 </div>
@@ -189,14 +384,15 @@ export default function GlossaryDB() {
                     placeholder={t('Шукати переклад...', 'Search translation...')}
                     value={translation}
                     onChange={(e) => setTranslation(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                     className="w-full"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <Select value={searchType} onValueChange={(value: any) => setSearchType(value)}>
-                  <SelectTrigger className="w-[200px]">
+                  <SelectTrigger className="w-full md:w-[200px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -212,7 +408,7 @@ export default function GlossaryDB() {
                   </SelectContent>
                 </Select>
 
-                <Button className="gap-2">
+                <Button onClick={handleSearch} className="gap-2">
                   <Search className="h-4 w-4" />
                   {t('Шукати', 'Search')}
                 </Button>
@@ -221,8 +417,9 @@ export default function GlossaryDB() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Results */}
             <div className="lg:col-span-3 space-y-4">
-              {isLoadingVerses ? (
+              {isLoadingStats || isLoadingGrouped ? (
                 <div className="py-8 text-center">
                   <div className="text-muted-foreground space-y-2">
                     <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
@@ -243,108 +440,329 @@ export default function GlossaryDB() {
                     </p>
                   </div>
                 </div>
-              ) : Object.keys(displayTerms).length === 0 ? (
+              ) : isErrorGrouped ? (
+                <div className="py-8 text-center">
+                  <p className="text-destructive">
+                    {t('Помилка завантаження', 'Error loading data')}
+                  </p>
+                </div>
+              ) : allGroupedTerms.length === 0 ? (
                 <div className="py-8 text-center">
                   <p className="text-muted-foreground">
                     {t('Термінів не знайдено', 'No terms found')}
                   </p>
                 </div>
               ) : (
-                Object.entries(displayTerms).map(([term, termsList]) => (
-                  <div key={term} className="py-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-xl font-semibold text-primary">
-                        {term}
-                      </h3>
-                      <Badge variant="secondary" className="ml-2">
-                        {termsList.length} {t('використань', 'usages')}
-                      </Badge>
-                    </div>
-                    
-                    {/* Group meanings by book */}
-                    <div className="space-y-6">
-                      {Object.entries(
-                        termsList.reduce((acc, t) => {
-                          if (!acc[t.book]) acc[t.book] = [];
-                          acc[t.book].push(t);
-                          return acc;
-                        }, {} as { [book: string]: GlossaryTerm[] })
-                      ).map(([book, bookTerms]) => (
-                        <div key={book} className="space-y-2">
-                          <div className="font-semibold text-sm text-muted-foreground flex items-center gap-2">
-                            {book}
-                            <Badge variant="outline" className="text-xs">{bookTerms.length}</Badge>
+                <>
+                  {allGroupedTerms.map((groupedTerm) => (
+                    <div key={groupedTerm.term} className="border rounded-lg overflow-hidden">
+                      {/* Term header - clickable to expand */}
+                      <button
+                        onClick={() => toggleTermExpanded(groupedTerm.term)}
+                        className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-primary">
+                            {groupedTerm.term}
+                          </h3>
+                          {groupedTerm.sample_meanings && groupedTerm.sample_meanings.length > 0 && (
+                            <p className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                              {groupedTerm.sample_meanings.slice(0, 3).join('; ')}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {groupedTerm.books?.slice(0, 3).map((book) => (
+                              <Badge key={book} variant="outline" className="text-xs">
+                                {book}
+                              </Badge>
+                            ))}
+                            {groupedTerm.books?.length > 3 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{groupedTerm.books.length - 3}
+                              </Badge>
+                            )}
                           </div>
-                          {bookTerms.map((termItem, idx) => {
-                            // Find the original verse data to get detailed reference
-                            // IMPORTANT: Match by BOTH verse_number AND book to avoid cross-book mismatches
-                            const verseData = versesData.find(v =>
-                              v.verse_number === termItem.verseNumber && v.book === termItem.book
-                            );
-                            const cantoInfo = verseData?.cantoNumber 
-                              ? `${language === 'ua' ? 'Пісня' : 'Canto'} ${verseData.cantoNumber}, ` 
-                              : '';
-                            const detailedReference = `${cantoInfo}${language === 'ua' ? 'Розділ' : 'Chapter'} ${verseData?.chapterNumber}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${termItem.verseNumber}`;
-                            
-                            return (
-                              <div key={idx} className="border-l-2 border-primary/30 pl-4 py-1">
-                                <p className="text-foreground mb-1">{termItem.meaning}</p>
-                                <Link
-                                  to={verseData?.verseLink || termItem.link}
-                                  className="text-sm text-primary hover:underline inline-flex items-center gap-1"
-                                >
-                                  {detailedReference}
-                                </Link>
-                              </div>
-                            );
-                          })}
                         </div>
-                      ))}
+                        <div className="flex items-center gap-2 ml-4">
+                          <Badge variant="secondary">
+                            {groupedTerm.usage_count} {t('використань', 'usages')}
+                          </Badge>
+                          <ChevronDown
+                            className={`h-5 w-5 transition-transform ${
+                              expandedTerms.has(groupedTerm.term) ? 'rotate-180' : ''
+                            }`}
+                          />
+                        </div>
+                      </button>
+
+                      {/* Expanded details */}
+                      {expandedTerms.has(groupedTerm.term) && (
+                        <div className="border-t bg-muted/20 p-4">
+                          {loadingTerms.has(groupedTerm.term) ? (
+                            <div className="flex items-center justify-center py-4">
+                              <Loader2 className="h-6 w-6 animate-spin" />
+                            </div>
+                          ) : expandedTermDetails[groupedTerm.term] ? (
+                            <div className="space-y-4">
+                              {/* Etymology section */}
+                              {lexiconAvailable && (
+                                <div className="mb-4">
+                                  {loadingEtymology.has(groupedTerm.term) ? (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      {t('Завантаження етимології...', 'Loading etymology...')}
+                                    </div>
+                                  ) : etymologyData[groupedTerm.term]?.length > 0 ? (
+                                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                      <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
+                                        <BookOpen className="h-4 w-4" />
+                                        {t('Етимологія', 'Etymology')}
+                                      </h4>
+                                      <div className="space-y-2">
+                                        {etymologyData[groupedTerm.term].slice(0, 3).map((entry, i) => (
+                                          <div key={i} className="text-sm">
+                                            <div className="flex items-baseline gap-2">
+                                              {entry.word_devanagari && (
+                                                <span className="text-lg font-medium">{entry.word_devanagari}</span>
+                                              )}
+                                              <span className="text-primary font-medium">{entry.word}</span>
+                                              {entry.grammar && (
+                                                <span className="text-xs text-muted-foreground">
+                                                  ({getGrammarLabel(entry.grammar, language as 'ua' | 'en') || entry.grammar})
+                                                </span>
+                                              )}
+                                            </div>
+                                            {entry.meanings && (
+                                              <p className="text-muted-foreground mt-0.5 line-clamp-2">
+                                                {entry.meanings}
+                                              </p>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <Link
+                                        to={getDictionaryLink(groupedTerm.term)}
+                                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block"
+                                      >
+                                        {t('Детальніше у словнику', 'More in dictionary')} →
+                                      </Link>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              )}
+                              {/* Group by book */}
+                              {Object.entries(
+                                expandedTermDetails[groupedTerm.term].reduce((acc, item) => {
+                                  if (!acc[item.book_title]) acc[item.book_title] = [];
+                                  acc[item.book_title].push(item);
+                                  return acc;
+                                }, {} as Record<string, GlossaryTermResult[]>)
+                              ).map(([book, items]) => (
+                                <div key={book}>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <BookOpen className="h-4 w-4 text-muted-foreground" />
+                                    <span className="font-medium text-sm">{book}</span>
+                                    <Badge variant="outline" className="text-xs">{items.length}</Badge>
+                                  </div>
+                                  <div className="space-y-2 ml-6">
+                                    {items.map((item, idx) => {
+                                      const cantoInfo = item.canto_number
+                                        ? `${language === 'ua' ? 'Пісня' : 'Canto'} ${item.canto_number}, `
+                                        : '';
+                                      const reference = `${cantoInfo}${language === 'ua' ? 'Розділ' : 'Chapter'} ${item.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${item.verse_number}`;
+                                      const termInLearning = isInLearning(item.term);
+                                      const termIsSaved = isSaved(item.term, item.verse_link);
+
+                                      return (
+                                        <div key={idx} className="border-l-2 border-primary/30 pl-3 py-1 group">
+                                          <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1">
+                                              <p className="text-foreground">{item.meaning || '—'}</p>
+                                              <Link
+                                                to={item.verse_link}
+                                                className="text-sm text-primary hover:underline"
+                                              >
+                                                {reference}
+                                              </Link>
+                                            </div>
+                                            {/* Action buttons */}
+                                            <TooltipProvider delayDuration={300}>
+                                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {/* Add to learning */}
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddToLearning(item);
+                                                      }}
+                                                      className={`p-1.5 rounded-md transition-colors ${
+                                                        termInLearning
+                                                          ? 'text-green-600 bg-green-100 dark:bg-green-900/30'
+                                                          : 'text-muted-foreground hover:text-primary hover:bg-muted'
+                                                      }`}
+                                                    >
+                                                      {termInLearning ? (
+                                                        <Check className="h-4 w-4" />
+                                                      ) : (
+                                                        <GraduationCap className="h-4 w-4" />
+                                                      )}
+                                                    </button>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent side="top">
+                                                    {termInLearning
+                                                      ? t('Вже у вивченні', 'Already in learning')
+                                                      : t('Додати до вивчення', 'Add to learning')}
+                                                  </TooltipContent>
+                                                </Tooltip>
+
+                                                {/* Save/Bookmark */}
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleSaveTerm(item);
+                                                      }}
+                                                      className={`p-1.5 rounded-md transition-colors ${
+                                                        termIsSaved
+                                                          ? 'text-amber-500 bg-amber-100 dark:bg-amber-900/30'
+                                                          : 'text-muted-foreground hover:text-amber-500 hover:bg-muted'
+                                                      }`}
+                                                    >
+                                                      <Star className={`h-4 w-4 ${termIsSaved ? 'fill-current' : ''}`} />
+                                                    </button>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent side="top">
+                                                    {termIsSaved
+                                                      ? t('Видалити зі збережених', 'Remove from saved')
+                                                      : t('Зберегти', 'Save')}
+                                                  </TooltipContent>
+                                                </Tooltip>
+                                              </div>
+                                            </TooltipProvider>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))
+                  ))}
+
+                  {/* Load more button */}
+                  {hasNextPage && (
+                    <div className="text-center py-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => fetchNextPage()}
+                        disabled={isFetchingNextPage}
+                        className="gap-2"
+                      >
+                        {isFetchingNextPage ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Plus className="h-4 w-4" />
+                        )}
+                        {t('Завантажити ще', 'Load more')}
+                      </Button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
+            {/* Sidebar - Categories */}
             <div className="lg:col-span-1">
-              <div className="py-6 sticky top-8">
-                <h3 className="font-semibold mb-4">
+              <div className="sticky top-8 space-y-4">
+                <h3 className="font-semibold">
                   {t('Категорії', 'Categories')}
                 </h3>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      selectedCategory === 'all'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-muted'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span>{t('Всі книги', 'All books')}</span>
-                      <Badge variant={selectedCategory === 'all' ? 'outline' : 'secondary'}>
-                        {termsWithUsage.length}
-                      </Badge>
-                    </div>
-                  </button>
-                  {categories.map((category) => (
+
+                {isLoadingStats ? (
+                  <div className="space-y-2">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="h-10 bg-muted animate-pulse rounded-md" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
                     <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
+                      onClick={() => setSelectedBook('all')}
                       className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                        selectedCategory === category
+                        selectedBook === 'all'
                           ? 'bg-primary text-primary-foreground'
                           : 'hover:bg-muted'
                       }`}
                     >
-                      <div className="flex justify-between items-center gap-2">
-                        <span className="truncate">{category}</span>
-                        <Badge variant={selectedCategory === category ? 'outline' : 'secondary'}>
-                          {categoryTermCounts[category]}
+                      <div className="flex justify-between items-center">
+                        <span>{t('Всі книги', 'All books')}</span>
+                        <Badge variant={selectedBook === 'all' ? 'outline' : 'secondary'}>
+                          {statsData?.unique_terms || 0}
                         </Badge>
                       </div>
                     </button>
-                  ))}
+
+                    {statsData?.book_stats?.map((book) => (
+                      <button
+                        key={book.slug}
+                        onClick={() => setSelectedBook(book.slug)}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                          selectedBook === book.slug
+                            ? 'bg-primary text-primary-foreground'
+                            : 'hover:bg-muted'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center gap-2">
+                          <span className="truncate text-sm">{book.title}</span>
+                          <Badge variant={selectedBook === book.slug ? 'outline' : 'secondary'}>
+                            {book.unique}
+                          </Badge>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Saved terms section */}
+                {savedTermsState.length > 0 && (
+                  <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star className="h-4 w-4 text-amber-500" />
+                      <h4 className="font-medium text-foreground">
+                        {t('Збережені терміни', 'Saved terms')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {savedTermsState.length} {t('термінів', 'terms')}
+                    </p>
+                    <Link
+                      to="/tools/script-learning"
+                      className="text-sm text-primary hover:underline flex items-center gap-1"
+                    >
+                      <GraduationCap className="h-3.5 w-3.5" />
+                      {t('Перейти до вивчення', 'Go to learning')}
+                    </Link>
+                  </div>
+                )}
+
+                {/* Quick tips */}
+                <div className="mt-6 p-4 bg-muted/30 rounded-lg text-sm text-muted-foreground">
+                  <h4 className="font-medium text-foreground mb-2">
+                    {t('Поради', 'Tips')}
+                  </h4>
+                  <ul className="space-y-1 text-xs">
+                    <li>• {t('Натисніть на термін, щоб побачити всі використання', 'Click on a term to see all usages')}</li>
+                    <li>• {t('Використовуйте діакритику для точного пошуку', 'Use diacritics for precise search')}</li>
+                    <li>• {t('Фільтруйте по книзі для швидкого пошуку', 'Filter by book for faster search')}</li>
+                    <li>• <GraduationCap className="h-3 w-3 inline" /> {t('— додати до вивчення', '— add to learning')}</li>
+                    <li>• <Star className="h-3 w-3 inline" /> {t('— зберегти термін', '— save term')}</li>
+                  </ul>
                 </div>
               </div>
             </div>
