@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { Search, Loader2, ChevronDown, BookOpen, Plus } from 'lucide-react';
+import { Search, Loader2, ChevronDown, BookOpen, Plus, GraduationCap, Star, Check } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Header } from '@/components/Header';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Badge } from '@/components/ui/badge';
 import { debounce } from 'lodash';
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -16,6 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { addLearningWord, isWordInLearningList, LearningWord } from '@/utils/learningWords';
+import { addSavedTerm, isTermVerseSaved, getSavedTerms, removeSavedTerm, SavedTerm } from '@/utils/savedTerms';
+import { useSanskritLexicon, LexiconEntry, GRAMMAR_LABELS } from '@/hooks/useSanskritLexicon';
 
 interface GlossaryTermResult {
   term: string;
@@ -62,6 +72,105 @@ export default function GlossaryDB() {
   const [debouncedTranslation, setDebouncedTranslation] = useState('');
   const [selectedBook, setSelectedBook] = useState<string>('all');
   const [expandedTerms, setExpandedTerms] = useState<Set<string>>(new Set());
+
+  // State for saved terms and learning words (for reactivity)
+  const [savedTermsState, setSavedTermsState] = useState<SavedTerm[]>(() => getSavedTerms());
+  const [learningWordsSet, setLearningWordsSet] = useState<Set<string>>(() => {
+    // Initialize with existing learning words
+    try {
+      const stored = localStorage.getItem('scriptLearning_importedWords');
+      if (stored) {
+        const words = JSON.parse(stored) as LearningWord[];
+        return new Set(words.map(w => w.iast.toLowerCase()));
+      }
+    } catch {}
+    return new Set();
+  });
+
+  // Handle adding term to learning
+  const handleAddToLearning = (item: GlossaryTermResult) => {
+    const word: LearningWord = {
+      script: '', // No devanagari script available from glossary
+      iast: item.term,
+      ukrainian: item.meaning,
+      meaning: item.meaning,
+      book: item.book_title,
+      verseReference: item.verse_link,
+      addedAt: Date.now(),
+    };
+
+    const added = addLearningWord(word);
+    if (added) {
+      setLearningWordsSet(prev => new Set(prev).add(item.term.toLowerCase()));
+      toast.success(t('Додано до вивчення', 'Added to learning'));
+    } else {
+      toast.info(t('Вже у списку вивчення', 'Already in learning list'));
+    }
+  };
+
+  // Handle saving term (bookmark)
+  const handleSaveTerm = (item: GlossaryTermResult) => {
+    const isSaved = isTermVerseSaved(item.term, item.verse_link);
+
+    if (isSaved) {
+      // Find and remove the saved term
+      const saved = savedTermsState.find(
+        st => st.term.toLowerCase() === item.term.toLowerCase() && st.verseLink === item.verse_link
+      );
+      if (saved) {
+        removeSavedTerm(saved.id);
+        setSavedTermsState(getSavedTerms());
+        toast.success(t('Видалено зі збережених', 'Removed from saved'));
+      }
+    } else {
+      const newTerm = addSavedTerm({
+        term: item.term,
+        meaning: item.meaning,
+        bookSlug: item.book_slug,
+        bookTitle: item.book_title,
+        verseNumber: item.verse_number,
+        chapterNumber: item.chapter_number,
+        cantoNumber: item.canto_number ?? undefined,
+        verseLink: item.verse_link,
+      });
+
+      if (newTerm) {
+        setSavedTermsState(getSavedTerms());
+        toast.success(t('Збережено', 'Saved'));
+      }
+    }
+  };
+
+  // Check if term is in learning list
+  const isInLearning = (term: string) => learningWordsSet.has(term.toLowerCase());
+
+  // Check if term+verse is saved
+  const isSaved = (term: string, verseLink: string) =>
+    savedTermsState.some(
+      st => st.term.toLowerCase() === term.toLowerCase() && st.verseLink === verseLink
+    );
+
+  // Sanskrit lexicon for etymology
+  const { lookupWord, lexiconAvailable, getGrammarLabel, getDictionaryLink } = useSanskritLexicon();
+  const [etymologyData, setEtymologyData] = useState<Record<string, LexiconEntry[]>>({});
+  const [loadingEtymology, setLoadingEtymology] = useState<Set<string>>(new Set());
+
+  // Fetch etymology when term is expanded
+  const fetchEtymology = useCallback(async (term: string) => {
+    if (!lexiconAvailable || etymologyData[term] || loadingEtymology.has(term)) return;
+
+    setLoadingEtymology(prev => new Set(prev).add(term));
+    try {
+      const results = await lookupWord(term);
+      setEtymologyData(prev => ({ ...prev, [term]: results }));
+    } finally {
+      setLoadingEtymology(prev => {
+        const next = new Set(prev);
+        next.delete(term);
+        return next;
+      });
+    }
+  }, [lexiconAvailable, lookupWord, etymologyData, loadingEtymology]);
 
   // Debounce search inputs
   const debouncedSetSearch = useCallback(
@@ -186,6 +295,9 @@ export default function GlossaryDB() {
           });
         }
       }
+
+      // Fetch etymology in parallel
+      fetchEtymology(term);
     }
 
     setExpandedTerms(newExpanded);
@@ -392,6 +504,52 @@ export default function GlossaryDB() {
                             </div>
                           ) : expandedTermDetails[groupedTerm.term] ? (
                             <div className="space-y-4">
+                              {/* Etymology section */}
+                              {lexiconAvailable && (
+                                <div className="mb-4">
+                                  {loadingEtymology.has(groupedTerm.term) ? (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      {t('Завантаження етимології...', 'Loading etymology...')}
+                                    </div>
+                                  ) : etymologyData[groupedTerm.term]?.length > 0 ? (
+                                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                      <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
+                                        <BookOpen className="h-4 w-4" />
+                                        {t('Етимологія', 'Etymology')}
+                                      </h4>
+                                      <div className="space-y-2">
+                                        {etymologyData[groupedTerm.term].slice(0, 3).map((entry, i) => (
+                                          <div key={i} className="text-sm">
+                                            <div className="flex items-baseline gap-2">
+                                              {entry.word_devanagari && (
+                                                <span className="text-lg font-medium">{entry.word_devanagari}</span>
+                                              )}
+                                              <span className="text-primary font-medium">{entry.word}</span>
+                                              {entry.grammar && (
+                                                <span className="text-xs text-muted-foreground">
+                                                  ({getGrammarLabel(entry.grammar, language as 'ua' | 'en') || entry.grammar})
+                                                </span>
+                                              )}
+                                            </div>
+                                            {entry.meanings && (
+                                              <p className="text-muted-foreground mt-0.5 line-clamp-2">
+                                                {entry.meanings}
+                                              </p>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <Link
+                                        to={getDictionaryLink(groupedTerm.term)}
+                                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block"
+                                      >
+                                        {t('Детальніше у словнику', 'More in dictionary')} →
+                                      </Link>
+                                    </div>
+                                  ) : null}
+                                </div>
+                              )}
                               {/* Group by book */}
                               {Object.entries(
                                 expandedTermDetails[groupedTerm.term].reduce((acc, item) => {
@@ -412,16 +570,78 @@ export default function GlossaryDB() {
                                         ? `${language === 'ua' ? 'Пісня' : 'Canto'} ${item.canto_number}, `
                                         : '';
                                       const reference = `${cantoInfo}${language === 'ua' ? 'Розділ' : 'Chapter'} ${item.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${item.verse_number}`;
+                                      const termInLearning = isInLearning(item.term);
+                                      const termIsSaved = isSaved(item.term, item.verse_link);
 
                                       return (
-                                        <div key={idx} className="border-l-2 border-primary/30 pl-3 py-1">
-                                          <p className="text-foreground">{item.meaning || '—'}</p>
-                                          <Link
-                                            to={item.verse_link}
-                                            className="text-sm text-primary hover:underline"
-                                          >
-                                            {reference}
-                                          </Link>
+                                        <div key={idx} className="border-l-2 border-primary/30 pl-3 py-1 group">
+                                          <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1">
+                                              <p className="text-foreground">{item.meaning || '—'}</p>
+                                              <Link
+                                                to={item.verse_link}
+                                                className="text-sm text-primary hover:underline"
+                                              >
+                                                {reference}
+                                              </Link>
+                                            </div>
+                                            {/* Action buttons */}
+                                            <TooltipProvider delayDuration={300}>
+                                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {/* Add to learning */}
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddToLearning(item);
+                                                      }}
+                                                      className={`p-1.5 rounded-md transition-colors ${
+                                                        termInLearning
+                                                          ? 'text-green-600 bg-green-100 dark:bg-green-900/30'
+                                                          : 'text-muted-foreground hover:text-primary hover:bg-muted'
+                                                      }`}
+                                                    >
+                                                      {termInLearning ? (
+                                                        <Check className="h-4 w-4" />
+                                                      ) : (
+                                                        <GraduationCap className="h-4 w-4" />
+                                                      )}
+                                                    </button>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent side="top">
+                                                    {termInLearning
+                                                      ? t('Вже у вивченні', 'Already in learning')
+                                                      : t('Додати до вивчення', 'Add to learning')}
+                                                  </TooltipContent>
+                                                </Tooltip>
+
+                                                {/* Save/Bookmark */}
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <button
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleSaveTerm(item);
+                                                      }}
+                                                      className={`p-1.5 rounded-md transition-colors ${
+                                                        termIsSaved
+                                                          ? 'text-amber-500 bg-amber-100 dark:bg-amber-900/30'
+                                                          : 'text-muted-foreground hover:text-amber-500 hover:bg-muted'
+                                                      }`}
+                                                    >
+                                                      <Star className={`h-4 w-4 ${termIsSaved ? 'fill-current' : ''}`} />
+                                                    </button>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent side="top">
+                                                    {termIsSaved
+                                                      ? t('Видалити зі збережених', 'Remove from saved')
+                                                      : t('Зберегти', 'Save')}
+                                                  </TooltipContent>
+                                                </Tooltip>
+                                              </div>
+                                            </TooltipProvider>
+                                          </div>
                                         </div>
                                       );
                                     })}
@@ -509,6 +729,28 @@ export default function GlossaryDB() {
                   </div>
                 )}
 
+                {/* Saved terms section */}
+                {savedTermsState.length > 0 && (
+                  <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Star className="h-4 w-4 text-amber-500" />
+                      <h4 className="font-medium text-foreground">
+                        {t('Збережені терміни', 'Saved terms')}
+                      </h4>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {savedTermsState.length} {t('термінів', 'terms')}
+                    </p>
+                    <Link
+                      to="/tools/script-learning"
+                      className="text-sm text-primary hover:underline flex items-center gap-1"
+                    >
+                      <GraduationCap className="h-3.5 w-3.5" />
+                      {t('Перейти до вивчення', 'Go to learning')}
+                    </Link>
+                  </div>
+                )}
+
                 {/* Quick tips */}
                 <div className="mt-6 p-4 bg-muted/30 rounded-lg text-sm text-muted-foreground">
                   <h4 className="font-medium text-foreground mb-2">
@@ -518,6 +760,8 @@ export default function GlossaryDB() {
                     <li>• {t('Натисніть на термін, щоб побачити всі використання', 'Click on a term to see all usages')}</li>
                     <li>• {t('Використовуйте діакритику для точного пошуку', 'Use diacritics for precise search')}</li>
                     <li>• {t('Фільтруйте по книзі для швидкого пошуку', 'Filter by book for faster search')}</li>
+                    <li>• <GraduationCap className="h-3 w-3 inline" /> {t('— додати до вивчення', '— add to learning')}</li>
+                    <li>• <Star className="h-3 w-3 inline" /> {t('— зберегти термін', '— save term')}</li>
                   </ul>
                 </div>
               </div>
