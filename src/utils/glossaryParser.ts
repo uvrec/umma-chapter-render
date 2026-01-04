@@ -136,8 +136,11 @@ export const parseTermsFromSynonyms = (synonyms: string, verseNumber: string, bo
 
   const terms: GlossaryTerm[] = [];
 
+  // Remove HTML tags before parsing (e.g., <em>манах</em> -> манах)
+  const cleaned = synonyms.replace(/<[^>]*>/g, '');
+
   // Split ONLY by semicolon (comma is used inside meanings like "те, Верховний")
-  const termPairs = synonyms.split(/;/);
+  const termPairs = cleaned.split(/;/);
 
   termPairs.forEach((pair) => {
     const trimmedPair = pair.trim();
