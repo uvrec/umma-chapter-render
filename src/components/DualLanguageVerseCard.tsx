@@ -501,7 +501,7 @@ export const DualLanguageVerseCard = ({
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
-                      lineHeight,
+                      lineHeight: 1.4,
                     }}
                     className="text-justify"
                   >
@@ -559,7 +559,7 @@ export const DualLanguageVerseCard = ({
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
-                      lineHeight,
+                      lineHeight: 1.4,
                     }}
                     className="text-justify"
                   >

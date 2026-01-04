@@ -467,7 +467,7 @@ export const VerseCard = ({
               <p
                 style={{
                   fontSize: `${fontSize}px`,
-                  lineHeight,
+                  lineHeight: 1.4,
                 }}
                 className="text-justify"
               >
