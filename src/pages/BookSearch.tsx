@@ -167,8 +167,8 @@ export default function BookSearch() {
   // Перехід до вірша
   const navigateToVerse = (result: SearchResult) => {
     const path = result.canto_number
-      ? `/books/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}#verse-${result.verse_number}`
-      : `/books/${result.book_slug}/chapter/${result.chapter_number}#verse-${result.verse_number}`;
+      ? `/veda-reader/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`
+      : `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
     navigate(path);
   };
 
