@@ -408,7 +408,7 @@ export default function GlossaryDB() {
                   </SelectContent>
                 </Select>
 
-                <Button onClick={handleSearch} className="gap-2">
+                <Button onClick={handleSearch} className="w-full md:w-auto gap-2 h-11 md:h-10 touch-manipulation">
                   <Search className="h-4 w-4" />
                   {t('Шукати', 'Search')}
                 </Button>
@@ -459,7 +459,7 @@ export default function GlossaryDB() {
                       {/* Term header - clickable to expand */}
                       <button
                         onClick={() => toggleTermExpanded(groupedTerm.term)}
-                        className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors text-left"
+                        className="w-full p-4 flex items-center justify-between hover:bg-muted/50 active:bg-muted/50 transition-colors text-left touch-manipulation"
                       >
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-primary">
@@ -542,7 +542,7 @@ export default function GlossaryDB() {
                                       </div>
                                       <Link
                                         to={getDictionaryLink(groupedTerm.term)}
-                                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block"
+                                        className="text-sm md:text-xs text-blue-600 dark:text-blue-400 hover:underline mt-2 inline-block py-1 touch-manipulation"
                                       >
                                         {t('Детальніше у словнику', 'More in dictionary')} →
                                       </Link>
@@ -576,18 +576,18 @@ export default function GlossaryDB() {
                                       return (
                                         <div key={idx} className="border-l-2 border-primary/30 pl-3 py-1 group">
                                           <div className="flex items-start justify-between gap-2">
-                                            <div className="flex-1">
+                                            <div className="flex-1 min-w-0">
                                               <p className="text-foreground">{item.meaning || '—'}</p>
                                               <Link
                                                 to={item.verse_link}
-                                                className="text-sm text-primary hover:underline"
+                                                className="text-sm text-primary hover:underline inline-block py-1 touch-manipulation"
                                               >
                                                 {reference}
                                               </Link>
                                             </div>
-                                            {/* Action buttons */}
+                                            {/* Action buttons - always visible on mobile, hover on desktop */}
                                             <TooltipProvider delayDuration={300}>
-                                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                              <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                                                 {/* Add to learning */}
                                                 <Tooltip>
                                                   <TooltipTrigger asChild>
@@ -596,20 +596,23 @@ export default function GlossaryDB() {
                                                         e.stopPropagation();
                                                         handleAddToLearning(item);
                                                       }}
-                                                      className={`p-1.5 rounded-md transition-colors ${
+                                                      className={`p-2 md:p-1.5 rounded-md transition-colors touch-manipulation ${
                                                         termInLearning
                                                           ? 'text-green-600 bg-green-100 dark:bg-green-900/30'
-                                                          : 'text-muted-foreground hover:text-primary hover:bg-muted'
+                                                          : 'text-muted-foreground hover:text-primary hover:bg-muted active:bg-muted'
                                                       }`}
+                                                      aria-label={termInLearning
+                                                        ? t('Вже у вивченні', 'Already in learning')
+                                                        : t('Додати до вивчення', 'Add to learning')}
                                                     >
                                                       {termInLearning ? (
-                                                        <Check className="h-4 w-4" />
+                                                        <Check className="h-5 w-5 md:h-4 md:w-4" />
                                                       ) : (
-                                                        <GraduationCap className="h-4 w-4" />
+                                                        <GraduationCap className="h-5 w-5 md:h-4 md:w-4" />
                                                       )}
                                                     </button>
                                                   </TooltipTrigger>
-                                                  <TooltipContent side="top">
+                                                  <TooltipContent side="top" className="hidden md:block">
                                                     {termInLearning
                                                       ? t('Вже у вивченні', 'Already in learning')
                                                       : t('Додати до вивчення', 'Add to learning')}
@@ -624,16 +627,19 @@ export default function GlossaryDB() {
                                                         e.stopPropagation();
                                                         handleSaveTerm(item);
                                                       }}
-                                                      className={`p-1.5 rounded-md transition-colors ${
+                                                      className={`p-2 md:p-1.5 rounded-md transition-colors touch-manipulation ${
                                                         termIsSaved
                                                           ? 'text-amber-500 bg-amber-100 dark:bg-amber-900/30'
-                                                          : 'text-muted-foreground hover:text-amber-500 hover:bg-muted'
+                                                          : 'text-muted-foreground hover:text-amber-500 hover:bg-muted active:bg-muted'
                                                       }`}
+                                                      aria-label={termIsSaved
+                                                        ? t('Видалити зі збережених', 'Remove from saved')
+                                                        : t('Зберегти', 'Save')}
                                                     >
-                                                      <Star className={`h-4 w-4 ${termIsSaved ? 'fill-current' : ''}`} />
+                                                      <Star className={`h-5 w-5 md:h-4 md:w-4 ${termIsSaved ? 'fill-current' : ''}`} />
                                                     </button>
                                                   </TooltipTrigger>
-                                                  <TooltipContent side="top">
+                                                  <TooltipContent side="top" className="hidden md:block">
                                                     {termIsSaved
                                                       ? t('Видалити зі збережених', 'Remove from saved')
                                                       : t('Зберегти', 'Save')}
@@ -662,7 +668,7 @@ export default function GlossaryDB() {
                         variant="outline"
                         onClick={() => fetchNextPage()}
                         disabled={isFetchingNextPage}
-                        className="gap-2"
+                        className="w-full md:w-auto gap-2 h-11 md:h-10 touch-manipulation"
                       >
                         {isFetchingNextPage ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -691,13 +697,13 @@ export default function GlossaryDB() {
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-1 md:space-y-2">
                     <button
                       onClick={() => setSelectedBook('all')}
-                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      className={`w-full text-left px-3 py-3 md:py-2 rounded-md transition-colors touch-manipulation ${
                         selectedBook === 'all'
                           ? 'bg-primary text-primary-foreground'
-                          : 'hover:bg-muted'
+                          : 'hover:bg-muted active:bg-muted'
                       }`}
                     >
                       <div className="flex justify-between items-center">
@@ -712,10 +718,10 @@ export default function GlossaryDB() {
                       <button
                         key={book.slug}
                         onClick={() => setSelectedBook(book.slug)}
-                        className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                        className={`w-full text-left px-3 py-3 md:py-2 rounded-md transition-colors touch-manipulation ${
                           selectedBook === book.slug
                             ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-muted'
+                            : 'hover:bg-muted active:bg-muted'
                         }`}
                       >
                         <div className="flex justify-between items-center gap-2">
@@ -743,9 +749,9 @@ export default function GlossaryDB() {
                     </p>
                     <Link
                       to="/tools/script-learning"
-                      className="text-sm text-primary hover:underline flex items-center gap-1"
+                      className="text-sm text-primary hover:underline flex items-center gap-1 py-2 touch-manipulation"
                     >
-                      <GraduationCap className="h-3.5 w-3.5" />
+                      <GraduationCap className="h-4 w-4" />
                       {t('Перейти до вивчення', 'Go to learning')}
                     </Link>
                   </div>
