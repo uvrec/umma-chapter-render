@@ -18,9 +18,6 @@ import { ContinueReadingSection } from "@/components/ContinueReadingSection";
 import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, ExternalLink } from "lucide-react";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { QuickActions } from "@/components/QuickActions";
-import { StatsBar } from "@/components/StatsBar";
-import { FeaturedVerses } from "@/components/FeaturedVerses";
-import { GettingStarted } from "@/components/GettingStarted";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
 
@@ -480,14 +477,11 @@ export const NewHome = () => {
       <main>
         <Hero />
         <QuickActions />
-        <StatsBar />
         <div className="container mx-auto px-4 py-8">
           <ContinueReadingSection className="mb-8" maxItems={3} />
         </div>
         <LatestContent />
         <FeaturedBooks />
-        <FeaturedVerses />
-        <GettingStarted />
         <SupportSection />
       </main>
       <Footer />
