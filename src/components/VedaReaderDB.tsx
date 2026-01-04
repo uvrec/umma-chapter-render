@@ -902,8 +902,8 @@ export const VedaReaderDB = () => {
   return <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
       <Header />
 
-      {/* 🆕 Sticky Header з іконками */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* 🆕 Sticky Breadcrumbs - прилипає під хедером */}
+      <div className="sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between gap-2">
             {/* Breadcrumbs - responsive with overflow handling */}
