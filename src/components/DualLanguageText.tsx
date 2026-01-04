@@ -93,7 +93,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
         const textStyle = fontSize ? { fontSize: `${fontSize}px`, lineHeight } : undefined;
 
         return (
-          <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
+          <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
             <p
               className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               style={textStyle}

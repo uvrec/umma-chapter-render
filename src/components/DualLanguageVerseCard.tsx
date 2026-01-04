@@ -383,7 +383,7 @@ export const DualLanguageVerseCard = ({
             </div>
 
             {isEditing ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
                   value={edited.sanskritUa}
                   onChange={(e) =>
@@ -406,7 +406,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8 text-center">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 text-center">
                 <div
                   className="font-[Noto_Sans_Devanagari] whitespace-pre-line"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
@@ -428,7 +428,7 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showTransliteration && (isEditing || transliterationUa || transliterationEn) && (
           <div className="p-8">
             {isEditing ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
                   value={edited.transliterationUa}
                   onChange={(e) =>
@@ -451,7 +451,7 @@ export const DualLanguageVerseCard = ({
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <div
                   className="italic text-center transliteration-lines"
                   style={{ fontSize: `${fontSize}px`, lineHeight }}
@@ -480,7 +480,7 @@ export const DualLanguageVerseCard = ({
         {/* ПОСЛІВНИЙ ПЕРЕКЛАД */}
         {textDisplaySettings.showSynonyms && (isEditing || synonymsUa || synonymsEn) && (
           <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
               {/* Ukrainian Synonyms */}
               <div>
                 {(isEditing || synonymsUa) && (
@@ -606,7 +606,7 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showTranslation && (isEditing || translationUa || translationEn) && (
           <div className="p-8">
             {/* Заголовки - показуються тільки якщо є текст */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
               <div className="flex items-center justify-center gap-1 sm:gap-4">
                 {(isEditing || translationUa) && (
                   <>
@@ -640,7 +640,7 @@ export const DualLanguageVerseCard = ({
             </div>
 
             {isEditing ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <Textarea
                   value={edited.translationUa}
                   onChange={(e) =>
@@ -672,7 +672,7 @@ export const DualLanguageVerseCard = ({
         {textDisplaySettings.showCommentary && (isEditing || commentaryUa || commentaryEn) && (
           <div className="p-8">
             {/* Заголовки - показуються тільки якщо є текст */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
               <div className="flex items-center justify-center gap-1 sm:gap-4">
                 {(isEditing || commentaryUa) && (
                   <>
@@ -706,7 +706,7 @@ export const DualLanguageVerseCard = ({
             </div>
 
             {isEditing ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
                 <EnhancedInlineEditor
                   content={edited.commentaryUa}
                   onChange={(html) =>
