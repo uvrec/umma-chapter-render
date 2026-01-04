@@ -19,8 +19,6 @@ import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, Exte
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { QuickActions } from "@/components/QuickActions";
 import { StatsBar } from "@/components/StatsBar";
-import { FeaturedVerses } from "@/components/FeaturedVerses";
-import { GettingStarted } from "@/components/GettingStarted";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
 
@@ -486,8 +484,6 @@ export const NewHome = () => {
         </div>
         <LatestContent />
         <FeaturedBooks />
-        <FeaturedVerses />
-        <GettingStarted />
         <SupportSection />
       </main>
       <Footer />
