@@ -60,7 +60,7 @@ export function DailyQuoteBanner({ className }: DailyQuoteBannerProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden group",
+        "relative overflow-hidden group rounded-2xl",
         "backdrop-blur-[10px]",
         "bg-white/10 dark:bg-white/5",
         "transition-all duration-700 ease-out",

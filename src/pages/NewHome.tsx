@@ -133,29 +133,29 @@ function Hero() {
 
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
-          {/* Continue Listening - адаптивний */}
-          {currentTrack && <div className="mt-6 sm:mt-8">
-              <div className="backdrop-blur bg-white/95 dark:bg-gray-900/95 p-4 sm:p-6">
-                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          {/* Continue Listening - в стилі цитати */}
+          {currentTrack && <div className="mt-6 sm:mt-8 max-w-2xl mx-auto">
+              <div className="backdrop-blur-[10px] bg-white/10 dark:bg-white/5 rounded-2xl p-4 sm:p-5">
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm" style={{ color: '#F1E1C7' }}>
                     <Headphones className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden xs:inline">Продовжити прослуховування</span>
+                    <span>Продовжити прослуховування</span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3 sm:gap-4">
                     <div className="min-w-0 flex-1 text-left">
-                      <div className="mb-1 truncate text-sm sm:text-base font-semibold text-foreground">
+                      <div className="mb-1 truncate text-sm sm:text-base font-semibold" style={{ color: '#F1E1C7' }}>
                         {currentTrack.title_ua || currentTrack.title}
                       </div>
-                      <div className="truncate text-xs sm:text-sm text-muted-foreground">
+                      <div className="truncate text-xs sm:text-sm" style={{ color: 'rgba(241, 225, 199, 0.7)' }}>
                         {currentTrack.artist || currentTrack.album || "Vedavoice"}
                       </div>
-                      <div className="mt-1 sm:mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="mt-1 sm:mt-2 flex items-center gap-2 text-xs" style={{ color: 'rgba(241, 225, 199, 0.6)' }}>
                         <Clock className="h-3 w-3" />
-                        <span className="hidden sm:inline">{isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}</span>
+                        <span>{isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}</span>
                       </div>
                     </div>
 
-                    <Button size="sm" onClick={togglePlay} className="gap-1 sm:gap-2 flex-shrink-0">
+                    <Button size="sm" onClick={togglePlay} className="gap-1 sm:gap-2 flex-shrink-0 bg-white/20 hover:bg-white/30 text-white border-0">
                       {isPlaying ? <Pause className="h-3 w-3 sm:h-4 sm:w-4" /> : <Play className="h-3 w-3 sm:h-4 sm:w-4" />}
                       <span className="hidden xs:inline">{isPlaying ? "Пауза" : "Продовжити"}</span>
                     </Button>
