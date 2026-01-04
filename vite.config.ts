@@ -103,16 +103,18 @@ export default defineConfig(({ mode }) => ({
               }
             }
           },
-          // 2. JS/CSS assets - StaleWhileRevalidate (показуємо кеш, оновлюємо в фоні)
+          // 2. JS/CSS assets - NetworkFirst (мережа першою, кеш як fallback)
+          // ВАЖЛИВО: StaleWhileRevalidate показував старий JS при деплої, що призводило до скидання налаштувань
           {
             urlPattern: /\/assets\/.*\.(js|css)$/i,
-            handler: 'StaleWhileRevalidate',
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'assets-cache-v2',
+              cacheName: 'assets-cache-v3',
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 7 // 7 днів
               },
+              networkTimeoutSeconds: 5, // Чекаємо мережу 5 секунд, потім fallback на кеш
               cacheableResponse: {
                 statuses: [0, 200]
               }

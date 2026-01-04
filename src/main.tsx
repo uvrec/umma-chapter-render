@@ -13,11 +13,12 @@ async function cleanupOldCaches() {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
-      // Видаляємо старі кеші (без суфікса -v2)
+      // Видаляємо всі старі кеші, які не є поточними версіями
+      // Поточні версії: pages-cache-v2, assets-cache-v3, images-cache-v2
       const oldCaches = cacheNames.filter(name =>
-        (name.includes('pages-cache') && !name.includes('-v2')) ||
-        (name.includes('assets-cache') && !name.includes('-v2')) ||
-        (name.includes('images-cache') && !name.includes('-v2')) ||
+        (name.includes('pages-cache') && name !== 'pages-cache-v2') ||
+        (name.includes('assets-cache') && name !== 'assets-cache-v3') ||
+        (name.includes('images-cache') && name !== 'images-cache-v2') ||
         name.includes('workbox-precache') // Старий precache
       );
 
