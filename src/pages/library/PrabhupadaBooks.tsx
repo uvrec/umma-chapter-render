@@ -27,7 +27,7 @@ const prabhupadaBooks: Book[] = [
     description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
     price: "595 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/bhagavatam/canto/1",
+    verseLink: "/veda-reader/sb/canto/1",
     coverImage: srimadBhagavatam1Cover,
     purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
   },
@@ -45,7 +45,7 @@ const prabhupadaBooks: Book[] = [
     description: "Суть усієї ведичної мудрості. У цьому творі у стислому вигляді викладено основні ідеї давньоіндійської філософії.",
     price: "425 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/gita/1",
+    verseLink: "/veda-reader/bg/1",
     coverImage: bhagavadGitaCover,
     purchaseUrl: "https://books.krishna.ua/ua/bhagavad-gita-jak-vona-je/"
   },
@@ -149,8 +149,8 @@ export const PrabhupadaBooks = () => {
                       </Link>
                     )}
                     <Link to={
-                        book.id === 'sb-1-1' ? '/audiobooks/bhagavatam' :
-                        book.id === 'bg' ? '/audiobooks/gita' :
+                        book.id === 'sb-1-1' ? '/audiobooks/sb' :
+                        book.id === 'bg' ? '/audiobooks/bg' :
                         book.id === 'iso' ? '/audiobooks/iso' :
                         '/audio/audiobooks'
                       }>
