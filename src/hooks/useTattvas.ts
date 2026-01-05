@@ -1,8 +1,5 @@
 /**
  * Hooks for Tattva (philosophical categories) system
- * 
- * NOTE: Some RPC functions are stubbed because they don't exist yet.
- * Once the SQL migration is run, these can use the real RPC calls.
  */
 
 import { useQuery } from "@tanstack/react-query";
@@ -45,7 +42,7 @@ export interface TattvaBreadcrumb {
 }
 
 /**
- * Get hierarchical tree of tattvas (stubbed - RPC doesn't exist yet)
+ * Get hierarchical tree of tattvas
  */
 export function useTattvaTree(_parentId?: string) {
   return {
@@ -70,7 +67,6 @@ export function useRootTattvas() {
 
       if (error) throw error;
       
-      // Map database fields to interface
       return data.map(t => ({
         id: t.id,
         name_ua: t.name_ua,
@@ -79,6 +75,7 @@ export function useRootTattvas() {
         description_ua: t.description_ua,
         description_en: t.description_en,
         parent_id: t.parent_id,
+        category: t.category as Tattva['category'],
       })) as Tattva[];
     },
     staleTime: 1000 * 60 * 10,
@@ -108,6 +105,7 @@ export function useTattva(slug: string) {
         description_ua: data.description_ua,
         description_en: data.description_en,
         parent_id: data.parent_id,
+        category: data.category as Tattva['category'],
       } as Tattva;
     },
     enabled: !!slug,
@@ -144,6 +142,7 @@ export function useTattvaChildren(parentId: string) {
             description_ua: t.description_ua,
             description_en: t.description_en,
             parent_id: t.parent_id,
+            category: t.category as Tattva['category'],
             verses_count: count || 0,
           };
         })
@@ -156,54 +155,87 @@ export function useTattvaChildren(parentId: string) {
 }
 
 /**
- * Get verses for a tattva (stubbed - RPC doesn't exist yet)
+ * Get verses for a tattva using RPC
  */
 export function useTattvaVerses(
-  _slug: string,
-  _options?: {
+  slug: string,
+  options?: {
     limit?: number;
     offset?: number;
     includeChildren?: boolean;
   }
 ) {
-  return {
-    data: [] as TattvaVerse[],
-    isLoading: false,
-    error: null,
-  };
+  const { limit = 50, offset = 0, includeChildren = true } = options || {};
+
+  return useQuery({
+    queryKey: ["tattva-verses", slug, limit, offset, includeChildren],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_tattva_verses", {
+        p_tattva_slug: slug,
+        p_limit: limit,
+        p_offset: offset,
+        p_include_children: includeChildren,
+      });
+
+      if (error) throw error;
+      return (data || []) as TattvaVerse[];
+    },
+    enabled: !!slug,
+  });
 }
 
 /**
- * Get tattvas for a specific verse (stubbed - RPC doesn't exist yet)
+ * Get tattvas for a specific verse using RPC
  */
-export function useVerseTattvas(_verseId: string) {
-  return {
-    data: [] as Tattva[],
-    isLoading: false,
-    error: null,
-  };
+export function useVerseTattvas(verseId: string) {
+  return useQuery({
+    queryKey: ["verse-tattvas", verseId],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_verse_tattvas", {
+        p_verse_id: verseId,
+      });
+
+      if (error) throw error;
+      return (data || []) as Tattva[];
+    },
+    enabled: !!verseId,
+  });
 }
 
 /**
- * Search tattvas (stubbed - RPC doesn't exist yet)
+ * Search tattvas using RPC
  */
-export function useSearchTattvas(_query: string) {
-  return {
-    data: [] as (Tattva & { parent_slug?: string })[],
-    isLoading: false,
-    error: null,
-  };
+export function useSearchTattvas(query: string) {
+  return useQuery({
+    queryKey: ["tattvas", "search", query],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("search_tattvas", {
+        p_query: query,
+      });
+
+      if (error) throw error;
+      return (data || []) as (Tattva & { parent_slug?: string })[];
+    },
+    enabled: query.length >= 2,
+  });
 }
 
 /**
- * Get breadcrumb path for a tattva (stubbed - RPC doesn't exist yet)
+ * Get breadcrumb path for a tattva using RPC
  */
-export function useTattvaBreadcrumb(_slug: string) {
-  return {
-    data: [] as TattvaBreadcrumb[],
-    isLoading: false,
-    error: null,
-  };
+export function useTattvaBreadcrumb(slug: string) {
+  return useQuery({
+    queryKey: ["tattva-breadcrumb", slug],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any).rpc("get_tattva_breadcrumb", {
+        p_tattva_slug: slug,
+      });
+
+      if (error) throw error;
+      return (data || []) as TattvaBreadcrumb[];
+    },
+    enabled: !!slug,
+  });
 }
 
 /**
@@ -238,6 +270,7 @@ export function useTattvasWithCounts() {
         description_ua: t.description_ua,
         description_en: t.description_en,
         parent_id: t.parent_id,
+        category: t.category as Tattva['category'],
         verses_count: countMap[t.id] || 0,
       })) as Tattva[];
     },

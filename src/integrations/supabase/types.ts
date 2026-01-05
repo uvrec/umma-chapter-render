@@ -1607,6 +1607,7 @@ export type Database = {
       }
       tattvas: {
         Row: {
+          category: string | null
           created_at: string | null
           description_en: string | null
           description_ua: string | null
@@ -1619,6 +1620,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           description_en?: string | null
           description_ua?: string | null
@@ -1631,6 +1633,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           description_en?: string | null
           description_ua?: string | null
@@ -2603,6 +2606,37 @@ export type Database = {
           verse_number: string
         }[]
       }
+      get_tattva_breadcrumb: {
+        Args: { p_tattva_slug: string }
+        Returns: {
+          depth: number
+          id: string
+          name_en: string
+          name_ua: string
+          slug: string
+        }[]
+      }
+      get_tattva_verses: {
+        Args: {
+          p_include_children?: boolean
+          p_limit?: number
+          p_offset?: number
+          p_tattva_slug: string
+        }
+        Returns: {
+          book_slug: string
+          book_title: string
+          canto_number: number
+          chapter_number: number
+          relevance_score: number
+          sanskrit: string
+          tattva_name: string
+          translation_en: string
+          translation_ua: string
+          verse_id: string
+          verse_number: string
+        }[]
+      }
       get_topic_statistics: {
         Args: {
           book_ids?: string[]
@@ -2635,6 +2669,18 @@ export type Database = {
           p_verse_number: string
         }
         Returns: string
+      }
+      get_verse_tattvas: {
+        Args: { p_verse_id: string }
+        Returns: {
+          category: string
+          id: string
+          name_en: string
+          name_sanskrit: string
+          name_ua: string
+          relevance_score: number
+          slug: string
+        }[]
       }
       has_role: {
         Args: {
@@ -2776,6 +2822,22 @@ export type Database = {
           transliteration: string
           verse_id: string
           verse_number: string
+        }[]
+      }
+      search_tattvas: {
+        Args: { p_query: string }
+        Returns: {
+          category: string
+          description_en: string
+          description_ua: string
+          id: string
+          name_en: string
+          name_sanskrit: string
+          name_ua: string
+          parent_id: string
+          parent_slug: string
+          slug: string
+          verses_count: number
         }[]
       }
       search_verses_fulltext: {
