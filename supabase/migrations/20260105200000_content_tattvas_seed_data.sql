@@ -3,10 +3,14 @@
 -- =============================================================================
 
 -- Add tagged_by column to track source of tagging
-ALTER TABLE content_tattvas ADD COLUMN IF NOT EXISTS tagged_by TEXT DEFAULT 'manual';
+ALTER TABLE public.content_tattvas ADD COLUMN IF NOT EXISTS tagged_by TEXT DEFAULT 'manual';
 
 -- Add comment
-COMMENT ON COLUMN content_tattvas.tagged_by IS 'Source of tagging: manual, ai, or import';
+COMMENT ON COLUMN public.content_tattvas.tagged_by IS 'Source of tagging: manual, ai, or import';
+
+-- Add unique index for ON CONFLICT to work
+CREATE UNIQUE INDEX IF NOT EXISTS content_tattvas_verse_tattva_uidx
+  ON public.content_tattvas(verse_id, tattva_id);
 
 -- =============================================================================
 -- Seed data: Connect key verses to tattvas
@@ -19,11 +23,12 @@ CREATE OR REPLACE FUNCTION get_verse_id_by_ref(
   p_chapter_number INTEGER,
   p_verse_number TEXT
 ) RETURNS UUID AS $$
-  SELECT v.id FROM verses v
-  JOIN chapters c ON v.chapter_id = c.id
-  JOIN books b ON c.book_id = b.id
+  SELECT v.id
+  FROM public.verses v
+  JOIN public.chapters c ON v.chapter_id = c.id
+  JOIN public.books b ON c.book_id = b.id
   WHERE b.slug = p_book_slug
-    AND c.number = p_chapter_number
+    AND c.chapter_number = p_chapter_number
     AND v.verse_number = p_verse_number
   LIMIT 1;
 $$ LANGUAGE SQL STABLE;
@@ -45,11 +50,11 @@ BEGIN
   v_verse_id := get_verse_id_by_ref(p_book_slug, p_chapter_number, p_verse_number);
 
   -- Get tattva ID
-  SELECT id INTO v_tattva_id FROM tattvas WHERE slug = p_tattva_slug;
+  SELECT id INTO v_tattva_id FROM public.tattvas WHERE slug = p_tattva_slug;
 
   -- Insert if both exist
   IF v_verse_id IS NOT NULL AND v_tattva_id IS NOT NULL THEN
-    INSERT INTO content_tattvas (verse_id, tattva_id, relevance_score, tagged_by)
+    INSERT INTO public.content_tattvas (verse_id, tattva_id, relevance_score, tagged_by)
     VALUES (v_verse_id, v_tattva_id, p_relevance, p_tagged_by)
     ON CONFLICT (verse_id, tattva_id) DO UPDATE
     SET relevance_score = EXCLUDED.relevance_score,
@@ -172,7 +177,7 @@ SELECT link_verse_to_tattva('sb', 3, '28', 'krishna-tattva', 1.0);
 -- Create view for tattva statistics
 -- =============================================================================
 
-CREATE OR REPLACE VIEW tattva_stats AS
+CREATE OR REPLACE VIEW public.tattva_stats AS
 SELECT
   t.id,
   t.name_uk,
@@ -184,13 +189,13 @@ SELECT
   COUNT(CASE WHEN ct.tagged_by = 'ai' THEN 1 END) AS ai_tagged,
   COUNT(CASE WHEN ct.tagged_by = 'manual' THEN 1 END) AS manual_tagged,
   COUNT(CASE WHEN ct.tagged_by = 'seed' THEN 1 END) AS seed_tagged
-FROM tattvas t
-LEFT JOIN content_tattvas ct ON t.id = ct.tattva_id
+FROM public.tattvas t
+LEFT JOIN public.content_tattvas ct ON t.id = ct.tattva_id
 GROUP BY t.id, t.name_uk, t.name_en, t.slug, t.category
 ORDER BY t.category, t.display_order;
 
-COMMENT ON VIEW tattva_stats IS 'Statistics for tattva tagging coverage';
+COMMENT ON VIEW public.tattva_stats IS 'Statistics for tattva tagging coverage';
 
 -- Grant access
-GRANT SELECT ON tattva_stats TO authenticated;
-GRANT SELECT ON tattva_stats TO anon;
+GRANT SELECT ON public.tattva_stats TO authenticated;
+GRANT SELECT ON public.tattva_stats TO anon;
