@@ -27,6 +27,7 @@ import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
 import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
 import { RelatedVerses } from "@/components/RelatedVerses";
+import { VerseTattvas } from "@/components/verse/VerseTattvas";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
@@ -1072,6 +1073,11 @@ export const VedaReaderDB = () => {
                 queryKey: ["verses"]
               });
             }} onPrevVerse={handlePrevVerse} onNextVerse={handleNextVerse} isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0} isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1} prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")} nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")} />}
+
+                  {/* Tattvas */}
+                  {currentVerse?.id && (
+                    <VerseTattvas verseId={currentVerse.id} className="mt-4" />
+                  )}
 
                   {/* Related verses */}
                   {currentVerse?.id && (

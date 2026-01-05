@@ -105,6 +105,8 @@ import BookSearch from "./pages/BookSearch";
 import Chat from "./pages/Chat";
 import LocalChat from "./pages/LocalChat";
 import Quotes from "./pages/Quotes";
+import TattvasIndex from "./pages/TattvasIndex";
+import TattvaPage from "./pages/TattvaPage";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
@@ -206,6 +208,8 @@ function AppContent() {
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/local" element={<LocalChat />} />
           <Route path="/quotes" element={<Quotes />} />
+          <Route path="/tattvas" element={<TattvasIndex />} />
+          <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/contact" element={<Contact />} />
 
