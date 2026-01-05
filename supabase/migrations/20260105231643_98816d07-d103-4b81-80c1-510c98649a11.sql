@@ -172,7 +172,57 @@ BEGIN
 END;
 $$;
 
--- 7. Grant permissions
+-- 7. Create get_tattva_tree function (hierarchical tree)
+CREATE OR REPLACE FUNCTION get_tattva_tree(p_parent_id UUID DEFAULT NULL)
+RETURNS TABLE (
+  id UUID,
+  slug TEXT,
+  name_en TEXT,
+  name_ua TEXT,
+  name_sanskrit TEXT,
+  description_en TEXT,
+  description_ua TEXT,
+  category TEXT,
+  parent_id UUID,
+  display_order INT,
+  depth INT,
+  children_count BIGINT,
+  verses_count BIGINT
+) LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN QUERY
+  WITH RECURSIVE tree AS (
+    SELECT t.*, 0 AS depth
+    FROM tattvas t
+    WHERE (p_parent_id IS NULL AND t.parent_id IS NULL)
+       OR (p_parent_id IS NOT NULL AND t.parent_id = p_parent_id)
+    UNION ALL
+    SELECT t.*, tree.depth + 1
+    FROM tattvas t
+    JOIN tree ON t.parent_id = tree.id
+    WHERE tree.depth < 5
+  )
+  SELECT
+    tree.id,
+    tree.slug,
+    tree.name_en,
+    tree.name_ua,
+    tree.name_sanskrit,
+    tree.description_en,
+    tree.description_ua,
+    tree.category,
+    tree.parent_id,
+    tree.display_order,
+    tree.depth,
+    (SELECT COUNT(*) FROM tattvas c WHERE c.parent_id = tree.id) AS children_count,
+    (SELECT COUNT(*) FROM content_tattvas ct WHERE ct.tattva_id = tree.id) AS verses_count
+  FROM tree
+  ORDER BY tree.depth, tree.display_order;
+END;
+$$;
+
+-- 8. Grant permissions
+GRANT EXECUTE ON FUNCTION get_tattva_tree TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION get_tattva_verses TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION get_verse_tattvas TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION search_tattvas TO anon, authenticated;
