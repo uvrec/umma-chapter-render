@@ -1,7 +1,7 @@
 // VedaReaderDB.tsx — ENHANCED VERSION
 // Додано: Sticky Header, Bookmark, Share, Download, Keyboard Navigation
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap } from "lucide-react";
@@ -19,6 +19,7 @@ import { toast as sonnerToast } from "sonner";
 import { addLearningVerse, isVerseInLearningList } from "@/utils/learningVerses";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { HighlightDialog } from "@/components/HighlightDialog";
+import { SelectionTooltip } from "@/components/SelectionTooltip";
 import { useHighlights } from "@/hooks/useHighlights";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
@@ -61,6 +62,9 @@ export const VedaReaderDB = () => {
     before: "",
     after: ""
   });
+  // Selection tooltip state (shown before dialog)
+  const [selectionTooltipVisible, setSelectionTooltipVisible] = useState(false);
+  const [selectionTooltipPosition, setSelectionTooltipPosition] = useState({ x: 0, y: 0 });
 
   // Keyboard shortcuts state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
@@ -562,58 +566,94 @@ export const VedaReaderDB = () => {
     }
   };
 
-  // 🆕 Text selection handler with checks
+  // 🆕 Text selection handler - shows tooltip instead of dialog
+  const selectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleTextSelection = useCallback(() => {
+    // Clear any pending timeout
+    if (selectionTimeoutRef.current) {
+      clearTimeout(selectionTimeoutRef.current);
+      selectionTimeoutRef.current = null;
+    }
+
     // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
     const editableElement = document.activeElement as HTMLElement;
     if (editableElement?.tagName === 'TEXTAREA' || editableElement?.tagName === 'INPUT' || editableElement?.contentEditable === 'true' || editableElement?.closest('[contenteditable="true"]')) {
-      console.log('🚫 Highlights: В режимі редагування');
       return;
     }
+
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim();
 
     // ✅ ПЕРЕВІРКА 2: Чи достатньо тексту? (мінімум 10 символів)
     if (!selectedText || selectedText.length < 10) {
-      console.log('🚫 Highlights: Занадто короткий текст', selectedText?.length);
       return;
     }
 
     // ✅ ПЕРЕВІРКА 3: Чи це не одне слово?
     if (!selectedText.includes(' ')) {
-      console.log('🚫 Highlights: Одне слово, ймовірно копіювання');
       return;
     }
 
-    // Get context
+    // Get selection position for tooltip
     const range = selection?.getRangeAt(0);
     if (!range) return;
+
+    const rect = range.getBoundingClientRect();
+    const tooltipX = rect.left + rect.width / 2;
+    const tooltipY = rect.top + window.scrollY;
+
+    // Get context
     const container = range.commonAncestorContainer;
     const fullText = container.textContent || '';
     const startOffset = range.startOffset;
     const endOffset = range.endOffset;
     const before = fullText.substring(Math.max(0, startOffset - 50), startOffset);
     const after = fullText.substring(endOffset, Math.min(fullText.length, endOffset + 50));
-    setSelectedTextForHighlight(selectedText);
-    setSelectionContext({
-      before,
-      after
-    });
 
-    // ✅ Затримка перед показом діалогу
-    setTimeout(() => {
+    // ✅ Довша затримка (700ms) - дає час для копіювання без перешкод
+    selectionTimeoutRef.current = setTimeout(() => {
       const currentSelection = window.getSelection()?.toString().trim();
+      // Only show tooltip if selection is still the same
       if (currentSelection === selectedText) {
-        setHighlightDialogOpen(true);
+        setSelectedTextForHighlight(selectedText);
+        setSelectionContext({ before, after });
+        setSelectionTooltipPosition({ x: tooltipX, y: tooltipY });
+        setSelectionTooltipVisible(true);
       }
-    }, 300);
+    }, 700);
   }, []);
 
-  // Mouseup listener for highlights
+  // Hide tooltip when selection changes or is cleared
+  const handleSelectionChange = useCallback(() => {
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+
+    // If no selection or very short, hide tooltip
+    if (!selectedText || selectedText.length < 10) {
+      setSelectionTooltipVisible(false);
+      if (selectionTimeoutRef.current) {
+        clearTimeout(selectionTimeoutRef.current);
+        selectionTimeoutRef.current = null;
+      }
+    }
+  }, []);
+
+  // Handler for opening dialog from tooltip
+  const handleOpenHighlightDialog = useCallback(() => {
+    setSelectionTooltipVisible(false);
+    setHighlightDialogOpen(true);
+  }, []);
+
+  // Mouseup and selectionchange listeners for highlights
   useEffect(() => {
     document.addEventListener('mouseup', handleTextSelection);
-    return () => document.removeEventListener('mouseup', handleTextSelection);
-  }, [handleTextSelection]);
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [handleTextSelection, handleSelectionChange]);
 
   // 🆕 Keyboard navigation (← →)
   useEffect(() => {
@@ -720,16 +760,6 @@ export const VedaReaderDB = () => {
       highlight_color: "yellow"
     });
   }, [book, canto, effectiveChapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight]);
-
-  // Add mouseup listener for text selection
-  useEffect(() => {
-    const handleMouseUp = () => {
-      // Delay to allow selection to complete
-      setTimeout(handleTextSelection, 100);
-    };
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => document.removeEventListener("mouseup", handleMouseUp);
-  }, [handleTextSelection]);
 
   // Визначити всі keyboard shortcuts
   const shortcuts: KeyboardShortcut[] = [
@@ -1071,6 +1101,12 @@ export const VedaReaderDB = () => {
 
       <GlobalSettingsPanel />
 
+      <SelectionTooltip
+        isVisible={selectionTooltipVisible}
+        position={selectionTooltipPosition}
+        onSave={handleOpenHighlightDialog}
+        onClose={() => setSelectionTooltipVisible(false)}
+      />
       <HighlightDialog isOpen={highlightDialogOpen} onClose={() => setHighlightDialogOpen(false)} onSave={handleSaveHighlight} selectedText={selectedTextForHighlight} />
 
       <KeyboardShortcutsModal isOpen={showKeyboardShortcuts} onClose={() => setShowKeyboardShortcuts(false)} shortcuts={shortcuts} />
