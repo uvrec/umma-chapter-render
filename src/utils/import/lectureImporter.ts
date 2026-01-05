@@ -114,7 +114,7 @@ export async function importLecture(
         .eq("lecture_id", lectureId);
 
       // Видалити старі зв'язки з віршами
-      await supabase
+      await (supabase as any)
         .from("verse_lectures")
         .delete()
         .eq("lecture_id", lectureId);
@@ -166,7 +166,7 @@ export async function importLecture(
         // verse_id буде заповнено пізніше функцією find_verse_id
       }));
 
-      const { error: verseLinksError } = await supabase
+      const { error: verseLinksError } = await (supabase as any)
         .from("verse_lectures")
         .insert(verseLinksToInsert);
 
@@ -288,7 +288,7 @@ export async function getVerseLectures(
   chapterNumber: number,
   verseNumber: number
 ) {
-  const { data, error } = await supabase.rpc("get_verse_lectures", {
+  const { data, error } = await (supabase as any).rpc("get_verse_lectures", {
     p_book_slug: bookSlug,
     p_canto_number: cantoNumber,
     p_chapter_number: chapterNumber,

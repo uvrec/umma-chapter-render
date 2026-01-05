@@ -140,7 +140,7 @@ export async function startReadingSession(params: {
   // Try to insert into Supabase
   if (user) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_reading_sessions')
         .insert({
           user_id: user.id,
@@ -158,7 +158,7 @@ export async function startReadingSession(params: {
         .single();
 
       if (!error && data) {
-        session.id = data.id;
+        session.id = (data as any).id;
       }
     } catch (error) {
       console.error('Failed to start session in Supabase:', error);
@@ -210,7 +210,7 @@ export async function endReadingSession(): Promise<ReadingSession | null> {
   // Update in Supabase if we have a session ID
   if (session.id && user) {
     try {
-      await supabase.rpc('end_reading_session', {
+      await (supabase as any).rpc('end_reading_session', {
         p_session_id: session.id,
         p_end_verse: session.endVerse || null,
         p_verses_read: session.versesRead || 0,
@@ -274,7 +274,7 @@ export async function getBookProgress(userId?: string): Promise<BookProgress[]> 
   }
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_book_progress')
       .select('*')
       .eq('user_id', userId)
@@ -282,7 +282,7 @@ export async function getBookProgress(userId?: string): Promise<BookProgress[]> 
 
     if (error) throw error;
 
-    return (data || []).map(row => ({
+    return (data || []).map((row: any) => ({
       bookSlug: row.book_slug,
       bookTitle: row.book_title,
       totalChapters: row.total_chapters || 0,
@@ -312,7 +312,7 @@ export async function getChapterProgress(
   }
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_chapter_progress')
       .select('*')
       .eq('user_id', userId)
@@ -322,7 +322,7 @@ export async function getChapterProgress(
 
     if (error) throw error;
 
-    return (data || []).map(row => ({
+    return (data || []).map((row: any) => ({
       bookSlug: row.book_slug,
       cantoNumber: row.canto_number,
       chapterNumber: row.chapter_number,
@@ -361,14 +361,14 @@ export async function getReadingStats(userId?: string): Promise<ReadingStats> {
   }
 
   try {
-    const { data, error } = await supabase.rpc('get_user_reading_stats', {
+    const { data, error } = await (supabase as any).rpc('get_user_reading_stats', {
       p_user_id: userId,
     });
 
     if (error) throw error;
 
-    if (data && data.length > 0) {
-      const row = data[0];
+    if (data && Array.isArray(data) && data.length > 0) {
+      const row = data[0] as any;
       return {
         totalReadingTime: row.total_reading_time || 0,
         totalSessions: row.total_sessions || 0,
@@ -398,7 +398,7 @@ export async function getDailyReadingStats(
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('user_reading_daily_stats')
       .select('stats_date, reading_seconds, sessions_count, verses_read')
       .eq('user_id', userId)
@@ -407,7 +407,7 @@ export async function getDailyReadingStats(
 
     if (error) throw error;
 
-    return (data || []).map(row => ({
+    return (data || []).map((row: any) => ({
       date: row.stats_date,
       seconds: row.reading_seconds || 0,
       sessions: row.sessions_count || 0,
@@ -517,7 +517,7 @@ export async function syncLocalSessionsToServer(): Promise<void> {
 
   try {
     for (const session of localSessions) {
-      await supabase.from('user_reading_sessions').insert({
+      await (supabase as any).from('user_reading_sessions').insert({
         user_id: user.id,
         book_slug: session.bookSlug,
         book_title: session.bookTitle,

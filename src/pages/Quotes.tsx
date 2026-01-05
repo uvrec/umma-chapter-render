@@ -39,7 +39,7 @@ export function Quotes() {
     categorySlug: selectedCategory || undefined,
     limit: 20,
   });
-  const { data: randomQuote, refetch: refetchRandom, isLoading: randomLoading } = useRandomQuote();
+  const { data: randomQuote, isLoading: randomLoading } = useRandomQuote();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,11 +113,10 @@ export function Quotes() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => refetchRandom()}
-                    disabled={randomLoading}
+                    disabled={true}
                     className="h-8 px-2"
                   >
-                    <RefreshCw className={`h-4 w-4 ${randomLoading ? "animate-spin" : ""}`} />
+                    <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>

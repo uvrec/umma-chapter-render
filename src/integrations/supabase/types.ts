@@ -928,6 +928,79 @@ export type Database = {
         }
         Relationships: []
       }
+      content_tattvas: {
+        Row: {
+          created_at: string
+          id: string
+          relevance_score: number
+          tagged_by: string
+          tattva_id: string
+          updated_at: string
+          verse_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          relevance_score?: number
+          tagged_by?: string
+          tattva_id: string
+          updated_at?: string
+          verse_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          relevance_score?: number
+          tagged_by?: string
+          tattva_id?: string
+          updated_at?: string
+          verse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_tattvas_tattva_id_fkey"
+            columns: ["tattva_id"]
+            isOneToOne: false
+            referencedRelation: "tattva_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_tattvas_tattva_id_fkey"
+            columns: ["tattva_id"]
+            isOneToOne: false
+            referencedRelation: "tattvas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_tattvas_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_tattvas_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_metadata"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_tattvas_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_structure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_tattvas_verse_id_fkey"
+            columns: ["verse_id"]
+            isOneToOne: false
+            referencedRelation: "verses_with_synonyms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cross_references: {
         Row: {
           confidence: number | null
@@ -1570,6 +1643,13 @@ export type Database = {
           slug?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tattvas_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tattva_stats"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tattvas_parent_id_fkey"
             columns: ["parent_id"]
@@ -2245,6 +2325,20 @@ export type Database = {
           },
         ]
       }
+      tattva_stats: {
+        Row: {
+          ai_tagged: number | null
+          avg_relevance: number | null
+          id: string | null
+          manual_tagged: number | null
+          name_en: string | null
+          name_ua: string | null
+          seed_tagged: number | null
+          slug: string | null
+          verses_count: number | null
+        }
+        Relationships: []
+      }
       verses_with_metadata: {
         Row: {
           audio_url: string | null
@@ -2534,6 +2628,14 @@ export type Database = {
           term: string
         }[]
       }
+      get_verse_id_by_ref: {
+        Args: {
+          p_book_slug: string
+          p_chapter_number: number
+          p_verse_number: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2564,6 +2666,17 @@ export type Database = {
         Returns: undefined
       }
       is_chapter_readable: { Args: { chapter_uuid: string }; Returns: boolean }
+      link_verse_to_tattva: {
+        Args: {
+          p_book_slug: string
+          p_chapter_number: number
+          p_relevance?: number
+          p_tagged_by?: string
+          p_tattva_slug: string
+          p_verse_number: string
+        }
+        Returns: undefined
+      }
       normalize_sanskrit_word: { Args: { word: string }; Returns: string }
       normalize_ukrainian_cc_texts: { Args: never; Returns: undefined }
       parse_verse_number: {

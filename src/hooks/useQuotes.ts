@@ -1,9 +1,9 @@
 /**
  * Hooks for working with Vaniquotes data
+ * 
+ * NOTE: These hooks are stubbed because the required tables (quotes, quote_categories, etc.)
+ * do not exist yet. Only daily_quotes table exists.
  */
-
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 export interface Quote {
   id: string;
@@ -38,68 +38,44 @@ export interface QuotePage {
 }
 
 /**
- * Отримати популярні категорії цитат
+ * Get featured quote categories (stubbed - table doesn't exist)
  */
-export function useFeaturedQuoteCategories(limit = 10) {
-  return useQuery({
-    queryKey: ["quote-categories", "featured", limit],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_featured_quote_categories", {
-        p_limit: limit,
-      });
-
-      if (error) throw error;
-      return data as QuoteCategory[];
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+export function useFeaturedQuoteCategories(_limit = 10) {
+  return {
+    data: [] as QuoteCategory[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати всі категорії
+ * Get all categories (stubbed - table doesn't exist)
  */
 export function useQuoteCategories() {
-  return useQuery({
-    queryKey: ["quote-categories", "all"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("quote_categories")
-        .select("*")
-        .order("quotes_count", { ascending: false });
-
-      if (error) throw error;
-      return data as QuoteCategory[];
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  return {
+    data: [] as QuoteCategory[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати категорію за slug
+ * Get category by slug (stubbed - table doesn't exist)
  */
-export function useQuoteCategory(slug: string) {
-  return useQuery({
-    queryKey: ["quote-category", slug],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("quote_categories")
-        .select("*")
-        .eq("slug", slug)
-        .single();
-
-      if (error) throw error;
-      return data as QuoteCategory;
-    },
-    enabled: !!slug,
-  });
+export function useQuoteCategory(_slug: string) {
+  return {
+    data: null as QuoteCategory | null,
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Пошук цитат
+ * Search quotes (stubbed - table doesn't exist)
  */
 export function useSearchQuotes(
-  query: string,
-  options?: {
+  _query: string,
+  _options?: {
     categorySlug?: string;
     sourceType?: string;
     bookSlug?: string;
@@ -107,133 +83,58 @@ export function useSearchQuotes(
     offset?: number;
   }
 ) {
-  const { categorySlug, sourceType, bookSlug, limit = 20, offset = 0 } = options || {};
-
-  return useQuery({
-    queryKey: ["quotes", "search", query, categorySlug, sourceType, bookSlug, limit, offset],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_quotes", {
-        p_query: query || null,
-        p_category_slug: categorySlug || null,
-        p_source_type: sourceType || null,
-        p_book_slug: bookSlug || null,
-        p_limit: limit,
-        p_offset: offset,
-      });
-
-      if (error) throw error;
-      return data as Quote[];
-    },
-    enabled: !!query || !!categorySlug,
-  });
+  return {
+    data: [] as Quote[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати цитати для конкретного вірша
+ * Get quotes for a specific verse (stubbed - table doesn't exist)
  */
 export function useVerseQuotes(
-  bookSlug: string,
-  cantoNumber: number | null,
-  chapterNumber: number,
-  verseNumber: string
+  _bookSlug: string,
+  _cantoNumber: number | null,
+  _chapterNumber: number,
+  _verseNumber: string
 ) {
-  return useQuery({
-    queryKey: ["quotes", "verse", bookSlug, cantoNumber, chapterNumber, verseNumber],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_verse_quotes", {
-        p_book_slug: bookSlug,
-        p_canto_number: cantoNumber,
-        p_chapter_number: chapterNumber,
-        p_verse_number: verseNumber,
-      });
-
-      if (error) throw error;
-      return data as Quote[];
-    },
-    enabled: !!bookSlug && !!chapterNumber && !!verseNumber,
-  });
+  return {
+    data: [] as Quote[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати сторінки цитат для категорії
+ * Get quote pages for category (stubbed - table doesn't exist)
  */
-export function useCategoryQuotePages(categoryId: string) {
-  return useQuery({
-    queryKey: ["quote-pages", "category", categoryId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("quote_page_categories")
-        .select(`
-          quote_pages (
-            id,
-            slug,
-            title,
-            title_ua,
-            vaniquotes_url
-          )
-        `)
-        .eq("category_id", categoryId);
-
-      if (error) throw error;
-      return data.map((d) => d.quote_pages) as QuotePage[];
-    },
-    enabled: !!categoryId,
-  });
+export function useCategoryQuotePages(_categoryId: string) {
+  return {
+    data: [] as QuotePage[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати цитати для сторінки
+ * Get quotes for page (stubbed - table doesn't exist)
  */
-export function usePageQuotes(pageId: string) {
-  return useQuery({
-    queryKey: ["quotes", "page", pageId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("quotes")
-        .select("*")
-        .eq("quote_page_id", pageId)
-        .order("created_at");
-
-      if (error) throw error;
-      return data as Quote[];
-    },
-    enabled: !!pageId,
-  });
+export function usePageQuotes(_pageId: string) {
+  return {
+    data: [] as Quote[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати випадкову цитату
+ * Get random quote (stubbed - table doesn't exist)
  */
 export function useRandomQuote() {
-  return useQuery({
-    queryKey: ["quotes", "random", Date.now()],
-    queryFn: async () => {
-      // Отримати загальну кількість
-      const { count } = await supabase
-        .from("quotes")
-        .select("*", { count: "exact", head: true });
-
-      if (!count || count === 0) return null;
-
-      // Вибрати випадковий offset
-      const randomOffset = Math.floor(Math.random() * count);
-
-      const { data, error } = await supabase
-        .from("quotes")
-        .select(`
-          *,
-          quote_pages (title)
-        `)
-        .range(randomOffset, randomOffset)
-        .single();
-
-      if (error) throw error;
-
-      return {
-        ...data,
-        page_title: data.quote_pages?.title,
-      } as Quote;
-    },
-    staleTime: 0, // Always fetch fresh
-  });
+  return {
+    data: null as Quote | null,
+    isLoading: false,
+    error: null,
+  };
 }
