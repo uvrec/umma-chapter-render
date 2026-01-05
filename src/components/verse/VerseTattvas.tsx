@@ -28,11 +28,11 @@ export function VerseTattvas({ verseId, className }: VerseTattvasProps) {
       <Tag className="h-3.5 w-3.5 text-muted-foreground" />
       {tattvas.map((tattva) => (
         <Link
-          key={tattva.tattva_id}
+          key={tattva.id}
           to={`/tattva/${tattva.slug}`}
           className="text-xs text-muted-foreground hover:text-primary transition-colors"
         >
-          {language === "ua" ? tattva.name_uk : tattva.name_en}
+          {language === "ua" ? tattva.name_ua : tattva.name_en}
         </Link>
       ))}
     </div>

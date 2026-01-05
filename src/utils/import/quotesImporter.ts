@@ -70,7 +70,7 @@ export async function importQuoteCategory(
 
   try {
     // 1. Створити/оновити категорію
-    const { data: category, error: categoryError } = await supabase
+    const { data: category, error: categoryError } = await (supabase as any)
       .from("quote_categories")
       .upsert(
         {
@@ -88,7 +88,7 @@ export async function importQuoteCategory(
     if (categoryError) throw categoryError;
     result.categoriesImported++;
 
-    const categoryId = category.id;
+    const categoryId = (category as any).id;
 
     // 2. Імпортувати сторінки цитат
     for (const quotePage of data.quotes) {
@@ -131,7 +131,7 @@ export async function importQuotePage(
 
   try {
     // 1. Створити/оновити сторінку
-    const { data: page, error: pageError } = await supabase
+    const { data: page, error: pageError } = await (supabase as any)
       .from("quote_pages")
       .upsert(
         {
@@ -147,11 +147,11 @@ export async function importQuotePage(
     if (pageError) throw pageError;
     result.pagesImported++;
 
-    const pageId = page.id;
+    const pageId = (page as any).id;
 
     // 2. Зв'язати з категорією
     if (categoryId) {
-      await supabase.from("quote_page_categories").upsert(
+      await (supabase as any).from("quote_page_categories").upsert(
         {
           quote_page_id: pageId,
           category_id: categoryId,
@@ -162,7 +162,7 @@ export async function importQuotePage(
 
     // 3. Імпортувати цитати
     for (const quote of data.quotes) {
-      const { error: quoteError } = await supabase.from("quotes").insert({
+      const { error: quoteError } = await (supabase as any).from("quotes").insert({
         quote_page_id: pageId,
         text_en: quote.text,
         text_html: quote.text_html,

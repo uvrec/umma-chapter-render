@@ -220,6 +220,12 @@ export default function GlossaryDB() {
   const searchMode = searchType === 'starts' ? 'starts_with' : searchType;
 
   // Server-side search with pagination - grouped terms
+  interface PageResult {
+    terms: GroupedTermResult[];
+    page: number;
+    totalCount: number;
+  }
+  
   const {
     data: groupedData,
     fetchNextPage,
@@ -227,9 +233,9 @@ export default function GlossaryDB() {
     isFetchingNextPage,
     isLoading: isLoadingGrouped,
     isError: isErrorGrouped,
-  } = useInfiniteQuery({
+  } = useInfiniteQuery<PageResult, Error>({
     queryKey: ['glossary-grouped', language, debouncedSearchTerm, debouncedTranslation, searchMode, selectedBook],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async ({ pageParam }) => {
       const { data, error } = await (supabase as any).rpc('get_glossary_terms_grouped', {
         search_term: debouncedSearchTerm || null,
         search_translation: debouncedTranslation || null,
@@ -243,7 +249,7 @@ export default function GlossaryDB() {
       if (error) throw error;
       return {
         terms: (data || []) as GroupedTermResult[],
-        page: pageParam,
+        page: pageParam as number,
         totalCount: data?.[0]?.total_unique_terms || 0
       };
     },
@@ -255,7 +261,7 @@ export default function GlossaryDB() {
       return undefined;
     },
     initialPageParam: 1,
-    enabled: hasSearch,
+    enabled: !!hasSearch,
   });
 
   // Fetch details for expanded term
