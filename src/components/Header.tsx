@@ -1,4 +1,4 @@
-import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash, Sparkles, Bot } from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -86,12 +86,6 @@ export const Header = () => {
                   <Link to="/tools/numerology" className="flex items-center cursor-pointer">
                     <Hash className="mr-2 h-4 w-4" />
                     Нумерологія
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/tattvas" className="flex items-center cursor-pointer">
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Таттви
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
@@ -228,11 +222,6 @@ export const Header = () => {
                     <Link to="/tools/numerology" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <Hash className="h-4 w-4" />
                       <span>Нумерологія</span>
-                    </Link>
-
-                    <Link to="/tattvas" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <Sparkles className="h-4 w-4" />
-                      <span>Таттви</span>
                     </Link>
 
                     <Link to="/tools/compiler" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
