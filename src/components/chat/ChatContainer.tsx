@@ -3,7 +3,6 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
@@ -162,38 +161,32 @@ export function ChatContainer({ className }: ChatContainerProps) {
   }, [language]);
 
   return (
-    <Card className={cn("flex flex-col h-[calc(100vh-200px)] min-h-[400px] max-h-[700px] sm:h-[600px] md:h-[700px]", className)}>
-      {/* Header */}
-      <CardHeader className="flex-shrink-0 border-b py-3 px-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-saffron-100 dark:bg-saffron-900 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-saffron-600 dark:text-saffron-400" />
-            </div>
-            <CardTitle className="text-lg font-semibold">
-              VedaVOICE
-            </CardTitle>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearChat}
-            className="text-muted-foreground hover:text-destructive"
-            title={t('Очистити чат', 'Clear chat')}
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            {t('Очистити', 'Clear')}
-          </Button>
+    <div className={cn("flex flex-col h-[calc(100vh-200px)] min-h-[400px] max-h-[700px] sm:h-[600px] md:h-[700px]", className)}>
+      {/* Header - minimal */}
+      <div className="flex-shrink-0 flex items-center justify-between py-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-saffron-500" />
+          <h2 className="text-lg font-semibold">VedaVOICE</h2>
         </div>
-      </CardHeader>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearChat}
+          className="text-muted-foreground hover:text-destructive"
+          title={t('Очистити чат', 'Clear chat')}
+        >
+          <Trash2 className="h-4 w-4 mr-1" />
+          {t('Очистити', 'Clear')}
+        </Button>
+      </div>
 
       {/* Messages Area */}
-      <CardContent className="flex-1 overflow-hidden p-0">
+      <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
-          <div className="px-4 py-2">
+          <div className="py-2">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full py-12 text-center">
-                <MessageSquare className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                <MessageSquare className="h-12 w-12 text-muted-foreground/30 mb-4" />
                 <h3 className="text-lg font-medium text-muted-foreground">
                   {t('Почніть розмову', 'Start a conversation')}
                 </h3>
@@ -205,7 +198,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-border/50">
+              <div className="space-y-1">
                 {messages.map((message) => (
                   <ChatMessage key={message.id} message={message} />
                 ))}
@@ -213,15 +206,15 @@ export function ChatContainer({ className }: ChatContainerProps) {
             )}
           </div>
         </ScrollArea>
-      </CardContent>
+      </div>
 
       {/* Input Area */}
-      <div className="flex-shrink-0 border-t p-4">
+      <div className="flex-shrink-0 pt-4">
         <ChatInput
           onSendMessage={sendMessage}
           isLoading={isLoading}
         />
       </div>
-    </Card>
+    </div>
   );
 }

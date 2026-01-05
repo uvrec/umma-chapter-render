@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
@@ -24,84 +23,90 @@ export function CitationCard({ citation, className }: CitationCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Build internal link
-  const internalPath = citation.bookSlug && citation.chapterNumber && citation.verseNumber
-    ? `/book/${citation.bookSlug}/chapter/${citation.chapterNumber}/verse/${citation.verseNumber}`
-    : `/book/${citation.bookSlug || 'bg'}`;
+  // Build internal link - correct format for veda-reader
+  // For SB with canto: /veda-reader/sb/canto/1/chapter/1/1
+  // For other books: /veda-reader/bg/2/2
+  const buildInternalPath = () => {
+    if (!citation.bookSlug) return '/veda-reader/bg';
+    if (!citation.chapterNumber || !citation.verseNumber) {
+      return `/veda-reader/${citation.bookSlug}`;
+    }
+    // SB uses canto structure
+    if (citation.bookSlug === 'sb' && citation.cantoNumber) {
+      return `/veda-reader/sb/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
+    }
+    // Other books use simple structure
+    return `/veda-reader/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`;
+  };
+
+  const internalPath = buildInternalPath();
 
   return (
-    <Card
-      className={cn(
-        "border-l-4 border-l-brand-500 bg-muted/30",
-        "hover:bg-muted/50 transition-colors",
-        className
-      )}
-    >
-      <CardContent className="p-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-brand-600 dark:text-brand-400">
-            <BookOpen className="h-4 w-4" />
-            <span>{citation.reference}</span>
-          </div>
-          <div className="flex items-center gap-1">
+    <div className={cn("py-2", className)}>
+      <div className="flex items-start justify-between gap-2">
+        <Link
+          to={internalPath}
+          className="flex items-center gap-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:underline"
+        >
+          <BookOpen className="h-4 w-4 shrink-0" />
+          <span>{citation.reference}</span>
+        </Link>
+        <div className="flex items-center gap-1 shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 opacity-60 hover:opacity-100"
+            onClick={handleCopy}
+            title={language === 'ua' ? 'Копіювати' : 'Copy'}
+          >
+            {copied ? (
+              <Check className="h-3 w-3 text-emerald-500" />
+            ) : (
+              <Copy className="h-3 w-3" />
+            )}
+          </Button>
+          <Link to={internalPath}>
             <Button
               variant="ghost"
               size="icon"
-              className="h-6 w-6"
-              onClick={handleCopy}
-              title={language === 'ua' ? 'Копіювати' : 'Copy'}
+              className="h-6 w-6 opacity-60 hover:opacity-100"
+              title={language === 'ua' ? 'Відкрити' : 'Open'}
             >
-              {copied ? (
-                <Check className="h-3 w-3 text-emerald-500" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
+              <ExternalLink className="h-3 w-3" />
             </Button>
-            <Link to={internalPath}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                title={language === 'ua' ? 'Відкрити' : 'Open'}
-              >
-                <ExternalLink className="h-3 w-3" />
-              </Button>
-            </Link>
-          </div>
+          </Link>
         </div>
+      </div>
 
-        <div className="mt-2">
-          <p
-            className={cn(
-              "text-sm text-muted-foreground italic",
-              !isExpanded && "line-clamp-2"
-            )}
-          >
-            "{citation.quote}"
-          </p>
-          {citation.quote.length > 150 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mt-1 h-6 px-2 text-xs"
-              onClick={() => setIsExpanded(!isExpanded)}
-            >
-              {isExpanded ? (
-                <>
-                  <ChevronUp className="h-3 w-3 mr-1" />
-                  {language === 'ua' ? 'Згорнути' : 'Show less'}
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="h-3 w-3 mr-1" />
-                  {language === 'ua' ? 'Показати більше' : 'Show more'}
-                </>
-              )}
-            </Button>
+      <div className="mt-1 pl-6">
+        <p
+          className={cn(
+            "text-sm text-muted-foreground italic",
+            !isExpanded && "line-clamp-2"
           )}
-        </div>
-      </CardContent>
-    </Card>
+        >
+          "{citation.quote}"
+        </p>
+        {citation.quote.length > 150 && (
+          <button
+            className="mt-1 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="h-3 w-3" />
+                {language === 'ua' ? 'Згорнути' : 'Show less'}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-3 w-3" />
+                {language === 'ua' ? 'Показати більше' : 'Show more'}
+              </>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -118,11 +123,11 @@ export function CitationsList({ citations, className }: CitationsListProps) {
   }
 
   return (
-    <div className={cn("space-y-2", className)}>
-      <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+    <div className={cn("pt-2", className)}>
+      <p className="text-xs text-muted-foreground mb-1">
         {language === 'ua' ? 'Джерела' : 'Sources'}
-      </h4>
-      <div className="grid gap-2">
+      </p>
+      <div className="divide-y divide-border/30">
         {citations.map((citation, index) => (
           <CitationCard key={`${citation.verseId}-${index}`} citation={citation} />
         ))}

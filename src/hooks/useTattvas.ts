@@ -9,6 +9,7 @@ export interface Tattva {
   id: string;
   name_ua: string;
   name_en: string;
+  name_sanskrit?: string;
   slug: string;
   description_ua?: string;
   description_en?: string;

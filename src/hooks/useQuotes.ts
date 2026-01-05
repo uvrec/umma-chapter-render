@@ -1,6 +1,6 @@
 /**
  * Hooks for working with Vaniquotes data
- * 
+ *
  * NOTE: These hooks are stubbed because the required tables (quotes, quote_categories, etc.)
  * do not exist yet. Only daily_quotes table exists.
  */

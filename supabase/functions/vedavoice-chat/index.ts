@@ -49,9 +49,10 @@ interface Citation {
   reference: string;      // e.g., "BG 2.14" or "SB 1.2.6"
   referenceType: 'book' | 'lecture' | 'letter';
   bookSlug?: string;
+  cantoNumber?: number;   // For SB
   chapterNumber?: number;
   verseNumber?: string;
-  url: string;            // Link to VedaVOICE.org page
+  url: string;            // Internal path for frontend navigation
 }
 
 interface SearchResult {
@@ -59,6 +60,7 @@ interface SearchResult {
   verse_number: string;
   chapter_id: string;
   book_slug: string;
+  canto_number?: number;  // For SB
   chapter_number: number;
   sanskrit: string;
   transliteration: string;
@@ -270,16 +272,25 @@ function expandQuery(query: string): string {
     'медитація': ['meditation', 'dhyana', 'yoga'],
     'реінкарнація': ['reincarnation', 'transmigration', 'rebirth'],
     'мантра': ['mantra', 'Hare Krishna', 'holy name'],
+    'таттва': ['tattva', 'truth', 'reality', 'principle', 'Krishna-tattva', 'jiva-tattva'],
+    'крішна': ['Krishna', 'Krsna', 'Supreme Lord', 'Bhagavan'],
+    'джіва': ['jiva', 'soul', 'living entity', 'spirit soul'],
+    'майа': ['maya', 'illusion', 'material energy'],
+    'мая': ['maya', 'illusion', 'material energy'],
+    'бгакті': ['bhakti', 'devotion', 'devotional service'],
+    'ґуру': ['guru', 'spiritual master', 'teacher'],
     // English terms
     'soul': ['atma', 'jiva', 'spirit soul'],
     'god': ['Krishna', 'Bhagavan', 'Supreme Lord'],
     'meditation': ['dhyana', 'yoga', 'samadhi'],
     'reincarnation': ['transmigration', 'rebirth', 'changing bodies'],
+    'tattva': ['truth', 'reality', 'principle'],
   };
 
   let expandedQuery = query;
+  const queryLower = query.toLowerCase();
   for (const [term, synonyms] of Object.entries(termMappings)) {
-    if (query.toLowerCase().includes(term)) {
+    if (queryLower.includes(term)) {
       expandedQuery += ' ' + synonyms.join(' ');
     }
   }
@@ -305,10 +316,16 @@ function formatReference(result: SearchResult, language: 'uk' | 'en'): string {
 }
 
 /**
- * Create URL for verse on VedaVOICE.org
+ * Create internal path for verse navigation
+ * Format: /veda-reader/bg/2/2 or /veda-reader/sb/canto/1/chapter/1/1
  */
 function createVerseUrl(result: SearchResult): string {
-  return `https://vedavoice.org/book/${result.book_slug}/chapter/${result.chapter_number}/verse/${result.verse_number}`;
+  // SB uses canto structure
+  if (result.book_slug === 'sb' && result.canto_number) {
+    return `/veda-reader/sb/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`;
+  }
+  // Other books use simple structure
+  return `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
 }
 
 /**
@@ -365,6 +382,7 @@ function extractCitations(response: string, searchResults: SearchResult[], langu
           reference: ref,
           referenceType: 'book',
           bookSlug: result.book_slug,
+          cantoNumber: result.canto_number,
           chapterNumber: result.chapter_number,
           verseNumber: result.verse_number,
           url: createVerseUrl(result),
@@ -383,6 +401,7 @@ function extractCitations(response: string, searchResults: SearchResult[], langu
         reference: formatReference(result, language),
         referenceType: 'book',
         bookSlug: result.book_slug,
+        cantoNumber: result.canto_number,
         chapterNumber: result.chapter_number,
         verseNumber: result.verse_number,
         url: createVerseUrl(result),
