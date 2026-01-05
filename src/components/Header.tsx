@@ -28,7 +28,10 @@ export const Header = () => {
 
   // ✅ показувати блок дій лише на сторінці керування постами І якщо користувач — адмін
   const showBlogAdminActions = isAdmin && pathname.startsWith("/admin/blog-posts");
-  return <header className="sticky top-0 z-50 border-b border-border/50 bg-background/70 backdrop-blur-md">
+  return <header
+      className="sticky top-0 z-50 border-b border-border/50 bg-background/70 backdrop-blur-md"
+      style={{ position: 'sticky', top: 0, zIndex: 50 }}
+    >
       <div className="container mx-auto px-4 py-4">
         {/* Top Bar */}
         <div className="flex items-center justify-between">
