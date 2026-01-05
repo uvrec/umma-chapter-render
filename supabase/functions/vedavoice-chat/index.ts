@@ -394,15 +394,56 @@ function extractCitations(response: string, searchResults: SearchResult[], langu
 }
 
 /**
- * Find related topics from tattvas
+ * Find related topics from tattvas based on query
  */
-async function findRelatedTopics(_supabase: any, _query: string, language: 'uk' | 'en'): Promise<string[]> {
-  // Note: tattvas table may not exist yet
-  // Return predefined topics for now
-  const defaultTopics = language === 'uk' 
-    ? ['душа', 'карма', 'йога', 'бгакті', 'дгарма']
-    : ['soul', 'karma', 'yoga', 'bhakti', 'dharma'];
-  return defaultTopics.slice(0, 3);
+async function findRelatedTopics(supabase: any, query: string, language: 'uk' | 'en'): Promise<string[]> {
+  try {
+    // Search for tattvas that match the user's query
+    const { data: tattvas, error } = await supabase.rpc('search_tattvas', {
+      p_query: query,
+    });
+
+    if (error) {
+      console.warn('Error searching tattvas:', error.message);
+      // Return default topics on error
+      const defaultTopics = language === 'uk'
+        ? ['душа', 'карма', 'йога', 'бгакті', 'дгарма']
+        : ['soul', 'karma', 'yoga', 'bhakti', 'dharma'];
+      return defaultTopics.slice(0, 3);
+    }
+
+    if (tattvas && tattvas.length > 0) {
+      // Return tattva names in the appropriate language
+      return tattvas.slice(0, 5).map((t: { name_uk: string; name_en: string }) =>
+        language === 'uk' ? t.name_uk : t.name_en
+      );
+    }
+
+    // If no tattvas found by search, get top-level tattvas with most verses
+    const { data: popularTattvas, error: popularError } = await supabase
+      .from('tattvas')
+      .select('name_uk, name_en, id')
+      .is('parent_id', null)
+      .order('display_order')
+      .limit(5);
+
+    if (popularError || !popularTattvas) {
+      const defaultTopics = language === 'uk'
+        ? ['душа', 'карма', 'йога', 'бгакті', 'дгарма']
+        : ['soul', 'karma', 'yoga', 'bhakti', 'dharma'];
+      return defaultTopics.slice(0, 3);
+    }
+
+    return popularTattvas.map((t: { name_uk: string; name_en: string }) =>
+      language === 'uk' ? t.name_uk : t.name_en
+    );
+  } catch (err) {
+    console.error('Error in findRelatedTopics:', err);
+    const defaultTopics = language === 'uk'
+      ? ['душа', 'карма', 'йога', 'бгакті', 'дгарма']
+      : ['soul', 'karma', 'yoga', 'bhakti', 'dharma'];
+    return defaultTopics.slice(0, 3);
+  }
 }
 
 // ============================================================================
