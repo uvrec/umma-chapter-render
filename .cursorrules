@@ -1,0 +1,51 @@
+# VEDAVOICE.ORG — AI Rules
+
+You are working on VEDAVOICE.ORG - a spiritual reading platform.
+
+## CRITICAL DESIGN RULES
+
+### NEVER USE:
+- Card components (except for book covers in library)
+- border, shadow, rounded with background
+- border-t, border-b dividers
+- overflow: hidden on html/body/#root (breaks sticky header!)
+
+### ALWAYS USE:
+- bg-background (transparent)
+- Typography hierarchy for structure
+- Space (margin/padding) for separation
+- Clean text like in a book
+
+## STICKY HEADER - MANDATORY
+
+The header MUST always be sticky. Never change these CSS rules:
+
+```css
+.site-header {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+}
+```
+
+Use `overflow-x: clip` instead of `overflow-x: hidden`.
+
+## PROTECTED FILES
+
+Do not modify without explicit request:
+- src/index.css
+- src/components/Header.tsx
+- src/styles/fonts.css
+- tailwind.config.ts
+
+## HOMEPAGE RULES
+
+No Cards, no StatsBar, no QuickActions with cards.
+Keep it minimal like a book cover.
+
+## AUDIO PLAYER
+
+Fullscreen layout, NOT a card.
+
+## READ INSTRUCTIONS.md FOR FULL DETAILS
