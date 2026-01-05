@@ -1,4 +1,4 @@
-import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash } from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -86,6 +86,12 @@ export const Header = () => {
                   <Link to="/tools/numerology" className="flex items-center cursor-pointer">
                     <Hash className="mr-2 h-4 w-4" />
                     Нумерологія
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/chat" className="flex items-center cursor-pointer">
+                    <Bot className="mr-2 h-4 w-4" />
+                    VedaVOICE
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -221,6 +227,11 @@ export const Header = () => {
                     <Link to="/tools/compiler" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                       <BookMarked className="h-4 w-4" />
                       <span>Збірки знань</span>
+                    </Link>
+
+                    <Link to="/chat" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
+                      <Bot className="h-4 w-4" />
+                      <span>VedaVOICE</span>
                     </Link>
                   </CollapsibleContent>
                 </Collapsible>
