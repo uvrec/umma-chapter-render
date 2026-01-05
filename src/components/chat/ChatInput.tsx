@@ -10,6 +10,7 @@ interface ChatInputProps {
   isLoading?: boolean;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 export function ChatInput({
@@ -17,6 +18,7 @@ export function ChatInput({
   isLoading = false,
   placeholder,
   className,
+  disabled = false,
 }: ChatInputProps) {
   const { language, t } = useLanguage();
   const [message, setMessage] = useState("");
@@ -112,7 +114,7 @@ export function ChatInput({
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder || defaultPlaceholder}
-          disabled={isLoading}
+          disabled={isLoading || disabled}
           className={cn(
             "min-h-[44px] max-h-[200px] resize-none border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-2",
             "text-base leading-relaxed",
@@ -129,7 +131,7 @@ export function ChatInput({
               variant="ghost"
               size="icon"
               onClick={toggleVoiceInput}
-              disabled={isLoading}
+              disabled={isLoading || disabled}
               className={cn(
                 "h-10 w-10",
                 isListening && "text-brand-500 bg-brand-50 dark:bg-brand-950"
@@ -148,7 +150,7 @@ export function ChatInput({
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isLoading || !message.trim()}
+            disabled={isLoading || disabled || !message.trim()}
             className="h-10 w-10"
             size="icon"
           >

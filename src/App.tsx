@@ -103,6 +103,7 @@ import NumCal from "./pages/admin/NumCal";
 import Install from "./pages/Install";
 import BookSearch from "./pages/BookSearch";
 import Chat from "./pages/Chat";
+import LocalChat from "./pages/LocalChat";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
@@ -202,6 +203,7 @@ function AppContent() {
           <Route path="/install" element={<Install />} />
           <Route path="/search" element={<BookSearch />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/local" element={<LocalChat />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/contact" element={<Contact />} />
 
