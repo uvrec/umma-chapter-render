@@ -275,7 +275,8 @@ function expandQuery(query: string): string {
     'таттва': ['tattva', 'truth', 'reality', 'principle', 'Krishna-tattva', 'jiva-tattva'],
     'крішна': ['Krishna', 'Krsna', 'Supreme Lord', 'Bhagavan'],
     'джіва': ['jiva', 'soul', 'living entity', 'spirit soul'],
-    'майя': ['maya', 'illusion', 'material energy'],
+    'майа': ['maya', 'illusion', 'material energy'],
+    'мая': ['maya', 'illusion', 'material energy'],
     'бгакті': ['bhakti', 'devotion', 'devotional service'],
     'ґуру': ['guru', 'spiritual master', 'teacher'],
     // English terms
