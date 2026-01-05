@@ -1,12 +1,9 @@
 /**
  * Hooks for working with Vaniquotes data
  *
- * NOTE: These hooks are temporarily stubbed until the quote tables
- * (quote_categories, quote_pages, quotes) are created in the database.
- * Currently only daily_quotes table exists.
+ * NOTE: These hooks are stubbed because the required tables (quotes, quote_categories, etc.)
+ * do not exist yet. Only daily_quotes table exists.
  */
-
-import { useQuery } from "@tanstack/react-query";
 
 export interface Quote {
   id: string;
@@ -41,57 +38,44 @@ export interface QuotePage {
 }
 
 /**
- * Отримати популярні категорії цитат
- * STUBBED: Returns empty array until quote_categories table exists
+ * Get featured quote categories (stubbed - table doesn't exist)
  */
 export function useFeaturedQuoteCategories(_limit = 10) {
-  return useQuery({
-    queryKey: ["quote-categories", "featured", _limit],
-    queryFn: async () => {
-      // Stubbed - tables don't exist yet
-      return [] as QuoteCategory[];
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  return {
+    data: [] as QuoteCategory[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати всі категорії
- * STUBBED: Returns empty array until quote_categories table exists
+ * Get all categories (stubbed - table doesn't exist)
  */
 export function useQuoteCategories() {
-  return useQuery({
-    queryKey: ["quote-categories", "all"],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return [] as QuoteCategory[];
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+  return {
+    data: [] as QuoteCategory[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати категорію за slug
- * STUBBED: Returns null until quote_categories table exists
+ * Get category by slug (stubbed - table doesn't exist)
  */
-export function useQuoteCategory(slug: string) {
-  return useQuery({
-    queryKey: ["quote-category", slug],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return null as QuoteCategory | null;
-    },
-    enabled: !!slug,
-  });
+export function useQuoteCategory(_slug: string) {
+  return {
+    data: null as QuoteCategory | null,
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Пошук цитат
- * STUBBED: Returns empty array until quotes table exists
+ * Search quotes (stubbed - table doesn't exist)
  */
 export function useSearchQuotes(
-  query: string,
-  options?: {
+  _query: string,
+  _options?: {
     categorySlug?: string;
     sourceType?: string;
     bookSlug?: string;
@@ -99,79 +83,58 @@ export function useSearchQuotes(
     offset?: number;
   }
 ) {
-  const { categorySlug } = options || {};
-
-  return useQuery({
-    queryKey: ["quotes", "search", query, options],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return [] as Quote[];
-    },
-    enabled: !!query || !!categorySlug,
-  });
+  return {
+    data: [] as Quote[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати цитати для конкретного вірша
- * STUBBED: Returns empty array until quotes table exists
+ * Get quotes for a specific verse (stubbed - table doesn't exist)
  */
 export function useVerseQuotes(
-  bookSlug: string,
-  cantoNumber: number | null,
-  chapterNumber: number,
-  verseNumber: string
+  _bookSlug: string,
+  _cantoNumber: number | null,
+  _chapterNumber: number,
+  _verseNumber: string
 ) {
-  return useQuery({
-    queryKey: ["quotes", "verse", bookSlug, cantoNumber, chapterNumber, verseNumber],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return [] as Quote[];
-    },
-    enabled: !!bookSlug && !!chapterNumber && !!verseNumber,
-  });
+  return {
+    data: [] as Quote[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати сторінки цитат для категорії
- * STUBBED: Returns empty array until quote_pages table exists
+ * Get quote pages for category (stubbed - table doesn't exist)
  */
-export function useCategoryQuotePages(categoryId: string) {
-  return useQuery({
-    queryKey: ["quote-pages", "category", categoryId],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return [] as QuotePage[];
-    },
-    enabled: !!categoryId,
-  });
+export function useCategoryQuotePages(_categoryId: string) {
+  return {
+    data: [] as QuotePage[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати цитати для сторінки
- * STUBBED: Returns empty array until quotes table exists
+ * Get quotes for page (stubbed - table doesn't exist)
  */
-export function usePageQuotes(pageId: string) {
-  return useQuery({
-    queryKey: ["quotes", "page", pageId],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return [] as Quote[];
-    },
-    enabled: !!pageId,
-  });
+export function usePageQuotes(_pageId: string) {
+  return {
+    data: [] as Quote[],
+    isLoading: false,
+    error: null,
+  };
 }
 
 /**
- * Отримати випадкову цитату
- * STUBBED: Returns null until quotes table exists
+ * Get random quote (stubbed - table doesn't exist)
  */
 export function useRandomQuote() {
-  return useQuery({
-    queryKey: ["quotes", "random"],
-    queryFn: async () => {
-      // Stubbed - table doesn't exist yet
-      return null as Quote | null;
-    },
-    staleTime: 0,
-  });
+  return {
+    data: null as Quote | null,
+    isLoading: false,
+    error: null,
+  };
 }
