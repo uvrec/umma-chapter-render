@@ -1,0 +1,23 @@
+# RAG Framework
+llama-index==0.12.2
+llama-index-llms-ollama==0.4.1
+llama-index-embeddings-ollama==0.4.0
+llama-index-vector-stores-chroma==0.4.1
+
+# Vector Database
+chromadb==0.5.23
+
+# API Server
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.3
+pydantic-settings==2.7.0
+
+# Database
+supabase==2.11.0
+python-dotenv==1.0.1
+
+# Utilities
+aiohttp==3.11.11
+tenacity==9.0.0
+rich==13.9.4

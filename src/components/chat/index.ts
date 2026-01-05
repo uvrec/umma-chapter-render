@@ -3,6 +3,7 @@ export { ChatMessage } from './ChatMessage';
 export { ChatInput } from './ChatInput';
 export { CitationCard, CitationsList } from './CitationCard';
 export { ResponseLevelBadge } from './ResponseLevelBadge';
+export { LocalLLMChat } from './LocalLLMChat';
 export type {
   ChatMessage as ChatMessageType,
   ChatSession,
