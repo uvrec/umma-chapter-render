@@ -64,105 +64,52 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- =============================================================================
--- BHAGAVAD-GITA SEED DATA
+-- BHAGAVAD-GITA SEED DATA (book slug: bg)
 -- =============================================================================
 
 -- BG 2.12 - Soul eternality (jiva-tattva)
 SELECT link_verse_to_tattva('bg', 2, '12', 'jiva-tattva', 1.0);
-
--- BG 2.13 - Transmigration of the soul
 SELECT link_verse_to_tattva('bg', 2, '13', 'jiva-tattva', 1.0);
-
--- BG 2.14 - Material duality / temporary nature
 SELECT link_verse_to_tattva('bg', 2, '14', 'maya-tattva', 0.9);
-
--- BG 2.17 - Soul is indestructible
 SELECT link_verse_to_tattva('bg', 2, '17', 'jiva-tattva', 1.0);
-
--- BG 2.20 - Soul is eternal
 SELECT link_verse_to_tattva('bg', 2, '20', 'jiva-tattva', 1.0);
-
--- BG 2.22 - Soul changes bodies
 SELECT link_verse_to_tattva('bg', 2, '22', 'jiva-tattva', 0.95);
-
--- BG 4.7-8 - Krishna's appearance (krishna-tattva)
 SELECT link_verse_to_tattva('bg', 4, '7', 'krishna-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 4, '8', 'krishna-tattva', 1.0);
-
--- BG 4.34 - Approaching a spiritual master (guru-tattva)
 SELECT link_verse_to_tattva('bg', 4, '34', 'guru-tattva', 1.0);
-
--- BG 7.4-5 - Material and spiritual energies (shakti-tattva)
 SELECT link_verse_to_tattva('bg', 7, '4', 'shakti-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 7, '5', 'shakti-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 7, '5', 'jiva-tattva', 0.8);
-
--- BG 7.14 - Maya is difficult to overcome
 SELECT link_verse_to_tattva('bg', 7, '14', 'maya-tattva', 1.0);
-
--- BG 8.5 - Remembering Krishna at death
 SELECT link_verse_to_tattva('bg', 8, '5', 'krishna-tattva', 0.9);
-
--- BG 9.10 - Material nature works under Krishna's direction
 SELECT link_verse_to_tattva('bg', 9, '10', 'shakti-tattva', 0.9);
 SELECT link_verse_to_tattva('bg', 9, '10', 'krishna-tattva', 0.8);
-
--- BG 9.26 - Simple offerings with devotion (bhakti-tattva)
 SELECT link_verse_to_tattva('bg', 9, '26', 'bhakti-tattva', 1.0);
-
--- BG 9.27-28 - Offering everything to Krishna
 SELECT link_verse_to_tattva('bg', 9, '27', 'bhakti-tattva', 0.95);
 SELECT link_verse_to_tattva('bg', 9, '28', 'bhakti-tattva', 0.9);
-
--- BG 10.8 - Krishna is source of everything
 SELECT link_verse_to_tattva('bg', 10, '8', 'krishna-tattva', 1.0);
-
--- BG 10.10 - Krishna gives understanding (buddhi-yoga)
 SELECT link_verse_to_tattva('bg', 10, '10', 'bhakti-tattva', 0.9);
-
--- BG 12.8-12 - Process of devotion
 SELECT link_verse_to_tattva('bg', 12, '8', 'bhakti-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 12, '9', 'bhakti-tattva', 0.9);
-
--- BG 14.5 - Three modes of material nature
 SELECT link_verse_to_tattva('bg', 14, '5', 'maya-tattva', 1.0);
-
--- BG 15.7 - Living entity is part of Krishna
 SELECT link_verse_to_tattva('bg', 15, '7', 'jiva-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 15, '7', 'krishna-tattva', 0.7);
-
--- BG 15.15 - Krishna in everyone's heart
 SELECT link_verse_to_tattva('bg', 15, '15', 'krishna-tattva', 0.95);
-
--- BG 18.55 - By devotion one can know Krishna
 SELECT link_verse_to_tattva('bg', 18, '55', 'bhakti-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 18, '55', 'krishna-tattva', 0.8);
-
--- BG 18.61 - Supersoul directs all beings
 SELECT link_verse_to_tattva('bg', 18, '61', 'krishna-tattva', 0.9);
-
--- BG 18.65 - Always think of Krishna
 SELECT link_verse_to_tattva('bg', 18, '65', 'bhakti-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 18, '65', 'krishna-tattva', 0.8);
-
--- BG 18.66 - Surrender unto Krishna (most important)
 SELECT link_verse_to_tattva('bg', 18, '66', 'bhakti-tattva', 1.0);
 SELECT link_verse_to_tattva('bg', 18, '66', 'krishna-tattva', 0.9);
 
 -- =============================================================================
--- SRIMAD-BHAGAVATAM SEED DATA (if available)
+-- SRIMAD-BHAGAVATAM SEED DATA (book slug: sb)
 -- =============================================================================
 
--- SB 1.2.6 - Supreme occupation (bhagavata-dharma)
 SELECT link_verse_to_tattva('sb', 2, '6', 'bhakti-tattva', 1.0);
-
--- SB 1.2.7 - Unmotivated service
 SELECT link_verse_to_tattva('sb', 2, '7', 'bhakti-tattva', 0.95);
-
--- SB 1.2.11 - Three features of Absolute
 SELECT link_verse_to_tattva('sb', 2, '11', 'krishna-tattva', 1.0);
-
--- SB 1.3.28 - Krishna is original source
 SELECT link_verse_to_tattva('sb', 3, '28', 'krishna-tattva', 1.0);
 
 -- =============================================================================

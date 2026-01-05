@@ -67,7 +67,7 @@ interface ParsedBookData {
 
 const BOOK_CONFIGS: BookConfig[] = [
   {
-    slug: "gita",
+    slug: "bg",
     title_ua: "Бгаґавад-ґіта як вона є",
     title_en: "Bhagavad-gita As It Is",
     hasVerses: true,
@@ -109,7 +109,7 @@ const BOOK_CONFIGS: BookConfig[] = [
     data: pqnData as ParsedBookData,
   },
   {
-    slug: "bhagavatam",
+    slug: "sb",
     title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
     title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     hasVerses: true,
