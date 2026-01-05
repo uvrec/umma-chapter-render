@@ -20,10 +20,15 @@ Usage:
 - Категорії: Category:YYYY_-_Lectures
 - Заголовки: "YYMMDD - Lecture [Type] [Ref] - Location"
 - Аудіо: AWS S3 mp3 файли
+
+Вихідний формат:
+- Зберігає HTML форматування (курсив для санскриту, жирний для мовців)
+- Тільки англійська версія (українська заповнюється окремо)
+- Інформація для зв'язку з віршами книг (book_slug, chapter, verse)
 """
 
 import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Tag, NavigableString
 import time
 import json
 import re
@@ -42,54 +47,20 @@ HEADERS = {
     "Accept": "application/json",
 }
 
-# Маппінг типів лекцій
+# Маппінг типів лекцій на book_slug
 LECTURE_TYPE_MAP = {
     "BG": ("Bhagavad-gita", "bg"),
     "SB": ("Srimad-Bhagavatam", "sb"),
-    "CC": ("Sri Caitanya-caritamrta", "cc"),
+    "CC": ("Sri Caitanya-caritamrta", "scc"),  # scc - slug в нашій БД
     "NOD": ("Nectar of Devotion", "nod"),
     "NOI": ("Nectar of Instruction", "noi"),
     "ISO": ("Sri Isopanisad", "iso"),
+    "SI": ("Sri Isopanisad", "iso"),
     "BS": ("Brahma-samhita", "bs"),
 }
 
-# Маппінг типів лекцій для української мови
-LECTURE_TYPE_TRANSLATIONS = {
-    "Bhagavad-gita": "Лекція з Бгаґавад-ґіти",
-    "Srimad-Bhagavatam": "Лекція з Шрімад-Бгаґаватам",
-    "Sri Caitanya-caritamrta": "Лекція з Шрі Чайтанья-чарітамріта",
-    "Nectar of Devotion": "Лекція з Нектару відданості",
-    "Nectar of Instruction": "Лекція з Нектару настанов",
-    "Sri Isopanisad": "Лекція з Шрі Ішопанішад",
-    "Brahma-samhita": "Лекція з Брахма-самхіти",
-    "Lecture": "Лекція",
-    "General": "Загальна лекція",
-}
-
-# Маппінг міст для української мови
-LOCATION_TRANSLATIONS = {
-    "New York": "Нью-Йорк",
-    "Los Angeles": "Лос-Анджелес",
-    "San Francisco": "Сан-Франциско",
-    "London": "Лондон",
-    "Paris": "Париж",
-    "Bombay": "Бомбей",
-    "Mumbai": "Мумбаї",
-    "Calcutta": "Калькутта",
-    "Kolkata": "Колката",
-    "Vrindavan": "Вріндаван",
-    "Vrndavana": "Вріндаван",
-    "Mayapur": "Маяпур",
-    "Māyāpur": "Маяпур",
-    "Delhi": "Делі",
-    "Hyderabad": "Хайдарабад",
-    "Honolulu": "Гонолулу",
-    "Tokyo": "Токіо",
-    "Melbourne": "Мельбурн",
-    "Sydney": "Сідней",
-    "Montreal": "Монреаль",
-    "Toronto": "Торонто",
-}
+# Допустимі HTML теги для збереження форматування
+ALLOWED_TAGS = {"i", "em", "b", "strong", "br", "sup", "sub"}
 
 
 class VanisourceParser:
@@ -173,7 +144,8 @@ class VanisourceParser:
         Returns: {
             "metadata": {...},
             "paragraphs": [...],
-            "sanskrit_terms": [...]
+            "sanskrit_terms": [...],
+            "verse_references": [...]  # для зв'язку з віршами
         }
         """
         print(f"[INFO] Парсинг: {page_title}")
@@ -204,20 +176,22 @@ class VanisourceParser:
         soup = BeautifulSoup(html, "lxml")
 
         # Знайти аудіо URL
-        audio_url = self._extract_audio_url(soup)
-        if audio_url:
-            metadata["audio_url"] = audio_url
+        audio_urls = self._extract_audio_urls(soup)
+        if audio_urls:
+            metadata["audio_url"] = audio_urls[0]  # Перший аудіо файл
+            metadata["audio_urls"] = audio_urls  # Всі аудіо файли (може бути кілька частин)
 
-        # Парсити параграфи
+        # Парсити параграфи зі збереженням HTML форматування
         paragraphs = self._parse_content(soup)
 
-        # Переклад метаданих на українську
-        metadata = self._add_ukrainian_translations(metadata)
+        # Витягнути посилання на вірші
+        verse_refs = self._extract_verse_references(soup, metadata)
 
         return {
             "metadata": metadata,
             "paragraphs": paragraphs,
             "sanskrit_terms": list(self.sanskrit_terms),
+            "verse_references": verse_refs,
         }
 
     def _parse_title_metadata(self, title: str) -> Dict[str, Any]:
@@ -233,16 +207,17 @@ class VanisourceParser:
         metadata = {
             "slug": self._title_to_slug(title),
             "title_en": title,
-            "title_ua": None,
             "lecture_date": None,
             "location_en": None,
-            "location_ua": None,
             "lecture_type": "Lecture",
             "audio_url": None,
             "book_slug": None,
-            "canto_lila": None,
+            "canto_number": None,  # Для SB (1-12) або CC lila як число
+            "canto_lila": None,  # Для CC: adi, madhya, antya
             "chapter_number": None,
-            "verse_number": None,
+            "verse_start": None,  # Початковий вірш
+            "verse_end": None,  # Кінцевий вірш (якщо діапазон)
+            "verse_number": None,  # Оригінальний рядок (напр. "7-11")
         }
 
         # Парсинг дати (перші 6 цифр)
@@ -275,54 +250,87 @@ class VanisourceParser:
                 break
 
         # Витягнути номери розділів/віршів
-        # Формат: "BG 02.07-11" або "CC Madhya 20.172-244"
-
-        # Для CC: Adi/Madhya/Antya
-        cc_match = re.search(r"CC\s+(Adi|Madhya|Antya)\s+(\d+)\.(\d+(?:-\d+)?)", lecture_part, re.IGNORECASE)
-        if cc_match:
-            metadata["canto_lila"] = cc_match.group(1).lower()
-            metadata["chapter_number"] = int(cc_match.group(2))
-            metadata["verse_number"] = cc_match.group(3)
-        else:
-            # Для BG, SB та інших: 02.07-11
-            verse_match = re.search(r"(\d+)\.(\d+(?:-\d+)?)", lecture_part)
-            if verse_match:
-                metadata["chapter_number"] = int(verse_match.group(1))
-                metadata["verse_number"] = verse_match.group(2)
+        self._parse_verse_reference(lecture_part, metadata)
 
         return metadata
 
+    def _parse_verse_reference(self, lecture_part: str, metadata: Dict[str, Any]):
+        """Парсити посилання на вірші з назви лекції"""
+
+        # CC: Adi/Madhya/Antya XX.YY-ZZ
+        cc_match = re.search(
+            r"CC\s+(Adi|Madhya|Antya)\s+(\d+)\.(\d+)(?:-(\d+))?",
+            lecture_part, re.IGNORECASE
+        )
+        if cc_match:
+            lila = cc_match.group(1).lower()
+            metadata["canto_lila"] = lila
+            # Конвертуємо lila в canto_number для сумісності
+            lila_to_num = {"adi": 1, "madhya": 2, "antya": 3}
+            metadata["canto_number"] = lila_to_num.get(lila)
+            metadata["chapter_number"] = int(cc_match.group(2))
+            metadata["verse_start"] = int(cc_match.group(3))
+            metadata["verse_end"] = int(cc_match.group(4)) if cc_match.group(4) else None
+            metadata["verse_number"] = cc_match.group(3)
+            if cc_match.group(4):
+                metadata["verse_number"] += f"-{cc_match.group(4)}"
+            return
+
+        # SB: X.Y.Z-W (canto.chapter.verse)
+        sb_match = re.search(
+            r"SB\s+(\d+)\.(\d+)\.(\d+)(?:-(\d+))?",
+            lecture_part, re.IGNORECASE
+        )
+        if sb_match:
+            metadata["canto_number"] = int(sb_match.group(1))
+            metadata["chapter_number"] = int(sb_match.group(2))
+            metadata["verse_start"] = int(sb_match.group(3))
+            metadata["verse_end"] = int(sb_match.group(4)) if sb_match.group(4) else None
+            metadata["verse_number"] = sb_match.group(3)
+            if sb_match.group(4):
+                metadata["verse_number"] += f"-{sb_match.group(4)}"
+            return
+
+        # BG та інші: XX.YY-ZZ
+        verse_match = re.search(r"(\d+)\.(\d+)(?:-(\d+))?", lecture_part)
+        if verse_match:
+            metadata["chapter_number"] = int(verse_match.group(1))
+            metadata["verse_start"] = int(verse_match.group(2))
+            metadata["verse_end"] = int(verse_match.group(3)) if verse_match.group(3) else None
+            metadata["verse_number"] = verse_match.group(2)
+            if verse_match.group(3):
+                metadata["verse_number"] += f"-{verse_match.group(3)}"
+
     def _title_to_slug(self, title: str) -> str:
         """Конвертувати заголовок в slug"""
-        # Видалити "Lecture" якщо є
         slug = title.lower()
         slug = re.sub(r"\s*-\s*lecture\s*", "-", slug)
-        # Замінити пробіли та спецсимволи
         slug = re.sub(r"[^a-z0-9]+", "-", slug)
         slug = slug.strip("-")
         return slug
 
-    def _extract_audio_url(self, soup: BeautifulSoup) -> Optional[str]:
-        """Витягнути URL аудіо файлу"""
+    def _extract_audio_urls(self, soup: BeautifulSoup) -> List[str]:
+        """Витягнути всі URL аудіо файлів"""
+        urls = []
+
         # Шукаємо audio або source теги
-        audio_tag = soup.find("audio")
-        if audio_tag:
+        for audio_tag in soup.find_all("audio"):
             source = audio_tag.find("source")
             if source and source.get("src"):
-                return source["src"]
-            if audio_tag.get("src"):
-                return audio_tag["src"]
+                urls.append(source["src"])
+            elif audio_tag.get("src"):
+                urls.append(audio_tag["src"])
 
         # Шукаємо прямі посилання на mp3
         for a in soup.find_all("a", href=True):
             href = a["href"]
-            if ".mp3" in href.lower():
-                return href
+            if ".mp3" in href.lower() and href not in urls:
+                urls.append(href)
 
-        return None
+        return urls
 
     def _parse_content(self, soup: BeautifulSoup) -> List[Dict[str, Any]]:
-        """Парсити контент лекції"""
+        """Парсити контент лекції зі збереженням HTML форматування"""
         paragraphs = []
 
         # Знайти основний контент
@@ -330,51 +338,70 @@ class VanisourceParser:
         if not content_div:
             content_div = soup
 
-        # Витягнути всі текстові елементи
         paragraph_number = 0
 
         for element in content_div.find_all(["p", "dl"]):
-            text = self._clean_text(element)
+            # Отримати текст для перевірок
+            plain_text = element.get_text(separator=" ", strip=True)
 
             # Пропустити порожні або дуже короткі елементи
-            if not text or len(text) < 20:
+            if not plain_text or len(plain_text) < 20:
                 continue
 
             # Пропустити навігаційні елементи
-            if any(skip in text.lower() for skip in [
+            if any(skip in plain_text.lower() for skip in [
                 "category:", "retrieved from", "navigation",
-                "what links here", "related changes"
+                "what links here", "related changes", "page actions"
             ]):
                 continue
 
             paragraph_number += 1
 
+            # Отримати HTML зі збереженням форматування
+            content_html = self._sanitize_html(element)
+
             # Витягнути санскритські терміни
-            sanskrit_terms = self._extract_sanskrit_terms(element, text)
+            sanskrit_terms = self._extract_sanskrit_terms(element, plain_text)
 
             # Визначити мовця (якщо є)
             speaker = self._extract_speaker(element)
 
             paragraph = {
                 "paragraph_number": paragraph_number,
-                "content_en": text,
-                "content_ua": None,  # Буде заповнено пізніше
-                "audio_timecode": None,
-                "sanskrit_terms": sanskrit_terms,
+                "content_en": content_html,  # HTML з форматуванням
                 "speaker": speaker,
+                "sanskrit_terms": sanskrit_terms,
             }
 
             paragraphs.append(paragraph)
 
         return paragraphs
 
-    def _clean_text(self, element: Tag) -> str:
-        """Очистити текст від зайвих пробілів та форматування"""
-        # Отримати текст зберігаючи структуру
-        text = element.get_text(separator=" ", strip=True)
-        # Видалити множинні пробіли
-        text = re.sub(r"\s+", " ", text)
-        return text.strip()
+    def _sanitize_html(self, element: Tag) -> str:
+        """
+        Очистити HTML, залишивши тільки безпечні теги форматування
+        Зберігає: <i>, <em>, <b>, <strong>, <br>, <sup>, <sub>
+        """
+        # Клонуємо елемент щоб не модифікувати оригінал
+        clone = BeautifulSoup(str(element), "lxml")
+        root = clone.find(element.name) or clone
+
+        # Видалити всі атрибути з тегів крім дозволених
+        for tag in root.find_all(True):
+            if tag.name not in ALLOWED_TAGS:
+                # Замінити тег на його вміст
+                tag.unwrap()
+            else:
+                # Видалити всі атрибути
+                tag.attrs = {}
+
+        # Отримати внутрішній HTML
+        inner_html = "".join(str(child) for child in root.children)
+
+        # Нормалізувати пробіли
+        inner_html = re.sub(r"\s+", " ", inner_html).strip()
+
+        return inner_html
 
     def _extract_speaker(self, element: Tag) -> Optional[str]:
         """Визначити мовця з елемента"""
@@ -390,7 +417,7 @@ class VanisourceParser:
         """Витягнути санскритські терміни"""
         terms = []
 
-        # 1. Слова в курсиві
+        # 1. Слова в курсиві (зазвичай санскрит)
         for italic in element.find_all(["i", "em"]):
             term = italic.get_text(strip=True)
             if term and len(term) > 2 and not term.startswith("http"):
@@ -407,46 +434,74 @@ class VanisourceParser:
 
         return list(set(terms))
 
-    def _add_ukrainian_translations(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
-        """Додати українські переклади до метаданих"""
-        # Переклад типу лекції
-        lecture_type = metadata.get("lecture_type", "Lecture")
-        metadata["lecture_type_ua"] = LECTURE_TYPE_TRANSLATIONS.get(
-            lecture_type, "Лекція"
-        )
+    def _extract_verse_references(self, soup: BeautifulSoup, metadata: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """
+        Витягнути посилання на вірші з контенту лекції
+        Це допоможе зв'язати лекцію з конкретними віршами в бібліотеці
+        """
+        refs = []
 
-        # Переклад локації
-        location_en = metadata.get("location_en", "")
-        metadata["location_ua"] = LOCATION_TRANSLATIONS.get(
-            location_en, location_en
-        )
+        # Основне посилання з метаданих
+        if metadata.get("book_slug") and metadata.get("chapter_number"):
+            ref = {
+                "book_slug": metadata["book_slug"],
+                "canto_number": metadata.get("canto_number"),
+                "canto_lila": metadata.get("canto_lila"),
+                "chapter_number": metadata["chapter_number"],
+                "verse_start": metadata.get("verse_start"),
+                "verse_end": metadata.get("verse_end"),
+                "is_primary": True,  # Основна тема лекції
+            }
+            refs.append(ref)
 
-        # Базовий переклад заголовка
-        title_en = metadata.get("title_en", "")
-        metadata["title_ua"] = self._transliterate_title(title_en)
+        # Додаткові посилання з тексту (посилання на інші вірші)
+        content_div = soup.find("div", class_="mw-parser-output")
+        if content_div:
+            for link in content_div.find_all("a", href=True):
+                href = link["href"]
 
-        return metadata
+                # Парсити посилання на BG
+                bg_match = re.search(r"/wiki/BG_(\d+)\.(\d+)", href)
+                if bg_match:
+                    ref = {
+                        "book_slug": "bg",
+                        "chapter_number": int(bg_match.group(1)),
+                        "verse_start": int(bg_match.group(2)),
+                        "is_primary": False,
+                    }
+                    if ref not in refs:
+                        refs.append(ref)
 
-    def _transliterate_title(self, title: str) -> str:
-        """Базова транслітерація заголовка"""
-        replacements = {
-            "Lecture": "Лекція",
-            "Introduction": "Вступ",
-            "Bhagavad-gita": "Бгаґавад-ґіта",
-            "Srimad-Bhagavatam": "Шрімад-Бгаґаватам",
-            "Caitanya-caritamrta": "Чайтанья-чарітамріта",
-            "New York": "Нью-Йорк",
-            "Los Angeles": "Лос-Анджелес",
-            "London": "Лондон",
-            "Adi": "Аді",
-            "Madhya": "Мадх'я",
-            "Antya": "Антья",
-        }
+                # Парсити посилання на SB
+                sb_match = re.search(r"/wiki/SB_(\d+)\.(\d+)\.(\d+)", href)
+                if sb_match:
+                    ref = {
+                        "book_slug": "sb",
+                        "canto_number": int(sb_match.group(1)),
+                        "chapter_number": int(sb_match.group(2)),
+                        "verse_start": int(sb_match.group(3)),
+                        "is_primary": False,
+                    }
+                    if ref not in refs:
+                        refs.append(ref)
 
-        result = title
-        for en, ua in replacements.items():
-            result = result.replace(en, ua)
-        return result
+                # Парсити посилання на CC
+                cc_match = re.search(r"/wiki/CC_(Adi|Madhya|Antya)_(\d+)\.(\d+)", href, re.IGNORECASE)
+                if cc_match:
+                    lila = cc_match.group(1).lower()
+                    lila_to_num = {"adi": 1, "madhya": 2, "antya": 3}
+                    ref = {
+                        "book_slug": "scc",
+                        "canto_number": lila_to_num.get(lila),
+                        "canto_lila": lila,
+                        "chapter_number": int(cc_match.group(2)),
+                        "verse_start": int(cc_match.group(3)),
+                        "is_primary": False,
+                    }
+                    if ref not in refs:
+                        refs.append(ref)
+
+        return refs
 
     def save_to_json(self, data: Dict[str, Any], output_file: str):
         """Зберегти дані в JSON файл"""
