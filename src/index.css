@@ -12,8 +12,8 @@
    STICKY HEADER - ГАРАНТОВАНИЙ
    ========================= */
 .site-header {
+  position: -webkit-sticky !important; /* Safari prefix ПЕРЕД стандартним */
   position: sticky !important;
-  position: -webkit-sticky !important;
   top: 0 !important;
   z-index: 50 !important;
 }
@@ -297,14 +297,16 @@ body {
   font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Запобігання горизонтальному скролу на мобільних */
-  overflow-x: hidden;
+  /* Запобігання горизонтальному скролу на мобільних
+     ВАЖЛИВО: overflow-x: clip замість hidden, бо hidden ламає position: sticky! */
+  overflow-x: clip;
   max-width: 100vw;
 }
 
-/* Контейнер #root - також запобігаємо overflow */
+/* Контейнер #root - також запобігаємо overflow
+   ВАЖЛИВО: overflow-x: clip замість hidden, бо hidden ламає position: sticky! */
 #root {
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100vw;
   /* iOS/Android Safe Area - для notch, home indicator, Dynamic Island */
   padding-top: env(safe-area-inset-top);
