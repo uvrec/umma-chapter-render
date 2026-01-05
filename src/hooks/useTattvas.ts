@@ -7,10 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Tattva {
   id: string;
-  name_uk: string;
+  name_ua: string;
   name_en: string;
   slug: string;
-  description_uk?: string;
+  description_ua?: string;
   description_en?: string;
   category?: "sambandha" | "abhidheya" | "prayojana";
   parent_id?: string;
@@ -35,7 +35,7 @@ export interface TattvaVerse {
 
 export interface TattvaBreadcrumb {
   id: string;
-  name_uk: string;
+  name_ua: string;
   name_en: string;
   slug: string;
   depth: number;
