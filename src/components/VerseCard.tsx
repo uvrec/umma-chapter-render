@@ -155,7 +155,7 @@ export const VerseCard = ({
     },
   };
   const labels = blockLabels[language];
-  const { playTrack, currentTrack, togglePlay, isPlaying } = useAudio();
+  const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
 
   // Check if this verse is currently playing
   const isNowPlaying = useMemo(() => {
@@ -210,11 +210,12 @@ export const VerseCard = ({
     const trackId = `${verseNumber}-${section}`;
 
     // Якщо вже грає цей трек — тумблер
-    if (currentTrack?.id === trackId) {
+    if (currentTrack?.id === trackId || currentTrack?.verseId === verseId) {
       togglePlay();
       return;
     }
-    playTrack({
+    // Use playVerseWithChapterContext to load all chapter verses with audio
+    playVerseWithChapterContext({
       id: trackId,
       title: `${verseNumber} — ${section}`,
       subtitle: bookName,
