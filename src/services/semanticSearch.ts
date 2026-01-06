@@ -141,7 +141,7 @@ export async function fulltextSearch(options: SearchOptions): Promise<SearchResu
   try {
     const { data, error } = await supabase.rpc('search_verses_fulltext', {
       search_query: query,
-      language_code: language === 'ua' ? 'uk' : 'en',
+      language_code: language,
       include_translation: true,
       include_commentary: includeCommentary,
       include_synonyms: true,
