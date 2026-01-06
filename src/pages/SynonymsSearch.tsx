@@ -15,19 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { debounce } from "lodash";
 
-interface SynonymSearchResult {
-  verse_id: string;
-  book_slug: string;
-  book_title: string;
-  chapter_number: number;
-  verse_number: string;
-  canto_number?: number; // For Srimad-Bhagavatam
-  sanskrit: string;
-  transliteration: string;
-  synonyms: string;
-  translation: string;
-  match_rank: number;
-}
+// Використовуємо типи з Supabase для search_synonyms RPC
+import type { Database } from "@/integrations/supabase/types";
+type SynonymSearchResult = Database['public']['Functions']['search_synonyms']['Returns'][number];
 
 // Helper to build verse link (must match App.tsx routes)
 const buildVerseLink = (result: SynonymSearchResult): string => {
@@ -102,14 +92,14 @@ export default function SynonymsSearch() {
 
       setIsLoadingAutocomplete(true);
       try {
-        const { data, error } = await (supabase as any).rpc("get_unique_synonym_terms", {
+        const { data, error } = await supabase.rpc("get_unique_synonym_terms", {
           search_language: lang,
           prefix_filter: term,
           limit_count: 10,
         });
 
         if (error) throw error;
-        const items = (data ?? []) as AutocompleteItem[];
+        const items = data ?? [];
         setAutocomplete(items);
       } catch (error) {
         console.error("Autocomplete error:", error);
@@ -131,7 +121,7 @@ export default function SynonymsSearch() {
 
     setIsSearching(true);
     try {
-      const { data, error } = await (supabase as any).rpc("search_synonyms", {
+      const { data, error } = await supabase.rpc("search_synonyms", {
         search_term: searchTerm.trim(),
         search_language: searchLanguage,
         search_mode: searchMode,
@@ -141,7 +131,7 @@ export default function SynonymsSearch() {
 
       if (error) throw error;
 
-      const rows = (data ?? []) as SynonymSearchResult[];
+      const rows = data ?? [];
       setResults(rows);
       setTotalResults(rows.length);
 

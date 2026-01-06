@@ -72,8 +72,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
 
       try {
         // Використовуємо RPC функцію search_suggest_terms
-        // Type assertion оскільки функція ще не в автогенерованих типах
-        const { data, error } = await (supabase.rpc as CallableFunction)('search_suggest_terms', {
+        const { data, error } = await supabase.rpc('search_suggest_terms', {
           search_prefix: debouncedPrefix,
           language_code: language,
           limit_count: 6,
@@ -85,10 +84,10 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           return fallbackSuggestions(debouncedPrefix);
         }
 
-        return (data || []).map((item: { term: string; frequency: number; source_type: string }) => ({
-          suggestion: item.term,
+        return (data || []).map((item) => ({
+          suggestion: item.suggestion,
           frequency: item.frequency,
-          source: item.source_type,
+          source: item.source,
         }));
       } catch {
         return fallbackSuggestions(debouncedPrefix);
@@ -135,8 +134,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
 
       try {
         // Використовуємо RPC функцію unified_search з Full-Text Search
-        // Type assertion оскільки функція ще не в автогенерованих типах
-        const { data, error } = await (supabase.rpc as CallableFunction)('unified_search', {
+        const { data, error } = await supabase.rpc('unified_search', {
           search_query: debouncedQuery,
           language_code: language,
           search_types: ['verses', 'blog'],

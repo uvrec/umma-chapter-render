@@ -2814,6 +2814,7 @@ export type Database = {
         Returns: {
           book_slug: string
           book_title: string
+          canto_number: number | null
           chapter_number: number
           match_rank: number
           sanskrit: string
