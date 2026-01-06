@@ -2,6 +2,9 @@
 -- ОНОВЛЕННЯ ФУНКЦІЇ search_synonyms - додаємо canto_number для ШБ
 -- ============================================================================
 
+-- Видаляємо стару функцію (через зміну типу повернення)
+DROP FUNCTION IF EXISTS search_synonyms(TEXT, TEXT, TEXT, INTEGER, INTEGER);
+
 CREATE OR REPLACE FUNCTION search_synonyms(
   search_term TEXT,
   search_language TEXT DEFAULT 'ua',
@@ -26,7 +29,7 @@ DECLARE
   synonyms_column TEXT;
   translation_column TEXT;
   transliteration_column TEXT;
-  tsconfig TEXT;
+  tsconfig regconfig;
 BEGIN
   -- Визначаємо мову та колонки
   IF search_language = 'ua' THEN
@@ -81,7 +84,7 @@ BEGIN
             v.%I ILIKE ('%%' || $1 || '%%')
         END
       )
-    ORDER BY match_rank DESC, b.sort_order, ca.canto_number NULLS FIRST, c.chapter_number, v.verse_number_int
+    ORDER BY match_rank DESC, ca.canto_number NULLS FIRST, c.chapter_number, v.verse_number_sort
     LIMIT $5 OFFSET $6
   $query$,
   transliteration_column,
