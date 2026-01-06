@@ -177,7 +177,7 @@ export function convertIASTtoUkrainian(text: string): string {
     "\u012B": "ı̄", // ī → ı̄ (латинська dotless i + макрон, БЕЗ крапки!)
     "\u016B": "ӯ", // ū
     "\u1E5D": "р̣̄", // ṝ
-    "\u1E38": "л̣̄", // ḹ
+    "\u1E39": "л̣̄", // ḹ
     "\u1E6D": "т̣", // ṭ
     "\u1E0D": "д̣", // ḍ
     "\u1E47": "н̣", // ṇ
