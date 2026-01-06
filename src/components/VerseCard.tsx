@@ -313,7 +313,14 @@ export const VerseCard = ({
                 {isNowPlaying ? (
                   <>
                     <Pause className="h-4 w-4" />
-                    <span className="text-sm font-medium">{language === 'ua' ? 'Грає...' : 'Playing...'}</span>
+                    {/* Анімована звукова хвилька */}
+                    <div className="audio-wave-bars">
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                    </div>
                   </>
                 ) : (
                   <>
