@@ -194,6 +194,44 @@ mark {
   @apply opacity-30 hover:opacity-100;
 }
 
+/* ==========================================
+   Анімована звукова хвилька (для кнопки "Грає")
+   ========================================== */
+
+.audio-wave-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 16px;
+}
+
+.audio-wave-bar {
+  width: 3px;
+  background: currentColor;
+  border-radius: 1px;
+  animation: audio-wave 1s ease-in-out infinite;
+}
+
+.audio-wave-bar:nth-child(1) { animation-delay: 0s; height: 40%; }
+.audio-wave-bar:nth-child(2) { animation-delay: 0.15s; height: 70%; }
+.audio-wave-bar:nth-child(3) { animation-delay: 0.3s; height: 100%; }
+.audio-wave-bar:nth-child(4) { animation-delay: 0.45s; height: 60%; }
+.audio-wave-bar:nth-child(5) { animation-delay: 0.6s; height: 30%; }
+
+@keyframes audio-wave {
+  0%, 100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Паузим анімацію коли на паузі */
+.audio-wave-bars.paused .audio-wave-bar {
+  animation-play-state: paused;
+}
+
 /* Tap-to-play індикатор */
 .verse-tap-indicator {
   @apply absolute -left-3 top-1/2 -translate-y-1/2;
