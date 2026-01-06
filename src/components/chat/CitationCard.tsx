@@ -31,9 +31,9 @@ export function CitationCard({ citation, className }: CitationCardProps) {
     if (!citation.chapterNumber || !citation.verseNumber) {
       return `/veda-reader/${citation.bookSlug}`;
     }
-    // SB uses canto structure
-    if (citation.bookSlug === 'sb' && citation.cantoNumber) {
-      return `/veda-reader/sb/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
+    // Books with canto structure: SB (Srimad-Bhagavatam) and SCC (Sri Caitanya-caritamrta)
+    if ((citation.bookSlug === 'sb' || citation.bookSlug === 'scc') && citation.cantoNumber) {
+      return `/veda-reader/${citation.bookSlug}/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
     }
     // Other books use simple structure
     return `/veda-reader/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`;
