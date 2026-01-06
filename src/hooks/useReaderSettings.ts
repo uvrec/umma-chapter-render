@@ -30,6 +30,8 @@ const LS = {
   showNumbers: "vv_reader_showNumbers",
   flowMode: "vv_reader_flowMode",
   mobileSafeMode: "vv_reader_mobileSafeMode",
+  showVerseContour: "vv_reader_showVerseContour",
+  fullscreenMode: "vv_reader_fullscreenMode",
 };
 
 // Перевірка доступності localStorage (Firefox private mode, Enhanced Tracking Protection)
@@ -133,6 +135,8 @@ export function useReaderSettings() {
   const [showNumbers, setShowNumbers] = useState<boolean>(() => readBool(LS.showNumbers, true));
   const [flowMode, setFlowMode] = useState<boolean>(() => readBool(LS.flowMode, false));
   const [mobileSafeMode, setMobileSafeMode] = useState<boolean>(() => readBool(LS.mobileSafeMode, false));
+  const [showVerseContour, setShowVerseContour] = useState<boolean>(() => readBool(LS.showVerseContour, true));
+  const [fullscreenMode, setFullscreenMode] = useState<boolean>(() => readBool(LS.fullscreenMode, false));
 
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -146,6 +150,8 @@ export function useReaderSettings() {
     showNumbers,
     flowMode,
     mobileSafeMode,
+    showVerseContour,
+    fullscreenMode,
   });
 
   // Оновлюємо refs при кожній зміні
@@ -159,8 +165,10 @@ export function useReaderSettings() {
       showNumbers,
       flowMode,
       mobileSafeMode,
+      showVerseContour,
+      fullscreenMode,
     };
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode]);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode]);
 
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
@@ -241,6 +249,18 @@ export function useReaderSettings() {
     dispatchPrefs();
   }, [mobileSafeMode, dispatchPrefs]);
 
+  useEffect(() => {
+    safeSetItem(LS.showVerseContour, String(showVerseContour));
+    dispatchPrefs();
+  }, [showVerseContour, dispatchPrefs]);
+
+  useEffect(() => {
+    safeSetItem(LS.fullscreenMode, String(fullscreenMode));
+    // Додаємо/видаляємо data-атрибут для CSS
+    document.documentElement.setAttribute('data-fullscreen-reading', String(fullscreenMode));
+    dispatchPrefs();
+  }, [fullscreenMode, dispatchPrefs]);
+
   // синхронізація між вкладками
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -253,6 +273,8 @@ export function useReaderSettings() {
       if (e.key === LS.showNumbers) setShowNumbers(readBool(LS.showNumbers, true));
       if (e.key === LS.flowMode) setFlowMode(readBool(LS.flowMode, false));
       if (e.key === LS.mobileSafeMode) setMobileSafeMode(readBool(LS.mobileSafeMode, false));
+      if (e.key === LS.showVerseContour) setShowVerseContour(readBool(LS.showVerseContour, true));
+      if (e.key === LS.fullscreenMode) setFullscreenMode(readBool(LS.fullscreenMode, false));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -271,6 +293,8 @@ export function useReaderSettings() {
       const newShowNumbers = readBool(LS.showNumbers, true);
       const newFlowMode = readBool(LS.flowMode, false);
       const newMobileSafeMode = readBool(LS.mobileSafeMode, false);
+      const newShowVerseContour = readBool(LS.showVerseContour, true);
+      const newFullscreenMode = readBool(LS.fullscreenMode, false);
 
       // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
       const current = stateRefs.current;
@@ -283,6 +307,8 @@ export function useReaderSettings() {
       if (newShowNumbers !== current.showNumbers) setShowNumbers(newShowNumbers);
       if (newFlowMode !== current.flowMode) setFlowMode(newFlowMode);
       if (newMobileSafeMode !== current.mobileSafeMode) setMobileSafeMode(newMobileSafeMode);
+      if (newShowVerseContour !== current.showVerseContour) setShowVerseContour(newShowVerseContour);
+      if (newFullscreenMode !== current.fullscreenMode) setFullscreenMode(newFullscreenMode);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -339,6 +365,10 @@ export function useReaderSettings() {
     setFlowMode,
     mobileSafeMode,
     setMobileSafeMode,
+    showVerseContour,
+    setShowVerseContour,
+    fullscreenMode,
+    setFullscreenMode,
     multipliers,
   };
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Globe, Palette, RotateCcw, Smartphone } from "lucide-react";
+import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -28,6 +28,8 @@ const DEFAULTS = {
   showNumbers: true,
   flowMode: false,
   mobileSafeMode: false,
+  showVerseContour: true,
+  fullscreenMode: false,
   blocks: {
     showSanskrit: true,
     showTransliteration: true,
@@ -126,6 +128,10 @@ export const GlobalSettingsPanel = () => {
     setFlowMode,
     mobileSafeMode,
     setMobileSafeMode,
+    showVerseContour,
+    setShowVerseContour,
+    fullscreenMode,
+    setFullscreenMode,
   } = useReaderSettings();
 
   // Handle font size slider change
@@ -151,6 +157,8 @@ export const GlobalSettingsPanel = () => {
     setShowNumbers(DEFAULTS.showNumbers);
     setFlowMode(DEFAULTS.flowMode);
     setMobileSafeMode(DEFAULTS.mobileSafeMode);
+    setShowVerseContour(DEFAULTS.showVerseContour);
+    setFullscreenMode(DEFAULTS.fullscreenMode);
     setContinuousReadingSettings(DEFAULTS.continuousReading);
   };
 
@@ -163,7 +171,7 @@ export const GlobalSettingsPanel = () => {
       {/* Floating Button */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+        className="global-settings-btn fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
         size="icon"
         aria-label="Open settings"
       >
@@ -292,6 +300,27 @@ export const GlobalSettingsPanel = () => {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="flow-mode">{t("Суцільний текст (без рамок)", "Continuous Text (No Borders)")}</Label>
                   <Switch id="flow-mode" checked={flowMode} onCheckedChange={(v) => setFlowMode(v)} />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Square className="h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="verse-contour">{t("Контур навколо тексту", "Text Contour")}</Label>
+                  </div>
+                  <Switch id="verse-contour" checked={showVerseContour} onCheckedChange={(v) => setShowVerseContour(v)} />
+                </div>
+
+                <div className="flex items-center justify-between bg-primary/5 p-3 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Maximize className="h-4 w-4 text-primary" />
+                    <div>
+                      <Label htmlFor="fullscreen-mode">{t("Повноекранне читання", "Fullscreen Reading")}</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {t("Ховає меню та іконки", "Hides menu and icons")}
+                      </p>
+                    </div>
+                  </div>
+                  <Switch id="fullscreen-mode" checked={fullscreenMode} onCheckedChange={(v) => setFullscreenMode(v)} />
                 </div>
 
                 <div className="flex items-center justify-between bg-muted/50 p-3 rounded-lg">

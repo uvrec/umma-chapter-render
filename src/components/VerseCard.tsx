@@ -54,6 +54,7 @@ interface VerseCardProps {
   fontSize?: number;
   lineHeight?: number;
   flowMode?: boolean;
+  showVerseContour?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (
     verseId: string,
@@ -108,6 +109,7 @@ export const VerseCard = ({
   fontSize = 18,
   lineHeight = 1.6,
   flowMode = false,
+  showVerseContour = true,
   isAdmin = false,
   onVerseUpdate,
   onVerseNumberUpdate,
@@ -260,12 +262,17 @@ export const VerseCard = ({
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
+  // Визначаємо класи для контуру
+  const contourClasses = isNowPlaying
+    ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing'
+    : showVerseContour
+      ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
+      : '';
+
   return (
     <div
       ref={verseRef}
-      className={`verse-surface w-full animate-fade-in ${
-        isNowPlaying ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing' : ''
-      }`}
+      className={`verse-surface w-full animate-fade-in ${contourClasses}`}
     >
       <div
         className="py-6"
