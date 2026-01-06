@@ -200,6 +200,7 @@ export function convertIASTtoUkrainian(text: string): string {
     "\u1E6C": "Т̣", // Ṭ → Т̣
     "\u1E0C": "Д̣", // Ḍ → Д̣
     "\u1E5A": "Р̣", // Ṛ → Р̣
+    "\u1E5C": "Р̣̄", // Ṝ → Р̣̄ (велика)
     "\u1E46": "Н̣", // Ṇ → Н̣
     "\u00D1": "Н̃", // Ñ → Н̃
     "\u1E44": "Н̇", // Ṅ → Н̇
@@ -207,6 +208,15 @@ export function convertIASTtoUkrainian(text: string): string {
     "\u1E42": "М̣", // Ṃ → М̣
     "\u1E24": "Х̣", // Ḥ → Х̣
     "\u1E36": "Л̣", // Ḷ → Л̣
+    "\u1E38": "Л̣̄", // Ḹ → Л̣̄ (велика)
+
+    // ============ ЧАНДРАБІНДУ (candrabindu) ============
+    // m̐ та l̐ - назалізація без повного закриття
+    "m\u0310": "м̐", // m + combining candrabindu → м̐
+    "M\u0310": "М̐", // M + combining candrabindu → М̐
+    "l\u0310": "л̐", // l + combining candrabindu → л̐
+    "L\u0310": "Л̐", // L + combining candrabindu → Л̐
+    "\uF10D": "м̐", // Private Use Area (from some fonts) → м̐
 
     // ============ COMBINING DIACRITICS (запасний варіант) ============
     // Якщо NFC нормалізація не спрацювала
@@ -235,25 +245,38 @@ export function convertIASTtoUkrainian(text: string): string {
     "T\u0323": "Т̣", // T + dot below
     "D\u0323": "Д̣", // D + dot below
     "R\u0323": "Р̣", // R + dot below
+    "R\u0323\u0304": "Р̣̄", // R + dot below + macron
     "N\u0323": "Н̣", // N + dot below
     "N\u0303": "Н̃", // N + tilde
     "N\u0307": "Н̇", // N + dot above
     "M\u0307": "М̇", // M + dot above
+    "M\u0323": "М̣", // M + dot below
     "H\u0323": "Х̣", // H + dot below
     "L\u0323": "Л̣", // L + dot below
+    "L\u0323\u0304": "Л̣̄", // L + dot below + macron
 
     // ============ 3 символи (СПОЧАТКУ!) ============
+    // Малі
     nya: "нйа",
     nye: "нйе",
     nyi: "нйі",
     nyo: "нйо",
     nyu: "нйу",
-    сch: "ччх",
-    jjh: "жджх", // ✅ НОВЕ: jjh → жджх (3 символи)
-    джджг: "жджх", // ✅ НОВЕ: кирилична версія
+    cch: "ччх",
+    jjh: "жджх",
+    // Великі
+    Nya: "Нйа",
+    Nye: "Нйе",
+    Nyi: "Нйі",
+    Nyo: "Нйо",
+    Nyu: "Нйу",
+    Cch: "Ччх",
+    Jjh: "Жджх",
+    // Кириличні версії
+    джджг: "жджх",
 
     // ============ 2 символи ============
-    // Малі літери
+    // Малі літери з h
     bh: "бг",
     gh: "ґг",
     dh: "дг",
@@ -263,7 +286,7 @@ export function convertIASTtoUkrainian(text: string): string {
     ch: "чх",
     jh: "джх",
     sh: "сх",
-    // Великі літери (з великої на початку слова!)
+    // Великі літери з h (для початку слова!)
     Bh: "Бг",
     Gh: "Ґг",
     Dh: "Дг",
@@ -273,12 +296,18 @@ export function convertIASTtoUkrainian(text: string): string {
     Ch: "Чх",
     Jh: "Джх",
     Sh: "Сх",
-    // Кириличні версії
-    джг: "джх",
+    // Комбінації з діакритиками - малі
     kṣ: "кш",
     jñ: "джн̃",
     ai: "аі",
     au: "ау",
+    // Комбінації з діакритиками - великі
+    Kṣ: "Кш",
+    Jñ: "Джн̃",
+    Ai: "Аі",
+    Au: "Ау",
+    // Кириличні версії
+    джг: "джх",
 
     // Прості приголосні
     k: "к",
