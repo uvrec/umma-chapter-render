@@ -1,5 +1,5 @@
 // ModernGlobalPlayer.tsx - Інтегрована версія для VedaVoice
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
   Repeat, Repeat1, Shuffle, ChevronUp, ChevronDown, X,
@@ -9,6 +9,18 @@ import { useAudio } from '@/contexts/ModernAudioContext';
 import { WaveformProgressBar } from './WaveformProgressBar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SleepTimerDialog, SleepTimerIndicator } from '@/components/SleepTimerDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+// Тип для даних вірша
+interface VerseData {
+  sanskrit: string | null;
+  transliteration: string | null;
+  translation_ua: string | null;
+  translation_en: string | null;
+  synonyms_ua: string | null;
+  synonyms_en: string | null;
+}
 
 interface ModernGlobalPlayerProps {
   className?: string;
@@ -16,6 +28,8 @@ interface ModernGlobalPlayerProps {
 
 export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ className = '' }) => {
   const [showSleepTimer, setShowSleepTimer] = useState(false);
+  const [verseData, setVerseData] = useState<VerseData | null>(null);
+  const [isLoadingVerse, setIsLoadingVerse] = useState(false);
 
   const {
     currentTrack,
@@ -38,7 +52,46 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     setIsExpanded
   } = useAudio();
 
+  const { language } = useLanguage();
   const isMobile = useIsMobile();
+
+  // Завантажуємо дані вірша коли змінюється currentTrack
+  useEffect(() => {
+    const fetchVerseData = async () => {
+      if (!currentTrack?.verseId) {
+        setVerseData(null);
+        return;
+      }
+
+      setIsLoadingVerse(true);
+      try {
+        const { data, error } = await supabase
+          .from('verses')
+          .select('sanskrit, transliteration, transliteration_ua, transliteration_en, translation_ua, translation_en, synonyms_ua, synonyms_en')
+          .eq('id', currentTrack.verseId)
+          .maybeSingle();
+
+        if (error) throw error;
+        if (data) {
+          setVerseData({
+            sanskrit: data.sanskrit,
+            transliteration: data.transliteration || data.transliteration_ua || data.transliteration_en,
+            translation_ua: data.translation_ua,
+            translation_en: data.translation_en,
+            synonyms_ua: data.synonyms_ua,
+            synonyms_en: data.synonyms_en,
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching verse data:', err);
+        setVerseData(null);
+      } finally {
+        setIsLoadingVerse(false);
+      }
+    };
+
+    fetchVerseData();
+  }, [currentTrack?.verseId]);
 
   // Format time helper
   const formatTime = (seconds: number) => {
@@ -87,21 +140,76 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
             </button>
 
             <div className="h-full flex">
-              {/* Left side - Cover Art (full height) */}
+              {/* Left side - Cover Art + Verse Text */}
               <div className="w-1/2 h-full relative">
+                {/* Background cover image with gradient overlay */}
                 {currentTrack.coverImage ? (
                   <img
                     src={currentTrack.coverImage}
                     alt={currentTrack.title}
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
-                    <Music className="w-32 h-32 text-primary-foreground/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary-hover" />
+                )}
+
+                {/* Dark gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-background" />
+
+                {/* Verse Text Overlay */}
+                {verseData && (
+                  <div className="absolute inset-0 flex flex-col justify-center px-12 py-16 overflow-y-auto">
+                    {/* Sanskrit */}
+                    {verseData.sanskrit && (
+                      <div className="mb-6">
+                        <p
+                          className="text-2xl xl:text-3xl font-sanskrit text-white/95 leading-relaxed text-center"
+                          style={{ fontFamily: '"Noto Sans Devanagari", "Siddhanta", serif' }}
+                        >
+                          {verseData.sanskrit}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Transliteration */}
+                    {verseData.transliteration && (
+                      <div className="mb-6">
+                        <p className="text-lg xl:text-xl text-white/80 italic leading-relaxed text-center">
+                          {verseData.transliteration}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Divider */}
+                    <div className="w-24 h-px bg-white/30 mx-auto my-4" />
+
+                    {/* Translation */}
+                    {(verseData.translation_ua || verseData.translation_en) && (
+                      <div className="mt-4">
+                        <p className="text-base xl:text-lg text-white/90 leading-relaxed text-center max-w-lg mx-auto">
+                          {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
-                {/* Gradient overlay for smooth transition */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background" />
+
+                {/* If no verse data, show music icon */}
+                {!verseData && !isLoadingVerse && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Music className="w-32 h-32 text-white/30" />
+                  </div>
+                )}
+
+                {/* Loading state */}
+                {isLoadingVerse && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-white/30 border-t-white/80 rounded-full animate-spin" />
+                  </div>
+                )}
+
+                {/* Gradient overlay for smooth transition to right side */}
+                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-r from-transparent to-background" />
               </div>
 
               {/* Right side - Controls */}
@@ -240,22 +348,60 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
               <ChevronDown className="w-6 h-6 text-white" />
             </button>
 
-            {/* Cover Art (Large) */}
-            <div className="max-w-md mx-auto mt-16 mb-8">
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-                {currentTrack.coverImage ? (
-                  <img
-                    src={currentTrack.coverImage}
-                    alt={currentTrack.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
-                    <Music className="w-20 h-20 text-primary-foreground" />
+            {/* Verse Text for Mobile (if available) */}
+            {verseData ? (
+              <div className="max-w-md mx-auto mt-12 mb-6 px-4">
+                {/* Sanskrit */}
+                {verseData.sanskrit && (
+                  <div className="mb-4">
+                    <p
+                      className="text-xl font-sanskrit text-foreground leading-relaxed text-center"
+                      style={{ fontFamily: '"Noto Sans Devanagari", "Siddhanta", serif' }}
+                    >
+                      {verseData.sanskrit}
+                    </p>
+                  </div>
+                )}
+
+                {/* Transliteration */}
+                {verseData.transliteration && (
+                  <div className="mb-4">
+                    <p className="text-base text-muted-foreground italic leading-relaxed text-center">
+                      {verseData.transliteration}
+                    </p>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="w-16 h-px bg-border mx-auto my-4" />
+
+                {/* Translation */}
+                {(verseData.translation_ua || verseData.translation_en) && (
+                  <div className="mb-4">
+                    <p className="text-sm text-foreground/90 leading-relaxed text-center">
+                      {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                    </p>
                   </div>
                 )}
               </div>
-            </div>
+            ) : (
+              /* Cover Art (Large) - fallback if no verse data */
+              <div className="max-w-md mx-auto mt-16 mb-8">
+                <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
+                  {currentTrack.coverImage ? (
+                    <img
+                      src={currentTrack.coverImage}
+                      alt={currentTrack.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
+                      <Music className="w-20 h-20 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Track Info */}
             <div className="max-w-md mx-auto text-center mb-6">
