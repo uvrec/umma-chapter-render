@@ -8,17 +8,45 @@ import { initErrorTracking, errorLogger } from './utils/errorLogger'
 const BUILD_VERSION = '__BUILD_TIME__';
 console.log('[Vedavoice] Build:', BUILD_VERSION);
 
+// Перевірка версії та примусове оновлення
+const VERSION_KEY = 'vv_build_version';
+const storedVersion = localStorage.getItem(VERSION_KEY);
+
+if (storedVersion && storedVersion !== BUILD_VERSION) {
+  console.log('[Vedavoice] Нова версія виявлена! Очищаємо кеші...');
+  // Нова версія - очистити всі кеші
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      names.forEach(name => {
+        console.log('[Vedavoice] Видаляємо кеш:', name);
+        caches.delete(name);
+      });
+    });
+  }
+  // Unregister всіх service workers
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      registrations.forEach(reg => {
+        console.log('[Vedavoice] Unregister SW:', reg.scope);
+        reg.unregister();
+      });
+    });
+  }
+}
+// Зберігаємо поточну версію
+localStorage.setItem(VERSION_KEY, BUILD_VERSION);
+
 // Примусове очищення старих кешів Service Worker
 async function cleanupOldCaches() {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
-      // Видаляємо старі кеші (без суфікса -v2)
+      // Видаляємо старі кеші (v1, v2 — поточна v3)
       const oldCaches = cacheNames.filter(name =>
         (name.includes('pages-cache') && !name.includes('-v2')) ||
-        (name.includes('assets-cache') && !name.includes('-v2')) ||
+        (name.includes('assets-cache') && !name.includes('-v3')) ||
         (name.includes('images-cache') && !name.includes('-v2')) ||
-        name.includes('workbox-precache') // Старий precache
+        name.includes('workbox-precache')
       );
 
       if (oldCaches.length > 0) {
@@ -32,7 +60,6 @@ async function cleanupOldCaches() {
 }
 
 // Запускаємо очищення старих кешів при завантаженні
-// (оновлення SW обробляється через PWAUpdatePrompt)
 cleanupOldCaches();
 
 // Ініціалізація error tracking (Sentry в production якщо налаштовано)

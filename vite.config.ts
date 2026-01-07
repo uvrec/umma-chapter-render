@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' && componentTagger(),
     VitePWA({
-      registerType: 'prompt', // Дає контроль користувачу над оновленням
+      registerType: 'autoUpdate', // Автоматичне оновлення без prompt
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
         name: 'Vedavoice — Прабгупада Солов\'їною',
@@ -70,9 +70,9 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        // registerType: 'prompt' — SW чекає дозволу користувача через PWAUpdatePrompt
-        skipWaiting: false,
-        clientsClaim: false,
+        // autoUpdate mode — SW оновлюється автоматично
+        skipWaiting: true,
+        clientsClaim: true,
         cleanupOutdatedCaches: true,
 
         // КРИТИЧНО: НЕ precache-имо js/css - вони мають хеші в іменах
@@ -103,15 +103,16 @@ export default defineConfig(({ mode }) => ({
               }
             }
           },
-          // 2. JS/CSS assets - StaleWhileRevalidate (показуємо кеш, оновлюємо в фоні)
+          // 2. JS/CSS assets - NetworkFirst (свіжий код важливіший за швидкість)
           {
             urlPattern: /\/assets\/.*\.(js|css)$/i,
-            handler: 'StaleWhileRevalidate',
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'assets-cache-v2',
+              cacheName: 'assets-cache-v3',
+              networkTimeoutSeconds: 5, // Якщо мережа не відповідає 5 сек - fallback на кеш
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 7 днів
+                maxAgeSeconds: 60 * 60 * 24 // 1 день (не 7)
               },
               cacheableResponse: {
                 statuses: [0, 200]
