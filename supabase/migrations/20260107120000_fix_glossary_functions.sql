@@ -10,6 +10,7 @@
 -- ============================================================================
 
 -- 1. Функція для отримання статистики глосарію
+-- ВИПРАВЛЕНО: Тепер підраховує терміни з ОБОХ колонок (synonyms_ua та synonyms_en)
 CREATE OR REPLACE FUNCTION public.get_glossary_stats(
   search_language text DEFAULT 'ua'
 )
@@ -24,53 +25,78 @@ STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
-DECLARE
-  synonyms_col text;
 BEGIN
-  IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
-  ELSE
-    synonyms_col := 'synonyms_en';
-  END IF;
-
-  RETURN QUERY EXECUTE format($query$
+  RETURN QUERY
     WITH parsed_terms AS (
+      -- Parse terms from synonyms_ua
       SELECT
         b.slug as book_slug,
-        CASE WHEN $1 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
       JOIN public.books b ON b.id = ch.book_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.%I, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.%I IS NOT NULL
+        AND v.synonyms_ua IS NOT NULL
+
+      UNION ALL
+
+      -- Parse terms from synonyms_en
+      SELECT
+        b.slug as book_slug,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        TRIM(part) as synonym_part
+      FROM public.verses v
+      JOIN public.chapters ch ON ch.id = v.chapter_id
+      JOIN public.books b ON b.id = ch.book_id
+      CROSS JOIN LATERAL unnest(
+        string_to_array(
+          regexp_replace(COALESCE(v.synonyms_en, ''), '<[^>]*>', '', 'g'),
+          ';'
+        )
+      ) AS part
+      WHERE COALESCE(ch.is_published, true) = true
+        AND v.deleted_at IS NULL
+        AND v.synonyms_en IS NOT NULL
     ),
     extracted_terms AS (
       SELECT
         book_slug,
         book_title,
-        LOWER(TRIM(
-          CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SPLIT_PART(synonym_part, ' — ', 1)
-            WHEN synonym_part LIKE '%% – %%' THEN SPLIT_PART(synonym_part, ' – ', 1)
-            WHEN synonym_part LIKE '%% - %%' THEN SPLIT_PART(synonym_part, ' - ', 1)
-            WHEN synonym_part LIKE '%%—%%' THEN SPLIT_PART(synonym_part, '—', 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SPLIT_PART(synonym_part, '–', 1)
-            ELSE synonym_part
-          END
-        )) as term
+        LOWER(
+          regexp_replace(
+            regexp_replace(
+              TRIM(
+                CASE
+                  WHEN synonym_part LIKE '% — %' THEN SPLIT_PART(synonym_part, ' — ', 1)
+                  WHEN synonym_part LIKE '% – %' THEN SPLIT_PART(synonym_part, ' – ', 1)
+                  WHEN synonym_part LIKE '% - %' THEN SPLIT_PART(synonym_part, ' - ', 1)
+                  WHEN synonym_part LIKE '%—%' THEN SPLIT_PART(synonym_part, '—', 1)
+                  WHEN synonym_part LIKE '%–%' THEN SPLIT_PART(synonym_part, '–', 1)
+                  ELSE synonym_part
+                END
+              ),
+              '/\*.*?\*/', '', 'g'
+            ),
+            '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'
+          )
+        ) as term
       FROM parsed_terms
       WHERE synonym_part != '' AND LENGTH(TRIM(synonym_part)) > 1
     ),
     valid_terms AS (
-      SELECT * FROM extracted_terms WHERE term != '' AND LENGTH(term) > 0
+      SELECT DISTINCT book_slug, book_title, term
+      FROM extracted_terms
+      WHERE term != ''
+        AND LENGTH(term) > 0
+        AND term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
     ),
     book_aggregates AS (
       SELECT
@@ -95,15 +121,13 @@ BEGIN
           ) ORDER BY ba.term_count DESC
         )
         FROM book_aggregates ba
-      ) as book_stats
-  $query$,
-  synonyms_col, synonyms_col
-  )
-  USING search_language;
+      ) as book_stats;
 END;
 $$;
 
 -- 2. Функція для отримання унікальних термінів (згрупованих) з підрахунком
+-- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_ua та synonyms_en) за допомогою UNION ALL
+-- щоб латинські терміни (IAST) знаходились незалежно від мовних налаштувань
 CREATE OR REPLACE FUNCTION public.get_glossary_terms_grouped(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
@@ -126,17 +150,10 @@ SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 DECLARE
-  synonyms_col text;
   term_pattern text;
   meaning_pattern text;
   offset_val integer;
 BEGIN
-  IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
-  ELSE
-    synonyms_col := 'synonyms_en';
-  END IF;
-
   IF search_mode = 'exact' THEN
     term_pattern := COALESCE(search_term, '%');
     meaning_pattern := COALESCE(search_translation, '%');
@@ -150,56 +167,92 @@ BEGIN
 
   offset_val := (page_number - 1) * page_size;
 
-  RETURN QUERY EXECUTE format($query$
+  RETURN QUERY
     WITH parsed_terms AS (
+      -- Search in synonyms_ua column
       SELECT
-        CASE WHEN $5 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
       JOIN public.books b ON b.id = ch.book_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.%I, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.%I IS NOT NULL
-        AND ($6 IS NULL OR b.slug = $6)
+        AND v.synonyms_ua IS NOT NULL
+        AND (book_filter IS NULL OR b.slug = book_filter)
+
+      UNION ALL
+
+      -- Search in synonyms_en column
+      SELECT
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        TRIM(part) as synonym_part
+      FROM public.verses v
+      JOIN public.chapters ch ON ch.id = v.chapter_id
+      JOIN public.books b ON b.id = ch.book_id
+      CROSS JOIN LATERAL unnest(
+        string_to_array(
+          regexp_replace(COALESCE(v.synonyms_en, ''), '<[^>]*>', '', 'g'),
+          ';'
+        )
+      ) AS part
+      WHERE COALESCE(ch.is_published, true) = true
+        AND v.deleted_at IS NULL
+        AND v.synonyms_en IS NOT NULL
+        AND (book_filter IS NULL OR b.slug = book_filter)
     ),
     extracted_terms AS (
       SELECT
         book_title,
-        TRIM(
-          CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SPLIT_PART(synonym_part, ' — ', 1)
-            WHEN synonym_part LIKE '%% – %%' THEN SPLIT_PART(synonym_part, ' – ', 1)
-            WHEN synonym_part LIKE '%% - %%' THEN SPLIT_PART(synonym_part, ' - ', 1)
-            WHEN synonym_part LIKE '%%—%%' THEN SPLIT_PART(synonym_part, '—', 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SPLIT_PART(synonym_part, '–', 1)
-            ELSE synonym_part
-          END
+        -- Clean HTML/JS noise and extract term
+        regexp_replace(
+          regexp_replace(
+            TRIM(
+              CASE
+                WHEN synonym_part LIKE '% — %' THEN SPLIT_PART(synonym_part, ' — ', 1)
+                WHEN synonym_part LIKE '% – %' THEN SPLIT_PART(synonym_part, ' – ', 1)
+                WHEN synonym_part LIKE '% - %' THEN SPLIT_PART(synonym_part, ' - ', 1)
+                WHEN synonym_part LIKE '%—%' THEN SPLIT_PART(synonym_part, '—', 1)
+                WHEN synonym_part LIKE '%–%' THEN SPLIT_PART(synonym_part, '–', 1)
+                ELSE synonym_part
+              END
+            ),
+            '/\*.*?\*/', '', 'g'  -- Remove JS comments
+          ),
+          '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'  -- Remove special chars
         ) as term,
+        -- Extract meaning
         TRIM(
           CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%% – %%' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%% - %%' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%%—%%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
+            WHEN synonym_part LIKE '% — %' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
+            WHEN synonym_part LIKE '% – %' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
+            WHEN synonym_part LIKE '% - %' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
+            WHEN synonym_part LIKE '%—%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
+            WHEN synonym_part LIKE '%–%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
             ELSE ''
           END
         ) as meaning
       FROM parsed_terms
       WHERE synonym_part != '' AND LENGTH(TRIM(synonym_part)) > 1
     ),
-    filtered_terms AS (
-      SELECT * FROM extracted_terms et
+    valid_terms AS (
+      SELECT DISTINCT book_title, term, meaning
+      FROM extracted_terms et
       WHERE et.term != ''
-        AND ($1 IS NULL OR $1 = '' OR et.term ILIKE $1)
-        AND ($2 IS NULL OR $2 = '' OR et.meaning ILIKE $2)
+        AND LENGTH(TRIM(et.term)) > 0
+        -- Validate term contains at least one letter (not just punctuation/numbers)
+        AND et.term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
+    ),
+    filtered_terms AS (
+      SELECT * FROM valid_terms vt
+      WHERE (term_pattern = '%' OR term_pattern = '%%' OR vt.term ILIKE term_pattern)
+        AND (meaning_pattern = '%' OR meaning_pattern = '%%' OR vt.meaning ILIKE meaning_pattern)
     ),
     grouped AS (
       SELECT
@@ -223,15 +276,12 @@ BEGIN
     FROM grouped g
     CROSS JOIN total t
     ORDER BY g.usage_count DESC, g.term_lower
-    LIMIT $3 OFFSET $4
-  $query$,
-  synonyms_col, synonyms_col
-  )
-  USING term_pattern, meaning_pattern, page_size, offset_val, search_language, book_filter;
+    LIMIT page_size OFFSET offset_val;
 END;
 $$;
 
 -- 3. Функція для отримання деталей конкретного терміну
+-- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_ua та synonyms_en)
 CREATE OR REPLACE FUNCTION public.get_glossary_term_details(
   term_text text,
   search_language text DEFAULT 'ua'
@@ -254,28 +304,21 @@ STABLE
 SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
-DECLARE
-  synonyms_col text;
-  translit_col text;
 BEGIN
-  IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
-    translit_col := 'transliteration_ua';
-  ELSE
-    synonyms_col := 'synonyms_en';
-    translit_col := 'transliteration_en';
-  END IF;
-
-  RETURN QUERY EXECUTE format($query$
+  RETURN QUERY
     WITH parsed_terms AS (
+      -- Parse from synonyms_ua
       SELECT
         v.id as verse_id,
         v.verse_number,
         v.sanskrit,
-        COALESCE(v.%I, v.transliteration) as transliteration,
+        COALESCE(
+          CASE WHEN search_language = 'ua' THEN v.transliteration_ua ELSE v.transliteration_en END,
+          v.transliteration
+        ) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN $2 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -284,40 +327,83 @@ BEGIN
       LEFT JOIN public.cantos ca ON ca.id = ch.canto_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.%I, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.%I IS NOT NULL
+        AND v.synonyms_ua IS NOT NULL
+
+      UNION ALL
+
+      -- Parse from synonyms_en
+      SELECT
+        v.id as verse_id,
+        v.verse_number,
+        v.sanskrit,
+        COALESCE(
+          CASE WHEN search_language = 'ua' THEN v.transliteration_ua ELSE v.transliteration_en END,
+          v.transliteration
+        ) as transliteration,
+        ch.chapter_number,
+        ca.canto_number,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        b.slug as book_slug,
+        TRIM(part) as synonym_part
+      FROM public.verses v
+      JOIN public.chapters ch ON ch.id = v.chapter_id
+      JOIN public.books b ON b.id = ch.book_id
+      LEFT JOIN public.cantos ca ON ca.id = ch.canto_id
+      CROSS JOIN LATERAL unnest(
+        string_to_array(
+          regexp_replace(COALESCE(v.synonyms_en, ''), '<[^>]*>', '', 'g'),
+          ';'
+        )
+      ) AS part
+      WHERE COALESCE(ch.is_published, true) = true
+        AND v.deleted_at IS NULL
+        AND v.synonyms_en IS NOT NULL
     ),
     extracted AS (
-      SELECT
-        pt.*,
-        TRIM(
-          CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SPLIT_PART(synonym_part, ' — ', 1)
-            WHEN synonym_part LIKE '%% – %%' THEN SPLIT_PART(synonym_part, ' – ', 1)
-            WHEN synonym_part LIKE '%% - %%' THEN SPLIT_PART(synonym_part, ' - ', 1)
-            WHEN synonym_part LIKE '%%—%%' THEN SPLIT_PART(synonym_part, '—', 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SPLIT_PART(synonym_part, '–', 1)
-            ELSE synonym_part
-          END
+      SELECT DISTINCT
+        pt.verse_id,
+        pt.verse_number,
+        pt.sanskrit,
+        pt.transliteration,
+        pt.chapter_number,
+        pt.canto_number,
+        pt.book_title,
+        pt.book_slug,
+        regexp_replace(
+          regexp_replace(
+            TRIM(
+              CASE
+                WHEN pt.synonym_part LIKE '% — %' THEN SPLIT_PART(pt.synonym_part, ' — ', 1)
+                WHEN pt.synonym_part LIKE '% – %' THEN SPLIT_PART(pt.synonym_part, ' – ', 1)
+                WHEN pt.synonym_part LIKE '% - %' THEN SPLIT_PART(pt.synonym_part, ' - ', 1)
+                WHEN pt.synonym_part LIKE '%—%' THEN SPLIT_PART(pt.synonym_part, '—', 1)
+                WHEN pt.synonym_part LIKE '%–%' THEN SPLIT_PART(pt.synonym_part, '–', 1)
+                ELSE pt.synonym_part
+              END
+            ),
+            '/\*.*?\*/', '', 'g'
+          ),
+          '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'
         ) as term,
         TRIM(
           CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%% – %%' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%% - %%' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%%—%%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
+            WHEN pt.synonym_part LIKE '% — %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' — ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '% – %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' – ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '% - %' THEN SUBSTRING(pt.synonym_part FROM POSITION(' - ' IN pt.synonym_part) + 3)
+            WHEN pt.synonym_part LIKE '%—%' THEN SUBSTRING(pt.synonym_part FROM POSITION('—' IN pt.synonym_part) + 1)
+            WHEN pt.synonym_part LIKE '%–%' THEN SUBSTRING(pt.synonym_part FROM POSITION('–' IN pt.synonym_part) + 1)
             ELSE ''
           END
         ) as meaning
       FROM parsed_terms pt
     )
-    SELECT
+    SELECT DISTINCT
       e.term,
       e.meaning,
       e.verse_id,
@@ -335,16 +421,15 @@ BEGIN
       e.sanskrit,
       e.transliteration
     FROM extracted e
-    WHERE LOWER(e.term) = LOWER($1)
-    ORDER BY e.book_title, e.chapter_number, e.verse_number
-  $query$,
-  translit_col, synonyms_col, synonyms_col
-  )
-  USING term_text, search_language;
+    WHERE LOWER(e.term) = LOWER(term_text)
+      AND e.term != ''
+      AND e.term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
+    ORDER BY e.book_title, e.chapter_number, e.verse_number;
 END;
 $$;
 
 -- 4. Функція для server-side пошуку термінів глосарію з пагінацією
+-- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_ua та synonyms_en)
 CREATE OR REPLACE FUNCTION public.search_glossary_terms_v2(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
@@ -372,17 +457,10 @@ SECURITY DEFINER
 SET search_path TO 'public'
 AS $$
 DECLARE
-  synonyms_col text;
   term_pattern text;
   meaning_pattern text;
   offset_val integer;
 BEGIN
-  IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
-  ELSE
-    synonyms_col := 'synonyms_en';
-  END IF;
-
   IF search_mode = 'exact' THEN
     term_pattern := COALESCE(search_term, '%');
     meaning_pattern := COALESCE(search_translation, '%');
@@ -396,14 +474,15 @@ BEGIN
 
   offset_val := (page_number - 1) * page_size;
 
-  RETURN QUERY EXECUTE format($query$
+  RETURN QUERY
     WITH parsed_terms AS (
+      -- Parse from synonyms_ua
       SELECT
         v.id as verse_id,
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN $5 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -412,15 +491,42 @@ BEGIN
       LEFT JOIN public.cantos ca ON ca.id = ch.canto_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.%I, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.%I IS NOT NULL
-        AND v.%I != ''
-        AND ($6 IS NULL OR b.slug = $6)
+        AND v.synonyms_ua IS NOT NULL
+        AND v.synonyms_ua != ''
+        AND (book_filter IS NULL OR b.slug = book_filter)
+
+      UNION ALL
+
+      -- Parse from synonyms_en
+      SELECT
+        v.id as verse_id,
+        v.verse_number,
+        ch.chapter_number,
+        ca.canto_number,
+        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        b.slug as book_slug,
+        TRIM(part) as synonym_part
+      FROM public.verses v
+      JOIN public.chapters ch ON ch.id = v.chapter_id
+      JOIN public.books b ON b.id = ch.book_id
+      LEFT JOIN public.cantos ca ON ca.id = ch.canto_id
+      CROSS JOIN LATERAL unnest(
+        string_to_array(
+          regexp_replace(COALESCE(v.synonyms_en, ''), '<[^>]*>', '', 'g'),
+          ';'
+        )
+      ) AS part
+      WHERE COALESCE(ch.is_published, true) = true
+        AND v.deleted_at IS NULL
+        AND v.synonyms_en IS NOT NULL
+        AND v.synonyms_en != ''
+        AND (book_filter IS NULL OR b.slug = book_filter)
     ),
     extracted_terms AS (
       SELECT
@@ -430,23 +536,29 @@ BEGIN
         canto_number,
         book_title,
         book_slug,
-        TRIM(
-          CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SPLIT_PART(synonym_part, ' — ', 1)
-            WHEN synonym_part LIKE '%% – %%' THEN SPLIT_PART(synonym_part, ' – ', 1)
-            WHEN synonym_part LIKE '%% - %%' THEN SPLIT_PART(synonym_part, ' - ', 1)
-            WHEN synonym_part LIKE '%%—%%' THEN SPLIT_PART(synonym_part, '—', 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SPLIT_PART(synonym_part, '–', 1)
-            ELSE synonym_part
-          END
+        regexp_replace(
+          regexp_replace(
+            TRIM(
+              CASE
+                WHEN synonym_part LIKE '% — %' THEN SPLIT_PART(synonym_part, ' — ', 1)
+                WHEN synonym_part LIKE '% – %' THEN SPLIT_PART(synonym_part, ' – ', 1)
+                WHEN synonym_part LIKE '% - %' THEN SPLIT_PART(synonym_part, ' - ', 1)
+                WHEN synonym_part LIKE '%—%' THEN SPLIT_PART(synonym_part, '—', 1)
+                WHEN synonym_part LIKE '%–%' THEN SPLIT_PART(synonym_part, '–', 1)
+                ELSE synonym_part
+              END
+            ),
+            '/\*.*?\*/', '', 'g'
+          ),
+          '[\{\}\(\)\[\]<>"\|\\\/\*]', '', 'g'
         ) as term,
         TRIM(
           CASE
-            WHEN synonym_part LIKE '%% — %%' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%% – %%' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%% - %%' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
-            WHEN synonym_part LIKE '%%—%%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
-            WHEN synonym_part LIKE '%%–%%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
+            WHEN synonym_part LIKE '% — %' THEN SUBSTRING(synonym_part FROM POSITION(' — ' IN synonym_part) + 3)
+            WHEN synonym_part LIKE '% – %' THEN SUBSTRING(synonym_part FROM POSITION(' – ' IN synonym_part) + 3)
+            WHEN synonym_part LIKE '% - %' THEN SUBSTRING(synonym_part FROM POSITION(' - ' IN synonym_part) + 3)
+            WHEN synonym_part LIKE '%—%' THEN SUBSTRING(synonym_part FROM POSITION('—' IN synonym_part) + 1)
+            WHEN synonym_part LIKE '%–%' THEN SUBSTRING(synonym_part FROM POSITION('–' IN synonym_part) + 1)
             ELSE ''
           END
         ) as meaning
@@ -454,20 +566,25 @@ BEGIN
       WHERE synonym_part != ''
         AND LENGTH(TRIM(synonym_part)) > 1
     ),
+    valid_terms AS (
+      SELECT DISTINCT verse_id, verse_number, chapter_number, canto_number, book_title, book_slug, term, meaning
+      FROM extracted_terms
+      WHERE term != ''
+        AND LENGTH(term) > 0
+        AND term ~ '[a-zA-Zа-яА-ЯіїєІЇЄāīūṛṝḷḹēōṃḥśṣṭḍṇñṅĀĪŪṚṜḶḸĒŌṂḤŚṢṬḌṆÑṄ]'
+    ),
     filtered_terms AS (
       SELECT
-        et.*,
+        vt.*,
         CASE
-          WHEN et.canto_number IS NOT NULL THEN
-            '/veda-reader/' || et.book_slug || '/canto/' || et.canto_number || '/chapter/' || et.chapter_number || '/' || et.verse_number
+          WHEN vt.canto_number IS NOT NULL THEN
+            '/veda-reader/' || vt.book_slug || '/canto/' || vt.canto_number || '/chapter/' || vt.chapter_number || '/' || vt.verse_number
           ELSE
-            '/veda-reader/' || et.book_slug || '/' || et.chapter_number || '/' || et.verse_number
+            '/veda-reader/' || vt.book_slug || '/' || vt.chapter_number || '/' || vt.verse_number
         END as verse_link
-      FROM extracted_terms et
-      WHERE et.term != ''
-        AND LENGTH(et.term) > 0
-        AND ($1 IS NULL OR $1 = '' OR et.term ILIKE $1)
-        AND ($2 IS NULL OR $2 = '' OR et.meaning ILIKE $2)
+      FROM valid_terms vt
+      WHERE (term_pattern = '%' OR term_pattern = '%%' OR vt.term ILIKE term_pattern)
+        AND (meaning_pattern = '%' OR meaning_pattern = '%%' OR vt.meaning ILIKE meaning_pattern)
     ),
     counted AS (
       SELECT COUNT(*) as cnt FROM filtered_terms
@@ -486,11 +603,7 @@ BEGIN
     FROM filtered_terms ft
     CROSS JOIN counted c
     ORDER BY LOWER(ft.term), ft.book_title, ft.chapter_number, ft.verse_number
-    LIMIT $3 OFFSET $4
-  $query$,
-  synonyms_col, synonyms_col, synonyms_col
-  )
-  USING term_pattern, meaning_pattern, page_size, offset_val, search_language, book_filter;
+    LIMIT page_size OFFSET offset_val;
 END;
 $$;
 
