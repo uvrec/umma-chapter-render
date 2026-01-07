@@ -395,6 +395,34 @@ export default function BookSearch() {
               </div>
 
               <div>
+                <h3 className="font-semibold mb-2">{t('Wildcards (шаблони)', 'Wildcards')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Використовуйте * для пошуку слів з однаковим початком:',
+                    'Use * to search for words with the same prefix:'
+                  )}
+                </p>
+                <div className="space-y-1">
+                  <div>
+                    <code className="bg-muted px-2 py-1 rounded text-primary">
+                      {language === 'ua' ? 'крішн*' : 'hari*'}
+                    </code>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      {language === 'ua' ? '→ крішна, крішни, крішною...' : '→ hari, harinama, haridasa...'}
+                    </span>
+                  </div>
+                  <div>
+                    <code className="bg-muted px-2 py-1 rounded text-primary">
+                      {language === 'ua' ? 'те?т' : 'te?t'}
+                    </code>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      {language === 'ua' ? '→ тест, текст (? = один символ)' : '→ test, text (? = one character)'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
                 <h3 className="font-semibold mb-2">{t('Комбінований пошук', 'Combined search')}</h3>
                 <p className="text-muted-foreground mb-1">
                   {t(
@@ -403,7 +431,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? '"віддане служіння" AND бгакті -карма' : '"devotional service" AND bhakti -karma'}
+                  {language === 'ua' ? '"віддане служіння" AND бгакт* -карма' : '"Supreme Lord" AND krsn* -arjuna'}
                 </code>
               </div>
             </div>
