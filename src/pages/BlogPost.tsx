@@ -605,7 +605,6 @@ export default function BlogPost() {
                       commentary={contentEn}
                       audioSanskritUrl={post.audio_sanskrit_url}
                       audioTransliterationUrl={post.audio_transliteration_url}
-                      audioSynonymsUrl={post.audio_synonyms_en_url}
                       audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
                       audioCommentaryUrl={post.audio_commentary_en_url}
                       displayBlocks={displayBlocks}
