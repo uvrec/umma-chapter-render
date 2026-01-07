@@ -558,9 +558,11 @@ export const VedaReaderDB = () => {
       transliteration: currentVerse.transliteration || undefined,
       translation: language === 'ua' ? currentVerse.translation_ua || "" : currentVerse.translation_en || "",
       commentary: language === 'ua' ? currentVerse.commentary_ua || undefined : currentVerse.commentary_en || undefined,
-      audioUrl: currentVerse.audio_url || undefined,
-      audioSanskrit: currentVerse.audio_sanskrit || undefined,
-      audioTranslation: currentVerse.audio_translation || undefined
+      audioUrl: (currentVerse as any).full_verse_audio_url || currentVerse.audio_url || undefined,
+      audioSanskrit: (currentVerse as any).recitation_audio_url || undefined,
+      audioTranslation: language === 'ua'
+        ? (currentVerse as any).explanation_ua_audio_url || undefined
+        : (currentVerse as any).explanation_en_audio_url || undefined
     };
     const added = addLearningVerse(learningVerse);
     if (added) {
