@@ -423,6 +423,26 @@ export default function BookSearch() {
               </div>
 
               <div>
+                <h3 className="font-semibold mb-2">{t('Пошук за близькістю', 'Proximity search')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Знайдіть слова в межах певної відстані одне від одного:',
+                    'Find words within a certain distance of each other:'
+                  )}
+                </p>
+                <div className="space-y-1">
+                  <div>
+                    <code className="bg-muted px-2 py-1 rounded text-primary">
+                      {language === 'ua' ? '"крішна арджуна"~4' : '"paraphernalia king"~4'}
+                    </code>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      {language === 'ua' ? '→ слова в межах 4 позицій' : '→ words within 4 positions'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
                 <h3 className="font-semibold mb-2">{t('Комбінований пошук', 'Combined search')}</h3>
                 <p className="text-muted-foreground mb-1">
                   {t(
@@ -431,7 +451,7 @@ export default function BookSearch() {
                   )}
                 </p>
                 <code className="bg-muted px-2 py-1 rounded text-primary">
-                  {language === 'ua' ? '"віддане служіння" AND бгакт* -карма' : '"Supreme Lord" AND krsn* -arjuna'}
+                  {language === 'ua' ? '"віддане служіння"~3 AND бгакт* -карма' : '"pure devotion"~3 AND krsn* -arjuna'}
                 </code>
               </div>
             </div>
