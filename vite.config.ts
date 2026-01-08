@@ -88,14 +88,21 @@ export default defineConfig(({ mode }) => ({
 
         runtimeCaching: [
           // 1. Документи (HTML) - мережа першою, кеш як fallback для офлайн
+          // ВИКЛЮЧЕННЯ: /admin/* — завжди без кешу (NetworkOnly)
           {
-            urlPattern: ({ request }) => request.mode === 'navigate',
+            urlPattern: ({ request, url }) => {
+              // Admin routes — завжди свіжі, без кешування
+              if (url.pathname.startsWith('/admin')) {
+                return false;
+              }
+              return request.mode === 'navigate';
+            },
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'pages-cache-v2',
+              cacheName: 'pages-cache-v3',
               expiration: {
                 maxEntries: 30,
-                maxAgeSeconds: 60 * 60 // 1 година
+                maxAgeSeconds: 60 * 5 // 5 хвилин (замість 1 години)
               },
               // Без networkTimeoutSeconds — чекаємо мережу без обмежень
               cacheableResponse: {
@@ -103,22 +110,16 @@ export default defineConfig(({ mode }) => ({
               }
             }
           },
-          // 2. JS/CSS assets - NetworkFirst (мережа першою, кеш як fallback)
-          // ВАЖЛИВО: StaleWhileRevalidate показував старий JS при деплої, що призводило до скидання налаштувань
+          // 1b. Admin routes — NetworkOnly (завжди свіжі)
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/admin'),
+            handler: 'NetworkOnly',
+          },
+          // 2. JS/CSS assets - NetworkOnly (браузер кешує через Cache-Control: immutable)
+          // НЕ кешуємо в SW, щоб уникнути "stale" ситуацій
           {
             urlPattern: /\/assets\/.*\.(js|css)$/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'assets-cache-v3',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 // 1 день (не 7)
-              },
-              networkTimeoutSeconds: 5, // Чекаємо мережу 5 секунд, потім fallback на кеш
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
+            handler: 'NetworkOnly',
           },
           // 3. Зображення - CacheFirst (вони рідко змінюються)
           {

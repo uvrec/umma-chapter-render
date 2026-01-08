@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GlobalSearch } from "@/components/admin/GlobalSearch";
+import { BuildVersionBadge } from "@/components/admin/BuildVersionBadge";
 import {
   BookOpen,
   FileText,
@@ -104,7 +105,10 @@ const Dashboard = () => {
 
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center gap-4">
-          <h1 className="text-2xl font-bold">Адмін-панель</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">Адмін-панель</h1>
+            <BuildVersionBadge />
+          </div>
 
           <div className="flex items-center gap-2">
             <Button
