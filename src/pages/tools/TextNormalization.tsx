@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -92,9 +93,6 @@ export default function TextNormalization() {
   const [newRuleCorrect, setNewRuleCorrect] = useState("");
   const [activeTab, setActiveTab] = useState("normalize");
 
-  // Refs for contenteditable
-  const inputRef = useRef<HTMLDivElement>(null);
-  const outputRef = useRef<HTMLDivElement>(null);
 
   // Combine rules
   const allRules = useMemo(() => {
@@ -160,12 +158,6 @@ export default function TextNormalization() {
 
     if (savedInput) {
       setInputText(savedInput);
-      // Also restore to contenteditable after mount
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.innerText = savedInput;
-        }
-      }, 0);
     }
     if (savedIncludeDefaults) setIncludeDefaultRules(savedIncludeDefaults === "true");
     if (savedCategories) {
@@ -285,9 +277,6 @@ export default function TextNormalization() {
     setInputText("");
     setOutputText("");
     setChanges([]);
-    if (inputRef.current) {
-      inputRef.current.innerHTML = "";
-    }
     localStorage.removeItem("normalize_input");
     toast.success(t("Очищено", "Cleared"));
   };
@@ -425,28 +414,6 @@ export default function TextNormalization() {
     return nl2br(escapeHtml(outputText));
   }, [outputText]);
 
-  /**
-   * Handle input from contenteditable
-   */
-  const handleInputChange = useCallback(() => {
-    if (inputRef.current) {
-      // Get text content, preserving line breaks
-      const html = inputRef.current.innerHTML;
-      const text = html
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/div><div>/gi, '\n')
-        .replace(/<div>/gi, '\n')
-        .replace(/<\/div>/gi, '')
-        .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'");
-      setInputText(text);
-    }
-  }, []);
 
   return (
     <TooltipProvider>
@@ -608,33 +575,17 @@ export default function TextNormalization() {
                     </Tooltip>
                   </div>
                 </div>
-                {/* Input Area - Contenteditable with placeholder */}
-                <div className="relative flex-1">
-                  <div
-                    ref={inputRef}
-                    contentEditable
-                    onInput={handleInputChange}
-                    onPaste={(e) => {
-                      e.preventDefault();
-                      const text = e.clipboardData.getData('text/plain');
-                      document.execCommand('insertText', false, text);
-                    }}
-                    className="absolute inset-0 p-4 outline-none overflow-y-auto font-mono text-sm leading-relaxed whitespace-pre-wrap"
-                    style={{ wordBreak: 'break-word' }}
-                    suppressContentEditableWarning
-                  />
-                  {/* Placeholder overlay */}
-                  {!inputText && (
-                    <div className="absolute inset-0 pointer-events-none p-4">
-                      <span className="text-muted-foreground/50 font-mono text-sm whitespace-pre-wrap">
-                        {t(
-                          "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бхаґавад-ґіту кожного дня.",
-                          "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
-                        )}
-                      </span>
-                    </div>
+                {/* Input Area - Textarea */}
+                <Textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder={t(
+                    "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бхаґавад-ґіту кожного дня.",
+                    "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
                   )}
-                </div>
+                  className="flex-1 resize-none border-0 rounded-none font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                  spellCheck={false}
+                />
               </div>
 
               {/* Output Panel */}
@@ -699,7 +650,6 @@ export default function TextNormalization() {
                 {/* Output Area - HTML with highlighting */}
                 <div className="relative flex-1">
                   <div
-                    ref={outputRef}
                     className="absolute inset-0 p-4 overflow-y-auto font-mono text-sm leading-relaxed bg-muted/10"
                     style={{ wordBreak: 'break-word' }}
                     dangerouslySetInnerHTML={{
