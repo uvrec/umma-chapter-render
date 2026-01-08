@@ -370,40 +370,47 @@ export default function TextNormalization() {
 
   /**
    * Generate diff view with HTML highlighting
+   * Uses position-based replacement to avoid cascading issues
    */
   const getDiffViewHtml = useCallback(() => {
     if (!showDiff || changes.length === 0) {
       return nl2br(escapeHtml(outputText));
     }
 
-    // First, escape the entire input text
-    let result = escapeHtml(inputText);
+    // Sort changes by position (ascending)
+    const sortedChanges = [...changes].sort((a, b) => a.position - b.position);
 
-    // Sort changes by position in reverse to apply from end
-    const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
+    let result = '';
+    let lastEnd = 0;
 
-    // Track offset caused by escaping
-    // We need to recalculate positions since escaping changes string length
     for (const change of sortedChanges) {
-      // Find the escaped original text
-      const escapedOriginal = escapeHtml(change.original);
-      const escapedReplacement = escapeHtml(change.replacement);
+      // Skip overlapping changes
+      if (change.position < lastEnd) continue;
 
-      // Determine formatting based on category
+      // Add text before this change (escaped)
+      if (change.position > lastEnd) {
+        result += escapeHtml(inputText.slice(lastEnd, change.position));
+      }
+
+      // Add the formatted replacement
+      const escapedReplacement = escapeHtml(change.replacement);
       const isBold = BOLD_CATEGORIES.includes(change.category);
       const isItalic = ITALIC_CATEGORIES.includes(change.category);
 
-      let formatted: string;
       if (isBold) {
-        formatted = `<strong class="text-green-600 dark:text-green-400">${escapedReplacement}</strong>`;
+        result += `<strong class="text-green-600 dark:text-green-400">${escapedReplacement}</strong>`;
       } else if (isItalic) {
-        formatted = `<em class="text-blue-600 dark:text-blue-400">${escapedReplacement}</em>`;
+        result += `<em class="text-blue-600 dark:text-blue-400">${escapedReplacement}</em>`;
       } else {
-        formatted = `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedReplacement}</mark>`;
+        result += `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedReplacement}</mark>`;
       }
 
-      // Replace the first occurrence of escaped original with formatted
-      result = result.replace(escapedOriginal, formatted);
+      lastEnd = change.position + change.original.length;
+    }
+
+    // Add remaining text after last change
+    if (lastEnd < inputText.length) {
+      result += escapeHtml(inputText.slice(lastEnd));
     }
 
     return nl2br(result);
@@ -411,40 +418,12 @@ export default function TextNormalization() {
 
   /**
    * Generate formatted output HTML (bold for scriptures, italic for terms)
+   * Non-diff mode - just show plain output with optional formatting
    */
   const getFormattedOutputHtml = useCallback(() => {
-    if (changes.length === 0) {
-      return nl2br(escapeHtml(outputText));
-    }
-
-    // First escape the output
-    let result = escapeHtml(outputText);
-
-    // Get unique replacements that need formatting
-    const formattedReplacements = new Set<string>();
-
-    for (const change of changes) {
-      const isBold = BOLD_CATEGORIES.includes(change.category);
-      const isItalic = ITALIC_CATEGORIES.includes(change.category);
-
-      if (isBold || isItalic) {
-        const escapedReplacement = escapeHtml(change.replacement);
-
-        // Skip if already processed
-        if (formattedReplacements.has(escapedReplacement)) continue;
-        formattedReplacements.add(escapedReplacement);
-
-        const tag = isBold ? 'strong' : 'em';
-        const className = isBold ? 'font-semibold' : 'italic text-blue-600 dark:text-blue-400';
-
-        // Replace all occurrences
-        const regex = new RegExp(escapedReplacement.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-        result = result.replace(regex, `<${tag} class="${className}">${escapedReplacement}</${tag}>`);
-      }
-    }
-
-    return nl2br(result);
-  }, [outputText, changes]);
+    // In non-diff mode, just show the plain escaped output
+    return nl2br(escapeHtml(outputText));
+  }, [outputText]);
 
   /**
    * Handle input from contenteditable
