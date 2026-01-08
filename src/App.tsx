@@ -108,6 +108,7 @@ import Quotes from "./pages/Quotes";
 import TattvasIndex from "./pages/TattvasIndex";
 import TattvaPage from "./pages/TattvaPage";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
+import GVReferences from "./pages/GVReferences";
 import VaishnavCalendar from "./pages/VaishnavCalendar";
 import EkadashiList from "./pages/EkadashiList";
 import EkadashiDetail from "./pages/EkadashiDetail";
@@ -181,6 +182,7 @@ function AppContent() {
 
           {/* Бібліотека */}
           <Route path="/library" element={<Library />} />
+          <Route path="/library/references" element={<GVReferences />} />
           <Route path="/library/lectures" element={<LecturesLibrary />} />
           <Route path="/library/lectures/:slug" element={<LectureView />} />
           <Route path="/library/letters" element={<LettersLibrary />} />
