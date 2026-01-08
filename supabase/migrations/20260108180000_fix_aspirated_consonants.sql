@@ -10,11 +10,11 @@ BEGIN;
 
 -- Raghunatha (gh → ґг)
 UPDATE gv_authors SET
-  name_ua = 'Шріла Раґгунатха Даса Ґосвамі'
+  name_ua = 'Шріла Раґгунатх Дас Ґосвамі'
 WHERE slug = 'raghunatha-dasa-gosvami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Раґгунатха Бгатта Ґосвамі'
+  name_ua = 'Шріла Раґгунатх Бгатта Ґосвамі'
 WHERE slug = 'raghunatha-bhatta-gosvami';
 
 -- Bhatta (bh → бг)
@@ -35,7 +35,7 @@ WHERE slug = 'baladeva-vidyabhushana';
 
 -- Bhaktivinoda (bh → бг)
 UPDATE gv_authors SET
-  name_ua = 'Шріла Бгактівінода Тхакур'
+  name_ua = 'Шріла Бгактівінод Тхакур'
 WHERE slug = 'bhaktivinoda-thakura';
 
 -- Bhaktisiddhanta (bh → бг, dh → дг)
@@ -74,7 +74,7 @@ UPDATE gv_authors SET
 WHERE slug = 'bhurijan-dasa';
 
 UPDATE gv_authors SET
-  name_ua = 'Радганатха Свамі'
+  name_ua = 'Радганатх Свамі'
 WHERE slug = 'radhanatha-swami';
 
 -- Gadadhara (dh → дг)
@@ -147,18 +147,18 @@ UPDATE gv_book_references SET title_ua = 'Шрі Бгактісіддганта 
 UPDATE gv_book_references SET title_ua = 'Шуддга-бгакті-чінтамані' WHERE slug = 'suddha-bhakti-cintamani';
 
 -- Madhurya (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Мадгурья-кадамбіні (Хмара солодощів)' WHERE slug = 'madhurya-kadambini';
-UPDATE gv_book_references SET title_ua = 'Мадгурья-кадамбіні (Переклад)' WHERE slug = 'madhurya-kadambini-translation';
+UPDATE gv_book_references SET title_ua = 'Мадгур''я-кадамбіні (Хмара солодощів)' WHERE slug = 'madhurya-kadambini';
+UPDATE gv_book_references SET title_ua = 'Мадгур''я-кадамбіні (Переклад)' WHERE slug = 'madhurya-kadambini-translation';
 
 -- Vidagdha (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Відаґдга-мадгава' WHERE slug = 'vidagdha-madhava';
+UPDATE gv_book_references SET title_ua = 'Відаґдга-мадгав' WHERE slug = 'vidagdha-madhava';
 
 -- Madhava (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Лаліта-мадгава' WHERE slug = 'lalita-madhava';
-UPDATE gv_book_references SET title_ua = 'Мадгава-магoтсава (Великий фестиваль Мадгави)' WHERE slug = 'madhava-mahotsava';
+UPDATE gv_book_references SET title_ua = 'Лаліта-мадгав' WHERE slug = 'lalita-madhava';
+UPDATE gv_book_references SET title_ua = 'Мадгав-махотсав (Великий фестиваль Мадгави)' WHERE slug = 'madhava-mahotsava';
 
 -- Uddhava (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Уддгава-сандеша (Послання Уддгаві)' WHERE slug = 'uddhava-sandesa';
+UPDATE gv_book_references SET title_ua = 'Уддгав-сандеш (Послання Уддгаві)' WHERE slug = 'uddhava-sandesa';
 
 -- Siddhanta (dh → дг)
 UPDATE gv_book_references SET title_ua = 'Сіддганта-ратна (Коштовність висновків)' WHERE slug = 'siddhanta-ratna';
