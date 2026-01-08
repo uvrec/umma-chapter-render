@@ -19,7 +19,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -40,6 +49,7 @@ import {
   Languages,
   Sparkles,
   Loader2,
+  ClipboardPaste,
 } from "lucide-react";
 import { transliterateIAST } from "@/utils/text/transliteration";
 
@@ -70,6 +80,10 @@ export const LectureView = () => {
   // Translation state
   const [isTranslating, setIsTranslating] = useState(false);
   const [translatingParagraphId, setTranslatingParagraphId] = useState<string | null>(null);
+
+  // Bulk translation paste state
+  const [showBulkTranslationDialog, setShowBulkTranslationDialog] = useState(false);
+  const [bulkTranslationText, setBulkTranslationText] = useState("");
 
   // Завантаження лекції
   const { data: lecture, isLoading: lectureLoading } = useQuery({
@@ -417,6 +431,111 @@ export const LectureView = () => {
     }
   };
 
+  // Функція для копіювання HTML-структури з оригіналу до перекладу
+  const copyHtmlStructure = (originalHtml: string, translatedText: string): string => {
+    // Якщо оригінал не містить HTML тегів - просто повертаємо переклад
+    if (!/<[^>]+>/.test(originalHtml)) {
+      return translatedText;
+    }
+
+    // Створюємо тимчасовий елемент для парсингу HTML
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = originalHtml;
+
+    // Отримуємо текстовий вміст оригіналу
+    const originalTextContent = tempDiv.textContent || tempDiv.innerText || "";
+
+    // Якщо переклад приблизно такої ж довжини - намагаємося зберегти структуру
+    // Простий підхід: замінюємо текстові вузли на переклад пропорційно
+    const translateRatio = translatedText.length / (originalTextContent.length || 1);
+
+    // Якщо різниця у довжині невелика - копіюємо структуру тегів
+    if (translateRatio > 0.5 && translateRatio < 2) {
+      // Отримуємо всі теги з оригіналу
+      const tagPattern = /<[^>]+>/g;
+      const tags = originalHtml.match(tagPattern) || [];
+
+      // Якщо є теги для форматування тексту - застосовуємо їх
+      if (tags.length > 0) {
+        // Знаходимо відкриваючі теги на початку та закриваючі в кінці
+        let openTags = "";
+        let closeTags = "";
+
+        // Перевіряємо чи є теги на початку і в кінці
+        const startMatch = originalHtml.match(/^(<[^>]+>)+/);
+        const endMatch = originalHtml.match(/(<\/[^>]+>)+$/);
+
+        if (startMatch) openTags = startMatch[0];
+        if (endMatch) closeTags = endMatch[0];
+
+        if (openTags || closeTags) {
+          return openTags + translatedText + closeTags;
+        }
+      }
+    }
+
+    // Якщо не вдалося зберегти структуру - просто повертаємо переклад як є
+    return translatedText;
+  };
+
+  // Вставка повного перекладу (розбиття по параграфах)
+  const applyBulkTranslation = () => {
+    if (!bulkTranslationText.trim()) {
+      toast.error("Введіть текст перекладу");
+      return;
+    }
+
+    // Розбиваємо текст на параграфи (по подвійних переносах рядків або просто переносах)
+    const translatedParagraphs = bulkTranslationText
+      .split(/\n\n+|\n(?=[А-ЯІЇЄҐA-Z])/g)
+      .map((p) => p.trim())
+      .filter((p) => p.length > 0);
+
+    if (translatedParagraphs.length === 0) {
+      toast.error("Не вдалося розпізнати параграфи");
+      return;
+    }
+
+    // Отримуємо параграфи у правильному порядку
+    const sortedParagraphs = [...paragraphs].sort(
+      (a, b) => a.paragraph_number - b.paragraph_number
+    );
+
+    // Застосовуємо переклад до відповідних параграфів зі збереженням HTML-структури
+    setEditedParagraphs((prev) => {
+      const updated = { ...prev };
+      const minCount = Math.min(sortedParagraphs.length, translatedParagraphs.length);
+
+      for (let i = 0; i < minCount; i++) {
+        const paragraph = sortedParagraphs[i];
+        const paragraphId = paragraph.id;
+        const originalHtml = updated[paragraphId]?.content_en || paragraph.content_en || "";
+        const translatedText = translatedParagraphs[i];
+
+        if (updated[paragraphId]) {
+          updated[paragraphId] = {
+            ...updated[paragraphId],
+            content_ua: copyHtmlStructure(originalHtml, translatedText),
+          };
+        }
+      }
+
+      return updated;
+    });
+
+    const appliedCount = Math.min(sortedParagraphs.length, translatedParagraphs.length);
+    toast.success(`Застосовано переклад до ${appliedCount} параграфів`);
+
+    if (translatedParagraphs.length !== paragraphs.length) {
+      toast.info(
+        `Параграфів у тексті: ${translatedParagraphs.length}, у лекції: ${paragraphs.length}`
+      );
+    }
+
+    setShowBulkTranslationDialog(false);
+    setBulkTranslationText("");
+  };
+
   if (lectureLoading || paragraphsLoading) {
     return (
       <div className="min-h-screen bg-background">
@@ -507,6 +626,16 @@ export const LectureView = () => {
                         <Sparkles className="mr-2 h-4 w-4" />
                       )}
                       {isTranslating ? "Перекладаю..." : "Перекласти все AI"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowBulkTranslationDialog(true)}
+                      disabled={isTranslating}
+                      title="Вставити повний переклад для всіх параграфів"
+                    >
+                      <ClipboardPaste className="mr-2 h-4 w-4" />
+                      Вставити переклад
                     </Button>
                     <Button
                       variant="default"
@@ -769,6 +898,44 @@ export const LectureView = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Діалог вставки повного перекладу */}
+      <Dialog open={showBulkTranslationDialog} onOpenChange={setShowBulkTranslationDialog}>
+        <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Вставити переклад для всіх параграфів</DialogTitle>
+            <DialogDescription>
+              Вставте повний український переклад лекції. Текст буде автоматично розбитий на
+              параграфи (по порожніх рядках) та застосований до відповідних параграфів лекції.
+              <br />
+              <span className="text-muted-foreground">
+                Кількість параграфів у лекції: {paragraphs.length}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <Textarea
+              value={bulkTranslationText}
+              onChange={(e) => setBulkTranslationText(e.target.value)}
+              placeholder="Вставте тут повний текст перекладу українською мовою...
+
+Кожен параграф має бути відокремлений порожнім рядком."
+              className="min-h-[300px] font-mono text-sm"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBulkTranslationDialog(false)}>
+              Скасувати
+            </Button>
+            <Button onClick={applyBulkTranslation}>
+              <ClipboardPaste className="mr-2 h-4 w-4" />
+              Застосувати переклад
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

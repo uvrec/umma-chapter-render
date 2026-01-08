@@ -11,8 +11,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -586,40 +586,40 @@ export default function LecturesManager() {
                             <label className="text-xs text-muted-foreground">
                               EN
                             </label>
-                            <Textarea
-                              value={p.content_en || ""}
-                              onChange={(e) => {
+                            <EnhancedInlineEditor
+                              content={p.content_en || ""}
+                              onChange={(html) => {
                                 setEditingParagraphs((prev) => {
                                   const updated = [...prev];
                                   updated[idx] = {
                                     ...updated[idx],
-                                    content_en: e.target.value,
+                                    content_en: html,
                                   };
                                   return updated;
                                 });
                               }}
-                              className="text-sm"
-                              rows={3}
+                              minHeight="100px"
+                              compact
                             />
                           </div>
                           <div>
                             <label className="text-xs text-muted-foreground">
                               UA
                             </label>
-                            <Textarea
-                              value={p.content_ua || ""}
-                              onChange={(e) => {
+                            <EnhancedInlineEditor
+                              content={p.content_ua || ""}
+                              onChange={(html) => {
                                 setEditingParagraphs((prev) => {
                                   const updated = [...prev];
                                   updated[idx] = {
                                     ...updated[idx],
-                                    content_ua: e.target.value,
+                                    content_ua: html,
                                   };
                                   return updated;
                                 });
                               }}
-                              className="text-sm"
-                              rows={3}
+                              minHeight="100px"
+                              compact
                             />
                           </div>
                         </div>
