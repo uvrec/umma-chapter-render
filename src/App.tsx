@@ -108,6 +108,9 @@ import Quotes from "./pages/Quotes";
 import TattvasIndex from "./pages/TattvasIndex";
 import TattvaPage from "./pages/TattvaPage";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
+import VaishnavCalendar from "./pages/VaishnavCalendar";
+import EkadashiList from "./pages/EkadashiList";
+import EkadashiDetail from "./pages/EkadashiDetail";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
@@ -213,6 +216,11 @@ function AppContent() {
           <Route path="/tattvas" element={<TattvasIndex />} />
           <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
+
+          {/* Вайшнавський календар */}
+          <Route path="/calendar" element={<VaishnavCalendar />} />
+          <Route path="/calendar/ekadashi" element={<EkadashiList />} />
+          <Route path="/calendar/ekadashi/:slug" element={<EkadashiDetail />} />
           <Route path="/contact" element={<Contact />} />
 
           {/* Платежі */}
