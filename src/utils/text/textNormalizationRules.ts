@@ -751,7 +751,7 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_narayana", incorrect: "Нараян", correct: "Нараяна", category: "endings", description: "Нараяна (не Нараян)" },
   { id: "ending_goloka", incorrect: "Ґолок", correct: "Ґолока", category: "endings", description: "Ґолока (не Ґолок)" },
   { id: "ending_dvaraka", incorrect: "Дварак", correct: "Дварака", category: "endings", description: "Дварака (не Дварак)" },
-  { id: "ending_rama", incorrect: "Рам", correct: "Рама", category: "endings", description: "Рама (не Рам)" },
+  { id: "ending_rama", incorrect: "Рам", correct: "Рама", category: "endings", description: "Рама (не Рам)", caseSensitive: true },
   { id: "ending_vibhishana", incorrect: "Вібгішан", correct: "Вібгішана", category: "endings", description: "Вібгішана (не Вібгішан)" },
   { id: "ending_indraprastha", incorrect: "Індрапрастх", correct: "Індрапрастха", category: "endings", description: "Індрапрастха (не Індрапрастх)" },
   { id: "ending_jada_bharata", incorrect: "Джада Бгарат", correct: "Джада Бгарата", category: "endings", description: "Джада Бгарата (не Джада Бгарат)" },
