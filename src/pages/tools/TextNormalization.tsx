@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -8,6 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Lazy load TipTap editor to reduce bundle size
+const RichTextEditor = lazy(() => import("@/components/ui/rich-text-editor"));
 import {
   Collapsible,
   CollapsibleContent,
@@ -54,6 +57,8 @@ import {
   Zap,
   BookOpen,
   Type,
+  TextCursorInput,
+  Pilcrow,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -92,6 +97,8 @@ export default function TextNormalization() {
   const [newRuleIncorrect, setNewRuleIncorrect] = useState("");
   const [newRuleCorrect, setNewRuleCorrect] = useState("");
   const [activeTab, setActiveTab] = useState("normalize");
+  const [useRichText, setUseRichText] = useState(false);
+  const [inputHtml, setInputHtml] = useState("");
 
 
   // Combine rules
@@ -275,6 +282,7 @@ export default function TextNormalization() {
    */
   const handleClear = () => {
     setInputText("");
+    setInputHtml("");
     setOutputText("");
     setChanges([]);
     localStorage.removeItem("normalize_input");
@@ -359,51 +367,84 @@ export default function TextNormalization() {
 
   /**
    * Generate diff view with HTML highlighting
-   * Uses position-based replacement to avoid cascading issues
+   * Highlights all replacements in the OUTPUT text
    */
   const getDiffViewHtml = useCallback(() => {
     if (!showDiff || changes.length === 0) {
       return nl2br(escapeHtml(outputText));
     }
 
-    // Sort changes by position (ascending)
-    const sortedChanges = [...changes].sort((a, b) => a.position - b.position);
+    // Build a map of unique replacements -> formatting
+    const replacementFormats = new Map<string, { isBold: boolean; isItalic: boolean }>();
 
+    for (const change of changes) {
+      // Skip if already processed (use the first category for duplicates)
+      if (replacementFormats.has(change.replacement)) continue;
+
+      const isBold = BOLD_CATEGORIES.includes(change.category);
+      const isItalic = ITALIC_CATEGORIES.includes(change.category);
+      replacementFormats.set(change.replacement, { isBold, isItalic });
+    }
+
+    // Sort replacements by length (longest first) to avoid partial matches
+    const sortedReplacements = [...replacementFormats.keys()].sort((a, b) => b.length - a.length);
+
+    // Find all occurrences in the output text
+    const highlights: { start: number; end: number; text: string; isBold: boolean; isItalic: boolean }[] = [];
+
+    for (const replacement of sortedReplacements) {
+      const format = replacementFormats.get(replacement)!;
+      let pos = 0;
+      while ((pos = outputText.indexOf(replacement, pos)) !== -1) {
+        // Check if this position overlaps with existing highlight
+        const overlaps = highlights.some(
+          h => (pos >= h.start && pos < h.end) || (pos + replacement.length > h.start && pos + replacement.length <= h.end)
+        );
+        if (!overlaps) {
+          highlights.push({
+            start: pos,
+            end: pos + replacement.length,
+            text: replacement,
+            isBold: format.isBold,
+            isItalic: format.isItalic,
+          });
+        }
+        pos += replacement.length;
+      }
+    }
+
+    // Sort by position
+    highlights.sort((a, b) => a.start - b.start);
+
+    // Build result
     let result = '';
     let lastEnd = 0;
 
-    for (const change of sortedChanges) {
-      // Skip overlapping changes
-      if (change.position < lastEnd) continue;
-
-      // Add text before this change (escaped)
-      if (change.position > lastEnd) {
-        result += escapeHtml(inputText.slice(lastEnd, change.position));
+    for (const h of highlights) {
+      // Add text before this highlight
+      if (h.start > lastEnd) {
+        result += escapeHtml(outputText.slice(lastEnd, h.start));
       }
 
-      // Add the formatted replacement
-      const escapedReplacement = escapeHtml(change.replacement);
-      const isBold = BOLD_CATEGORIES.includes(change.category);
-      const isItalic = ITALIC_CATEGORIES.includes(change.category);
-
-      if (isBold) {
-        result += `<strong class="text-green-600 dark:text-green-400">${escapedReplacement}</strong>`;
-      } else if (isItalic) {
-        result += `<em class="text-blue-600 dark:text-blue-400">${escapedReplacement}</em>`;
+      const escapedText = escapeHtml(h.text);
+      if (h.isBold) {
+        result += `<strong class="text-green-600 dark:text-green-400">${escapedText}</strong>`;
+      } else if (h.isItalic) {
+        result += `<em class="text-blue-600 dark:text-blue-400">${escapedText}</em>`;
       } else {
-        result += `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedReplacement}</mark>`;
+        result += `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedText}</mark>`;
       }
 
-      lastEnd = change.position + change.original.length;
+      lastEnd = h.end;
     }
 
-    // Add remaining text after last change
-    if (lastEnd < inputText.length) {
-      result += escapeHtml(inputText.slice(lastEnd));
+    // Add remaining text
+    if (lastEnd < outputText.length) {
+      result += escapeHtml(outputText.slice(lastEnd));
     }
 
     return nl2br(result);
-  }, [inputText, changes, showDiff, outputText]);
+  }, [outputText, changes, showDiff]);
 
   /**
    * Generate formatted output HTML (bold for scriptures, italic for terms)
@@ -567,6 +608,23 @@ export default function TextNormalization() {
                   <div className="flex items-center gap-1">
                     <Tooltip>
                       <TooltipTrigger asChild>
+                        <Button
+                          variant={useRichText ? "default" : "ghost"}
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => setUseRichText(!useRichText)}
+                        >
+                          <Pilcrow className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {useRichText
+                          ? t("Перейти до простого тексту", "Switch to plain text")
+                          : t("Форматований текст (Bold/Italic)", "Rich text (Bold/Italic)")}
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleClear}>
                           <Trash2 className="w-3.5 h-3.5" />
                         </Button>
@@ -575,17 +633,33 @@ export default function TextNormalization() {
                     </Tooltip>
                   </div>
                 </div>
-                {/* Input Area - Textarea */}
-                <Textarea
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder={t(
-                    "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бхаґавад-ґіту кожного дня.",
-                    "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
-                  )}
-                  className="flex-1 resize-none border-0 rounded-none font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
-                  spellCheck={false}
-                />
+                {/* Input Area - Textarea or Rich Text */}
+                {useRichText ? (
+                  <Suspense fallback={<div className="flex-1 p-4 text-muted-foreground">{t("Завантаження...", "Loading...")}</div>}>
+                    <RichTextEditor
+                      value={inputHtml}
+                      onChange={setInputHtml}
+                      onTextChange={setInputText}
+                      placeholder={t(
+                        "Вставте текст для нормалізації...",
+                        "Paste text to normalize..."
+                      )}
+                      className="flex-1 border-0 rounded-none shadow-none"
+                      editorClassName="min-h-[400px]"
+                    />
+                  </Suspense>
+                ) : (
+                  <Textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder={t(
+                      "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бгаґавад-ґіту кожного дня.",
+                      "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
+                    )}
+                    className="flex-1 resize-none border-0 rounded-none font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                    spellCheck={false}
+                  />
+                )}
               </div>
 
               {/* Output Panel */}
