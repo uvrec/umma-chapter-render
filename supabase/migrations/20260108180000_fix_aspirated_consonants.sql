@@ -151,14 +151,14 @@ UPDATE gv_book_references SET title_ua = 'Мадгур''я-кадамбіні (�
 UPDATE gv_book_references SET title_ua = 'Мадгур''я-кадамбіні (Переклад)' WHERE slug = 'madhurya-kadambini-translation';
 
 -- Vidagdha (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Відаґдга-мадгав' WHERE slug = 'vidagdha-madhava';
+UPDATE gv_book_references SET title_ua = 'Відаґдга-мадгава' WHERE slug = 'vidagdha-madhava';
 
 -- Madhava (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Лаліта-мадгав' WHERE slug = 'lalita-madhava';
-UPDATE gv_book_references SET title_ua = 'Мадгав-махотсав (Великий фестиваль Мадгави)' WHERE slug = 'madhava-mahotsava';
+UPDATE gv_book_references SET title_ua = 'Лаліта-мадгава' WHERE slug = 'lalita-madhava';
+UPDATE gv_book_references SET title_ua = 'Мадгава-махотсава (Великий фестиваль Мадгави)' WHERE slug = 'madhava-mahotsava';
 
 -- Uddhava (dh → дг)
-UPDATE gv_book_references SET title_ua = 'Уддгав-сандеш (Послання Уддгаві)' WHERE slug = 'uddhava-sandesa';
+UPDATE gv_book_references SET title_ua = 'Уддгава-сандеш (Послання Уддгаві)' WHERE slug = 'uddhava-sandesa';
 
 -- Siddhanta (dh → дг)
 UPDATE gv_book_references SET title_ua = 'Сіддганта-ратна (Коштовність висновків)' WHERE slug = 'siddhanta-ratna';
