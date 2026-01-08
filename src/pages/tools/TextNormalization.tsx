@@ -1,26 +1,23 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   defaultRules,
@@ -47,16 +44,22 @@ import {
   ChevronRight,
   Plus,
   X,
-  FileSpreadsheet,
   ExternalLink,
   AlertCircle,
   CheckCircle2,
   Sparkles,
-  RotateCcw,
   Eye,
   EyeOff,
+  Zap,
+  BookOpen,
+  Type,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// Categories that should be formatted as bold (scripture names)
+const BOLD_CATEGORIES = ["scriptures"];
+// Categories that should be formatted as italic (Sanskrit terms)
+const ITALIC_CATEGORIES = ["transliteration", "names", "endings", "apostrophe"];
 
 /**
  * Text Normalization Tool
@@ -83,12 +86,15 @@ export default function TextNormalization() {
   );
 
   // UI state
-  const [rulesDialogOpen, setRulesDialogOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(true);
   const [showDiff, setShowDiff] = useState(true);
   const [newRuleIncorrect, setNewRuleIncorrect] = useState("");
   const [newRuleCorrect, setNewRuleCorrect] = useState("");
   const [activeTab, setActiveTab] = useState("normalize");
+
+  // Refs for contenteditable
+  const inputRef = useRef<HTMLDivElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
 
   // Combine rules
   const allRules = useMemo(() => {
@@ -152,7 +158,15 @@ export default function TextNormalization() {
     const savedCategories = localStorage.getItem("normalize_categories");
     const savedCustomRules = localStorage.getItem("normalize_custom_rules");
 
-    if (savedInput) setInputText(savedInput);
+    if (savedInput) {
+      setInputText(savedInput);
+      // Also restore to contenteditable after mount
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.innerText = savedInput;
+        }
+      }, 0);
+    }
     if (savedIncludeDefaults) setIncludeDefaultRules(savedIncludeDefaults === "true");
     if (savedCategories) {
       try {
@@ -271,6 +285,9 @@ export default function TextNormalization() {
     setInputText("");
     setOutputText("");
     setChanges([]);
+    if (inputRef.current) {
+      inputRef.current.innerHTML = "";
+    }
     localStorage.removeItem("normalize_input");
     toast.success(t("Очищено", "Cleared"));
   };
@@ -333,10 +350,12 @@ export default function TextNormalization() {
   const outputWords = outputText.trim() ? outputText.split(/\s+/).filter(Boolean).length : 0;
 
   /**
-   * Generate diff view
+   * Generate diff view with HTML highlighting
    */
-  const getDiffView = useCallback(() => {
-    if (!showDiff || changes.length === 0) return outputText;
+  const getDiffViewHtml = useCallback(() => {
+    if (!showDiff || changes.length === 0) {
+      return escapeHtml(outputText);
+    }
 
     // Sort changes by position in reverse to apply from end
     const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
@@ -345,44 +364,163 @@ export default function TextNormalization() {
     for (const change of sortedChanges) {
       const before = diffText.slice(0, change.position);
       const after = diffText.slice(change.position + change.original.length);
-      diffText = `${before}【${change.replacement}】${after}`;
+      // Determine formatting based on category
+      const isBold = BOLD_CATEGORIES.includes(change.category);
+      const isItalic = ITALIC_CATEGORIES.includes(change.category);
+      let formatted = escapeHtml(change.replacement);
+      if (isBold) {
+        formatted = `<strong class="text-green-600 dark:text-green-400">${formatted}</strong>`;
+      } else if (isItalic) {
+        formatted = `<em class="text-blue-600 dark:text-blue-400">${formatted}</em>`;
+      } else {
+        formatted = `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${formatted}</mark>`;
+      }
+      diffText = `${before}${formatted}${after}`;
     }
 
-    return diffText;
+    // Escape the unchanged parts
+    const parts = diffText.split(/(<[^>]+>)/);
+    return parts.map((part) => {
+      if (part.startsWith('<')) return part;
+      return escapeHtml(part);
+    }).join('');
   }, [inputText, changes, showDiff, outputText]);
 
+  /**
+   * Generate formatted output HTML (bold for scriptures, italic for terms)
+   */
+  const getFormattedOutputHtml = useCallback(() => {
+    if (changes.length === 0) {
+      return escapeHtml(outputText);
+    }
+
+    // Sort changes by position in reverse to apply from end
+    const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
+
+    let formattedText = outputText;
+    // Track positions in the output text
+    let offset = 0;
+    const changePositions: { start: number; end: number; category: string; text: string }[] = [];
+
+    // Calculate positions in output text
+    for (const change of changes) {
+      changePositions.push({
+        start: change.position - offset + (change.replacement.length - change.original.length) * (changes.indexOf(change)),
+        end: change.position - offset + change.replacement.length,
+        category: change.category,
+        text: change.replacement,
+      });
+    }
+
+    // For simplicity, let's rebuild the output with formatting
+    // We'll apply formatting based on category patterns
+    let result = outputText;
+
+    // Apply formatting for each unique replacement
+    for (const change of sortedChanges) {
+      const isBold = BOLD_CATEGORIES.includes(change.category);
+      const isItalic = ITALIC_CATEGORIES.includes(change.category);
+
+      if (isBold || isItalic) {
+        const escapedReplacement = change.replacement.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedReplacement, 'g');
+        const tag = isBold ? 'strong' : 'em';
+        const className = isBold ? 'font-semibold' : 'italic';
+        result = result.replace(regex, `<${tag} class="${className}">${change.replacement}</${tag}>`);
+      }
+    }
+
+    return escapeHtml(result).replace(/&lt;(\/?(strong|em)[^&]*?)&gt;/g, '<$1>');
+  }, [outputText, changes]);
+
+  /**
+   * Escape HTML special characters
+   */
+  const escapeHtml = (text: string): string => {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\n/g, '<br/>');
+  };
+
+  /**
+   * Handle input from contenteditable
+   */
+  const handleInputChange = useCallback(() => {
+    if (inputRef.current) {
+      // Get text content, preserving line breaks
+      const html = inputRef.current.innerHTML;
+      const text = html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/div><div>/gi, '\n')
+        .replace(/<div>/gi, '\n')
+        .replace(/<\/div>/gi, '')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#039;/g, "'");
+      setInputText(text);
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <TooltipProvider>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex flex-col">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary mb-2">
-            {t("Нормалізація текстів", "Text Normalization")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t(
-              "Автоматичне виправлення текстів за редакційними стандартами ґаудіа-вайшнавізму",
-              "Automatic text correction according to Gaudiya Vaishnava editorial standards"
-            )}
-          </p>
-          <div className="flex justify-center gap-2 mt-4">
-            <Link to="/tools/transliteration">
-              <Button variant="outline" size="sm">
-                <Sparkles className="w-4 h-4 mr-2" />
-                {t("Транслітерація", "Transliteration")}
-              </Button>
-            </Link>
-            <a
-              href="https://docs.google.com/spreadsheets/d/1YZT4-KaQBeEZu7R9qysirdt8yb-9psOIkXCalDPLuwY/edit?gid=627477148#gid=627477148"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button variant="outline" size="sm">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                {t("Документ правил", "Rules Document")}
-              </Button>
-            </a>
+      <main className="flex-1 container mx-auto px-4 py-6 max-w-7xl">
+        {/* Compact Header */}
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Zap className="w-6 h-6 text-primary" />
+                {t("Нормалізація текстів", "Text Normalization")}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t(
+                  "Автоматичне виправлення за редакційними стандартами BBT",
+                  "Automatic correction per BBT editorial standards"
+                )}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Quick stats */}
+              <Badge variant="outline" className="gap-1">
+                <Type className="w-3 h-3" />
+                {inputText.length} {t("симв.", "chars")}
+              </Badge>
+              <Badge variant={changes.length > 0 ? "default" : "outline"} className="gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                {changes.length} {t("змін", "changes")}
+              </Badge>
+              <Badge variant="secondary" className="gap-1">
+                <BookOpen className="w-3 h-3" />
+                {activeRulesCount} {t("правил", "rules")}
+              </Badge>
+              {/* Links */}
+              <Link to="/tools/transliteration">
+                <Button variant="ghost" size="sm" className="h-7">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {t("Транслітерація", "Translit")}
+                </Button>
+              </Link>
+              <a
+                href="https://docs.google.com/spreadsheets/d/1YZT4-KaQBeEZu7R9qysirdt8yb-9psOIkXCalDPLuwY/edit?gid=627477148#gid=627477148"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Button variant="ghost" size="sm" className="h-7">
+                  <ExternalLink className="w-3 h-3 mr-1" />
+                  {t("Правила", "Rules")}
+                </Button>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -443,168 +581,209 @@ export default function TextNormalization() {
               </Collapsible>
             </div>
 
-            {/* Statistics */}
-            <div className="p-4">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-primary">{inputText.length}</div>
-                  <div className="text-xs text-muted-foreground">{t("Символів", "Characters")}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-primary">{inputWords}</div>
-                  <div className="text-xs text-muted-foreground">{t("Слів", "Words")}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">{changes.length}</div>
-                  <div className="text-xs text-muted-foreground">{t("Змін", "Changes")}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">{activeRulesCount}</div>
-                  <div className="text-xs text-muted-foreground">{t("Активних правил", "Active rules")}</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-orange-600">{customRules.length}</div>
-                  <div className="text-xs text-muted-foreground">{t("Власних правил", "Custom rules")}</div>
+            {/* Change breakdown by category - compact */}
+            {Object.keys(changeStats).length > 0 && (
+              <div className="px-4 pb-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    {t("За категоріями:", "By category:")}
+                  </span>
+                  {Object.entries(changeStats).map(([categoryId, count]) => {
+                    const category = ruleCategories.find((c) => c.id === categoryId);
+                    return (
+                      <Badge key={categoryId} variant="outline" className="text-xs py-0">
+                        {category
+                          ? language === "ua"
+                            ? category.name_ua
+                            : category.name_en
+                          : categoryId}
+                        : {count}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
+            )}
 
-              {/* Change breakdown by category */}
-              {Object.keys(changeStats).length > 0 && (
-                <div className="mt-4 pt-4 border-t">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    {t("Зміни за категоріями:", "Changes by category:")}
+            {/* Split Panel Editor */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-[500px]">
+              {/* Input Panel */}
+              <div className="flex flex-col border rounded-lg overflow-hidden bg-card shadow-sm">
+                {/* Input Toolbar */}
+                <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{t("Вхідний текст", "Input")}</span>
+                    <Badge variant="outline" className="text-xs py-0 h-5">
+                      {inputWords} {t("слів", "words")}
+                    </Badge>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(changeStats).map(([categoryId, count]) => {
-                      const category = ruleCategories.find((c) => c.id === categoryId);
-                      return (
-                        <Badge key={categoryId} variant="outline">
-                          {category
-                            ? language === "ua"
-                              ? category.name_ua
-                              : category.name_en
-                            : categoryId}
-                          : {count}
-                        </Badge>
-                      );
-                    })}
+                  <div className="flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleClear}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("Очистити", "Clear")}</TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Text areas */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Input */}
-              <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">{t("Вхідний текст", "Input text")}</h2>
-                  <Button variant="ghost" size="sm" onClick={handleClear}>
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    {t("Очистити", "Clear")}
-                  </Button>
-                </div>
-                <Textarea
-                  rows={18}
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder={t(
-                    "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен джг читати Бхаґавад-ґіту кожного дня.",
-                    "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
+                {/* Input Area - Contenteditable with placeholder */}
+                <div className="relative flex-1">
+                  <div
+                    ref={inputRef}
+                    contentEditable
+                    onInput={handleInputChange}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const text = e.clipboardData.getData('text/plain');
+                      document.execCommand('insertText', false, text);
+                    }}
+                    className="absolute inset-0 p-4 outline-none overflow-y-auto font-mono text-sm leading-relaxed whitespace-pre-wrap"
+                    style={{ wordBreak: 'break-word' }}
+                    suppressContentEditableWarning
+                  />
+                  {/* Placeholder overlay */}
+                  {!inputText && (
+                    <div className="absolute inset-0 pointer-events-none p-4">
+                      <span className="text-muted-foreground/50 font-mono text-sm whitespace-pre-wrap">
+                        {t(
+                          "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бхаґавад-ґіту кожного дня.",
+                          "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
+                        )}
+                      </span>
+                    </div>
                   )}
-                  spellCheck={false}
-                  className="resize-none"
-                />
+                </div>
               </div>
 
-              {/* Output */}
-              <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold flex items-center gap-2">
-                    {t("Результат", "Result")}
+              {/* Output Panel */}
+              <div className="flex flex-col border rounded-lg overflow-hidden bg-card shadow-sm">
+                {/* Output Toolbar */}
+                <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className={`w-4 h-4 ${changes.length > 0 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                    <span className="text-sm font-medium">{t("Результат", "Result")}</span>
                     {changes.length > 0 && (
-                      <Badge variant="secondary" className="text-green-600">
-                        <CheckCircle2 className="w-3 h-3 mr-1" />
+                      <Badge className="text-xs py-0 h-5 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
                         {changes.length} {t("змін", "changes")}
                       </Badge>
                     )}
-                  </h2>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowDiff(!showDiff)}
-                      title={t("Показати/сховати зміни", "Show/hide changes")}
-                    >
-                      {showDiff ? (
-                        <Eye className="w-4 h-4" />
-                      ) : (
-                        <EyeOff className="w-4 h-4" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => copyToClipboard(outputText)}
-                      disabled={!outputText}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      {t("Копіювати", "Copy")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={exportResult}
-                      disabled={!outputText}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      {t("Експорт", "Export")}
-                    </Button>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant={showDiff ? "default" : "ghost"}
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => setShowDiff(!showDiff)}
+                        >
+                          {showDiff ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {showDiff ? t("Сховати підсвічування", "Hide highlights") : t("Показати підсвічування", "Show highlights")}
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => copyToClipboard(outputText)}
+                          disabled={!outputText}
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("Копіювати", "Copy")}</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={exportResult}
+                          disabled={!outputText}
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>{t("Завантажити", "Download")}</TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
-                <Textarea
-                  rows={18}
-                  value={showDiff && changes.length > 0 ? getDiffView() : outputText}
-                  readOnly
-                  placeholder={t("Результат з'явиться автоматично...", "Result appears automatically...")}
-                  className="resize-none bg-muted/30"
-                  spellCheck={false}
-                />
-                {showDiff && changes.length > 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    {t(
-                      "【...】 — позначає зміни. Натисніть 👁 щоб приховати",
-                      "【...】 — indicates changes. Click 👁 to hide"
-                    )}
-                  </p>
-                )}
+                {/* Output Area - HTML with highlighting */}
+                <div className="relative flex-1">
+                  <div
+                    ref={outputRef}
+                    className="absolute inset-0 p-4 overflow-y-auto font-mono text-sm leading-relaxed bg-muted/10"
+                    style={{ wordBreak: 'break-word' }}
+                    dangerouslySetInnerHTML={{
+                      __html: outputText
+                        ? showDiff
+                          ? getDiffViewHtml()
+                          : getFormattedOutputHtml()
+                        : `<span class="text-muted-foreground/50">${t("Результат з'явиться автоматично...", "Result appears automatically...")}</span>`
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Changes list */}
-            {changes.length > 0 && (
-              <div className="p-4">
-                <h3 className="font-semibold mb-4">{t("Застосовані зміни:", "Applied changes:")}</h3>
-                <div className="max-h-48 overflow-y-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {changes.slice(0, 50).map((change, idx) => (
-                      <div
-                        key={idx}
-                        className="text-sm p-2 rounded bg-muted/50 flex items-center gap-2"
-                      >
-                        <span className="text-red-500 line-through">{change.original}</span>
-                        <span>→</span>
-                        <span className="text-green-600 font-medium">{change.replacement}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {changes.length > 50 && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {t(`...та ще ${changes.length - 50} змін`, `...and ${changes.length - 50} more changes`)}
-                    </p>
-                  )}
+            {/* Legend */}
+            {showDiff && changes.length > 0 && (
+              <div className="px-4 py-2">
+                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <mark className="bg-green-200 dark:bg-green-800 px-1 rounded">abc</mark>
+                    {t("— типографіка/терміни", "— typography/terms")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <strong className="text-green-600 dark:text-green-400">abc</strong>
+                    {t("— назви текстів", "— scripture names")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <em className="text-blue-600 dark:text-blue-400">abc</em>
+                    {t("— транслітерація", "— transliteration")}
+                  </span>
                 </div>
               </div>
+            )}
+
+            {/* Changes list - collapsible */}
+            {changes.length > 0 && (
+              <Collapsible className="px-4 pb-4">
+                <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-primary">
+                  <ChevronRight className="w-4 h-4 transition-transform data-[state=open]:rotate-90" />
+                  {t("Список змін", "Change list")} ({changes.length})
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3">
+                  <div className="max-h-48 overflow-y-auto rounded-lg border bg-muted/20 p-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {changes.slice(0, 50).map((change, idx) => (
+                        <div
+                          key={idx}
+                          className="text-xs p-2 rounded bg-background flex items-center gap-2"
+                        >
+                          <span className="text-red-500 line-through">{change.original}</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="text-green-600 font-medium">{change.replacement}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {changes.length > 50 && (
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        {t(`...та ще ${changes.length - 50} змін`, `...and ${changes.length - 50} more changes`)}
+                      </p>
+                    )}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             )}
           </TabsContent>
 
@@ -796,5 +975,6 @@ export default function TextNormalization() {
       </main>
       <Footer />
     </div>
+    </TooltipProvider>
   );
 }
