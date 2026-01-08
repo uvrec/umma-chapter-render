@@ -350,90 +350,6 @@ export default function TextNormalization() {
   const outputWords = outputText.trim() ? outputText.split(/\s+/).filter(Boolean).length : 0;
 
   /**
-   * Generate diff view with HTML highlighting
-   */
-  const getDiffViewHtml = useCallback(() => {
-    if (!showDiff || changes.length === 0) {
-      return escapeHtml(outputText);
-    }
-
-    // Sort changes by position in reverse to apply from end
-    const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
-
-    let diffText = inputText;
-    for (const change of sortedChanges) {
-      const before = diffText.slice(0, change.position);
-      const after = diffText.slice(change.position + change.original.length);
-      // Determine formatting based on category
-      const isBold = BOLD_CATEGORIES.includes(change.category);
-      const isItalic = ITALIC_CATEGORIES.includes(change.category);
-      let formatted = escapeHtml(change.replacement);
-      if (isBold) {
-        formatted = `<strong class="text-green-600 dark:text-green-400">${formatted}</strong>`;
-      } else if (isItalic) {
-        formatted = `<em class="text-blue-600 dark:text-blue-400">${formatted}</em>`;
-      } else {
-        formatted = `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${formatted}</mark>`;
-      }
-      diffText = `${before}${formatted}${after}`;
-    }
-
-    // Escape the unchanged parts
-    const parts = diffText.split(/(<[^>]+>)/);
-    return parts.map((part) => {
-      if (part.startsWith('<')) return part;
-      return escapeHtml(part);
-    }).join('');
-  }, [inputText, changes, showDiff, outputText]);
-
-  /**
-   * Generate formatted output HTML (bold for scriptures, italic for terms)
-   */
-  const getFormattedOutputHtml = useCallback(() => {
-    if (changes.length === 0) {
-      return escapeHtml(outputText);
-    }
-
-    // Sort changes by position in reverse to apply from end
-    const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
-
-    let formattedText = outputText;
-    // Track positions in the output text
-    let offset = 0;
-    const changePositions: { start: number; end: number; category: string; text: string }[] = [];
-
-    // Calculate positions in output text
-    for (const change of changes) {
-      changePositions.push({
-        start: change.position - offset + (change.replacement.length - change.original.length) * (changes.indexOf(change)),
-        end: change.position - offset + change.replacement.length,
-        category: change.category,
-        text: change.replacement,
-      });
-    }
-
-    // For simplicity, let's rebuild the output with formatting
-    // We'll apply formatting based on category patterns
-    let result = outputText;
-
-    // Apply formatting for each unique replacement
-    for (const change of sortedChanges) {
-      const isBold = BOLD_CATEGORIES.includes(change.category);
-      const isItalic = ITALIC_CATEGORIES.includes(change.category);
-
-      if (isBold || isItalic) {
-        const escapedReplacement = change.replacement.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const regex = new RegExp(escapedReplacement, 'g');
-        const tag = isBold ? 'strong' : 'em';
-        const className = isBold ? 'font-semibold' : 'italic';
-        result = result.replace(regex, `<${tag} class="${className}">${change.replacement}</${tag}>`);
-      }
-    }
-
-    return escapeHtml(result).replace(/&lt;(\/?(strong|em)[^&]*?)&gt;/g, '<$1>');
-  }, [outputText, changes]);
-
-  /**
    * Escape HTML special characters
    */
   const escapeHtml = (text: string): string => {
@@ -442,9 +358,93 @@ export default function TextNormalization() {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-      .replace(/\n/g, '<br/>');
+      .replace(/'/g, '&#039;');
   };
+
+  /**
+   * Convert newlines to br tags
+   */
+  const nl2br = (text: string): string => {
+    return text.replace(/\n/g, '<br/>');
+  };
+
+  /**
+   * Generate diff view with HTML highlighting
+   */
+  const getDiffViewHtml = useCallback(() => {
+    if (!showDiff || changes.length === 0) {
+      return nl2br(escapeHtml(outputText));
+    }
+
+    // First, escape the entire input text
+    let result = escapeHtml(inputText);
+
+    // Sort changes by position in reverse to apply from end
+    const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
+
+    // Track offset caused by escaping
+    // We need to recalculate positions since escaping changes string length
+    for (const change of sortedChanges) {
+      // Find the escaped original text
+      const escapedOriginal = escapeHtml(change.original);
+      const escapedReplacement = escapeHtml(change.replacement);
+
+      // Determine formatting based on category
+      const isBold = BOLD_CATEGORIES.includes(change.category);
+      const isItalic = ITALIC_CATEGORIES.includes(change.category);
+
+      let formatted: string;
+      if (isBold) {
+        formatted = `<strong class="text-green-600 dark:text-green-400">${escapedReplacement}</strong>`;
+      } else if (isItalic) {
+        formatted = `<em class="text-blue-600 dark:text-blue-400">${escapedReplacement}</em>`;
+      } else {
+        formatted = `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedReplacement}</mark>`;
+      }
+
+      // Replace the first occurrence of escaped original with formatted
+      result = result.replace(escapedOriginal, formatted);
+    }
+
+    return nl2br(result);
+  }, [inputText, changes, showDiff, outputText]);
+
+  /**
+   * Generate formatted output HTML (bold for scriptures, italic for terms)
+   */
+  const getFormattedOutputHtml = useCallback(() => {
+    if (changes.length === 0) {
+      return nl2br(escapeHtml(outputText));
+    }
+
+    // First escape the output
+    let result = escapeHtml(outputText);
+
+    // Get unique replacements that need formatting
+    const formattedReplacements = new Set<string>();
+
+    for (const change of changes) {
+      const isBold = BOLD_CATEGORIES.includes(change.category);
+      const isItalic = ITALIC_CATEGORIES.includes(change.category);
+
+      if (isBold || isItalic) {
+        const escapedReplacement = escapeHtml(change.replacement);
+
+        // Skip if already processed
+        if (formattedReplacements.has(escapedReplacement)) continue;
+        formattedReplacements.add(escapedReplacement);
+
+        const tag = isBold ? 'strong' : 'em';
+        const className = isBold ? 'font-semibold' : 'italic text-blue-600 dark:text-blue-400';
+
+        // Replace all occurrences
+        const regex = new RegExp(escapedReplacement.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        result = result.replace(regex, `<${tag} class="${className}">${escapedReplacement}</${tag}>`);
+      }
+    }
+
+    return nl2br(result);
+  }, [outputText, changes]);
 
   /**
    * Handle input from contenteditable
