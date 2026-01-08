@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS public.user_sadhana_config (
   timezone TEXT DEFAULT 'UTC',
 
   -- Localization
-  language TEXT DEFAULT 'uk' CHECK (language IN ('uk', 'en')), -- Ukrainian, English
+  language TEXT DEFAULT 'ua' CHECK (language IN ('ua', 'en')), -- Ukrainian, English
 
   -- Device info for push notifications
   fcm_token TEXT, -- Firebase Cloud Messaging token
