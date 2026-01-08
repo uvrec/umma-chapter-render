@@ -29,3 +29,6 @@ __pycache__/
 # Python parser outputs (debugging)
 tools/outputs/
 test-*.html
+
+# Supabase
+supabase/.temp/
