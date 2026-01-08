@@ -99,6 +99,7 @@ export default function TextNormalization() {
   const [activeTab, setActiveTab] = useState("normalize");
   const [useRichText, setUseRichText] = useState(false);
   const [inputHtml, setInputHtml] = useState("");
+  const [outputHtml, setOutputHtml] = useState("");
 
 
   // Combine rules
@@ -112,15 +113,52 @@ export default function TextNormalization() {
   }, [allRules, enabledCategories]);
 
   /**
+   * Apply normalization to HTML while preserving structure
+   */
+  const normalizeHtml = useCallback((html: string, rules: NormalizationRule[], categories: Set<string>) => {
+    // Create a temporary div to parse HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    const allChanges: NormalizationChange[] = [];
+
+    // Walk through all text nodes
+    const walker = document.createTreeWalker(temp, NodeFilter.SHOW_TEXT, null);
+    const textNodes: Text[] = [];
+
+    let node;
+    while ((node = walker.nextNode())) {
+      textNodes.push(node as Text);
+    }
+
+    // Apply normalization to each text node
+    for (const textNode of textNodes) {
+      const originalText = textNode.textContent || '';
+      if (!originalText.trim()) continue;
+
+      const { result, changes } = applyNormalizationRules(originalText, rules, categories);
+
+      if (result !== originalText) {
+        textNode.textContent = result;
+        allChanges.push(...changes);
+      }
+    }
+
+    return { result: temp.innerHTML, changes: allChanges };
+  }, []);
+
+  /**
    * Perform normalization
    */
   const performNormalization = useCallback(() => {
     if (!inputText.trim()) {
       setOutputText("");
+      setOutputHtml("");
       setChanges([]);
       return;
     }
 
+    // Apply normalization to plain text
     const { result, changes: newChanges } = applyNormalizationRules(
       inputText,
       allRules,
@@ -129,7 +167,15 @@ export default function TextNormalization() {
 
     setOutputText(result);
     setChanges(newChanges);
-  }, [inputText, allRules, enabledCategories]);
+
+    // If in rich text mode, also normalize the HTML
+    if (useRichText && inputHtml) {
+      const { result: htmlResult } = normalizeHtml(inputHtml, allRules, enabledCategories);
+      setOutputHtml(htmlResult);
+    } else {
+      setOutputHtml("");
+    }
+  }, [inputText, inputHtml, allRules, enabledCategories, useRichText, normalizeHtml]);
 
   /**
    * Live preview with debounce
@@ -284,6 +330,7 @@ export default function TextNormalization() {
     setInputText("");
     setInputHtml("");
     setOutputText("");
+    setOutputHtml("");
     setChanges([]);
     localStorage.removeItem("normalize_input");
     toast.success(t("Очищено", "Cleared"));
@@ -721,17 +768,19 @@ export default function TextNormalization() {
                     </Tooltip>
                   </div>
                 </div>
-                {/* Output Area - HTML with highlighting */}
+                {/* Output Area - HTML with highlighting or formatted output */}
                 <div className="relative flex-1">
                   <div
-                    className="absolute inset-0 p-4 overflow-y-auto font-mono text-sm leading-relaxed bg-muted/10"
+                    className={`absolute inset-0 p-4 overflow-y-auto leading-relaxed bg-muted/10 ${useRichText && outputHtml ? 'prose prose-sm dark:prose-invert max-w-none' : 'font-mono text-sm'}`}
                     style={{ wordBreak: 'break-word' }}
                     dangerouslySetInnerHTML={{
-                      __html: outputText
-                        ? showDiff
-                          ? getDiffViewHtml()
-                          : getFormattedOutputHtml()
-                        : `<span class="text-muted-foreground/50">${t("Результат з'явиться автоматично...", "Result appears automatically...")}</span>`
+                      __html: useRichText && outputHtml
+                        ? outputHtml
+                        : outputText
+                          ? showDiff
+                            ? getDiffViewHtml()
+                            : getFormattedOutputHtml()
+                          : `<span class="text-muted-foreground/50">${t("Результат з'явиться автоматично...", "Result appears automatically...")}</span>`
                     }}
                   />
                 </div>
