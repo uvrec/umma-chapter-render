@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -92,9 +93,6 @@ export default function TextNormalization() {
   const [newRuleCorrect, setNewRuleCorrect] = useState("");
   const [activeTab, setActiveTab] = useState("normalize");
 
-  // Refs for contenteditable
-  const inputRef = useRef<HTMLDivElement>(null);
-  const outputRef = useRef<HTMLDivElement>(null);
 
   // Combine rules
   const allRules = useMemo(() => {
@@ -160,12 +158,6 @@ export default function TextNormalization() {
 
     if (savedInput) {
       setInputText(savedInput);
-      // Also restore to contenteditable after mount
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.innerText = savedInput;
-        }
-      }, 0);
     }
     if (savedIncludeDefaults) setIncludeDefaultRules(savedIncludeDefaults === "true");
     if (savedCategories) {
@@ -285,9 +277,6 @@ export default function TextNormalization() {
     setInputText("");
     setOutputText("");
     setChanges([]);
-    if (inputRef.current) {
-      inputRef.current.innerHTML = "";
-    }
     localStorage.removeItem("normalize_input");
     toast.success(t("Очищено", "Cleared"));
   };
@@ -370,40 +359,47 @@ export default function TextNormalization() {
 
   /**
    * Generate diff view with HTML highlighting
+   * Uses position-based replacement to avoid cascading issues
    */
   const getDiffViewHtml = useCallback(() => {
     if (!showDiff || changes.length === 0) {
       return nl2br(escapeHtml(outputText));
     }
 
-    // First, escape the entire input text
-    let result = escapeHtml(inputText);
+    // Sort changes by position (ascending)
+    const sortedChanges = [...changes].sort((a, b) => a.position - b.position);
 
-    // Sort changes by position in reverse to apply from end
-    const sortedChanges = [...changes].sort((a, b) => b.position - a.position);
+    let result = '';
+    let lastEnd = 0;
 
-    // Track offset caused by escaping
-    // We need to recalculate positions since escaping changes string length
     for (const change of sortedChanges) {
-      // Find the escaped original text
-      const escapedOriginal = escapeHtml(change.original);
-      const escapedReplacement = escapeHtml(change.replacement);
+      // Skip overlapping changes
+      if (change.position < lastEnd) continue;
 
-      // Determine formatting based on category
+      // Add text before this change (escaped)
+      if (change.position > lastEnd) {
+        result += escapeHtml(inputText.slice(lastEnd, change.position));
+      }
+
+      // Add the formatted replacement
+      const escapedReplacement = escapeHtml(change.replacement);
       const isBold = BOLD_CATEGORIES.includes(change.category);
       const isItalic = ITALIC_CATEGORIES.includes(change.category);
 
-      let formatted: string;
       if (isBold) {
-        formatted = `<strong class="text-green-600 dark:text-green-400">${escapedReplacement}</strong>`;
+        result += `<strong class="text-green-600 dark:text-green-400">${escapedReplacement}</strong>`;
       } else if (isItalic) {
-        formatted = `<em class="text-blue-600 dark:text-blue-400">${escapedReplacement}</em>`;
+        result += `<em class="text-blue-600 dark:text-blue-400">${escapedReplacement}</em>`;
       } else {
-        formatted = `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedReplacement}</mark>`;
+        result += `<mark class="bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200 px-0.5 rounded">${escapedReplacement}</mark>`;
       }
 
-      // Replace the first occurrence of escaped original with formatted
-      result = result.replace(escapedOriginal, formatted);
+      lastEnd = change.position + change.original.length;
+    }
+
+    // Add remaining text after last change
+    if (lastEnd < inputText.length) {
+      result += escapeHtml(inputText.slice(lastEnd));
     }
 
     return nl2br(result);
@@ -411,63 +407,13 @@ export default function TextNormalization() {
 
   /**
    * Generate formatted output HTML (bold for scriptures, italic for terms)
+   * Non-diff mode - just show plain output with optional formatting
    */
   const getFormattedOutputHtml = useCallback(() => {
-    if (changes.length === 0) {
-      return nl2br(escapeHtml(outputText));
-    }
+    // In non-diff mode, just show the plain escaped output
+    return nl2br(escapeHtml(outputText));
+  }, [outputText]);
 
-    // First escape the output
-    let result = escapeHtml(outputText);
-
-    // Get unique replacements that need formatting
-    const formattedReplacements = new Set<string>();
-
-    for (const change of changes) {
-      const isBold = BOLD_CATEGORIES.includes(change.category);
-      const isItalic = ITALIC_CATEGORIES.includes(change.category);
-
-      if (isBold || isItalic) {
-        const escapedReplacement = escapeHtml(change.replacement);
-
-        // Skip if already processed
-        if (formattedReplacements.has(escapedReplacement)) continue;
-        formattedReplacements.add(escapedReplacement);
-
-        const tag = isBold ? 'strong' : 'em';
-        const className = isBold ? 'font-semibold' : 'italic text-blue-600 dark:text-blue-400';
-
-        // Replace all occurrences
-        const regex = new RegExp(escapedReplacement.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-        result = result.replace(regex, `<${tag} class="${className}">${escapedReplacement}</${tag}>`);
-      }
-    }
-
-    return nl2br(result);
-  }, [outputText, changes]);
-
-  /**
-   * Handle input from contenteditable
-   */
-  const handleInputChange = useCallback(() => {
-    if (inputRef.current) {
-      // Get text content, preserving line breaks
-      const html = inputRef.current.innerHTML;
-      const text = html
-        .replace(/<br\s*\/?>/gi, '\n')
-        .replace(/<\/div><div>/gi, '\n')
-        .replace(/<div>/gi, '\n')
-        .replace(/<\/div>/gi, '')
-        .replace(/<[^>]+>/g, '')
-        .replace(/&nbsp;/g, ' ')
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#039;/g, "'");
-      setInputText(text);
-    }
-  }, []);
 
   return (
     <TooltipProvider>
@@ -629,33 +575,17 @@ export default function TextNormalization() {
                     </Tooltip>
                   </div>
                 </div>
-                {/* Input Area - Contenteditable with placeholder */}
-                <div className="relative flex-1">
-                  <div
-                    ref={inputRef}
-                    contentEditable
-                    onInput={handleInputChange}
-                    onPaste={(e) => {
-                      e.preventDefault();
-                      const text = e.clipboardData.getData('text/plain');
-                      document.execCommand('insertText', false, text);
-                    }}
-                    className="absolute inset-0 p-4 outline-none overflow-y-auto font-mono text-sm leading-relaxed whitespace-pre-wrap"
-                    style={{ wordBreak: 'break-word' }}
-                    suppressContentEditableWarning
-                  />
-                  {/* Placeholder overlay */}
-                  {!inputText && (
-                    <div className="absolute inset-0 pointer-events-none p-4">
-                      <span className="text-muted-foreground/50 font-mono text-sm whitespace-pre-wrap">
-                        {t(
-                          "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бхаґавад-ґіту кожного дня.",
-                          "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
-                        )}
-                      </span>
-                    </div>
+                {/* Input Area - Textarea */}
+                <Textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder={t(
+                    "Вставте текст для нормалізації...\n\nПриклад:\nСанн'ясі повинен читати Бхаґавад-ґіту кожного дня.",
+                    "Paste text to normalize...\n\nExample:\nSannyasi should read Bhagavad-gita every day."
                   )}
-                </div>
+                  className="flex-1 resize-none border-0 rounded-none font-mono text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
+                  spellCheck={false}
+                />
               </div>
 
               {/* Output Panel */}
@@ -720,7 +650,6 @@ export default function TextNormalization() {
                 {/* Output Area - HTML with highlighting */}
                 <div className="relative flex-1">
                   <div
-                    ref={outputRef}
                     className="absolute inset-0 p-4 overflow-y-auto font-mono text-sm leading-relaxed bg-muted/10"
                     style={{ wordBreak: 'break-word' }}
                     dangerouslySetInnerHTML={{
