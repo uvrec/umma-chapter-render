@@ -103,6 +103,10 @@ import NumCal from "./pages/admin/NumCal";
 import Install from "./pages/Install";
 import BookSearch from "./pages/BookSearch";
 import Chat from "./pages/Chat";
+import LocalChat from "./pages/LocalChat";
+import Quotes from "./pages/Quotes";
+import TattvasIndex from "./pages/TattvasIndex";
+import TattvaPage from "./pages/TattvaPage";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
@@ -166,9 +170,11 @@ function AppContent() {
           />
 
           {/* Alias/redirects */}
-          <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/gita/1" replace />} />
+          <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/veda-reader/bg/1" replace />} />
+          <Route path="/veda-reader/gita/*" element={<Navigate to="/veda-reader/bg/1" replace />} />
           <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
-          <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/bhagavatam" replace />} />
+          <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/sb" replace />} />
+          <Route path="/veda-reader/bhagavatam/*" element={<Navigate to="/veda-reader/sb" replace />} />
 
           {/* Бібліотека */}
           <Route path="/library" element={<Library />} />
@@ -202,6 +208,10 @@ function AppContent() {
           <Route path="/install" element={<Install />} />
           <Route path="/search" element={<BookSearch />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/local" element={<LocalChat />} />
+          <Route path="/quotes" element={<Quotes />} />
+          <Route path="/tattvas" element={<TattvasIndex />} />
+          <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/contact" element={<Contact />} />
 

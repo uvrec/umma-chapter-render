@@ -54,6 +54,7 @@ interface VerseCardProps {
   fontSize?: number;
   lineHeight?: number;
   flowMode?: boolean;
+  showVerseContour?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (
     verseId: string,
@@ -108,6 +109,7 @@ export const VerseCard = ({
   fontSize = 18,
   lineHeight = 1.6,
   flowMode = false,
+  showVerseContour = true,
   isAdmin = false,
   onVerseUpdate,
   onVerseNumberUpdate,
@@ -153,7 +155,7 @@ export const VerseCard = ({
     },
   };
   const labels = blockLabels[language];
-  const { playTrack, currentTrack, togglePlay, isPlaying } = useAudio();
+  const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
 
   // Check if this verse is currently playing
   const isNowPlaying = useMemo(() => {
@@ -208,11 +210,12 @@ export const VerseCard = ({
     const trackId = `${verseNumber}-${section}`;
 
     // Якщо вже грає цей трек — тумблер
-    if (currentTrack?.id === trackId) {
+    if (currentTrack?.id === trackId || currentTrack?.verseId === verseId) {
       togglePlay();
       return;
     }
-    playTrack({
+    // Use playVerseWithChapterContext to load all chapter verses with audio
+    playVerseWithChapterContext({
       id: trackId,
       title: `${verseNumber} — ${section}`,
       subtitle: bookName,
@@ -260,12 +263,17 @@ export const VerseCard = ({
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
+  // Визначаємо класи для контуру
+  const contourClasses = isNowPlaying
+    ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing'
+    : showVerseContour
+      ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
+      : '';
+
   return (
     <div
       ref={verseRef}
-      className={`verse-surface w-full animate-fade-in ${
-        isNowPlaying ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing' : ''
-      }`}
+      className={`verse-surface w-full animate-fade-in ${contourClasses}`}
     >
       <div
         className="py-6"
@@ -306,7 +314,14 @@ export const VerseCard = ({
                 {isNowPlaying ? (
                   <>
                     <Pause className="h-4 w-4" />
-                    <span className="text-sm font-medium">{language === 'ua' ? 'Грає...' : 'Playing...'}</span>
+                    {/* Анімована звукова хвилька */}
+                    <div className="audio-wave-bars">
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                      <div className="audio-wave-bar" />
+                    </div>
                   </>
                 ) : (
                   <>
@@ -467,7 +482,7 @@ export const VerseCard = ({
               <p
                 style={{
                   fontSize: `${fontSize}px`,
-                  lineHeight,
+                  lineHeight: 1.4,
                 }}
                 className="text-justify"
               >

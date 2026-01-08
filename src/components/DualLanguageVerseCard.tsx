@@ -139,7 +139,7 @@ export const DualLanguageVerseCard = ({
     }, 300);
   }, [navigate]);
 
-  const { playTrack, currentTrack, togglePlay } = useAudio();
+  const { playVerseWithChapterContext, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
   const [isAddedToLearning, setIsAddedToLearning] = useState(false);
 
@@ -217,14 +217,18 @@ export const DualLanguageVerseCard = ({
     const src = audioSrc || audioUrl;
     if (!src) return;
     const trackId = `${verseNumber}-${section}`;
-    if (currentTrack?.id === trackId) {
+    if (currentTrack?.id === trackId || currentTrack?.verseId === verseId) {
       togglePlay();
       return;
     }
-    playTrack({
+    // Use playVerseWithChapterContext to load all chapter verses with audio
+    playVerseWithChapterContext({
       id: trackId,
       title: `${verseNumber} — ${section}`,
+      subtitle: bookName,
       src,
+      verseId: verseId,
+      verseNumber: verseNumber,
     });
   };
 
@@ -501,7 +505,7 @@ export const DualLanguageVerseCard = ({
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
-                      lineHeight,
+                      lineHeight: 1.4,
                     }}
                     className="text-justify"
                   >
@@ -559,7 +563,7 @@ export const DualLanguageVerseCard = ({
                   <p
                     style={{
                       fontSize: `${fontSize}px`,
-                      lineHeight,
+                      lineHeight: 1.4,
                     }}
                     className="text-justify"
                   >

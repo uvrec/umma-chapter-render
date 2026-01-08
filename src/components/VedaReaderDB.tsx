@@ -1,10 +1,10 @@
 // VedaReaderDB.tsx — ENHANCED VERSION
 // Додано: Sticky Header, Bookmark, Share, Download, Keyboard Navigation
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -19,6 +19,7 @@ import { toast as sonnerToast } from "sonner";
 import { addLearningVerse, isVerseInLearningList } from "@/utils/learningVerses";
 import { TiptapRenderer } from "@/components/blog/TiptapRenderer";
 import { HighlightDialog } from "@/components/HighlightDialog";
+import { SelectionTooltip } from "@/components/SelectionTooltip";
 import { useHighlights } from "@/hooks/useHighlights";
 import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShortcuts";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
@@ -26,6 +27,7 @@ import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
 import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
 import { RelatedVerses } from "@/components/RelatedVerses";
+import { VerseTattvas } from "@/components/verse/VerseTattvas";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
@@ -61,6 +63,9 @@ export const VedaReaderDB = () => {
     before: "",
     after: ""
   });
+  // Selection tooltip state (shown before dialog)
+  const [selectionTooltipVisible, setSelectionTooltipVisible] = useState(false);
+  const [selectionTooltipPosition, setSelectionTooltipPosition] = useState({ x: 0, y: 0 });
 
   // Keyboard shortcuts state
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
@@ -83,7 +88,10 @@ export const VedaReaderDB = () => {
     showNumbers,
     setShowNumbers,
     flowMode,
-    setFlowMode
+    setFlowMode,
+    showVerseContour,
+    fullscreenMode,
+    setFullscreenMode,
   } = useReaderSettings();
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
@@ -550,9 +558,11 @@ export const VedaReaderDB = () => {
       transliteration: currentVerse.transliteration || undefined,
       translation: language === 'ua' ? currentVerse.translation_ua || "" : currentVerse.translation_en || "",
       commentary: language === 'ua' ? currentVerse.commentary_ua || undefined : currentVerse.commentary_en || undefined,
-      audioUrl: currentVerse.audio_url || undefined,
-      audioSanskrit: currentVerse.audio_sanskrit || undefined,
-      audioTranslation: currentVerse.audio_translation || undefined
+      audioUrl: (currentVerse as any).full_verse_audio_url || currentVerse.audio_url || undefined,
+      audioSanskrit: (currentVerse as any).recitation_audio_url || undefined,
+      audioTranslation: language === 'ua'
+        ? (currentVerse as any).explanation_ua_audio_url || undefined
+        : (currentVerse as any).explanation_en_audio_url || undefined
     };
     const added = addLearningVerse(learningVerse);
     if (added) {
@@ -562,58 +572,94 @@ export const VedaReaderDB = () => {
     }
   };
 
-  // 🆕 Text selection handler with checks
+  // 🆕 Text selection handler - shows tooltip instead of dialog
+  const selectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleTextSelection = useCallback(() => {
+    // Clear any pending timeout
+    if (selectionTimeoutRef.current) {
+      clearTimeout(selectionTimeoutRef.current);
+      selectionTimeoutRef.current = null;
+    }
+
     // ✅ ПЕРЕВІРКА 1: Чи не в режимі редагування?
     const editableElement = document.activeElement as HTMLElement;
     if (editableElement?.tagName === 'TEXTAREA' || editableElement?.tagName === 'INPUT' || editableElement?.contentEditable === 'true' || editableElement?.closest('[contenteditable="true"]')) {
-      console.log('🚫 Highlights: В режимі редагування');
       return;
     }
+
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim();
 
     // ✅ ПЕРЕВІРКА 2: Чи достатньо тексту? (мінімум 10 символів)
     if (!selectedText || selectedText.length < 10) {
-      console.log('🚫 Highlights: Занадто короткий текст', selectedText?.length);
       return;
     }
 
     // ✅ ПЕРЕВІРКА 3: Чи це не одне слово?
     if (!selectedText.includes(' ')) {
-      console.log('🚫 Highlights: Одне слово, ймовірно копіювання');
       return;
     }
 
-    // Get context
+    // Get selection position for tooltip
     const range = selection?.getRangeAt(0);
     if (!range) return;
+
+    const rect = range.getBoundingClientRect();
+    const tooltipX = rect.left + rect.width / 2;
+    const tooltipY = rect.top + window.scrollY;
+
+    // Get context
     const container = range.commonAncestorContainer;
     const fullText = container.textContent || '';
     const startOffset = range.startOffset;
     const endOffset = range.endOffset;
     const before = fullText.substring(Math.max(0, startOffset - 50), startOffset);
     const after = fullText.substring(endOffset, Math.min(fullText.length, endOffset + 50));
-    setSelectedTextForHighlight(selectedText);
-    setSelectionContext({
-      before,
-      after
-    });
 
-    // ✅ Затримка перед показом діалогу
-    setTimeout(() => {
+    // ✅ Довша затримка (700ms) - дає час для копіювання без перешкод
+    selectionTimeoutRef.current = setTimeout(() => {
       const currentSelection = window.getSelection()?.toString().trim();
+      // Only show tooltip if selection is still the same
       if (currentSelection === selectedText) {
-        setHighlightDialogOpen(true);
+        setSelectedTextForHighlight(selectedText);
+        setSelectionContext({ before, after });
+        setSelectionTooltipPosition({ x: tooltipX, y: tooltipY });
+        setSelectionTooltipVisible(true);
       }
-    }, 300);
+    }, 700);
   }, []);
 
-  // Mouseup listener for highlights
+  // Hide tooltip when selection changes or is cleared
+  const handleSelectionChange = useCallback(() => {
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+
+    // If no selection or very short, hide tooltip
+    if (!selectedText || selectedText.length < 10) {
+      setSelectionTooltipVisible(false);
+      if (selectionTimeoutRef.current) {
+        clearTimeout(selectionTimeoutRef.current);
+        selectionTimeoutRef.current = null;
+      }
+    }
+  }, []);
+
+  // Handler for opening dialog from tooltip
+  const handleOpenHighlightDialog = useCallback(() => {
+    setSelectionTooltipVisible(false);
+    setHighlightDialogOpen(true);
+  }, []);
+
+  // Mouseup and selectionchange listeners for highlights
   useEffect(() => {
     document.addEventListener('mouseup', handleTextSelection);
-    return () => document.removeEventListener('mouseup', handleTextSelection);
-  }, [handleTextSelection]);
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => {
+      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('selectionchange', handleSelectionChange);
+    };
+  }, [handleTextSelection, handleSelectionChange]);
 
   // 🆕 Keyboard navigation (← →)
   useEffect(() => {
@@ -720,16 +766,6 @@ export const VedaReaderDB = () => {
       highlight_color: "yellow"
     });
   }, [book, canto, effectiveChapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight]);
-
-  // Add mouseup listener for text selection
-  useEffect(() => {
-    const handleMouseUp = () => {
-      // Delay to allow selection to complete
-      setTimeout(handleTextSelection, 100);
-    };
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => document.removeEventListener("mouseup", handleMouseUp);
-  }, [handleTextSelection]);
 
   // Визначити всі keyboard shortcuts
   const shortcuts: KeyboardShortcut[] = [
@@ -850,6 +886,13 @@ export const VedaReaderDB = () => {
     handler: () => setShowJumpDialog(true),
     category: 'navigation'
   },
+  // Fullscreen
+  {
+    key: 'f',
+    description: t('Повноекранний режим', 'Fullscreen mode'),
+    handler: () => setFullscreenMode(prev => !prev),
+    category: 'modes'
+  },
   // Help
   {
     key: '?',
@@ -858,11 +901,15 @@ export const VedaReaderDB = () => {
     category: 'help'
   }, {
     key: 'Escape',
-    description: t('Закрити модальне вікно', 'Close modal'),
+    description: t('Закрити модальне вікно / Вийти з повноекранного', 'Close modal / Exit fullscreen'),
     handler: () => {
-      setShowKeyboardShortcuts(false);
-      setShowJumpDialog(false);
-      setSettingsOpen(false);
+      if (fullscreenMode) {
+        setFullscreenMode(false);
+      } else {
+        setShowKeyboardShortcuts(false);
+        setShowJumpDialog(false);
+        setSettingsOpen(false);
+      }
     },
     category: 'help'
   }];
@@ -900,10 +947,21 @@ export const VedaReaderDB = () => {
   // Не потрібно встановлювати inline font-size на контейнер
 
   return <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
+      {/* Кнопка виходу з повноекранного режиму */}
+      {fullscreenMode && (
+        <button
+          onClick={() => setFullscreenMode(false)}
+          className="fullscreen-exit-btn"
+          title={t("Вийти з повноекранного режиму (Esc)", "Exit fullscreen (Esc)")}
+        >
+          <X className="h-5 w-5" />
+        </button>
+      )}
+
       <Header />
 
-      {/* 🆕 Sticky Header з іконками */}
-      <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* 🆕 Sticky Breadcrumbs - прилипає під хедером */}
+      <div className="sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between gap-2">
             {/* Breadcrumbs - responsive with overflow handling */}
@@ -945,6 +1003,9 @@ export const VedaReaderDB = () => {
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
                 <HelpCircle className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setFullscreenMode(!fullscreenMode)} title={t("Повноекранний режим (f)", "Fullscreen mode (f)")}>
+                <Maximize className={`h-5 w-5 ${fullscreenMode ? "text-primary" : ""}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} title={t("Налаштування", "Settings")}>
                 <Settings className="h-5 w-5" />
@@ -1015,7 +1076,7 @@ export const VedaReaderDB = () => {
             updates,
             chapterId: effectiveChapter?.id,
             verseNumber: verse.verse_number
-          })} /> : <VerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(verse, 'synonyms')} translation={getTranslationWithFallback(verse, 'translation')} commentary={getTranslationWithFallback(verse, 'commentary')} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslation={language === "ua" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} audioCommentary={language === "ua" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} is_composite={(verse as any).is_composite} start_verse={(verse as any).start_verse} end_verse={(verse as any).end_verse} verse_count={(verse as any).verse_count} textDisplaySettings={contSettings} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={true} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+          })} /> : <VerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "ua" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliteration={language === "ua" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(verse, 'synonyms')} translation={getTranslationWithFallback(verse, 'translation')} commentary={getTranslationWithFallback(verse, 'commentary')} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslation={language === "ua" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} audioCommentary={language === "ua" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} is_composite={(verse as any).is_composite} start_verse={(verse as any).start_verse} end_verse={(verse as any).end_verse} verse_count={(verse as any).verse_count} textDisplaySettings={contSettings} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={true} showVerseContour={showVerseContour} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
             verseId,
             updates,
             chapterId: effectiveChapter?.id,
@@ -1032,7 +1093,7 @@ export const VedaReaderDB = () => {
               updates,
               chapterId: effectiveChapter?.id,
               verseNumber: currentVerse.verse_number
-            })} onPrevVerse={handlePrevVerse} onNextVerse={handleNextVerse} isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0} isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1} prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")} nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")} /> : <VerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "ua" ? (currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "" : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliteration={language === "ua" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(currentVerse, 'synonyms')} translation={getTranslationWithFallback(currentVerse, 'translation')} commentary={getTranslationWithFallback(currentVerse, 'commentary')} audioUrl={(currentVerse as any).full_verse_audio_url || currentVerse.audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslation={language === "ua" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} audioCommentary={language === "ua" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} is_composite={(currentVerse as any).is_composite} start_verse={(currentVerse as any).start_verse} end_verse={(currentVerse as any).end_verse} verse_count={(currentVerse as any).verse_count} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={flowMode} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+            })} onPrevVerse={handlePrevVerse} onNextVerse={handleNextVerse} isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0} isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1} prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")} nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")} /> : <VerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "ua" ? (currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "" : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliteration={language === "ua" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(currentVerse, 'synonyms')} translation={getTranslationWithFallback(currentVerse, 'translation')} commentary={getTranslationWithFallback(currentVerse, 'commentary')} audioUrl={(currentVerse as any).full_verse_audio_url || currentVerse.audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslation={language === "ua" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} audioCommentary={language === "ua" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} is_composite={(currentVerse as any).is_composite} start_verse={(currentVerse as any).start_verse} end_verse={(currentVerse as any).end_verse} verse_count={(currentVerse as any).verse_count} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={flowMode} showVerseContour={showVerseContour} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
               verseId,
               updates,
               chapterId: effectiveChapter?.id,
@@ -1042,6 +1103,11 @@ export const VedaReaderDB = () => {
                 queryKey: ["verses"]
               });
             }} onPrevVerse={handlePrevVerse} onNextVerse={handleNextVerse} isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0} isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1} prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")} nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")} />}
+
+                  {/* Tattvas */}
+                  {currentVerse?.id && (
+                    <VerseTattvas verseId={currentVerse.id} className="mt-4" />
+                  )}
 
                   {/* Related verses */}
                   {currentVerse?.id && (
@@ -1071,6 +1137,12 @@ export const VedaReaderDB = () => {
 
       <GlobalSettingsPanel />
 
+      <SelectionTooltip
+        isVisible={selectionTooltipVisible}
+        position={selectionTooltipPosition}
+        onSave={handleOpenHighlightDialog}
+        onClose={() => setSelectionTooltipVisible(false)}
+      />
       <HighlightDialog isOpen={highlightDialogOpen} onClose={() => setHighlightDialogOpen(false)} onSave={handleSaveHighlight} selectedText={selectedTextForHighlight} />
 
       <KeyboardShortcutsModal isOpen={showKeyboardShortcuts} onClose={() => setShowKeyboardShortcuts(false)} shortcuts={shortcuts} />
@@ -1100,7 +1172,7 @@ export const VedaReaderDB = () => {
 
       {/* Chapter minimap - only in single verse mode */}
       {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 1 && (
-        <>
+        <div data-minimap="true">
           {/* Desktop: vertical sidebar */}
           <ChapterMinimap
             verses={verses}
@@ -1119,7 +1191,7 @@ export const VedaReaderDB = () => {
             chapterNumber={effectiveChapterParam}
             isCantoMode={isCantoMode}
           />
-        </>
+        </div>
       )}
     </div>;
 };

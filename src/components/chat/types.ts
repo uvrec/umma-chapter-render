@@ -8,6 +8,7 @@ export interface Citation {
   reference: string;
   referenceType: 'book' | 'lecture' | 'letter';
   bookSlug?: string;
+  cantoNumber?: number;
   chapterNumber?: number;
   verseNumber?: string;
   url: string;

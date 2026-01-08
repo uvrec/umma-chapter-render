@@ -1,14 +1,28 @@
 // ModernGlobalPlayer.tsx - Інтегрована версія для VedaVoice
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
   Repeat, Repeat1, Shuffle, ChevronUp, ChevronDown, X,
-  Heart, MoreVertical, Music
+  Heart, MoreVertical, Music, Timer, Gauge, ExternalLink, Share2
 } from 'lucide-react';
 import { useAudio } from '@/contexts/ModernAudioContext';
 import { WaveformProgressBar } from './WaveformProgressBar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SleepTimerDialog, SleepTimerIndicator } from '@/components/SleepTimerDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+// Тип для даних вірша
+interface VerseData {
+  sanskrit: string | null;
+  transliteration: string | null;
+  translation_ua: string | null;
+  translation_en: string | null;
+  synonyms_ua: string | null;
+  synonyms_en: string | null;
+}
 
 interface ModernGlobalPlayerProps {
   className?: string;
@@ -16,6 +30,11 @@ interface ModernGlobalPlayerProps {
 
 export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ className = '' }) => {
   const [showSleepTimer, setShowSleepTimer] = useState(false);
+  const [verseData, setVerseData] = useState<VerseData | null>(null);
+  const [isLoadingVerse, setIsLoadingVerse] = useState(false);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showSpeedMenu, setShowSpeedMenu] = useState(false);
+  const settingsMenuRef = useRef<HTMLDivElement>(null);
 
   const {
     currentTrack,
@@ -27,6 +46,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     repeatMode,
     isShuffled,
     isExpanded,
+    playbackRate,
     togglePlay,
     nextTrack,
     prevTrack,
@@ -35,10 +55,99 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     toggleMute,
     toggleRepeat,
     toggleShuffle,
-    setIsExpanded
+    setIsExpanded,
+    setPlaybackRate,
+    addFavorite,
+    removeFavorite,
+    isFavorite
   } = useAudio();
 
+  const { language } = useLanguage();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  // Check if current track is favorited
+  const isCurrentFavorite = currentTrack ? isFavorite(currentTrack.id) : false;
+
+  // Toggle favorite for current track
+  const toggleFavorite = () => {
+    if (!currentTrack) return;
+    if (isCurrentFavorite) {
+      removeFavorite(currentTrack.id);
+      toast.success(language === 'ua' ? 'Видалено з улюблених' : 'Removed from favorites');
+    } else {
+      addFavorite(currentTrack);
+      toast.success(language === 'ua' ? 'Додано до улюблених' : 'Added to favorites');
+    }
+  };
+
+  // Close settings menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsMenuRef.current && !settingsMenuRef.current.contains(event.target as Node)) {
+        setShowSettingsMenu(false);
+        setShowSpeedMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Playback speed options
+  const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+  // Navigate to verse page
+  const goToVersePage = () => {
+    if (currentTrack?.verseId) {
+      navigate(`/verse/${currentTrack.verseId}`);
+      setIsExpanded(false);
+    } else if (currentTrack?.bookSlug && currentTrack?.chapterNumber && currentTrack?.verseNumber) {
+      const { bookSlug, cantoNumber, chapterNumber, verseNumber } = currentTrack;
+      const path = cantoNumber
+        ? `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`
+        : `/veda-reader/${bookSlug}/chapter/${chapterNumber}/${verseNumber}`;
+      navigate(path);
+      setIsExpanded(false);
+    }
+  };
+
+  // Завантажуємо дані вірша коли змінюється currentTrack
+  useEffect(() => {
+    const fetchVerseData = async () => {
+      if (!currentTrack?.verseId) {
+        setVerseData(null);
+        return;
+      }
+
+      setIsLoadingVerse(true);
+      try {
+        const { data, error } = await supabase
+          .from('verses')
+          .select('sanskrit, transliteration, transliteration_ua, transliteration_en, translation_ua, translation_en, synonyms_ua, synonyms_en')
+          .eq('id', currentTrack.verseId)
+          .maybeSingle();
+
+        if (error) throw error;
+        if (data) {
+          setVerseData({
+            sanskrit: data.sanskrit,
+            transliteration: data.transliteration || data.transliteration_ua || data.transliteration_en,
+            translation_ua: data.translation_ua,
+            translation_en: data.translation_en,
+            synonyms_ua: data.synonyms_ua,
+            synonyms_en: data.synonyms_en,
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching verse data:', err);
+        setVerseData(null);
+      } finally {
+        setIsLoadingVerse(false);
+      }
+    };
+
+    fetchVerseData();
+  }, [currentTrack?.verseId]);
 
   // Format time helper
   const formatTime = (seconds: number) => {
@@ -87,21 +196,76 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
             </button>
 
             <div className="h-full flex">
-              {/* Left side - Cover Art (full height) */}
+              {/* Left side - Cover Art + Verse Text */}
               <div className="w-1/2 h-full relative">
+                {/* Background cover image with gradient overlay */}
                 {currentTrack.coverImage ? (
                   <img
                     src={currentTrack.coverImage}
                     alt={currentTrack.title}
-                    className="w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
-                    <Music className="w-32 h-32 text-primary-foreground/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-primary-hover" />
+                )}
+
+                {/* Dark gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-background" />
+
+                {/* Verse Text Overlay */}
+                {verseData && (
+                  <div className="absolute inset-0 flex flex-col justify-center px-12 py-16 overflow-y-auto">
+                    {/* Sanskrit */}
+                    {verseData.sanskrit && (
+                      <div className="mb-6">
+                        <p
+                          className="text-2xl xl:text-3xl font-sanskrit text-white/95 leading-relaxed text-center"
+                          style={{ fontFamily: '"Noto Sans Devanagari", "Siddhanta", serif' }}
+                        >
+                          {verseData.sanskrit}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Transliteration */}
+                    {verseData.transliteration && (
+                      <div className="mb-6">
+                        <p className="text-lg xl:text-xl text-white/80 italic leading-relaxed text-center">
+                          {verseData.transliteration}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Divider */}
+                    <div className="w-24 h-px bg-white/30 mx-auto my-4" />
+
+                    {/* Translation */}
+                    {(verseData.translation_ua || verseData.translation_en) && (
+                      <div className="mt-4">
+                        <p className="text-base xl:text-lg text-white/90 leading-relaxed text-center max-w-lg mx-auto">
+                          {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
-                {/* Gradient overlay for smooth transition */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background" />
+
+                {/* If no verse data, show music icon */}
+                {!verseData && !isLoadingVerse && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Music className="w-32 h-32 text-white/30" />
+                  </div>
+                )}
+
+                {/* Loading state */}
+                {isLoadingVerse && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 border-4 border-white/30 border-t-white/80 rounded-full animate-spin" />
+                  </div>
+                )}
+
+                {/* Gradient overlay for smooth transition to right side */}
+                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-r from-transparent to-background" />
               </div>
 
               {/* Right side - Controls */}
@@ -195,8 +359,20 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                 {/* Secondary Controls */}
                 <div className="flex items-center justify-between max-w-lg mx-auto w-full">
-                  <button className="text-muted-foreground hover:text-foreground transition">
-                    <Heart className="w-6 h-6" />
+                  {/* Favorite Button */}
+                  <button
+                    onClick={toggleFavorite}
+                    className={`p-2 rounded-full transition ${
+                      isCurrentFavorite
+                        ? 'text-red-500 bg-red-500/20'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
+                    }`}
+                    title={isCurrentFavorite
+                      ? (language === 'ua' ? 'Видалити з улюблених' : 'Remove from favorites')
+                      : (language === 'ua' ? 'Додати до улюблених' : 'Add to favorites')
+                    }
+                  >
+                    <Heart className={`w-6 h-6 ${isCurrentFavorite ? 'fill-current' : ''}`} />
                   </button>
 
                   {/* Volume */}
@@ -220,9 +396,84 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     />
                   </div>
 
-                  <button className="text-muted-foreground hover:text-foreground transition">
-                    <MoreVertical className="w-6 h-6" />
-                  </button>
+                  {/* Settings Menu */}
+                  <div className="relative" ref={settingsMenuRef}>
+                    <button
+                      onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                      className={`p-2 rounded-full transition ${
+                        showSettingsMenu
+                          ? 'text-primary bg-primary/20'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
+                      }`}
+                    >
+                      <MoreVertical className="w-6 h-6" />
+                    </button>
+
+                    {/* Settings Dropdown */}
+                    {showSettingsMenu && (
+                      <div className="absolute bottom-full right-0 mb-2 w-56 bg-card rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                        {/* Sleep Timer */}
+                        <button
+                          onClick={() => {
+                            setShowSleepTimer(true);
+                            setShowSettingsMenu(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
+                        >
+                          <Timer className="w-5 h-5 text-muted-foreground" />
+                          <span>{language === 'ua' ? 'Таймер сну' : 'Sleep Timer'}</span>
+                        </button>
+
+                        {/* Playback Speed */}
+                        <div className="relative">
+                          <button
+                            onClick={() => setShowSpeedMenu(!showSpeedMenu)}
+                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Gauge className="w-5 h-5 text-muted-foreground" />
+                              <span>{language === 'ua' ? 'Швидкість' : 'Speed'}</span>
+                            </div>
+                            <span className="text-primary font-medium">{playbackRate}x</span>
+                          </button>
+
+                          {/* Speed submenu */}
+                          {showSpeedMenu && (
+                            <div className="absolute left-full bottom-0 ml-1 w-24 bg-card rounded-lg shadow-xl border border-border overflow-hidden">
+                              {speedOptions.map(speed => (
+                                <button
+                                  key={speed}
+                                  onClick={() => {
+                                    setPlaybackRate(speed);
+                                    setShowSpeedMenu(false);
+                                  }}
+                                  className={`w-full px-4 py-2 text-center hover:bg-muted/50 transition ${
+                                    playbackRate === speed ? 'text-primary font-medium bg-primary/10' : ''
+                                  }`}
+                                >
+                                  {speed}x
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Go to Verse (if verse data available) */}
+                        {(currentTrack?.verseId || (currentTrack?.bookSlug && currentTrack?.chapterNumber)) && (
+                          <button
+                            onClick={() => {
+                              goToVersePage();
+                              setShowSettingsMenu(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
+                          >
+                            <ExternalLink className="w-5 h-5 text-muted-foreground" />
+                            <span>{language === 'ua' ? 'Перейти до вірша' : 'Go to verse'}</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -240,22 +491,60 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
               <ChevronDown className="w-6 h-6 text-white" />
             </button>
 
-            {/* Cover Art (Large) */}
-            <div className="max-w-md mx-auto mt-16 mb-8">
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
-                {currentTrack.coverImage ? (
-                  <img
-                    src={currentTrack.coverImage}
-                    alt={currentTrack.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
-                    <Music className="w-20 h-20 text-primary-foreground" />
+            {/* Verse Text for Mobile (if available) */}
+            {verseData ? (
+              <div className="max-w-md mx-auto mt-12 mb-6 px-4">
+                {/* Sanskrit */}
+                {verseData.sanskrit && (
+                  <div className="mb-4">
+                    <p
+                      className="text-xl font-sanskrit text-foreground leading-relaxed text-center"
+                      style={{ fontFamily: '"Noto Sans Devanagari", "Siddhanta", serif' }}
+                    >
+                      {verseData.sanskrit}
+                    </p>
+                  </div>
+                )}
+
+                {/* Transliteration */}
+                {verseData.transliteration && (
+                  <div className="mb-4">
+                    <p className="text-base text-muted-foreground italic leading-relaxed text-center">
+                      {verseData.transliteration}
+                    </p>
+                  </div>
+                )}
+
+                {/* Divider */}
+                <div className="w-16 h-px bg-border mx-auto my-4" />
+
+                {/* Translation */}
+                {(verseData.translation_ua || verseData.translation_en) && (
+                  <div className="mb-4">
+                    <p className="text-sm text-foreground/90 leading-relaxed text-center">
+                      {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                    </p>
                   </div>
                 )}
               </div>
-            </div>
+            ) : (
+              /* Cover Art (Large) - fallback if no verse data */
+              <div className="max-w-md mx-auto mt-16 mb-8">
+                <div className="aspect-square rounded-2xl overflow-hidden shadow-2xl">
+                  {currentTrack.coverImage ? (
+                    <img
+                      src={currentTrack.coverImage}
+                      alt={currentTrack.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary via-accent to-primary-hover flex items-center justify-center">
+                      <Music className="w-20 h-20 text-primary-foreground" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Track Info */}
             <div className="max-w-md mx-auto text-center mb-6">
@@ -347,8 +636,16 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
             {/* Secondary Controls */}
             <div className="max-w-md mx-auto flex items-center justify-between px-4">
-              <button className="text-muted-foreground hover:text-foreground transition">
-                <Heart className="w-6 h-6" />
+              {/* Favorite Button */}
+              <button
+                onClick={toggleFavorite}
+                className={`p-2 rounded-full transition ${
+                  isCurrentFavorite
+                    ? 'text-red-500 bg-red-500/20'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
+                }`}
+              >
+                <Heart className={`w-6 h-6 ${isCurrentFavorite ? 'fill-current' : ''}`} />
               </button>
 
               {/* Volume */}
@@ -372,7 +669,66 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 />
               </div>
 
-              <SleepTimerIndicator onClick={() => setShowSleepTimer(true)} />
+              {/* Settings Menu (Mobile) */}
+              <div className="relative" ref={settingsMenuRef}>
+                <button
+                  onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+                  className={`p-2 rounded-full transition ${
+                    showSettingsMenu
+                      ? 'text-primary bg-primary/20'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
+                  }`}
+                >
+                  <MoreVertical className="w-5 h-5" />
+                </button>
+
+                {/* Settings Dropdown (Mobile) */}
+                {showSettingsMenu && (
+                  <div className="absolute bottom-full right-0 mb-2 w-52 bg-card rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                    {/* Sleep Timer */}
+                    <button
+                      onClick={() => {
+                        setShowSleepTimer(true);
+                        setShowSettingsMenu(false);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
+                    >
+                      <Timer className="w-5 h-5 text-muted-foreground" />
+                      <span className="text-sm">{language === 'ua' ? 'Таймер сну' : 'Sleep Timer'}</span>
+                    </button>
+
+                    {/* Playback Speed */}
+                    <button
+                      onClick={() => {
+                        const currentIdx = speedOptions.indexOf(playbackRate);
+                        const nextIdx = (currentIdx + 1) % speedOptions.length;
+                        setPlaybackRate(speedOptions[nextIdx]);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Gauge className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-sm">{language === 'ua' ? 'Швидкість' : 'Speed'}</span>
+                      </div>
+                      <span className="text-primary font-medium text-sm">{playbackRate}x</span>
+                    </button>
+
+                    {/* Go to Verse (if verse data available) */}
+                    {(currentTrack?.verseId || (currentTrack?.bookSlug && currentTrack?.chapterNumber)) && (
+                      <button
+                        onClick={() => {
+                          goToVersePage();
+                          setShowSettingsMenu(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition text-left"
+                      >
+                        <ExternalLink className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-sm">{language === 'ua' ? 'Перейти до вірша' : 'Go to verse'}</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

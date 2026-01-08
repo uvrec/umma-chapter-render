@@ -149,6 +149,89 @@ mark {
   transition: all 0.3s ease;
 }
 
+/* Постійний контур для вірша (коли не грає) */
+.verse-contour {
+  transition: all 0.3s ease;
+}
+
+.verse-contour:hover {
+  ring-color: hsl(var(--primary) / 0.5);
+}
+
+/* ==========================================
+   Повноекранний режим читання
+   ========================================== */
+
+/* Ховаємо елементи UI у повноекранному режимі */
+[data-fullscreen-reading="true"] header,
+[data-fullscreen-reading="true"] footer,
+[data-fullscreen-reading="true"] .sticky,
+[data-fullscreen-reading="true"] [data-minimap],
+[data-fullscreen-reading="true"] .global-settings-btn,
+[data-fullscreen-reading="true"] .global-audio-player {
+  display: none !important;
+}
+
+/* Контейнер у повноекранному режимі */
+[data-fullscreen-reading="true"] [data-reader-root="true"] {
+  max-width: 65ch;
+  margin: 0 auto;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Кнопка виходу з повноекранного режиму */
+.fullscreen-exit-btn {
+  @apply fixed top-4 right-4 z-50;
+  @apply bg-background/80 backdrop-blur-sm;
+  @apply border border-border rounded-full;
+  @apply p-2 shadow-lg;
+  @apply transition-opacity duration-300;
+  @apply opacity-0 hover:opacity-100;
+}
+
+[data-fullscreen-reading="true"] .fullscreen-exit-btn {
+  @apply opacity-30 hover:opacity-100;
+}
+
+/* ==========================================
+   Анімована звукова хвилька (для кнопки "Грає")
+   ========================================== */
+
+.audio-wave-bars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 16px;
+}
+
+.audio-wave-bar {
+  width: 3px;
+  background: currentColor;
+  border-radius: 1px;
+  animation: audio-wave 1s ease-in-out infinite;
+}
+
+.audio-wave-bar:nth-child(1) { animation-delay: 0s; height: 40%; }
+.audio-wave-bar:nth-child(2) { animation-delay: 0.15s; height: 70%; }
+.audio-wave-bar:nth-child(3) { animation-delay: 0.3s; height: 100%; }
+.audio-wave-bar:nth-child(4) { animation-delay: 0.45s; height: 60%; }
+.audio-wave-bar:nth-child(5) { animation-delay: 0.6s; height: 30%; }
+
+@keyframes audio-wave {
+  0%, 100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Паузим анімацію коли на паузі */
+.audio-wave-bars.paused .audio-wave-bar {
+  animation-play-state: paused;
+}
+
 /* Tap-to-play індикатор */
 .verse-tap-indicator {
   @apply absolute -left-3 top-1/2 -translate-y-1/2;

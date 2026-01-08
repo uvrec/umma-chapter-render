@@ -34,6 +34,19 @@ export type SleepTimerMode =
   | { type: 'endOfTrack' }                 // Stop at end of current track
   | null;
 
+// Audio Favorites
+export interface AudioFavorite {
+  id: string;
+  trackId: string;
+  title: string;
+  title_ua?: string;
+  src: string;
+  coverImage?: string;
+  verseId?: string;
+  verseRef?: string; // e.g., "SCC 1.1.1"
+  createdAt: string;
+}
+
 interface AudioContextState {
   // Playlist
   playlist: AudioTrack[];
@@ -60,6 +73,12 @@ interface AudioContextState {
   // History & Analytics
   playHistory: AudioTrack[];
 
+  // Favorites
+  favorites: AudioFavorite[];
+  addFavorite: (track: AudioTrack) => void;
+  removeFavorite: (trackId: string) => void;
+  isFavorite: (trackId: string) => boolean;
+
   // Sleep Timer
   sleepTimer: SleepTimerMode;
   sleepTimerRemaining: number | null;  // seconds remaining
@@ -68,6 +87,7 @@ interface AudioContextState {
 
   // Enhanced methods
   playTrack: (track: AudioTrack) => void;
+  playVerseWithChapterContext: (track: AudioTrack) => Promise<void>;
   playPlaylist: (tracks: AudioTrack[], startIndex?: number) => void;
   addToPlaylist: (track: AudioTrack) => void;
   removeFromPlaylist: (index: number) => void;
@@ -109,6 +129,8 @@ interface AudioProviderProps {
   storageKey?: string;
 }
 
+const FAVORITES_STORAGE_KEY = "vedavoice-audio-favorites";
+
 export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageKey = "vedavoice-audio-state" }) => {
   // State (same as original)
   const [playlist, setPlaylist] = useState<AudioTrack[]>([]);
@@ -125,6 +147,49 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
   const [isExpanded, setIsExpanded] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
   const [playHistory, setPlayHistory] = useState<AudioTrack[]>([]);
+
+  // Favorites state
+  const [favorites, setFavorites] = useState<AudioFavorite[]>(() => {
+    try {
+      const saved = localStorage.getItem(FAVORITES_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Save favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+  }, [favorites]);
+
+  // Favorites functions
+  const addFavorite = useCallback((track: AudioTrack) => {
+    const newFavorite: AudioFavorite = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      trackId: track.id,
+      title: track.title,
+      title_ua: track.title_ua,
+      src: track.src,
+      coverImage: track.coverImage,
+      verseId: track.verseId,
+      verseRef: track.subtitle || track.title,
+      createdAt: new Date().toISOString(),
+    };
+    setFavorites(prev => {
+      // Don't add if already exists
+      if (prev.some(f => f.trackId === track.id)) return prev;
+      return [...prev, newFavorite];
+    });
+  }, []);
+
+  const removeFavorite = useCallback((trackId: string) => {
+    setFavorites(prev => prev.filter(f => f.trackId !== trackId));
+  }, []);
+
+  const isFavorite = useCallback((trackId: string) => {
+    return favorites.some(f => f.trackId === trackId);
+  }, [favorites]);
 
   // Sleep Timer state
   const [sleepTimer, setSleepTimerState] = useState<SleepTimerMode>(null);
@@ -184,6 +249,89 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
       trackPlay(track.id);
     },
     [playlist, trackPlay],
+  );
+
+  // 🔧 NEW: Play verse with chapter context - loads all chapter verses with audio
+  const playVerseWithChapterContext = useCallback(
+    async (track: AudioTrack) => {
+      // If no verseId, just play the single track
+      if (!track.verseId) {
+        playTrack(track);
+        return;
+      }
+
+      try {
+        // First, get the verse to find its chapter
+        const { data: verse, error: verseError } = await supabase
+          .from('verses')
+          .select('id, chapter_id, verse_number, sort_key, audio_url, full_verse_audio_url, recitation_audio_url, explanation_ua_audio_url, explanation_en_audio_url')
+          .eq('id', track.verseId)
+          .maybeSingle();
+
+        if (verseError || !verse || !verse.chapter_id) {
+          // Fallback to single track play
+          playTrack(track);
+          return;
+        }
+
+        // Get all verses from the same chapter that have audio
+        const { data: chapterVerses, error: chapterError } = await supabase
+          .from('verses')
+          .select('id, verse_number, sort_key, audio_url, full_verse_audio_url, recitation_audio_url, explanation_ua_audio_url, explanation_en_audio_url')
+          .eq('chapter_id', verse.chapter_id)
+          .order('sort_key', { ascending: true });
+
+        if (chapterError || !chapterVerses) {
+          playTrack(track);
+          return;
+        }
+
+        // Filter verses that have any audio and build tracks
+        const versesWithAudio = chapterVerses.filter(v =>
+          v.full_verse_audio_url || v.recitation_audio_url || v.explanation_ua_audio_url || v.explanation_en_audio_url || v.audio_url
+        );
+
+        if (versesWithAudio.length <= 1) {
+          // Only one or no verses with audio, just play single track
+          playTrack(track);
+          return;
+        }
+
+        // Build playlist from chapter verses
+        const chapterPlaylist: AudioTrack[] = versesWithAudio.map(v => {
+          // Use the primary audio URL available (priority: full_verse > recitation > explanation > legacy)
+          const audioSrc = v.full_verse_audio_url || v.recitation_audio_url || v.explanation_ua_audio_url || v.explanation_en_audio_url || v.audio_url;
+          return {
+            id: `verse-${v.id}`,
+            title: `${v.verse_number}`,
+            title_ua: `Вірш ${v.verse_number}`,
+            subtitle: track.subtitle || track.title,
+            src: audioSrc!,
+            verseId: v.id,
+            coverImage: track.coverImage,
+            // Preserve navigation context
+            bookSlug: track.bookSlug,
+            cantoNumber: track.cantoNumber,
+            chapterNumber: track.chapterNumber,
+            verseNumber: v.verse_number,
+          };
+        });
+
+        // Find the index of the current track in the playlist
+        const startIndex = chapterPlaylist.findIndex(t => t.verseId === track.verseId);
+
+        // Play the playlist starting from the current verse
+        setPlaylist(chapterPlaylist);
+        setCurrentIndex(startIndex >= 0 ? startIndex : 0);
+        setIsPlaying(true);
+        trackPlay(chapterPlaylist[startIndex >= 0 ? startIndex : 0].id);
+      } catch (err) {
+        console.error('Failed to load chapter context:', err);
+        // Fallback to single track play
+        playTrack(track);
+      }
+    },
+    [playTrack, trackPlay],
   );
 
   // Enhanced: Error handling for audio
@@ -589,11 +737,16 @@ export const AudioProvider: React.FC<AudioProviderProps> = ({ children, storageK
     isExpanded,
     showPlaylist,
     playHistory,
+    favorites,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
     sleepTimer,
     sleepTimerRemaining,
     setSleepTimer,
     cancelSleepTimer,
     playTrack,
+    playVerseWithChapterContext,
     playPlaylist,
     addToPlaylist,
     removeFromPlaylist,

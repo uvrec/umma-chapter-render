@@ -6,7 +6,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Search, Filter, Book, ChevronRight, Loader2, X } from 'lucide-react';
+import { Search, Filter, Book, ChevronRight, Loader2, X, HelpCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Input } from '@/components/ui/input';
@@ -61,6 +61,7 @@ export default function BookSearch() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [submittedQuery, setSubmittedQuery] = useState(initialQuery);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   // Фільтри
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
@@ -167,8 +168,8 @@ export default function BookSearch() {
   // Перехід до вірша
   const navigateToVerse = (result: SearchResult) => {
     const path = result.canto_number
-      ? `/books/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}#verse-${result.verse_number}`
-      : `/books/${result.book_slug}/chapter/${result.chapter_number}#verse-${result.verse_number}`;
+      ? `/veda-reader/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`
+      : `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
     navigate(path);
   };
 
@@ -231,94 +232,228 @@ export default function BookSearch() {
           </Button>
         </div>
 
-        {/* Фільтри */}
-        <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="mb-4 gap-2">
-              <Filter className="h-4 w-4" />
-              {t('Фільтри', 'Filters')}
-              {(selectedBooks.length > 0 || !includeTranslation || !includeCommentary) && (
-                <Badge variant="secondary" className="ml-1">
-                  {selectedBooks.length + (includeTranslation ? 0 : 1) + (includeCommentary ? 0 : 1)}
-                </Badge>
-              )}
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mb-6">
-            <div className="py-4 space-y-4">
-                {/* Фільтр по книгах */}
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">
-                    {t('Книги', 'Books')}
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {books.map((book) => (
-                      <Button
-                        key={book.id}
-                        variant={selectedBooks.includes(book.id) ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => toggleBookFilter(book.id)}
-                        className="gap-1"
-                      >
-                        <Book className="h-3 w-3" />
-                        {language === 'ua' ? book.title_ua : book.title_en}
-                      </Button>
-                    ))}
-                    {selectedBooks.length > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedBooks([])}
-                      >
-                        {t('Скинути', 'Clear')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
+        {/* Фільтри та допомога */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" className="gap-2">
+                <Filter className="h-4 w-4" />
+                {t('Фільтри', 'Filters')}
+                {(selectedBooks.length > 0 || !includeTranslation || !includeCommentary) && (
+                  <Badge variant="secondary" className="ml-1">
+                    {selectedBooks.length + (includeTranslation ? 0 : 1) + (includeCommentary ? 0 : 1)}
+                  </Badge>
+                )}
+              </Button>
+            </CollapsibleTrigger>
+          </Collapsible>
+          <Collapsible open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" className="gap-2">
+                <HelpCircle className="h-4 w-4" />
+                {t('Синтаксис пошуку', 'Search syntax')}
+              </Button>
+            </CollapsibleTrigger>
+          </Collapsible>
+        </div>
 
-                {/* Де шукати */}
-                <div>
-                  <Label className="text-sm font-medium mb-2 block">
-                    {t('Шукати в', 'Search in')}
-                  </Label>
-                  <div className="flex flex-wrap gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={includeTranslation}
-                        onCheckedChange={(v) => setIncludeTranslation(!!v)}
-                      />
-                      <span className="text-sm">{t('Переклад', 'Translation')}</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={includeCommentary}
-                        onCheckedChange={(v) => setIncludeCommentary(!!v)}
-                      />
-                      <span className="text-sm">{t('Коментар', 'Commentary')}</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={includeSynonyms}
-                        onCheckedChange={(v) => setIncludeSynonyms(!!v)}
-                      />
-                      <span className="text-sm">{t('Синоніми', 'Synonyms')}</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={includeSanskrit}
-                        onCheckedChange={(v) => setIncludeSanskrit(!!v)}
-                      />
-                      <span className="text-sm">{t('Санскрит', 'Sanskrit')}</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Checkbox
-                        checked={includeTransliteration}
-                        onCheckedChange={(v) => setIncludeTransliteration(!!v)}
-                      />
-                      <span className="text-sm">{t('Транслітерація', 'Transliteration')}</span>
-                    </label>
+        {/* Панель фільтрів */}
+        <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+          <CollapsibleContent className="mb-6">
+            <div className="py-4 space-y-4 border rounded-lg p-4 bg-muted/30">
+              {/* Фільтр по книгах */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  {t('Книги', 'Books')}
+                </Label>
+                <div className="flex flex-wrap gap-2">
+                  {books.map((book) => (
+                    <Button
+                      key={book.id}
+                      variant={selectedBooks.includes(book.id) ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => toggleBookFilter(book.id)}
+                      className="gap-1"
+                    >
+                      <Book className="h-3 w-3" />
+                      {language === 'ua' ? book.title_ua : book.title_en}
+                    </Button>
+                  ))}
+                  {selectedBooks.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedBooks([])}
+                    >
+                      {t('Скинути', 'Clear')}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Де шукати */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">
+                  {t('Шукати в', 'Search in')}
+                </Label>
+                <div className="flex flex-wrap gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={includeTranslation}
+                      onCheckedChange={(v) => setIncludeTranslation(!!v)}
+                    />
+                    <span className="text-sm">{t('Переклад', 'Translation')}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={includeCommentary}
+                      onCheckedChange={(v) => setIncludeCommentary(!!v)}
+                    />
+                    <span className="text-sm">{t('Коментар', 'Commentary')}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={includeSynonyms}
+                      onCheckedChange={(v) => setIncludeSynonyms(!!v)}
+                    />
+                    <span className="text-sm">{t('Синоніми', 'Synonyms')}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={includeSanskrit}
+                      onCheckedChange={(v) => setIncludeSanskrit(!!v)}
+                    />
+                    <span className="text-sm">{t('Санскрит', 'Sanskrit')}</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={includeTransliteration}
+                      onCheckedChange={(v) => setIncludeTransliteration(!!v)}
+                    />
+                    <span className="text-sm">{t('Транслітерація', 'Transliteration')}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Допомога по синтаксису пошуку */}
+        <Collapsible open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+          <CollapsibleContent className="mb-6">
+            <div className="py-4 border rounded-lg p-4 bg-muted/30 space-y-4 text-sm">
+              <div>
+                <h3 className="font-semibold mb-2">{t('Фразовий пошук', 'Phrase search')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Використовуйте лапки для пошуку точної фрази:',
+                    'Use quotation marks to search for an exact phrase:'
+                  )}
+                </p>
+                <code className="bg-muted px-2 py-1 rounded text-primary">
+                  {language === 'ua' ? '"чисте віддане служіння"' : '"Supreme Personality of Godhead"'}
+                </code>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">{t('Оператор OR (або)', 'OR operator')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Пробіл між словами означає "або" - знайде документи з будь-яким словом:',
+                    'Space between words means "or" - finds documents with any word:'
+                  )}
+                </p>
+                <code className="bg-muted px-2 py-1 rounded text-primary">
+                  {language === 'ua' ? 'крішна арджуна' : 'krishna arjuna'}
+                </code>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">{t('Оператор AND (і)', 'AND operator')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Використовуйте AND для пошуку документів з обома словами:',
+                    'Use AND to find documents containing both words:'
+                  )}
+                </p>
+                <code className="bg-muted px-2 py-1 rounded text-primary">
+                  {language === 'ua' ? 'крішна AND арджуна' : 'krishna AND arjuna'}
+                </code>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">{t('Виключення (NOT)', 'Exclusion (NOT)')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Використовуйте мінус для виключення слова:',
+                    'Use minus to exclude a word:'
+                  )}
+                </p>
+                <code className="bg-muted px-2 py-1 rounded text-primary">
+                  {language === 'ua' ? 'крішна -арджуна' : 'krishna -arjuna'}
+                </code>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">{t('Wildcards (шаблони)', 'Wildcards')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Використовуйте * для пошуку слів з однаковим початком:',
+                    'Use * to search for words with the same prefix:'
+                  )}
+                </p>
+                <div className="space-y-1">
+                  <div>
+                    <code className="bg-muted px-2 py-1 rounded text-primary">
+                      {language === 'ua' ? 'крішн*' : 'hari*'}
+                    </code>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      {language === 'ua' ? '→ крішна, крішни, крішною...' : '→ hari, harinama, haridasa...'}
+                    </span>
+                  </div>
+                  <div>
+                    <code className="bg-muted px-2 py-1 rounded text-primary">
+                      {language === 'ua' ? 'те?т' : 'te?t'}
+                    </code>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      {language === 'ua' ? '→ тест, текст (? = один символ)' : '→ test, text (? = one character)'}
+                    </span>
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">{t('Пошук за близькістю', 'Proximity search')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Знайдіть слова в межах певної відстані одне від одного:',
+                    'Find words within a certain distance of each other:'
+                  )}
+                </p>
+                <div className="space-y-1">
+                  <div>
+                    <code className="bg-muted px-2 py-1 rounded text-primary">
+                      {language === 'ua' ? '"крішна арджуна"~4' : '"paraphernalia king"~4'}
+                    </code>
+                    <span className="text-muted-foreground ml-2 text-xs">
+                      {language === 'ua' ? '→ слова в межах 4 позицій' : '→ words within 4 positions'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-2">{t('Комбінований пошук', 'Combined search')}</h3>
+                <p className="text-muted-foreground mb-1">
+                  {t(
+                    'Комбінуйте різні оператори:',
+                    'Combine different operators:'
+                  )}
+                </p>
+                <code className="bg-muted px-2 py-1 rounded text-primary">
+                  {language === 'ua' ? '"віддане служіння"~3 AND бгакт* -карма' : '"pure devotion"~3 AND krsn* -arjuna'}
+                </code>
+              </div>
             </div>
           </CollapsibleContent>
         </Collapsible>

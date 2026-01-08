@@ -61,8 +61,6 @@ export default function AddEditBlogPost() {
   // ——— аудіо URL для кожної секції в режимі поезії
   const [audioSanskritUrl, setAudioSanskritUrl] = useState("");
   const [audioTransliterationUrl, setAudioTransliterationUrl] = useState("");
-  const [audioSynonymsUaUrl, setAudioSynonymsUaUrl] = useState("");
-  const [audioSynonymsEnUrl, setAudioSynonymsEnUrl] = useState("");
   const [audioPoetryTranslationUaUrl, setAudioPoetryTranslationUaUrl] = useState("");
   const [audioPoetryTranslationEnUrl, setAudioPoetryTranslationEnUrl] = useState("");
   const [audioCommentaryUaUrl, setAudioCommentaryUaUrl] = useState("");
@@ -132,8 +130,6 @@ export default function AddEditBlogPost() {
       // Poetry audio URLs
       setAudioSanskritUrl(post.audio_sanskrit_url || "");
       setAudioTransliterationUrl(post.audio_transliteration_url || "");
-      setAudioSynonymsUaUrl(post.audio_synonyms_ua_url || "");
-      setAudioSynonymsEnUrl(post.audio_synonyms_en_url || "");
       setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_ua_url || "");
       setAudioPoetryTranslationEnUrl(post.audio_poetry_translation_en_url || "");
       setAudioCommentaryUaUrl(post.audio_commentary_ua_url || "");
@@ -187,8 +183,6 @@ export default function AddEditBlogPost() {
         // Poetry audio URLs
         audio_sanskrit_url: audioSanskritUrl,
         audio_transliteration_url: audioTransliterationUrl,
-        audio_synonyms_ua_url: audioSynonymsUaUrl,
-        audio_synonyms_en_url: audioSynonymsEnUrl,
         audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
         audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
         audio_commentary_ua_url: audioCommentaryUaUrl,
@@ -233,8 +227,6 @@ export default function AddEditBlogPost() {
     poetryTranslationEn,
     audioSanskritUrl,
     audioTransliterationUrl,
-    audioSynonymsUaUrl,
-    audioSynonymsEnUrl,
     audioPoetryTranslationUaUrl,
     audioPoetryTranslationEnUrl,
     audioCommentaryUaUrl,
@@ -373,8 +365,6 @@ export default function AddEditBlogPost() {
       // Poetry audio URLs
       audio_sanskrit_url: audioSanskritUrl,
       audio_transliteration_url: audioTransliterationUrl,
-      audio_synonyms_ua_url: audioSynonymsUaUrl,
-      audio_synonyms_en_url: audioSynonymsEnUrl,
       audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
       audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
       audio_commentary_ua_url: audioCommentaryUaUrl,
@@ -523,16 +513,6 @@ export default function AddEditBlogPost() {
                   </div>
 
                   <div>
-                    <Label htmlFor="audio-synonyms-ua">Аудіо URL для послівного перекладу</Label>
-                    <Input
-                      id="audio-synonyms-ua"
-                      value={audioSynonymsUaUrl}
-                      onChange={(e) => setAudioSynonymsUaUrl(e.target.value)}
-                      placeholder="https://..."
-                    />
-                  </div>
-
-                  <div>
                     <Label htmlFor="audio-poetry-translation-ua">Аудіо URL для літературного перекладу</Label>
                     <Input
                       id="audio-poetry-translation-ua"
@@ -611,16 +591,6 @@ export default function AddEditBlogPost() {
                   <div>
                     <Label>Purport/Commentary</Label>
                     <TiptapEditor content={contentEn} onChange={setContentEn} placeholder="Purport and commentary in English..." />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="audio-synonyms-en">Audio URL for word-by-word translation</Label>
-                    <Input
-                      id="audio-synonyms-en"
-                      value={audioSynonymsEnUrl}
-                      onChange={(e) => setAudioSynonymsEnUrl(e.target.value)}
-                      placeholder="https://..."
-                    />
                   </div>
 
                   <div>

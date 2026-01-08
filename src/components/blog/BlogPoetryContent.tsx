@@ -13,7 +13,6 @@ interface BlogPoetryContentProps {
   commentary?: string | null;
   audioSanskritUrl?: string | null;
   audioTransliterationUrl?: string | null;
-  audioSynonymsUrl?: string | null;
   audioPoetryTranslationUrl?: string | null;
   audioCommentaryUrl?: string | null;
   displayBlocks?: {
@@ -40,7 +39,6 @@ export function BlogPoetryContent({
   commentary,
   audioSanskritUrl,
   audioTransliterationUrl,
-  audioSynonymsUrl,
   audioPoetryTranslationUrl,
   audioCommentaryUrl,
   displayBlocks = {},
@@ -130,23 +128,9 @@ export function BlogPoetryContent({
       {/* Word-by-word Translation (Synonyms) - з посиланнями на глосарій */}
       {showSynonyms && synonyms && (
         <div className="p-4 bg-muted/30 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              {labels[language].synonyms}
-            </h3>
-            {audioSynonymsUrl && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const audio = new Audio(audioSynonymsUrl);
-                  audio.play();
-                }}
-              >
-                <Volume2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+          <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-2">
+            {labels[language].synonyms}
+          </h3>
           <div className="synonyms-text">
             {parseSynonyms(synonyms).map((pair, i) => {
               // Розбиваємо термін на окремі слова для посилань на глосарій

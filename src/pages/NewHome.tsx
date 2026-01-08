@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
 import { ContinueReadingSection } from "@/components/ContinueReadingSection";
 import { Headphones, BookOpen, Play, Pause, Clock, ArrowRight, ChevronDown, ExternalLink } from "lucide-react";
+import { HomeSearchBar } from "@/components/HomeSearchBar";
+import { QuickActions } from "@/components/QuickActions";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
 
@@ -114,46 +116,46 @@ function Hero() {
     quote_author_ua: (settingsData as any)?.quote_author_ua || "",
     quote_author_en: (settingsData as any)?.quote_author_en || ""
   };
-  return <section className="relative min-h-[70vh] sm:min-h-[80vh] flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
+  return <section className="relative min-h-fit py-8 sm:py-12 md:min-h-[70vh] md:py-0 flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{
     backgroundImage: `linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url(${settings.background_image})`
   }}>
       <div className="container mx-auto px-3 sm:px-4 text-center text-white">
         <div className="mx-auto max-w-4xl">
-          {/* Logo - адаптивний */}
-          <div className="mb-4 sm:mb-6 flex flex-col items-center">
-            <div className="mb-3 sm:mb-4 h-64 w-64 sm:h-80 sm:w-80 md:h-96 md:w-96">
+          {/* Logo - адаптивний (менший на мобільних) */}
+          <div className="mb-3 sm:mb-4 md:mb-6 flex flex-col items-center">
+            <div className="mb-2 sm:mb-3 md:mb-4 h-40 w-40 sm:h-56 sm:w-56 md:h-72 md:w-72 lg:h-80 lg:w-80">
               <img src={settings.logo_image} alt="Прабгупада соловʼїною" className="h-full w-full object-contain" />
             </div>
           </div>
 
-          {/* Subtitle */}
-          
+          {/* Search Bar */}
+          <HomeSearchBar className="mb-6 sm:mb-8" />
 
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
-          {/* Continue Listening - адаптивний */}
-          {currentTrack && <div className="mt-6 sm:mt-8">
-              <div className="backdrop-blur bg-white/95 dark:bg-gray-900/95 p-4 sm:p-6">
-                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+          {/* Continue Listening - в стилі цитати */}
+          {currentTrack && <div className="mt-6 sm:mt-8 max-w-2xl mx-auto">
+              <div className="backdrop-blur-[10px] bg-white/10 dark:bg-white/5 rounded-2xl p-4 sm:p-5">
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm" style={{ color: '#F1E1C7' }}>
                     <Headphones className="h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="hidden xs:inline">Продовжити прослуховування</span>
+                    <span>Продовжити прослуховування</span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3 sm:gap-4">
                     <div className="min-w-0 flex-1 text-left">
-                      <div className="mb-1 truncate text-sm sm:text-base font-semibold text-foreground">
+                      <div className="mb-1 truncate text-sm sm:text-base font-semibold" style={{ color: '#F1E1C7' }}>
                         {currentTrack.title_ua || currentTrack.title}
                       </div>
-                      <div className="truncate text-xs sm:text-sm text-muted-foreground">
+                      <div className="truncate text-xs sm:text-sm" style={{ color: 'rgba(241, 225, 199, 0.7)' }}>
                         {currentTrack.artist || currentTrack.album || "Vedavoice"}
                       </div>
-                      <div className="mt-1 sm:mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                      <div className="mt-1 sm:mt-2 flex items-center gap-2 text-xs" style={{ color: 'rgba(241, 225, 199, 0.6)' }}>
                         <Clock className="h-3 w-3" />
-                        <span className="hidden sm:inline">{isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}</span>
+                        <span>{isPlaying ? `Відтворюється ${formatTime(currentTime)}` : `Пауза на ${formatTime(currentTime)}`}</span>
                       </div>
                     </div>
 
-                    <Button size="sm" onClick={togglePlay} className="gap-1 sm:gap-2 flex-shrink-0">
+                    <Button size="sm" onClick={togglePlay} className="gap-1 sm:gap-2 flex-shrink-0 bg-white/20 hover:bg-white/30 text-white border-0">
                       {isPlaying ? <Pause className="h-3 w-3 sm:h-4 sm:w-4" /> : <Play className="h-3 w-3 sm:h-4 sm:w-4" />}
                       <span className="hidden xs:inline">{isPlaying ? "Пауза" : "Продовжити"}</span>
                     </Button>
@@ -443,31 +445,6 @@ function FeaturedBooks() {
     </section>;
 }
 
-// --- Quick Access Playlists ---
-function Playlists() {
-  const featuredPlaylists = [{
-    title: "Популярне",
-    href: "/audiobooks?sort=popular"
-  }, {
-    title: "Останні",
-    href: "/audiobooks?sort=latest"
-  }, {
-    title: "Бгаґаватам",
-    href: "/audiobooks?tag=sb"
-  }, {
-    title: "Бгаґавад-ґіта",
-    href: "/audiobooks?tag=bg"
-  }];
-  return <section className="mx-auto w-full max-w-6xl px-4 pb-8">
-      <h3 className="mb-4 font-serif text-xl font-semibold">Швидкий доступ</h3>
-      <div className="flex flex-wrap gap-2">
-        {featuredPlaylists.map(p => <Button key={p.href} variant="outline" asChild>
-            <a href={p.href}>{p.title}</a>
-          </Button>)}
-      </div>
-    </section>;
-}
-
 // --- Support Section ---
 function SupportSection() {
   return <section className="bg-gradient-to-r from-primary/5 to-primary/10 py-12 sm:py-16">
@@ -499,12 +476,12 @@ export const NewHome = () => {
       <Header />
       <main>
         <Hero />
+        <QuickActions />
         <div className="container mx-auto px-4 py-8">
           <ContinueReadingSection className="mb-8" maxItems={3} />
         </div>
         <LatestContent />
         <FeaturedBooks />
-        <Playlists />
         <SupportSection />
       </main>
       <Footer />

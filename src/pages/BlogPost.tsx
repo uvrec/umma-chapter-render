@@ -88,8 +88,6 @@ export default function BlogPost() {
           poetry_translation_en,
           audio_sanskrit_url,
           audio_transliteration_url,
-          audio_synonyms_ua_url,
-          audio_synonyms_en_url,
           audio_poetry_translation_ua_url,
           audio_poetry_translation_en_url,
           audio_commentary_ua_url,
@@ -429,7 +427,6 @@ export default function BlogPost() {
                         commentary={contentUa}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}
-                        audioSynonymsUrl={post.audio_synonyms_ua_url}
                         audioPoetryTranslationUrl={post.audio_poetry_translation_ua_url}
                         audioCommentaryUrl={post.audio_commentary_ua_url}
                         displayBlocks={displayBlocks}
@@ -496,7 +493,6 @@ export default function BlogPost() {
                         commentary={contentEn}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}
-                        audioSynonymsUrl={post.audio_synonyms_en_url}
                         audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
                         audioCommentaryUrl={post.audio_commentary_en_url}
                         displayBlocks={displayBlocks}
@@ -579,7 +575,6 @@ export default function BlogPost() {
                         commentary={contentUa}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}
-                        audioSynonymsUrl={post.audio_synonyms_ua_url}
                         audioPoetryTranslationUrl={post.audio_poetry_translation_ua_url}
                         audioCommentaryUrl={post.audio_commentary_ua_url}
                         displayBlocks={displayBlocks}
@@ -610,7 +605,6 @@ export default function BlogPost() {
                       commentary={contentEn}
                       audioSanskritUrl={post.audio_sanskrit_url}
                       audioTransliterationUrl={post.audio_transliteration_url}
-                      audioSynonymsUrl={post.audio_synonyms_en_url}
                       audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
                       audioCommentaryUrl={post.audio_commentary_en_url}
                       displayBlocks={displayBlocks}

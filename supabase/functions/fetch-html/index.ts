@@ -2,8 +2,6 @@
 // Public CORS-enabled proxy to fetch HTML from allowed domains (vedabase.io, gitabase.com)
 // Returns: { html: string }
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
