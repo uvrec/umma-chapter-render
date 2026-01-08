@@ -41,12 +41,13 @@ async function cleanupOldCaches() {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
-      // Видаляємо старі кеші (v1, v2 — поточна v3)
+      // Видаляємо всі старі кеші, які не є поточними версіями
+      // Поточні версії: pages-cache-v2, assets-cache-v3, images-cache-v2
       const oldCaches = cacheNames.filter(name =>
-        (name.includes('pages-cache') && !name.includes('-v2')) ||
-        (name.includes('assets-cache') && !name.includes('-v3')) ||
-        (name.includes('images-cache') && !name.includes('-v2')) ||
-        name.includes('workbox-precache')
+        (name.includes('pages-cache') && name !== 'pages-cache-v2') ||
+        (name.includes('assets-cache') && name !== 'assets-cache-v3') ||
+        (name.includes('images-cache') && name !== 'images-cache-v2') ||
+        name.includes('workbox-precache') // Старий precache
       );
 
       if (oldCaches.length > 0) {
