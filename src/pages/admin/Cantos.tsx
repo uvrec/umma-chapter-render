@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, BookOpen } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,7 +46,10 @@ const Cantos = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cantos")
-        .select("*")
+        .select(`
+          *,
+          chapters(id, chapter_number)
+        `)
         .eq("book_id", bookId)
         .order("canto_number", { ascending: true });
       if (error) throw error;
@@ -119,13 +122,25 @@ const Cantos = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">{canto.title_en}</p>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/cantos/${bookId}/${canto.id}/edit`}>Редагувати</Link>
                     </Button>
                     <Button size="sm" asChild variant="outline">
                       <Link to={`/admin/chapters/canto/${canto.id}`}>Глави</Link>
                     </Button>
+                    {canto.chapters && canto.chapters.length > 0 && (
+                      <Button size="sm" asChild variant="outline">
+                        <Link
+                          to={`/admin/scripture?chapterId=${
+                            canto.chapters.sort((a, b) => a.chapter_number - b.chapter_number)[0].id
+                          }`}
+                        >
+                          <BookOpen className="w-4 h-4 mr-1" />
+                          Вірші
+                        </Link>
+                      </Button>
+                    )}
                     <Button size="sm" variant="destructive" onClick={() => handleDeleteClick(canto)}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Видалити
