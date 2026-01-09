@@ -19,6 +19,7 @@ import { stripParagraphTags } from "@/utils/import/normalizers";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { applyDropCap } from "@/utils/text/dropCap";
+import { useAudioSyncSimple } from "@/hooks/useAudioSync";
 
 /* =========================
    Типи пропсів
@@ -167,6 +168,15 @@ export const VerseCard = ({
     // Fallback: check if track ID contains verse number
     return currentTrack.id?.startsWith(`${verseNumber}-`) || false;
   }, [currentTrack, verseId, verseNumber, isPlaying]);
+
+  // Audio-text synchronization - визначає яка секція зараз активна
+  const { activeSection } = useAudioSyncSimple(verseId);
+
+  // Helper для класів підсвітки секції
+  const getSectionHighlightClass = (section: 'sanskrit' | 'transliteration' | 'synonyms' | 'translation' | 'commentary') => {
+    if (!isNowPlaying || activeSection !== section) return '';
+    return 'synced-section-active';
+  };
 
   const verseRef = useRef<HTMLDivElement>(null);
 
@@ -392,7 +402,7 @@ export const VerseCard = ({
 
         {/* Деванагарі з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
-          <div className="mb-10">
+          <div className={`mb-10 synced-section transition-all duration-300 ${getSectionHighlightClass('sanskrit')}`} data-synced-section="sanskrit">
             {/* Кнопка Volume2 для Санскриту */}
             <div className="mb-4 flex justify-center">
               <button
@@ -424,7 +434,7 @@ export const VerseCard = ({
 
         {/* Транслітерація */}
         {textDisplaySettings.showTransliteration && (isEditing || transliteration) && (
-          <div className="mb-8">
+          <div className={`mb-8 synced-section transition-all duration-300 ${getSectionHighlightClass('transliteration')}`} data-synced-section="transliteration">
             {isEditing ? (
               <Textarea
                 value={edited.transliteration}
@@ -453,7 +463,7 @@ export const VerseCard = ({
 
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
-          <div className="mb-6">
+          <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('synonyms')}`} data-synced-section="synonyms">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground">{labels.synonyms}</h4>
@@ -555,7 +565,7 @@ export const VerseCard = ({
 
         {/* Літературний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
-          <div className="mb-6">
+          <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('translation')}`} data-synced-section="translation">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground font-serif">{labels.translation}</h4>
@@ -595,7 +605,7 @@ export const VerseCard = ({
 
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
-          <div>
+          <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
             {/* Заголовок + кнопка Volume2 */}
             <div className="section-header flex items-center justify-center gap-4 mb-8">
               <h4 className="text-foreground font-serif">{labels.commentary}</h4>
