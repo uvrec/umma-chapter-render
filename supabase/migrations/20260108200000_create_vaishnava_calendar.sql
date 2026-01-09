@@ -316,9 +316,9 @@ CREATE TABLE IF NOT EXISTS public.calendar_events (
   year INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM event_date)::INTEGER) STORED,
 
   -- Event reference (one of these should be set)
-  ekadashi_id UUID REFERENCES ekadashi_info(id),
-  festival_id UUID REFERENCES vaishnava_festivals(id),
-  appearance_day_id UUID REFERENCES appearance_days(id),
+  ekadashi_id UUID REFERENCES ekadashi_info(id) ON DELETE SET NULL,
+  festival_id UUID REFERENCES vaishnava_festivals(id) ON DELETE SET NULL,
+  appearance_day_id UUID REFERENCES appearance_days(id) ON DELETE SET NULL,
 
   -- Override values (for location-specific adjustments)
   custom_name_ua TEXT,
