@@ -257,7 +257,54 @@ CREATE TABLE IF NOT EXISTS public.vaishnava_festivals (
 );
 
 -- ============================================
--- 4. CALENDAR EVENTS (Actual dates)
+-- 4. LOCATIONS TABLE (must be before calendar_events due to FK)
+-- ============================================
+
+-- Calendar locations for timezone/sunrise calculations
+CREATE TABLE IF NOT EXISTS public.calendar_locations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  -- Location info
+  name_ua TEXT NOT NULL,
+  name_en TEXT NOT NULL,
+
+  -- Coordinates
+  latitude NUMERIC(10,7) NOT NULL,
+  longitude NUMERIC(10,7) NOT NULL,
+
+  -- Timezone
+  timezone TEXT NOT NULL, -- IANA timezone
+  utc_offset INTEGER, -- minutes from UTC
+
+  -- Geographic info
+  country_code TEXT,
+  city_ua TEXT,
+  city_en TEXT,
+
+  -- Presets
+  is_preset BOOLEAN DEFAULT false, -- pre-configured locations
+  is_active BOOLEAN DEFAULT true,
+
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Insert preset locations
+INSERT INTO calendar_locations (name_ua, name_en, latitude, longitude, timezone, country_code, city_ua, city_en, is_preset) VALUES
+  ('Київ', 'Kyiv', 50.4501, 30.5234, 'Europe/Kyiv', 'UA', 'Київ', 'Kyiv', true),
+  ('Львів', 'Lviv', 49.8397, 24.0297, 'Europe/Kyiv', 'UA', 'Львів', 'Lviv', true),
+  ('Одеса', 'Odesa', 46.4825, 30.7233, 'Europe/Kyiv', 'UA', 'Одеса', 'Odesa', true),
+  ('Харків', 'Kharkiv', 49.9935, 36.2304, 'Europe/Kyiv', 'UA', 'Харків', 'Kharkiv', true),
+  ('Дніпро', 'Dnipro', 48.4647, 35.0462, 'Europe/Kyiv', 'UA', 'Дніпро', 'Dnipro', true),
+  ('Варшава', 'Warsaw', 52.2297, 21.0122, 'Europe/Warsaw', 'PL', 'Варшава', 'Warsaw', true),
+  ('Лондон', 'London', 51.5074, -0.1278, 'Europe/London', 'GB', 'Лондон', 'London', true),
+  ('Нью-Йорк', 'New York', 40.7128, -74.0060, 'America/New_York', 'US', 'Нью-Йорк', 'New York', true),
+  ('Маяпур', 'Mayapur', 23.4231, 88.3880, 'Asia/Kolkata', 'IN', 'Маяпур', 'Mayapur', true),
+  ('Вріндаван', 'Vrindavan', 27.5833, 77.7000, 'Asia/Kolkata', 'IN', 'Вріндаван', 'Vrindavan', true)
+ON CONFLICT DO NOTHING;
+
+-- ============================================
+-- 5. CALENDAR EVENTS (Actual dates)
 -- ============================================
 
 -- Calculated calendar events for specific years
@@ -307,53 +354,6 @@ CREATE TABLE IF NOT EXISTS public.calendar_events (
   UNIQUE(event_date, festival_id, location_id),
   UNIQUE(event_date, appearance_day_id, location_id)
 );
-
--- ============================================
--- 5. LOCATIONS TABLE
--- ============================================
-
--- Calendar locations for timezone/sunrise calculations
-CREATE TABLE IF NOT EXISTS public.calendar_locations (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-  -- Location info
-  name_ua TEXT NOT NULL,
-  name_en TEXT NOT NULL,
-
-  -- Coordinates
-  latitude NUMERIC(10,7) NOT NULL,
-  longitude NUMERIC(10,7) NOT NULL,
-
-  -- Timezone
-  timezone TEXT NOT NULL, -- IANA timezone
-  utc_offset INTEGER, -- minutes from UTC
-
-  -- Geographic info
-  country_code TEXT,
-  city_ua TEXT,
-  city_en TEXT,
-
-  -- Presets
-  is_preset BOOLEAN DEFAULT false, -- pre-configured locations
-  is_active BOOLEAN DEFAULT true,
-
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Insert preset locations
-INSERT INTO calendar_locations (name_ua, name_en, latitude, longitude, timezone, country_code, city_ua, city_en, is_preset) VALUES
-  ('Київ', 'Kyiv', 50.4501, 30.5234, 'Europe/Kyiv', 'UA', 'Київ', 'Kyiv', true),
-  ('Львів', 'Lviv', 49.8397, 24.0297, 'Europe/Kyiv', 'UA', 'Львів', 'Lviv', true),
-  ('Одеса', 'Odesa', 46.4825, 30.7233, 'Europe/Kyiv', 'UA', 'Одеса', 'Odesa', true),
-  ('Харків', 'Kharkiv', 49.9935, 36.2304, 'Europe/Kyiv', 'UA', 'Харків', 'Kharkiv', true),
-  ('Дніпро', 'Dnipro', 48.4647, 35.0462, 'Europe/Kyiv', 'UA', 'Дніпро', 'Dnipro', true),
-  ('Варшава', 'Warsaw', 52.2297, 21.0122, 'Europe/Warsaw', 'PL', 'Варшава', 'Warsaw', true),
-  ('Лондон', 'London', 51.5074, -0.1278, 'Europe/London', 'GB', 'Лондон', 'London', true),
-  ('Нью-Йорк', 'New York', 40.7128, -74.0060, 'America/New_York', 'US', 'Нью-Йорк', 'New York', true),
-  ('Маяпур', 'Mayapur', 23.4231, 88.3880, 'Asia/Kolkata', 'IN', 'Маяпур', 'Mayapur', true),
-  ('Вріндаван', 'Vrindavan', 27.5833, 77.7000, 'Asia/Kolkata', 'IN', 'Вріндаван', 'Vrindavan', true)
-ON CONFLICT DO NOTHING;
 
 -- ============================================
 -- 6. USER CALENDAR SETTINGS
