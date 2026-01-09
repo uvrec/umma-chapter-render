@@ -1096,6 +1096,210 @@ body.keyboard-open {
   }
 }
 
+/* =========================
+   PRESENTATION MODE
+   Для показу на проекторі/телевізорі
+   Великий шрифт, центрований вірш
+   ========================= */
+[data-presentation-mode="true"] {
+  /* Ховаємо все окрім презентації */
+  .site-header,
+  .global-settings-btn,
+  .global-audio-player,
+  [data-minimap="true"],
+  .sticky,
+  nav,
+  footer,
+  .breadcrumb,
+  .mobile-tab-bar {
+    display: none !important;
+  }
+
+  /* Темний фон для кращого контрасту на проекторі */
+  body {
+    background-color: hsl(var(--background));
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Контейнер на весь екран */
+  .container,
+  .presentation-container {
+    max-width: 100%;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 4rem;
+  }
+
+  /* Збільшений шрифт для презентації */
+  .verse-surface,
+  .presentation-verse {
+    font-size: calc(var(--vv-reader-font-size, 18px) * 1.5) !important;
+    line-height: 1.8 !important;
+    text-align: center;
+    max-width: 90vw;
+    padding: 3rem;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Санскрит ще більший */
+  .verse-sanskrit,
+  .presentation-sanskrit {
+    font-size: calc(var(--vv-reader-font-size, 18px) * 2) !important;
+    margin-bottom: 2rem;
+    color: hsl(var(--primary));
+  }
+
+  /* Транслітерація */
+  .verse-transliteration,
+  .presentation-transliteration {
+    font-size: calc(var(--vv-reader-font-size, 18px) * 1.3) !important;
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+
+  /* Переклад */
+  .verse-translation,
+  .presentation-translation {
+    font-size: calc(var(--vv-reader-font-size, 18px) * 1.4) !important;
+    font-weight: 500;
+  }
+
+  /* Синоніми - компактніше */
+  .verse-synonyms,
+  .presentation-synonyms {
+    font-size: calc(var(--vv-reader-font-size, 18px) * 1.1) !important;
+    opacity: 0.8;
+    margin-top: 1.5rem;
+  }
+
+  /* Номер вірша */
+  .verse-number,
+  .presentation-verse-number {
+    font-size: calc(var(--vv-reader-font-size, 18px) * 1.2) !important;
+    font-weight: bold;
+    color: hsl(var(--primary));
+    margin-bottom: 1rem;
+  }
+
+  /* Ховаємо зайві елементи */
+  .verse-navigation,
+  .verse-actions,
+  .verse-audio-controls,
+  button:not(.presentation-exit-btn):not(.presentation-nav-btn) {
+    display: none !important;
+  }
+
+  /* Навігаційні підказки внизу екрану */
+  .presentation-nav-hints {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3rem;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+    font-size: 1rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  &:hover .presentation-nav-hints {
+    opacity: 1;
+  }
+
+  /* Індикатор позиції */
+  .presentation-position {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    font-size: 1.2rem;
+    opacity: 0.6;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Плавна анімація зміни віршів */
+  .presentation-verse-content {
+    animation: presentation-slide-in 0.4s ease;
+  }
+}
+
+@keyframes presentation-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Кнопка виходу з presentation mode */
+.presentation-exit-btn {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: hsl(var(--background) / 0.9);
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.presentation-exit-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Навігаційні кнопки презентації */
+.presentation-nav-btn {
+  position: fixed !important;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9998 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: hsl(var(--background) / 0.8);
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  opacity: 0.2;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.presentation-nav-btn:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.presentation-nav-btn.prev {
+  left: 2rem;
+}
+
+.presentation-nav-btn.next {
+  right: 2rem;
+}
+
 /* Кнопка виходу з zen/fullscreen - завжди видима */
 .zen-exit-btn,
 .fullscreen-exit-btn {

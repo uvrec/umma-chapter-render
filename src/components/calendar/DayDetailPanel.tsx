@@ -143,7 +143,7 @@ export function DayDetailPanel({
                     ({tithiInfo.sanskrit})
                   </span>
                   {day.tithi?.is_ekadashi && (
-                    <Badge variant="secondary\" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200 ml-2">
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200 ml-2">
                       {language === "ua" ? "День посту" : "Fasting day"}
                     </Badge>
                   )}
