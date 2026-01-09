@@ -29,6 +29,8 @@ import {
   useCalendarLocations,
   useCalendarSettings,
 } from "@/hooks/useCalendar";
+import { useAutoLocation } from "@/hooks/useGeolocation";
+import { useToast } from "@/hooks/use-toast";
 import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
@@ -42,19 +44,53 @@ import {
   Settings,
   Star,
   BookOpen,
+  Locate,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
 
 export default function VaishnavCalendar() {
   const { t, language } = useLanguage();
+  const { toast } = useToast();
   const { settings, saveLocalSettings } = useCalendarSettings();
-  const { formattedLocations } = useCalendarLocations();
+  const { formattedLocations, locations } = useCalendarLocations();
 
   // Стан локації
   const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>(
     settings.location_id || undefined
   );
+
+  // Обробка зміни локації
+  const handleLocationChange = (locationId: string) => {
+    setSelectedLocationId(locationId);
+    saveLocalSettings({ ...settings, location_id: locationId });
+  };
+
+  // Геолокація
+  const { detectLocation, isLoading: isDetectingLocation, isSupported: isGeolocationSupported, error: geoError } = useAutoLocation(
+    locations,
+    handleLocationChange
+  );
+
+  const handleDetectLocation = async () => {
+    const nearest = await detectLocation();
+    if (nearest) {
+      const locationName = language === "ua" ? nearest.name_ua : nearest.name_en;
+      toast({
+        title: language === "ua" ? "Місце визначено" : "Location detected",
+        description: language === "ua"
+          ? `Найближче місто: ${locationName}`
+          : `Nearest city: ${locationName}`,
+      });
+    } else if (geoError) {
+      toast({
+        title: language === "ua" ? "Помилка" : "Error",
+        description: geoError,
+        variant: "destructive",
+      });
+    }
+  };
 
   // Hooks календаря
   const {
@@ -76,12 +112,6 @@ export default function VaishnavCalendar() {
     useTodayEvents(selectedLocationId);
 
   const { nextEkadashi, daysUntil } = useNextEkadashi(selectedLocationId);
-
-  // Обробка зміни локації
-  const handleLocationChange = (locationId: string) => {
-    setSelectedLocationId(locationId);
-    saveLocalSettings({ ...settings, location_id: locationId });
-  };
 
   // Локалізовані назви днів тижня
   const weekDays = language === "ua"
@@ -120,6 +150,21 @@ export default function VaishnavCalendar() {
               ))}
             </SelectContent>
           </Select>
+          {isGeolocationSupported && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleDetectLocation}
+              disabled={isDetectingLocation}
+              title={language === "ua" ? "Визначити місце автоматично" : "Detect location automatically"}
+            >
+              {isDetectingLocation ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Locate className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
