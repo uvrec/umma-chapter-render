@@ -3,9 +3,9 @@
 
 UPDATE verses
 SET
-  sanskrit = CASE
-    WHEN sanskrit ~ '^Devanagari\s*\n?' THEN regexp_replace(sanskrit, '^Devanagari\s*\n?', '', 'i')
-    ELSE sanskrit
+  sanskrit_en = CASE
+    WHEN sanskrit_en ~ '^Devanagari\s*\n?' THEN regexp_replace(sanskrit_en, '^Devanagari\s*\n?', '', 'i')
+    ELSE sanskrit_en
   END,
   synonyms_en = CASE
     WHEN synonyms_en ~ '^Synonyms\s*\n?' THEN regexp_replace(synonyms_en, '^Synonyms\s*\n?', '', 'i')
@@ -20,7 +20,7 @@ SET
     ELSE commentary_en
   END
 WHERE
-  sanskrit ~ '^Devanagari\s*\n?'
+  sanskrit_en ~ '^Devanagari\s*\n?'
   OR synonyms_en ~ '^Synonyms\s*\n?'
   OR translation_en ~ '^Translation\s*\n?'
   OR commentary_en ~ '^Purport\s*\n?';
