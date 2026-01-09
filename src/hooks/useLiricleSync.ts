@@ -9,22 +9,19 @@ import Liricle from 'liricle';
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useAudio } from '@/contexts/ModernAudioContext';
 
-// Типи для Liricle
+// Типи для Liricle (відповідають LineData/WordData з liricle.d.ts)
 interface LiricleLine {
-  index: number;
+  index?: number; // optional, як в LineData
   time: number; // час в СЕКУНДАХ
   text: string;
-  words?: LiricleWord[];
+  words?: LiricleWord[] | null;
 }
 
 interface LiricleWord {
-  index: number;
+  index?: number; // optional, як в WordData
   time: number; // час в СЕКУНДАХ
   text: string;
 }
-
-// Тип для callback sync події
-type SyncCallback = (line: LiricleLine | null, word: LiricleWord | null) => void;
 
 // Стан синхронізації
 export interface LiricleSyncState {
@@ -58,9 +55,6 @@ export function useLiricleSync(
   // Liricle instance (зберігаємо в ref щоб не перестворювати)
   const liricleRef = useRef<Liricle | null>(null);
 
-  // Ref для sync callback (для правильного cleanup)
-  const syncCallbackRef = useRef<SyncCallback | null>(null);
-
   // Стан
   const [currentLine, setCurrentLine] = useState<LiricleLine | null>(null);
   const [currentWord, setCurrentWord] = useState<LiricleWord | null>(null);
@@ -75,6 +69,9 @@ export function useLiricleSync(
       return;
     }
 
+    // Soft cleanup flag (Liricle не має методу off())
+    let cancelled = false;
+
     // Створюємо новий Liricle instance
     const liricle = new Liricle();
     liricleRef.current = liricle;
@@ -82,29 +79,26 @@ export function useLiricleSync(
     // Завантажуємо LRC контент (enhanced визначається автоматично)
     liricle.load({ text: lrcContent });
 
-    // Отримуємо рядки через подію 'load'
-    liricle.on('load', (data: { lines: LiricleLine[]; enhanced: boolean }) => {
+    // Отримуємо рядки через подію 'load' (типи виводяться автоматично)
+    liricle.on('load', (data) => {
+      if (cancelled) return;
       if (data.lines) {
         setLines(data.lines);
       }
     });
 
-    // Callback для sync подій (зберігаємо ref для cleanup)
-    const syncCallback: SyncCallback = (line, word) => {
+    // Sync подія - синхронізація поточного рядка/слова
+    liricle.on('sync', (line, word) => {
+      if (cancelled) return;
       setCurrentLine(line);
       setCurrentWord(word);
       if (onLineChange) onLineChange(line);
       if (onWordChange) onWordChange(word);
-    };
-    syncCallbackRef.current = syncCallback;
-
-    liricle.on('sync', syncCallback);
+    });
 
     return () => {
-      // Cleanup з правильним callback
-      if (syncCallbackRef.current) {
-        liricle.off('sync', syncCallbackRef.current);
-      }
+      // Soft cleanup - блокуємо setState після unmount
+      cancelled = true;
       liricleRef.current = null;
     };
   }, [lrcContent, enabled, onLineChange, onWordChange]);
@@ -135,7 +129,11 @@ export function useLiricleSync(
   const progress = useMemo(() => {
     if (!currentLine || !lines.length) return 0;
 
-    const lineIndex = currentLine.index;
+    // Знаходимо індекс поточного рядка (index optional, тому fallback на findIndex)
+    const lineIndex =
+      currentLine.index ?? lines.findIndex((l) => l.time === currentLine.time);
+    if (lineIndex === -1) return 0;
+
     const nextLine = lines[lineIndex + 1];
 
     if (!nextLine) {
