@@ -73,6 +73,30 @@ export default function VaishnavCalendar() {
     handleLocationChange
   );
 
+  // Переклад помилок геолокації
+  const getGeoErrorMessage = (errorCode: string) => {
+    const messages: Record<string, { ua: string; en: string }> = {
+      PERMISSION_DENIED: {
+        ua: "Доступ до геолокації заборонено. Увімкніть дозвіл у налаштуваннях браузера.",
+        en: "Location access denied. Please enable location permissions.",
+      },
+      POSITION_UNAVAILABLE: {
+        ua: "Інформація про місцезнаходження недоступна.",
+        en: "Location information unavailable.",
+      },
+      TIMEOUT: {
+        ua: "Час очікування геолокації вичерпано.",
+        en: "Location request timed out.",
+      },
+      UNKNOWN: {
+        ua: "Не вдалося визначити місцезнаходження.",
+        en: "Failed to get location.",
+      },
+    };
+    const msg = messages[errorCode] || messages.UNKNOWN;
+    return language === "ua" ? msg.ua : msg.en;
+  };
+
   const handleDetectLocation = async () => {
     const nearest = await detectLocation();
     if (nearest) {
@@ -86,7 +110,7 @@ export default function VaishnavCalendar() {
     } else if (geoError) {
       toast({
         title: language === "ua" ? "Помилка" : "Error",
-        description: geoError,
+        description: getGeoErrorMessage(geoError),
         variant: "destructive",
       });
     }
