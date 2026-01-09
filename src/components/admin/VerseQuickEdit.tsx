@@ -9,7 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, X, Clock, ChevronDown, ChevronUp, Volume2 } from "lucide-react";
+import { Loader2, Save, X, Clock, ChevronDown, ChevronUp, Volume2, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -32,6 +33,12 @@ interface Verse {
   explanation_en_audio_url?: string;
 }
 
+interface VerseLocation {
+  bookSlug: string;
+  chapterNumber: number;
+  cantoNumber?: number;
+}
+
 interface VerseQuickEditProps {
   verseId: string | null;
   chapterId?: string | null;
@@ -43,6 +50,7 @@ interface VerseQuickEditProps {
 export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onSuccess }: VerseQuickEditProps) {
   const queryClient = useQueryClient();
   const [verse, setVerse] = useState<Verse | null>(null);
+  const [verseLocation, setVerseLocation] = useState<VerseLocation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const isCreateMode = mode === "create";
 
@@ -73,6 +81,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
     if (isCreateMode) {
       // Reset form for create mode
       setVerse(null);
+      setVerseLocation(null);
       setVerseNumber("");
       setSanskritUa("");
       setTransliterationUa("");
@@ -94,6 +103,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
 
     if (!verseId) {
       setVerse(null);
+      setVerseLocation(null);
       return;
     }
 
@@ -138,6 +148,55 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         if (data.full_verse_audio_url || data.recitation_audio_url ||
             data.explanation_ua_audio_url || data.explanation_en_audio_url) {
           setIsAudioOpen(true);
+        }
+
+        // Load verse location (chapter -> canto -> book)
+        if (data.chapter_id) {
+          const { data: chapterData } = await supabase
+            .from("chapters")
+            .select("chapter_number, canto_id, book_id")
+            .eq("id", data.chapter_id)
+            .single();
+
+          if (chapterData) {
+            let bookSlug: string | null = null;
+            let cantoNumber: number | undefined = undefined;
+
+            if (chapterData.canto_id) {
+              // Chapter belongs to a canto
+              const { data: cantoData } = await supabase
+                .from("cantos")
+                .select("canto_number, book_id")
+                .eq("id", chapterData.canto_id)
+                .single();
+
+              if (cantoData) {
+                cantoNumber = cantoData.canto_number;
+                const { data: bookData } = await supabase
+                  .from("books")
+                  .select("slug")
+                  .eq("id", cantoData.book_id)
+                  .single();
+                bookSlug = bookData?.slug || null;
+              }
+            } else if (chapterData.book_id) {
+              // Chapter belongs directly to a book
+              const { data: bookData } = await supabase
+                .from("books")
+                .select("slug")
+                .eq("id", chapterData.book_id)
+                .single();
+              bookSlug = bookData?.slug || null;
+            }
+
+            if (bookSlug) {
+              setVerseLocation({
+                bookSlug,
+                chapterNumber: chapterData.chapter_number,
+                cantoNumber,
+              });
+            }
+          }
         }
       } finally {
         setIsLoading(false);
@@ -222,6 +281,18 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
     saveMutation.mutate();
   };
 
+  // Construct public URL for the verse
+  const getPublicVerseUrl = (): string | null => {
+    if (!verseLocation || !verseNumber) return null;
+    const { bookSlug, chapterNumber, cantoNumber } = verseLocation;
+    if (cantoNumber) {
+      return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+    }
+    return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
+  };
+
+  const publicVerseUrl = getPublicVerseUrl();
+
   if (!isCreateMode && !verseId) {
     return (
       <div className="flex flex-col h-full items-center justify-center text-muted-foreground p-8 text-center">
@@ -253,9 +324,18 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
             </p>
           )}
         </div>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+        <div className="flex items-center gap-1">
+          {publicVerseUrl && (
+            <Button variant="ghost" size="sm" asChild title="Переглянути в бібліотеці">
+              <Link to={publicVerseUrl} target="_blank">
+                <ExternalLink className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Form */}
