@@ -411,6 +411,15 @@ CREATE INDEX IF NOT EXISTS idx_festivals_month ON vaishnava_festivals(vaishnava_
 CREATE INDEX IF NOT EXISTS idx_ekadashi_month ON ekadashi_info(vaishnava_month_id);
 CREATE INDEX IF NOT EXISTS idx_user_calendar_settings_user ON user_calendar_settings(user_id);
 
+-- Additional performance indexes
+CREATE INDEX IF NOT EXISTS idx_calendar_events_range_order ON calendar_events(event_date, is_published DESC);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_today_pub ON calendar_events(event_date) WHERE is_published = true;
+CREATE INDEX IF NOT EXISTS idx_ekadashi_info_paksha ON ekadashi_info(paksha);
+CREATE INDEX IF NOT EXISTS idx_calendar_locations_tz ON calendar_locations(timezone);
+
+-- Unique constraint for preset locations to avoid duplicates
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_calendar_locations_preset ON calendar_locations(city_en, country_code) WHERE is_preset = true;
+
 -- ============================================
 -- 8. ENABLE RLS
 -- ============================================
@@ -520,17 +529,23 @@ BEGIN
     ce.id as event_id,
     ce.event_date,
     CASE
-      WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'
-      WHEN ce.festival_id IS NOT NULL THEN 'festival'
-      WHEN ce.appearance_day_id IS NOT NULL THEN 'appearance'
-      ELSE 'other'
+      WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'::TEXT
+      WHEN ce.festival_id IS NOT NULL THEN 'festival'::TEXT
+      WHEN ce.appearance_day_id IS NOT NULL THEN ad.event_type
+      ELSE 'other'::TEXT
     END as event_type,
     COALESCE(ce.custom_name_ua, ei.name_ua, vf.name_ua, ad.person_name_ua) as name_ua,
     COALESCE(ce.custom_name_en, ei.name_en, vf.name_en, ad.person_name_en) as name_en,
     COALESCE(ce.custom_description_ua, ei.glory_text_ua, vf.short_description_ua, ad.short_description_ua) as description_ua,
     COALESCE(ce.custom_description_en, ei.glory_text_en, vf.short_description_en, ad.short_description_en) as description_en,
-    fc.slug as category_slug,
-    fc.color as category_color,
+    CASE
+      WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'
+      ELSE fc.slug
+    END as category_slug,
+    CASE
+      WHEN ce.ekadashi_id IS NOT NULL THEN '#8B5CF6'
+      ELSE COALESCE(fc.color, '#8B5CF6')
+    END as category_color,
     (ce.ekadashi_id IS NOT NULL) as is_ekadashi,
     COALESCE(ei.is_major, vf.is_major, ad.is_major, false) as is_major,
     ce.moon_phase,
@@ -541,7 +556,6 @@ BEGIN
   LEFT JOIN vaishnava_festivals vf ON ce.festival_id = vf.id
   LEFT JOIN appearance_days ad ON ce.appearance_day_id = ad.id
   LEFT JOIN festival_categories fc ON COALESCE(vf.category_id, ad.category_id) = fc.id
-    OR (ce.ekadashi_id IS NOT NULL AND fc.slug = 'ekadashi')
   WHERE ce.event_date BETWEEN p_start_date AND p_end_date
     AND ce.is_published = true
     AND (p_location_id IS NULL OR ce.location_id = p_location_id)
@@ -611,16 +625,19 @@ BEGIN
   SELECT
     ce.id,
     CASE
-      WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'
-      WHEN ce.festival_id IS NOT NULL THEN 'festival'
-      WHEN ce.appearance_day_id IS NOT NULL THEN 'appearance'
-      ELSE 'other'
+      WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'::TEXT
+      WHEN ce.festival_id IS NOT NULL THEN 'festival'::TEXT
+      WHEN ce.appearance_day_id IS NOT NULL THEN ad.event_type
+      ELSE 'other'::TEXT
     END,
     COALESCE(ce.custom_name_ua, ei.name_ua, vf.name_ua, ad.person_name_ua),
     COALESCE(ce.custom_name_en, ei.name_en, vf.name_en, ad.person_name_en),
     COALESCE(ei.glory_title_ua, vf.short_description_ua, ad.short_description_ua),
     COALESCE(ei.glory_title_en, vf.short_description_en, ad.short_description_en),
-    COALESCE(fc.color, '#8B5CF6'),
+    CASE
+      WHEN ce.ekadashi_id IS NOT NULL THEN '#8B5CF6'
+      ELSE COALESCE(fc.color, '#8B5CF6')
+    END,
     (ce.ekadashi_id IS NOT NULL),
     ce.parana_start_time,
     ce.parana_end_time
@@ -628,11 +645,7 @@ BEGIN
   LEFT JOIN ekadashi_info ei ON ce.ekadashi_id = ei.id
   LEFT JOIN vaishnava_festivals vf ON ce.festival_id = vf.id
   LEFT JOIN appearance_days ad ON ce.appearance_day_id = ad.id
-  LEFT JOIN festival_categories fc ON
-    CASE
-      WHEN ce.ekadashi_id IS NOT NULL THEN fc.slug = 'ekadashi'
-      ELSE COALESCE(vf.category_id, ad.category_id) = fc.id
-    END
+  LEFT JOIN festival_categories fc ON COALESCE(vf.category_id, ad.category_id) = fc.id
   WHERE ce.event_date = CURRENT_DATE
     AND ce.is_published = true
     AND (p_location_id IS NULL OR ce.location_id = p_location_id);
