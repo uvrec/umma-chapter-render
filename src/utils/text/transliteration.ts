@@ -248,6 +248,10 @@ export const DEVANAGARI_TO_CYRILLIC: Record<string, string> = {
   "ॄ": "р̣̄",
   "ॢ": "л̣",
   "ॣ": "л̣̄",
+
+  // Спеціальні символи з чандрабінду
+  "ॐ": "ом̐", // Om з чандрабінду (правильна назалізація)
+  "ँ": "\u0310", // Devanagari candrabindu → combining candrabindu
 };
 
 // Маппінг Бенгалі → українська кирилиця
