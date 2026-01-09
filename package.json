@@ -86,6 +86,7 @@
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
     "jszip": "^3.10.1",
+    "liricle": "^4.2.0",
     "lucide-react": "^0.462.0",
     "mammoth": "^1.11.0",
     "marked": "^16.3.0",
