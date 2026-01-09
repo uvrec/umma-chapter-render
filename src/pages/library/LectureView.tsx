@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import {
   Dialog,
@@ -84,6 +83,7 @@ export const LectureView = () => {
   // Bulk translation paste state
   const [showBulkTranslationDialog, setShowBulkTranslationDialog] = useState(false);
   const [bulkTranslationText, setBulkTranslationText] = useState("");
+  const [detectedParagraphsCount, setDetectedParagraphsCount] = useState(0);
 
   // Завантаження лекції
   const { data: lecture, isLoading: lectureLoading } = useQuery({
@@ -431,68 +431,57 @@ export const LectureView = () => {
     }
   };
 
-  // Функція для копіювання HTML-структури з оригіналу до перекладу
-  const copyHtmlStructure = (originalHtml: string, translatedText: string): string => {
-    // Якщо оригінал не містить HTML тегів - просто повертаємо переклад
-    if (!/<[^>]+>/.test(originalHtml)) {
-      return translatedText;
+  // Функція для парсингу HTML та отримання параграфів
+  const parseHtmlParagraphs = (html: string): string[] => {
+    if (!html.trim() || html === "<p></p>") {
+      return [];
     }
 
-    // Створюємо тимчасовий елемент для парсингу HTML
     const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = originalHtml;
+    tempDiv.innerHTML = html;
 
-    // Отримуємо текстовий вміст оригіналу
-    const originalTextContent = tempDiv.textContent || tempDiv.innerText || "";
+    const pElements = tempDiv.querySelectorAll("p");
+    const result: string[] = [];
 
-    // Якщо переклад приблизно такої ж довжини - намагаємося зберегти структуру
-    // Простий підхід: замінюємо текстові вузли на переклад пропорційно
-    const translateRatio = translatedText.length / (originalTextContent.length || 1);
+    if (pElements.length > 0) {
+      pElements.forEach((p) => {
+        const content = p.innerHTML.trim();
+        if (content && content !== "<br>" && content !== "<br/>") {
+          result.push(content);
+        }
+      });
+    } else {
+      const parts = html
+        .split(/<br\s*\/?>\s*<br\s*\/?>/gi)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0 && p !== "<br>" && p !== "<br/>");
 
-    // Якщо різниця у довжині невелика - копіюємо структуру тегів
-    if (translateRatio > 0.5 && translateRatio < 2) {
-      // Отримуємо всі теги з оригіналу
-      const tagPattern = /<[^>]+>/g;
-      const tags = originalHtml.match(tagPattern) || [];
-
-      // Якщо є теги для форматування тексту - застосовуємо їх
-      if (tags.length > 0) {
-        // Знаходимо відкриваючі теги на початку та закриваючі в кінці
-        let openTags = "";
-        let closeTags = "";
-
-        // Перевіряємо чи є теги на початку і в кінці
-        const startMatch = originalHtml.match(/^(<[^>]+>)+/);
-        const endMatch = originalHtml.match(/(<\/[^>]+>)+$/);
-
-        if (startMatch) openTags = startMatch[0];
-        if (endMatch) closeTags = endMatch[0];
-
-        if (openTags || closeTags) {
-          return openTags + translatedText + closeTags;
+      if (parts.length > 0) {
+        result.push(...parts);
+      } else {
+        const cleanText = tempDiv.innerHTML.trim();
+        if (cleanText) {
+          result.push(cleanText);
         }
       }
     }
 
-    // Якщо не вдалося зберегти структуру - просто повертаємо переклад як є
-    return translatedText;
+    return result;
   };
 
-  // Вставка повного перекладу (розбиття по параграфах)
-  const applyBulkTranslation = () => {
-    if (!bulkTranslationText.trim()) {
-      toast.error("Введіть текст перекладу");
-      return;
-    }
+  // Оновлення кількості визначених параграфів при зміні тексту
+  const handleBulkTextChange = (html: string) => {
+    setBulkTranslationText(html);
+    const detected = parseHtmlParagraphs(html);
+    setDetectedParagraphsCount(detected.length);
+  };
 
-    // Розбиваємо текст на параграфи (по подвійних переносах рядків або просто переносах)
-    const translatedParagraphs = bulkTranslationText
-      .split(/\n\n+|\n(?=[А-ЯІЇЄҐA-Z])/g)
-      .map((p) => p.trim())
-      .filter((p) => p.length > 0);
+  // Вставка повного перекладу (розбиття по параграфах з HTML)
+  const applyBulkTranslation = () => {
+    const translatedParagraphs = parseHtmlParagraphs(bulkTranslationText);
 
     if (translatedParagraphs.length === 0) {
-      toast.error("Не вдалося розпізнати параграфи");
+      toast.error("Введіть текст перекладу");
       return;
     }
 
@@ -501,7 +490,7 @@ export const LectureView = () => {
       (a, b) => a.paragraph_number - b.paragraph_number
     );
 
-    // Застосовуємо переклад до відповідних параграфів зі збереженням HTML-структури
+    // Застосовуємо переклад до відповідних параграфів (зберігаємо HTML форматування)
     setEditedParagraphs((prev) => {
       const updated = { ...prev };
       const minCount = Math.min(sortedParagraphs.length, translatedParagraphs.length);
@@ -509,13 +498,12 @@ export const LectureView = () => {
       for (let i = 0; i < minCount; i++) {
         const paragraph = sortedParagraphs[i];
         const paragraphId = paragraph.id;
-        const originalHtml = updated[paragraphId]?.content_en || paragraph.content_en || "";
-        const translatedText = translatedParagraphs[i];
 
         if (updated[paragraphId]) {
           updated[paragraphId] = {
             ...updated[paragraphId],
-            content_ua: copyHtmlStructure(originalHtml, translatedText),
+            // Зберігаємо HTML форматування з вставленого тексту
+            content_ua: translatedParagraphs[i],
           };
         }
       }
@@ -900,28 +888,48 @@ export const LectureView = () => {
       <Footer />
 
       {/* Діалог вставки повного перекладу */}
-      <Dialog open={showBulkTranslationDialog} onOpenChange={setShowBulkTranslationDialog}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+      <Dialog open={showBulkTranslationDialog} onOpenChange={(open) => {
+        setShowBulkTranslationDialog(open);
+        if (!open) {
+          setBulkTranslationText("");
+          setDetectedParagraphsCount(0);
+        }
+      }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Вставити переклад для всіх параграфів</DialogTitle>
             <DialogDescription>
-              Вставте повний український переклад лекції. Текст буде автоматично розбитий на
-              параграфи (по порожніх рядках) та застосований до відповідних параграфів лекції.
-              <br />
-              <span className="text-muted-foreground">
-                Кількість параграфів у лекції: {paragraphs.length}
-              </span>
+              Вставте повний український переклад лекції з форматуванням (bold, italic тощо).
+              Кожен параграф має бути в окремому абзаці (натискайте Enter двічі між параграфами).
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
-            <Textarea
-              value={bulkTranslationText}
-              onChange={(e) => setBulkTranslationText(e.target.value)}
-              placeholder="Вставте тут повний текст перекладу українською мовою...
+          <div className="flex gap-4 text-sm py-2">
+            <div className="px-3 py-1 rounded bg-muted">
+              Параграфів у лекції: <strong>{paragraphs.length}</strong>
+            </div>
+            <div className={`px-3 py-1 rounded ${
+              detectedParagraphsCount === paragraphs.length
+                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                : detectedParagraphsCount > 0
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                  : "bg-muted"
+            }`}>
+              Визначено параграфів: <strong>{detectedParagraphsCount}</strong>
+              {detectedParagraphsCount > 0 && detectedParagraphsCount !== paragraphs.length && (
+                <span className="ml-1">
+                  ({detectedParagraphsCount > paragraphs.length ? "+" : ""}{detectedParagraphsCount - paragraphs.length})
+                </span>
+              )}
+            </div>
+          </div>
 
-Кожен параграф має бути відокремлений порожнім рядком."
-              className="min-h-[300px] font-mono text-sm"
+          <div className="py-2">
+            <EnhancedInlineEditor
+              content={bulkTranslationText}
+              onChange={handleBulkTextChange}
+              minHeight="300px"
+              placeholder="Вставте тут повний текст перекладу українською мовою з форматуванням..."
             />
           </div>
 
@@ -929,9 +937,12 @@ export const LectureView = () => {
             <Button variant="outline" onClick={() => setShowBulkTranslationDialog(false)}>
               Скасувати
             </Button>
-            <Button onClick={applyBulkTranslation}>
+            <Button
+              onClick={applyBulkTranslation}
+              disabled={detectedParagraphsCount === 0}
+            >
               <ClipboardPaste className="mr-2 h-4 w-4" />
-              Застосувати переклад
+              Застосувати переклад ({Math.min(detectedParagraphsCount, paragraphs.length)} пар.)
             </Button>
           </DialogFooter>
         </DialogContent>
