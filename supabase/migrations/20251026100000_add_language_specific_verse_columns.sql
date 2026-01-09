@@ -4,6 +4,8 @@
 --   - transliteration_ua: Ukrainian Cyrillic transliteration with diacritics
 --   - transliteration_en: Latin IAST transliteration with diacritics
 
+BEGIN;
+
 ALTER TABLE public.verses
   ADD COLUMN IF NOT EXISTS sanskrit_ua TEXT,
   ADD COLUMN IF NOT EXISTS sanskrit_en TEXT;
@@ -43,3 +45,5 @@ WHERE sanskrit_ua IS NOT NULL
 
 COMMENT ON COLUMN public.verses.sanskrit_ua IS 'Sanskrit/Bengali text in Devanagari script (Ukrainian interface)';
 COMMENT ON COLUMN public.verses.sanskrit_en IS 'Sanskrit/Bengali text in Devanagari script (English interface)';
+
+COMMIT;
