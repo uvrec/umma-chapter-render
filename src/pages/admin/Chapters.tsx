@@ -8,8 +8,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, FileText, BookOpen } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +30,17 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+type ChapterType = "verses" | "text";
+
+interface ChapterForm {
+  chapter_number: string;
+  title_ua: string;
+  title_en: string;
+  chapter_type: ChapterType;
+  content_ua: string;
+  content_en: string;
+}
+
 export default function Chapters() {
   const { bookId, cantoId } = useParams();
   const navigate = useNavigate();
@@ -32,10 +51,28 @@ export default function Chapters() {
   const isCantoMode = !!cantoId;
 
   const [isAddingChapter, setIsAddingChapter] = useState(false);
-  const [chapterNumber, setChapterNumber] = useState("");
-  const [titleUa, setTitleUa] = useState("");
-  const [titleEn, setTitleEn] = useState("");
   const [editingChapter, setEditingChapter] = useState<any>(null);
+
+  // Форма глави
+  const [form, setForm] = useState<ChapterForm>({
+    chapter_number: "",
+    title_ua: "",
+    title_en: "",
+    chapter_type: "verses",
+    content_ua: "",
+    content_en: "",
+  });
+
+  const resetForm = () => {
+    setForm({
+      chapter_number: "",
+      title_ua: "",
+      title_en: "",
+      chapter_type: "verses",
+      content_ua: "",
+      content_en: "",
+    });
+  };
 
   // --- helper: перевірити, чи зайнятий номер глави в межах книги/пісні
   async function isChapterNumberTaken(params: {
@@ -116,6 +153,9 @@ export default function Chapters() {
       chapter_number: number;
       title_ua: string;
       title_en: string | null;
+      chapter_type: ChapterType;
+      content_ua: string | null;
+      content_en: string | null;
       book_id?: string;
       canto_id?: string;
     }) => {
@@ -126,9 +166,7 @@ export default function Chapters() {
       queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
       toast({ title: "Главу додано", description: "Зміни успішно збережено" });
       setIsAddingChapter(false);
-      setChapterNumber("");
-      setTitleUa("");
-      setTitleEn("");
+      resetForm();
     },
     onError: (error: any) => {
       // дружній меседж для унікальності
@@ -149,13 +187,24 @@ export default function Chapters() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (payload: { id: string; chapter_number: number; title_ua: string; title_en: string | null }) => {
+    mutationFn: async (payload: {
+      id: string;
+      chapter_number: number;
+      title_ua: string;
+      title_en: string | null;
+      chapter_type: ChapterType;
+      content_ua: string | null;
+      content_en: string | null;
+    }) => {
       const { error } = await supabase
         .from("chapters")
         .update({
           chapter_number: payload.chapter_number,
           title_ua: payload.title_ua,
           title_en: payload.title_en,
+          chapter_type: payload.chapter_type,
+          content_ua: payload.content_ua,
+          content_en: payload.content_en,
         })
         .eq("id", payload.id);
       if (error) throw error as any;
@@ -164,9 +213,7 @@ export default function Chapters() {
       queryClient.invalidateQueries({ queryKey: ["chapters", parentId] });
       toast({ title: "Главу оновлено", description: "Зміни успішно збережено" });
       setEditingChapter(null);
-      setChapterNumber("");
-      setTitleUa("");
-      setTitleEn("");
+      resetForm();
       setIsAddingChapter(false);
     },
     onError: (error: any) => {
@@ -206,7 +253,7 @@ export default function Chapters() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chapterNumber || !titleUa) {
+    if (!form.chapter_number || !form.title_ua) {
       toast({
         title: "Помилка",
         description: "Заповніть обов'язкові поля",
@@ -215,7 +262,7 @@ export default function Chapters() {
       return;
     }
 
-    const num = parseInt(chapterNumber, 10);
+    const num = parseInt(form.chapter_number, 10);
     if (Number.isNaN(num) || num <= 0) {
       toast({
         title: "Невірний номер",
@@ -242,37 +289,44 @@ export default function Chapters() {
       return;
     }
 
+    const payload = {
+      chapter_number: num,
+      title_ua: form.title_ua,
+      title_en: form.title_en || null,
+      chapter_type: form.chapter_type,
+      content_ua: form.chapter_type === "text" ? form.content_ua || null : null,
+      content_en: form.chapter_type === "text" ? form.content_en || null : null,
+    };
+
     if (editingChapter) {
       updateMutation.mutate({
         id: editingChapter.id,
-        chapter_number: num,
-        title_ua: titleUa,
-        title_en: titleEn || null,
+        ...payload,
       });
     } else {
-      const base = {
-        chapter_number: num,
-        title_ua: titleUa,
-        title_en: titleEn || null,
-      };
-      addMutation.mutate(isCantoMode ? { ...base, canto_id: cantoId! } : { ...base, book_id: bookId! });
+      addMutation.mutate(
+        isCantoMode ? { ...payload, canto_id: cantoId! } : { ...payload, book_id: bookId! }
+      );
     }
   };
 
   const startEditing = (chapter: any) => {
     setEditingChapter(chapter);
-    setChapterNumber(String(chapter.chapter_number));
-    setTitleUa(chapter.title_ua);
-    setTitleEn(chapter.title_en || "");
+    setForm({
+      chapter_number: String(chapter.chapter_number),
+      title_ua: chapter.title_ua || "",
+      title_en: chapter.title_en || "",
+      chapter_type: chapter.chapter_type || "verses",
+      content_ua: chapter.content_ua || "",
+      content_en: chapter.content_en || "",
+    });
     setIsAddingChapter(true);
   };
 
   const cancelForm = () => {
     setIsAddingChapter(false);
     setEditingChapter(null);
-    setChapterNumber("");
-    setTitleUa("");
-    setTitleEn("");
+    resetForm();
   };
 
   if (!user || !isAdmin) return null;
@@ -315,16 +369,48 @@ export default function Chapters() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <Label htmlFor="chapterNumber">Номер глави *</Label>
-                  <Input
-                    id="chapterNumber"
-                    type="number"
-                    value={chapterNumber}
-                    onChange={(e) => setChapterNumber(e.target.value)}
-                    placeholder="1"
-                    required
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="chapterNumber">Номер глави *</Label>
+                    <Input
+                      id="chapterNumber"
+                      type="number"
+                      value={form.chapter_number}
+                      onChange={(e) => setForm((f) => ({ ...f, chapter_number: e.target.value }))}
+                      placeholder="1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="chapterType">Тип глави *</Label>
+                    <Select
+                      value={form.chapter_type}
+                      onValueChange={(v: ChapterType) => setForm((f) => ({ ...f, chapter_type: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Оберіть тип" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="verses">
+                          <span className="flex items-center gap-2">
+                            <BookOpen className="h-4 w-4" />
+                            З віршами (стандартна)
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="text">
+                          <span className="flex items-center gap-2">
+                            <FileText className="h-4 w-4" />
+                            Текстова (без віршів)
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {form.chapter_type === "text"
+                        ? "Глава з текстовим контентом (оповідання, есе, тощо)"
+                        : "Глава з віршами та коментарями"}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -335,8 +421,8 @@ export default function Chapters() {
                       <Label htmlFor="titleUa">Назва *</Label>
                       <Input
                         id="titleUa"
-                        value={titleUa}
-                        onChange={(e) => setTitleUa(e.target.value)}
+                        value={form.title_ua}
+                        onChange={(e) => setForm((f) => ({ ...f, title_ua: e.target.value }))}
                         placeholder="Питання мудреців"
                         required
                       />
@@ -350,13 +436,36 @@ export default function Chapters() {
                       <Label htmlFor="titleEn">Title</Label>
                       <Input
                         id="titleEn"
-                        value={titleEn}
-                        onChange={(e) => setTitleEn(e.target.value)}
+                        value={form.title_en}
+                        onChange={(e) => setForm((f) => ({ ...f, title_en: e.target.value }))}
                         placeholder="Questions by the Sages"
                       />
                     </div>
                   </div>
                 </div>
+
+                {/* Редактор контенту для текстових глав */}
+                {form.chapter_type === "text" && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg border-b pb-2">Контент глави</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div>
+                        <Label className="mb-2 block">Контент (українською)</Label>
+                        <EnhancedInlineEditor
+                          content={form.content_ua}
+                          onChange={(html) => setForm((f) => ({ ...f, content_ua: html }))}
+                        />
+                      </div>
+                      <div>
+                        <Label className="mb-2 block">Контент (англійською)</Label>
+                        <EnhancedInlineEditor
+                          content={form.content_en}
+                          onChange={(html) => setForm((f) => ({ ...f, content_en: html }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex gap-4">
                   <Button type="submit" disabled={addMutation.isPending || updateMutation.isPending}>
@@ -380,9 +489,22 @@ export default function Chapters() {
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-lg">
-                        Глава {chapter.chapter_number}: {chapter.title_ua}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-lg">
+                          Глава {chapter.chapter_number}: {chapter.title_ua}
+                        </h3>
+                        {chapter.chapter_type === "text" ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                            <FileText className="h-3 w-3" />
+                            Текстова
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            <BookOpen className="h-3 w-3" />
+                            З віршами
+                          </span>
+                        )}
+                      </div>
                       {chapter.title_en && <p className="text-sm text-muted-foreground mt-1">{chapter.title_en}</p>}
                     </div>
                     <div className="flex gap-2">
@@ -400,7 +522,9 @@ export default function Chapters() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Ви впевнені?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Це видалить главу та всі вірші в ній. Цю дію неможливо скасувати.
+                              {chapter.chapter_type === "text"
+                                ? "Це видалить главу та весь її вміст. Цю дію неможливо скасувати."
+                                : "Це видалить главу та всі вірші в ній. Цю дію неможливо скасувати."}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
