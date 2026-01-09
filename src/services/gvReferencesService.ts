@@ -1,5 +1,7 @@
 // src/services/gvReferencesService.ts
 // Service for fetching Gaudiya Vaishnava book references
+// NOTE: Tables gv_authors, gv_book_references, gv_book_catalogues, gv_catalogue_books
+// need to be created in Supabase and types regenerated for full type safety
 
 import { supabase } from '@/integrations/supabase/client';
 import type {
@@ -10,12 +12,15 @@ import type {
   AuthorEra,
 } from '@/types/gv-references';
 
+// Type assertion helper for tables not yet in generated types
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fromTable = (table: string) => supabase.from(table as any);
+
 /**
  * Fetch all authors with optional filtering by era
  */
 export async function fetchAuthors(era?: AuthorEra): Promise<GVAuthor[]> {
-  let query = supabase
-    .from('gv_authors')
+  let query = fromTable('gv_authors')
     .select('*')
     .eq('is_published', true)
     .order('display_order');
@@ -33,8 +38,7 @@ export async function fetchAuthors(era?: AuthorEra): Promise<GVAuthor[]> {
  * Fetch a single author by slug
  */
 export async function fetchAuthorBySlug(slug: string): Promise<GVAuthor | null> {
-  const { data, error } = await supabase
-    .from('gv_authors')
+  const { data, error } = await fromTable('gv_authors')
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
@@ -51,8 +55,7 @@ export async function fetchAuthorBySlug(slug: string): Promise<GVAuthor | null> 
  * Fetch authors with their guru information
  */
 export async function fetchAuthorsWithGuru(): Promise<GVAuthor[]> {
-  const { data, error } = await supabase
-    .from('gv_authors')
+  const { data, error } = await fromTable('gv_authors')
     .select(`
       *,
       guru:guru_id (
@@ -74,8 +77,7 @@ export async function fetchAuthorsWithGuru(): Promise<GVAuthor[]> {
  * Fetch all book references with optional filtering
  */
 export async function fetchBookReferences(filters?: GVBookFilters): Promise<GVBookReference[]> {
-  let query = supabase
-    .from('gv_book_references')
+  let query = fromTable('gv_book_references')
     .select(`
       *,
       author:author_id (
@@ -129,8 +131,7 @@ export async function fetchBooksByAuthor(authorSlug: string): Promise<GVBookRefe
   const author = await fetchAuthorBySlug(authorSlug);
   if (!author) return [];
 
-  const { data, error } = await supabase
-    .from('gv_book_references')
+  const { data, error } = await fromTable('gv_book_references')
     .select('*')
     .eq('author_id', author.id)
     .eq('is_published', true)
@@ -145,8 +146,7 @@ export async function fetchBooksByAuthor(authorSlug: string): Promise<GVBookRefe
  */
 export async function fetchCataloguesWithBooks(): Promise<GVBookCatalogue[]> {
   // Fetch catalogues
-  const { data: catalogues, error: cataloguesError } = await supabase
-    .from('gv_book_catalogues')
+  const { data: catalogues, error: cataloguesError } = await fromTable('gv_book_catalogues')
     .select('*')
     .eq('is_published', true)
     .order('display_order');
@@ -154,8 +154,7 @@ export async function fetchCataloguesWithBooks(): Promise<GVBookCatalogue[]> {
   if (cataloguesError) throw cataloguesError;
 
   // Fetch all catalogue-book relationships
-  const { data: catalogueBooks, error: cbError } = await supabase
-    .from('gv_catalogue_books')
+  const { data: catalogueBooks, error: cbError } = await fromTable('gv_catalogue_books')
     .select(`
       catalogue_id,
       book_id,
@@ -198,8 +197,7 @@ export async function fetchCataloguesWithBooks(): Promise<GVBookCatalogue[]> {
  * Fetch a single book reference by slug
  */
 export async function fetchBookBySlug(slug: string): Promise<GVBookReference | null> {
-  const { data, error } = await supabase
-    .from('gv_book_references')
+  const { data, error } = await fromTable('gv_book_references')
     .select(`
       *,
       author:author_id (
@@ -237,15 +235,14 @@ export async function fetchBookBySlug(slug: string): Promise<GVBookReference | n
  * Get book counts by author
  */
 export async function fetchAuthorBookCounts(): Promise<Record<string, number>> {
-  const { data, error } = await supabase
-    .from('gv_book_references')
+  const { data, error } = await fromTable('gv_book_references')
     .select('author_id')
     .eq('is_published', true);
 
   if (error) throw error;
 
   const counts: Record<string, number> = {};
-  data.forEach((book) => {
+  (data || []).forEach((book: { author_id?: string }) => {
     if (book.author_id) {
       counts[book.author_id] = (counts[book.author_id] || 0) + 1;
     }

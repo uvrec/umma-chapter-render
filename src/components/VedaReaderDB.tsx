@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -92,6 +92,8 @@ export const VedaReaderDB = () => {
     showVerseContour,
     fullscreenMode,
     setFullscreenMode,
+    zenMode,
+    setZenMode,
   } = useReaderSettings();
   const [craftPaperMode, setCraftPaperMode] = useState(false);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
@@ -893,6 +895,13 @@ export const VedaReaderDB = () => {
     handler: () => setFullscreenMode(prev => !prev),
     category: 'modes'
   },
+  // Zen Mode
+  {
+    key: 'z',
+    description: t('Zen режим (максимальний фокус)', 'Zen mode (maximum focus)'),
+    handler: () => setZenMode(prev => !prev),
+    category: 'modes'
+  },
   // Help
   {
     key: '?',
@@ -901,9 +910,11 @@ export const VedaReaderDB = () => {
     category: 'help'
   }, {
     key: 'Escape',
-    description: t('Закрити модальне вікно / Вийти з повноекранного', 'Close modal / Exit fullscreen'),
+    description: t('Закрити модальне вікно / Вийти з режиму', 'Close modal / Exit mode'),
     handler: () => {
-      if (fullscreenMode) {
+      if (zenMode) {
+        setZenMode(false);
+      } else if (fullscreenMode) {
         setFullscreenMode(false);
       } else {
         setShowKeyboardShortcuts(false);
@@ -947,12 +958,18 @@ export const VedaReaderDB = () => {
   // Не потрібно встановлювати inline font-size на контейнер
 
   return <div className={`min-h-screen ${craftPaperMode ? "craft-paper-bg" : "bg-background"}`}>
-      {/* Кнопка виходу з повноекранного режиму */}
-      {fullscreenMode && (
+      {/* Кнопка виходу з zen/fullscreen режиму */}
+      {(zenMode || fullscreenMode) && (
         <button
-          onClick={() => setFullscreenMode(false)}
-          className="fullscreen-exit-btn"
-          title={t("Вийти з повноекранного режиму (Esc)", "Exit fullscreen (Esc)")}
+          onClick={() => {
+            if (zenMode) setZenMode(false);
+            else setFullscreenMode(false);
+          }}
+          className={zenMode ? "zen-exit-btn" : "fullscreen-exit-btn"}
+          title={zenMode
+            ? t("Вийти з Zen режиму (Esc)", "Exit Zen mode (Esc)")
+            : t("Вийти з повноекранного режиму (Esc)", "Exit fullscreen (Esc)")
+          }
         >
           <X className="h-5 w-5" />
         </button>
@@ -1003,6 +1020,9 @@ export const VedaReaderDB = () => {
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
                 <HelpCircle className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setZenMode(!zenMode)} title={t("Zen режим (z)", "Zen mode (z)")}>
+                <Leaf className={`h-5 w-5 ${zenMode ? "text-primary" : ""}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setFullscreenMode(!fullscreenMode)} title={t("Повноекранний режим (f)", "Fullscreen mode (f)")}>
                 <Maximize className={`h-5 w-5 ${fullscreenMode ? "text-primary" : ""}`} />

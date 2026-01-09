@@ -1,10 +1,17 @@
 /**
  * CalendarMonthView - Місячне подання календаря
+ *
+ * Features:
+ * - Тітхі та пакша для кожного дня
+ * - Схід/захід сонця
+ * - Фаза місяця
+ * - Події з кольоровим кодуванням
  */
 
 import { cn } from "@/lib/utils";
-import type { MonthData, DayData, CalendarEventDisplay } from "@/types/calendar";
+import type { MonthData, DayData, CalendarEventDisplay, Paksha } from "@/types/calendar";
 import { format, isSameDay } from "date-fns";
+import { Sun, Sunrise, Sunset } from "lucide-react";
 
 interface CalendarMonthViewProps {
   monthData: MonthData;
@@ -12,6 +19,53 @@ interface CalendarMonthViewProps {
   onSelectDate: (date: Date) => void;
   language: "ua" | "en";
   weekDays: string[];
+  showSunTimes?: boolean;
+  showTithi?: boolean;
+}
+
+// Paksha display helpers
+const pakshaLabels: Record<Paksha, { ua: string; en: string; symbol: string }> = {
+  shukla: { ua: "Шукла", en: "Shukla", symbol: "☽" },
+  krishna: { ua: "Крішна", en: "Krishna", symbol: "☾" },
+};
+
+// Tithi names
+const tithiNames: Record<number, { ua: string; en: string }> = {
+  1: { ua: "Пратіпада", en: "Pratipada" },
+  2: { ua: "Двітія", en: "Dvitiya" },
+  3: { ua: "Трітія", en: "Tritiya" },
+  4: { ua: "Чатуртхі", en: "Chaturthi" },
+  5: { ua: "Панчамі", en: "Panchami" },
+  6: { ua: "Шаштхі", en: "Shashthi" },
+  7: { ua: "Саптамі", en: "Saptami" },
+  8: { ua: "Аштамі", en: "Ashtami" },
+  9: { ua: "Навамі", en: "Navami" },
+  10: { ua: "Дашамі", en: "Dashami" },
+  11: { ua: "Екадаші", en: "Ekadashi" },
+  12: { ua: "Двадаші", en: "Dvadashi" },
+  13: { ua: "Трайодаші", en: "Trayodashi" },
+  14: { ua: "Чатурдаші", en: "Chaturdashi" },
+  15: { ua: "Пурніма", en: "Purnima" }, // Full moon (shukla)
+  30: { ua: "Амавас'я", en: "Amavasya" }, // New moon (krishna 15)
+};
+
+// Get tithi name with paksha
+function getTithiDisplay(
+  tithi: number | undefined,
+  paksha: Paksha | undefined,
+  language: "ua" | "en"
+): string | null {
+  if (!tithi) return null;
+
+  // Handle Amavasya (new moon) - krishna paksha 15th tithi
+  if (paksha === "krishna" && tithi === 15) {
+    return tithiNames[30]?.[language] || null;
+  }
+
+  const tithiName = tithiNames[tithi]?.[language];
+  if (!tithiName) return null;
+
+  return tithiName;
 }
 
 export function CalendarMonthView({
@@ -20,6 +74,8 @@ export function CalendarMonthView({
   onSelectDate,
   language,
   weekDays,
+  showSunTimes = false,
+  showTithi = true,
 }: CalendarMonthViewProps) {
   // Отримуємо колір події
   const getEventColor = (event: CalendarEventDisplay): string => {
@@ -67,13 +123,17 @@ export function CalendarMonthView({
           const isSelected = selectedDate && isSameDay(day.date, selectedDate);
           const primaryEvent = getPrimaryEvent(day.events);
           const hasMultipleEvents = day.events.length > 1;
+          const tithiDisplay = day.tithi
+            ? getTithiDisplay(day.tithi.tithi_number, day.paksha, language)
+            : null;
+          const pakshaInfo = day.paksha ? pakshaLabels[day.paksha] : null;
 
           return (
             <button
               key={index}
               onClick={() => onSelectDate(day.date)}
               className={cn(
-                "min-h-[80px] md:min-h-[100px] p-1 md:p-2 rounded-lg border text-left transition-all",
+                "relative min-h-[90px] md:min-h-[110px] p-1 md:p-2 rounded-lg border text-left transition-all",
                 "hover:bg-accent hover:border-accent-foreground/20",
                 "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
                 day.is_current_month
@@ -83,16 +143,59 @@ export function CalendarMonthView({
                 isSelected && "bg-accent border-primary"
               )}
             >
-              {/* Номер дня */}
-              <div
-                className={cn(
-                  "text-sm font-medium mb-1",
-                  day.is_today &&
-                    "bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center"
-                )}
-              >
-                {day.day_of_month}
+              {/* Верхній рядок: номер дня + пакша/місяць */}
+              <div className="flex items-start justify-between mb-1">
+                <div
+                  className={cn(
+                    "text-sm font-medium",
+                    day.is_today &&
+                      "bg-primary text-primary-foreground w-6 h-6 rounded-full flex items-center justify-center"
+                  )}
+                >
+                  {day.day_of_month}
+                </div>
+
+                {/* Paksha indicator + moon phase */}
+                <div className="flex items-center gap-0.5">
+                  {pakshaInfo && (
+                    <span
+                      className="text-[10px] text-muted-foreground"
+                      title={pakshaInfo[language]}
+                    >
+                      {pakshaInfo.symbol}
+                    </span>
+                  )}
+                  {day.moon_phase !== undefined && day.moon_phase !== null && (
+                    <span
+                      className="text-[10px]"
+                      title={`${Math.round(day.moon_phase)}%`}
+                    >
+                      {day.moon_phase > 90
+                        ? "🌕"
+                        : day.moon_phase > 75
+                        ? "🌔"
+                        : day.moon_phase > 50
+                        ? "🌓"
+                        : day.moon_phase > 25
+                        ? "🌒"
+                        : "🌑"}
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {/* Тітхі */}
+              {showTithi && tithiDisplay && (
+                <div
+                  className={cn(
+                    "text-[10px] text-muted-foreground mb-0.5 truncate",
+                    day.tithi?.is_ekadashi && "text-purple-600 dark:text-purple-400 font-medium"
+                  )}
+                  title={`${pakshaInfo?.[language] || ""} ${tithiDisplay}`}
+                >
+                  {tithiDisplay}
+                </div>
+              )}
 
               {/* Події */}
               <div className="space-y-0.5">
@@ -137,13 +240,21 @@ export function CalendarMonthView({
                 )}
               </div>
 
-              {/* Фаза місяця (якщо є) */}
-              {day.moon_phase !== undefined && day.moon_phase !== null && (
-                <div
-                  className="absolute top-1 right-1 text-[10px] text-muted-foreground"
-                  title={`${Math.round(day.moon_phase)}%`}
-                >
-                  {day.moon_phase > 90 ? "🌕" : day.moon_phase > 40 ? "🌓" : "🌑"}
+              {/* Схід/захід сонця */}
+              {showSunTimes && (day.sunrise || day.sunset) && (
+                <div className="absolute bottom-1 left-1 right-1 flex justify-between text-[9px] text-muted-foreground">
+                  {day.sunrise && (
+                    <span className="flex items-center gap-0.5" title={language === "ua" ? "Схід" : "Sunrise"}>
+                      <Sunrise className="h-2.5 w-2.5 text-amber-500" />
+                      {day.sunrise}
+                    </span>
+                  )}
+                  {day.sunset && (
+                    <span className="flex items-center gap-0.5" title={language === "ua" ? "Захід" : "Sunset"}>
+                      <Sunset className="h-2.5 w-2.5 text-orange-500" />
+                      {day.sunset}
+                    </span>
+                  )}
                 </div>
               )}
             </button>

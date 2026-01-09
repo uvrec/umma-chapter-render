@@ -32,6 +32,7 @@ const LS = {
   mobileSafeMode: "vv_reader_mobileSafeMode",
   showVerseContour: "vv_reader_showVerseContour",
   fullscreenMode: "vv_reader_fullscreenMode",
+  zenMode: "vv_reader_zenMode",
 };
 
 // Перевірка доступності localStorage (Firefox private mode, Enhanced Tracking Protection)
@@ -137,6 +138,7 @@ export function useReaderSettings() {
   const [mobileSafeMode, setMobileSafeMode] = useState<boolean>(() => readBool(LS.mobileSafeMode, false));
   const [showVerseContour, setShowVerseContour] = useState<boolean>(() => readBool(LS.showVerseContour, true));
   const [fullscreenMode, setFullscreenMode] = useState<boolean>(() => readBool(LS.fullscreenMode, false));
+  const [zenMode, setZenMode] = useState<boolean>(() => readBool(LS.zenMode, false));
 
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -152,6 +154,7 @@ export function useReaderSettings() {
     mobileSafeMode,
     showVerseContour,
     fullscreenMode,
+    zenMode,
   });
 
   // Оновлюємо refs при кожній зміні
@@ -167,8 +170,9 @@ export function useReaderSettings() {
       mobileSafeMode,
       showVerseContour,
       fullscreenMode,
+      zenMode,
     };
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode]);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode, zenMode]);
 
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
@@ -261,6 +265,17 @@ export function useReaderSettings() {
     dispatchPrefs();
   }, [fullscreenMode, dispatchPrefs]);
 
+  useEffect(() => {
+    safeSetItem(LS.zenMode, String(zenMode));
+    // Zen Mode атрибут для CSS - ховає ВСЕ окрім тексту
+    document.documentElement.setAttribute('data-zen-mode', String(zenMode));
+    // Zen mode автоматично вмикає fullscreen
+    if (zenMode && !fullscreenMode) {
+      setFullscreenMode(true);
+    }
+    dispatchPrefs();
+  }, [zenMode, fullscreenMode, dispatchPrefs]);
+
   // синхронізація між вкладками
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -275,6 +290,7 @@ export function useReaderSettings() {
       if (e.key === LS.mobileSafeMode) setMobileSafeMode(readBool(LS.mobileSafeMode, false));
       if (e.key === LS.showVerseContour) setShowVerseContour(readBool(LS.showVerseContour, true));
       if (e.key === LS.fullscreenMode) setFullscreenMode(readBool(LS.fullscreenMode, false));
+      if (e.key === LS.zenMode) setZenMode(readBool(LS.zenMode, false));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -295,6 +311,7 @@ export function useReaderSettings() {
       const newMobileSafeMode = readBool(LS.mobileSafeMode, false);
       const newShowVerseContour = readBool(LS.showVerseContour, true);
       const newFullscreenMode = readBool(LS.fullscreenMode, false);
+      const newZenMode = readBool(LS.zenMode, false);
 
       // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
       const current = stateRefs.current;
@@ -309,6 +326,7 @@ export function useReaderSettings() {
       if (newMobileSafeMode !== current.mobileSafeMode) setMobileSafeMode(newMobileSafeMode);
       if (newShowVerseContour !== current.showVerseContour) setShowVerseContour(newShowVerseContour);
       if (newFullscreenMode !== current.fullscreenMode) setFullscreenMode(newFullscreenMode);
+      if (newZenMode !== current.zenMode) setZenMode(newZenMode);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -369,6 +387,8 @@ export function useReaderSettings() {
     setShowVerseContour,
     fullscreenMode,
     setFullscreenMode,
+    zenMode,
+    setZenMode,
     multipliers,
   };
 }

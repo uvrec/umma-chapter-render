@@ -115,6 +115,7 @@ import EkadashiDetail from "./pages/EkadashiDetail";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
+import { MobileLayout } from "./components/mobile";
 
 // Внутрішній компонент з доступом до hooks
 function AppContent() {
@@ -123,6 +124,7 @@ function AppContent() {
   return (
     <>
       <BrowserRouter>
+        <MobileLayout>
         <Routes>
           <Route path="/" element={<NewHome />} />
 
@@ -288,6 +290,7 @@ function AppContent() {
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </MobileLayout>
 
         {/* Глобальні компоненти */}
         <OfflineIndicator />
