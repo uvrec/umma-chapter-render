@@ -31,7 +31,7 @@ export async function fetchAuthors(era?: AuthorEra): Promise<GVAuthor[]> {
 
   const { data, error } = await query;
   if (error) throw error;
-  return data as GVAuthor[];
+  return (data as unknown) as GVAuthor[];
 }
 
 /**
@@ -48,7 +48,7 @@ export async function fetchAuthorBySlug(slug: string): Promise<GVAuthor | null> 
     if (error.code === 'PGRST116') return null; // Not found
     throw error;
   }
-  return data as GVAuthor;
+  return (data as unknown) as GVAuthor;
 }
 
 /**
@@ -70,7 +70,7 @@ export async function fetchAuthorsWithGuru(): Promise<GVAuthor[]> {
     .order('display_order');
 
   if (error) throw error;
-  return data as GVAuthor[];
+  return (data as unknown) as GVAuthor[];
 }
 
 /**
@@ -120,7 +120,7 @@ export async function fetchBookReferences(filters?: GVBookFilters): Promise<GVBo
 
   const { data, error } = await query;
   if (error) throw error;
-  return data as GVBookReference[];
+  return (data as unknown) as GVBookReference[];
 }
 
 /**
@@ -138,7 +138,7 @@ export async function fetchBooksByAuthor(authorSlug: string): Promise<GVBookRefe
     .order('display_order');
 
   if (error) throw error;
-  return data as GVBookReference[];
+  return (data as unknown) as GVBookReference[];
 }
 
 /**
@@ -178,10 +178,12 @@ export async function fetchCataloguesWithBooks(): Promise<GVBookCatalogue[]> {
   if (cbError) throw cbError;
 
   // Map books to catalogues
-  const cataloguesWithBooks = catalogues.map((catalogue) => {
-    const books = catalogueBooks
-      .filter((cb) => cb.catalogue_id === catalogue.id)
-      .map((cb) => cb.book as unknown as GVBookReference)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cataloguesWithBooks = ((catalogues as unknown) as any[]).map((catalogue: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const books = ((catalogueBooks as unknown) as any[])
+      .filter((cb: any) => cb.catalogue_id === catalogue.id)
+      .map((cb: any) => cb.book as GVBookReference)
       .filter(Boolean);
 
     return {
@@ -228,7 +230,7 @@ export async function fetchBookBySlug(slug: string): Promise<GVBookReference | n
     if (error.code === 'PGRST116') return null;
     throw error;
   }
-  return data as GVBookReference;
+  return (data as unknown) as GVBookReference;
 }
 
 /**
@@ -242,7 +244,7 @@ export async function fetchAuthorBookCounts(): Promise<Record<string, number>> {
   if (error) throw error;
 
   const counts: Record<string, number> = {};
-  (data || []).forEach((book: { author_id?: string }) => {
+  ((data || []) as unknown as { author_id?: string }[]).forEach((book) => {
     if (book.author_id) {
       counts[book.author_id] = (counts[book.author_id] || 0) + 1;
     }
