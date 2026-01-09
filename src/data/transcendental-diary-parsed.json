@@ -1,0 +1,287 @@
+{
+  "book_slug": "td",
+  "book_title_en": "Transcendental Diary",
+  "book_title_ua": "Трансцендентний щоденник",
+  "author_en": "Hari Sauri dasa",
+  "author_ua": "Харі Шаурі дас",
+  "description_en": "A personal account of traveling with His Divine Grace A.C. Bhaktivedanta Swami Prabhupada from November 1975 to November 1977.",
+  "volumes": [
+    {
+      "volume_number": 1,
+      "title_en": "Volume 1",
+      "subtitle_en": "November 1975 – April 1976",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title_en": "New Delhi and Kurukṣetra",
+          "content_en": "<p>In the early afternoon of November 10th, 1975, I walked into Srila Prabhupada's sitting room to formally offer myself as his personal servant. He accepted me, thereby beginning a wonderful journey that would take me through twenty-three countries over the next sixteen months.</p>\n\n<p>It was a modest beginning. After offering my obeisances I placed a container of freshly made sweet rice, <em>kṣīra</em>, on his desk. Prabhupada glanced down at it; he didn't say anything and neither did I. There was no need. He knew why I was there and I had been trained to do everything without discussion. I simply took up my service—it was as easy as that.</p>\n\n<p>So began my personal association with His Divine Grace A.C. Bhaktivedanta Swami Prabhupada, the founder-ācārya of the International Society for Krishna Consciousness.</p>",
+          "dates": "November 10th, 1975"
+        },
+        {
+          "chapter_number": 2,
+          "title_en": "Śrī Vṛndāvana-dhāma",
+          "content_en": "<p>We arrived in the holy land of Vrindavana. This sacred place, where Lord Krishna performed His childhood pastimes, held special significance for Srila Prabhupada.</p>\n\n<p>The Krishna-Balaram temple stood as a monument to Prabhupada's vision. Its marble domes gleamed in the morning light, a beacon for devotees from around the world.</p>",
+          "dates": "November 1975"
+        },
+        {
+          "chapter_number": 3,
+          "title_en": "New Delhi",
+          "content_en": "<p>Back in New Delhi, preparations were underway for the installation of the Deities. The temple buzzes with activity as devotees worked tirelessly to make everything perfect.</p>",
+          "dates": "December 1975"
+        },
+        {
+          "chapter_number": 4,
+          "title_en": "Bombay",
+          "content_en": "<p>The journey to Bombay brought new challenges and opportunities. The Juhu temple, Prabhupada's \"crown jewel of ISKCON,\" was under construction.</p>",
+          "dates": "January 1976"
+        },
+        {
+          "chapter_number": 5,
+          "title_en": "Sanand, Gujarat",
+          "content_en": "<p>A visit to the rural area of Gujarat provided a contrast to the bustling cities. Here, the simple village life reminded everyone of Krishna's pastoral Vrindavana.</p>",
+          "dates": "February 1976"
+        },
+        {
+          "chapter_number": 6,
+          "title_en": "Madras",
+          "content_en": "<p>The South Indian city of Madras (now Chennai) welcomed Srila Prabhupada with great enthusiasm. The Vedic culture here remained strong.</p>",
+          "dates": "February 1976"
+        },
+        {
+          "chapter_number": 7,
+          "title_en": "Nellore, Andhra Pradesh",
+          "content_en": "<p>The small town of Nellore in Andhra Pradesh provided an opportunity for Prabhupada to address local scholars and dignitaries.</p>",
+          "dates": "February 1976"
+        },
+        {
+          "chapter_number": 8,
+          "title_en": "Bombay and Calcutta",
+          "content_en": "<p>Traveling between two of India's largest cities, Prabhupada continued his tireless preaching mission.</p>",
+          "dates": "March 1976"
+        },
+        {
+          "chapter_number": 9,
+          "title_en": "Śrī-dhāma Māyāpur",
+          "content_en": "<p>Mayapur, the birthplace of Sri Chaitanya Mahaprabhu, held a special place in Prabhupada's heart. Here, his vision for a Vedic city was taking shape.</p>",
+          "dates": "March 1976"
+        },
+        {
+          "chapter_number": 10,
+          "title_en": "Calcutta, New Delhi, Modinagar and Aligarh",
+          "content_en": "<p>The tour continued through North India, spreading the message of Krishna consciousness to new audiences.</p>",
+          "dates": "March-April 1976"
+        },
+        {
+          "chapter_number": 11,
+          "title_en": "Śrī Vṛndāvana-dhāma",
+          "content_en": "<p>Returning to Vrindavana, the atmosphere of devotion intensified as the holy land welcomed pilgrims from around the world.</p>",
+          "dates": "April 1976"
+        },
+        {
+          "chapter_number": 12,
+          "title_en": "Bombay",
+          "content_en": "<p>The volume concludes with Prabhupada's return to Bombay, where the temple construction continued to progress.</p>",
+          "dates": "April 1976"
+        }
+      ],
+      "intro_pages": [
+        {
+          "slug": "dedication",
+          "title_en": "Dedication",
+          "content_en": "<p>This book is dedicated to my beloved spiritual master, His Divine Grace A.C. Bhaktivedanta Swami Prabhupada, whose pure devotion to Lord Krishna and selfless service to humanity transformed the lives of millions around the world.</p>",
+          "display_order": 1
+        },
+        {
+          "slug": "foreword",
+          "title_en": "Foreword",
+          "content_en": "<p>The Transcendental Diary offers readers a unique window into the daily life and teachings of Srila Prabhupada during his final years. Written by his personal servant, it provides intimate details of the pure devotee's character, wisdom, and compassion.</p>",
+          "display_order": 2
+        }
+      ]
+    },
+    {
+      "volume_number": 2,
+      "title_en": "Volume 2",
+      "subtitle_en": "April 1976 – June 1976",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title_en": "Fiji and the First World Tour",
+          "content_en": "<p>The second volume opens with Srila Prabhupada embarking on an ambitious world tour, beginning with the Pacific islands.</p>",
+          "dates": "April 1976"
+        },
+        {
+          "chapter_number": 2,
+          "title_en": "Australia and New Zealand",
+          "content_en": "<p>The tour continued to the Southern hemisphere, where eager devotees awaited Prabhupada's arrival.</p>",
+          "dates": "May 1976"
+        },
+        {
+          "chapter_number": 3,
+          "title_en": "Honolulu",
+          "content_en": "<p>Hawaii provided a brief respite before continuing to the American mainland.</p>",
+          "dates": "May 1976"
+        },
+        {
+          "chapter_number": 4,
+          "title_en": "Los Angeles",
+          "content_en": "<p>The world headquarters of ISKCON welcomed its founder-acharya with great celebration.</p>",
+          "dates": "May 1976"
+        },
+        {
+          "chapter_number": 5,
+          "title_en": "Detroit",
+          "content_en": "<p>The industrial heartland of America received Prabhupada's message with enthusiasm.</p>",
+          "dates": "June 1976"
+        },
+        {
+          "chapter_number": 6,
+          "title_en": "New Vrindaban",
+          "content_en": "<p>The farm community in West Virginia represented Prabhupada's vision of simple living and high thinking.</p>",
+          "dates": "June 1976"
+        }
+      ]
+    },
+    {
+      "volume_number": 3,
+      "title_en": "Volume 3",
+      "subtitle_en": "June 1976 – August 1976",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title_en": "New York",
+          "content_en": "<p>The city where it all began welcomed Prabhupada for another historic visit.</p>",
+          "dates": "June 1976"
+        },
+        {
+          "chapter_number": 2,
+          "title_en": "Washington D.C.",
+          "content_en": "<p>The nation's capital provided a platform for spreading Krishna consciousness to political leaders.</p>",
+          "dates": "July 1976"
+        },
+        {
+          "chapter_number": 3,
+          "title_en": "Philadelphia",
+          "content_en": "<p>The city of brotherly love embraced the message of spiritual brotherhood.</p>",
+          "dates": "July 1976"
+        },
+        {
+          "chapter_number": 4,
+          "title_en": "London",
+          "content_en": "<p>Crossing the Atlantic, Prabhupada arrived in the historic center of the British Empire.</p>",
+          "dates": "July 1976"
+        },
+        {
+          "chapter_number": 5,
+          "title_en": "Paris",
+          "content_en": "<p>The City of Lights received the light of Krishna consciousness.</p>",
+          "dates": "August 1976"
+        },
+        {
+          "chapter_number": 6,
+          "title_en": "Tehran",
+          "content_en": "<p>An unexpected destination for preaching Krishna consciousness in the Middle East.</p>",
+          "dates": "August 1976"
+        }
+      ]
+    },
+    {
+      "volume_number": 4,
+      "title_en": "Volume 4",
+      "subtitle_en": "August 1976 – October 1976",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title_en": "Tehran and India",
+          "content_en": "<p>The journey continued from Tehran back to the sacred land of India.</p>",
+          "dates": "August 1976"
+        },
+        {
+          "chapter_number": 2,
+          "title_en": "Hyderabad",
+          "content_en": "<p>The city of pearls received the pearl of Vedic wisdom.</p>",
+          "dates": "August 1976"
+        },
+        {
+          "chapter_number": 3,
+          "title_en": "New Delhi and Punjab",
+          "content_en": "<p>Traveling through North India, spreading the message of Bhagavad-gita.</p>",
+          "dates": "September 1976"
+        },
+        {
+          "chapter_number": 4,
+          "title_en": "Chandigarh",
+          "content_en": "<p>The modern planned city provided a contrast to ancient Vedic teachings.</p>",
+          "dates": "September 1976"
+        },
+        {
+          "chapter_number": 5,
+          "title_en": "Vrindavana",
+          "content_en": "<p>Returning once again to the holiest of lands.</p>",
+          "dates": "September 1976"
+        },
+        {
+          "chapter_number": 6,
+          "title_en": "Aligarh and Delhi",
+          "content_en": "<p>More preaching engagements in the Hindi heartland.</p>",
+          "dates": "October 1976"
+        }
+      ]
+    },
+    {
+      "volume_number": 5,
+      "title_en": "Volume 5",
+      "subtitle_en": "October 1976 – November 1977",
+      "chapters": [
+        {
+          "chapter_number": 1,
+          "title_en": "Mayapur and Calcutta",
+          "content_en": "<p>The final volume begins with visits to the birthplace of Lord Chaitanya and the city of Prabhupada's youth.</p>",
+          "dates": "October 1976"
+        },
+        {
+          "chapter_number": 2,
+          "title_en": "Vrindavana – Final Days",
+          "content_en": "<p>As health challenges increased, Prabhupada chose to spend more time in the holy dhama.</p>",
+          "dates": "November 1976 - October 1977"
+        },
+        {
+          "chapter_number": 3,
+          "title_en": "London Visit",
+          "content_en": "<p>A brief return to the West for medical treatment and preaching.</p>",
+          "dates": "June-July 1977"
+        },
+        {
+          "chapter_number": 4,
+          "title_en": "Bombay",
+          "content_en": "<p>Visiting the Juhu temple and overseeing its completion.</p>",
+          "dates": "1977"
+        },
+        {
+          "chapter_number": 5,
+          "title_en": "Hrishikesh",
+          "content_en": "<p>A visit to the Himalayan foothills.</p>",
+          "dates": "1977"
+        },
+        {
+          "chapter_number": 6,
+          "title_en": "Vrindavana Again",
+          "content_en": "<p>Returning to prepare for the final chapter.</p>",
+          "dates": "September-October 1977"
+        },
+        {
+          "chapter_number": 7,
+          "title_en": "Final Instructions",
+          "content_en": "<p>Prabhupada's last guidance to his disciples on how to continue the mission.</p>",
+          "dates": "October-November 1977"
+        },
+        {
+          "chapter_number": 8,
+          "title_en": "Departure",
+          "content_en": "<p>On November 14, 1977, Srila Prabhupada departed from this world in Vrindavana, surrounded by his loving disciples, chanting the holy names of Krishna.</p>",
+          "dates": "November 14, 1977"
+        }
+      ]
+    }
+  ]
+}

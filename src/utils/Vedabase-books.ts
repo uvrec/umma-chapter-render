@@ -333,6 +333,40 @@ export const VEDABASE_BOOKS = [
     source: 'vedabase',
     sourceUrl: 'https://vedabase.io/en/library/rv/',
   },
+  // ========== TRANSCENDENTAL DIARY (PRABHUPADAVANI.ORG) ==========
+  {
+    slug: 'td',
+    name: 'Transcendental Diary',
+    vedabaseSlug: null,
+    our_slug: 'td',
+    name_ua: 'Трансцендентний щоденник',
+    name_en: 'Transcendental Diary',
+    // Автор
+    author: 'Hari Sauri dasa',
+    author_ua: 'Харі Шаурі дас',
+    // Джерело
+    source: 'prabhupadavani',
+    sourceUrl: 'https://prabhupadavani.org/bio/transcendental-diary/',
+    // Структура книги - 5 томів
+    isMultiVolume: true,
+    has_cantos: true, // ✅ 5 volumes
+    volumeLabel: 'Том', // Volume
+    cantos: [1, 2, 3, 4, 5],
+    // Парсинг
+    templateId: 'transcendental-diary',
+    // Gitabase
+    hasGitabaseUA: false, // ❌ Імпортується з prabhupadavani.org (EN only for now)
+    gitabase_available: false,
+    gitabaseSlug: null,
+    // Metadata
+    volumeInfo: [
+      { number: 1, title: 'Volume 1', subtitle: 'November 1975 – April 1976', chapters: 12 },
+      { number: 2, title: 'Volume 2', subtitle: 'April 1976 – June 1976', chapters: 6 },
+      { number: 3, title: 'Volume 3', subtitle: 'June 1976 – August 1976', chapters: 6 },
+      { number: 4, title: 'Volume 4', subtitle: 'August 1976 – October 1976', chapters: 6 },
+      { number: 5, title: 'Volume 5', subtitle: 'October 1976 – November 1977', chapters: 8 },
+    ] as Array<{ number: number; title: string; subtitle: string; chapters: number }> | undefined,
+  },
   // ========== CHAITANYA BHAGAVATA (WISDOMLIB.ORG) ==========
   {
     slug: 'scb',
