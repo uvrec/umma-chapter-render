@@ -291,6 +291,9 @@ function parseChapterPage(html: string, chapterNum: number): Chapter {
     // Skip navigation text
     if (/^(Previous|Next|←|→|Chapter\s+\d+$)/i.test(text)) return;
 
+    // Skip p elements inside blockquote (they will be handled by blockquote)
+    if (tagName === "p" && $el.parent("blockquote").length) return;
+
     // Extract dates from content (e.g., "May 3rd, 1976")
     const dateMatch = text.match(
       /(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}/gi
@@ -323,7 +326,9 @@ function parseChapterPage(html: string, chapterNum: number): Chapter {
     if (tagName === "h2" || tagName === "h3" || tagName === "h4") {
       contentParts.push(`<${tagName}>${innerHtml}</${tagName}>`);
     } else if (tagName === "blockquote") {
-      contentParts.push(`<blockquote><p>${innerHtml}</p></blockquote>`);
+      // For blockquote, get only the text content without nested p tags
+      const quoteText = $el.find("p").text().trim() || text;
+      contentParts.push(`<blockquote><p>${quoteText}</p></blockquote>`);
     } else if (tagName === "ul" || tagName === "ol") {
       // Preserve list structure
       const listItems = $el.find("li").map((_, li) => $(li).text().trim()).get();
