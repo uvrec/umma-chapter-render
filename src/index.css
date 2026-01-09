@@ -288,6 +288,158 @@ html.sepia {
 }
 
 /* =========================
+   ТЕМИ: SOLARIZED LIGHT
+   Класична тема для тривалого читання
+   ========================= */
+html.solarized-light {
+  --background: 44 87% 94%;
+  --foreground: 192 81% 14%;
+
+  --card: 44 87% 94%;
+  --card-foreground: 192 81% 14%;
+
+  --popover: 44 87% 94%;
+  --popover-foreground: 192 81% 14%;
+
+  --muted: 46 42% 88%;
+  --muted-foreground: 194 14% 40%;
+
+  --secondary: 46 42% 88%;
+  --secondary-foreground: 192 81% 14%;
+
+  --primary: 18 89% 55%;
+  --primary-foreground: 44 87% 94%;
+  --primary-hover: 18 89% 50%;
+
+  --accent: 175 59% 40%;
+  --accent-foreground: 44 87% 94%;
+
+  --destructive: 1 71% 52%;
+  --destructive-foreground: 44 87% 94%;
+
+  --border: 46 42% 84%;
+  --input: 46 42% 84%;
+  --ring: 18 89% 55%;
+
+  color-scheme: light;
+}
+
+/* =========================
+   ТЕМИ: SOLARIZED DARK
+   Темна версія Solarized
+   ========================= */
+html.solarized-dark {
+  --background: 192 100% 11%;
+  --foreground: 44 87% 94%;
+
+  --card: 192 81% 14%;
+  --card-foreground: 44 87% 94%;
+
+  --popover: 192 81% 14%;
+  --popover-foreground: 44 87% 94%;
+
+  --muted: 194 14% 20%;
+  --muted-foreground: 186 8% 55%;
+
+  --secondary: 194 14% 20%;
+  --secondary-foreground: 44 87% 94%;
+
+  --primary: 18 89% 55%;
+  --primary-foreground: 192 100% 11%;
+  --primary-hover: 18 89% 50%;
+
+  --accent: 175 59% 40%;
+  --accent-foreground: 192 100% 11%;
+
+  --destructive: 1 71% 52%;
+  --destructive-foreground: 44 87% 94%;
+
+  --border: 194 14% 25%;
+  --input: 194 14% 25%;
+  --ring: 18 89% 55%;
+
+  color-scheme: dark;
+}
+
+/* =========================
+   ТЕМИ: NORD
+   Арктична, приємна для очей
+   ========================= */
+html.nord {
+  --background: 220 16% 22%;
+  --foreground: 218 27% 92%;
+
+  --card: 220 16% 26%;
+  --card-foreground: 218 27% 92%;
+
+  --popover: 220 16% 26%;
+  --popover-foreground: 218 27% 92%;
+
+  --muted: 220 16% 30%;
+  --muted-foreground: 219 28% 70%;
+
+  --secondary: 220 16% 30%;
+  --secondary-foreground: 218 27% 92%;
+
+  --primary: 179 25% 65%;
+  --primary-foreground: 220 16% 22%;
+  --primary-hover: 179 25% 60%;
+
+  --accent: 193 43% 67%;
+  --accent-foreground: 220 16% 22%;
+
+  --destructive: 354 42% 56%;
+  --destructive-foreground: 218 27% 92%;
+
+  --border: 220 16% 32%;
+  --input: 220 16% 32%;
+  --ring: 179 25% 65%;
+
+  color-scheme: dark;
+}
+
+/* =========================
+   ТЕМИ: HIGH CONTRAST
+   Максимальний контраст для доступності
+   ========================= */
+html.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 100%;
+
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 80%;
+
+  --secondary: 0 0% 15%;
+  --secondary-foreground: 0 0% 100%;
+
+  --primary: 60 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --primary-hover: 60 100% 45%;
+
+  --accent: 180 100% 50%;
+  --accent-foreground: 0 0% 0%;
+
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 40%;
+  --input: 0 0% 40%;
+  --ring: 60 100% 50%;
+
+  color-scheme: dark;
+
+  /* Збільшуємо розмір тексту для кращої читабельності */
+  --vv-reader-font-size: 20px;
+  --vv-reader-line-height: 1.8;
+}
+
+/* =========================
    БАЗОВІ СТИЛІ
    ========================= */
 html,
@@ -853,4 +1005,173 @@ body.keyboard-open {
   .gesture-safe {
     padding-bottom: max(env(safe-area-inset-bottom), 8px);
   }
+}
+
+/* =========================
+   FULLSCREEN READING MODE
+   Ховає header і допоміжні елементи
+   ========================= */
+[data-fullscreen-reading="true"] {
+  /* Ховаємо header */
+  .site-header {
+    display: none !important;
+  }
+
+  /* Ховаємо глобальні елементи */
+  .global-settings-btn,
+  .global-audio-player {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Показуємо при hover */
+  &:hover .global-settings-btn,
+  &:hover .global-audio-player {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* =========================
+   ZEN MODE
+   Максимальний фокус на тексті - ховає ВСЕ окрім самого контенту
+   ========================= */
+[data-zen-mode="true"] {
+  /* Ховаємо все */
+  .site-header,
+  .global-settings-btn,
+  .global-audio-player,
+  [data-minimap="true"],
+  .sticky,
+  nav,
+  footer,
+  .breadcrumb,
+  .zen-hide {
+    display: none !important;
+  }
+
+  /* М'який фон для читання */
+  body {
+    background-color: hsl(var(--background));
+  }
+
+  /* Центруємо текст з великими відступами */
+  .container {
+    max-width: 42rem;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  /* Прибираємо зайві елементи в VerseCard */
+  .verse-navigation,
+  .verse-actions,
+  .verse-audio-controls,
+  button:not(.zen-exit-btn) {
+    display: none !important;
+  }
+
+  /* Стилі для тексту в zen mode */
+  .verse-surface {
+    box-shadow: none;
+    border: none;
+    background: transparent;
+    padding: 2rem 0;
+  }
+
+  /* Плавна анімація появи */
+  * {
+    animation: zen-fade-in 0.5s ease;
+  }
+}
+
+@keyframes zen-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Кнопка виходу з zen/fullscreen - завжди видима */
+.zen-exit-btn,
+.fullscreen-exit-btn {
+  position: fixed !important;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: hsl(var(--background) / 0.9);
+  border: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.zen-exit-btn:hover,
+.fullscreen-exit-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* На мобільних кнопка завжди видима */
+@media (max-width: 639px) {
+  .zen-exit-btn,
+  .fullscreen-exit-btn {
+    opacity: 0.7;
+  }
+}
+
+/* =========================
+   MOBILE TAB BAR
+   Нижня навігація для мобільних
+   ========================= */
+.mobile-tab-bar {
+  /* Safe area для iPhone з Dynamic Island / Home Indicator */
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Ефект скла */
+  background: hsl(var(--background) / 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Ховаємо tab bar в zen/fullscreen режимах */
+[data-zen-mode="true"] .mobile-tab-bar,
+[data-fullscreen-reading="true"] .mobile-tab-bar {
+  display: none !important;
+}
+
+/* Додатковий padding для контенту щоб не перекривався tab bar */
+.mobile-layout {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+}
+
+/* Анімація активного таба */
+.mobile-tab-bar button.text-primary svg {
+  animation: tab-bounce 0.3s ease;
+}
+
+@keyframes tab-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Mobile Safe Mode - спрощений tab bar */
+[data-mobile-safe-mode="true"] .mobile-tab-bar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: hsl(var(--background)) !important;
 }

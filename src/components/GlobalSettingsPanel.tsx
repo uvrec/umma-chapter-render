@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square } from "lucide-react";
+import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square, Sun, Moon, Leaf, Snowflake, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -164,7 +164,17 @@ export const GlobalSettingsPanel = () => {
 
   // ✅ Функції increaseFont, decreaseFont, increaseLH, decreaseLH тепер з хука useReaderSettings
 
-  const craftSwitchChecked = theme === "craft";
+  // Масив всіх доступних тем
+  const themes = [
+    { id: "light" as const, label: t("Світла", "Light"), icon: Sun },
+    { id: "dark" as const, label: t("Темна", "Dark"), icon: Moon },
+    { id: "craft" as const, label: t("Крафт", "Craft"), icon: Palette },
+    { id: "sepia" as const, label: t("Сепія", "Sepia"), icon: Palette },
+    { id: "solarized-light" as const, label: "Solarized Light", icon: Sun },
+    { id: "solarized-dark" as const, label: "Solarized Dark", icon: Moon },
+    { id: "nord" as const, label: "Nord", icon: Snowflake },
+    { id: "high-contrast" as const, label: t("Контраст", "High Contrast"), icon: Eye },
+  ];
 
   return (
     <>
@@ -195,16 +205,22 @@ export const GlobalSettingsPanel = () => {
             {/* Тема */}
             <div>
               <Label className="text-base font-semibold mb-3 block">{t("Тема оформлення", "Theme")}</Label>
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                <Button
-                  variant={craftSwitchChecked ? "default" : "outline"}
-                  onClick={() => setTheme("craft")}
-                  className="gap-2"
-                >
-                  <Palette className="h-4 w-4" />
-                  Крафт
-                </Button>
+              <div className="grid grid-cols-4 gap-2">
+                {themes.map((t) => {
+                  const Icon = t.icon;
+                  return (
+                    <Button
+                      key={t.id}
+                      variant={theme === t.id ? "default" : "outline"}
+                      onClick={() => setTheme(t.id)}
+                      className="flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs"
+                      title={t.label}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="truncate w-full text-center">{t.label}</span>
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 

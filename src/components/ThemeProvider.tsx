@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type Theme = "light" | "dark" | "craft" | "sepia";
+type Theme = "light" | "dark" | "craft" | "sepia" | "solarized-light" | "solarized-dark" | "nord" | "high-contrast";
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -34,7 +34,7 @@ export function ThemeProvider({
   // Застосовуємо клас теми на <html> і зберігаємо в localStorage
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("light", "dark", "craft", "sepia");
+    root.classList.remove("light", "dark", "craft", "sepia", "solarized-light", "solarized-dark", "nord", "high-contrast");
     root.classList.add(theme);
     try {
       localStorage.setItem(storageKey, theme);
