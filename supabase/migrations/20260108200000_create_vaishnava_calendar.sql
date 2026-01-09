@@ -352,7 +352,14 @@ CREATE TABLE IF NOT EXISTS public.calendar_events (
   -- Ensure unique events per date/location
   UNIQUE(event_date, ekadashi_id, location_id),
   UNIQUE(event_date, festival_id, location_id),
-  UNIQUE(event_date, appearance_day_id, location_id)
+  UNIQUE(event_date, appearance_day_id, location_id),
+
+  -- Ensure at most one reference type per event (data integrity)
+  CONSTRAINT calendar_events_one_ref_chk CHECK (
+    (CASE WHEN ekadashi_id IS NOT NULL THEN 1 ELSE 0 END) +
+    (CASE WHEN festival_id IS NOT NULL THEN 1 ELSE 0 END) +
+    (CASE WHEN appearance_day_id IS NOT NULL THEN 1 ELSE 0 END) <= 1
+  )
 );
 
 -- ============================================
@@ -420,6 +427,13 @@ CREATE INDEX IF NOT EXISTS idx_calendar_locations_tz ON calendar_locations(timez
 -- Unique constraint for preset locations to avoid duplicates
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_calendar_locations_preset ON calendar_locations(city_en, country_code) WHERE is_preset = true;
 
+-- Location+date composite index for filtered calendar queries
+CREATE INDEX IF NOT EXISTS idx_calendar_events_loc_date ON calendar_events(location_id, event_date);
+
+-- Tithi-based indexes for recurring event pattern lookups
+CREATE INDEX IF NOT EXISTS idx_appearance_days_tithi ON appearance_days(vaishnava_month_id, paksha, tithi_number);
+CREATE INDEX IF NOT EXISTS idx_festivals_tithi ON vaishnava_festivals(vaishnava_month_id, paksha, tithi_number);
+
 -- ============================================
 -- 8. ENABLE RLS
 -- ============================================
@@ -440,55 +454,55 @@ ALTER TABLE user_calendar_settings ENABLE ROW LEVEL SECURITY;
 
 DO $$
 BEGIN
-  -- Public read access for reference tables
+  -- Public read access for reference tables (explicit roles for transparency)
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'vaishnava_months') THEN
-    CREATE POLICY "Public read access for months" ON vaishnava_months FOR SELECT USING (true);
+    CREATE POLICY "Public read access for months" ON vaishnava_months FOR SELECT TO anon, authenticated USING (true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'tithi_types') THEN
-    CREATE POLICY "Public read access for tithi types" ON tithi_types FOR SELECT USING (true);
+    CREATE POLICY "Public read access for tithi types" ON tithi_types FOR SELECT TO anon, authenticated USING (true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'ekadashi_info') THEN
-    CREATE POLICY "Public read access for ekadashi info" ON ekadashi_info FOR SELECT USING (true);
+    CREATE POLICY "Public read access for ekadashi info" ON ekadashi_info FOR SELECT TO anon, authenticated USING (true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'festival_categories') THEN
-    CREATE POLICY "Public read access for festival categories" ON festival_categories FOR SELECT USING (true);
+    CREATE POLICY "Public read access for festival categories" ON festival_categories FOR SELECT TO anon, authenticated USING (true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'appearance_days') THEN
-    CREATE POLICY "Public read access for appearance days" ON appearance_days FOR SELECT USING (true);
+    CREATE POLICY "Public read access for appearance days" ON appearance_days FOR SELECT TO anon, authenticated USING (true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'vaishnava_festivals') THEN
-    CREATE POLICY "Public read access for festivals" ON vaishnava_festivals FOR SELECT USING (true);
+    CREATE POLICY "Public read access for festivals" ON vaishnava_festivals FOR SELECT TO anon, authenticated USING (true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'calendar_events') THEN
-    CREATE POLICY "Public read access for calendar events" ON calendar_events FOR SELECT USING (is_published = true);
+    CREATE POLICY "Public read access for calendar events" ON calendar_events FOR SELECT TO anon, authenticated USING (is_published = true);
   END IF;
 
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'calendar_locations') THEN
-    CREATE POLICY "Public read access for locations" ON calendar_locations FOR SELECT USING (is_active = true);
+    CREATE POLICY "Public read access for locations" ON calendar_locations FOR SELECT TO anon, authenticated USING (is_active = true);
   END IF;
 
-  -- User calendar settings - private
+  -- User calendar settings - private (authenticated only)
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'user_calendar_settings') THEN
     CREATE POLICY "Users can view own calendar settings"
-      ON user_calendar_settings FOR SELECT
+      ON user_calendar_settings FOR SELECT TO authenticated
       USING ((SELECT auth.uid()) = user_id);
 
     CREATE POLICY "Users can insert own calendar settings"
-      ON user_calendar_settings FOR INSERT
+      ON user_calendar_settings FOR INSERT TO authenticated
       WITH CHECK ((SELECT auth.uid()) = user_id);
 
     CREATE POLICY "Users can update own calendar settings"
-      ON user_calendar_settings FOR UPDATE
+      ON user_calendar_settings FOR UPDATE TO authenticated
       USING ((SELECT auth.uid()) = user_id);
 
     CREATE POLICY "Users can delete own calendar settings"
-      ON user_calendar_settings FOR DELETE
+      ON user_calendar_settings FOR DELETE TO authenticated
       USING ((SELECT auth.uid()) = user_id);
   END IF;
 END$$;
@@ -580,8 +594,17 @@ BEGIN
   -- Get default location (Kyiv)
   SELECT id INTO v_default_location_id
   FROM calendar_locations
-  WHERE city_en = 'Kyiv' AND is_preset = true
+  WHERE city_en = 'Kyiv' AND is_preset = true AND is_active = true
   LIMIT 1;
+
+  -- Fallback: first active preset location if Kyiv not found
+  IF v_default_location_id IS NULL THEN
+    SELECT id INTO v_default_location_id
+    FROM calendar_locations
+    WHERE is_preset = true AND is_active = true
+    ORDER BY name_en
+    LIMIT 1;
+  END IF;
 
   -- Try to get existing settings
   SELECT * INTO v_settings FROM user_calendar_settings WHERE user_id = p_user_id;
