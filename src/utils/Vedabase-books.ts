@@ -335,10 +335,10 @@ export const VEDABASE_BOOKS = [
   },
   // ========== TRANSCENDENTAL DIARY (PRABHUPADAVANI.ORG) ==========
   {
-    slug: 'td',
+    slug: 'tdry',
     name: 'Transcendental Diary',
     vedabaseSlug: null,
-    our_slug: 'td',
+    our_slug: 'tdry',
     name_ua: 'Трансцендентний щоденник',
     name_en: 'Transcendental Diary',
     // Автор

@@ -537,7 +537,7 @@ async function parseAllVolumes(useCache: boolean = true): Promise<BookData> {
   console.log("━".repeat(50));
 
   const bookData: BookData = {
-    book_slug: "td",
+    book_slug: "tdry",
     book_title_en: "Transcendental Diary",
     book_title_ua: "Трансцендентний щоденник",
     author_en: "Hari Sauri dasa",
@@ -628,7 +628,7 @@ Examples:
     // Parse single volume
     const volume = await fetchAndParseVolume(volumeNum, useCache);
     bookData = {
-      book_slug: "td",
+      book_slug: "tdry",
       book_title_en: "Transcendental Diary",
       book_title_ua: "Трансцендентний щоденник",
       author_en: "Hari Sauri dasa",

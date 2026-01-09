@@ -92,6 +92,8 @@ async function findOrCreateBook(supabase: SupabaseClient, bookData: BookData): P
   }
 
   // Create new book
+  // Note: author_en/author_ua columns don't exist in books table yet
+  // Author info is stored in bookData but not inserted into DB
   const { data: created, error } = await supabase
     .from("books")
     .insert({
@@ -101,8 +103,6 @@ async function findOrCreateBook(supabase: SupabaseClient, bookData: BookData): P
       description_en: bookData.description_en || "",
       description_ua: "",
       has_cantos: true,
-      author_en: bookData.author_en,
-      author_ua: bookData.author_ua,
     })
     .select("id")
     .single();
