@@ -145,25 +145,26 @@ export function useGeolocation(options: UseGeolocationOptions = {}) {
         accuracy: position.coords.accuracy,
       };
     } catch (error) {
-      let errorMessage = "Failed to get location";
+      // Return error code for consumer to translate
+      let errorCode = "UNKNOWN";
 
       if (error instanceof GeolocationPositionError) {
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            errorMessage = "Location access denied. Please enable location permissions.";
+            errorCode = "PERMISSION_DENIED";
             break;
           case error.POSITION_UNAVAILABLE:
-            errorMessage = "Location information unavailable";
+            errorCode = "POSITION_UNAVAILABLE";
             break;
           case error.TIMEOUT:
-            errorMessage = "Location request timed out";
+            errorCode = "TIMEOUT";
             break;
         }
       }
 
       setState((prev) => ({
         ...prev,
-        error: errorMessage,
+        error: errorCode,
         isLoading: false,
       }));
       return null;
