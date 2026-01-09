@@ -10,7 +10,7 @@ BEGIN;
 
 -- Pancha-tattva
 UPDATE gv_authors SET name_ua = 'Шрі Нітьянанд Прабгу' WHERE slug = 'nityananda-prabhu';
-UPDATE gv_authors SET name_ua = 'Шрі Адвайт Ачарья' WHERE slug = 'advaita-acharya';
+UPDATE gv_authors SET name_ua = 'Шрі Адвайта Ачар''я' WHERE slug = 'advaita-acharya';
 UPDATE gv_authors SET name_ua = 'Шрі Ґададгар Пандіт' WHERE slug = 'gadadhara-pandita';
 UPDATE gv_authors SET name_ua = 'Шрівас Тхакур' WHERE slug = 'srivasa-thakura';
 UPDATE gv_authors SET name_ua = 'Шріла Харідас Тхакур' WHERE slug = 'haridasa-thakura';
@@ -37,7 +37,7 @@ UPDATE gv_authors SET name_ua = 'Шріла Баладев Відьябгуша�
 UPDATE gv_authors SET name_ua = 'Шріла Каві Карнапур' WHERE slug = 'kavi-karnapura';
 UPDATE gv_authors SET name_ua = 'Шріла Прабодгананд Сарасваті' WHERE slug = 'prabodhanananda-sarasvati';
 UPDATE gv_authors SET name_ua = 'Шріла Шьямананд Прабгу' WHERE slug = 'shyamananda-prabhu';
-UPDATE gv_authors SET name_ua = 'Шріла Шрінівас Ачарья' WHERE slug = 'srinivasa-acharya';
+UPDATE gv_authors SET name_ua = 'Шріла Шрінівас Ачар''я' WHERE slug = 'srinivasa-acharya';
 
 -- Modern Acharyas
 UPDATE gv_authors SET name_ua = 'Шріла Бгактівінод Тхакур' WHERE slug = 'bhaktivinoda-thakura';
