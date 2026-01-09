@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS public.festival_categories (
   description_ua TEXT,
   description_en TEXT,
   icon TEXT, -- Lucide icon name
-  color TEXT DEFAULT '#d97706', -- For calendar display (vedavoice brand amber)
+  color TEXT NOT NULL DEFAULT '#d97706', -- For calendar display (vedavoice brand amber)
   sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -313,7 +313,7 @@ CREATE TABLE IF NOT EXISTS public.calendar_events (
 
   -- Date info
   event_date DATE NOT NULL,
-  year INTEGER NOT NULL,
+  year INTEGER GENERATED ALWAYS AS (EXTRACT(YEAR FROM event_date)::INTEGER) STORED,
 
   -- Event reference (one of these should be set)
   ekadashi_id UUID REFERENCES ekadashi_info(id),
@@ -444,8 +444,8 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $func$
 BEGIN
-  -- If location_id is set and timezone is NULL, get it from calendar_locations
-  IF NEW.location_id IS NOT NULL AND NEW.timezone IS NULL THEN
+  -- Always sync timezone from location when location_id is set
+  IF NEW.location_id IS NOT NULL THEN
     SELECT timezone INTO NEW.timezone
     FROM calendar_locations
     WHERE id = NEW.location_id;
@@ -581,11 +581,11 @@ BEGIN
     COALESCE(ce.custom_description_en, ei.glory_text_en, vf.short_description_en, ad.short_description_en) as description_en,
     CASE
       WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'
-      ELSE fc.slug
+      ELSE COALESCE(fc.slug, 'special')
     END as category_slug,
     CASE
       WHEN ce.ekadashi_id IS NOT NULL THEN '#8B5CF6'
-      ELSE COALESCE(fc.color, '#8B5CF6')
+      ELSE COALESCE(fc.color, '#d97706')
     END as category_color,
     (ce.ekadashi_id IS NOT NULL) as is_ekadashi,
     COALESCE(ei.is_major, vf.is_major, ad.is_major, false) as is_major,
@@ -686,7 +686,7 @@ BEGIN
     COALESCE(ei.glory_title_en, vf.short_description_en, ad.short_description_en),
     CASE
       WHEN ce.ekadashi_id IS NOT NULL THEN '#8B5CF6'
-      ELSE COALESCE(fc.color, '#8B5CF6')
+      ELSE COALESCE(fc.color, '#d97706')
     END,
     (ce.ekadashi_id IS NOT NULL),
     ce.parana_start_time,
