@@ -28,7 +28,9 @@ SELECT
   created_at,
   updated_at,
   view_count,
-  read_time
+  read_time,
+  search_vector_ua,
+  search_vector_en
 FROM public.blog_posts
 WHERE is_published = true 
   AND (published_at IS NULL OR published_at <= now());

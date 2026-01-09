@@ -69,7 +69,9 @@ SELECT
   telegram_embed_url,
   author_display_name,
   substack_embed_url,
-  instagram_embed_url
+  instagram_embed_url,
+  search_vector_ua,
+  search_vector_en
 FROM public.blog_posts
 WHERE is_published = true;
 
