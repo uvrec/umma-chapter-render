@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS public.user_chapter_progress (
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now(),
 
-  UNIQUE(user_id, book_slug, canto_number_norm, chapter_number)
+  CONSTRAINT uq_user_chapter_progress_unique UNIQUE(user_id, book_slug, canto_number_norm, chapter_number)
 );
 
 CREATE TABLE IF NOT EXISTS public.user_reading_daily_stats (
@@ -246,7 +246,7 @@ BEGIN
       v_session.user_id, v_session.book_slug, v_session.canto_number, v_session.chapter_number, v_session.chapter_title,
       v_duration, 1, p_end_verse, p_percent_read, now(), now()
     )
-    ON CONFLICT (user_id, book_slug, canto_number_norm, chapter_number)
+    ON CONFLICT ON CONSTRAINT uq_user_chapter_progress_unique
     DO UPDATE SET
       reading_seconds = user_chapter_progress.reading_seconds + EXCLUDED.reading_seconds,
       session_count = user_chapter_progress.session_count + EXCLUDED.session_count,

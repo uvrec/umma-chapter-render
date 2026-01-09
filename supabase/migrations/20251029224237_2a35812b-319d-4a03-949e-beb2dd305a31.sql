@@ -63,7 +63,6 @@ SELECT
   updated_at,
   view_count,
   read_time,
-  search_vector,
   featured_image,
   meta_description_en,
   meta_description_ua,
