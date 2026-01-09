@@ -12,16 +12,19 @@ import { useAudio } from '@/contexts/ModernAudioContext';
 // Типи для Liricle
 interface LiricleLine {
   index: number;
-  time: number; // час в мілісекундах
+  time: number; // час в СЕКУНДАХ
   text: string;
   words?: LiricleWord[];
 }
 
 interface LiricleWord {
   index: number;
-  time: number;
+  time: number; // час в СЕКУНДАХ
   text: string;
 }
+
+// Тип для callback sync події
+type SyncCallback = (line: LiricleLine | null, word: LiricleWord | null) => void;
 
 // Стан синхронізації
 export interface LiricleSyncState {
@@ -55,6 +58,9 @@ export function useLiricleSync(
   // Liricle instance (зберігаємо в ref щоб не перестворювати)
   const liricleRef = useRef<Liricle | null>(null);
 
+  // Ref для sync callback (для правильного cleanup)
+  const syncCallbackRef = useRef<SyncCallback | null>(null);
+
   // Стан
   const [currentLine, setCurrentLine] = useState<LiricleLine | null>(null);
   const [currentWord, setCurrentWord] = useState<LiricleWord | null>(null);
@@ -73,30 +79,32 @@ export function useLiricleSync(
     const liricle = new Liricle();
     liricleRef.current = liricle;
 
-    // Завантажуємо LRC контент
-    liricle.load({
-      text: lrcContent,
-      enhanced: lrcContent.includes('<'), // Enhanced LRC має <> для слів
+    // Завантажуємо LRC контент (enhanced визначається автоматично)
+    liricle.load({ text: lrcContent });
+
+    // Отримуємо рядки через подію 'load'
+    liricle.on('load', (data: { lines: LiricleLine[]; enhanced: boolean }) => {
+      if (data.lines) {
+        setLines(data.lines);
+      }
     });
 
-    // Отримуємо всі рядки
-    const parsedLines = liricle.getLyrics();
-    if (parsedLines) {
-      setLines(parsedLines as LiricleLine[]);
-    }
-
-    // Підписуємось на події синхронізації
-    liricle.on('sync', (line: LiricleLine | null, word: LiricleWord | null) => {
+    // Callback для sync подій (зберігаємо ref для cleanup)
+    const syncCallback: SyncCallback = (line, word) => {
       setCurrentLine(line);
       setCurrentWord(word);
-
       if (onLineChange) onLineChange(line);
       if (onWordChange) onWordChange(word);
-    });
+    };
+    syncCallbackRef.current = syncCallback;
+
+    liricle.on('sync', syncCallback);
 
     return () => {
-      // Cleanup
-      liricle.off('sync');
+      // Cleanup з правильним callback
+      if (syncCallbackRef.current) {
+        liricle.off('sync', syncCallbackRef.current);
+      }
       liricleRef.current = null;
     };
   }, [lrcContent, enabled, onLineChange, onWordChange]);
@@ -114,8 +122,8 @@ export function useLiricleSync(
     );
 
     if (isActiveVerse) {
-      // Liricle працює в мілісекундах
-      liricleRef.current.sync(currentTime * 1000);
+      // Liricle працює в СЕКУНДАХ
+      liricleRef.current.sync(currentTime);
     } else {
       // Скидаємо стан якщо не грає
       setCurrentLine(null);
@@ -133,14 +141,14 @@ export function useLiricleSync(
     if (!nextLine) {
       // Останній рядок - використовуємо тривалість аудіо
       if (!duration) return 0;
-      const lineStart = currentLine.time / 1000;
+      const lineStart = currentLine.time; // вже в секундах
       const lineEnd = duration;
       const elapsed = currentTime - lineStart;
       return Math.min(100, Math.max(0, (elapsed / (lineEnd - lineStart)) * 100));
     }
 
-    const lineStart = currentLine.time / 1000;
-    const lineEnd = nextLine.time / 1000;
+    const lineStart = currentLine.time; // вже в секундах
+    const lineEnd = nextLine.time;
     const elapsed = currentTime - lineStart;
 
     return Math.min(100, Math.max(0, (elapsed / (lineEnd - lineStart)) * 100));
@@ -175,7 +183,7 @@ export function timestampsToLRC(
     text: string;
     section?: string;
   }>,
-  enhanced: boolean = false
+  _enhanced: boolean = false
 ): string {
   const lines: string[] = [];
 
@@ -232,7 +240,8 @@ export function useSeekToLine() {
   const seekToLine = useCallback(
     (line: LiricleLine | { time: number }) => {
       if (line && 'time' in line) {
-        seek(line.time / 1000); // Конвертуємо мс в секунди
+        // Liricle повертає час в секундах
+        seek(line.time);
       }
     },
     [seek]
