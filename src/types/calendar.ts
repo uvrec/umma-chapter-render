@@ -248,7 +248,7 @@ export interface CalendarEventWithDetails extends CalendarEvent {
 export interface CalendarEventDisplay {
   event_id: string;
   event_date: string;
-  event_type: 'ekadashi' | 'festival' | 'appearance' | 'other';
+  event_type: 'ekadashi' | 'festival' | 'appearance' | 'disappearance' | 'other';
   name_ua: string;
   name_en: string;
   description_ua?: string;
