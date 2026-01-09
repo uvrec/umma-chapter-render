@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS public.verse_lyrics (
   lrc_content TEXT,
 
   -- JSON timestamps for more complex sync (word-level, sections)
-  timestamps JSONB,
+  timestamps JSONB NOT NULL DEFAULT '[]'::jsonb,
 
   -- Metadata
   total_duration REAL,                              -- Audio duration in seconds
@@ -38,6 +38,10 @@ CREATE TABLE IF NOT EXISTS public.verse_lyrics (
   ),
   CONSTRAINT verse_lyrics_sync_type_chk CHECK (
     sync_type = ANY (ARRAY['section', 'line', 'word'])
+  ),
+  -- Ensure timestamps is always an array
+  CONSTRAINT verse_lyrics_timestamps_array_chk CHECK (
+    jsonb_typeof(timestamps) = 'array'
   )
 );
 
@@ -50,6 +54,8 @@ COMMENT ON COLUMN public.verse_lyrics.sync_type IS 'Granularity: section (blocks
 -- Indexes for common access patterns
 CREATE INDEX IF NOT EXISTS idx_verse_lyrics_verse_id ON public.verse_lyrics(verse_id);
 CREATE INDEX IF NOT EXISTS idx_verse_lyrics_key ON public.verse_lyrics(verse_id, audio_type, language);
+-- Extended index for filtering by is_enhanced (word-level sync pages)
+CREATE INDEX IF NOT EXISTS idx_verse_lyrics_key_enh ON public.verse_lyrics(verse_id, audio_type, language, is_enhanced);
 -- Optional JSONB index if you plan to query timestamps by keys:
 -- CREATE INDEX IF NOT EXISTS idx_verse_lyrics_timestamps_gin ON public.verse_lyrics USING GIN (timestamps);
 
@@ -104,14 +110,17 @@ CREATE TRIGGER verse_lyrics_updated_at_trigger
   FOR EACH ROW
   EXECUTE FUNCTION public.update_verse_lyrics_updated_at();
 
--- Optional: Trigger to auto-fill created_by on INSERT
+-- Trigger to auto-fill created_by on INSERT (with subselect for safety)
 CREATE OR REPLACE FUNCTION public.set_verse_lyrics_created_by()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  current_user_id UUID;
 BEGIN
-  IF NEW.created_by IS NULL AND auth.uid() IS NOT NULL THEN
-    NEW.created_by := auth.uid();
+  current_user_id := (SELECT auth.uid());
+  IF NEW.created_by IS NULL AND current_user_id IS NOT NULL THEN
+    NEW.created_by := current_user_id;
   END IF;
   RETURN NEW;
 END;
