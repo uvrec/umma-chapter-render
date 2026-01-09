@@ -1379,3 +1379,151 @@ body.keyboard-open {
   -webkit-backdrop-filter: none !important;
   background: hsl(var(--background)) !important;
 }
+
+/* =========================
+   AUDIO SYNC HIGHLIGHTING
+   Підсвітка тексту під час аудіо
+   ========================= */
+
+/* Активний рядок */
+.synced-line {
+  padding: 0.125rem 0.5rem;
+  margin: 0 -0.5rem;
+  border-radius: 0.25rem;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.synced-line-active {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary) / 0.15) 0%,
+    hsl(var(--primary) / 0.05) 100%
+  );
+  border-left-color: hsl(var(--primary));
+  color: hsl(var(--foreground));
+  font-weight: 500;
+}
+
+/* Karaoke-style прогрес всередині рядка */
+.synced-line-progress {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary)) var(--sync-progress, 0%),
+    hsl(var(--foreground)) var(--sync-progress, 0%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Активна секція */
+.synced-section {
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin: -0.5rem;
+}
+
+.synced-section-active {
+  background: hsl(var(--primary) / 0.08);
+  box-shadow:
+    inset 4px 0 0 hsl(var(--primary)),
+    0 0 20px hsl(var(--primary) / 0.1);
+}
+
+/* Хвильова анімація для індикатора */
+@keyframes wave-1 {
+  0%, 100% { height: 40%; }
+  50% { height: 80%; }
+}
+
+@keyframes wave-2 {
+  0%, 100% { height: 70%; }
+  50% { height: 40%; }
+}
+
+@keyframes wave-3 {
+  0%, 100% { height: 100%; }
+  50% { height: 60%; }
+}
+
+.animate-wave-1 {
+  animation: wave-1 0.8s ease-in-out infinite;
+}
+
+.animate-wave-2 {
+  animation: wave-2 0.8s ease-in-out infinite;
+  animation-delay: 0.1s;
+}
+
+.animate-wave-3 {
+  animation: wave-3 0.8s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+/* Пульсуючий індикатор активного аудіо */
+.audio-playing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: hsl(var(--primary) / 0.1);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  color: hsl(var(--primary));
+}
+
+.audio-playing-indicator::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: hsl(var(--primary));
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Підсвітка вірша що зараз грає */
+.verse-now-playing {
+  position: relative;
+}
+
+.verse-now-playing::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(
+    180deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--primary) / 0.5) 100%
+  );
+  border-radius: 2px;
+  animation: pulse-bar 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-bar {
+  0%, 100% {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scaleY(0.95);
+  }
+}
+
+/* Dark mode адаптація */
+.dark .synced-line-active {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--primary) / 0.2) 0%,
+    hsl(var(--primary) / 0.08) 100%
+  );
+}
+
+.dark .synced-section-active {
+  background: hsl(var(--primary) / 0.12);
+}
