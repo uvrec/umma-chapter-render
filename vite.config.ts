@@ -19,7 +19,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-    VitePWA({
+    // PWA тільки в production — в Lovable preview (dev mode) SW викликає проблеми з кешуванням
+    mode === 'production' && VitePWA({
       registerType: 'autoUpdate', // Автоматичне оновлення без prompt
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'robots.txt'],
       manifest: {
