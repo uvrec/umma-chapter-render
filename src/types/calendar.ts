@@ -260,6 +260,29 @@ export interface CalendarEventDisplay {
   moon_phase?: number;
   sunrise_time?: string;
   sunset_time?: string;
+
+  // Тітхі та пакша
+  tithi_number?: number;
+  tithi_name_ua?: string;
+  tithi_name_en?: string;
+  paksha?: Paksha;
+
+  // Піст
+  fasting_level?: FastingLevel;
+
+  // Парана (для екадаші)
+  parana_start?: string; // HH:MM format
+  parana_end?: string;
+  parana_next_day?: boolean; // чи парана наступного дня
+  hari_vasara_end?: string; // кінець Hari Vasara (заборонений час для парани)
+
+  // Екадаші часи
+  ekadashi_start?: string;
+  ekadashi_end?: string;
+
+  // Вайшнавський місяць
+  vaishnava_month_name_ua?: string;
+  vaishnava_month_name_en?: string;
 }
 
 // ============================================
@@ -371,9 +394,11 @@ export interface DayData {
   is_today: boolean;
   events: CalendarEventDisplay[];
   tithi?: TithiType;
+  paksha?: Paksha;
   moon_phase?: number;
   sunrise?: string;
   sunset?: string;
+  vaishnava_month?: VaishnavMonth;
 }
 
 // ============================================

@@ -1,12 +1,60 @@
 /**
  * CalendarEventCard - Картка події календаря
+ *
+ * Features:
+ * - Парана (час переривання посту)
+ * - Рівень посту (nirjala, full, half, none)
+ * - Тітхі та пакша
+ * - Hari Vasara
+ * - Екадаші часи
  */
 
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { CalendarEventDisplay } from "@/types/calendar";
-import { Moon, Sunrise, Sunset, Star, Calendar, User } from "lucide-react";
+import type { CalendarEventDisplay, FastingLevel } from "@/types/calendar";
+import {
+  Moon,
+  Sunrise,
+  Sunset,
+  Star,
+  Calendar,
+  Clock,
+  Utensils,
+  AlertCircle,
+  CircleDot,
+} from "lucide-react";
+
+// Fasting level labels and colors
+const fastingLevelInfo: Record<
+  FastingLevel,
+  { ua: string; en: string; color: string; bgColor: string }
+> = {
+  nirjala: {
+    ua: "Ніржала (без води)",
+    en: "Nirjala (no water)",
+    color: "text-red-700 dark:text-red-300",
+    bgColor: "bg-red-100 dark:bg-red-900/50",
+  },
+  full: {
+    ua: "Повний піст",
+    en: "Full fast",
+    color: "text-orange-700 dark:text-orange-300",
+    bgColor: "bg-orange-100 dark:bg-orange-900/50",
+  },
+  half: {
+    ua: "Половинний піст",
+    en: "Half fast",
+    color: "text-yellow-700 dark:text-yellow-300",
+    bgColor: "bg-yellow-100 dark:bg-yellow-900/50",
+  },
+  none: {
+    ua: "Без посту",
+    en: "No fasting",
+    color: "text-green-700 dark:text-green-300",
+    bgColor: "bg-green-100 dark:bg-green-900/50",
+  },
+};
 
 interface CalendarEventCardProps {
   event: CalendarEventDisplay;
@@ -137,20 +185,99 @@ export function CalendarEventCard({
               </p>
             )}
 
+            {/* Тітхі та Вайшнавський місяць */}
+            {(event.tithi_name_ua || event.vaishnava_month_name_ua) && (
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-2">
+                {event.tithi_name_ua && (
+                  <span className="flex items-center gap-1">
+                    <CircleDot className="h-3 w-3" />
+                    {language === "ua" ? event.tithi_name_ua : event.tithi_name_en}
+                    {event.paksha && (
+                      <span className="text-muted-foreground/60">
+                        ({event.paksha === "shukla"
+                          ? language === "ua" ? "Шукла" : "Shukla"
+                          : language === "ua" ? "Крішна" : "Krishna"})
+                      </span>
+                    )}
+                  </span>
+                )}
+                {event.vaishnava_month_name_ua && (
+                  <span>
+                    • {language === "ua"
+                      ? event.vaishnava_month_name_ua
+                      : event.vaishnava_month_name_en}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Час сходу/заходу */}
             {(event.sunrise_time || event.sunset_time) && (
               <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
                 {event.sunrise_time && (
                   <span className="flex items-center gap-1">
-                    <Sunrise className="h-3 w-3" />
+                    <Sunrise className="h-3 w-3 text-amber-500" />
                     {event.sunrise_time}
                   </span>
                 )}
                 {event.sunset_time && (
                   <span className="flex items-center gap-1">
-                    <Sunset className="h-3 w-3" />
+                    <Sunset className="h-3 w-3 text-orange-500" />
                     {event.sunset_time}
                   </span>
+                )}
+              </div>
+            )}
+
+            {/* Екадаші часи */}
+            {event.is_ekadashi && (event.ekadashi_start || event.ekadashi_end) && (
+              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-2">
+                {event.ekadashi_start && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-purple-500" />
+                    {language === "ua" ? "Початок:" : "Start:"} {event.ekadashi_start}
+                  </span>
+                )}
+                {event.ekadashi_end && (
+                  <span>
+                    {language === "ua" ? "Кінець:" : "End:"} {event.ekadashi_end}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Парана (час переривання посту) */}
+            {event.is_ekadashi && (event.parana_start || event.parana_end) && (
+              <div className="mt-3 p-2 rounded-md bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-2 text-sm">
+                  <Utensils className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <span className="font-medium text-green-700 dark:text-green-300">
+                    {language === "ua" ? "Парана" : "Parana"}
+                    {event.parana_next_day && (
+                      <span className="text-xs ml-1">
+                        ({language === "ua" ? "наступного дня" : "next day"})
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="mt-1 text-xs text-green-600 dark:text-green-400">
+                  {event.parana_start && event.parana_end ? (
+                    <span>
+                      {event.parana_start} — {event.parana_end}
+                    </span>
+                  ) : event.parana_start ? (
+                    <span>
+                      {language === "ua" ? "після" : "after"} {event.parana_start}
+                    </span>
+                  ) : null}
+                </div>
+                {event.hari_vasara_end && (
+                  <div className="mt-1 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {language === "ua"
+                      ? `Hari Vasara до ${event.hari_vasara_end} (не переривати піст)`
+                      : `Hari Vasara until ${event.hari_vasara_end} (do not break fast)`}
+                  </div>
                 )}
               </div>
             )}
@@ -159,6 +286,22 @@ export function CalendarEventCard({
 
         <div className="flex flex-col items-end gap-1">
           {getTypeBadge()}
+
+          {/* Fasting level badge */}
+          {event.fasting_level && event.fasting_level !== "none" && (
+            <Badge
+              variant="outline"
+              className={cn(
+                "text-xs",
+                fastingLevelInfo[event.fasting_level].color,
+                fastingLevelInfo[event.fasting_level].bgColor
+              )}
+            >
+              <Utensils className="h-3 w-3 mr-1" />
+              {fastingLevelInfo[event.fasting_level][language]}
+            </Badge>
+          )}
+
           {showDate && (
             <span className="text-xs text-muted-foreground">
               {event.event_date}
