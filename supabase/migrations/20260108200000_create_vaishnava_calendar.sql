@@ -152,7 +152,7 @@ CREATE TABLE IF NOT EXISTS public.festival_categories (
   description_ua TEXT,
   description_en TEXT,
   icon TEXT, -- Lucide icon name
-  color TEXT, -- For calendar display
+  color TEXT DEFAULT '#d97706', -- For calendar display (vedavoice brand amber)
   sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -341,7 +341,7 @@ CREATE TABLE IF NOT EXISTS public.calendar_events (
   parana_end_time TIMESTAMPTZ,
 
   -- Location reference
-  location_id UUID REFERENCES calendar_locations(id),
+  location_id UUID REFERENCES calendar_locations(id) ON DELETE SET NULL,
   timezone TEXT,
 
   -- Metadata
@@ -371,7 +371,7 @@ CREATE TABLE IF NOT EXISTS public.user_calendar_settings (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
 
   -- Location
-  location_id UUID REFERENCES calendar_locations(id),
+  location_id UUID REFERENCES calendar_locations(id) ON DELETE SET NULL,
   custom_latitude NUMERIC(10,7),
   custom_longitude NUMERIC(10,7),
   timezone TEXT DEFAULT 'Europe/Kyiv',
@@ -435,7 +435,34 @@ CREATE INDEX IF NOT EXISTS idx_appearance_days_tithi ON appearance_days(vaishnav
 CREATE INDEX IF NOT EXISTS idx_festivals_tithi ON vaishnava_festivals(vaishnava_month_id, paksha, tithi_number);
 
 -- ============================================
--- 8. ENABLE RLS
+-- 8. TRIGGER: Sync timezone from calendar_locations
+-- ============================================
+
+-- Function to auto-populate timezone from location
+CREATE OR REPLACE FUNCTION sync_calendar_event_timezone()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $func$
+BEGIN
+  -- If location_id is set and timezone is NULL, get it from calendar_locations
+  IF NEW.location_id IS NOT NULL AND NEW.timezone IS NULL THEN
+    SELECT timezone INTO NEW.timezone
+    FROM calendar_locations
+    WHERE id = NEW.location_id;
+  END IF;
+  RETURN NEW;
+END;
+$func$;
+
+-- Trigger to sync timezone on INSERT/UPDATE
+DROP TRIGGER IF EXISTS trg_sync_calendar_event_timezone ON calendar_events;
+CREATE TRIGGER trg_sync_calendar_event_timezone
+  BEFORE INSERT OR UPDATE ON calendar_events
+  FOR EACH ROW
+  EXECUTE FUNCTION sync_calendar_event_timezone();
+
+-- ============================================
+-- 9. ENABLE RLS
 -- ============================================
 
 ALTER TABLE vaishnava_months ENABLE ROW LEVEL SECURITY;
@@ -449,7 +476,7 @@ ALTER TABLE calendar_locations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_calendar_settings ENABLE ROW LEVEL SECURITY;
 
 -- ============================================
--- 9. RLS POLICIES
+-- 10. RLS POLICIES
 -- ============================================
 
 DO $$
@@ -508,7 +535,7 @@ BEGIN
 END$$;
 
 -- ============================================
--- 10. HELPER FUNCTIONS
+-- 11. HELPER FUNCTIONS
 -- ============================================
 
 -- Get calendar events for a date range
