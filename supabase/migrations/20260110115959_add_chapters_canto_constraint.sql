@@ -3,7 +3,7 @@
 
 -- Drop old index-based constraints if they exist (migration cleanup)
 DROP INDEX IF EXISTS public.chapters_canto_chapter_unique;
-DROP INDEX IF EXISTS public.ux_chapters_canto_chno;
+ALTER TABLE public.chapters DROP CONSTRAINT IF EXISTS ux_chapters_canto_chno;
 
 -- Create proper unique constraint (not index) for ON CONFLICT ON CONSTRAINT to work
 DO $constraint$
