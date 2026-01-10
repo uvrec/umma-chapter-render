@@ -144,7 +144,14 @@
             "এ হেন দুর্জ্জন, সজ-জন-বর্জ্জিত,\nঅপরাধি নিরন্তর\nশুভ-কার্য়্য-শূন্য, সদানর্থ-মনাঃ,\nনানা দুঃখে জর জর",
             "বার্ধক্যে এখন, উপায়-বিহীন,\nতাতে দীন অকিঞ্চন\nভকতিবিনোদ, প্রভুর চরণে,\nকরে দুঃখ নিবেদন"
           ],
-          "transliteration": [],
+          "transliteration": [
+            "āmāra\njīvana, sadā pāpe rata,\nnāhiko\npunyera leṣa\nparere\nudvega, diyāchi je koto,\ndiyāchi\njīvere kleśa",
+            "nija\nsukha lāgi, pāpe nāhi ḍori,\ndoyā-hīna\nswārtha-paro\npara-sukhe\nduḥkhī, sadā mithya-bhāṣī,\npara-duḥkha\nsukha-karo",
+            "aśeṣa\nkāmanā, hṛdi mājhe mora,\nkrodhī,\ndambha-parāyana\nmada-matta\nsadā, viṣaye mohita,\nhiḿsā-garva\nvibhūṣana",
+            "nidrālasya\nhata, sukārye virata,\nakārye\nudyogī āmi\npratiṣṭha\nlāgiyā, śāṭhya-ācaraṇa,\nlobha-hata\nsadā kāmī",
+            "e\nheno durjana, saj-jana-varjita,\naparādhi\nnirantara\nśubha-kārya-śūnya,\nsadānartha-manāḥ,\nnānā\nduḥkhe jara jara",
+            "bārdhakye\nekhona, upāya-vihīna,\ntāte\ndīna akiñcana\nbhakativinoda,\nprabhura caraṇe,\nkore\nduḥkha nivedana\nWORD\nFOR WORD"
+          ],
           "translation": [
             "I am\nan impious sinner and have caused others great anxiety and trouble.",
             "I\nhave never hesitated to perform sinful act for my own enjoyment. Devoid of all\ncompassion, concerned only with my own selfish interests, I am remorseful\nseeing others happy. I am a perpetual liar, and the misery of others is a\nsource of great pleasure for me.",
@@ -359,7 +366,15 @@
             "তোমার ইচ্ছায় মোর ইন্দ্রিয়-চালনা\nশ্রবন, দর্শন, ঘ্রান, ভোজন-বাসনা",
             "নিজ-সুখ লাগি কিছু নাহি করি আর\nভকতিবিনোদ বলে, তব সুখ-সার\n2017"
           ],
-          "transliteration": [],
+          "transliteration": [
+            "`āmāra\nbolite prabhu! āre kichu nāi\ntumi-i\nāmāra mātra pitā-bandhu-bhāi",
+            "bandhu,\ndārā, suta, sutātava dāsī dās\nsei\nto sambandhe sabe āmāra prayās",
+            "dhana,\njana, gṛha, dāra `tomāra boliyā\nrakhā\nkori āmi mātro sevaka hoiyā",
+            "tomāra\nkāryera tore uparjibo dhan\ntomāra\nsaḿsāre-vyaya koribo vahan",
+            "bhālo-manda\nnāhi jāni sevā mātro kori\ntomāra\nsaḿsāre āmi viṣaya-praharī",
+            "tomāra\nicchāya mora indriya-cālanā\nśravana,\ndarśana, ghrāna, bhojana-vāsanā",
+            "nija-sukha\nlāgi kichu nāhi kori ār\nbhakativinoda\nbole, tava sukha-sār"
+          ],
           "translation": [
             "Nothing remains mine. Father, friend, brother  You are even these to me.",
             "Those whom I called friends, wife, sons, and daughters are all Your servants and\nmaidservants. Whatever care I take for them is only as it relates to You.",
@@ -1227,6 +1242,12 @@
         {
           "song_number": 10,
           "title": "Gurudeva Boro Krpa Kori",
+          "bengali": [
+            "গুরুদেব!\nবড় কৃপা করি, গৌড়-বন মাঝে,\nগোদ্রুমে দিয়াছ স্থান\nআজ্ঞা দিল মোরে, এই ব্রজে বসি,\nহরি-নাম কর গান",
+            "কিন্তু কবে প্রভু, যোগ্যতা অর্পিবে,\nএ দাসেরে দয়া করি\nচিত্ত স্থির হবে, সকল সহিব,\nএকান্তে ভজিব হরি",
+            "শৈশব-যৌবনে, জড়-সুখ-সঙ্গে,\nঅভ্যাস হৈল মন্দ\nনিজ-কর্ম-দোষে, এ দেহ হৈল,\nভজনের প্রতিবন্ধ",
+            "বার্ধক্যে এখন, পঞ্চ-রোগে হত,\nকেমনে ভজিব বল\nকাঁদিয়া কাঁদিয়া, তোমার চরণে,\nপড়িয়াছি সুবিহ্বল\n2015"
+          ],
           "transliteration": [
             "gurudev!\nboḍo\nkṛpā kori, gauḍa-vana mājhe,\ngodrume\ndiyācho sthāna\nājñā\ndila more, ei braje bosi,\nhari-nāma\nkoro gāna",
             "kintu\nkabe prabhu, yogyatā arpibe,\ne\ndāsere doyā kori\ncitta\nsthira habe, sakala sohibo,\nekānte\nbhajibo hari",
@@ -1466,7 +1487,7 @@
   ],
   "total_songs": 50,
   "metadata": {
-    "parsed_date": "2026-01-08",
+    "parsed_date": "2026-01-10",
     "source_website": "kksongs.org"
   }
 }

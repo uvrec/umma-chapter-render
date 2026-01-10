@@ -198,7 +198,7 @@ SARANAGATI_SONGS = [
     {"section": 8, "section_title": "Bhajana Lalasa", "section_title_en": "Longing for Devotional Service",
      "song": 10, "title": "Gurudeva Boro Krpa Kori",
      "url": "https://kksongs.org/songs/g/gurudeva1.html",
-     "bengali_url": "https://kksongs.org/unicode/g/gurudeva6_beng.html"},
+     "bengali_url": "https://kksongs.org/unicode/g/gurudeva1_beng.html"},
     {"section": 8, "section_title": "Bhajana Lalasa", "section_title_en": "Longing for Devotional Service",
      "song": 11, "title": "Gurudeva Krpa Bindu Diya",
      "url": "https://kksongs.org/songs/g/gurudeva4.html",
@@ -337,7 +337,8 @@ def parse_main_page(html: str) -> dict:
     }
 
     # Find LYRICS and TRANSLATION sections
-    lyrics_match = re.search(r'LYRICS:\s*(.*?)(?=TRANSLATION|REMARKS|PURPORT|$)', text, re.DOTALL | re.IGNORECASE)
+    # Note: Some pages have "LYRICS:" with colon, others just "LYRICS" without
+    lyrics_match = re.search(r'LYRICS:?\s*(.*?)(?=TRANSLATION|REMARKS|PURPORT|$)', text, re.DOTALL | re.IGNORECASE)
     trans_match = re.search(r'TRANSLATION\s*(.*?)(?=REMARKS|PURPORT|UPDATED|$)', text, re.DOTALL | re.IGNORECASE)
 
     if lyrics_match:
