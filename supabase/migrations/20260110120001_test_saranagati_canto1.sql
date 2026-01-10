@@ -4,11 +4,16 @@
 
 BEGIN;
 
--- 0. Ensure unique index exists for chapter upserts
+-- 0. Ensure unique constraint exists for chapter upserts (ON CONFLICT ON CONSTRAINT requires actual constraint, not index)
 DROP INDEX IF EXISTS public.chapters_canto_chapter_unique;
-CREATE UNIQUE INDEX IF NOT EXISTS ux_chapters_canto_chno
-  ON public.chapters (canto_id, chapter_number)
-  WHERE book_id IS NULL;
+DROP INDEX IF EXISTS public.ux_chapters_canto_chno;
+DO $constraint$
+BEGIN
+  ALTER TABLE public.chapters
+    ADD CONSTRAINT ux_chapters_canto_chno UNIQUE (canto_id, chapter_number);
+EXCEPTION WHEN duplicate_object THEN
+  NULL; -- constraint already exists
+END $constraint$;
 
 -- 1. Create/update the book
 INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos)
