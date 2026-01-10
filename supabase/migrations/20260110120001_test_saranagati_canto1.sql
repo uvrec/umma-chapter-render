@@ -4,16 +4,13 @@
 
 BEGIN;
 
--- 0. Ensure unique constraint exists for chapter upserts (ON CONFLICT ON CONSTRAINT requires actual constraint, not index)
+-- 0. Ensure partial unique index exists for chapter upserts (canto-based chapters only)
 DROP INDEX IF EXISTS public.chapters_canto_chapter_unique;
 ALTER TABLE public.chapters DROP CONSTRAINT IF EXISTS ux_chapters_canto_chno;
-DO $constraint$
-BEGIN
-  ALTER TABLE public.chapters
-    ADD CONSTRAINT ux_chapters_canto_chno UNIQUE (canto_id, chapter_number);
-EXCEPTION WHEN duplicate_object THEN
-  NULL; -- constraint already exists
-END $constraint$;
+DROP INDEX IF EXISTS public.ux_chapters_canto_chno;
+CREATE UNIQUE INDEX IF NOT EXISTS ux_chapters_canto_chno
+  ON public.chapters (canto_id, chapter_number)
+  WHERE canto_id IS NOT NULL;
 
 -- 1. Create/update the book
 INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos)
@@ -126,7 +123,7 @@ BEGIN
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Sri Krsna Caitanya Prabhu Jive Doya Kori', E'', 'verses', true)
-  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
+  ON CONFLICT (canto_id, chapter_number) WHERE canto_id IS NOT NULL DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
