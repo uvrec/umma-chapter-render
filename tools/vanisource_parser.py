@@ -25,6 +25,11 @@ Usage:
 - Зберігає HTML форматування (курсив для санскриту, жирний для мовців)
 - Тільки англійська версія (українська заповнюється окремо)
 - Інформація для зв'язку з віршами книг (book_slug, chapter, verse)
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
 """
 
 import requests

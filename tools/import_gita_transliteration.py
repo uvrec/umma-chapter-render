@@ -11,6 +11,21 @@
     python3 import_gita_transliteration.py --epub EN_BG_1972_epub_r2.epub --dry-run
     python3 import_gita_transliteration.py --epub EN_BG_1972_epub_r2.epub --chapter 2
     python3 import_gita_transliteration.py --epub EN_BG_1972_epub_r2.epub
+
+ПРАВИЛА ТРАНСЛІТЕРАЦІЇ (BBT Editorial Guidelines):
+==================================================
+Правила IAST → Українська кирилиця синхронізовані з:
+- tools/translit_normalizer.py - централізовані правила Python
+- src/utils/text/transliteration.ts - IAST_TO_CYRILLIC маппінг (TypeScript)
+- src/utils/text/textNormalizationRules.ts - правила нормалізації
+
+Критичне правило: ī → ı̄ (dotless i U+0131 + combining macron U+0304)
+Заборонені літери в результаті: є, и, ь, ю, я, ы, э
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
 """
 
 import argparse

@@ -21,6 +21,13 @@ Extracts Bengali text, transliteration, translation, and purports.
 - Лапки «» для цитат
 - Повний титул: "Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада"
 - Джерело: номер вірша (Бгаґ. X.Y.Z) або контекст (ранкова прогулянка, лекція)
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+====================
+Після парсингу застосовувати правила нормалізації з:
+- tools/translit_normalizer.py - apply_ukrainian_rules() для українського тексту
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил (TypeScript)
 """
 
 import json

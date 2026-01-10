@@ -18,6 +18,11 @@ Notes:
 - Використовує існуючі інструменти транслітерації
 - Зберігає санскритські терміни для глосарія
 - Підтримує синхронізацію з аудіо (timecodes)
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
 """
 
 import requests

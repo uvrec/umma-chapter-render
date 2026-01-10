@@ -23,6 +23,13 @@ Usage:
 
 Requirements:
     pip install requests beautifulsoup4 lxml supabase python-dotenv
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ (BBT Editorial Guidelines):
+===============================================
+Після імпорту застосовувати правила нормалізації з:
+- tools/translit_normalizer.py - apply_ukrainian_rules() для українського тексту
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил (TypeScript)
 """
 
 import os

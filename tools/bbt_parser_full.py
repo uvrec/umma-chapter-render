@@ -14,6 +14,11 @@ BBT Parser v2.0 — Повний парсер для імпорту на сай�
     python bbt_parser_full.py input.H## -f json -o output.json
     python bbt_parser_full.py input.H## -f html --structured
     python bbt_parser_full.py --batch input_dir/ -f json output_dir/
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
 """
 
 import re

@@ -13,6 +13,11 @@ Usage:
 3. Витяг адреси та тексту листа
 4. Виявлення санскритських термінів
 5. Збереження в JSON для подальшого імпорту в БД
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
 """
 
 import requests
