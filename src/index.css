@@ -1063,6 +1063,13 @@ body.keyboard-open {
     padding-bottom: 3rem;
   }
 
+  /* На десктопі в двомовному режимі робимо колонки вдвічі ширшими */
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 84rem;
+    }
+  }
+
   /* Прибираємо зайві елементи в VerseCard */
   .verse-navigation,
   .verse-actions,
