@@ -403,6 +403,81 @@ def parse_purport_page(html: str) -> str:
     return ""
 
 
+# Vaniquotes references - Srila Prabhupada's quotes about specific Saranagati verses
+# Key: (section_number, song_number)
+VANIQUOTES_REFERENCES = {
+    # Song 1: Sri Krsna Caitanya Prabhu Jive Doya Kori (Section 1, Song 1)
+    (1, 1): [
+        {
+            "source": "CC Madhya 20.135 Purport",
+            "verse_numbers": [3],
+            "quote": "A devotee will not depend on his material resources but on the mercy of the Supreme Personality of Godhead, who can give real protection. This is called rakṣiṣyatīti viśvāsaḥ or 'avaśya rakṣibe kṛṣṇa'—viśvāsa pālana.",
+            "link": "https://vanisource.org/wiki/CC_Madhya_20.135"
+        },
+        {
+            "source": "SB 6.3.16-17 Lecture, Gorakhpur 1971",
+            "verse_numbers": [3],
+            "quote": "Surrender means one should simply accept favorable service to Kṛṣṇa and reject anything which is unfavorable, and then next is avaśya rakṣibe kṛṣṇa viśvāsa-pālana: 'And to be firmly convinced that Kṛṣṇa will give me all protection.'",
+            "link": "https://vanisource.org/wiki/Lecture_on_SB_6.3.16-17_--_Gorakhpur,_February_10,_1971"
+        }
+    ],
+    # Song 11: Manasa Deho Geho Jo Kichu Mor (Section 3, Song 3)
+    (3, 3): [
+        {
+            "source": "CC Madhya 10.55 Purport",
+            "verse_numbers": [1],
+            "quote": "This is the process of surrender. As Śrīla Bhaktivinoda Ṭhākura sings: mānasa, deha, geha, yo kichu mora / arpiluṅ tuyā pade nanda-kiśora! When one surrenders unto the lotus feet of the Lord, he does so with everything in his possession.",
+            "link": "https://vanisource.org/wiki/CC_Madhya_10.55"
+        },
+        {
+            "source": "CC Antya 1.24 Purport",
+            "verse_numbers": [5],
+            "quote": "Śrīla Bhaktivinoda Ṭhākura has also sung, kīṭa-janma ha-u yathā tuyā dāsa (Śaraṇāgati 11). There is no harm in taking birth again and again. Our only desire should be to take birth under the care of a Vaiṣṇava.",
+            "link": "https://vanisource.org/wiki/CC_Antya_1.24"
+        }
+    ],
+    # Song 19: Sarvasva Tomar Carane (Section 4, Song 3)
+    (4, 3): [
+        {
+            "source": "CC Antya 1.24 Purport",
+            "verse_numbers": [1],
+            "quote": "Śrīla Bhaktivinoda Ṭhākura has therefore sung, tumi ta' ṭhākura, tomāra kukkura, baliyā jānaha more. He thus offers to become the dog of a Vaiṣṇava. There are many other instances in which the pet animal of a Vaiṣṇava was delivered back home to Vaikuṇṭhaloka.",
+            "link": "https://vanisource.org/wiki/CC_Antya_1.24"
+        }
+    ],
+    # Song 27: Suddha Bhakata Carana Renu (Section 6, Song 3)
+    (6, 3): [
+        {
+            "source": "CC Madhya 7.69 Purport",
+            "verse_numbers": [6],
+            "quote": "In his book Śaraṇāgati, Bhaktivinoda Ṭhākura states, ye-dina gṛhe, bhajana dekhi', gṛhete goloka bhāya. Whenever a householder glorifies the Supreme Lord in his home, his activities are immediately transformed into the activities of Goloka Vṛndāvana.",
+            "link": "https://vanisource.org/wiki/CC_Madhya_7.69"
+        },
+        {
+            "source": "CC Antya 4.211 Purport",
+            "verse_numbers": [3],
+            "quote": "Śrīla Bhaktivinoda Ṭhākura writes in a song: gaura āmāra, ye saba sthāne, karala bhramaṇa raṅge / se-saba sthāna, heriba āmi, praṇayi-bhakata-saṅge. 'May I visit all the holy places associated with the līlās of Lord Caitanya and His devotees.'",
+            "link": "https://vanisource.org/wiki/CC_Antya_4.211"
+        }
+    ]
+}
+
+# Ukrainian section titles
+SECTION_TITLES_UA = {
+    1: "Вступ",
+    2: "Дайн'я (Смирення)",
+    3: "Атма-нівéдана (Самовіддача)",
+    4: "Ґоптрітве варана (Прийняття опіки Господа)",
+    5: "Авашья ракшібе Крішна вішваса палана (Віра в захист Крішни)",
+    6: "Бгакті-анукула матра кар'єра свікара (Сприятливе для відданості)",
+    7: "Бгакті-пратікула бгава варджанаңґікара (Несприятливе для відданості)",
+    8: "Бгаджана-лаласа (Прагнення до служіння)",
+    9: "Сіддгі-лаласа (Прагнення до досконалості)",
+    10: "Віджняпті (Молитва від серця)",
+    11: "Шрі-нама-махатмья (Слава Святого Імені)"
+}
+
+
 def parse_all_songs():
     """Parse all songs and create JSON."""
     print(f"Parsing {len(SARANAGATI_SONGS)} songs from Saranagati...")
@@ -417,13 +492,15 @@ def parse_all_songs():
             sections[section_num] = {
                 "section_number": section_num,
                 "title": song_info['section_title'],
-                "title_english": song_info['section_title_en'],
+                "title_en": song_info['section_title_en'],
+                "title_ua": SECTION_TITLES_UA.get(section_num, ""),
                 "songs": []
             }
 
         song_data = {
             "song_number": song_info['song'],
-            "title": song_info['title'],
+            "title_en": song_info['title'],
+            "title_ua": "",
         }
 
         # Fetch Bengali text
@@ -450,8 +527,14 @@ def parse_all_songs():
             if purport_html:
                 purport = parse_purport_page(purport_html)
                 if purport:
-                    song_data['purport'] = purport
+                    song_data['purport_en'] = purport
                     print(f"    Found purport ({len(purport)} chars)")
+
+        # Add vaniquotes references if available
+        ref_key = (section_num, song_info['song'])
+        if ref_key in VANIQUOTES_REFERENCES:
+            song_data['references'] = VANIQUOTES_REFERENCES[ref_key]
+            print(f"    Added {len(VANIQUOTES_REFERENCES[ref_key])} references")
 
         sections[section_num]['songs'].append(song_data)
 
@@ -463,7 +546,9 @@ def parse_all_songs():
         "book_slug": "saranagati",
         "book_title_en": "Saranagati",
         "book_title_bn": "শরণাগতি",
-        "author": "Bhaktivinoda Thakura",
+        "book_title_ua": "Шаранаґаті",
+        "author_en": "Bhaktivinoda Thakura",
+        "author_ua": "Бгактівінод Тхакур",
         "source": "https://kksongs.org/authors/literature/saranagati.html",
         "sections": [sections[i] for i in sorted(sections.keys())],
         "total_songs": len(SARANAGATI_SONGS),
