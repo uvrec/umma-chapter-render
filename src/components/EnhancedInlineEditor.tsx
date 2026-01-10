@@ -268,6 +268,24 @@ export const EnhancedInlineEditor = ({
           class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none p-4",
           style: `min-height: ${minHeight}`,
         },
+        // Strip font-size and font-family from pasted content to match editor styling
+        transformPastedHTML(html) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+
+          // Remove font-size and font-family from all elements with inline styles
+          doc.querySelectorAll("[style]").forEach((el) => {
+            const element = el as HTMLElement;
+            element.style.removeProperty("font-size");
+            element.style.removeProperty("font-family");
+            // Clean up empty style attributes
+            if (!element.getAttribute("style")?.trim()) {
+              element.removeAttribute("style");
+            }
+          });
+
+          return doc.body.innerHTML;
+        },
       },
     },
     [editable]

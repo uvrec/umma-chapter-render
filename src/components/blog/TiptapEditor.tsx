@@ -171,6 +171,24 @@ export const TiptapEditor = ({ content, onChange, placeholder = "Почніть 
       attributes: {
         class: "prose prose-sm dark:prose-invert max-w-none p-4 min-h-[400px] focus:outline-none",
       },
+      // Strip font-size and font-family from pasted content to match editor styling
+      transformPastedHTML(html) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        // Remove font-size and font-family from all elements with inline styles
+        doc.querySelectorAll("[style]").forEach((el) => {
+          const element = el as HTMLElement;
+          element.style.removeProperty("font-size");
+          element.style.removeProperty("font-family");
+          // Clean up empty style attributes
+          if (!element.getAttribute("style")?.trim()) {
+            element.removeAttribute("style");
+          }
+        });
+
+        return doc.body.innerHTML;
+      },
     },
   });
 
