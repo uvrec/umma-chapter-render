@@ -115,7 +115,7 @@ BEGIN
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Sri Krsna Caitanya Prabhu Jive Doya Kori', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -427,7 +427,7 @@ kāńdiyā bole āmi to adhama
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Bhuliya Tomare', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -837,7 +837,7 @@ what to do. Therefore, I surrender.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Vidyara Vilase Katainu Kala', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -1147,7 +1147,7 @@ the sum and substance of his life.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Yauvane Jakhon Dhana Uparjane', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -1485,7 +1485,7 @@ Your mercy, everything is lost. Please give me the shelter of Your lotus feet.
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Amar Jivan', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -1874,7 +1874,7 @@ activities at the lotus feet of the Supreme Lord.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 5, E'Suno Mor Duhkher Kahini', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -2153,7 +2153,7 @@ deliver this Bhaktivinoda.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 6, E'Tuwa Pade E Minati Mor', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -2382,7 +2382,7 @@ cooling shade of Your feet.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 7, E'Emona Durmati', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -2731,7 +2731,7 @@ lotus feet and tells the story of his life.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Na Korolun Karama', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -2956,7 +2956,7 @@ devotional mood.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Kohabun Ki Sarama Ki Bat', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -3183,7 +3183,7 @@ hope.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Manasa Deho Geho Jo Kichu Mor', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -3517,7 +3517,7 @@ are my life and soul!"', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Aham Mama Saba Arthe', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -3862,7 +3862,7 @@ bhakativinoda
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 5, E'Amar Bolite Prabhu', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -4169,7 +4169,7 @@ is the essence of everything.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 6, E'Bastutoh Sakali Tava', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -4523,7 +4523,7 @@ delivers one from all false pride.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 7, E'Nivedana Kori Prabhu Tomara Carane', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -4872,7 +4872,7 @@ this very day.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 8, E'Atma Nivedana Tuwa Pade', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -5215,7 +5215,7 @@ service and dwells in Your house according to Your wishes.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Ki Jani Ki Bale', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -5556,7 +5556,7 @@ him a taste for the holy name, and kindly maintain him.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Dara Putra Nijo Deho', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -5904,7 +5904,7 @@ service of Your lotus feet with no other interest in life.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Sarvasva Tomar Carane', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -6187,7 +6187,7 @@ multitude of ecstasies. Bhaktivinoda accepts You as his only support.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Tumi Sarveswareswara Vrajendra Kumar', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -6520,7 +6520,7 @@ with Your will he lives and dies.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Ekhona Bujhinu', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -6906,7 +6906,7 @@ o-pada koribe tomār', E'саḿса̄ра-віпада
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Tumi To Maribe Jare', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -7194,7 +7194,7 @@ dangers.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Atma Samarpane Gela Abhiman', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -7630,7 +7630,7 @@ protect him with care.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Chorato Purusa Abhiman', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -8097,7 +8097,7 @@ of that confidential sakhi.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Tuwa Bhakti Anukula', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -8490,7 +8490,7 @@ his activities be conductive for pure devotion to You.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Godruma Dhame Bhajana', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -8876,7 +8876,7 @@ kuñja, muñja, sura-nadī-kūl', E'бгакатівінода
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Suddha Bhakata Carana Renu', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -9281,7 +9281,7 @@ he may be."', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Radha Kunda Tata Kunja Kutir', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -9624,7 +9624,7 @@ hāmārā parān', E'бгакатівінода кохе, ш́уно ка̄н!
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Kesava Tuwa Jagata Vicitra', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -9852,7 +9852,7 @@ philosophers from afar.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Tuwa Bhakti Pratikula', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -10247,7 +10247,7 @@ all obstacles to pure devotion.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Visaya Bimudha Ar Mayavadi', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -10634,7 +10634,7 @@ society of Vaisnavas under the shelter of the holy name.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Ami To Swananda Sukhada Vasi', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -10980,7 +10980,7 @@ Srimati Radharani.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Prapance Poriya Agati', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -11215,7 +11215,7 @@ are my only shelter.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Arthera Sancaye', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -11449,7 +11449,7 @@ loinu hāma', E'а̄мі
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Bhajane Utsaha Bhaktite Visvasa', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -11685,7 +11685,7 @@ vā minati kori', E'е
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 4, E'Dana Pratigraha Mitho', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -11924,7 +11924,7 @@ devotees, O Lord?', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 5, E'Sanga Dosa Sunya', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -12161,7 +12161,7 @@ will I cross over the ocean of worldly existence to reach Your abode of Vraja?',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 6, E'Nira Dharma Gata', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -12397,7 +12397,7 @@ lotus feet.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 7, E'Ohe Vaisnava Thakura', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -12608,7 +12608,7 @@ running behind you shouting, "Krsna! Krsna!"', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 8, E'Tomare Bhuliya', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -12850,7 +12850,7 @@ taste the intoxicating spirit of the name.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 9, E'Sri Rupa Gosai Sri Guru Rupete', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -13089,7 +13089,7 @@ desires to become a follower at your lotus feet', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 10, E'Gurudeva Boro Krpa Kori', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -13329,7 +13329,7 @@ by anxiety.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 11, E'Gurudeva Krpa Bindu Diya', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -13542,7 +13542,7 @@ maintain my life.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 12, E'Gurudeva Kabe Mora Sei', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -13791,7 +13791,7 @@ material body. In this way I will obtain your mercy.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 13, E'Gurudeva Kabe Tava Karuna', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -14031,7 +14031,7 @@ out, O my Lord Gauranga!', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Kabe Gaura Vane', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -14247,7 +14247,7 @@ Radharanai.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 2, E'Dekhite Dekhite', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -14475,7 +14475,7 @@ glories of Sri Radha just like a raving lunatic.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 3, E'Vrsabhanu Suta Carana Sevane', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -14705,7 +14705,7 @@ they may be and regardless of what they preach.', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Kabe Ha''be Bolo Sei Dina Amar', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
@@ -15107,7 +15107,7 @@ from door to door, preaching your message of love?', E'',
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Krsna Nama Dhare Kato Bal', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
+  ON CONFLICT ON CONSTRAINT ux_chapters_canto_chno DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
