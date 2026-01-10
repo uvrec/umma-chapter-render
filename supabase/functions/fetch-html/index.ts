@@ -1,6 +1,9 @@
 // Supabase Edge Function: fetch-html
-// Public CORS-enabled proxy to fetch HTML from allowed domains (vedabase.io, gitabase.com)
+// CORS-enabled proxy to fetch HTML from allowed domains (vedabase.io, gitabase.com)
+// REQUIRES AUTHENTICATION: User must be logged in
 // Returns: { html: string }
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,6 +24,62 @@ const ALLOWED_HOSTS = new Set([
   // WordPress CDN occasionally used in content links
   "i0.wp.com"
 ]);
+
+// Rate limiting: track requests per user
+const userRequestCounts = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 30; // requests per minute
+const RATE_WINDOW_MS = 60000; // 1 minute
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const userRate = userRequestCounts.get(userId);
+  
+  if (!userRate || now > userRate.resetTime) {
+    userRequestCounts.set(userId, { count: 1, resetTime: now + RATE_WINDOW_MS });
+    return true;
+  }
+  
+  if (userRate.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  userRate.count++;
+  return true;
+}
+
+/**
+ * Validate JWT and get authenticated user
+ */
+async function validateAuth(req: Request): Promise<{ userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized: Missing or invalid Authorization header" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await supabase.auth.getClaims(token);
+  
+  if (error || !data?.claims?.sub) {
+    console.error("[fetch-html] Auth error:", error?.message);
+    return new Response(
+      JSON.stringify({ error: "Unauthorized: Invalid token" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  return { userId: data.claims.sub as string };
+}
 
 /**
  * Fetch with retry logic and exponential backoff
@@ -95,6 +154,23 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate authentication
+  const authResult = await validateAuth(req);
+  if (authResult instanceof Response) {
+    return authResult;
+  }
+
+  const { userId } = authResult;
+
+  // Check rate limit
+  if (!checkRateLimit(userId)) {
+    console.warn(`[fetch-html] Rate limit exceeded for user ${userId}`);
+    return new Response(
+      JSON.stringify({ error: "Rate limit exceeded. Please wait a moment." }),
+      { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
   try {
     const { url } = await req.json().catch(() => ({ url: "" }));
     const rawUrl = typeof url === "string" ? url.trim() : "";
@@ -110,11 +186,11 @@ Deno.serve(async (req) => {
     } catch {}
 
     if (!host || !ALLOWED_HOSTS.has(host)) {
-      console.warn(`[fetch-html] Domain not allowed: host="${host}", url="${rawUrl}"`);
+      console.warn(`[fetch-html] Domain not allowed: host="${host}", url="${rawUrl}", user=${userId}`);
       return new Response(JSON.stringify({ error: "Domain not allowed", host }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
 
-    console.log(`[fetch-html] ${host}: Starting fetch for ${rawUrl}`);
+    console.log(`[fetch-html] ${host}: Starting fetch for ${rawUrl} (user: ${userId})`);
 
     const result = await fetchWithRetry(rawUrl, host);
 

@@ -18,7 +18,7 @@
  *   action=import: { imported: number, failed: number, errors: string[] }
  */
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
 import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.45/deno-dom-wasm.ts";
 
 const corsHeaders = {
@@ -31,10 +31,61 @@ const VEDABASE_BASE_URL = "https://vedabase.io/en/library";
 const DELAY_MS = 1500;
 const MAX_BATCH_SIZE = 15; // Обмеження для уникнення timeout
 
-// Supabase клієнт
+// Supabase клієнт (service role for data operations)
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+/**
+ * Validate admin authentication
+ */
+async function validateAdminAuth(req: Request): Promise<{ isAdmin: boolean; userId: string } | Response> {
+  const authHeader = req.headers.get("Authorization");
+  
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized: Missing Authorization header" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+    global: { headers: { Authorization: authHeader } }
+  });
+
+  const token = authHeader.replace("Bearer ", "");
+  const { data, error } = await authClient.auth.getClaims(token);
+  
+  if (error || !data?.claims?.sub) {
+    console.error("[vedabase-import] Auth error:", error?.message);
+    return new Response(
+      JSON.stringify({ error: "Unauthorized: Invalid token" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  const userId = data.claims.sub as string;
+
+  // Check admin role
+  const { data: roleData, error: roleError } = await authClient
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .eq('role', 'admin')
+    .maybeSingle();
+
+  if (roleError || !roleData) {
+    console.warn(`[vedabase-import] Non-admin user attempted access: ${userId}`);
+    return new Response(
+      JSON.stringify({ error: "Forbidden: Admin access required" }),
+      { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
+  }
+
+  console.log(`[vedabase-import] Admin access granted: ${userId}`);
+  return { isAdmin: true, userId };
+}
 
 // Маппінг локацій
 const LOCATION_TRANSLATIONS: Record<string, string> = {
@@ -560,9 +611,19 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Validate admin authentication (CRITICAL - this is an admin-only operation)
+  const authResult = await validateAdminAuth(req);
+  if (authResult instanceof Response) {
+    return authResult;
+  }
+
+  const { userId } = authResult;
+
   try {
     const body = await req.json().catch(() => ({}));
     const { type, action, limit, offset = 0, year, slugs } = body;
+
+    console.log(`[vedabase-import] Admin ${userId} requested: ${type}/${action}`);
 
     if (!type || !["lectures", "letters"].includes(type)) {
       return new Response(

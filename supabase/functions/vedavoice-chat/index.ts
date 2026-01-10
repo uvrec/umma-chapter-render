@@ -504,8 +504,8 @@ Deno.serve(async (req) => {
 
     console.log(`Chat request from user ${user.id}, message length: ${message.length}`);
 
-    // Use service role client for database operations
-    const supabase = createClient(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!);
+    // Use authenticated client - respects RLS policies (no service role bypass)
+    const supabase = supabaseClient;
 
     // ========================================================================
     // STEP 1: Query Expansion
