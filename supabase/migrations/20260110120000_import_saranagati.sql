@@ -136,16 +136,16 @@ BEGIN
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি',
+    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''',
     E'śrī-kṛṣṇa-caitanya
-prabhu jīve doyā kori
+prabhu jīve doyā kori''
 swa-pārṣada
-swīya dhāma saha avatari', E'ш́рı̄-кр̣шн̣а-чаітанйа
-прабгу джı̄ве дойа̄ корі
+swīya dhāma saha avatari''', E'ш́рı̄-кр̣шн̣а-чаітанйа
+прабгу джı̄ве дойа̄ корі''
 сва-па̄ршада
-свı̄йа дга̄ма саха аватарі',
+свı̄йа дга̄ма саха аватарі''',
     E'', E'',
     E'Out of compassion for the fallen souls, Sri Krisna Caitanya came to this world
 with His personal associates and divine abode to teach saranagati (the goal of
@@ -193,7 +193,7 @@ durlabha prema koribāre dāna
 ш́аран̣а̄ґаті бгакатера пра̄на',
     E'', E'',
     E'The ways of saranagati are humility, dedication of the self, acceptance of the
-Lord as ones only maintainer, faith that Krishna will surely protect,
+Lord as one''s only maintainer, faith that Krishna will surely protect,
 execution of only those acts favorable to pure devotion, and renunciation of
 conduct adverse to pure devotion.', E'',
     E'', E'',
@@ -225,22 +225,21 @@ conduct adverse to pure devotion.', E'',
   VALUES (
     v_chapter_id, '3', 3,
     E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
-অবশ্য রক্ষীবে কৃষ্ণ-বিশ্বাস, পালন', E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
-অবশ্য রক্ষীবে কৃষ্ণ-বিশ্বাস, পালন',
+''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন', E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
+''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন',
     E'dainya,
 ātma-nivedana, goptṛtve varaṇa
 avaśya
-rakṣībe kṛṣṇaviśvāsa, pālana', E'даінйа,
+rakṣībe kṛṣṇa''viśvāsa, pālana', E'даінйа,
 а̄тма-ніведана, ґоптр̣тве варан̣а
 аваш́йа
-ракшı̄бе кр̣шн̣авіш́ва̄са, па̄лана',
+ракшı̄бе кр̣шн̣а''віш́ва̄са, па̄лана',
     E'', E'',
     E'The
 youthful son of Nanda Maharaja, Sri Krishna, hears the prayers of anyone who
 takes refuge in Him by this six-fold practice.
 6-', E'',
     E'', E'У своєму поясненні до **«Чайтанья-чарітамріта»**, Мадг''я-ліла 20.135, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Відданий не буде покладатися на свої матеріальні ресурси, а на милість Верховного Бога-Особи, який може дати справжній захист. Це називається *ракшішьяті ті вішвасах*, або "*авашья ракшібе крішна*"—*вішваса палана*».
-
 Під час лекції зі **«Шрімад-Бгаґаватам»** 6.3.16-17 (Ґоракхпур, 10 лютого 1971 року), Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Віддатися означає просто приймати сприятливе служіння Крішні та відкидати все, що несприятливе, а далі йде *авашья ракшібе крішна вішваса-палана*: "І бути твердо переконаним, що Крішна дасть мені весь захист"».',
     true
   )
@@ -353,16 +352,16 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'রূপ-সনাতন-পদে দন্তে তৃণ করি
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি', E'রূপ-সনাতন-পদে দন্তে তৃণ করি
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি',
+    E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''', E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''',
     E'rūpa-sanātana-pade
-dante tṛṇa kori
+dante tṛṇa kori''
 bhakativinoda
-poḍe duhuń pada dhori', E'рӯпа-сана̄тана-паде
-данте тр̣н̣а корі
+poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
+данте тр̣н̣а корі''
 бгакатівінода
-под̣е духуń пада дгорі',
+под̣е духуń пада дгорі''',
     E'', E'',
     E'', E'',
     E'', E'',
@@ -393,14 +392,14 @@ poḍe duhuń pada dhori', E'рӯпа-сана̄тана-паде
   )
   VALUES (
     v_chapter_id, '7', 7,
-    E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
-শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
+    E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
+শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
 শিখায়ে শরণাগতি কর হে উত্তম',
     E'kāńdiyā
-kāńdiyā bole āmi to adhama
+kāńdiyā bole āmi to'' adhama
 śikhāye
 śaraṇāgati koro he uttama', E'ка̄ńдійа̄
-ка̄ńдійа̄ боле а̄мі то адгама
+ка̄ńдійа̄ боле а̄мі то'' адгама
 ш́ікха̄йе
 ш́аран̣а̄ґаті коро хе уттама',
     E'', E'',
@@ -513,7 +512,7 @@ vañcile e dīna dāse', E'джананı̄
 ека-ба̄ра прабгу! декха̄ дійа̄ море,
 ван̃чіле е дı̄на да̄се',
     E'', E'',
-    E'While still in the unbearable fetters of my mothers womb, I saw You before me
+    E'While still in the unbearable fetters of my mother''s womb, I saw You before me
 You revealed Yourself but briefly and then abandoned this poor servant of
 Yours.', E'',
     E'', E'',
@@ -546,10 +545,10 @@ Yours.', E'',
     v_chapter_id, '3', 3,
     E'তখন ভাবিনু, জনম পাইয়া,
 করিব ভজন তব
-জনম হৈল, পড়ি মায়া-জালে,
+জনম হৈল, পড়ি'' মায়া-জালে,
 না হৈল জ্ঞান লব', E'তখন ভাবিনু, জনম পাইয়া,
 করিব ভজন তব
-জনম হৈল, পড়ি মায়া-জালে,
+জনম হৈল, পড়ি'' মায়া-জালে,
 না হৈল জ্ঞান লব',
     E'takhona
 bhāvinu, janama pāiyā,
@@ -611,7 +610,7 @@ saḿsāra lāgilo bhālo', E'а̄дарера
     E'', E'',
     E'As
 a fondled son in the lap of relatives, I passed my time smiling and laughing.
-My parents affection helped me to forget the pangs of birth, and I thought the
+My parents'' affection helped me to forget the pangs of birth, and I thought the
 world was very nice.', E'',
     E'', E'',
     true
@@ -689,10 +688,10 @@ understanding emerged. I read and studied my lessons incessantly.', E'',
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'বিদ্যার গৌরবে, ভ্রমি দেশে দেশে,
+    E'বিদ্যার গৌরবে, ভ্রমি'' দেশে দেশে,
 ধন উপার্জন করি
 স্বজন পালন, করি একমনে,
-ভুলিনু তোমারে, হরি!', E'বিদ্যার গৌরবে, ভ্রমি দেশে দেশে,
+ভুলিনু তোমারে, হরি!', E'বিদ্যার গৌরবে, ভ্রমি'' দেশে দেশে,
 ধন উপার্জন করি
 স্বজন পালন, করি একমনে,
 ভুলিনু তোমারে, হরি!',
@@ -774,21 +773,21 @@ I thought, takhona bhavinu, janama paiya, I thought that this time when I ge
 womb, I shall surely engage cent percent in the service of the Lord, worshiping
 the Lord. No more this repetition of birth and death,
 is so troublesome. Now I shall engage, this birth I
-shall engage myself simply on devotional service to get out of this maya. But unfortunately, exactly after my birth, janama hoilo, padi
+shall engage myself simply on devotional service to get out of this maya. But unfortunately, exactly after my birth, janama hoilo, padi''
 maya-jale, na hoilo jnana-lava, as soon as I
 got out of the womb, immediately maya, the illusory
 energy, captured me and I forgot that I was in such precarious condition, and I
 was crying and praying to the Lord that this time I shall get out and engage
 myself in devotional service. But all these senses were lost as soon as I took
 my birth. Then the next stage is adarera chele, sva-janera kole. Then I become a very pet child and everyone is
-taking me on the lap, and I thought, Life is very nice, everyone loves me.
-Then I thought, This material life is very good. Adarera chele,
+taking me on the lap, and I thought, Life is very nice, everyone loves me.''
+Then I thought, This material life is very good.'' Adarera chele,
 sva-janera kole, hasiya katanu kala.
 Because there is no trouble. As soon as I am little
 difficulty, everyone comes forward to give me relief. So I thought my life will
 go on like this. So I simply wasted my time simply by smiling, and that smiling
 became attractive to my relatives and they patted me. I thought, This is the
-life. Janaki...janaka janani-snehete
+life.'' Janaki...janaka janani-snehete
 bhuliya, samsara lagilo. At that time, a great deal of affection of
 parents. So I thought material life is very nice. Krame
 dina dina,
@@ -797,12 +796,12 @@ gradually I grew up and I began to play with my childhood friends, and it was
 very nice life. And after some days, when I was little intelligent, then I was
 put into school. So I began to study very seriously. Then
 after that, vidyara gaurave,
-bhrami dese dese, dhana uparjana
+bhrami'' dese dese, dhana uparjana
 kori. Then being puffed up... Bhaktivinode Thakura was
 magistrate. So he was transferred from one place to another. He is stating his
 life, that vidyara gaurave,
 Because I was little educated, so I was posted and I was earning decently. So
-I was thinking, It is very nice. Vidyara gaurave, bhrami
+I was thinking, It is very nice.'' Vidyara gaurave, bhrami''
 dese dese, dhana uparjana kori. Swa-jana palana, kori eka-mane, And only duty was how to maintain, how to raise
 family members, how to keep them happy. That became my only aims and
 object of life. Bardhakye ekhona, bhakativinoda.
@@ -906,10 +905,10 @@ never worshiped Your lotus feet, O Lord. Now You are my only shelter.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'পড়িতে পড়িতে, ভরসা বারিল,
-জ্ঞানে গতি হবে মানি
+জ্ঞানে গতি হবে মানি''
 সে আশা বিফল, সে জ্ঞান দুর্ব্বল,
 সে জ্ঞান অজ্ঞান জানি', E'পড়িতে পড়িতে, ভরসা বারিল,
-জ্ঞানে গতি হবে মানি
+জ্ঞানে গতি হবে মানি''
 সে আশা বিফল, সে জ্ঞান দুর্ব্বল,
 সে জ্ঞান অজ্ঞান জানি',
     E'poḍite
@@ -1003,10 +1002,10 @@ eternal soul by encouraging his infatuation with this temporary world.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'সেই গাধা হযে, সংসারের বোঝা,
+    E'সেই গাধা হ''যে, সংসারের বোঝা,
 বহিনু অনেক কাল
 বার্ধক্যে এখন, শক্তির অভাবে,
-কিছু নাহি লাগে ভাল', E'সেই গাধা হযে, সংসারের বোঝা,
+কিছু নাহি লাগে ভাল', E'সেই গাধা হ''যে, সংসারের বোঝা,
 বহিনু অনেক কাল
 বার্ধক্যে এখন, শক্তির অভাবে,
 কিছু নাহি লাগে ভাল',
@@ -1101,13 +1100,11 @@ and has pierced my heart with the intolerable, burning pain of ignorance.', E'',
     v_chapter_id, '6', 6,
     E'তোমার চরণ, বিনা কিছু ধন,
 সংসারে না আছে আর
-ভকতিবিনোদ, জড-বিদ্যা ছাড়ি,
-তুয়া পদ করে সার
-2015', E'তোমার চরণ, বিনা কিছু ধন,
+ভকতিবিনোদ, জড-বিদ্যা ছাড়ি,''
+তুয়া পদ করে সার', E'তোমার চরণ, বিনা কিছু ধন,
 সংসারে না আছে আর
-ভকতিবিনোদ, জড-বিদ্যা ছাড়ি,
-তুয়া পদ করে সার
-2015',
+ভকতিবিনোদ, জড-বিদ্যা ছাড়ি,''
+তুয়া পদ করে সার',
     E'tomāra
 caraṇa, binā kichu dhana,
 saḿsāre nā āche āra
@@ -1221,22 +1218,22 @@ the codes of religion, I took a wife.', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'সংসার পাতায়ে, তাহার সহিত,
+    E'সংসার পাতা''য়ে, তাহার সহিত,
 কাল-খয় কৈনু কত
 বহু সুত-সুতা, জনম লোভিল,
-মরমে হৈনু হত', E'সংসার পাতায়ে, তাহার সহিত,
+মরমে হৈনু হত', E'সংসার পাতা''য়ে, তাহার সহিত,
 কাল-খয় কৈনু কত
 বহু সুত-সুতা, জনম লোভিল,
 মরমে হৈনু হত',
     E'saḿsāra
-pātāye, tāhāra sahita,
+pātā''ye, tāhāra sahita,
 kāla-khoy
 koinu koto
 bahu
 suta-sutā, janama lobhilo,
 marame
 hoinu hato', E'саḿса̄ра
-па̄та̄йе, та̄ха̄ра сахіта,
+па̄та̄''йе, та̄ха̄ра сахіта,
 ка̄ла-кхой
 коіну кото
 баху
@@ -1331,10 +1328,10 @@ grabbed me, and made my mind fickle and disturbed.', E'',
     E'পীড়ায় অস্থির, চিন্তায় জ্বরিত,
 অভাবে জ্বলিত চিত
 উপায় না দেখি, অন্ধকার-ময়,
-এখন হয়েছি ভীত', E'পীড়ায় অস্থির, চিন্তায় জ্বরিত,
+এখন হ''য়েছি ভীত', E'পীড়ায় অস্থির, চিন্তায় জ্বরিত,
 অভাবে জ্বলিত চিত
 উপায় না দেখি, অন্ধকার-ময়,
-এখন হয়েছি ভীত',
+এখন হ''য়েছি ভীত',
     E'pīḍāya
 asthira, cintāya jwarita,
 abhāve
@@ -1342,14 +1339,14 @@ jwalita cita
 upāya
 nā dekhi, andhakāra-moya,
 ekhona
-hoyechi bhīta', E'пı̄д̣а̄йа
+ho''yechi bhīta', E'пı̄д̣а̄йа
 астхіра, чінта̄йа джваріта,
 абга̄ве
 джваліта чіта
 упа̄йа
 на̄ декхі, андгака̄ра-мойа,
 екхона
-хойечхі бгı̄та',
+хо''йечхі бгı̄та',
     E'', E'',
     E'Diseases trouble me now, and constant anxiety has made me feverish. My heart
 burns from lack of satisfaction, and I see no way out. All is darkness and I am
@@ -1440,24 +1437,24 @@ worship You, O Lord, but it is a useless hope.', E'',
     E'এবে শুন প্রভু! আমি গতি-হীন,
 ভকতিবিনোদ কয়
 তব কৃপা বিনা, সকলি নিরাশা,
-দেহ মোরে পদাশ্রয়', E'এবে শুন প্রভু! আমি গতি-হীন,
+দেহ'' মোরে পদাশ্রয়', E'এবে শুন প্রভু! আমি গতি-হীন,
 ভকতিবিনোদ কয়
 তব কৃপা বিনা, সকলি নিরাশা,
-দেহ মোরে পদাশ্রয়',
+দেহ'' মোরে পদাশ্রয়',
     E'ebe
 śuno prabhu! āmi gati-hīna,
 bhakativinoda
 koya
 tava
 kṛpā binā, sakali nirāśā,
-deho
+deho''
 more padāśroya', E'ебе
 ш́уно прабгу! а̄мі ґаті-хı̄на,
 бгакатівінода
 койа
 тава
 кр̣па̄ біна̄, сакалі ніра̄ш́а̄,
-дехо
+дехо''
 море пада̄ш́ройа',
     E'', E'',
     E'Now
@@ -1559,22 +1556,22 @@ an impious sinner and have caused others great anxiety and trouble.', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'নিজ সুখ লাগি, পাপে নাহি ডোরি,
+    E'নিজ সুখ লাগি'', পাপে নাহি ডোরি,
 দয়া-হীন স্বার্থ-পর
 পর-সুখে দুঃখী, সদা মিথ্য-ভাষী,
-পর-দুঃখ সুখ-কর', E'নিজ সুখ লাগি, পাপে নাহি ডোরি,
+পর-দুঃখ সুখ-কর', E'নিজ সুখ লাগি'', পাপে নাহি ডোরি,
 দয়া-হীন স্বার্থ-পর
 পর-সুখে দুঃখী, সদা মিথ্য-ভাষী,
 পর-দুঃখ সুখ-কর',
     E'nija
-sukha lāgi, pāpe nāhi ḍori,
+sukha lāgi'', pāpe nāhi ḍori,
 doyā-hīna
 swārtha-paro
 para-sukhe
 duḥkhī, sadā mithya-bhāṣī,
 para-duḥkha
 sukha-karo', E'ніджа
-сукха ла̄ґі, па̄пе на̄хі д̣орі,
+сукха ла̄ґі'', па̄пе на̄хі д̣орі,
 дойа̄-хı̄на
 сва̄ртха-паро
 пара-сукхе
@@ -1781,15 +1778,15 @@ evil, worn out and wasted by various miseries.', E'',
   VALUES (
     v_chapter_id, '6', 6,
     E'বার্ধক্যে এখন, উপায়-বিহীন,
-তাতে দীন অকিঞ্চন
+তা''তে দীন অকিঞ্চন
 ভকতিবিনোদ, প্রভুর চরণে,
 করে দুঃখ নিবেদন', E'বার্ধক্যে এখন, উপায়-বিহীন,
-তাতে দীন অকিঞ্চন
+তা''তে দীন অকিঞ্চন
 ভকতিবিনোদ, প্রভুর চরণে,
 করে দুঃখ নিবেদন',
     E'bārdhakye
 ekhona, upāya-vihīna,
-tāte
+tā''te
 dīna akiñcana
 bhakativinoda,
 prabhura caraṇe,
@@ -1798,7 +1795,7 @@ duḥkha nivedana
 WORD
 FOR WORD', E'ба̄рдгакйе
 екхона, упа̄йа-віхı̄на,
-та̄те
+та̄''те
 дı̄на акін̃чана
 бгакатівінода,
 прабгура чаран̣е,
@@ -1818,7 +1815,7 @@ general, taking himself to be one of them. He says that My life is always
 engaged in sinful activities, and if you try to find out, you will not find
 even a trace of pious activitiesonly sinful activities. And parere udvega, diyachi ye koto, diyachi jivere klesa: I am always inclined to give trouble to
 other living entities. That is my business. I want to see that others are
-suffering, and then I enjoy. Nija sukha lagi, pape
+suffering, and then I enjoy. Nija sukha lagi'', pape
 nahi dori: For my
 personal sense gratification, I accept any kind of sinful activity. Daya-hina svartha-paro:
 I am not at all merciful, and I see only to my personal interest. Para-sukhe duhkhi, sada
@@ -1847,11 +1844,11 @@ mischievous. Nana duhkhe jara
 jara: Therefore, at the fag end of my life I am
 almost invalid by all such sufferings. Bardhakye
 ekhona upaya-vihina:
-Now in my old age I have no alternative; tate
+Now in my old age I have no alternative; ta''te
 dina akincana:
 therefore by force I have now become very humble and meek. Bhakativinoda prabhura carane, kore duhkha
 nivedana: Thus Bhaktivinoda
-Thakura is offering his sad statement of his lifes
+Thakura is offering his sad statement of his life''s
 activities at the lotus feet of the Supreme Lord.', E'',
     true
   )
@@ -1944,24 +1941,24 @@ pretending it was nectar, and now the sun is setting on the horizon of my life.'
     v_chapter_id, '2', 2,
     E'খেলা-রসে শৈশব, পঢ়ৈতে কৈশোর,
 গঙাওলুঁ, না ভেল বিবেক
-ভোগ-বশে যৌবনে, ঘর পাতি বসিলুঁ,
+ভোগ-বশে যৌবনে, ঘর পাতি'' বসিলুঁ,
 সুত-মিত বাঢ়ল অনেক', E'খেলা-রসে শৈশব, পঢ়ৈতে কৈশোর,
 গঙাওলুঁ, না ভেল বিবেক
-ভোগ-বশে যৌবনে, ঘর পাতি বসিলুঁ,
+ভোগ-বশে যৌবনে, ঘর পাতি'' বসিলুঁ,
 সুত-মিত বাঢ়ল অনেক',
     E'khelā-rase
 śaiśava, poḍhaite kaiśora,
 gowāoluń,
 nā bhelo vivek
 bhoga-baśe
-yauvane, ghara pāti bosiluń,
+yauvane, ghara pāti'' bosiluń,
 suta-mita
 bāḍhalo anek', E'кхела̄-расе
 ш́аіш́ава, под̣хаіте каіш́ора,
 ґова̄олуń,
 на̄ бгело вівек
 бгоґа-баш́е
-йауване, ґгара па̄ті босілуń,
+йауване, ґгара па̄ті'' босілуń,
 сута-міта
 ба̄д̣хало анек',
     E'', E'',
@@ -2463,28 +2460,28 @@ and elevated devotees has come to bring me out of it.', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'দয়া করি মোরে, পতিত দেখিয়া,
+    E'দয়া করি'' মোরে, পতিত দেখিয়া,
 কহিল আমারে গিয়া
 ওহে দীন-জন, শুন ভাল কথা,
-উল্লসিত হবে হিয়া', E'দয়া করি মোরে, পতিত দেখিয়া,
+উল্লসিত হ''বে হিয়া', E'দয়া করি'' মোরে, পতিত দেখিয়া,
 কহিল আমারে গিয়া
 ওহে দীন-জন, শুন ভাল কথা,
-উল্লসিত হবে হিয়া',
+উল্লসিত হ''বে হিয়া',
     E'doyā
-kori more, patita dekhiyā,
+kori'' more, patita dekhiyā,
 kohilo
 āmāre giyā
 ohe
 dīna-jana, śuno bhālo kathā,
 ullasita
-habe hiyā', E'дойа̄
-корі море, патіта декхійа̄,
+ha''be hiyā', E'дойа̄
+корі'' море, патіта декхійа̄,
 кохіло
 а̄ма̄ре ґійа̄
 охе
 дı̄на-джана, ш́уно бга̄ло катха̄,
 улласіта
-хабе хійа̄',
+ха''бе хійа̄',
     E'', E'',
     E'He
 saw me so fallen and wretched, took pity, and came to me saying, O humbled
@@ -2627,23 +2624,23 @@ Nityananda. Together They have overwhelmed all of Nadia with divine ecstasy.',
   VALUES (
     v_chapter_id, '5', 5,
     E'নন্দ-সুত যিনি, চৈতন্য গোসাই,
-নিজ-নাম করি দান
+নিজ-নাম করি'' দান
 তারিল জগত্‍, তুমি-ও যাইয়া,
 লহ নিজ-পরিত্রাণ', E'নন্দ-সুত যিনি, চৈতন্য গোসাই,
-নিজ-নাম করি দান
+নিজ-নাম করি'' দান
 তারিল জগত্‍, তুমি-ও যাইয়া,
 লহ নিজ-পরিত্রাণ',
     E'nanda-suta
 jini, caitanya gosāi,
 nija-nāma
-kori dān
+kori'' dān
 tārilo
 jagat, tumi-o jāiyā,
 loho
 nija-paritrāṇ', E'нанда-сута
 джіні, чаітанйа ґоса̄і,
 ніджа-на̄ма
-корі да̄н
+корі'' да̄н
 та̄ріло
 джаґат, тумі-о джа̄ійа̄,
 лохо
@@ -2909,12 +2906,10 @@ grace.', E'',
     E'আন মনো-রথ, নিঃশেষ ছোড়ত,
 কব হাম হৌবুঁ তোহারা
 নিত্য-সেব্য তুহুঁ, নিত্য-সেবক মুঞি,
-ভকতিবিনোদ ভাব সারা
-2017', E'আন মনো-রথ, নিঃশেষ ছোড়ত,
+ভকতিবিনোদ ভাব সারা', E'আন মনো-রথ, নিঃশেষ ছোড়ত,
 কব হাম হৌবুঁ তোহারা
 নিত্য-সেব্য তুহুঁ, নিত্য-সেবক মুঞি,
-ভকতিবিনোদ ভাব সারা
-2017',
+ভকতিবিনোদ ভাব সারা',
     E'āna
 mano-ratha, niḥśeṣa choḍato,
 kab
@@ -2932,7 +2927,7 @@ bhāva sārā', E'а̄на
 бга̄ва са̄ра̄',
     E'', E'',
     E'O when will I know freedom from desire and thus become Yours? You are eternally
-to be served, I am Your eternal servant, and that is the sum of Bhaktivinodas
+to be served, I am Your eternal servant, and that is the sum of Bhaktivinoda''s
 devotional mood.', E'',
     E'', E'',
     true
@@ -3136,12 +3131,10 @@ Vaisnavas.', E'',
     E'আপন চতুর্পন, তুয়া পদে সোঁপলুঁ,
 হৃদয়-গরব দূরে গেল
 দীন-দয়া-ময়, তুয়া কৃপা নিরমল,
-ভকতিবিনোদ আশা ভেল
-2017', E'আপন চতুর্পন, তুয়া পদে সোঁপলুঁ,
+ভকতিবিনোদ আশা ভেল', E'আপন চতুর্পন, তুয়া পদে সোঁপলুঁ,
 হৃদয়-গরব দূরে গেল
 দীন-দয়া-ময়, তুয়া কৃপা নিরমল,
-ভকতিবিনোদ আশা ভেল
-2017',
+ভকতিবিনোদ আশা ভেল',
     E'āpana
 caturpana, tuwā pade sońpaluń,
 hṛdoya-garava
@@ -3158,8 +3151,8 @@ bhakativinoda
 бгакатівінода
 а̄ш́а̄ бгело',
     E'', E'',
-    E'I offer You this judicious prayer. My hearts false pride has gone far away. O
-You who are so kind to the meek, Your pure mercy has become Bhaktivinodas only
+    E'I offer You this judicious prayer. My heart''s false pride has gone far away. O
+You who are so kind to the meek, Your pure mercy has become Bhaktivinoda''s only
 hope.', E'',
     E'', E'',
     true
@@ -3538,14 +3531,14 @@ are my life and soul!"', E'',
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'অহং মম-শব্দ-অর্থে যাহা কিছু হয়
-অর্পিলুঙ তোমার পদে, ওহে দয়া-ময়!', E'অহং মম-শব্দ-অর্থে যাহা কিছু হয়
+    E'অহং মম''-শব্দ-অর্থে যাহা কিছু হয়
+অর্পিলুঙ তোমার পদে, ওহে দয়া-ময়!', E'অহং মম''-শব্দ-অর্থে যাহা কিছু হয়
 অর্পিলুঙ তোমার পদে, ওহে দয়া-ময়!',
     E'`ahaḿ
-mama-śabda-arthe jāhā kichu hoy
+mama''-śabda-arthe jāhā kichu hoy
 arpiluń
 tomāra pade, ohe doyā-moy!', E'`ахаḿ
-мама-ш́абда-артхе джа̄ха̄ кічху хой
+мама''-ш́абда-артхе джа̄ха̄ кічху хой
 арпілуń
 тома̄ра паде, охе дойа̄-мой!',
     E'', E'',
@@ -3579,14 +3572,14 @@ I no longer belong to myself. Now I am exclusively Yours.', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'আমার আমি ত নাথ! না রোহিনু আর
-এখন হৈনু আমি কেবল তোমার', E'আমার আমি ত নাথ! না রোহিনু আর
+    E'আমার'' আমি ত'' নাথ! না রোহিনু আর
+এখন হৈনু আমি কেবল তোমার', E'আমার'' আমি ত'' নাথ! না রোহিনু আর
 এখন হৈনু আমি কেবল তোমার',
-    E'`āmāra
-āmi to nātha! nā rohinu ār
+    E'`āmāra''
+āmi to'' nātha! nā rohinu ār
 ekhona
-hoinu āmi kevala tomār', E'`а̄ма̄ра
-а̄мі то на̄тха! на̄ рохіну а̄р
+hoinu āmi kevala tomār', E'`а̄ма̄ра''
+а̄мі то'' на̄тха! на̄ рохіну а̄р
 екхона
 хоіну а̄мі кевала тома̄р',
     E'', E'',
@@ -3622,13 +3615,13 @@ soul inhabiting this mortal body has given up the false ego attached to the word
   )
   VALUES (
     v_chapter_id, '3', 3,
-    E'আমি শব্দে দেহী জীব অহংতা ছাড়িল
-ত্বদীয়াভিমান আজি হৃদয়ে পশিল', E'আমি শব্দে দেহী জীব অহংতা ছাড়িল
+    E'আমি'' শব্দে দেহী জীব অহংতা ছাড়িল
+ত্বদীয়াভিমান আজি হৃদয়ে পশিল', E'আমি'' শব্দে দেহী জীব অহংতা ছাড়িল
 ত্বদীয়াভিমান আজি হৃদয়ে পশিল',
-    E'`āmi
+    E'`āmi''
 śabde dehī jīva ahaḿtā chāḍilo
 twadīyābhimāna
-āji hṛdoye paśilo', E'`а̄мі
+āji hṛdoye paśilo', E'`а̄мі''
 ш́абде дехı̄ джı̄ва ахаḿта̄ чха̄д̣іло
 твадı̄йа̄бгіма̄на
 а̄джі хр̣дойе паш́іло',
@@ -3789,15 +3782,15 @@ has become one with Yours. From this day Bhaktivinoda has no other identity.', E
   VALUES (
     v_chapter_id, '7', 7,
     E'স্থূল-লিঙ্গ-দেহে মোর সুকৃত দুষ্কৃত
-আর মোর নহে, প্রভু! আমি তো নিষ্কৃত', E'স্থূল-লিঙ্গ-দেহে মোর সুকৃত দুষ্কৃত
-আর মোর নহে, প্রভু! আমি তো নিষ্কৃত',
+আর মোর নহে, প্রভু! আমি তো'' নিষ্কৃত', E'স্থূল-লিঙ্গ-দেহে মোর সুকৃত দুষ্কৃত
+আর মোর নহে, প্রভু! আমি তো'' নিষ্কৃত',
     E'sthūla-lińga-dehe
 mora sukṛta duṣkṛta
 āra
-mora nahe, prabhu! āmi to niṣkṛta', E'стхӯла-ліńґа-дехе
+mora nahe, prabhu! āmi to'' niṣkṛta', E'стхӯла-ліńґа-дехе
 мора сукр̣та душкр̣та
 а̄ра
-мора нахе, прабгу! а̄мі то нішкр̣та',
+мора нахе, прабгу! а̄мі то'' нішкр̣та',
     E'', E'',
     E'', E'',
     E'', E'',
@@ -3883,13 +3876,13 @@ bhakativinoda
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'আমার বলিতে প্রভু! আরে কিছু নাই
-তুমি-ই আমার মাত্র পিতা-বন্ধু-ভাই', E'আমার বলিতে প্রভু! আরে কিছু নাই
+    E'আমার'' বলিতে প্রভু! আরে কিছু নাই
+তুমি-ই আমার মাত্র পিতা-বন্ধু-ভাই', E'আমার'' বলিতে প্রভু! আরে কিছু নাই
 তুমি-ই আমার মাত্র পিতা-বন্ধু-ভাই',
-    E'`āmāra
+    E'`āmāra''
 bolite prabhu! āre kichu nāi
 tumi-i
-āmāra mātra pitā-bandhu-bhāi', E'`а̄ма̄ра
+āmāra mātra pitā-bandhu-bhāi', E'`а̄ма̄ра''
 боліте прабгу! а̄ре кічху на̄і
 тумі-і
 а̄ма̄ра ма̄тра піта̄-бандгу-бга̄і',
@@ -3924,15 +3917,15 @@ tumi-i
   VALUES (
     v_chapter_id, '2', 2,
     E'বন্ধু, দারা, সুত, সুতা-তব দাসী দাস
-সেই তো সম্বন্ধে সবে আমার প্রয়াস', E'বন্ধু, দারা, সুত, সুতা-তব দাসী দাস
-সেই তো সম্বন্ধে সবে আমার প্রয়াস',
+সেই তো'' সম্বন্ধে সবে আমার প্রয়াস', E'বন্ধু, দারা, সুত, সুতা-তব দাসী দাস
+সেই তো'' সম্বন্ধে সবে আমার প্রয়াস',
     E'bandhu,
 dārā, suta, sutātava dāsī dās
 sei
-to sambandhe sabe āmāra prayās', E'бандгу,
+to'' sambandhe sabe āmāra prayās', E'бандгу,
 да̄ра̄, сута, сута̄тава да̄сı̄ да̄с
 сеі
-то самбандге сабе а̄ма̄ра прайа̄с',
+то'' самбандге сабе а̄ма̄ра прайа̄с',
     E'', E'',
     E'Those whom I called friends, wife, sons, and daughters are all Your servants and
 maidservants. Whatever care I take for them is only as it relates to You.', E'',
@@ -3964,14 +3957,14 @@ maidservants. Whatever care I take for them is only as it relates to You.', E'',
   )
   VALUES (
     v_chapter_id, '3', 3,
-    E'ধন, জন, গৃহ, দার তোমার বলিয়া
-রখা করি আমি মাত্র সেবক হৈয়া', E'ধন, জন, গৃহ, দার তোমার বলিয়া
+    E'ধন, জন, গৃহ, দার তোমার'' বলিয়া
+রখা করি আমি মাত্র সেবক হৈয়া', E'ধন, জন, গৃহ, দার তোমার'' বলিয়া
 রখা করি আমি মাত্র সেবক হৈয়া',
     E'dhana,
-jana, gṛha, dāra `tomāra boliyā
+jana, gṛha, dāra `tomāra'' boliyā
 rakhā
 kori āmi mātro sevaka hoiyā', E'дгана,
-джана, ґр̣ха, да̄ра `тома̄ра болійа̄
+джана, ґр̣ха, да̄ра `тома̄ра'' болійа̄
 ракха̄
 корі а̄мі ма̄тро севака хоійа̄',
     E'', E'',
@@ -4131,16 +4124,14 @@ done according to Your desire.', E'',
   )
   VALUES (
     v_chapter_id, '7', 7,
-    E'নিজ-সুখ লাগি কিছু নাহি করি আর
-ভকতিবিনোদ বলে, তব সুখ-সার
-2017', E'নিজ-সুখ লাগি কিছু নাহি করি আর
-ভকতিবিনোদ বলে, তব সুখ-সার
-2017',
+    E'নিজ-সুখ লাগি'' কিছু নাহি করি আর
+ভকতিবিনোদ বলে, তব সুখ-সার', E'নিজ-সুখ লাগি'' কিছু নাহি করি আর
+ভকতিবিনোদ বলে, তব সুখ-সার',
     E'nija-sukha
-lāgi kichu nāhi kori ār
+lāgi'' kichu nāhi kori ār
 bhakativinoda
 bole, tava sukha-sār', E'ніджа-сукха
-ла̄ґі кічху на̄хі корі а̄р
+ла̄ґі'' кічху на̄хі корі а̄р
 бгакатівінода
 боле, тава сукха-са̄р',
     E'', E'',
@@ -4191,15 +4182,15 @@ is the essence of everything.', E'',
   VALUES (
     v_chapter_id, '1', 1,
     E'বস্তুতঃ সকলি তব, জীব কেহ নয়
-অহম-মম-ভ্রমে ভ্রমি ভোগে শোক-ভয়', E'বস্তুতঃ সকলি তব, জীব কেহ নয়
-অহম-মম-ভ্রমে ভ্রমি ভোগে শোক-ভয়',
+অহম''-মম''-ভ্রমে ভ্রমি'' ভোগে শোক-ভয়', E'বস্তুতঃ সকলি তব, জীব কেহ নয়
+অহম''-মম''-ভ্রমে ভ্রমি'' ভোগে শোক-ভয়',
     E'bastutaḥ
 sakali tava, jīva keho noy
-`aham-`mama-bhrame
-bhromi bhoge śoka-bhoy', E'бастутах̣
+`aham''-`mama''-bhrame
+bhromi'' bhoge śoka-bhoy', E'бастутах̣
 сакалі тава, джı̄ва кехо ной
-`ахам-`мама-бграме
-бгромі бгоґе ш́ока-бгой',
+`ахам''-`мама''-бграме
+бгромі'' бгоґе ш́ока-бгой',
     E'', E'',
     E'In
 truth, all things belong to You. No jiva is owner of anything. The tiny soul
@@ -4234,15 +4225,15 @@ everything related to this body is mine. Thus he suffers sorrow and fear.', E'
   VALUES (
     v_chapter_id, '2', 2,
     E'অহং-মম-অভিমান এই-মাত্র ধন
-বদ্ধ-জীব নিজ বলি জানে মনে মন', E'অহং-মম-অভিমান এই-মাত্র ধন
-বদ্ধ-জীব নিজ বলি জানে মনে মন',
+বদ্ধ-জীব নিজ বলি'' জানে মনে মন', E'অহং-মম-অভিমান এই-মাত্র ধন
+বদ্ধ-জীব নিজ বলি'' জানে মনে মন',
     E'ahaḿ-mama-abhimāna
 ei-mātro dhan
 baddha-jīva
-nija boli jāne mane man', E'ахаḿ-мама-абгіма̄на
+nija boli'' jāne mane man', E'ахаḿ-мама-абгіма̄на
 еі-ма̄тро дган
 баддга-джı̄ва
-ніджа болі джа̄не мане ман',
+ніджа болі'' джа̄не мане ман',
     E'', E'',
     E'The
 conditioned soul is falsely proud and considers everything attached to the
@@ -4360,13 +4351,13 @@ to You on this day.', E'',
   )
   VALUES (
     v_chapter_id, '5', 5,
-    E'অহং-মম-অভিমান ছাড়িল আমায়
-আর যেন মম হৃদে স্তান নাহি পায়', E'অহং-মম-অভিমান ছাড়িল আমায়
+    E'অহং''-মম''-অভিমান ছাড়িল আমায়
+আর যেন মম হৃদে স্তান নাহি পায়', E'অহং''-মম''-অভিমান ছাড়িল আমায়
 আর যেন মম হৃদে স্তান নাহি পায়',
-    E'`ahaḿ-`mama-abhimāna
+    E'`ahaḿ''-`mama''-abhimāna
 chāḍilo āmāy
 ār
-jeno mama hṛde stāna nāhi pāy', E'`ахаḿ-`мама-абгіма̄на
+jeno mama hṛde stāna nāhi pāy', E'`ахаḿ''-`мама''-абгіма̄на
 чха̄д̣іло а̄ма̄й
 а̄р
 джено мама хр̣де ста̄на на̄хі па̄й',
@@ -4487,10 +4478,8 @@ and not prove to be like the momentary cleanliness of an elephant after a bath.'
   VALUES (
     v_chapter_id, '8', 8,
     E'ভকতিবিনোদ প্রভু নিত্যানন্দ পায়
-মাগে পরসাদ, জাহে অভিমান যায়
-2017', E'ভকতিবিনোদ প্রভু নিত্যানন্দ পায়
-মাগে পরসাদ, জাহে অভিমান যায়
-2017',
+মাগে পরসাদ, জাহে অভিমান যায়', E'ভকতিবিনোদ প্রভু নিত্যানন্দ পায়
+মাগে পরসাদ, জাহে অভিমান যায়',
     E'bhakativinoda
 prabhu nityānanda pāy
 māge
@@ -4628,15 +4617,15 @@ is no offender whose offenses equal mine.', E'',
   VALUES (
     v_chapter_id, '3', 3,
     E'সেই সব পাপ আর অপরাধ, আমি
-পরিহারে পাই লজ্জা, সব জান তুমি', E'সেই সব পাপ আর অপরাধ, আমি
-পরিহারে পাই লজ্জা, সব জান তুমি',
+পরিহারে পাই লজ্জা, সব জান'' তুমি', E'সেই সব পাপ আর অপরাধ, আমি
+পরিহারে পাই লজ্জা, সব জান'' তুমি',
     E'sei
 saba pāpa āra aparādha, āmi
 parihāre
-pāi lajjā, saba jāno tumi', E'сеі
+pāi lajjā, saba jāno'' tumi', E'сеі
 саба па̄па а̄ра апара̄дга, а̄мі
 паріха̄ре
-па̄і ладжджа̄, саба джа̄но тумі',
+па̄і ладжджа̄, саба джа̄но'' тумі',
     E'', E'',
     E'By
 attempting to clear myself of all these sins and offenses I am put to shame and
@@ -4669,14 +4658,14 @@ beg Your forgiveness. All this is understood by You.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'তুমি বিনা কার আমি লৈব শরণ?
-তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-নন্দন!', E'তুমি বিনা কার আমি লৈব শরণ?
+    E'তুমি বিনা কা''র আমি লৈব শরণ?
+তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-নন্দন!', E'তুমি বিনা কা''র আমি লৈব শরণ?
 তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-নন্দন!',
     E'tumi
-binā kāra āmi loibo śaraṇ?
+binā kā''ra āmi loibo śaraṇ?
 tumi
 sarveśvareśvara, brajendra-nandan!', E'тумі
-біна̄ ка̄ра а̄мі лоібо ш́аран̣?
+біна̄ ка̄''ра а̄мі лоібо ш́аран̣?
 тумі
 сарвеш́вареш́вара, браджендра-нандан!',
     E'', E'',
@@ -4712,15 +4701,15 @@ the Lord of all lords.', E'',
   VALUES (
     v_chapter_id, '5', 5,
     E'জগত তোমার নাথ! তুমি সর্ব-ময়
-তোমা প্রতি অপরাধ তুমি কর ক্ষয়', E'জগত তোমার নাথ! তুমি সর্ব-ময়
-তোমা প্রতি অপরাধ তুমি কর ক্ষয়',
+তোমা প্রতি অপরাধ তুমি কর'' ক্ষয়', E'জগত তোমার নাথ! তুমি সর্ব-ময়
+তোমা প্রতি অপরাধ তুমি কর'' ক্ষয়',
     E'jagat
 tomāra nātha! tumi sarva-moy
 tomā
-prati aparādha tumi koro kṣoy', E'джаґат
+prati aparādha tumi koro'' kṣoy', E'джаґат
 тома̄ра на̄тха! тумі сарва-мой
 тома̄
-праті апара̄дга тумі коро кшой',
+праті апара̄дга тумі коро'' кшой',
     E'', E'',
     E'This world is Yours, and You pervade all things in it. You forgive the offenses
 committed against You.', E'',
@@ -4752,14 +4741,14 @@ committed against You.', E'',
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'তুমি তো স্খলিত-পদ জনের আশ্রয়
-তুমি বিনা আর কিবা আছে, দয়া-ময়!', E'তুমি তো স্খলিত-পদ জনের আশ্রয়
+    E'তুমি তো'' স্খলিত-পদ জনের আশ্রয়
+তুমি বিনা আর কিবা আছে, দয়া-ময়!', E'তুমি তো'' স্খলিত-পদ জনের আশ্রয়
 তুমি বিনা আর কিবা আছে, দয়া-ময়!',
     E'tumi
-to skhalita-pada janera āśroy
+to'' skhalita-pada janera āśroy
 tumi
 binā āra kibā āche, doyā-moy!', E'тумі
-то скхаліта-пада джанера а̄ш́рой
+то'' скхаліта-пада джанера а̄ш́рой
 тумі
 біна̄ а̄ра кіба̄ а̄чхе, дойа̄-мой!',
     E'', E'',
@@ -4836,10 +4825,8 @@ shelter.', E'',
   VALUES (
     v_chapter_id, '8', 8,
     E'ভকতিবিনোদ এবে লৈয়া শরণ
-তুয়া পদে করে আজ আত্ম-সমর্পণ
-2017', E'ভকতিবিনোদ এবে লৈয়া শরণ
-তুয়া পদে করে আজ আত্ম-সমর্পণ
-2017',
+তুয়া পদে করে আজ আত্ম-সমর্পণ', E'ভকতিবিনোদ এবে লৈয়া শরণ
+তুয়া পদে করে আজ আত্ম-সমর্পণ',
     E'bhakativinoda
 ebe loiyā śaraṇ
 tuwā
@@ -4893,22 +4880,22 @@ this very day.', E'',
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'আত্ম-নিবেদন, তুয়া পদে করি,
+    E'আত্ম-নিবেদন, তুয়া পদে করি'',
 হৈনু পরম সুখী
 দুঃখ দূরে গেল, চিন্তা না রহিল,
-চৌদিকে আনন্দ দেখি', E'আত্ম-নিবেদন, তুয়া পদে করি,
+চৌদিকে আনন্দ দেখি', E'আত্ম-নিবেদন, তুয়া পদে করি'',
 হৈনু পরম সুখী
 দুঃখ দূরে গেল, চিন্তা না রহিল,
 চৌদিকে আনন্দ দেখি',
     E'ātma-nivedana,
-tuwā pade kori,
+tuwā pade kori'',
 hoinu
 parama sukhī
 duḥkha
 dūre gelo, cintā nā rohilo,
 caudike
 ānanda dekhi', E'а̄тма-ніведана,
-тува̄ паде корі,
+тува̄ паде корі'',
 хоіну
 парама сукхı̄
 дух̣кха
@@ -5005,24 +4992,24 @@ of worldly existence.', E'',
     E'তোমার সংসারে, করিব সেবন,
 নাহিব ফলের ভাগী
 তব সুখ জাহে, করিব যতন,
-হয়ে পদে অনুরাগী', E'তোমার সংসারে, করিব সেবন,
+হ''য়ে পদে অনুরাগী', E'তোমার সংসারে, করিব সেবন,
 নাহিব ফলের ভাগী
 তব সুখ জাহে, করিব যতন,
-হয়ে পদে অনুরাগী',
+হ''য়ে পদে অনুরাগী',
     E'tomāra
 saḿsāre, koribo sevana,
 nāhibo
 phalera bhāgī
 tava
 sukha jāhe, koribo jatana,
-hoye
+ho''ye
 pade anurāgī', E'тома̄ра
 саḿса̄ре, корібо севана,
 на̄хібо
 пхалера бга̄ґı̄
 тава
 сукха джа̄хе, корібо джатана,
-хойе
+хо''йе
 паде анура̄ґı̄',
     E'', E'',
     E'I
@@ -5058,23 +5045,23 @@ to Your lotus feet.', E'',
   VALUES (
     v_chapter_id, '4', 4,
     E'তোমার সেবায়, দুঃখ হয় যত,
-সে-ও তো পরম সুখ
+সে-ও তো'' পরম সুখ
 সেবা-সুখ-দুঃখ, পরম সম্পদ,
 নাশয়ে অবিদ্যা-দুঃখ', E'তোমার সেবায়, দুঃখ হয় যত,
-সে-ও তো পরম সুখ
+সে-ও তো'' পরম সুখ
 সেবা-সুখ-দুঃখ, পরম সম্পদ,
 নাশয়ে অবিদ্যা-দুঃখ',
     E'tomāra
 sevāya, duḥkha hoya jato,
 se-o
-to parama sukha
+to'' parama sukha
 sevā-sukha-duḥkha,
 parama sampada,
 nāśaye
 avidyā-duḥkha', E'тома̄ра
 сева̄йа, дух̣кха хойа джато,
 се-о
-то парама сукха
+то'' парама сукха
 сева̄-сукха-дух̣кха,
 парама сампада,
 на̄ш́айе
@@ -5112,25 +5099,25 @@ destroy the misery of ignorance.', E'',
   VALUES (
     v_chapter_id, '5', 5,
     E'পূর্ব ইতিহাস, ভুলিনু সকল,
-সেবা-সুখ পেয়ে মনে
-আমি তো তোমার, তুমি তো আমার,
+সেবা-সুখ পে''য়ে মনে
+আমি তো'' তোমার, তুমি তো'' আমার,
 কি কাজ অপর ধনে', E'পূর্ব ইতিহাস, ভুলিনু সকল,
-সেবা-সুখ পেয়ে মনে
-আমি তো তোমার, তুমি তো আমার,
+সেবা-সুখ পে''য়ে মনে
+আমি তো'' তোমার, তুমি তো'' আমার,
 কি কাজ অপর ধনে',
     E'pūrva
 itihāsa, bhulinu sakala,
 sevā-sukha
-peye mane
+pe''ye mane
 āmi
-to tomāra, tumi to āmāra,
+to'' tomāra, tumi to'' āmāra,
 ki
 kāja apara dhane', E'пӯрва
 ітіха̄са, бгуліну сакала,
 сева̄-сукха
-пейе мане
+пе''йе мане
 а̄мі
-то тома̄ра, тумі то а̄ма̄ра,
+то'' тома̄ра, тумі то'' а̄ма̄ра,
 кі
 ка̄джа апара дгане',
     E'', E'',
@@ -5169,12 +5156,10 @@ other treasure?', E'',
     E'ভকতিবিনোদ, আনন্দে ডুবিয়া,
 তোমার সেবার তরে
 সব চেষ্টা করে, তব ইচ্ছা-মত,
-থাকিয়া তোমার ঘরে
-2017', E'ভকতিবিনোদ, আনন্দে ডুবিয়া,
+থাকিয়া তোমার ঘরে', E'ভকতিবিনোদ, আনন্দে ডুবিয়া,
 তোমার সেবার তরে
 সব চেষ্টা করে, তব ইচ্ছা-মত,
-থাকিয়া তোমার ঘরে
-2017',
+থাকিয়া তোমার ঘরে',
     E'bhakativinoda,
 ānande ḍubiyā,
 tomāra
@@ -5291,23 +5276,23 @@ You are everseeking the purification and deliverance of the fallen souls.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'ভরসা আমার, এই মাত্র নাথ!
-তুমি তো করুনা-ময়
+তুমি তো'' করুনা-ময়
 তব দয়া-পাত্র, নাহি মোর সম,
 অবশ্য ঘুচাবে ভয়', E'ভরসা আমার, এই মাত্র নাথ!
-তুমি তো করুনা-ময়
+তুমি তো'' করুনা-ময়
 তব দয়া-পাত্র, নাহি মোর সম,
 অবশ্য ঘুচাবে ভয়',
     E'bharasā
 āmāra, ei mātra nātha!
 tumi
-to karunā-moy
+to'' karunā-moy
 tava
 doyā-pātra, nāhi mora sama,
 avaśya
 ghucābe bhoy', E'бгараса̄
 а̄ма̄ра, еі ма̄тра на̄тха!
 тумі
-то каруна̄-мой
+то'' каруна̄-мой
 тава
 дойа̄-па̄тра, на̄хі мора сама,
 аваш́йа
@@ -5455,10 +5440,10 @@ servant, and You are my protector and maintainer, O Lord of the universe!', E'',
     E'তোমার সকল, আমি মাত্র দাস,
 আমার তারিবে তুমি
 তোমার চরণ, করিনু বরণ,
-আমার নাহি তো আমি', E'তোমার সকল, আমি মাত্র দাস,
+আমার নাহি তো'' আমি', E'তোমার সকল, আমি মাত্র দাস,
 আমার তারিবে তুমি
 তোমার চরণ, করিনু বরণ,
-আমার নাহি তো আমি',
+আমার নাহি তো'' আমি',
     E'tomāra
 sakala, āmi mātra dāsa,
 āmāra
@@ -5466,14 +5451,14 @@ tāribe tumi
 tomāra
 caraṇa, korinu varaṇa,
 āmāra
-nāhi to āmi', E'тома̄ра
+nāhi to'' āmi', E'тома̄ра
 сакала, а̄мі ма̄тра да̄са,
 а̄ма̄ра
 та̄рібе тумі
 тома̄ра
 чаран̣а, коріну варан̣а,
 а̄ма̄ра
-на̄хі то а̄мі',
+на̄хі то'' а̄мі',
     E'', E'',
     E'Everything is Yours. I am merely a servant, certain that You will deliver me. I
 have chosen Your lotus feet as my only shelter. I no longer belong to myself.', E'',
@@ -5506,28 +5491,24 @@ have chosen Your lotus feet as my only shelter. I no longer belong to myself.', 
   VALUES (
     v_chapter_id, '6', 6,
     E'ভকতিবিনোদ, কাঁদিয়া শরণ,
-লয়েছে তোমার পায়
-ক্ষমি অপরাধ, নামে রুচি দিয়া,
-পালন করহে তায়
-September 27,
-2016', E'ভকতিবিনোদ, কাঁদিয়া শরণ,
-লয়েছে তোমার পায়
-ক্ষমি অপরাধ, নামে রুচি দিয়া,
-পালন করহে তায়
-September 27,
-2016',
+ল''য়েছে তোমার পায়
+ক্ষমি'' অপরাধ, নামে রুচি দিয়া,
+পালন করহে তায়', E'ভকতিবিনোদ, কাঁদিয়া শরণ,
+ল''য়েছে তোমার পায়
+ক্ষমি'' অপরাধ, নামে রুচি দিয়া,
+পালন করহে তায়',
     E'bhakativinoda,
 kāńdiyā śaraṇa,
-loyeche
+lo''yeche
 tomāra pāy
-kṣami
+kṣami''
 aparādha, nāme ruci diyā,
 pālana
 korohe tāy', E'бгакатівінода,
 ка̄ńдійа̄ ш́аран̣а,
-лойечхе
+ло''йечхе
 тома̄ра па̄й
-кшамі
+кшамі''
 апара̄дга, на̄ме ручі дійа̄,
 па̄лана
 корохе та̄й',
@@ -5699,14 +5680,14 @@ You will provide for the maintenance of Your household.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'তুমি তো পালিবে মোরে নিজ-দাস জানি
-তোমার সেবায় প্রভু বড় সুখ মানি', E'তুমি তো পালিবে মোরে নিজ-দাস জানি
+    E'তুমি তো'' পালিবে মোরে নিজ-দাস জানি''
+তোমার সেবায় প্রভু বড় সুখ মানি', E'তুমি তো'' পালিবে মোরে নিজ-দাস জানি''
 তোমার সেবায় প্রভু বড় সুখ মানি',
     E'tumi
-to pālibe more nija-dāsa jāni
+to'' pālibe more nija-dāsa jāni''
 tomāra
 sevāya prabhu boḍo sukha māni', E'тумі
-то па̄лібе море ніджа-да̄са джа̄ні
+то'' па̄лібе море ніджа-да̄са джа̄ні''
 тома̄ра
 сева̄йа прабгу бод̣о сукха ма̄ні',
     E'', E'',
@@ -5741,15 +5722,15 @@ devotional service I feel great happiness.', E'',
   VALUES (
     v_chapter_id, '5', 5,
     E'তোমার ইচ্ছয় প্রভু সব কার্য হয়
-জীব বলে,-করি আমি, সে তো সত্য নয়', E'তোমার ইচ্ছয় প্রভু সব কার্য হয়
-জীব বলে,-করি আমি, সে তো সত্য নয়',
+জীব বলে,-করি আমি'', সে তো'' সত্য নয়', E'তোমার ইচ্ছয় প্রভু সব কার্য হয়
+জীব বলে,-করি আমি'', সে তো'' সত্য নয়',
     E'tomāra
 icchaya prabhu sab kārya hoy
 jīva
-bole,`kori āmi, se to satya noy', E'тома̄ра
+bole,`kori āmi'', se to'' satya noy', E'тома̄ра
 іччхайа прабгу саб ка̄рйа хой
 джı̄ва
-боле,`корі а̄мі, се то сатйа ной',
+боле,`корі а̄мі'', се то'' сатйа ной',
     E'', E'',
     E'All
 events take place by Your will, O Lord. The deluded soul of this world
@@ -5826,15 +5807,15 @@ anything.', E'',
   VALUES (
     v_chapter_id, '7', 7,
     E'নিশ্চিন্ত হৈয়া আমি সেবিব তোমায়
-গৃহে ভাল-মন্দ হলে নাহি মোর দায়', E'নিশ্চিন্ত হৈয়া আমি সেবিব তোমায়
-গৃহে ভাল-মন্দ হলে নাহি মোর দায়',
+গৃহে ভাল-মন্দ হ''লে নাহি মোর দায়', E'নিশ্চিন্ত হৈয়া আমি সেবিব তোমায়
+গৃহে ভাল-মন্দ হ''লে নাহি মোর দায়',
     E'niścinta
 hoiyā āmi sevibo tomāy
 gṛhe
-bhālo-manda hole nāhi mora dāy', E'ніш́чінта
+bhālo-manda ho''le nāhi mora dāy', E'ніш́чінта
 хоійа̄ а̄мі севібо тома̄й
 ґр̣хе
-бга̄ло-манда холе на̄хі мора да̄й',
+бга̄ло-манда хо''ле на̄хі мора да̄й',
     E'', E'',
     E'I
 will serve You free from all anxiety, and at home, if any good or evil should
@@ -5868,17 +5849,15 @@ occur, it will not be my responsibility.', E'',
   VALUES (
     v_chapter_id, '8', 8,
     E'ভকতিবিনোদ নিজ-স্বাতন্ত্র্য ত্যজিয়া
-তোমার চরণ সেবে অকিঞ্চন হৈয়া
-2017', E'ভকতিবিনোদ নিজ-স্বাতন্ত্র্য ত্যজিয়া
-তোমার চরণ সেবে অকিঞ্চন হৈয়া
-2017',
+তোমার চরণ সেবে'' অকিঞ্চন হৈয়া', E'ভকতিবিনোদ নিজ-স্বাতন্ত্র্য ত্যজিয়া
+তোমার চরণ সেবে'' অকিঞ্চন হৈয়া',
     E'bhakativinoda
 nija-swātantrya tyajiyā
 tomāra
-caraṇa seve akiñcana hoiyā', E'бгакатівінода
+caraṇa seve'' akiñcana hoiyā', E'бгакатівінода
 ніджа-сва̄тантрйа тйаджійа̄
 тома̄ра
-чаран̣а севе акін̃чана хоійа̄',
+чаран̣а севе'' акін̃чана хоійа̄',
     E'', E'',
     E'Bhaktivinoda thus gives up his independence and engages in the exclusive
 service of Your lotus feet with no other interest in life.', E'',
@@ -5927,24 +5906,24 @@ service of Your lotus feet with no other interest in life.', E'',
     v_chapter_id, '1', 1,
     E'সর্বস্ব তোমার, চরণে সঁপিয়া,
 পড়েছি তোমার ঘরে
-তুমি তো ঠাকুর, তোমার কুকুর,
+তুমি তো'' ঠাকুর, তোমার কুকুর,
 বলিয়া জানহ মোরে', E'সর্বস্ব তোমার, চরণে সঁপিয়া,
 পড়েছি তোমার ঘরে
-তুমি তো ঠাকুর, তোমার কুকুর,
+তুমি তো'' ঠাকুর, তোমার কুকুর,
 বলিয়া জানহ মোরে',
     E'sarvasva
 tomār, caraṇe saḿpiyā,
 poḍechi
 tomāra ghare
 tumi
-to ṭhākur, tomāra kukur,
+to'' ṭhākur, tomāra kukur,
 boliyā
 jānaho more', E'сарвасва
 тома̄р, чаран̣е саḿпійа̄,
 под̣ечхі
 тома̄ра ґгаре
 тумі
-то т̣ха̄кур, тома̄ра кукур,
+то'' т̣ха̄кур, тома̄ра кукур,
 болійа̄
 джа̄нахо море',
     E'', E'',
@@ -6036,10 +6015,10 @@ moat surrounding Your home.', E'',
     E'তব নিজ-জন, প্রসাদ সেবিয়া,
 উচ্ছিষ্ট রাখিবে যাহা
 আমার ভোজন, পরম-আনন্দে,
-প্রতি-দিন হবে তাহা', E'তব নিজ-জন, প্রসাদ সেবিয়া,
+প্রতি-দিন হ''বে তাহা', E'তব নিজ-জন, প্রসাদ সেবিয়া,
 উচ্ছিষ্ট রাখিবে যাহা
 আমার ভোজন, পরম-আনন্দে,
-প্রতি-দিন হবে তাহা',
+প্রতি-দিন হ''বে তাহা',
     E'tava
 nija-jana, prasād seviyā,
 ucchiṣṭa
@@ -6047,14 +6026,14 @@ rākhibe jāhā
 āmāra
 bhojan, parama-ānande,
 prati-din
-habe tāhā', E'тава
+ha''be tāhā', E'тава
 ніджа-джана, праса̄д севійа̄,
 уччхішт̣а
 ра̄кхібе джа̄ха̄
 а̄ма̄ра
 бгоджан, парама-а̄нанде,
 праті-дін
-хабе та̄ха̄',
+ха''бе та̄ха̄',
     E'', E'',
     E'Whatever remnants Your devotees leave behind after honoring Your prasada will
 be my daily sustenance. I will feast on those remnants with great ecstasy.', E'',
@@ -6365,8 +6344,8 @@ Your will they meet with prosperity and ruin, happiness and sorrow.', E'',
   )
   VALUES (
     v_chapter_id, '5', 5,
-    E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে
-তব ইচ্ছা বিনা কিছু করিতে না পারে', E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে
+    E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে''
+তব ইচ্ছা বিনা কিছু করিতে না পারে', E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে''
 তব ইচ্ছা বিনা কিছু করিতে না পারে',
     E'miche
 māyā-baddha jīva āśā-pāśe phire''
@@ -6405,8 +6384,8 @@ Without Your sanction he is unable to do anything.', E'',
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'তুমি তো রাখক আর পালক আমার
-তোমার চরণ বিনা আশা নাহি আর', E'তুমি তো রাখক আর পালক আমার
+    E'তুমি তো'' রাখক আর পালক আমার
+তোমার চরণ বিনা আশা নাহি আর', E'তুমি তো'' রাখক আর পালক আমার
 তোমার চরণ বিনা আশা নাহি আর',
     E'tumi
 to'' rākhaka ār pālaka āmāra
@@ -6486,10 +6465,8 @@ dependent on Your will.', E'',
   VALUES (
     v_chapter_id, '8', 8,
     E'ভকতিবিনোদ অতি দীন অকিঞ্চন
-তোমার ইচ্ছায় তার জীবন মরণ
-2017', E'ভকতিবিনোদ অতি দীন অকিঞ্চন
-তোমার ইচ্ছায় তার জীবন মরণ
-2017',
+তোমার ইচ্ছায় তা''র জীবন মরণ', E'ভকতিবিনোদ অতি দীন অকিঞ্চন
+তোমার ইচ্ছায় তা''র জীবন মরণ',
     E'bhakativinoda
 ati dīna akiñcana
 tomāra icchāya tā''r jīvana maraṇa', E'бгакатівінода
@@ -6872,14 +6849,14 @@ great ecstasy, singing their glories.', E'',
   )
   VALUES (
     v_chapter_id, '9', 9,
-    E'সংসার-বিপদ হতে অবশ্য উদ্ধার
-ভকতিবিনোদ, ও-পদ করিবে তোমার', E'সংসার-বিপদ হতে অবশ্য উদ্ধার
+    E'সংসার-বিপদ হ''তে অবশ্য উদ্ধার
+ভকতিবিনোদ, ও-পদ করিবে তোমার', E'সংসার-বিপদ হ''তে অবশ্য উদ্ধার
 ভকতিবিনোদ, ও-পদ করিবে তোমার',
     E'saḿsāra-vipada
-hote avaśya uddhār
+ho''te avaśya uddhār
 bhakativinoda,
 o-pada koribe tomār', E'саḿса̄ра-віпада
-хоте аваш́йа уддга̄р
+хо''те аваш́йа уддга̄р
 бгакатівінода,
 о-пада корібе тома̄р',
     E'', E'',
@@ -6927,22 +6904,22 @@ o-pada koribe tomār', E'саḿса̄ра-віпада
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'তুমি তো মারিবে যারে, কে তারে রাখিতে পারে,
+    E'তুমি তো'' মারিবে যারে, কে তারে রাখিতে পারে,
 ইচ্ছা-বশ ত্রিভুবন
 ব্রহ্মা-আদি দেব-গণ, তব দাস অগনণ,
-করে তব আজ্ঞার পালন', E'তুমি তো মারিবে যারে, কে তারে রাখিতে পারে,
+করে তব আজ্ঞার পালন', E'তুমি তো'' মারিবে যারে, কে তারে রাখিতে পারে,
 ইচ্ছা-বশ ত্রিভুবন
 ব্রহ্মা-আদি দেব-গণ, তব দাস অগনণ,
 করে তব আজ্ঞার পালন',
     E'tumi
-to māribe jāre, ke tāre rākhite pāre,
+to'' māribe jāre, ke tāre rākhite pāre,
 icchā-baśa
 tribhuvan
 brahmā-ādi
 deva-gaṇa, tava dāsa aganaṇa,
 kore
 tava ājñāra pālan', E'тумі
-то ма̄рібе джа̄ре, ке та̄ре ра̄кхіте па̄ре,
+то'' ма̄рібе джа̄ре, ке та̄ре ра̄кхіте па̄ре,
 іччха̄-баш́а
 трібгуван
 брахма̄-а̄ді
@@ -7037,24 +7014,24 @@ all-powerful.', E'',
     v_chapter_id, '3', 3,
     E'তব ভয়ে বায়ু বয়, চন্দ্র সূর্য সমুদয়,
 স্ব-স্ব নিয়মিত কর্য করে
-তুমি তো পরমেশ্বর, পর-ব্রহ্ম পরাত্পর,
+তুমি তো'' পরমেশ্বর, পর-ব্রহ্ম পরাত্পর,
 তব বাস ভকত-অন্তরে', E'তব ভয়ে বায়ু বয়, চন্দ্র সূর্য সমুদয়,
 স্ব-স্ব নিয়মিত কর্য করে
-তুমি তো পরমেশ্বর, পর-ব্রহ্ম পরাত্পর,
+তুমি তো'' পরমেশ্বর, পর-ব্রহ্ম পরাত্পর,
 তব বাস ভকত-অন্তরে',
     E'tava
 bhoye vāyu boy, candra sūrya samudoy,
 swa-swa
 niyamita karya kore
 tumi
-to parameśwar, para-brahma parātpar,
+to'' parameśwar, para-brahma parātpar,
 tava
 bāsa bhakata-antare', E'тава
 бгойе ва̄йу бой, чандра сӯрйа самудой,
 сва-сва
 нійаміта карйа коре
 тумі
-то парамеш́вар, пара-брахма пара̄тпар,
+то'' парамеш́вар, пара-брахма пара̄тпар,
 тава
 ба̄са бгаката-антаре',
     E'', E'',
@@ -7089,26 +7066,26 @@ all. Your residence is in the heart of Your loving devotee.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল নাম,
+    E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল'' নাম,
 ভকত-জনের নিত্য-স্বামী
-তুমি তো রাখিবে যারে, কে তারে মারিতে পারে,
-সকল বিধির বিধি তুমি', E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল নাম,
+তুমি তো'' রাখিবে যারে, কে তারে মারিতে পারে,
+সকল বিধির বিধি তুমি', E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল'' নাম,
 ভকত-জনের নিত্য-স্বামী
-তুমি তো রাখিবে যারে, কে তারে মারিতে পারে,
+তুমি তো'' রাখিবে যারে, কে তারে মারিতে পারে,
 সকল বিধির বিধি তুমি',
     E'sadā-śuddha
-siddha-kāma, `bhakata-vatsala nāma,
+siddha-kāma, `bhakata-vatsala'' nāma,
 bhakata-janera
 nitya-swāmī
 tumi
-to rākhibe jāre, ke tāre mārite pāre,
+to'' rākhibe jāre, ke tāre mārite pāre,
 sakala
 vidhira vidhi tumi', E'сада̄-ш́уддга
-сіддга-ка̄ма, `бгаката-ватсала на̄ма,
+сіддга-ка̄ма, `бгаката-ватсала'' на̄ма,
 бгаката-джанера
 нітйа-сва̄мı̄
 тумі
-то ра̄кхібе джа̄ре, ке та̄ре ма̄ріте па̄ре,
+то'' ра̄кхібе джа̄ре, ке та̄ре ма̄ріте па̄ре,
 сакала
 відгіра відгі тумі',
     E'', E'',
@@ -7147,12 +7124,10 @@ protect? You are the law of all laws.', E'',
     E'তোমার চরণে নাথ! করিয়াছে প্রনিপাত,
 ভকতিবিনোদ তব দাস
 বিপদ হৈতে স্বামী! অবশ্য তাহারে তুমি,
-রক্ষিবে,-তাহার এ বিশ্বাস
-2017', E'তোমার চরণে নাথ! করিয়াছে প্রনিপাত,
+রক্ষিবে,-তাহার এ বিশ্বাস', E'তোমার চরণে নাথ! করিয়াছে প্রনিপাত,
 ভকতিবিনোদ তব দাস
 বিপদ হৈতে স্বামী! অবশ্য তাহারে তুমি,
-রক্ষিবে,-তাহার এ বিশ্বাস
-2017',
+রক্ষিবে,-তাহার এ বিশ্বাস',
     E'tomāra
 caraṇe nātha! koriyāche pranipāta,
 bhakativinoda
@@ -7256,16 +7231,16 @@ try to secure my own well-being.', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'তুয়া ধন জানি তুহুঁ রাখবি, নাথ!
-পাল্য় গোধন জ্ঞান করি তুয়া সাথ', E'তুয়া ধন জানি তুহুঁ রাখবি, নাথ!
-পাল্য় গোধন জ্ঞান করি তুয়া সাথ',
+    E'তুয়া ধন জানি'' তুহুঁ রাখবি, নাথ!
+পাল্য় গোধন জ্ঞান করি'' তুয়া সাথ', E'তুয়া ধন জানি'' তুহুঁ রাখবি, নাথ!
+পাল্য় গোধন জ্ঞান করি'' তুয়া সাথ',
     E'tuwā
-dhana jāni tuhuń rākhobi, nāth!
+dhana jāni'' tuhuń rākhobi, nāth!
 pālya
-godhana jñāna kori tuwā sāth', E'тува̄
-дгана джа̄ні тухуń ра̄кхобі, на̄тх!
+godhana jñāna kori'' tuwā sāth', E'тува̄
+дгана джа̄ні'' тухуń ра̄кхобі, на̄тх!
 па̄лйа
-ґодгана джн̃а̄на корі тува̄ са̄тх',
+ґодгана джн̃а̄на корі'' тува̄ са̄тх',
     E'', E'',
     E'O
 Lord, I am confident of Your protection, for, like one of Your cows or calves,
@@ -7437,7 +7412,7 @@ nadī-jala, bāḍāobi āśā', E'ка̄лійа-докха
 надı̄-джала, ба̄д̣а̄обі а̄ш́а̄',
     E'', E'',
     E'The
-Kaliya serpents venom poisoned the Yamunas waters, yet that poison will not
+Kaliya serpent''s venom poisoned the Yamuna''s waters, yet that poison will not
 act. You will purify the Yamuna and by such heroic deeds enhance our faith.', E'',
     E'', E'',
     true
@@ -7467,16 +7442,16 @@ act. You will purify the Yamuna and by such heroic deeds enhance our faith.', E'
   )
   VALUES (
     v_chapter_id, '7', 7,
-    E'পিয়ত দাবানল রাখবি ময়
-গোপাল, গোবিন্দ নাম তব হয়', E'পিয়ত দাবানল রাখবি ময়
-গোপাল, গোবিন্দ নাম তব হয়',
+    E'পিয়ত দাবানল রাখবি ম''য়
+গোপাল'', গোবিন্দ'' নাম তব হয়', E'পিয়ত দাবানল রাখবি ম''য়
+গোপাল'', গোবিন্দ'' নাম তব হয়',
     E'piyato
-dāvānala rākhobi moy
-`gopāla,
-`govinda nāma tava hoy', E'пійато
-да̄ва̄нала ра̄кхобі мой
-`ґопа̄ла,
-`ґовінда на̄ма тава хой',
+dāvānala rākhobi mo''y
+`gopāla'',
+`govinda'' nāma tava hoy', E'пійато
+да̄ва̄нала ра̄кхобі мо''й
+`ґопа̄ла'',
+`ґовінда'' на̄ма тава хой',
     E'', E'',
     E'You
 who are called Govinda and Gopala will surely protect me by swallowing the
@@ -7509,14 +7484,14 @@ forest fire.', E'',
   )
   VALUES (
     v_chapter_id, '8', 8,
-    E'সুর-পতি-দুর্মতি-নাশ বিচারি
-রাখবি বর্ষনে, গিরি-বর-ধারি!', E'সুর-পতি-দুর্মতি-নাশ বিচারি
+    E'সুর-পতি-দুর্মতি-নাশ বিচারি''
+রাখবি বর্ষনে, গিরি-বর-ধারি!', E'সুর-পতি-দুর্মতি-নাশ বিচারি''
 রাখবি বর্ষনে, গিরি-বর-ধারি!',
     E'sura-pati-durmati-nāśa
-vicāri
+vicāri''
 rākhobi
 varṣane, giri-vara-dhāri!', E'сура-паті-дурматі-на̄ш́а
-віча̄рі
+віча̄рі''
 ра̄кхобі
 варшане, ґірі-вара-дга̄рі!',
     E'', E'',
@@ -7592,12 +7567,8 @@ too, You will surely protect me, O Gokula Hari!', E'',
   VALUES (
     v_chapter_id, '10', 10,
     E'ভকতিবিনোদ-তুয়া গোকুল-ধন
-রাখবি কেশব! করত যতন
-January
-6, 2017', E'ভকতিবিনোদ-তুয়া গোকুল-ধন
-রাখবি কেশব! করত যতন
-January
-6, 2017',
+রাখবি কেশব! করত যতন', E'ভকতিবিনোদ-তুয়া গোকুল-ধন
+রাখবি কেশব! করত যতন',
     E'bhakativinodatuwā
 gokula-dhan
 rākhobi
@@ -8021,16 +7992,16 @@ hāmāra antarāle', E'ра̄дга̄-ма̄дгава-севана-ка̄ле
   )
   VALUES (
     v_chapter_id, '10', 10,
-    E'তাম্বুল সাজি কর্পূর আনি
-দেওবি মোএ আপন জানি', E'তাম্বুল সাজি কর্পূর আনি
-দেওবি মোএ আপন জানি',
+    E'তাম্বুল সাজি'' কর্পূর আনি''
+দেওবি মোএ আপন জানি''', E'তাম্বুল সাজি'' কর্পূর আনি''
+দেওবি মোএ আপন জানি''',
     E'tāmbula
-sāji karpūra āni
+sāji'' karpūra āni''
 deobi
-moe āpana jāni', E'та̄мбула
-са̄джі карпӯра а̄ні
+moe āpana jāni''', E'та̄мбула
+са̄джі'' карпӯра а̄ні''
 деобі
-мое а̄пана джа̄ні',
+мое а̄пана джа̄ні''',
     E'', E'',
     E'After preparing tambula and bringing camphor, you will give them to me, knowing
 me to be yours.', E'',
@@ -8062,14 +8033,14 @@ me to be yours.', E'',
   )
   VALUES (
     v_chapter_id, '11', 11,
-    E'ভকতিবিনোদ শুনি বাত
-সখী-পদে করে প্রনিপাত', E'ভকতিবিনোদ শুনি বাত
+    E'ভকতিবিনোদ শুনি'' বাত
+সখী-পদে করে প্রনিপাত', E'ভকতিবিনোদ শুনি'' বাত
 সখী-পদে করে প্রনিপাত',
     E'bhakativinoda
-śuni bāt
+śuni'' bāt
 sakhī-pade
 kare pranipāt', E'бгакатівінода
-ш́уні ба̄т
+ш́уні'' ба̄т
 сакхı̄-паде
 каре праніпа̄т',
     E'', E'',
@@ -8412,15 +8383,15 @@ being favorable to You.', E'',
   VALUES (
     v_chapter_id, '8', 8,
     E'তুয়া ভক্ত-অনুকূল যাহা যাহা করি
-তুয়া ভক্তি-অনুকূল বলি তাহা ধরি', E'তুয়া ভক্ত-অনুকূল যাহা যাহা করি
-তুয়া ভক্তি-অনুকূল বলি তাহা ধরি',
+তুয়া ভক্তি-অনুকূল বলি'' তাহা ধরি', E'তুয়া ভক্ত-অনুকূল যাহা যাহা করি
+তুয়া ভক্তি-অনুকূল বলি'' তাহা ধরি',
     E'tuwā
 bhakta-anukūla jāhā jāhā kori
 tuwā
-bhakti-anukūla boli tāhā dhori', E'тува̄
+bhakti-anukūla boli'' tāhā dhori', E'тува̄
 бгакта-анукӯла джа̄ха̄ джа̄ха̄ корі
 тува̄
-бгакті-анукӯла болі та̄ха̄ дгорі',
+бгакті-анукӯла болі'' та̄ха̄ дгорі',
     E'', E'',
     E'I
 will consider as favorable to Your devotional service anything I do which is
@@ -8454,10 +8425,8 @@ favorable to Your devotee.', E'',
   VALUES (
     v_chapter_id, '9', 9,
     E'ভকতিবিনোদ নাহি জানে ধর্মাধর্ম
-ভক্তি-অনুকূল তার হৌ সব কর্ম
-2017', E'ভকতিবিনোদ নাহি জানে ধর্মাধর্ম
-ভক্তি-অনুকূল তার হৌ সব কর্ম
-2017',
+ভক্তি-অনুকূল তার হৌ সব কর্ম', E'ভকতিবিনোদ নাহি জানে ধর্মাধর্ম
+ভক্তি-অনুকূল তার হৌ সব কর্ম',
     E'bhakativinoda
 nāhi jāne dharmādharma
 bhakti-anukūla
@@ -8721,15 +8690,15 @@ korobuń tańhi māhe', E'ма̄дгавı̄
   VALUES (
     v_chapter_id, '6', 6,
     E'রোপোবুঁ তত্র কুসুম-বন-রাজি
-জূথি, জাতি, মল্লী বিরাজব সাজি', E'রোপোবুঁ তত্র কুসুম-বন-রাজি
-জূথি, জাতি, মল্লী বিরাজব সাজি',
+জূথি, জাতি, মল্লী বিরাজব সাজি''', E'রোপোবুঁ তত্র কুসুম-বন-রাজি
+জূথি, জাতি, মল্লী বিরাজব সাজি''',
     E'ropobuń
 tatra kusuma-vana-rāji
 jūthi,
-jāti, mallī virājabo sāji', E'ропобуń
+jāti, mallī virājabo sāji''', E'ропобуń
 татра кусума-вана-ра̄джі
 джӯтхі,
-джа̄ті, маллı̄ віра̄джабо са̄джі',
+джа̄ті, маллı̄ віра̄джабо са̄джі''',
     E'', E'',
     E'', E'',
     E'', E'',
@@ -8761,15 +8730,15 @@ jāti, mallī virājabo sāji', E'ропобуń
   VALUES (
     v_chapter_id, '7', 7,
     E'মঞ্চে বসাওবুঁ তুলসী-মহারাণী
-কীর্তন-সজ্জ তঁহি রাখব আনি', E'মঞ্চে বসাওবুঁ তুলসী-মহারাণী
-কীর্তন-সজ্জ তঁহি রাখব আনি',
+কীর্তন-সজ্জ তঁহি রাখব আনি''', E'মঞ্চে বসাওবুঁ তুলসী-মহারাণী
+কীর্তন-সজ্জ তঁহি রাখব আনি''',
     E'mañce
 basāobuń tulasī-mahārāṇī
 kīrtana-sajja
-tańhi rākhabo āni', E'ман̃че
+tańhi rākhabo āni''', E'ман̃че
 баса̄обуń туласı̄-маха̄ра̄н̣ı̄
 кı̄ртана-саджджа
-таńхі ра̄кхабо а̄ні',
+таńхі ра̄кхабо а̄ні''',
     E'', E'',
     E'', E'',
     E'', E'',
@@ -8841,10 +8810,8 @@ godruma jaya gaura ki dhām', E'ваішн̣ава-джана-саха
   VALUES (
     v_chapter_id, '9', 9,
     E'ভকতিবিনোদ ভক্তি-অনুকূল
-জয় কুঞ্জ, মুঞ্জ, সুর-নদী-কূল
-2017', E'ভকতিবিনোদ ভক্তি-অনুকূল
-জয় কুঞ্জ, মুঞ্জ, সুর-নদী-কূল
-2017',
+জয় কুঞ্জ, মুঞ্জ, সুর-নদী-কূল', E'ভকতিবিনোদ ভক্তি-অনুকূল
+জয় কুঞ্জ, মুঞ্জ, সুর-নদী-কূল',
     E'bhakativinoda
 bhakti-anukūl
 jaya
@@ -8945,10 +8912,10 @@ creeper of devotion.', E'',
     v_chapter_id, '2', 2,
     E'মাধব-তিথি, ভক্তি-জননী,
 যেতনে পালন করি
-কৃষ্ণ-বসতি, বসতি বলি,
+কৃষ্ণ-বসতি, বসতি বলি'',
 পরম আদরে বরি', E'মাধব-তিথি, ভক্তি-জননী,
 যেতনে পালন করি
-কৃষ্ণ-বসতি, বসতি বলি,
+কৃষ্ণ-বসতি, বসতি বলি'',
 পরম আদরে বরি',
     E'mādhava-tithi,
 bhakti-jananī,
@@ -9040,10 +9007,10 @@ Caitanya and His devotees.', E'',
     v_chapter_id, '4', 4,
     E'মৃদঙ্গ-বাদ্য, শুনিতে মন,
 অবসর সদা যাচে
-গৌর-বিহিত, কীর্ত্তন শুনি,
+গৌর-বিহিত, কীর্ত্তন শুনি'',
 আনন্দে হৃদয় নাচে', E'মৃদঙ্গ-বাদ্য, শুনিতে মন,
 অবসর সদা যাচে
-গৌর-বিহিত, কীর্ত্তন শুনি,
+গৌর-বিহিত, কীর্ত্তন শুনি'',
 আনন্দে হৃদয় নাচে',
     E'mṛdańga-bādya,
 śunite mana,
@@ -9183,13 +9150,13 @@ bounds.', E'',
   )
   VALUES (
     v_chapter_id, '7', 7,
-    E'তুলসী দেখি,
+    E'তুলসী দেখি'',
 জুড়ায় প্রাণ,
-মাধব-তোষণী জানি
+মাধব-তোষণী জানি''
 গৌর-প্রিয়, শাক-সেবনে,
-জীবন সার্থক মানি', E'তুলসী দেখি,
+জীবন সার্থক মানি', E'তুলসী দেখি'',
 জুড়ায় প্রাণ,
-মাধব-তোষণী জানি
+মাধব-তোষণী জানি''
 গৌর-প্রিয়, শাক-সেবনে,
 জীবন সার্থক মানি',
     E'tulasī
@@ -9320,7 +9287,7 @@ peacocks, the bumblebees, the pastimes with the flute, the flute itself, the
 buffalo horn bugle, the footprints of cows in the dust of Vraja, the rows of
 blackish rain clouds, springtime, the moon, the conch-shell, and the karatalas
  all these I know to be very conductive for the pastimes of Radha and Krsna. I
-recognize in them a transcendental stimulus for making the Lords charming
+recognize in them a transcendental stimulus for making the Lord''s charming
 pastimes more intense.', E'',
     E'', E'',
     true
@@ -9591,10 +9558,8 @@ saba choḍato parāna hārāu', E'е
   VALUES (
     v_chapter_id, '8', 8,
     E'ভকতিবিনোদ কহে, শুন কান!
-তুয়া উদ্দীপক হামারা পরাণ
-2017', E'ভকতিবিনোদ কহে, শুন কান!
-তুয়া উদ্দীপক হামারা পরাণ
-2017',
+তুয়া উদ্দীপক হামারা পরাণ', E'ভকতিবিনোদ কহে, শুন কান!
+তুয়া উদ্দীপক হামারা পরাণ',
     E'bhakativinoda kohe, śuno kān!
 tuwā uddīpaka
 hāmārā parān', E'бгакатівінода кохе, ш́уно ка̄н!
@@ -9694,27 +9659,27 @@ have beheld many strange and curious sights.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'তুয়া পদ-বিস্মৃতি, আ-মর যন্ত্রনা,
-ক্লেশ-দহনে দোহি যায়
+ক্লেশ-দহনে দোহি'' যায়
 কপিল, পতঞ্জলি, গৌতম, কনভোজী,
-জৈমিনি, বৌদ্ধ আওয়ে ধাই', E'তুয়া পদ-বিস্মৃতি, আ-মর যন্ত্রনা,
-ক্লেশ-দহনে দোহি যায়
+জৈমিনি, বৌদ্ধ আওয়ে ধাই''', E'তুয়া পদ-বিস্মৃতি, আ-মর যন্ত্রনা,
+ক্লেশ-দহনে দোহি'' যায়
 কপিল, পতঞ্জলি, গৌতম, কনভোজী,
-জৈমিনি, বৌদ্ধ আওয়ে ধাই',
+জৈমিনি, বৌদ্ধ আওয়ে ধাই''',
     E'tuwā
 pada-vismṛti, ā-mara jantranā,
 kleśa-dahane
-dohi jāi
+dohi'' jāi
 kapila,
 patañjali, gautama, kanabhojī,
 jaimini,
-bauddha āowe dhāi', E'тува̄
+bauddha āowe dhāi''', E'тува̄
 пада-вісмр̣ті, а̄-мара джантрана̄,
 клеш́а-дахане
-дохі джа̄і
+дохі'' джа̄і
 капіла,
 патан̃джалі, ґаутама, канабгоджı̄,
 джаіміні,
-бауддга а̄ове дга̄і',
+бауддга а̄ове дга̄і''',
     E'', E'',
     E'Forgetfulness of Your lotus feet has brought on anguish and grief. As I burn in
 this fire of misery, my would-be saviors  Kapila, Gautama, Kanada, Jaimini,
@@ -9804,12 +9769,10 @@ devotional service and thus fatally dangerous.', E'',
     E'বৈমুখ-বঞ্চনে, ভট সো-সবু,
 নিরমিল বিবিধ পসার
 দণ্ডবত দূরত, ভকতিবিনোদ ভেল,
-ভকত-চরণ করি সার
-2017', E'বৈমুখ-বঞ্চনে, ভট সো-সবু,
+ভকত-চরণ করি'' সার', E'বৈমুখ-বঞ্চনে, ভট সো-সবু,
 নিরমিল বিবিধ পসার
 দণ্ডবত দূরত, ভকতিবিনোদ ভেল,
-ভকত-চরণ করি সার
-2017',
+ভকত-চরণ করি'' সার',
     E'vaimukha-vañcane,
 bhaṭa so-sabu,
 niramilo
@@ -9817,14 +9780,14 @@ vividha pasār
 danḍavat
 dūrato, bhakativinoda bhelo,
 bhakata-caraṇa
-kori sār', E'ваімукха-ван̃чане,
+kori'' sār', E'ваімукха-ван̃чане,
 бгат̣а со-сабу,
 ніраміло
 вівідга паса̄р
 данд̣ават
 дӯрато, бгакатівінода бгело,
 бгаката-чаран̣а
-корі са̄р',
+корі'' са̄р',
     E'', E'',
     E'They are magnates of karma, jnana, and yoga who specialize in opinions and
 proofs for cheating the materially inclined. Bhaktivinoda, considering refuge
@@ -9873,14 +9836,14 @@ philosophers from afar.', E'',
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জাতে রয়
-পরম যতনে তাহা ত্যজিব নিশ্চয়', E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জাতে রয়
+    E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জা''তে রয়
+পরম যতনে তাহা ত্যজিব নিশ্চয়', E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জা''তে রয়
 পরম যতনে তাহা ত্যজিব নিশ্চয়',
     E'tuwā-bhakti-pratikūla
-dharma jāte roy
+dharma jā''te roy
 parama
 jatane tāhā tyajibo niścoy', E'тува̄-бгакті-пратікӯла
-дгарма джа̄те рой
+дгарма джа̄''те рой
 парама
 джатане та̄ха̄ тйаджібо ніш́чой',
     E'', E'',
@@ -10168,14 +10131,14 @@ me by non-devotee atheists.', E'',
   )
   VALUES (
     v_chapter_id, '8', 8,
-    E'জাহা কিছু ভক্তি-প্রতিকূল বলি জানি
-ত্যজিব যতনে তাহা, এ নিশ্চয় বানী', E'জাহা কিছু ভক্তি-প্রতিকূল বলি জানি
+    E'জাহা কিছু ভক্তি-প্রতিকূল বলি'' জানি
+ত্যজিব যতনে তাহা, এ নিশ্চয় বানী', E'জাহা কিছু ভক্তি-প্রতিকূল বলি'' জানি
 ত্যজিব যতনে তাহা, এ নিশ্চয় বানী',
     E'jāhā
-kichu bhakti-pratikūla boli jāni
+kichu bhakti-pratikūla boli'' jāni
 tyajibo
 jatane tāhā, e niścoya vānī', E'джа̄ха̄
-кічху бгакті-пратікӯла болі джа̄ні
+кічху бгакті-пратікӯла болі'' джа̄ні
 тйаджібо
 джатане та̄ха̄, е ніш́чойа ва̄нı̄',
     E'', E'',
@@ -10210,16 +10173,14 @@ strongly promise.', E'',
   )
   VALUES (
     v_chapter_id, '9', 9,
-    E'ভকতিবিনোদ পড়ি প্রভুর চরণে
-মাগয়ে শকতি প্রতিকূল্যের বর্জনে
-2017', E'ভকতিবিনোদ পড়ি প্রভুর চরণে
-মাগয়ে শকতি প্রতিকূল্যের বর্জনে
-2017',
+    E'ভকতিবিনোদ পড়ি'' প্রভুর চরণে
+মাগয়ে শকতি প্রতিকূল্যের বর্জনে', E'ভকতিবিনোদ পড়ি'' প্রভুর চরণে
+মাগয়ে শকতি প্রতিকূল্যের বর্জনে',
     E'bhakativinoda
-poḍi prabhura caraṇe
+poḍi'' prabhura caraṇe
 māgaye
 śakati pratikūlyera varjane', E'бгакатівінода
-под̣і прабгура чаран̣е
+под̣і'' прабгура чаран̣е
 ма̄ґайе
 ш́акаті пратікӯлйера варджане',
     E'', E'',
@@ -10432,16 +10393,16 @@ heart he becomes inspired by pure devotion through the mercy of those devotees.'
   )
   VALUES (
     v_chapter_id, '5', 5,
-    E'মায়াবাদ-দোষ যার হৃদয়ে পশিল
-কুতর্কে হৃদয় তার বজ্র-সম ভেল', E'মায়াবাদ-দোষ যার হৃদয়ে পশিল
-কুতর্কে হৃদয় তার বজ্র-সম ভেল',
+    E'মায়াবাদ-দোষ যা''র হৃদয়ে পশিল
+কুতর্কে হৃদয় তা''র বজ্র-সম ভেল', E'মায়াবাদ-দোষ যা''র হৃদয়ে পশিল
+কুতর্কে হৃদয় তা''র বজ্র-সম ভেল',
     E'māyāvāda-doṣa
-jāra hṛdoye paśilo
+jā''ra hṛdoye paśilo
 kutarke
-hṛdoya tāra vajra-sama bhelo', E'ма̄йа̄ва̄да-доша
-джа̄ра хр̣дойе паш́іло
+hṛdoya tā''ra vajra-sama bhelo', E'ма̄йа̄ва̄да-доша
+джа̄''ра хр̣дойе паш́іло
 кутарке
-хр̣дойа та̄ра ваджра-сама бгело',
+хр̣дойа та̄''ра ваджра-сама бгело',
     E'', E'',
     E'But woe to him who has known the offensive presence of impersonalist
 philosophy. Such sophistry makes the heart hard as a thunderbolt.', E'',
@@ -10473,16 +10434,16 @@ philosophy. Such sophistry makes the heart hard as a thunderbolt.', E'',
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'ভক্তির স্বরূপ, আর বিষয়, আশ্রয়
-মায়াবাদী অনিত্য বলিয়া সব কয়', E'ভক্তির স্বরূপ, আর বিষয়, আশ্রয়
-মায়াবাদী অনিত্য বলিয়া সব কয়',
+    E'ভক্তির স্বরূপ, আর বিষয়'', আশ্রয়''
+মায়াবাদী অনিত্য'' বলিয়া সব কয়', E'ভক্তির স্বরূপ, আর বিষয়'', আশ্রয়''
+মায়াবাদী অনিত্য'' বলিয়া সব কয়',
     E'bhaktira
-swarūpa, āra `viṣaya, `āśroy
+swarūpa, āra `viṣaya'', `āśroy''
 māyāvādī
-`anitya boliyā saba koy', E'бгактіра
-сварӯпа, а̄ра `вішайа, `а̄ш́рой
+`anitya'' boliyā saba koy', E'бгактіра
+сварӯпа, а̄ра `вішайа'', `а̄ш́рой''
 ма̄йа̄ва̄дı̄
-`анітйа болійа̄ саба кой',
+`анітйа'' болійа̄ саба кой',
     E'', E'',
     E'The mayavada philosopher declares that the true form of bhakti, its object (Sri
 Krishna), and its possessor (the devotee) are all transitory and thus illusory.', E'',
@@ -10514,14 +10475,14 @@ Krishna), and its possessor (the devotee) are all transitory and thus illusory.'
   )
   VALUES (
     v_chapter_id, '7', 7,
-    E'ধিক তার কৃষ্ণ-সেবা-শ্রবন-কীর্তন
-কৃষ্ণ-অঙ্গে বজ্র হানে তাহার স্তবন', E'ধিক তার কৃষ্ণ-সেবা-শ্রবন-কীর্তন
+    E'ধিক তা''র কৃষ্ণ-সেবা-শ্রবন-কীর্তন
+কৃষ্ণ-অঙ্গে বজ্র হানে তাহার স্তবন', E'ধিক তা''র কৃষ্ণ-সেবা-শ্রবন-কীর্তন
 কৃষ্ণ-অঙ্গে বজ্র হানে তাহার স্তবন',
     E'dhik
-tāra kṛṣṇa-sevā-śravana-kīrtan
+tā''ra kṛṣṇa-sevā-śravana-kīrtan
 kṛṣṇa-ańge
 vajra hāne tāhāra stavan', E'дгік
-та̄ра кр̣шн̣а-сева̄-ш́равана-кı̄ртан
+та̄''ра кр̣шн̣а-сева̄-ш́равана-кı̄ртан
 кр̣шн̣а-аńґе
 ваджра ха̄не та̄ха̄ра ставан',
     E'', E'',
@@ -10598,17 +10559,15 @@ philosophy. Therefore I do not desire the association of the mayavadi.', E'',
   VALUES (
     v_chapter_id, '9', 9,
     E'ভকতিবিনোদ মায়াবাদ দূর করি
-বৈষ্ণব-সঙ্গেতে বৈসে নামাশ্রয় ধরি
-2017', E'ভকতিবিনোদ মায়াবাদ দূর করি
-বৈষ্ণব-সঙ্গেতে বৈসে নামাশ্রয় ধরি
-2017',
+বৈষ্ণব-সঙ্গেতে বৈসে নামাশ্রয় ধরি''', E'ভকতিবিনোদ মায়াবাদ দূর করি
+বৈষ্ণব-সঙ্গেতে বৈসে নামাশ্রয় ধরি''',
     E'bhakativinoda
 māyāvāda dūra kori
 vaiṣṇava-sańgete
-baise nāmāśraya dhori', E'бгакатівінода
+baise nāmāśraya dhori''', E'бгакатівінода
 ма̄йа̄ва̄да дӯра корі
 ваішн̣ава-саńґете
-баісе на̄ма̄ш́райа дгорі',
+баісе на̄ма̄ш́райа дгорі''',
     E'', E'',
     E'Bhaktivinoda drives away the philosophy of illusionism and sits safely in the
 society of Vaisnavas under the shelter of the holy name.', E'',
@@ -10655,13 +10614,13 @@ society of Vaisnavas under the shelter of the holy name.', E'',
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'আমি তো স্বানন্দ-সুখদ-বাসী
-রাধিকা-মাধব-চরণ-দাসী', E'আমি তো স্বানন্দ-সুখদ-বাসী
+    E'আমি তো'' স্বানন্দ-সুখদ-বাসী
+রাধিকা-মাধব-চরণ-দাসী', E'আমি তো'' স্বানন্দ-সুখদ-বাসী
 রাধিকা-মাধব-চরণ-দাসী',
     E'āmi
-to swānanda-sukhada-bāsī
+to'' swānanda-sukhada-bāsī
 rādhikā-mādhava-caraṇa-dāsī', E'а̄мі
-то сва̄нанда-сукхада-ба̄сı̄
+то'' сва̄нанда-сукхада-ба̄сı̄
 ра̄дгіка̄-ма̄дгава-чаран̣а-да̄сı̄',
     E'', E'',
     E'I
@@ -10750,7 +10709,7 @@ dekhile
     E'', E'',
     E'I
 never look at the place where Candravali and her friends stay. Whenever I see
-such a place it reminds me of Candravalis gopi friend, Saibya.', E'',
+such a place it reminds me of Candravali''s gopi friend, Saibya.', E'',
     E'', E'',
     true
   )
@@ -10780,18 +10739,18 @@ such a place it reminds me of Candravalis gopi friend, Saibya.', E'',
   VALUES (
     v_chapter_id, '4', 4,
     E'যে-যে প্রতিকূল চন্দ্রার সখী
-প্রাণে দুঃখ পাই তাহারে দেখি', E'যে-যে প্রতিকূল চন্দ্রার সখী
-প্রাণে দুঃখ পাই তাহারে দেখি',
+প্রাণে দুঃখ পাই তাহারে দেখি''', E'যে-যে প্রতিকূল চন্দ্রার সখী
+প্রাণে দুঃখ পাই তাহারে দেখি''',
     E'je-je
 pratikūla candrāra sakhī
 prāne
-duḥkha pāi tāhāre dekhi', E'дже-дже
+duḥkha pāi tāhāre dekhi''', E'дже-дже
 пратікӯла чандра̄ра сакхı̄
 пра̄не
-дух̣кха па̄і та̄ха̄ре декхі',
+дух̣кха па̄і та̄ха̄ре декхі''',
     E'', E'',
     E'I
-feel pain in my heart when I catch sight of Candravalis girl-friends, for they
+feel pain in my heart when I catch sight of Candravali''s girl-friends, for they
 are opposed to Radha.', E'',
     E'', E'',
     true
@@ -10821,18 +10780,18 @@ are opposed to Radha.', E'',
   )
   VALUES (
     v_chapter_id, '5', 5,
-    E'রাধিকা-কুঞ্জ আঁধার করি
-লৈতে চাহে সে রাধার হরি', E'রাধিকা-কুঞ্জ আঁধার করি
+    E'রাধিকা-কুঞ্জ আঁধার করি''
+লৈতে চাহে সে রাধার হরি', E'রাধিকা-কুঞ্জ আঁধার করি''
 লৈতে চাহে সে রাধার হরি',
     E'rādhikā-kuñja
-āńdhāra kori
+āńdhāra kori''
 loite
 cāhe se rādhāra hari', E'ра̄дгіка̄-кун̃джа
-а̄ńдга̄ра корі
+а̄ńдга̄ра корі''
 лоіте
 ча̄хе се ра̄дга̄ра харі',
     E'', E'',
-    E'Candravali wants to take away Radhas Lord Hari, thus covering the grove of
+    E'Candravali wants to take away Radha''s Lord Hari, thus covering the grove of
 Radhika with the darkness of gloom.', E'',
     E'', E'',
     true
@@ -10944,10 +10903,8 @@ do I find any pleasure in conversing with those who are opposed to Radha.', E'',
   VALUES (
     v_chapter_id, '8', 8,
     E'ভকতিবিনোদ শ্রী-রাধা-চরণে
-সঁপেছে পরাণ অতীব যতনে
-2017', E'ভকতিবিনোদ শ্রী-রাধা-চরণে
-সঁপেছে পরাণ অতীব যতনে
-2017',
+সঁপেছে পরাণ অতীব যতনে', E'ভকতিবিনোদ শ্রী-রাধা-চরণে
+সঁপেছে পরাণ অতীব যতনে',
     E'bhakativinoda
 śrī-rādhā-caraṇe
 sańpeche
@@ -11063,24 +11020,24 @@ I accept the shelter of Your lotus feet as essential.', E'',
     v_chapter_id, '2', 2,
     E'করম গেয়ান, কিছু নাহি মোর,
 সাধন ভজন নাই
-তুমি কৃপা-ময়, আমি তো কাঙ্গাল,
+তুমি কৃপা-ময়, আমি তো'' কাঙ্গাল,
 অহৈতুকী কৃপা চাই', E'করম গেয়ান, কিছু নাহি মোর,
 সাধন ভজন নাই
-তুমি কৃপা-ময়, আমি তো কাঙ্গাল,
+তুমি কৃপা-ময়, আমি তো'' কাঙ্গাল,
 অহৈতুকী কৃপা চাই',
     E'karama
 geyāna, kichu nāhi mora,
 sādhana
 bhajana nāi
 tumi
-kṛpā-moya, āmi to kāńgāla,
+kṛpā-moya, āmi to'' kāńgāla,
 ahaitukī
 kṛpā cāi', E'карама
 ґейа̄на, кічху на̄хі мора,
 са̄дгана
 бгаджана на̄і
 тумі
-кр̣па̄-мойа, а̄мі то ка̄ńґа̄ла,
+кр̣па̄-мойа, а̄мі то'' ка̄ńґа̄ла,
 ахаітукı̄
 кр̣па̄ ча̄і',
     E'', E'',
@@ -11117,22 +11074,22 @@ Therefore, although I am certainly destitute, I solicit Your causeless mercy.', 
     v_chapter_id, '3', 3,
     E'বাক্য-মন-বেগ, ক্রোধ-জিহ্বা-বেগ,
 উদর-উপস্থ-বেগ
-মিলিয়া এ সব, সংসারে ভাসায়ে,
+মিলিয়া এ সব, সংসারে ভাসা''য়ে,
 দিতেছে পরমোদ্বেগ', E'বাক্য-মন-বেগ, ক্রোধ-জিহ্বা-বেগ,
 উদর-উপস্থ-বেগ
-মিলিয়া এ সব, সংসারে ভাসায়ে,
+মিলিয়া এ সব, সংসারে ভাসা''য়ে,
 দিতেছে পরমোদ্বেগ',
     E'vākya-mano-vega,
 krodha-jihvā-vega,
 udara-upastha-vega
 miliyā
-e saba, saḿsāre bhāsāye,
+e saba, saḿsāre bhāsā''ye,
 diteche
 paramodvega', E'ва̄кйа-мано-веґа,
 кродга-джіхва̄-веґа,
 удара-упастха-веґа
 мілійа̄
-е саба, саḿса̄ре бга̄са̄йе,
+е саба, саḿса̄ре бга̄са̄''йе,
 дітечхе
 парамодвеґа',
     E'', E'',
@@ -11403,26 +11360,26 @@ that holy name, I have taken shelter at Your lotus feet.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'আমি তো পতিত, পতিত-পাবন,
+    E'আমি তো'' পতিত, পতিত-পাবন,
 তোমার পবিত্র নাম
-সে সম্বন্ধ ধরি, তোমার চরণে,
-শরণ লৈনু হাম', E'আমি তো পতিত, পতিত-পাবন,
+সে সম্বন্ধ ধরি'', তোমার চরণে,
+শরণ লৈনু হাম', E'আমি তো'' পতিত, পতিত-পাবন,
 তোমার পবিত্র নাম
-সে সম্বন্ধ ধরি, তোমার চরণে,
+সে সম্বন্ধ ধরি'', তোমার চরণে,
 শরণ লৈনু হাম',
     E'āmi
-to patita, patita-pāvana,
+to'' patita, patita-pāvana,
 tomāra
 pavitra nāma
 se
-sambandha dhori, tomāra caraṇe,
+sambandha dhori'', tomāra caraṇe,
 śaraṇa
 loinu hāma', E'а̄мі
-то патіта, патіта-па̄вана,
+то'' патіта, патіта-па̄вана,
 тома̄ра
 павітра на̄ма
 се
-самбандга дгорі, тома̄ра чаран̣е,
+самбандга дгорі'', тома̄ра чаран̣е,
 ш́аран̣а
 лоіну ха̄ма',
     E'', E'',
@@ -11555,7 +11512,7 @@ māyāra sātha', E'бгакті-сада̄ча̄ра,
 ма̄йа̄ра са̄тха',
     E'', E'',
     E'Absorbed in abominable activities, I never kept company with sadhus. Now I
-adopt the garb of the sadhus and instruct others. This is mayas big joke.', E'',
+adopt the garb of the sadhus and instruct others. This is maya''s big joke.', E'',
     E'', E'',
     true
   )
@@ -11584,25 +11541,25 @@ adopt the garb of the sadhus and instruct others. This is mayas big joke.', E'
   )
   VALUES (
     v_chapter_id, '3', 3,
-    E'গর্হিত আচারে, রহিলাম মজি,
+    E'গর্হিত আচারে, রহিলাম মজি'',
 না করিনু সাধু-সঙ্গ
-লয়ে সাধু-বেশ, আনে উপদেশি,
-এ বড় মায়ার রঙ্গ', E'গর্হিত আচারে, রহিলাম মজি,
+ল''য়ে সাধু-বেশ, আনে উপদেশি,
+এ বড় মায়ার রঙ্গ', E'গর্হিত আচারে, রহিলাম মজি'',
 না করিনু সাধু-সঙ্গ
-লয়ে সাধু-বেশ, আনে উপদেশি,
+ল''য়ে সাধু-বেশ, আনে উপদেশি,
 এ বড় মায়ার রঙ্গ',
     E'garhita
-ācāre, rohilāma moji,
+ācāre, rohilāma moji'',
 nā
 korinu sādhu-sańga
-loye
+lo''ye
 sādhu-veśa, āne upadeśi,
 e
 boḍo māyāra rańga', E'ґархіта
-а̄ча̄ре, рохіла̄ма моджі,
+а̄ча̄ре, рохіла̄ма моджі'',
 на̄
 коріну са̄дгу-саńґа
-лойе
+ло''йе
 са̄дгу-веш́а, а̄не упадеш́і,
 е
 бод̣о ма̄йа̄ра раńґа',
@@ -11642,10 +11599,10 @@ with humble prayers?', E'',
     E'এ হেন দশায়, অহৈতুকী কৃপা,
 তোমার পাইব, হরি!
 শ্রী-গুরু-আশ্রয়ে, ডাকিব তোমায়,
-কবে বা মিনতি করি', E'এ হেন দশায়, অহৈতুকী কৃপা,
+কবে বা মিনতি করি''', E'এ হেন দশায়, অহৈতুকী কৃপা,
 তোমার পাইব, হরি!
 শ্রী-গুরু-আশ্রয়ে, ডাকিব তোমায়,
-কবে বা মিনতি করি',
+কবে বা মিনতি করি''',
     E'e
 heno daśāya, ahaitukī kṛpā,
 tomāra
@@ -11653,14 +11610,14 @@ pāibo, hari!
 śrī-guru-āśroye,
 ḍākibo tomāya,
 kabe
-vā minati kori', E'е
+vā minati kori''', E'е
 хено даш́а̄йа, ахаітукı̄ кр̣па̄,
 тома̄ра
 па̄ібо, харі!
 ш́рı̄-ґуру-а̄ш́ройе,
 д̣а̄кібо тома̄йа,
 кабе
-ва̄ мінаті корі',
+ва̄ мінаті корі''',
     E'', E'',
     E'', E'',
     E'', E'',
@@ -11737,7 +11694,7 @@ bhaktira prāna', E'харі
     E'', E'',
     E'O
 Lord Hari, to offer a gift and receive one in return, to give and receive
-spiritual food, to reveal ones confidential thoughts and make confidential
+spiritual food, to reveal one''s confidential thoughts and make confidential
 inquiries  these are the six characteristics of loving association, and in
 them is found the very soul of devotion.', E'',
     E'', E'',
@@ -11769,23 +11726,23 @@ them is found the very soul of devotion.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'তত্ত্ব না বুঝিয়ে, জ্ঞানে বা অজ্ঞানে,
-অসতে এ সব করি
+অসতে এ সব করি''
 ভক্তি হারাইনু, সংসারী হৈনু,
 সুদূরে রহিলে হরি', E'তত্ত্ব না বুঝিয়ে, জ্ঞানে বা অজ্ঞানে,
-অসতে এ সব করি
+অসতে এ সব করি''
 ভক্তি হারাইনু, সংসারী হৈনু,
 সুদূরে রহিলে হরি',
     E'tattva
 nā bujhiye, jñāne vā ajñāne,
 asate
-e saba kori
+e saba kori''
 bhakti
 hārāinu, saḿsārī hoinu,
 sudūre
 rohile hari', E'таттва
 на̄ буджхійе, джн̃а̄не ва̄ аджн̃а̄не,
 асате
-е саба корі
+е саба корі''
 бгакті
 ха̄ра̄іну, саḿса̄рı̄ хоіну,
 судӯре
@@ -11879,21 +11836,21 @@ heart.', E'',
   VALUES (
     v_chapter_id, '4', 4,
     E'যোষিত-সঙ্গী-জন, কৃষ্ণাভক্ত আর,
-দুঙ্হু-সঙ্গ-পরিহরি
+দুঙ্হু-সঙ্গ-পরিহরি''
 তব ভক্ত-জন- সঙ্গ অনুক্ষন,
 কবে বা হৈবে হরি!', E'যোষিত-সঙ্গী-জন, কৃষ্ণাভক্ত আর,
-দুঙ্হু-সঙ্গ-পরিহরি
+দুঙ্হু-সঙ্গ-পরিহরি''
 তব ভক্ত-জন- সঙ্গ অনুক্ষন,
 কবে বা হৈবে হরি!',
     E'yoṣit-sańgī-jana,
 kṛṣṇābhakta āra,
-duńhu-sańga-parihari
+duńhu-sańga-parihari''
 tava
 bhakta-jana- sańga anukṣana,
 kabe
 vā hoibe hari!', E'йошіт-саńґı̄-джана,
 кр̣шн̣а̄бгакта а̄ра,
-дуńху-саńґа-паріхарі
+дуńху-саńґа-паріхарі''
 тава
 бгакта-джана- саńґа анукшана,
 кабе
@@ -11947,31 +11904,31 @@ devotees, O Lord?', E'',
     v_chapter_id, '1', 1,
     E'হরি হে!
 সঙ্গ-দোষ-শূন্য, দীক্ষিতাদীক্ষিত,
-যদি তব নাম গায়
+যদি তব নাম গা''য়
 মানসে আদর, করিব তাহারে,
-জানি নিজ-জন তায়', E'হরি হে!
+জানি'' নিজ-জন তায়', E'হরি হে!
 সঙ্গ-দোষ-শূন্য, দীক্ষিতাদীক্ষিত,
-যদি তব নাম গায়
+যদি তব নাম গা''য়
 মানসে আদর, করিব তাহারে,
-জানি নিজ-জন তায়',
+জানি'' নিজ-জন তায়',
     E'hari
 he!
 sańga-doṣa-śūnya,
 dīkṣitādīkṣita,
 jadi
-tava nāma gāya
+tava nāma gā''ya
 mānase
 ādara, koribo tāhāre,
-jāni
+jāni''
 nija-jana tāya', E'харі
 хе!
 саńґа-доша-ш́ӯнйа,
 дı̄кшіта̄дı̄кшіта,
 джаді
-тава на̄ма ґа̄йа
+тава на̄ма ґа̄''йа
 ма̄насе
 а̄дара, корібо та̄ха̄ре,
-джа̄ні
+джа̄ні''
 ніджа-джана та̄йа',
     E'', E'',
     E'O Lord, I will mentally honor and consider as my brother one who avoids bad
@@ -12113,29 +12070,27 @@ successful in life.', E'',
   VALUES (
     v_chapter_id, '4', 4,
     E'নিষ্কপট-মতি, বৈষ্ণবের প্রতি,
-এই ধর্ম কবে পাব
-কবে সংসার- সিন্ধু-পার হয়ে,
-তব ব্রজ-পুরে যাব
-UDPATED: January 5, 2017', E'নিষ্কপট-মতি, বৈষ্ণবের প্রতি,
-এই ধর্ম কবে পাব
-কবে সংসার- সিন্ধু-পার হয়ে,
-তব ব্রজ-পুরে যাব
-UDPATED: January 5, 2017',
+এই ধর্ম কবে পা''ব
+কবে সংসার- সিন্ধু-পার হ''য়ে,
+তব ব্রজ-পুরে যা''ব', E'নিষ্কপট-মতি, বৈষ্ণবের প্রতি,
+এই ধর্ম কবে পা''ব
+কবে সংসার- সিন্ধু-পার হ''য়ে,
+তব ব্রজ-পুরে যা''ব',
     E'niṣkapaṭa-mati,
 vaiṣṇavera prati,
 ei
-dharma kabe pābo
+dharma kabe pā''bo
 kabe
-saḿsāra- sindhu-pāra hoye,
+saḿsāra- sindhu-pāra ho''ye,
 tava
-braja-pure jābo', E'нішкапат̣а-маті,
+braja-pure jā''bo', E'нішкапат̣а-маті,
 ваішн̣авера праті,
 еі
-дгарма кабе па̄бо
+дгарма кабе па̄''бо
 кабе
-саḿса̄ра- сіндгу-па̄ра хойе,
+саḿса̄ра- сіндгу-па̄ра хо''йе,
 тава
-браджа-пуре джа̄бо',
+браджа-пуре джа̄''бо',
     E'', E'',
     E'When will my mind become simple and inoffensive toward the Vaisnavas, and when
 will I cross over the ocean of worldly existence to reach Your abode of Vraja?', E'',
@@ -12351,29 +12306,29 @@ committing such an offense.', E'',
     v_chapter_id, '4', 4,
     E'তোমার বৈষ্ণব, বৈভব তোমার,
 আমারে করুনা দয়া
-তবে মোর গতি, হবে তব প্রতি,
-পাব তব পদ-ছায়া', E'তোমার বৈষ্ণব, বৈভব তোমার,
+তবে মোর গতি, হ''বে তব প্রতি,
+পা''ব তব পদ-ছায়া', E'তোমার বৈষ্ণব, বৈভব তোমার,
 আমারে করুনা দয়া
-তবে মোর গতি, হবে তব প্রতি,
-পাব তব পদ-ছায়া',
+তবে মোর গতি, হ''বে তব প্রতি,
+পা''ব তব পদ-ছায়া',
     E'tomāra
 vaiṣṇava, vaibhava tomāra,
 āmāre
 korunā doyā
 tabe
-mora gati, habe tava prati,
-pābo
+mora gati, ha''be tava prati,
+pā''bo
 tava pada-chāyā', E'тома̄ра
 ваішн̣ава, ваібгава тома̄ра,
 а̄ма̄ре
 коруна̄ дойа̄
 табе
-мора ґаті, хабе тава праті,
-па̄бо
+мора ґаті, ха''бе тава праті,
+па̄''бо
 тава пада-чха̄йа̄',
     E'', E'',
     E'The Vaisnava is Yours, and he is Your glory. May he be merciful to me. Then my
-lifes journey will lead to You, and I will obtain shelter in the shade of Your
+life''s journey will lead to You, and I will obtain shelter in the shade of Your
 lotus feet.', E'',
     E'', E'',
     true
@@ -12419,10 +12374,10 @@ lotus feet.', E'',
   VALUES (
     v_chapter_id, '1', 1,
     E'ওহে! বৈষ্ণব ঠাকুর, দয়ার সাগর,
-এ দাসে করুণা করি
+এ দাসে করুণা করি''
 দিয়া পদ-ছায়া, শোধো হে আমায়,
 তোমার চরণ ধরি', E'ওহে! বৈষ্ণব ঠাকুর, দয়ার সাগর,
-এ দাসে করুণা করি
+এ দাসে করুণা করি''
 দিয়া পদ-ছায়া, শোধো হে আমায়,
 তোমার চরণ ধরি',
     E'ohe!
@@ -12466,12 +12421,12 @@ lotus feet.', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'ছয় বেগ দমি, ছয় দোষ শোধি,
-ছয় গুণ দেহো দাসে
-ছয় সত-সঙ্গ, দেহো হে আমারে,
-বশেছি সঙ্গের আশে', E'ছয় বেগ দমি, ছয় দোষ শোধি,
-ছয় গুণ দেহো দাসে
-ছয় সত-সঙ্গ, দেহো হে আমারে,
+    E'ছয় বেগ দমি'', ছয় দোষ শোধি'',
+ছয় গুণ দেহো'' দাসে
+ছয় সত-সঙ্গ, দেহো'' হে আমারে,
+বশেছি সঙ্গের আশে', E'ছয় বেগ দমি'', ছয় দোষ শোধি'',
+ছয় গুণ দেহো'' দাসে
+ছয় সত-সঙ্গ, দেহো'' হে আমারে,
 বশেছি সঙ্গের আশে',
     E'chaya
 bega domi'', chaya doṣa śodhi'',
@@ -12515,11 +12470,11 @@ six qualities, and offer unto me the six kinds of holy association.*', E'',
     v_chapter_id, '3', 3,
     E'একাকী আমার, নাহি পায় বল,
 হরি-নাম-সঙ্কীর্ত্তনে
-তুমি কৃপা করি, শ্রদ্ধা-বিন্দু দিয়া,
-দেহো কৃষ্ণ-নাম-ধনে', E'একাকী আমার, নাহি পায় বল,
+তুমি কৃপা করি'', শ্রদ্ধা-বিন্দু দিয়া,
+দেহো'' কৃষ্ণ-নাম-ধনে', E'একাকী আমার, নাহি পায় বল,
 হরি-নাম-সঙ্কীর্ত্তনে
-তুমি কৃপা করি, শ্রদ্ধা-বিন্দু দিয়া,
-দেহো কৃষ্ণ-নাম-ধনে',
+তুমি কৃপা করি'', শ্রদ্ধা-বিন্দু দিয়া,
+দেহো'' কৃষ্ণ-নাম-ধনে',
     E'ekākī
 āmāra, nāhi pāya bala,
 hari-nāma-sańkīrtane
@@ -12563,10 +12518,10 @@ the great treasure of the holy name of Krsna.', E'',
     v_chapter_id, '4', 4,
     E'কৃষ্ণ সে তোমার, কৃষ্ণ দিতে পার,
 তোমার শকতি আছে
-আমি তো কাঙ্গল, কৃষ্ণ কৃষ্ণ বলি,
+আমি তো'' কাঙ্গল, ''কৃষ্ণ'' ''কৃষ্ণ'' বলি'',
 ধাই তব পাছে পাছে', E'কৃষ্ণ সে তোমার, কৃষ্ণ দিতে পার,
 তোমার শকতি আছে
-আমি তো কাঙ্গল, কৃষ্ণ কৃষ্ণ বলি,
+আমি তো'' কাঙ্গল, ''কৃষ্ণ'' ''কৃষ্ণ'' বলি'',
 ধাই তব পাছে পাছে',
     E'kṛṣṇa
 se tomāra, kṛṣṇa dīte pāro,
@@ -12692,24 +12647,24 @@ addicted to the taste of worldly pleasures.', E'',
     v_chapter_id, '2', 2,
     E'প্রতি-দিন যদি, আদর করিয়া,
 সে নাম কীর্তন করি
-সিতপল যেন, নাশি রোগ-মূল,
+সিতপল যেন, নাশি'' রোগ-মূল,
 ক্রমে স্বাদু হয়, হরি!', E'প্রতি-দিন যদি, আদর করিয়া,
 সে নাম কীর্তন করি
-সিতপল যেন, নাশি রোগ-মূল,
+সিতপল যেন, নাশি'' রোগ-মূল,
 ক্রমে স্বাদু হয়, হরি!',
     E'prati-dina
 jadi, ādara koriyā,
 se
 nāma kīrtana kori
 sitapala
-jeno, nāśi roga-mūla,
+jeno, nāśi'' roga-mūla,
 krame
 swādu hoya, hari!', E'праті-діна
 джаді, а̄дара корійа̄,
 се
 на̄ма кı̄ртана корі
 сітапала
-джено, на̄ш́і роґа-мӯла,
+джено, на̄ш́і'' роґа-мӯла,
 краме
 сва̄ду хойа, харі!',
     E'', E'',
@@ -12803,24 +12758,24 @@ ten offenses to the holy name?', E'',
     v_chapter_id, '4', 4,
     E'অনুদিন যেন, তব নাম গাই,
 ক্রমেতে কৃপায় তব
-অপরাধ যাবে, নামে রুচি হবে,
+অপরাধ যা''বে, নামে রুচি হ''বে,
 আস্বাদিব নামাসব', E'অনুদিন যেন, তব নাম গাই,
 ক্রমেতে কৃপায় তব
-অপরাধ যাবে, নামে রুচি হবে,
+অপরাধ যা''বে, নামে রুচি হ''বে,
 আস্বাদিব নামাসব',
     E'anudina
 jeno, tava nāma gāi,
 kramete
 kṛpāya tava
 aparādha
-jābe, nāme ruci habe,
+jā''be, nāme ruci ha''be,
 āswādibo
 nāmāsava', E'анудіна
 джено, тава на̄ма ґа̄і,
 крамете
 кр̣па̄йа тава
 апара̄дга
-джа̄бе, на̄ме ручі хабе,
+джа̄''бе, на̄ме ручі ха''бе,
 а̄сва̄дібо
 на̄ма̄сава',
     E'', E'',
@@ -12875,11 +12830,11 @@ taste the intoxicating spirit of the name.', E'',
 শ্রী-রূপ-গোসাঞি, শ্রী-গুরু-রূপেতে,
 শিক্ষা দিল মোর কানে
 জান মোর কথা, নামের কাঙ্গাল!
-রতি পাবে নাম-গানে', E'হরি হে!
+রতি পা''বে নাম-গানে', E'হরি হে!
 শ্রী-রূপ-গোসাঞি, শ্রী-গুরু-রূপেতে,
 শিক্ষা দিল মোর কানে
 জান মোর কথা, নামের কাঙ্গাল!
-রতি পাবে নাম-গানে',
+রতি পা''বে নাম-গানে',
     E'hari
 he!
 śrī-rūpa-gosāi,
@@ -12889,7 +12844,7 @@ dila mora kāne
 jāno
 mora kathā, nāmera kāńgāla!
 rati
-pābe nāma-gāne', E'харі
+pā''be nāma-gāne', E'харі
 хе!
 ш́рı̄-рӯпа-ґоса̄і,
 ш́рı̄-ґуру-рӯпете,
@@ -12898,7 +12853,7 @@ pābe nāma-gāne', E'харі
 джа̄но
 мора катха̄, на̄мера ка̄ńґа̄ла!
 раті
-па̄бе на̄ма-ґа̄не',
+па̄''бе на̄ма-ґа̄не',
     E'', E'',
     E'O Lord Hari, Sri Rupa Gosvami, in the form of the spiritual master, gave these
 instructions to my ears: Try to understand my words, O you who begs for the
@@ -12933,27 +12888,27 @@ for chanting the holy name.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'কৃষ্ণ-নাম-রূপ- গুন-সুচরিত,
-পরম যতনে করি
+পরম যতনে করি''
 রসনা-মানসে, করহ নিয়োগ,
-ক্রম-বিধি অনুসরি', E'কৃষ্ণ-নাম-রূপ- গুন-সুচরিত,
-পরম যতনে করি
+ক্রম-বিধি অনুসরি''', E'কৃষ্ণ-নাম-রূপ- গুন-সুচরিত,
+পরম যতনে করি''
 রসনা-মানসে, করহ নিয়োগ,
-ক্রম-বিধি অনুসরি',
+ক্রম-বিধি অনুসরি''',
     E'kṛṣṇa-nāma-rūpa-
 guna-sucarita,
 parama
-jatane kori
+jatane kori''
 rasanā-mānase,
 koraho niyoga,
 krama-vidhi
-anusari', E'кр̣шн̣а-на̄ма-рӯпа-
+anusari''', E'кр̣шн̣а-на̄ма-рӯпа-
 ґуна-сучаріта,
 парама
-джатане корі
+джатане корі''
 расана̄-ма̄насе,
 корахо нійоґа,
 крама-відгі
-анусарі',
+анусарі''',
     E'', E'',
     E'Follow the scriptural rules and regulations and engage your tongue and mind in
 carefully chanting and remembering the holy names, divine forms, qualities, and
@@ -12986,28 +12941,28 @@ wonderful pastimes of Lord Krishna.', E'',
   )
   VALUES (
     v_chapter_id, '3', 3,
-    E'ব্রজে করি বাস, রাগানুগা হৈয়া,
+    E'ব্রজে করি'' বাস, রাগানুগা হৈয়া,
 স্মরণ কীর্তন কর
 এ নিখিল কাল, করহ জাপন,
-উপদেশ-সার ধর', E'ব্রজে করি বাস, রাগানুগা হৈয়া,
+উপদেশ-সার ধর''', E'ব্রজে করি'' বাস, রাগানুগা হৈয়া,
 স্মরণ কীর্তন কর
 এ নিখিল কাল, করহ জাপন,
-উপদেশ-সার ধর',
+উপদেশ-সার ধর''',
     E'braje
-kori bāsa, rāgānugā hoiyā,
+kori'' bāsa, rāgānugā hoiyā,
 smaraṇa
 kīrtana koro
 e
 nikhila kāla, koraho jāpana,
 upadeśa-sāra
-dharo ', E'брадже
-корі ба̄са, ра̄ґа̄нуґа̄ хоійа̄,
+dharo'' ', E'брадже
+корі'' ба̄са, ра̄ґа̄нуґа̄ хоійа̄,
 смаран̣а
 кı̄ртана коро
 е
 нікхіла ка̄ла, корахо джа̄пана,
 упадеш́а-са̄ра
-дгаро ',
+дгаро'' ',
     E'', E'',
     E'Dwell in the holy land of Vraja, cultivate spontaneous loving devotion
 (raganuga-bhakti), and spend your every moment chanting and remembering the
@@ -13040,22 +12995,22 @@ glories of Sri Hari. Just accept these as the essence of all instructions.', E
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'হা! রূপ-গোসাঞি, দয়া করি কবে,
+    E'হা! রূপ-গোসাঞি, দয়া করি'' কবে,
 দিবে দিনে ব্রজ-বাস
 রাগাত্মিক তুমি, তব পদানুগ,
-হৈতে দাসের আশা', E'হা! রূপ-গোসাঞি, দয়া করি কবে,
+হৈতে দাসের আশা', E'হা! রূপ-গোসাঞি, দয়া করি'' কবে,
 দিবে দিনে ব্রজ-বাস
 রাগাত্মিক তুমি, তব পদানুগ,
 হৈতে দাসের আশা',
     E'hā!
-rūpa-gosāi, doyā kori kabe,
+rūpa-gosāi, doyā kori'' kabe,
 dibe
 dine braja-bāsa
 rāgātmika
 tumi, tava padānuga,
 hoite
 dāsera āśā', E'ха̄!
-рӯпа-ґоса̄і, дойа̄ корі кабе,
+рӯпа-ґоса̄і, дойа̄ корі'' кабе,
 дібе
 діне браджа-ба̄са
 ра̄ґа̄тміка
@@ -13111,29 +13066,29 @@ desires to become a follower at your lotus feet', E'',
   VALUES (
     v_chapter_id, '1', 1,
     E'গুরুদেব!
-বড় কৃপা করি, গৌড়-বন মাঝে,
+বড় কৃপা করি'', গৌড়-বন মাঝে,
 গোদ্রুমে দিয়াছ স্থান
-আজ্ঞা দিল মোরে, এই ব্রজে বসি,
+আজ্ঞা দিল মোরে, এই ব্রজে বসি'',
 হরি-নাম কর গান', E'গুরুদেব!
-বড় কৃপা করি, গৌড়-বন মাঝে,
+বড় কৃপা করি'', গৌড়-বন মাঝে,
 গোদ্রুমে দিয়াছ স্থান
-আজ্ঞা দিল মোরে, এই ব্রজে বসি,
+আজ্ঞা দিল মোরে, এই ব্রজে বসি'',
 হরি-নাম কর গান',
     E'gurudev!
 boḍo
-kṛpā kori, gauḍa-vana mājhe,
+kṛpā kori'', gauḍa-vana mājhe,
 godrume
 diyācho sthāna
 ājñā
-dila more, ei braje bosi,
+dila more, ei braje bosi'',
 hari-nāma
 koro gāna', E'ґурудев!
 бод̣о
-кр̣па̄ корі, ґауд̣а-вана ма̄джхе,
+кр̣па̄ корі'', ґауд̣а-вана ма̄джхе,
 ґодруме
 дійа̄чхо стха̄на
 а̄джн̃а̄
-діла море, еі брадже босі,
+діла море, еі брадже босі'',
 харі-на̄ма
 коро ґа̄на',
     E'', E'',
@@ -13169,23 +13124,23 @@ the holy name of Hari.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'কিন্তু কবে প্রভু, যোগ্যতা অর্পিবে,
-এ দাসেরে দয়া করি
+এ দাসেরে দয়া করি''
 চিত্ত স্থির হবে, সকল সহিব,
 একান্তে ভজিব হরি', E'কিন্তু কবে প্রভু, যোগ্যতা অর্পিবে,
-এ দাসেরে দয়া করি
+এ দাসেরে দয়া করি''
 চিত্ত স্থির হবে, সকল সহিব,
 একান্তে ভজিব হরি',
     E'kintu
 kabe prabhu, yogyatā arpibe,
 e
-dāsere doyā kori
+dāsere doyā kori''
 citta
 sthira habe, sakala sohibo,
 ekānte
 bhajibo hari', E'кінту
 кабе прабгу, йоґйата̄ арпібе,
 е
-да̄сере дойа̄ корі
+да̄сере дойа̄ корі''
 чітта
 стхіра хабе, сакала сохібо,
 ека̄нте
@@ -13280,25 +13235,23 @@ service of the Supreme Lord.', E'',
   VALUES (
     v_chapter_id, '4', 4,
     E'বার্ধক্যে এখন, পঞ্চ-রোগে হত,
-কেমনে ভজিব বল
+কেমনে ভজিব বল''
 কাঁদিয়া কাঁদিয়া, তোমার চরণে,
-পড়িয়াছি সুবিহ্বল
-2015', E'বার্ধক্যে এখন, পঞ্চ-রোগে হত,
-কেমনে ভজিব বল
+পড়িয়াছি সুবিহ্বল', E'বার্ধক্যে এখন, পঞ্চ-রোগে হত,
+কেমনে ভজিব বল''
 কাঁদিয়া কাঁদিয়া, তোমার চরণে,
-পড়িয়াছি সুবিহ্বল
-2015',
+পড়িয়াছি সুবিহ্বল',
     E'vārdhakye
 ekhona, pañca-roge hata,
 kemone
-bhojibo bolo
+bhojibo bolo''
 kāńdiyā
 kāńdiyā, tomāra caraṇe,
 poḍiyāchi
 suvihvala', E'ва̄рдгакйе
 екхона, пан̃ча-роґе хата,
 кемоне
-бгоджібо боло
+бгоджібо боло''
 ка̄ńдійа̄
 ка̄ńдійа̄, тома̄ра чаран̣е,
 под̣ійа̄чхі
@@ -13351,13 +13304,13 @@ by anxiety.', E'',
   VALUES (
     v_chapter_id, '1', 1,
     E'গুরুদেব!
-কৃপা-বিন্দু দিয়া, কর এই দাসে,
+কৃপা-বিন্দু দিয়া, কর'' এই দাসে,
 তৃণাপেখা অতি হীন
-সকল সহনে, বল দিয়া কর,
+সকল সহনে, বল দিয়া কর'',
 নিজ-মানে স্পৃহা-হীন', E'গুরুদেব!
-কৃপা-বিন্দু দিয়া, কর এই দাসে,
+কৃপা-বিন্দু দিয়া, কর'' এই দাসে,
 তৃণাপেখা অতি হীন
-সকল সহনে, বল দিয়া কর,
+সকল সহনে, বল দিয়া কর'',
 নিজ-মানে স্পৃহা-হীন',
     E'gurudev!
 kṛpā-bindu diyā, koro'' ei dāse,
@@ -13401,12 +13354,12 @@ you are, without desires or aspirations.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'সকলে সম্মান করিতে শকতি,
-দেহ নাথ! যথাযথ
-তবে ত গাইব, হরি-নাম-সুখে,
-অপরাধ হ বে হত', E'সকলে সম্মান করিতে শকতি,
-দেহ নাথ! যথাযথ
-তবে ত গাইব, হরি-নাম-সুখে,
-অপরাধ হ বে হত',
+দেহ'' নাথ! যথাযথ
+তবে ত'' গাইব, হরি-নাম-সুখে,
+অপরাধ হ ''বে হত', E'সকলে সম্মান করিতে শকতি,
+দেহ'' নাথ! যথাযথ
+তবে ত'' গাইব, হরি-নাম-সুখে,
+অপরাধ হ ''বে হত',
     E'sakale
 sammāna korite śakati,
 deho'' nātha! jathājatha
@@ -13451,10 +13404,10 @@ Then, by chanting the holy name in great ecstasy, all my offenses will cease.', 
     E'কবে হেন কৃপা, লভিয়া এ জন,
 কৃতার্থ হৈবে, নাথ!
 শক্তি-বুদ্ধি-হীন, আমি অতি দীন,
-কর মোরে আত্ম-সাথ', E'কবে হেন কৃপা, লভিয়া এ জন,
+কর'' মোরে আত্ম-সাথ', E'কবে হেন কৃপা, লভিয়া এ জন,
 কৃতার্থ হৈবে, নাথ!
 শক্তি-বুদ্ধি-হীন, আমি অতি দীন,
-কর মোরে আত্ম-সাথ',
+কর'' মোরে আত্ম-সাথ',
     E'kabe
 heno kṛpā, labhiyā e jana,
 kṛtārtha hoibe, nātha!
@@ -13564,41 +13517,41 @@ maintain my life.', E'',
   VALUES (
     v_chapter_id, '1', 1,
     E'গুরুদেব!
-কবে মোর সেই দিন হবে
-মন স্থির করি, নির্জনে বসিয়া,
-কৃষ্ণ-নাম গাব
+কবে মোর সেই দিন হ''বে
+মন স্থির করি'', নির্জনে বসিয়া,
+কৃষ্ণ-নাম গা''ব
 যবে
 সংসার-ফুকার, কানে না
 পষিবে,
-দেহ-রোগ দূরে রবে', E'গুরুদেব!
-কবে মোর সেই দিন হবে
-মন স্থির করি, নির্জনে বসিয়া,
-কৃষ্ণ-নাম গাব
+দেহ-রোগ দূরে র''বে', E'গুরুদেব!
+কবে মোর সেই দিন হ''বে
+মন স্থির করি'', নির্জনে বসিয়া,
+কৃষ্ণ-নাম গা''ব
 যবে
 সংসার-ফুকার, কানে না
 পষিবে,
-দেহ-রোগ দূরে রবে',
+দেহ-রোগ দূরে র''বে',
     E'gurudev!
 kabe
-mora sei din habe
+mora sei din ha''be
 mana
-sthira kori, nirjane bosiyā,
+sthira kori'', nirjane bosiyā,
 kṛṣṇa-nāma
-gābo jabe
+gā''bo jabe
 saḿsāra-phukāra,
 kāne nā poṣibe,
 deho-roga
-dūre robe', E'ґурудев!
+dūre ro''be', E'ґурудев!
 кабе
-мора сеі дін хабе
+мора сеі дін ха''бе
 мана
-стхіра корі, нірджане босійа̄,
+стхіра корі'', нірджане босійа̄,
 кр̣шн̣а-на̄ма
-ґа̄бо джабе
+ґа̄''бо джабе
 саḿса̄ра-пхука̄ра,
 ка̄не на̄ пошібе,
 дехо-роґа
-дӯре робе',
+дӯре ро''бе',
     E'', E'',
     E'Gurudeva! O spiritual master! When, with a steady mind in a secluded place,
 will I sing the name of Sri Krsna? When will the pandemonium of worldly
@@ -13632,22 +13585,22 @@ away? When will that day be mine?', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'হরে কৃষ্ণ বলি, গাহিতে গাহিতে,
+    E'হরে কৃষ্ণ'' বলি'', গাহিতে গাহিতে,
 নয়নে বহিবে লোর
 দেহেতে পুলক, উদিত হৈবে,
-প্রেমেতে করিবে ভোর', E'হরে কৃষ্ণ বলি, গাহিতে গাহিতে,
+প্রেমেতে করিবে ভোর', E'হরে কৃষ্ণ'' বলি'', গাহিতে গাহিতে,
 নয়নে বহিবে লোর
 দেহেতে পুলক, উদিত হৈবে,
 প্রেমেতে করিবে ভোর',
     E'`hare
-kṛṣṇa boli, gāhite gāhite,
+kṛṣṇa'' boli'', gāhite gāhite,
 nayane
 bohibe lora
 dehete
 pulaka, udita hoibe,
 premete
 koribe bhora', E'`харе
-кр̣шн̣а болі, ґа̄хіте ґа̄хіте,
+кр̣шн̣а'' болі'', ґа̄хіте ґа̄хіте,
 найане
 бохібе лора
 дехете
@@ -13743,28 +13696,28 @@ unconscious.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'নিষ্কপটে হেন, দশা কবে হবে,
-নিরন্তর নাম গাব
-আবেশে রহিয়া, দেহ-যাত্রা করি,
-তোমার করুনা পাব', E'নিষ্কপটে হেন, দশা কবে হবে,
-নিরন্তর নাম গাব
-আবেশে রহিয়া, দেহ-যাত্রা করি,
-তোমার করুনা পাব',
+    E'নিষ্কপটে হেন, দশা কবে হ''বে,
+নিরন্তর নাম গা''ব
+আবেশে রহিয়া, দেহ-যাত্রা করি'',
+তোমার করুনা পা''ব', E'নিষ্কপটে হেন, দশা কবে হ''বে,
+নিরন্তর নাম গা''ব
+আবেশে রহিয়া, দেহ-যাত্রা করি'',
+তোমার করুনা পা''ব',
     E'niṣkapaṭe
-heno, daśā kabe habe,
+heno, daśā kabe ha''be,
 nirantara
-nāma gābo
+nāma gā''bo
 āveśe
-rohiyā, deha-yātrā kori,
+rohiyā, deha-yātrā kori'',
 tomāra
-karunā pābo', E'нішкапат̣е
-хено, даш́а̄ кабе хабе,
+karunā pā''bo', E'нішкапат̣е
+хено, даш́а̄ кабе ха''бе,
 нірантара
-на̄ма ґа̄бо
+на̄ма ґа̄''бо
 а̄веш́е
-рохійа̄, деха-йа̄тра̄ корі,
+рохійа̄, деха-йа̄тра̄ корі'',
 тома̄ра
-каруна̄ па̄бо',
+каруна̄ па̄''бо',
     E'', E'',
     E'When will such a genuine ecstatic condition be mine? I will constantly sing the
 holy name and remain absorbed in profound devotion while maintaining the
@@ -13816,12 +13769,12 @@ material body. In this way I will obtain your mercy.', E'',
 কবে তব করুনা-প্রকাশে
 শ্রী-গৌরাঙ্গ-লীলা, হয় নিত্য-তত্ত্ব,
 এই দৃঢ বিশ্বাসে
-হরি হরি বলি, গোদ্রুম-কাননে,
+হরি হরি'' বলি'', গোদ্রুম-কাননে,
 ভ্রমিব দর্শন-আশে', E'গুরুদেব!
 কবে তব করুনা-প্রকাশে
 শ্রী-গৌরাঙ্গ-লীলা, হয় নিত্য-তত্ত্ব,
 এই দৃঢ বিশ্বাসে
-হরি হরি বলি, গোদ্রুম-কাননে,
+হরি হরি'' বলি'', গোদ্রুম-কাননে,
 ভ্রমিব দর্শন-আশে',
     E'gurudev!
 kabe
@@ -13831,7 +13784,7 @@ hoya nitya-tattwa,
 ei
 dṛḍha viśvāse
 `hari
-hari boli, godruma-kānane,
+hari'' boli'', godruma-kānane,
 bhromibo
 darśana-āśe', E'ґурудев!
 кабе
@@ -13841,11 +13794,11 @@ darśana-āśe', E'ґурудев!
 еі
 др̣д̣ха віш́ва̄се
 `харі
-харі болі, ґодрума-ка̄нане,
+харі'' болі'', ґодрума-ка̄нане,
 бгромібо
 дарш́ана-а̄ш́е',
     E'', E'',
-    E'Gurudeva! O spiritual master! Lord Gaurangas transcendental pastimes are
+    E'Gurudeva! O spiritual master! Lord Gauranga''s transcendental pastimes are
 eternal realities. I wait for the day when, with this firm faith manifested by
 your mercy, I will wander through the groves of Godruma, chanting Hari! Hari!
 and hoping to behold those pastimes.', E'',
@@ -13879,23 +13832,23 @@ and hoping to behold those pastimes.', E'',
     v_chapter_id, '2', 2,
     E'নিতাই, গৌরাঙ্গ, অদ্বৈত, শ্রীবাস,
 গদাধর,-পঞ্চ-জন
-কৃষ্ণ-নাম-রসে, ভাসাবে জগত,
-করি মহা-সঙ্কীর্তন', E'নিতাই, গৌরাঙ্গ, অদ্বৈত, শ্রীবাস,
+কৃষ্ণ-নাম-রসে, ভাসা''বে জগত,
+করি'' মহা-সঙ্কীর্তন', E'নিতাই, গৌরাঙ্গ, অদ্বৈত, শ্রীবাস,
 গদাধর,-পঞ্চ-জন
-কৃষ্ণ-নাম-রসে, ভাসাবে জগত,
-করি মহা-সঙ্কীর্তন',
+কৃষ্ণ-নাম-রসে, ভাসা''বে জগত,
+করি'' মহা-সঙ্কীর্তন',
     E'nitāi,
 gaurāńga, adwaita, śrīvāsa,
 gadādhara,pañca-jana
 kṛṣṇa-nāma-rase,
-bhāsābe jagat,
-kori
+bhāsā''be jagat,
+kori''
 mahā-sańkīrtana', E'ніта̄і,
 ґаура̄ńґа, адваіта, ш́рı̄ва̄са,
 ґада̄дгара,пан̃ча-джана
 кр̣шн̣а-на̄ма-расе,
-бга̄са̄бе джаґат,
-корі
+бга̄са̄''бе джаґат,
+корі''
 маха̄-саńкı̄ртана',
     E'', E'',
     E'The Panca-tattva (Nitai, Gauranga, Advaita, Srivasa and Gadadhara) will flood
@@ -13954,7 +13907,7 @@ premera bāne', E'нартана-віла̄са,
     E'', E'',
     E'In my ears I will hear the sounds of dancing and the playing of the mrdangas.
 By constantly beholding the sweetness and beauty of that pastime of Lord
-Gaurangas, I will swim in the flood tide of divine love.', E'',
+Gauranga''s, I will swim in the flood tide of divine love.', E'',
     E'', E'',
     true
   )
@@ -13983,24 +13936,24 @@ Gaurangas, I will swim in the flood tide of divine love.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'না দেখি আবার, সে লীলা-রতন,
-কাঁদি হা গৌরাঙ্গ! বলি
+    E'না দেখি'' আবার, সে লীলা-রতন,
+কাঁদি হা গৌরাঙ্গ! বলি''
 আমারে বিষয়ী, পাগল বলিয়া,
-অঙ্গেতে দিবেক ধূলি', E'না দেখি আবার, সে লীলা-রতন,
-কাঁদি হা গৌরাঙ্গ! বলি
+অঙ্গেতে দিবেক ধূলি', E'না দেখি'' আবার, সে লীলা-রতন,
+কাঁদি হা গৌরাঙ্গ! বলি''
 আমারে বিষয়ী, পাগল বলিয়া,
 অঙ্গেতে দিবেক ধূলি',
     E'nā
-dekhi ābāra, se līlā-ratana,
+dekhi'' ābāra, se līlā-ratana,
 kāńdi
-hā gaurāńga! boli
+hā gaurāńga! boli''
 āmāre
 viṣayī, pāgala boliyā,
 ańgete
 dibeka dhūli', E'на̄
-декхі а̄ба̄ра, се лı̄ла̄-ратана,
+декхі'' а̄ба̄ра, се лı̄ла̄-ратана,
 ка̄ńді
-ха̄ ґаура̄ńґа! болі
+ха̄ ґаура̄ńґа! болі''
 а̄ма̄ре
 вішайı̄, па̄ґала болійа̄,
 аńґете
@@ -14053,11 +14006,11 @@ out, O my Lord Gauranga!', E'',
   VALUES (
     v_chapter_id, '1', 1,
     E'কবে গৌর-বনে, সুরধুনী-তটে,
-হা রাধে হা কৃষ্ণ বোলে
-কান্দিয়া বেড়াবো, দেহ-সুখ ছাড়ি,
+''হা রাধে হা কৃষ্ণ'' বোলে''
+কান্দিয়া বেড়াবো, দেহ-সুখ ছাড়ি'',
 নানা লতা-তরু-তলে', E'কবে গৌর-বনে, সুরধুনী-তটে,
-হা রাধে হা কৃষ্ণ বোলে
-কান্দিয়া বেড়াবো, দেহ-সুখ ছাড়ি,
+''হা রাধে হা কৃষ্ণ'' বোলে''
+কান্দিয়া বেড়াবো, দেহ-সুখ ছাড়ি'',
 নানা লতা-তরু-তলে',
     E'kabe
 gaura-vane, suradhunī-taṭe,
@@ -14104,10 +14057,10 @@ the so-called pleasures of this material body.', E'',
     E'স্ব-পচ-গৃহেতে, মাগিয়া খা‌ইবো,
 পিবো সরস্বতী-জল
 পুলিনে পুলিনে, গড়াগড়ি দিবো,
-করি কৃষ্ণ-কোলাহল', E'স্ব-পচ-গৃহেতে, মাগিয়া খা‌ইবো,
+করি'' কৃষ্ণ-কোলাহল', E'স্ব-পচ-গৃহেতে, মাগিয়া খা‌ইবো,
 পিবো সরস্বতী-জল
 পুলিনে পুলিনে, গড়াগড়ি দিবো,
-করি কৃষ্ণ-কোলাহল',
+করি'' কৃষ্ণ-কোলাহল',
     E'śwa-paca-gṛhete,
 māgiyā khāibo,
 pibo saraswatī-jala
@@ -14152,11 +14105,11 @@ raising a loud uproar of "Krsna! Krsna!"', E'',
     v_chapter_id, '3', 3,
     E'ধাম-বাসী জনে, প্রণতি করিয়া,
 মাগিবো কৃপার লেশ
-বৈষ্ণব-চরণ-রেণূ গায় মাখি,
-ধোরি অবধূত-বেশ', E'ধাম-বাসী জনে, প্রণতি করিয়া,
+বৈষ্ণব-চরণ-রেণূ গায় মাখি'',
+ধোরি'' অবধূত-বেশ', E'ধাম-বাসী জনে, প্রণতি করিয়া,
 মাগিবো কৃপার লেশ
-বৈষ্ণব-চরণ-রেণূ গায় মাখি,
-ধোরি অবধূত-বেশ',
+বৈষ্ণব-চরণ-রেণূ গায় মাখি'',
+ধোরি'' অবধূত-বেশ',
     E'dhāma-bāsī
 jane, pranati koriyā,
 māgibo kṛpāra leśa
@@ -14168,7 +14121,7 @@ dhori'' avadhūta-veśa', E'дга̄ма-ба̄сı̄
 дгорі'' авадгӯта-веш́а',
     E'', E'',
     E'When will I bow down to all the inhabitants of the holy land of Navadvipa and
-receive a bit of their causeless mercy? I will smear the dust of the Vaisnavas
+receive a bit of their causeless mercy? I will smear the dust of the Vaisnavas''
 lotus feet all over my body, and I will wear the dress of a mad wandering
 mendicant.', E'',
     E'', E'',
@@ -14322,23 +14275,23 @@ which is completely paraded with eternal, conscious bliss.', E'',
   VALUES (
     v_chapter_id, '2', 2,
     E'বৃষভানু-পুরে, জনম লৈব,
-যাবটে বিবাহ হবে
+যাবটে বিবাহ হ''বে
 ব্রজ-গোপী-ভাব, হৈবে স্বভাব,
 আনো-ভাব না রহিবে', E'বৃষভানু-পুরে, জনম লৈব,
-যাবটে বিবাহ হবে
+যাবটে বিবাহ হ''বে
 ব্রজ-গোপী-ভাব, হৈবে স্বভাব,
 আনো-ভাব না রহিবে',
     E'bṛṣabhānu-pure,
 janama loibo,
 yāvaṭe
-vivāha habe
+vivāha ha''be
 braja-gopī-bhāva,
 hoibe swabhāva,
 āno-bhāva
 nā rohibe', E'бр̣шабга̄ну-пуре,
 джанама лоібо,
 йа̄ват̣е
-віва̄ха хабе
+віва̄ха ха''бе
 браджа-ґопı̄-бга̄ва,
 хоібе свабга̄ва,
 а̄но-бга̄ва
@@ -14428,24 +14381,24 @@ divine love of Krsna?', E'',
     v_chapter_id, '4', 4,
     E'যমুনা-সলিল- আহরণে গিয়া,
 বুঝিব যুগল-রস
-প্রেম-মুগ্ধ হয়ে, পাগলিনী-প্রায়,
+প্রেম-মুগ্ধ হ''য়ে, পাগলিনী-প্রায়,
 গাইব রাধার যশ', E'যমুনা-সলিল- আহরণে গিয়া,
 বুঝিব যুগল-রস
-প্রেম-মুগ্ধ হয়ে, পাগলিনী-প্রায়,
+প্রেম-মুগ্ধ হ''য়ে, পাগলিনী-প্রায়,
 গাইব রাধার যশ',
     E'jamunā-salila-
 āharaṇe giyā,
 bujhibo
 yugala-rasa
 prema-mugdha
-hoye, pāgalinī-prāya,
+ho''ye, pāgalinī-prāya,
 gāibo
 rādhāra yaśa', E'джамуна̄-саліла-
 а̄харан̣е ґійа̄,
 буджхібо
 йуґала-раса
 према-муґдга
-хойе, па̄ґалінı̄-пра̄йа,
+хо''йе, па̄ґалінı̄-пра̄йа,
 ґа̄ібо
 ра̄дга̄ра йаш́а',
     E'', E'',
@@ -14552,24 +14505,24 @@ the happiness of Sri Radha, and I will always endeavor to increase Her joy.', E'
     v_chapter_id, '2', 2,
     E'শ্রী-রাধার সুখে, কৃষ্ণএর যে সুখ,
 জানিব মনেতে আমি
-রাধা-পদ ছাড়ি, শ্রী-কৃষ্ণ-সঙ্গমে,
+রাধা-পদ ছাড়ি'', শ্রী-কৃষ্ণ-সঙ্গমে,
 কভু না হৈব কামী', E'শ্রী-রাধার সুখে, কৃষ্ণএর যে সুখ,
 জানিব মনেতে আমি
-রাধা-পদ ছাড়ি, শ্রী-কৃষ্ণ-সঙ্গমে,
+রাধা-পদ ছাড়ি'', শ্রী-কৃষ্ণ-সঙ্গমে,
 কভু না হৈব কামী',
     E'śrī-rādhāra
 sukhe, kṛṣṇaera ye sukha,
 jānibo
 manete āmi
 rādhā-pada
-chāḍi, śrī-kṛṣṇa-sańgame,
+chāḍi'', śrī-kṛṣṇa-sańgame,
 kabhu
 nā hoibo kāmī', E'ш́рı̄-ра̄дга̄ра
 сукхе, кр̣шн̣аера йе сукха,
 джа̄нібо
 манете а̄мі
 ра̄дга̄-пада
-чха̄д̣і, ш́рı̄-кр̣шн̣а-саńґаме,
+чха̄д̣і'', ш́рı̄-кр̣шн̣а-саńґаме,
 кабгу
 на̄ хоібо ка̄мı̄',
     E'', E'',
@@ -14606,23 +14559,23 @@ lotus feet to be with Krsna myself.', E'',
     v_chapter_id, '3', 3,
     E'সখী-গণ মম, পরম-সুহৃত,
 যুগল-প্রেমের গুরু
-তদ-অনুগা হয়ে, সেবিব রাধার,
+তদ-অনুগা হ''য়ে, সেবিব রাধার,
 চরণ-কলপ-তরু', E'সখী-গণ মম, পরম-সুহৃত,
 যুগল-প্রেমের গুরু
-তদ-অনুগা হয়ে, সেবিব রাধার,
+তদ-অনুগা হ''য়ে, সেবিব রাধার,
 চরণ-কলপ-তরু',
     E'sakhī-gaṇa
 mama, parama-suhṛt,
 yugala-premera
 guru
 tad-anugā
-hoye, sevibo rādhāra,
+ho''ye, sevibo rādhāra,
 caraṇa-kalapa-taru', E'сакхı̄-ґан̣а
 мама, парама-сухр̣т,
 йуґала-премера
 ґуру
 тад-ануґа̄
-хойе, севібо ра̄дга̄ра,
+хо''йе, севібо ра̄дга̄ра,
 чаран̣а-калапа-тару',
     E'', E'',
     E'All my associate sakhis are my supreme well-wishers, my best friends, and they
@@ -14657,28 +14610,28 @@ trees.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'রাধা-পক্ষ ছাড়ি, যে-জন সে-জন,
+    E'রাধা-পক্ষ ছাড়ি'', যে-জন সে-জন,
 যে ভাবে সে ভাবে থাকে
-আমি তো রাধিকা- পক্ষ-পাতী সদা,
-কভু নাহি হেরি তাকে', E'রাধা-পক্ষ ছাড়ি, যে-জন সে-জন,
+আমি তো'' রাধিকা- পক্ষ-পাতী সদা,
+কভু নাহি হেরি তা''কে', E'রাধা-পক্ষ ছাড়ি'', যে-জন সে-জন,
 যে ভাবে সে ভাবে থাকে
-আমি তো রাধিকা- পক্ষ-পাতী সদা,
-কভু নাহি হেরি তাকে',
+আমি তো'' রাধিকা- পক্ষ-পাতী সদা,
+কভু নাহি হেরি তা''কে',
     E'rādhā-pakṣa
-chāḍi, ye-jana se-jana,
+chāḍi'', ye-jana se-jana,
 ye
 bhāve se bhāve thāke
 āmi
-to rādhikā- pakṣa-pātī sadā,
+to'' rādhikā- pakṣa-pātī sadā,
 kabhu
-nāhi heri tāke', E'ра̄дга̄-пакша
-чха̄д̣і, йе-джана се-джана,
+nāhi heri tā''ke', E'ра̄дга̄-пакша
+чха̄д̣і'', йе-джана се-джана,
 йе
 бга̄ве се бга̄ве тха̄ке
 а̄мі
-то ра̄дгіка̄- пакша-па̄тı̄ сада̄,
+то'' ра̄дгіка̄- пакша-па̄тı̄ сада̄,
 кабгу
-на̄хі хері та̄ке',
+на̄хі хері та̄''ке',
     E'', E'',
     E'I am forever partial and prone to favoring the party of Sri Radhika. I will
 never even look upon those persons who have abandoned Her entourage, whoever
@@ -14726,11 +14679,11 @@ they may be and regardless of what they preach.', E'',
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'কবে হবে বল সে-দিন আমার
-(আমার) অপরাধ ঘুচি, শুদ্ধ নামে রুচি,
-কৃপা-বলে হবে হৃদয়ে সঞ্চার', E'কবে হবে বল সে-দিন আমার
-(আমার) অপরাধ ঘুচি, শুদ্ধ নামে রুচি,
-কৃপা-বলে হবে হৃদয়ে সঞ্চার',
+    E'কবে হ''বে বল সে-দিন আমার
+(আমার) অপরাধ ঘুচি'', শুদ্ধ নামে রুচি,
+কৃপা-বলে হ''বে হৃদয়ে সঞ্চার', E'কবে হ''বে বল সে-দিন আমার
+(আমার) অপরাধ ঘুচি'', শুদ্ধ নামে রুচি,
+কৃপা-বলে হ''বে হৃদয়ে সঞ্চার',
     E'kabe
 ha''be bolo se-dina āmār
 (āmār) aparādha ghuci'', śuddha nāme ruci,
@@ -14770,13 +14723,13 @@ Name in purity?', E'',
   )
   VALUES (
     v_chapter_id, '2', 2,
-    E'তৃণাধিক হীন, কবে নিজে মানি,
-সহিষ্ণুতা-গুণ হৃদয়েতে আনি
+    E'তৃণাধিক হীন, কবে নিজে মানি'',
+সহিষ্ণুতা-গুণ হৃদয়েতে আনি''
 সকলে মানদ, আপনি অমানী,
-হয়ে আস্বাদিবো নাম-রস-সার', E'তৃণাধিক হীন, কবে নিজে মানি,
-সহিষ্ণুতা-গুণ হৃদয়েতে আনি
+হ''য়ে আস্বাদিবো নাম-রস-সার', E'তৃণাধিক হীন, কবে নিজে মানি'',
+সহিষ্ণুতা-গুণ হৃদয়েতে আনি''
 সকলে মানদ, আপনি অমানী,
-হয়ে আস্বাদিবো নাম-রস-সার',
+হ''য়ে আস্বাদিবো নাম-রস-সার',
     E'tṛṇādhika
 hīna, kabe nije māni'',
 sahiṣṇutā-guṇa hṛdoyete āni''
@@ -14869,11 +14822,11 @@ birth after birth.', E'',
     v_chapter_id, '4', 4,
     E'(কবে) করিতে শ্রী-কৃষ্ণ-নাম উচ্চারণ,
 পুলকিত দেহ গদ্গদ বচন
-বৈবর্ণ্য-বেপথু হবে সঙ্ঘটন,
-নিরন্তর নেত্রে ববে অশ্রু-ধার', E'(কবে) করিতে শ্রী-কৃষ্ণ-নাম উচ্চারণ,
+বৈবর্ণ্য-বেপথু হ''বে সঙ্ঘটন,
+নিরন্তর নেত্রে ব''বে অশ্রু-ধার', E'(কবে) করিতে শ্রী-কৃষ্ণ-নাম উচ্চারণ,
 পুলকিত দেহ গদ্গদ বচন
-বৈবর্ণ্য-বেপথু হবে সঙ্ঘটন,
-নিরন্তর নেত্রে ববে অশ্রু-ধার',
+বৈবর্ণ্য-বেপথু হ''বে সঙ্ঘটন,
+নিরন্তর নেত্রে ব''বে অশ্রু-ধার',
     E'(kabe)
 korite śrī-kṛṣṇa-nāma uccāraṇa,
 pulakita deho gadgada bacana
@@ -14916,10 +14869,10 @@ with endless tears as I chant?', E'',
   VALUES (
     v_chapter_id, '5', 5,
     E'কবে নবদ্বীপে, সুরধুনী-তটে,
-গৌর-নিত্যানন্দ বলি নিষ্কপটে
+গৌর-নিত্যানন্দ বলি'' নিষ্কপটে
 নাচিয়া গাইয়া, বেরাইব ছুটে,
 বাতুলের প্রায় ছারিয়া বিচার', E'কবে নবদ্বীপে, সুরধুনী-তটে,
-গৌর-নিত্যানন্দ বলি নিষ্কপটে
+গৌর-নিত্যানন্দ বলি'' নিষ্কপটে
 নাচিয়া গাইয়া, বেরাইব ছুটে,
 বাতুলের প্রায় ছারিয়া বিচার',
     E'kabe
@@ -14963,10 +14916,10 @@ calling out the names of Gaura and Nityananda?', E'',
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'কবে নিত্যানন্দ, মোরে করি দয়া,
+    E'কবে নিত্যানন্দ, মোরে করি ''দয়া,
 ছারাইবে মোর বিষয়ের মায়া
 দিয়া মোরে নিজ-চরণের ছায়া,
-নামের হাটেতে দিবে অধিকার', E'কবে নিত্যানন্দ, মোরে করি দয়া,
+নামের হাটেতে দিবে অধিকার', E'কবে নিত্যানন্দ, মোরে করি ''দয়া,
 ছারাইবে মোর বিষয়ের মায়া
 দিয়া মোরে নিজ-চরণের ছায়া,
 নামের হাটেতে দিবে অধিকার',
@@ -15013,10 +14966,10 @@ Name?', E'',
   VALUES (
     v_chapter_id, '7', 7,
     E'কিনিব, লুটিব, হরি-নাম-রস,
-নাম-রসে মাতি হৈব বিবশ
+নাম-রসে মাতি'' হৈব বিবশ
 রসের রসিক-চরণ পরশ,
 করিয়া মোজিব রসে অনিবার', E'কিনিব, লুটিব, হরি-নাম-রস,
-নাম-রসে মাতি হৈব বিবশ
+নাম-রসে মাতি'' হৈব বিবশ
 রসের রসিক-চরণ পরশ,
 করিয়া মোজিব রসে অনিবার',
     E'kinibo,
@@ -15062,10 +15015,10 @@ relishes the flavors [rasa] of devotion?', E'',
   VALUES (
     v_chapter_id, '8', 8,
     E'কবে জীবে দয়া, হৈবে উদয়,
-নিজ-সুখ ভুলি সুদীন-হৃদয়
+নিজ-সুখ ভুলি'' সুদীন-হৃদয়
 ভকতিবিনোদ, করিয়া বিনয়,
 শ্রী-আজ্ঞা-টহল করিবে প্রচার', E'কবে জীবে দয়া, হৈবে উদয়,
-নিজ-সুখ ভুলি সুদীন-হৃদয়
+নিজ-সুখ ভুলি'' সুদীন-হৃদয়
 ভকতিবিনোদ, করিয়া বিনয়,
 শ্রী-আজ্ঞা-টহল করিবে প্রচার',
     E'kabe
@@ -15300,26 +15253,26 @@ devastation. My entire body is shattered in a flood of ecstasies.', E'',
   )
   VALUES (
     v_chapter_id, '4', 4,
-    E'করি এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
+    E'করি'' এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
 মোরে ডারে প্রেমের সাগরে
-কিছু না বুঝিতে দিল, মোরে তো বাতুল কৈল,
-মোর চিত্ত-বিত্ত সব হরে', E'করি এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
+কিছু না বুঝিতে দিল, মোরে তো'' বাতুল কৈল,
+মোর চিত্ত-বিত্ত সব হরে', E'করি'' এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
 মোরে ডারে প্রেমের সাগরে
-কিছু না বুঝিতে দিল, মোরে তো বাতুল কৈল,
+কিছু না বুঝিতে দিল, মোরে তো'' বাতুল কৈল,
 মোর চিত্ত-বিত্ত সব হরে',
-    E'kori
+    E'kori''
 eto upadrava, citte varṣe sudhā-drava,
 more
 ḍāre premera sāgare
 kichu
-nā bujhite dilo, more to bātula koilo,
+nā bujhite dilo, more to'' bātula koilo,
 mora
-citta-vitta saba hare', E'корі
+citta-vitta saba hare', E'корі''
 ето упадрава, чітте варше судга̄-драва,
 море
 д̣а̄ре премера са̄ґаре
 кічху
-на̄ буджхіте діло, море то ба̄тула коіло,
+на̄ буджхіте діло, море то'' ба̄тула коіло,
 мора
 чітта-вітта саба харе',
     E'', E'',
@@ -15355,22 +15308,22 @@ away my heart and all my wealth.', E'',
   )
   VALUES (
     v_chapter_id, '5', 5,
-    E'লৈনু আশ্রয় যার, হেন ব্যবহার তার,
+    E'লৈনু আশ্রয় যা''র, হেন ব্যবহার তা''র,
 বর্নিতে না পারি এ সকল
 কৃষ্ণ-নাম ইচ্ছা-ময়, যাহে যাহে সুখী হয়,
-সেই মোর সুখের সম্বল', E'লৈনু আশ্রয় যার, হেন ব্যবহার তার,
+সেই মোর সুখের সম্বল', E'লৈনু আশ্রয় যা''র, হেন ব্যবহার তা''র,
 বর্নিতে না পারি এ সকল
 কৃষ্ণ-নাম ইচ্ছা-ময়, যাহে যাহে সুখী হয়,
 সেই মোর সুখের সম্বল',
     E'loinu
-āśroya jār, heno vyavahāra tār,
+āśroya jā''r, heno vyavahāra tā''r,
 varnite
 nā pāri e sakal
 kṛṣṇa-nāma
 icchā-moy, jāhe jāhe sukhī hoy,
 sei
 mora sukhera sambal', E'лоіну
-а̄ш́ройа джа̄р, хено вйаваха̄ра та̄р,
+а̄ш́ройа джа̄''р, хено вйаваха̄ра та̄''р,
 варніте
 на̄ па̄рі е сакал
 кр̣шн̣а-на̄ма
@@ -15412,28 +15365,28 @@ happiness.', E'',
     v_chapter_id, '6', 6,
     E'প্রেমের কলিকা নাম, অদ্ভুত রসের ধাম,
 হেন বল করয়ে প্রকাশ
-ঈষত বিকশি পুনঃ, দেখায় নিজ-রূপ-গুন,
-চিত্ত হরি লয় কৃষ্ণ-পাশ', E'প্রেমের কলিকা নাম, অদ্ভুত রসের ধাম,
+ঈষত বিকশি'' পুনঃ, দেখায় নিজ-রূপ-গুন,
+চিত্ত হরি'' লয় কৃষ্ণ-পাশ', E'প্রেমের কলিকা নাম, অদ্ভুত রসের ধাম,
 হেন বল করয়ে প্রকাশ
-ঈষত বিকশি পুনঃ, দেখায় নিজ-রূপ-গুন,
-চিত্ত হরি লয় কৃষ্ণ-পাশ',
+ঈষত বিকশি'' পুনঃ, দেখায় নিজ-রূপ-গুন,
+চিত্ত হরি'' লয় কৃষ্ণ-পাশ',
     E'premera
 kalikā nām, adbhuta rasera dhām,
 heno
 bala karaye prakāś
 īṣat
-vikaśi punaḥ, dekhāy nija-rūpa-guna,
+vikaśi'' punaḥ, dekhāy nija-rūpa-guna,
 citta
-hari loya kṛṣṇa-pāś', E'премера
+hari'' loya kṛṣṇa-pāś', E'премера
 каліка̄ на̄м, адбгута расера дга̄м,
 хено
 бала карайе прака̄ш́
 ı̄шат
-вікаш́і пунах̣, декха̄й ніджа-рӯпа-ґуна,
+вікаш́і'' пунах̣, декха̄й ніджа-рӯпа-ґуна,
 чітта
-харі лойа кр̣шн̣а-па̄ш́',
+харі'' лойа кр̣шн̣а-па̄ш́',
     E'', E'',
-    E'The holy name is the bud of the flower of divine love, the abode of devotions
+    E'The holy name is the bud of the flower of divine love, the abode of devotion''s
 wonderful mellows. Such is the power that He manifests, that although He
 displays His power only slightly, He reveals His own divine form and qualities,
 steals my heart and takes it to Krsna.', E'',
@@ -15523,24 +15476,24 @@ Krsna and completely destroys this mortal frame of mine.', E'',
     v_chapter_id, '8', 8,
     E'কৃষ্ণ-নাম-চিন্তামণি, অখিল রসের খনি,
 নিত্য-মুক্ত শুদ্ধ-রস-ময়
-নামের বালাই যত, সব লয়ে হয় হত,
+নামের বালাই যত, সব ল''য়ে হয় হত,
 তবে মোর সুখের উদয়', E'কৃষ্ণ-নাম-চিন্তামণি, অখিল রসের খনি,
 নিত্য-মুক্ত শুদ্ধ-রস-ময়
-নামের বালাই যত, সব লয়ে হয় হত,
+নামের বালাই যত, সব ল''য়ে হয় হত,
 তবে মোর সুখের উদয়',
     E'kṛṣṇa-nāma-cintāmaṇi,
 akhila rasera khani,
 nitya-mukta
 śuddha-rasa-moy
 nāmera
-bālāi jata, saba loye hoi hata,
+bālāi jata, saba lo''ye hoi hata,
 tabe
 mora sukhera udoy', E'кр̣шн̣а-на̄ма-чінта̄ман̣і,
 акхіла расера кхані,
 нітйа-мукта
 ш́уддга-раса-мой
 на̄мера
-ба̄ла̄і джата, саба лойе хоі хата,
+ба̄ла̄і джата, саба ло''йе хоі хата,
 табе
 мора сукхера удой',
     E'', E'',

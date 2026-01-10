@@ -274,10 +274,12 @@ def preserve_line_breaks(soup):
 
 def clean_verse_preserve_lines(text: str) -> str:
     """Clean whitespace while preserving line breaks."""
-    # Remove UPDATED markers and website artifacts
-    text = re.sub(r'UPDATED:.*$', '', text, flags=re.MULTILINE | re.IGNORECASE)
+    # Remove UPDATED/UDPATED markers and website artifacts
+    text = re.sub(r'U[DP]DATED:.*$', '', text, flags=re.MULTILINE | re.IGNORECASE)
     text = re.sub(r'www\.kksongs\.org.*$', '', text, flags=re.MULTILINE)
     text = re.sub(r'Krsna Kirtana Songs.*$', '', text, flags=re.MULTILINE)
+    # Remove standalone dates like "September 27, 2016"
+    text = re.sub(r'(January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},?\s*\n?\s*\d{4}', '', text, flags=re.IGNORECASE)
 
     # Clean each line separately
     lines = []

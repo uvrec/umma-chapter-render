@@ -12,6 +12,7 @@ Generate SQL migration for Saranagati book with proper verses table structure.
 """
 
 import json
+import re
 import unicodedata
 from pathlib import Path
 
@@ -187,10 +188,29 @@ def convert_iast_to_ukrainian(text: str) -> str:
     return ''.join(result)
 
 
+def clean_artifacts(text: str) -> str:
+    """Remove website artifacts from text."""
+    if not text:
+        return text
+    # Remove Windows-1252 special chars
+    text = text.replace('\x92', "'")
+    # Remove UPDATED/UDPATED (typo) line - matches UD[P]ATED or UP[D]ATED
+    text = re.sub(r'\n?(UPDATED|UDPATED):?[^\n]*', '', text, flags=re.IGNORECASE)
+    # Remove standalone dates "September 27,\n2016" (month + day + optional year on next line)
+    text = re.sub(r'\n?(January|February|March|April|May|June|July|August|September|October|November|December)\s*\d{1,2},?\s*\n?\s*\d{4}', '', text, flags=re.IGNORECASE)
+    # Remove orphan year lines
+    text = re.sub(r'\n\d{4}\s*$', '', text)
+    # Clean up extra whitespace and empty lines
+    text = '\n'.join(line for line in text.split('\n') if line.strip())
+    return text.strip()
+
+
 def escape_sql(text: str) -> str:
     """Escape text for SQL string literal."""
     if not text:
         return ""
+    # Clean artifacts first
+    text = clean_artifacts(text)
     return text.replace("'", "''").replace("\\", "\\\\")
 
 
