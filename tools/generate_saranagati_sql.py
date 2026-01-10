@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
 """
 Generate SQL migration for Saranagati book with proper verses table structure.
+
+Структура полів:
+- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (однаковий вміст)
+- transliteration_en — IAST транслітерація (латинка з діакритикою)
+- transliteration_ua — українська кирилична транслітерація з діакритикою
+- synonyms_en / synonyms_ua — слово-за-словом (не маємо)
+- translation_en / translation_ua — переклад
+- commentary_en / commentary_ua — пояснення
 """
 
 import json
+import unicodedata
 from pathlib import Path
 
 # Prabhupada's purports for specific verses (Ukrainian)
@@ -39,6 +48,145 @@ PRABHUPADA_PURPORTS_UA = {
 }
 
 
+def convert_iast_to_ukrainian(text: str) -> str:
+    """
+    Конвертує IAST транслітерацію в українську кирилицю з діакритикою.
+    Базується на import_gita_transliteration.py
+    """
+    if not text:
+        return text
+
+    # Unicode нормалізація
+    text = unicodedata.normalize('NFC', text)
+
+    # Паттерни заміни (від довших до коротших)
+    patterns = {
+        # 3+ символи
+        'nya': 'нйа',
+        'nye': 'нйе',
+        'nyi': 'нйі',
+        'nyo': 'нйо',
+        'nyu': 'нйу',
+        'jjh': 'жджх',
+
+        # Довгі голосні (precomposed)
+        'yā': 'йа̄',
+        'yī': 'йı̄',
+        'yū': 'йӯ',
+        'ā': 'а̄',
+        'ī': 'ı̄',
+        'ū': 'ӯ',
+        'ṝ': 'р̣̄',
+        'ḹ': 'л̣̄',
+        'ṭ': 'т̣',
+        'ḍ': 'д̣',
+        'ṇ': 'н̣',
+        'ṣ': 'ш',
+        'ṛ': 'р̣',
+        'ś': 'ш́',
+        'ñ': 'н̃',
+        'ṅ': 'н̇',
+        'ṁ': 'м̇',
+        'ṃ': 'м̣',
+        'ḥ': 'х̣',
+        'ḷ': 'л̣',
+
+        # Великі літери
+        'Ā': 'А̄',
+        'Ī': 'Ī',
+        'Ū': 'Ӯ',
+
+        # 2 символи - придихові
+        'bh': 'бг',
+        'gh': 'ґг',
+        'dh': 'дг',
+        'th': 'тх',
+        'ph': 'пх',
+        'kh': 'кх',
+        'ch': 'чх',
+        'jh': 'джх',
+        'sh': 'сх',
+        'kṣ': 'кш',
+        'jñ': 'джн̃',
+
+        # Дифтонги
+        'ai': 'аі',
+        'au': 'ау',
+
+        # Прості приголосні
+        'k': 'к',
+        'g': 'ґ',
+        'c': 'ч',
+        'j': 'дж',
+        't': 'т',
+        'd': 'д',
+        'p': 'п',
+        'b': 'б',
+        'y': 'й',
+        'r': 'р',
+        'l': 'л',
+        'v': 'в',
+        'w': 'в',
+        'h': 'х',
+        'm': 'м',
+        'n': 'н',
+        's': 'с',
+
+        # Великі приголосні
+        'K': 'К',
+        'G': 'Ґ',
+        'C': 'Ч',
+        'J': 'Дж',
+        'T': 'Т',
+        'D': 'Д',
+        'P': 'П',
+        'B': 'Б',
+        'Y': 'Й',
+        'R': 'Р',
+        'L': 'Л',
+        'V': 'В',
+        'W': 'В',
+        'H': 'Х',
+        'M': 'М',
+        'N': 'Н',
+        'S': 'С',
+
+        # Прості голосні
+        'a': 'а',
+        'i': 'і',
+        'u': 'у',
+        'e': 'е',
+        'o': 'о',
+        'A': 'А',
+        'I': 'І',
+        'U': 'У',
+        'E': 'Е',
+        'O': 'О',
+    }
+
+    result = []
+    i = 0
+
+    while i < len(text):
+        matched = False
+
+        # Пробуємо найдовші підрядки першими (3, 2, 1)
+        for length in [3, 2, 1]:
+            if i + length <= len(text):
+                substr = text[i:i + length]
+                if substr in patterns:
+                    result.append(patterns[substr])
+                    i += length
+                    matched = True
+                    break
+
+        if not matched:
+            result.append(text[i])
+            i += 1
+
+    return ''.join(result)
+
+
 def escape_sql(text: str) -> str:
     """Escape text for SQL string literal."""
     if not text:
@@ -57,6 +205,7 @@ def generate_migration():
     # Header
     sql_parts.append("""-- Import Saranagati by Bhaktivinoda Thakura
 -- Proper structure: books -> cantos -> chapters -> verses
+-- Fields: sanskrit_en/ua, transliteration_en/ua, synonyms_en/ua, translation_en/ua, commentary_en/ua
 
 BEGIN;
 
@@ -133,15 +282,31 @@ BEGIN
             for i in range(num_verses):
                 verse_num = i + 1
 
-                # Get verse components (with fallbacks for missing data)
-                sanskrit = escape_sql(bengali[i] if i < len(bengali) else '')
-                translit = escape_sql(transliteration[i] if i < len(transliteration) else '')
+                # sanskrit_en and sanskrit_ua - both contain Bengali text
+                sanskrit_text = escape_sql(bengali[i] if i < len(bengali) else '')
+
+                # transliteration_en - IAST (Latin with diacritics)
+                translit_en = transliteration[i] if i < len(transliteration) else ''
+                translit_en_escaped = escape_sql(translit_en)
+
+                # transliteration_ua - Ukrainian cyrillic (converted from IAST)
+                translit_ua = convert_iast_to_ukrainian(translit_en)
+                translit_ua_escaped = escape_sql(translit_ua)
+
+                # translation_en
                 trans_en = escape_sql(translation[i] if i < len(translation) else '')
 
-                # English purport goes on the last verse
+                # translation_ua - not available yet, empty
+                trans_ua = ''
+
+                # synonyms_en / synonyms_ua - not available
+                synonyms_en = ''
+                synonyms_ua = ''
+
+                # commentary_en - English purport goes on the last verse
                 verse_comm_en = escape_sql(purport_en) if verse_num == num_verses else ''
 
-                # Ukrainian purport - distribute to specific verses
+                # commentary_ua - Ukrainian purport - distribute to specific verses
                 if verse_num in verse_purports_ua:
                     verse_comm_ua = escape_sql("\n\n".join(verse_purports_ua[verse_num]))
                 else:
@@ -149,12 +314,33 @@ BEGIN
 
                 sql_parts.append(f"""
   -- Verse {verse_num}
-  INSERT INTO public.verses (chapter_id, verse_number, verse_number_sort, sanskrit, transliteration, translation_en, commentary_en, commentary_ua, is_published)
-  VALUES (v_chapter_id, '{verse_num}', {verse_num}, E'{sanskrit}', E'{translit}', E'{trans_en}', E'{verse_comm_en}', E'{verse_comm_ua}', true)
+  INSERT INTO public.verses (
+    chapter_id, verse_number, verse_number_sort,
+    sanskrit_en, sanskrit_ua,
+    transliteration_en, transliteration_ua,
+    synonyms_en, synonyms_ua,
+    translation_en, translation_ua,
+    commentary_en, commentary_ua,
+    is_published
+  )
+  VALUES (
+    v_chapter_id, '{verse_num}', {verse_num},
+    E'{sanskrit_text}', E'{sanskrit_text}',
+    E'{translit_en_escaped}', E'{translit_ua_escaped}',
+    E'{synonyms_en}', E'{synonyms_ua}',
+    E'{trans_en}', E'{trans_ua}',
+    E'{verse_comm_en}', E'{verse_comm_ua}',
+    true
+  )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    sanskrit = EXCLUDED.sanskrit,
-    transliteration = EXCLUDED.transliteration,
+    sanskrit_en = EXCLUDED.sanskrit_en,
+    sanskrit_ua = EXCLUDED.sanskrit_ua,
+    transliteration_en = EXCLUDED.transliteration_en,
+    transliteration_ua = EXCLUDED.transliteration_ua,
+    synonyms_en = EXCLUDED.synonyms_en,
+    synonyms_ua = EXCLUDED.synonyms_ua,
     translation_en = EXCLUDED.translation_en,
+    translation_ua = EXCLUDED.translation_ua,
     commentary_en = EXCLUDED.commentary_en,
     commentary_ua = EXCLUDED.commentary_ua;
 """)
