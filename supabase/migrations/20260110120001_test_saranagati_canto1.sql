@@ -115,7 +115,7 @@ BEGIN
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
   VALUES (v_canto_id, 1, E'Sri Krsna Caitanya Prabhu Jive Doya Kori', E'', 'verses', true)
-  ON CONFLICT (canto_id, chapter_number) DO UPDATE SET
+  ON CONFLICT (canto_id, chapter_number) WHERE book_id IS NULL DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
     chapter_type = EXCLUDED.chapter_type;
