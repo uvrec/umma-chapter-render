@@ -9,28 +9,28 @@ BEGIN;
 
 -- Founders (Pancha-tattva)
 UPDATE gv_authors SET
-  name_ua = 'Шрı̄ Чаітанйа Махāпрабгу',
-  title_ua = 'Махāпрабгу'
+  name_ua = 'Шрі Чаітанья Махапрабгу',
+  title_ua = 'Махапрабгу'
 WHERE slug = 'chaitanya-mahaprabhu';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрı̄ Нітйāнанда Прабгу',
+  name_ua = 'Шрі Нітьянанда Прабгу',
   title_ua = 'Прабгу'
 WHERE slug = 'nityananda-prabhu';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрı̄ Адваіта Āчāрйа',
-  title_ua = 'Āчāрйа'
+  name_ua = 'Шрі Адваіта Ачар'я',
+  title_ua = 'Ачар'я'
 WHERE slug = 'advaita-acharya';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрı̄ Ґадāдгара Пан̣д̣іта',
-  title_ua = 'Пан̣д̣іта'
+  name_ua = 'Шрі Ґададгар Пандіт',
+  title_ua = 'Пандіт'
 WHERE slug = 'gadadhara-pandita';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрı̄вāса Т̣гāкура',
-  title_ua = 'Т̣гāкура'
+  name_ua = 'Шрівас Т̣хакур',
+  title_ua = 'Т̣хакур'
 WHERE slug = 'srivasa-thakura';
 
 -- Six Gosvamis
@@ -118,11 +118,11 @@ UPDATE gv_authors SET
 WHERE slug = 'satsvarupa-dasa-goswami';
 
 UPDATE gv_authors SET
-  name_ua = 'Ґопı̄парāн̣адгана Дāса'
+  name_ua = 'Ґопіпаранадгана Дас'
 WHERE slug = 'gopiparanadhana-dasa';
 
 UPDATE gv_authors SET
-  name_ua = 'Хр̣дайāнанда Дāса Ґосвāмı̄',
+  name_ua = 'Хрір̣даянанда Дас Ґосвамі',
   title_ua = 'Ґосвāмı̄'
 WHERE slug = 'hridayananda-dasa-goswami';
 
