@@ -596,6 +596,29 @@ export const defaultRules: NormalizationRule[] = [
   { id: "transl_degradation", incorrect: "деградація", correct: "занепад", category: "translation" },
 
   // =====================================================
+  // РЕДАГУВАННЯ (лексичні заміни за правилами BBT)
+  // =====================================================
+  { id: "edit_dalshiy", incorrect: "дальший", correct: "подальший", category: "editing", description: "дальший → наступний/подальший" },
+  { id: "edit_pidkreslyuvaty", incorrect: "підкреслювати", correct: "наголошувати", category: "editing", description: "підкреслювати → наголошувати" },
+  { id: "edit_pryiniaty_uchast", incorrect: "прийняти участь", correct: "взяти участь", category: "editing" },
+  { id: "edit_vsepronykaiuchyi", incorrect: "всепроникаючий", correct: "всепроникний", category: "editing" },
+  { id: "edit_pryity_vysnovku", incorrect: "прийти висновку", correct: "дійти висновку", category: "editing" },
+  { id: "edit_lipshyi", incorrect: "ліпший", correct: "кращий", category: "editing", description: "ліпший → кращий (ліпший — зрідка)" },
+  { id: "edit_sviy_vlasnyi", incorrect: "свій власний", correct: "свій", category: "editing", description: "тавтологія: свій власний → свій" },
+  { id: "edit_obumovlenist", incorrect: "обумовленість", correct: "зумовленість", category: "editing" },
+  { id: "edit_dbaty_za", incorrect: "дбати за", correct: "дбати про", category: "editing" },
+  { id: "edit_dumaty_za", incorrect: "думати за", correct: "думати про", category: "editing" },
+  { id: "edit_hovoryty_za", incorrect: "говорити за", correct: "говорити про", category: "editing" },
+  { id: "edit_vyshchenavedenyy", incorrect: "вищенаведений", correct: "наведений раніше", category: "editing" },
+  { id: "edit_vyshchezghadanyy", incorrect: "вищезгаданий", correct: "згаданий раніше", category: "editing" },
+  { id: "edit_niiakyi", incorrect: "ніякий", correct: "жодний", category: "editing", description: "ніякий → жодний" },
+  { id: "edit_v_toy_zhe_chas", incorrect: "в той же час", correct: "водночас", category: "editing" },
+  { id: "edit_znakhodytysya", incorrect: "знаходитися", correct: "перебувати", category: "editing" },
+  { id: "edit_prynosyty_poklony", incorrect: "приносити поклони", correct: "складати поклони", category: "editing" },
+  { id: "edit_odruzhytysya_na", incorrect: "одружитися на", correct: "одружитися з", category: "editing" },
+  { id: "edit_bud_to", incorrect: "будь то", correct: "чи то", category: "editing", description: "будь то X чи Y → чи то X, чи то Y" },
+
+  // =====================================================
   // ТИПОГРАФІКА
   // =====================================================
   { id: "typo_dash_1", incorrect: " - ", correct: " — ", category: "typography", description: "Дефіс → тире" },
