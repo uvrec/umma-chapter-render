@@ -105,8 +105,8 @@ const SpanMark = Mark.create({
   // Group with other inline marks
   group: "inline",
 
-  // Lower priority to not interfere with other marks
-  priority: 1000,
+  // Lower priority to not interfere with other marks (lower number = lower priority)
+  priority: 50,
 
   parseHTML() {
     return [
@@ -114,18 +114,11 @@ const SpanMark = Mark.create({
         tag: "span",
         getAttrs: (node) => {
           const element = node as HTMLElement;
-          // Collect all data-* attributes
-          const dataAttrs: Record<string, string> = {};
-          Array.from(element.attributes).forEach(attr => {
-            if (attr.name.startsWith("data-")) {
-              dataAttrs[attr.name] = attr.value;
-            }
-          });
+          // Only preserve class, style and id - other attributes are not supported
           return {
             class: element.getAttribute("class"),
             style: element.getAttribute("style"),
             id: element.getAttribute("id"),
-            ...dataAttrs,
           };
         },
       },
@@ -194,6 +187,10 @@ interface EnhancedInlineEditorProps {
   editable?: boolean;
   minHeight?: string;
   compact?: boolean; // Компактний режим для меншого toolbar
+  // Scroll sync props
+  onScroll?: (scrollRatio: number) => void; // Reports scroll position as ratio (0-1)
+  syncScrollRatio?: number; // Receives scroll ratio from paired editor
+  scrollSyncId?: string; // Unique ID to prevent infinite loops
 }
 
 export const EnhancedInlineEditor = ({
@@ -204,9 +201,16 @@ export const EnhancedInlineEditor = ({
   editable = true,
   minHeight = "200px",
   compact = false,
+  onScroll,
+  syncScrollRatio,
+  scrollSyncId,
 }: EnhancedInlineEditorProps) => {
   // Track if component is mounted for async operations
   const isMountedRef = useRef(true);
+  // Ref for the scrollable container
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Track if we're currently syncing to prevent loops
+  const isSyncingRef = useRef(false);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -214,6 +218,36 @@ export const EnhancedInlineEditor = ({
       isMountedRef.current = false;
     };
   }, []);
+
+  // Handle scroll events and emit to paired editor
+  const handleScroll = useCallback(() => {
+    if (!scrollContainerRef.current || !onScroll || isSyncingRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    const maxScroll = scrollHeight - clientHeight;
+    if (maxScroll <= 0) return;
+
+    const scrollRatio = scrollTop / maxScroll;
+    onScroll(scrollRatio);
+  }, [onScroll]);
+
+  // Sync scroll position from paired editor
+  useEffect(() => {
+    if (syncScrollRatio === undefined || !scrollContainerRef.current) return;
+
+    const { scrollHeight, clientHeight } = scrollContainerRef.current;
+    const maxScroll = scrollHeight - clientHeight;
+    if (maxScroll <= 0) return;
+
+    // Prevent loop by marking that we're syncing
+    isSyncingRef.current = true;
+    scrollContainerRef.current.scrollTop = syncScrollRatio * maxScroll;
+
+    // Reset sync flag after a short delay
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
+  }, [syncScrollRatio, scrollSyncId]);
 
   // Ensure content is valid HTML
   const initialContent = content || "<p></p>";
@@ -267,6 +301,45 @@ export const EnhancedInlineEditor = ({
         attributes: {
           class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none p-4",
           style: `min-height: ${minHeight}`,
+        },
+        // Strip problematic styles from pasted content (especially from ePUB)
+        transformPastedHTML(html) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
+
+          // List of style properties to remove (common in ePUB files)
+          const stylesToRemove = [
+            "font-size",
+            "font-family",
+            "line-height",
+            "letter-spacing",
+            "word-spacing",
+            "text-indent",
+            "margin",
+            "margin-top",
+            "margin-bottom",
+            "margin-left",
+            "margin-right",
+            "padding",
+            "padding-top",
+            "padding-bottom",
+            "padding-left",
+            "padding-right",
+          ];
+
+          // Remove problematic styles from all elements
+          doc.querySelectorAll("[style]").forEach((el) => {
+            const element = el as HTMLElement;
+            stylesToRemove.forEach(prop => {
+              element.style.removeProperty(prop);
+            });
+            // Clean up empty style attributes
+            if (!element.getAttribute("style")?.trim()) {
+              element.removeAttribute("style");
+            }
+          });
+
+          return doc.body.innerHTML;
         },
       },
     },
@@ -874,7 +947,11 @@ export const EnhancedInlineEditor = ({
       )}
 
       {/* EDITOR CONTENT - скрольний контейнер */}
-      <div className="flex-1 overflow-y-auto min-h-0">
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto min-h-0"
+        onScroll={handleScroll}
+      >
         <EditorContent editor={editor} />
       </div>
     </div>

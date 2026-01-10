@@ -10,7 +10,6 @@ import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { DualLanguageText } from "@/components/DualLanguageText";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { stripParagraphTags } from "@/utils/import/normalizers";
-import { splitIntoParagraphs, alignParagraphs } from "@/utils/paragraphSync";
 import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
 import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/learningVerses";
 import { toast } from "sonner";
