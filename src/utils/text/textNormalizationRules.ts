@@ -695,7 +695,7 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_mahesh", incorrect: "Махеша", correct: "Махеш", category: "endings", description: "Махеш (не Махеша)" },
   { id: "ending_tamal", incorrect: "тамала", correct: "тамал", category: "endings", description: "тамал (дерево, не тамала)" },
   { id: "ending_madana_mohan", incorrect: "Мадана-мохана", correct: "Мадана-мохан", category: "endings", description: "Мадана-мохан (не Мадана-мохана)" },
-  { id: "ending_jharkhand", incorrect: "Джгарікханда", correct: "Джгарікханд", category: "endings", description: "Джгарікханд (не Джгарікханда)" },
+  { id: "ending_jharkhand", incorrect: "Джхарікханда", correct: "Джхарікханд", category: "endings", description: "Джхарікханд (не Джхарікханда)" },
   { id: "ending_rashtrabhrith", incorrect: "Раштрабгріта", correct: "Раштрабгріт", category: "endings", description: "Раштрабгріт (не Раштрабгріта)" },
   { id: "ending_pandava", incorrect: "Пандава", correct: "Пандав", category: "endings", description: "Пандав (не Пандава)" },
   { id: "ending_hastinpur", incorrect: "Хастінапура", correct: "Хастінапур", category: "endings", description: "Хастінапур (не Хастінапура)" },
