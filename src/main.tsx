@@ -8,43 +8,79 @@ import { initErrorTracking, errorLogger } from './utils/errorLogger'
 const BUILD_VERSION = '__BUILD_TIME__';
 console.log('[Vedavoice] Build:', BUILD_VERSION);
 
-// Перевірка версії та примусове оновлення
-const VERSION_KEY = 'vv_build_version';
-const storedVersion = localStorage.getItem(VERSION_KEY);
+// Перевірка чи це Lovable preview домен
+const isLovablePreview = () => {
+  const hostname = window.location.hostname;
+  return hostname.endsWith('.lovableproject.com') ||
+         hostname.endsWith('.lovable.app') ||
+         hostname.includes('lovable');
+};
 
-if (storedVersion && storedVersion !== BUILD_VERSION) {
-  console.log('[Vedavoice] Нова версія виявлена! Очищаємо кеші...');
-  // Нова версія - очистити всі кеші
-  if ('caches' in window) {
-    caches.keys().then(names => {
-      names.forEach(name => {
-        console.log('[Vedavoice] Видаляємо кеш:', name);
-        caches.delete(name);
-      });
-    });
-  }
+// Для Lovable preview: ЗАВЖДИ очищаємо SW і кеші, щоб уникнути "старої версії"
+if (isLovablePreview()) {
+  console.log('[Vedavoice] Lovable preview виявлено — очищаємо SW і кеші для свіжої версії');
+
   // Unregister всіх service workers
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {
       registrations.forEach(reg => {
-        console.log('[Vedavoice] Unregister SW:', reg.scope);
+        console.log('[Vedavoice] Preview: Unregister SW:', reg.scope);
         reg.unregister();
       });
     });
   }
+
+  // Видаляємо всі кеші
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      names.forEach(name => {
+        console.log('[Vedavoice] Preview: Видаляємо кеш:', name);
+        caches.delete(name);
+      });
+    });
+  }
+} else {
+  // Production: стандартна логіка version mismatch
+  const VERSION_KEY = 'vv_build_version';
+  const storedVersion = localStorage.getItem(VERSION_KEY);
+
+  if (storedVersion && storedVersion !== BUILD_VERSION) {
+    console.log('[Vedavoice] Нова версія виявлена! Очищаємо кеші...');
+    // Нова версія - очистити всі кеші
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        names.forEach(name => {
+          console.log('[Vedavoice] Видаляємо кеш:', name);
+          caches.delete(name);
+        });
+      });
+    }
+    // Unregister всіх service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(reg => {
+          console.log('[Vedavoice] Unregister SW:', reg.scope);
+          reg.unregister();
+        });
+      });
+    }
+  }
+  // Зберігаємо поточну версію (тільки на проді)
+  localStorage.setItem(VERSION_KEY, BUILD_VERSION);
 }
-// Зберігаємо поточну версію
-localStorage.setItem(VERSION_KEY, BUILD_VERSION);
 
 // Примусове очищення старих кешів Service Worker
 async function cleanupOldCaches() {
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
-      // Видаляємо старі кеші (v1, v2 для pages — поточна v3)
-      // Видаляємо ВСІ assets-cache (тепер NetworkOnly)
+      // Видаляємо:
+      // - ВСІ pages-cache (тепер NetworkOnly, кеш не потрібен)
+      // - ВСІ assets-cache (тепер NetworkOnly)
+      // - Старі версії images-cache
+      // - workbox-precache
       const oldCaches = cacheNames.filter(name =>
-        (name.includes('pages-cache') && !name.includes('-v3')) ||
+        name.includes('pages-cache') || // Видаляємо ВСІ pages кеші — тепер NetworkOnly
         name.includes('assets-cache') || // Видаляємо всі assets кеші — тепер NetworkOnly
         (name.includes('images-cache') && !name.includes('-v2')) ||
         name.includes('workbox-precache')

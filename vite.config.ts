@@ -88,32 +88,10 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/api/, /^\/supabase/, /^\/functions/],
 
         runtimeCaching: [
-          // 1. Документи (HTML) - мережа першою, кеш як fallback для офлайн
-          // ВИКЛЮЧЕННЯ: /admin/* — завжди без кешу (NetworkOnly)
+          // 1. HTML навігація — ЗАВЖДИ з мережі, без кешування
+          // Це запобігає проблемі "стара версія" через закешований index.html
           {
-            urlPattern: ({ request, url }) => {
-              // Admin routes — завжди свіжі, без кешування
-              if (url.pathname.startsWith('/admin')) {
-                return false;
-              }
-              return request.mode === 'navigate';
-            },
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'pages-cache-v3',
-              expiration: {
-                maxEntries: 30,
-                maxAgeSeconds: 60 * 5 // 5 хвилин (замість 1 години)
-              },
-              // Без networkTimeoutSeconds — чекаємо мережу без обмежень
-              cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          },
-          // 1b. Admin routes — NetworkOnly (завжди свіжі)
-          {
-            urlPattern: ({ url }) => url.pathname.startsWith('/admin'),
+            urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkOnly',
           },
           // 2. JS/CSS assets - NetworkOnly (браузер кешує через Cache-Control: immutable)

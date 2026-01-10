@@ -1,6 +1,7 @@
 /**
  * PWA Update Prompt Implementation
  * Цей файл імпортується тільки в production режимі
+ * НЕ реєструємо SW на Lovable preview доменах
  */
 
 import { useEffect, useState } from 'react';
@@ -8,7 +9,25 @@ import { useRegisterSW } from 'virtual:pwa-register/react';
 import { RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// Перевірка чи це Lovable preview домен
+const isLovablePreview = () => {
+  const hostname = window.location.hostname;
+  return hostname.endsWith('.lovableproject.com') ||
+         hostname.endsWith('.lovable.app') ||
+         hostname.includes('lovable');
+};
+
 export default function PWAUpdatePromptImpl() {
+  // На Lovable preview не реєструємо SW взагалі
+  if (isLovablePreview()) {
+    console.log('[PWA] Lovable preview — SW реєстрація пропущена');
+    return null;
+  }
+
+  return <PWAUpdatePromptInner />;
+}
+
+function PWAUpdatePromptInner() {
   const [updating, setUpdating] = useState(false);
 
   const {
@@ -18,8 +37,11 @@ export default function PWAUpdatePromptImpl() {
     onRegistered(registration) {
       console.log('[PWA] Service Worker зареєстровано:', registration);
 
-      // Перевіряємо оновлення кожні 60 секунд
       if (registration) {
+        // Одразу перевіряємо оновлення при реєстрації
+        registration.update();
+
+        // І потім кожні 60 секунд
         setInterval(() => {
           registration.update();
         }, 60 * 1000);
