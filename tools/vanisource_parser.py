@@ -25,6 +25,20 @@ Usage:
 - Зберігає HTML форматування (курсив для санскриту, жирний для мовців)
 - Тільки англійська версія (українська заповнюється окремо)
 - Інформація для зв'язку з віршами книг (book_slug, chapter, verse)
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
+
+МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
+=================================================
+- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- transliteration_en — IAST транслітерація (латинка з діакритикою)
+- transliteration_ua — українська кирилична транслітерація з діакритикою
+  (конвертується з IAST за допомогою tools/translit_normalizer.py)
+- translation_en / purport_en — англійський переклад та пояснення
+- translation_ua / purport_ua — український переклад та пояснення
 """
 
 import requests

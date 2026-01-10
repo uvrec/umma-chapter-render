@@ -442,7 +442,8 @@ export const defaultRules: NormalizationRule[] = [
   { id: "transl_false_ego", incorrect: "помилкове его", correct: "оманне его", category: "translation", description: "false ego → оманне его" },
   { id: "transl_spirit_soul", incorrect: "духова душа", correct: "духовна душа", category: "translation" },
   { id: "transl_goddess_fortune", incorrect: "богиня процвітання", correct: "богиня щастя", category: "translation", description: "goddess of fortune → богиня щастя" },
-  { id: "transl_householder", incorrect: "домовласник", correct: "домогосподар", category: "translation" },
+  { id: "transl_householder", incorrect: "домовласник", correct: "сімейна людина", category: "translation" },
+  { id: "transl_householder2", incorrect: "домогосподар", correct: "сімейна людина", category: "translation", description: "householder → сімейна людина, НЕ домогосподар!" },
   { id: "transl_demigod", incorrect: "напівбог", correct: "півбог", category: "translation", description: "demigod → півбог (основний)" },
   { id: "transl_bona_fide", incorrect: "справжній духовний", correct: "істинний духовний", category: "translation", description: "bona fide → істинний" },
   { id: "transl_penance", incorrect: "покаяння", correct: "аскеза", category: "translation", description: "penance → аскеза" },
@@ -595,6 +596,29 @@ export const defaultRules: NormalizationRule[] = [
   { id: "transl_degradation", incorrect: "деградація", correct: "занепад", category: "translation" },
 
   // =====================================================
+  // РЕДАГУВАННЯ (лексичні заміни за правилами BBT)
+  // =====================================================
+  { id: "edit_dalshiy", incorrect: "дальший", correct: "подальший", category: "editing", description: "дальший → наступний/подальший" },
+  { id: "edit_pidkreslyuvaty", incorrect: "підкреслювати", correct: "наголошувати", category: "editing", description: "підкреслювати → наголошувати" },
+  { id: "edit_pryiniaty_uchast", incorrect: "прийняти участь", correct: "взяти участь", category: "editing" },
+  { id: "edit_vsepronykaiuchyi", incorrect: "всепроникаючий", correct: "всепроникний", category: "editing" },
+  { id: "edit_pryity_vysnovku", incorrect: "прийти висновку", correct: "дійти висновку", category: "editing" },
+  { id: "edit_lipshyi", incorrect: "ліпший", correct: "кращий", category: "editing", description: "ліпший → кращий (ліпший — зрідка)" },
+  { id: "edit_sviy_vlasnyi", incorrect: "свій власний", correct: "свій", category: "editing", description: "тавтологія: свій власний → свій" },
+  { id: "edit_obumovlenist", incorrect: "обумовленість", correct: "зумовленість", category: "editing" },
+  { id: "edit_dbaty_za", incorrect: "дбати за", correct: "дбати про", category: "editing" },
+  { id: "edit_dumaty_za", incorrect: "думати за", correct: "думати про", category: "editing" },
+  { id: "edit_hovoryty_za", incorrect: "говорити за", correct: "говорити про", category: "editing" },
+  { id: "edit_vyshchenavedenyy", incorrect: "вищенаведений", correct: "наведений раніше", category: "editing" },
+  { id: "edit_vyshchezghadanyy", incorrect: "вищезгаданий", correct: "згаданий раніше", category: "editing" },
+  { id: "edit_niiakyi", incorrect: "ніякий", correct: "жодний", category: "editing", description: "ніякий → жодний" },
+  { id: "edit_v_toy_zhe_chas", incorrect: "в той же час", correct: "водночас", category: "editing" },
+  { id: "edit_znakhodytysya", incorrect: "знаходитися", correct: "перебувати", category: "editing" },
+  { id: "edit_prynosyty_poklony", incorrect: "приносити поклони", correct: "складати поклони", category: "editing" },
+  { id: "edit_odruzhytysya_na", incorrect: "одружитися на", correct: "одружитися з", category: "editing" },
+  { id: "edit_bud_to", incorrect: "будь то", correct: "чи то", category: "editing", description: "будь то X чи Y → чи то X, чи то Y" },
+
+  // =====================================================
   // ТИПОГРАФІКА
   // =====================================================
   { id: "typo_dash_1", incorrect: " - ", correct: " — ", category: "typography", description: "Дефіс → тире" },
@@ -686,6 +710,18 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_dhananjay", incorrect: "Дгананджая", correct: "Дгананджай", category: "endings", description: "Дгананджай (не Дгананджая)" },
   { id: "ending_sanjay", incorrect: "Санджая", correct: "Санджай", category: "endings", description: "Санджай (не Санджая)" },
   { id: "ending_srinjay", incorrect: "Срінджая", correct: "Срінджай", category: "endings", description: "Срінджай (не Срінджая)" },
+  { id: "ending_shrinivas", incorrect: "Шрінаваса", correct: "Шрінавас", category: "endings", description: "Шрінавас (не Шрінаваса)" },
+  { id: "ending_shrivasa", incorrect: "Шріваса", correct: "Шрівас", category: "endings", description: "Шрівас (не Шріваса)" },
+  { id: "ending_sagar", incorrect: "Саґара", correct: "Саґар", category: "endings", description: "Саґар (не Саґара)" },
+  { id: "ending_gangasagar", incorrect: "Ґанґасаґара", correct: "Ґанґасаґар", category: "endings", description: "Ґанґасаґар (не Ґанґасаґара)" },
+  { id: "ending_adhivasa", incorrect: "адгіваса", correct: "адгівас", category: "endings", description: "адгівас (не адгіваса)" },
+  { id: "ending_mahesh", incorrect: "Махеша", correct: "Махеш", category: "endings", description: "Махеш (не Махеша)" },
+  { id: "ending_tamal", incorrect: "тамала", correct: "тамал", category: "endings", description: "тамал (дерево, не тамала)" },
+  { id: "ending_madana_mohan", incorrect: "Мадана-мохана", correct: "Мадана-мохан", category: "endings", description: "Мадана-мохан (не Мадана-мохана)" },
+  { id: "ending_jharkhand", incorrect: "Джхарікханда", correct: "Джхарікханд", category: "endings", description: "Джхарікханд (не Джхарікханда)" },
+  { id: "ending_rashtrabhrith", incorrect: "Раштрабгріта", correct: "Раштрабгріт", category: "endings", description: "Раштрабгріт (не Раштрабгріта)" },
+  { id: "ending_pandava", incorrect: "Пандава", correct: "Пандав", category: "endings", description: "Пандав (не Пандава)" },
+  { id: "ending_hastinpur", incorrect: "Хастінапура", correct: "Хастінапур", category: "endings", description: "Хастінапур (не Хастінапура)" },
 
   // Назви лісів з -ван без -а
   { id: "ending_bhadravan", incorrect: "Бгадравана", correct: "Бгадраван", category: "endings" },

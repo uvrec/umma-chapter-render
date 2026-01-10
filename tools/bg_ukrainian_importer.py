@@ -13,6 +13,30 @@
 Використання:
     python bg_ukrainian_importer.py docs/UKBG02XT.H93 -o chapter2.json
     python bg_ukrainian_importer.py --batch docs/ -o output/
+
+ПРАВИЛА ТРАНСЛІТЕРАЦІЇ (BBT Editorial Guidelines):
+==================================================
+PUA_MAP нижче конвертує Private Use Area символи в українську діакритику.
+Правила синхронізовані з:
+- tools/translit_normalizer.py - централізовані правила Python
+- src/utils/text/transliteration.ts - IAST_TO_CYRILLIC маппінг (TypeScript)
+
+Критичне правило: ī → ı̄ (dotless i U+0131 + combining macron U+0304)
+Заборонені літери в результаті: є, и, ь, ю, я, ы, э
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ:
+- tools/translit_normalizer.py - apply_ukrainian_rules()
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил
+
+МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
+=================================================
+- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- transliteration_en — IAST транслітерація (латинка з діакритикою)
+- transliteration_ua — українська кирилична транслітерація з діакритикою
+  (конвертується з IAST за допомогою tools/translit_normalizer.py)
+- translation_en / purport_en — англійський переклад та пояснення
+- translation_ua / purport_ua — український переклад та пояснення
 """
 
 import re

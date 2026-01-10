@@ -6,6 +6,22 @@ Parses verses from wisdomlib.org and generates SQL for import
 Usage:
     python wisdomlib_scb_parser.py --khanda adi --chapter 1
     python wisdomlib_scb_parser.py --all
+
+НОРМАЛІЗАЦІЯ ТЕКСТУ (BBT Editorial Guidelines):
+===============================================
+Після парсингу застосовувати правила нормалізації з:
+- tools/translit_normalizer.py - apply_ukrainian_rules() для українського тексту
+- tools/pre_import_normalizer.py - mojibake, діакритика, апострофи
+- src/utils/text/textNormalizationRules.ts - повний список правил (TypeScript)
+
+МАППІНГ ПОЛІВ (для джерел EN + Sanskrit/Bengali):
+=================================================
+- sanskrit_en / sanskrit_ua — Bengali/Sanskrit (Devanagari script), однаковий вміст
+- transliteration_en — IAST транслітерація (латинка з діакритикою)
+- transliteration_ua — українська кирилична транслітерація з діакритикою
+  (конвертується з IAST за допомогою tools/translit_normalizer.py)
+- translation_en / purport_en — англійський переклад та пояснення
+- translation_ua / purport_ua — український переклад та пояснення
 """
 
 import re
