@@ -403,63 +403,40 @@ def parse_purport_page(html: str) -> str:
     return ""
 
 
-# Vaniquotes references - Srila Prabhupada's quotes about specific Saranagati verses
-# Key: (section_number, song_number)
-VANIQUOTES_REFERENCES = {
+# Prabhupada's purports about specific Saranagati verses
+# Key: (section_number, song_number) -> dict of verse_number -> list of purport texts
+PRABHUPADA_PURPORTS = {
     # Song 1: Sri Krsna Caitanya Prabhu Jive Doya Kori (Section 1, Song 1)
-    (1, 1): [
-        {
-            "source": "CC Madhya 20.135 Purport",
-            "verse_numbers": [3],
-            "quote": "A devotee will not depend on his material resources but on the mercy of the Supreme Personality of Godhead, who can give real protection. This is called rakṣiṣyatīti viśvāsaḥ or 'avaśya rakṣibe kṛṣṇa'—viśvāsa pālana.",
-            "link": "https://vanisource.org/wiki/CC_Madhya_20.135"
-        },
-        {
-            "source": "SB 6.3.16-17 Lecture, Gorakhpur 1971",
-            "verse_numbers": [3],
-            "quote": "Surrender means one should simply accept favorable service to Kṛṣṇa and reject anything which is unfavorable, and then next is avaśya rakṣibe kṛṣṇa viśvāsa-pālana: 'And to be firmly convinced that Kṛṣṇa will give me all protection.'",
-            "link": "https://vanisource.org/wiki/Lecture_on_SB_6.3.16-17_--_Gorakhpur,_February_10,_1971"
-        }
-    ],
+    (1, 1): {
+        3: [
+            "У своєму поясненні до Чайтан'я-чарітамріти, Мадх'я-ліла 20.135, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Відданий не буде покладатися на свої матеріальні ресурси, а на милість Верховного Бога-Особи, який може дати справжній захист. Це називається ракшішьяті ті вішвасах, або "авашья ракшібе крішна"—вішваса палана».",
+            "Під час лекції зі Шрімад-Бгаґаватам 6.3.16-17 (Ґоракхпур, 10 лютого 1971 року), Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Віддатися означає просто приймати сприятливе служіння Крішні та відкидати все, що несприятливе, а далі йде авашья ракшібе крішна вішваса-палана: "І бути твердо переконаним, що Крішна дасть мені весь захист"»."
+        ]
+    },
     # Song 11: Manasa Deho Geho Jo Kichu Mor (Section 3, Song 3)
-    (3, 3): [
-        {
-            "source": "CC Madhya 10.55 Purport",
-            "verse_numbers": [1],
-            "quote": "This is the process of surrender. As Śrīla Bhaktivinoda Ṭhākura sings: mānasa, deha, geha, yo kichu mora / arpiluṅ tuyā pade nanda-kiśora! When one surrenders unto the lotus feet of the Lord, he does so with everything in his possession.",
-            "link": "https://vanisource.org/wiki/CC_Madhya_10.55"
-        },
-        {
-            "source": "CC Antya 1.24 Purport",
-            "verse_numbers": [5],
-            "quote": "Śrīla Bhaktivinoda Ṭhākura has also sung, kīṭa-janma ha-u yathā tuyā dāsa (Śaraṇāgati 11). There is no harm in taking birth again and again. Our only desire should be to take birth under the care of a Vaiṣṇava.",
-            "link": "https://vanisource.org/wiki/CC_Antya_1.24"
-        }
-    ],
+    (3, 3): {
+        1: [
+            "У своєму поясненні до Чайтан'я-чарітамріти, Мадх'я-ліла 10.55, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Це процес віддання себе. Як співає Шріла Бгактівінода Тхакура: манаса, деха, ґеха, йо кічху мора / арпілун туйа паде нанда-кішора! Коли людина віддається лотосним стопам Господа, вона робить це з усім, що має у своєму володінні»."
+        ],
+        5: [
+            "У своєму поясненні до Чайтан'я-чарітамріти, Антья-ліла 1.24, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Шріла Бгактівінода Тхакура також співав: кіта-джанма ха-у йатха туйа даса (Шаранаґаті 11). Немає нічого поганого в тому, щоб народжуватися знову і знову. Наше єдине бажання має бути народитися під опікою вайшнава»."
+        ]
+    },
     # Song 19: Sarvasva Tomar Carane (Section 4, Song 3)
-    (4, 3): [
-        {
-            "source": "CC Antya 1.24 Purport",
-            "verse_numbers": [1],
-            "quote": "Śrīla Bhaktivinoda Ṭhākura has therefore sung, tumi ta' ṭhākura, tomāra kukkura, baliyā jānaha more. He thus offers to become the dog of a Vaiṣṇava. There are many other instances in which the pet animal of a Vaiṣṇava was delivered back home to Vaikuṇṭhaloka.",
-            "link": "https://vanisource.org/wiki/CC_Antya_1.24"
-        }
-    ],
+    (4, 3): {
+        1: [
+            "У своєму поясненні до Чайтан'я-чарітамріти, Антья-ліла 1.24, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Тому Шріла Бгактівінода Тхакура співав: тумі та' тхакура, томара куккура, баліййа джанаха море. Так він пропонує стати собакою вайшнава. Є багато інших прикладів, коли домашня тварина вайшнава була повернута додому, до Вайкунтхалоки»."
+        ]
+    },
     # Song 27: Suddha Bhakata Carana Renu (Section 6, Song 3)
-    (6, 3): [
-        {
-            "source": "CC Madhya 7.69 Purport",
-            "verse_numbers": [6],
-            "quote": "In his book Śaraṇāgati, Bhaktivinoda Ṭhākura states, ye-dina gṛhe, bhajana dekhi', gṛhete goloka bhāya. Whenever a householder glorifies the Supreme Lord in his home, his activities are immediately transformed into the activities of Goloka Vṛndāvana.",
-            "link": "https://vanisource.org/wiki/CC_Madhya_7.69"
-        },
-        {
-            "source": "CC Antya 4.211 Purport",
-            "verse_numbers": [3],
-            "quote": "Śrīla Bhaktivinoda Ṭhākura writes in a song: gaura āmāra, ye saba sthāne, karala bhramaṇa raṅge / se-saba sthāna, heriba āmi, praṇayi-bhakata-saṅge. 'May I visit all the holy places associated with the līlās of Lord Caitanya and His devotees.'",
-            "link": "https://vanisource.org/wiki/CC_Antya_4.211"
-        }
-    ]
+    (6, 3): {
+        3: [
+            "У своєму поясненні до Чайтан'я-чарітамріти, Антья-ліла 4.211, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Шріла Бгактівінода Тхакура пише в пісні: ґаура амара, йе саба стхане, карала бграмана ранґе / се-саба стхана, херіба амі, пранайі-бгаката-санґе. "Нехай я відвідаю всі святі місця, пов'язані з лілами Господа Чайтан'ї та Його відданих"»."
+        ],
+        6: [
+            "У своєму поясненні до Чайтан'я-чарітамріти, Мадх'я-ліла 7.69, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «У своїй книзі Шаранаґаті Бгактівінода Тхакура стверджує: йе-діна ґріхе, бгаджана декхі', ґріхете ґолока бгайа. Коли домогосподар прославляє Верховного Господа у своєму домі, його діяльність негайно перетворюється на діяльність Ґолоки Вріндавани»."
+        ]
+    }
 }
 
 # Ukrainian section titles
@@ -530,11 +507,21 @@ def parse_all_songs():
                     song_data['purport_en'] = purport
                     print(f"    Found purport ({len(purport)} chars)")
 
-        # Add vaniquotes references if available
-        ref_key = (section_num, song_info['song'])
-        if ref_key in VANIQUOTES_REFERENCES:
-            song_data['references'] = VANIQUOTES_REFERENCES[ref_key]
-            print(f"    Added {len(VANIQUOTES_REFERENCES[ref_key])} references")
+        # Add Prabhupada's purports if available
+        purport_key = (section_num, song_info['song'])
+        if purport_key in PRABHUPADA_PURPORTS:
+            verse_purports = PRABHUPADA_PURPORTS[purport_key]
+            purport_parts = []
+            for verse_num in sorted(verse_purports.keys()):
+                purport_parts.append(f"Вірш {verse_num}:")
+                purport_parts.extend(verse_purports[verse_num])
+
+            # Append to existing purport or create new
+            if 'purport_en' in song_data:
+                song_data['purport_en'] += "\n\n" + "\n\n".join(purport_parts)
+            else:
+                song_data['purport_en'] = "\n\n".join(purport_parts)
+            print(f"    Added Prabhupada purports for verses: {list(verse_purports.keys())}")
 
         sections[section_num]['songs'].append(song_data)
 
