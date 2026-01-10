@@ -54,16 +54,37 @@ export function RichTextEditor({
         ),
         'data-placeholder': placeholder,
       },
-      // Strip font-size and font-family from pasted content to match editor styling
+      // Strip problematic styles from pasted content (especially from ePUB)
       transformPastedHTML(html) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
 
-        // Remove font-size and font-family from all elements with inline styles
+        // List of style properties to remove (common in ePUB files)
+        const stylesToRemove = [
+          "font-size",
+          "font-family",
+          "line-height",
+          "letter-spacing",
+          "word-spacing",
+          "text-indent",
+          "margin",
+          "margin-top",
+          "margin-bottom",
+          "margin-left",
+          "margin-right",
+          "padding",
+          "padding-top",
+          "padding-bottom",
+          "padding-left",
+          "padding-right",
+        ];
+
+        // Remove problematic styles from all elements
         doc.querySelectorAll("[style]").forEach((el) => {
           const element = el as HTMLElement;
-          element.style.removeProperty("font-size");
-          element.style.removeProperty("font-family");
+          stylesToRemove.forEach(prop => {
+            element.style.removeProperty(prop);
+          });
           // Clean up empty style attributes
           if (!element.getAttribute("style")?.trim()) {
             element.removeAttribute("style");

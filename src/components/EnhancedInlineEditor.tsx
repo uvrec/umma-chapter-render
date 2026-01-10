@@ -105,8 +105,8 @@ const SpanMark = Mark.create({
   // Group with other inline marks
   group: "inline",
 
-  // Lower priority to not interfere with other marks
-  priority: 1000,
+  // Lower priority to not interfere with other marks (lower number = lower priority)
+  priority: 50,
 
   parseHTML() {
     return [
@@ -114,18 +114,11 @@ const SpanMark = Mark.create({
         tag: "span",
         getAttrs: (node) => {
           const element = node as HTMLElement;
-          // Collect all data-* attributes
-          const dataAttrs: Record<string, string> = {};
-          Array.from(element.attributes).forEach(attr => {
-            if (attr.name.startsWith("data-")) {
-              dataAttrs[attr.name] = attr.value;
-            }
-          });
+          // Only preserve class, style and id - other attributes are not supported
           return {
             class: element.getAttribute("class"),
             style: element.getAttribute("style"),
             id: element.getAttribute("id"),
-            ...dataAttrs,
           };
         },
       },
@@ -268,16 +261,37 @@ export const EnhancedInlineEditor = ({
           class: "prose prose-sm dark:prose-invert max-w-none focus:outline-none p-4",
           style: `min-height: ${minHeight}`,
         },
-        // Strip font-size and font-family from pasted content to match editor styling
+        // Strip problematic styles from pasted content (especially from ePUB)
         transformPastedHTML(html) {
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, "text/html");
 
-          // Remove font-size and font-family from all elements with inline styles
+          // List of style properties to remove (common in ePUB files)
+          const stylesToRemove = [
+            "font-size",
+            "font-family",
+            "line-height",
+            "letter-spacing",
+            "word-spacing",
+            "text-indent",
+            "margin",
+            "margin-top",
+            "margin-bottom",
+            "margin-left",
+            "margin-right",
+            "padding",
+            "padding-top",
+            "padding-bottom",
+            "padding-left",
+            "padding-right",
+          ];
+
+          // Remove problematic styles from all elements
           doc.querySelectorAll("[style]").forEach((el) => {
             const element = el as HTMLElement;
-            element.style.removeProperty("font-size");
-            element.style.removeProperty("font-family");
+            stylesToRemove.forEach(prop => {
+              element.style.removeProperty(prop);
+            });
             // Clean up empty style attributes
             if (!element.getAttribute("style")?.trim()) {
               element.removeAttribute("style");
