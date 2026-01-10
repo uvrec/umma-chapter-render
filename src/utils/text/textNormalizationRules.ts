@@ -687,6 +687,18 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_dhananjay", incorrect: "Дгананджая", correct: "Дгананджай", category: "endings", description: "Дгананджай (не Дгананджая)" },
   { id: "ending_sanjay", incorrect: "Санджая", correct: "Санджай", category: "endings", description: "Санджай (не Санджая)" },
   { id: "ending_srinjay", incorrect: "Срінджая", correct: "Срінджай", category: "endings", description: "Срінджай (не Срінджая)" },
+  { id: "ending_shrinivas", incorrect: "Шрінаваса", correct: "Шрінавас", category: "endings", description: "Шрінавас (не Шрінаваса)" },
+  { id: "ending_shrivasa", incorrect: "Шріваса", correct: "Шрівас", category: "endings", description: "Шрівас (не Шріваса)" },
+  { id: "ending_sagar", incorrect: "Саґара", correct: "Саґар", category: "endings", description: "Саґар (не Саґара)" },
+  { id: "ending_gangasagar", incorrect: "Ґанґасаґара", correct: "Ґанґасаґар", category: "endings", description: "Ґанґасаґар (не Ґанґасаґара)" },
+  { id: "ending_adhivasa", incorrect: "адгіваса", correct: "адгівас", category: "endings", description: "адгівас (не адгіваса)" },
+  { id: "ending_mahesh", incorrect: "Махеша", correct: "Махеш", category: "endings", description: "Махеш (не Махеша)" },
+  { id: "ending_tamal", incorrect: "тамала", correct: "тамал", category: "endings", description: "тамал (дерево, не тамала)" },
+  { id: "ending_madana_mohan", incorrect: "Мадана-мохана", correct: "Мадана-мохан", category: "endings", description: "Мадана-мохан (не Мадана-мохана)" },
+  { id: "ending_jharkhand", incorrect: "Джгарікханда", correct: "Джгарікханд", category: "endings", description: "Джгарікханд (не Джгарікханда)" },
+  { id: "ending_rashtrabhrith", incorrect: "Раштрабгріта", correct: "Раштрабгріт", category: "endings", description: "Раштрабгріт (не Раштрабгріта)" },
+  { id: "ending_pandava", incorrect: "Пандава", correct: "Пандав", category: "endings", description: "Пандав (не Пандава)" },
+  { id: "ending_hastinpur", incorrect: "Хастінапура", correct: "Хастінапур", category: "endings", description: "Хастінапур (не Хастінапура)" },
 
   // Назви лісів з -ван без -а
   { id: "ending_bhadravan", incorrect: "Бгадравана", correct: "Бгадраван", category: "endings" },
