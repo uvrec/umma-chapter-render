@@ -11,6 +11,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import DOMPurify from 'dompurify';
 import {
   CommandDialog,
   CommandEmpty,
@@ -423,7 +424,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
                   {result.snippet && (
                     <p
                       className="text-sm text-muted-foreground line-clamp-2 mt-1"
-                      dangerouslySetInnerHTML={{ __html: result.snippet }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result.snippet) }}
                     />
                   )}
                 </div>
@@ -450,7 +451,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
                     {result.snippet && (
                       <p
                         className="text-sm text-muted-foreground line-clamp-2 mt-1"
-                        dangerouslySetInnerHTML={{ __html: result.snippet }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(result.snippet) }}
                       />
                     )}
                   </div>
