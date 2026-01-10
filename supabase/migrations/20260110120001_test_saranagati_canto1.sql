@@ -6,7 +6,7 @@ BEGIN;
 
 -- 0. Ensure unique constraint exists for chapter upserts (ON CONFLICT ON CONSTRAINT requires actual constraint, not index)
 DROP INDEX IF EXISTS public.chapters_canto_chapter_unique;
-DROP INDEX IF EXISTS public.ux_chapters_canto_chno;
+ALTER TABLE public.chapters DROP CONSTRAINT IF EXISTS ux_chapters_canto_chno;
 DO $constraint$
 BEGIN
   ALTER TABLE public.chapters
