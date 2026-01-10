@@ -403,6 +403,58 @@ def parse_purport_page(html: str) -> str:
     return ""
 
 
+# Prabhupada's purports about specific Saranagati verses (Ukrainian)
+# Key: (section_number, song_number) -> dict of verse_number -> list of purport texts
+PRABHUPADA_PURPORTS_UA = {
+    # Song 1: Sri Krsna Caitanya Prabhu Jive Doya Kori (Section 1, Song 1)
+    (1, 1): {
+        3: [
+            "У своєму поясненні до **«Чайтанья-чарітамріта»**, Мадг'я-ліла 20.135, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Відданий не буде покладатися на свої матеріальні ресурси, а на милість Верховного Бога-Особи, який може дати справжній захист. Це називається *ракшішьяті ті вішвасах*, або "*авашья ракшібе крішна*"—*вішваса палана*».",
+            "Під час лекції зі **«Шрімад-Бгаґаватам»** 6.3.16-17 (Ґоракхпур, 10 лютого 1971 року), Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Віддатися означає просто приймати сприятливе служіння Крішні та відкидати все, що несприятливе, а далі йде *авашья ракшібе крішна вішваса-палана*: "І бути твердо переконаним, що Крішна дасть мені весь захист"»."
+        ]
+    },
+    # Song 11: Manasa Deho Geho Jo Kichu Mor (Section 3, Song 3)
+    (3, 3): {
+        1: [
+            "У своєму поясненні до **«Чайтанья-чарітамріта»**, Мадг'я-ліла 10.55, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Це процес віддання себе. Як співає Шріла Бгактівінод Тхакур: *манаса, деха, ґеха, йо кічху мора / арпілун туйа паде нанда-кішора!* Коли людина віддається лотосним стопам Господа, вона робить це з усім, що має у своєму володінні»."
+        ],
+        5: [
+            "У своєму поясненні до **«Чайтанья-чарітамріта»**, Антья-ліла 1.24, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Шріла Бгактівінод Тхакур також співав: *кіта-джанма ха-у йатха туйа даса* (**«Шаранаґаті»** 11). Немає нічого поганого в тому, щоб народжуватися знову і знову. Наше єдине бажання має бути народитися під опікою вайшнава»."
+        ]
+    },
+    # Song 19: Sarvasva Tomar Carane (Section 4, Song 3)
+    (4, 3): {
+        1: [
+            "У своєму поясненні до **«Чайтанья-чарітамріта»**, Антья-ліла 1.24, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Тому Шріла Бгактівінод Тхакур співав: *тумі та' тхакура, томара куккура, баліййа джанаха море*. Так він пропонує стати собакою вайшнава. Є багато інших прикладів, коли домашня тварина вайшнава була повернута додому, до Вайкунтхалоки»."
+        ]
+    },
+    # Song 27: Suddha Bhakata Carana Renu (Section 6, Song 3)
+    (6, 3): {
+        3: [
+            "У своєму поясненні до **«Чайтанья-чарітамріта»**, Антья-ліла 4.211, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Шріла Бгактівінод Тхакур пише в пісні: *ґаура амара, йе саба стхане, карала бграмана ранґе / се-саба стхана, херіба амі, пранайі-бгаката-санґе*. "Нехай я відвідаю всі святі місця, пов'язані з лілами Господа Чайтаньї та Його відданих"»."
+        ],
+        6: [
+            "У своєму поясненні до **«Чайтанья-чарітамріта»**, Мадг'я-ліла 7.69, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «У своїй книзі **«Шаранаґаті»** Бгактівінод Тхакур стверджує: *йе-діна ґріхе, бгаджана декхі', ґріхете ґолока бгайа*. Коли сімейна людина прославляє Верховного Господа у своєму домі, її діяльність негайно перетворюється на діяльність Ґолоки Вріндавани»."
+        ]
+    }
+}
+
+# Ukrainian section titles
+SECTION_TITLES_UA = {
+    1: "Вступ",
+    2: "Дайн'я (Смирення)",
+    3: "Атма-нівéдана (Самовіддача)",
+    4: "Ґоптрітве варана (Прийняття опіки Господа)",
+    5: "Авашья ракшібе Крішна вішваса палана (Віра в захист Крішни)",
+    6: "Бгакті-анукула матра кар'єра свікара (Сприятливе для відданості)",
+    7: "Бгакті-пратікула бгава варджанаңґікара (Несприятливе для відданості)",
+    8: "Бгаджана-лаласа (Прагнення до служіння)",
+    9: "Сіддгі-лаласа (Прагнення до досконалості)",
+    10: "Віджняпті (Молитва від серця)",
+    11: "Шрі-нама-махатмья (Слава Святого Імені)"
+}
+
+
 def parse_all_songs():
     """Parse all songs and create JSON."""
     print(f"Parsing {len(SARANAGATI_SONGS)} songs from Saranagati...")
@@ -417,13 +469,15 @@ def parse_all_songs():
             sections[section_num] = {
                 "section_number": section_num,
                 "title": song_info['section_title'],
-                "title_english": song_info['section_title_en'],
+                "title_en": song_info['section_title_en'],
+                "title_ua": SECTION_TITLES_UA.get(section_num, ""),
                 "songs": []
             }
 
         song_data = {
             "song_number": song_info['song'],
-            "title": song_info['title'],
+            "title_en": song_info['title'],
+            "title_ua": "",
         }
 
         # Fetch Bengali text
@@ -450,8 +504,19 @@ def parse_all_songs():
             if purport_html:
                 purport = parse_purport_page(purport_html)
                 if purport:
-                    song_data['purport'] = purport
+                    song_data['purport_en'] = purport
                     print(f"    Found purport ({len(purport)} chars)")
+
+        # Add Prabhupada's Ukrainian purports if available
+        purport_key = (section_num, song_info['song'])
+        if purport_key in PRABHUPADA_PURPORTS_UA:
+            verse_purports = PRABHUPADA_PURPORTS_UA[purport_key]
+            purport_parts = []
+            for verse_num in sorted(verse_purports.keys()):
+                purport_parts.append(f"Вірш {verse_num}:")
+                purport_parts.extend(verse_purports[verse_num])
+            song_data['purport_ua'] = "\n\n".join(purport_parts)
+            print(f"    Added Prabhupada purports (UA) for verses: {list(verse_purports.keys())}")
 
         sections[section_num]['songs'].append(song_data)
 
@@ -463,7 +528,9 @@ def parse_all_songs():
         "book_slug": "saranagati",
         "book_title_en": "Saranagati",
         "book_title_bn": "শরণাগতি",
-        "author": "Bhaktivinoda Thakura",
+        "book_title_ua": "Шаранаґаті",
+        "author_en": "Bhaktivinoda Thakura",
+        "author_ua": "Бгактівінод Тхакур",
         "source": "https://kksongs.org/authors/literature/saranagati.html",
         "sections": [sections[i] for i in sorted(sections.keys())],
         "total_songs": len(SARANAGATI_SONGS),
