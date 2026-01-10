@@ -211,6 +211,9 @@ export const EnhancedInlineEditor = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   // Track if we're currently syncing to prevent loops
   const isSyncingRef = useRef(false);
+  // Store onScroll callback in ref to avoid stale closures
+  const onScrollRef = useRef(onScroll);
+  onScrollRef.current = onScroll;
 
   // Cleanup on unmount
   useEffect(() => {
@@ -218,36 +221,6 @@ export const EnhancedInlineEditor = ({
       isMountedRef.current = false;
     };
   }, []);
-
-  // Handle scroll events and emit to paired editor
-  const handleScroll = useCallback(() => {
-    if (!scrollContainerRef.current || !onScroll || isSyncingRef.current) return;
-
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-    const maxScroll = scrollHeight - clientHeight;
-    if (maxScroll <= 0) return;
-
-    const scrollRatio = scrollTop / maxScroll;
-    onScroll(scrollRatio);
-  }, [onScroll]);
-
-  // Sync scroll position from paired editor
-  useEffect(() => {
-    if (syncScrollRatio === undefined || !scrollContainerRef.current) return;
-
-    const { scrollHeight, clientHeight } = scrollContainerRef.current;
-    const maxScroll = scrollHeight - clientHeight;
-    if (maxScroll <= 0) return;
-
-    // Prevent loop by marking that we're syncing
-    isSyncingRef.current = true;
-    scrollContainerRef.current.scrollTop = syncScrollRatio * maxScroll;
-
-    // Reset sync flag after a short delay
-    requestAnimationFrame(() => {
-      isSyncingRef.current = false;
-    });
-  }, [syncScrollRatio, scrollSyncId]);
 
   // Ensure content is valid HTML
   const initialContent = content || "<p></p>";
@@ -345,6 +318,45 @@ export const EnhancedInlineEditor = ({
     },
     [editable]
   );
+
+  // Scroll sync: attach scroll listener to the container
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (isSyncingRef.current || !onScrollRef.current) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const maxScroll = scrollHeight - clientHeight;
+      if (maxScroll <= 0) return;
+
+      const scrollRatio = scrollTop / maxScroll;
+      onScrollRef.current(scrollRatio);
+    };
+
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []); // No dependencies - listener is attached once and uses refs
+
+  // Scroll sync: apply scroll position from paired editor
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (syncScrollRatio === undefined || !container) return;
+
+    const { scrollHeight, clientHeight } = container;
+    const maxScroll = scrollHeight - clientHeight;
+    if (maxScroll <= 0) return;
+
+    // Prevent loop by marking that we're syncing
+    isSyncingRef.current = true;
+    container.scrollTop = syncScrollRatio * maxScroll;
+
+    // Reset sync flag after animation frame
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
+  }, [syncScrollRatio, scrollSyncId]);
 
   // Handle editable state changes
   useEffect(() => {
@@ -950,7 +962,6 @@ export const EnhancedInlineEditor = ({
       <div
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto min-h-0"
-        onScroll={handleScroll}
       >
         <EditorContent editor={editor} />
       </div>
