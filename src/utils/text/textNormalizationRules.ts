@@ -756,6 +756,15 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_indraprastha", incorrect: "Індрапрастх", correct: "Індрапрастха", category: "endings", description: "Індрапрастха (не Індрапрастх)" },
   { id: "ending_jada_bharata", incorrect: "Джада Бгарат", correct: "Джада Бгарата", category: "endings", description: "Джада Бгарата (не Джада Бгарат)" },
   { id: "ending_kamadev", incorrect: "Камадев", correct: "Камадева", category: "endings", description: "Камадева (не Камадев), слова з -дева з -а" },
+
+  // Імена БЕЗ -а (риші, мудреці тощо)
+  { id: "ending_durvasa", incorrect: "Дурваса", correct: "Дурвас", category: "endings", description: "Дурвас (не Дурваса)" },
+  { id: "ending_parashurama", incorrect: "Парашурама", correct: "Парашурам", category: "endings", description: "Парашурам (не Парашурама)" },
+  { id: "ending_atmarama", incorrect: "Атмарама", correct: "Атмарам", category: "endings", description: "Атмарам (не Атмарама)" },
+  { id: "ending_sanatana", incorrect: "Санатана", correct: "Санатан", category: "endings", description: "Санатан (не Санатана)" },
+  { id: "ending_rasikaranjana", incorrect: "Расікаранджана", correct: "Расікаранджан", category: "endings", description: "Расікаранджан (не Расікаранджана)" },
+  { id: "ending_mukunda", incorrect: "Мукунда", correct: "Мукунд", category: "endings", description: "Мукунд (не Мукунда)" },
+  { id: "ending_bhrigu", incorrect: "Бгріґу", correct: "Бгріґу", category: "endings", description: "Бгріґу (риші, без змін)" },
 ];
 
 /**
