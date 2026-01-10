@@ -136,16 +136,16 @@ BEGIN
   )
   VALUES (
     v_chapter_id, '1', 1,
-    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি',
+    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''',
     E'śrī-kṛṣṇa-caitanya
-prabhu jīve doyā kori
+prabhu jīve doyā kori''
 swa-pārṣada
-swīya dhāma saha avatari', E'ш́рı̄-кр̣шн̣а-чаітанйа
-прабгу джı̄ве дойа̄ корі
+swīya dhāma saha avatari''', E'ш́рı̄-кр̣шн̣а-чаітанйа
+прабгу джı̄ве дойа̄ корі''
 сва-па̄ршада
-свı̄йа дга̄ма саха аватарі',
+свı̄йа дга̄ма саха аватарі''',
     E'', E'',
     E'Out of compassion for the fallen souls, Sri Krisna Caitanya came to this world
 with His personal associates and divine abode to teach saranagati (the goal of
@@ -193,7 +193,7 @@ durlabha prema koribāre dāna
 ш́аран̣а̄ґаті бгакатера пра̄на',
     E'', E'',
     E'The ways of saranagati are humility, dedication of the self, acceptance of the
-Lord as ones only maintainer, faith that Krishna will surely protect,
+Lord as one''s only maintainer, faith that Krishna will surely protect,
 execution of only those acts favorable to pure devotion, and renunciation of
 conduct adverse to pure devotion.', E'',
     E'', E'',
@@ -225,22 +225,21 @@ conduct adverse to pure devotion.', E'',
   VALUES (
     v_chapter_id, '3', 3,
     E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
-অবশ্য রক্ষীবে কৃষ্ণ-বিশ্বাস, পালন', E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
-অবশ্য রক্ষীবে কৃষ্ণ-বিশ্বাস, পালন',
+''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন', E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
+''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন',
     E'dainya,
 ātma-nivedana, goptṛtve varaṇa
 avaśya
-rakṣībe kṛṣṇaviśvāsa, pālana', E'даінйа,
+rakṣībe kṛṣṇa''viśvāsa, pālana', E'даінйа,
 а̄тма-ніведана, ґоптр̣тве варан̣а
 аваш́йа
-ракшı̄бе кр̣шн̣авіш́ва̄са, па̄лана',
+ракшı̄бе кр̣шн̣а''віш́ва̄са, па̄лана',
     E'', E'',
     E'The
 youthful son of Nanda Maharaja, Sri Krishna, hears the prayers of anyone who
 takes refuge in Him by this six-fold practice.
 6-', E'',
     E'', E'У своєму поясненні до **«Чайтанья-чарітамріта»**, Мадг''я-ліла 20.135, Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Відданий не буде покладатися на свої матеріальні ресурси, а на милість Верховного Бога-Особи, який може дати справжній захист. Це називається *ракшішьяті ті вішвасах*, або "*авашья ракшібе крішна*"—*вішваса палана*».
-
 Під час лекції зі **«Шрімад-Бгаґаватам»** 6.3.16-17 (Ґоракхпур, 10 лютого 1971 року), Його Божественна Милість А.Ч. Бгактіведанта Свамі Прабгупада каже: «Віддатися означає просто приймати сприятливе служіння Крішні та відкидати все, що несприятливе, а далі йде *авашья ракшібе крішна вішваса-палана*: "І бути твердо переконаним, що Крішна дасть мені весь захист"».',
     true
   )
@@ -353,16 +352,16 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
   )
   VALUES (
     v_chapter_id, '6', 6,
-    E'রূপ-সনাতন-পদে দন্তে তৃণ করি
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি', E'রূপ-সনাতন-পদে দন্তে তৃণ করি
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি',
+    E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''', E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''',
     E'rūpa-sanātana-pade
-dante tṛṇa kori
+dante tṛṇa kori''
 bhakativinoda
-poḍe duhuń pada dhori', E'рӯпа-сана̄тана-паде
-данте тр̣н̣а корі
+poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
+данте тр̣н̣а корі''
 бгакатівінода
-под̣е духуń пада дгорі',
+под̣е духуń пада дгорі''',
     E'', E'',
     E'', E'',
     E'', E'',
@@ -393,14 +392,14 @@ poḍe duhuń pada dhori', E'рӯпа-сана̄тана-паде
   )
   VALUES (
     v_chapter_id, '7', 7,
-    E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
-শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
+    E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
+শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
 শিখায়ে শরণাগতি কর হে উত্তম',
     E'kāńdiyā
-kāńdiyā bole āmi to adhama
+kāńdiyā bole āmi to'' adhama
 śikhāye
 śaraṇāgati koro he uttama', E'ка̄ńдійа̄
-ка̄ńдійа̄ боле а̄мі то адгама
+ка̄ńдійа̄ боле а̄мі то'' адгама
 ш́ікха̄йе
 ш́аран̣а̄ґаті коро хе уттама',
     E'', E'',
@@ -419,6 +418,7 @@ kāńdiyā bole āmi to adhama
     translation_ua = EXCLUDED.translation_ua,
     commentary_en = EXCLUDED.commentary_en,
     commentary_ua = EXCLUDED.commentary_ua;
+
 
 
 END $$;
