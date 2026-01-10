@@ -85,6 +85,11 @@ export const LectureView = () => {
   const [bulkTranslationText, setBulkTranslationText] = useState("");
   const [detectedParagraphsCount, setDetectedParagraphsCount] = useState(0);
 
+  // Scroll sync state for bilingual editors
+  const [scrollSyncState, setScrollSyncState] = useState<{
+    [paragraphId: string]: { ratio: number; source: "ua" | "en"; counter: number };
+  }>({});
+
   // Завантаження лекції
   const { data: lecture, isLoading: lectureLoading } = useQuery({
     queryKey: ["lecture", slug],
@@ -811,6 +816,22 @@ export const LectureView = () => {
                           }))
                         }
                         label="Редагувати текст UA"
+                        onScroll={(ratio) =>
+                          setScrollSyncState((prev) => ({
+                            ...prev,
+                            [paragraph.id]: {
+                              ratio,
+                              source: "ua",
+                              counter: (prev[paragraph.id]?.counter || 0) + 1,
+                            },
+                          }))
+                        }
+                        syncScrollRatio={
+                          scrollSyncState[paragraph.id]?.source === "en"
+                            ? scrollSyncState[paragraph.id]?.ratio
+                            : undefined
+                        }
+                        scrollSyncId={`${paragraph.id}-${scrollSyncState[paragraph.id]?.counter || 0}`}
                       />
                     </div>
                     <div>
@@ -827,6 +848,22 @@ export const LectureView = () => {
                           }))
                         }
                         label="Edit text EN"
+                        onScroll={(ratio) =>
+                          setScrollSyncState((prev) => ({
+                            ...prev,
+                            [paragraph.id]: {
+                              ratio,
+                              source: "en",
+                              counter: (prev[paragraph.id]?.counter || 0) + 1,
+                            },
+                          }))
+                        }
+                        syncScrollRatio={
+                          scrollSyncState[paragraph.id]?.source === "ua"
+                            ? scrollSyncState[paragraph.id]?.ratio
+                            : undefined
+                        }
+                        scrollSyncId={`${paragraph.id}-${scrollSyncState[paragraph.id]?.counter || 0}`}
                       />
                     </div>
                   </div>
