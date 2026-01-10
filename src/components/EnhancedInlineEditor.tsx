@@ -319,15 +319,19 @@ export const EnhancedInlineEditor = ({
     [editable]
   );
 
-  // Scroll sync: attach scroll listener to the container
+  // Scroll sync: attach scroll listener to both the container and the editor element
   useEffect(() => {
     const container = scrollContainerRef.current;
+    // Also try to find the ProseMirror editor element inside
+    const editorElement = container?.querySelector('.ProseMirror') as HTMLElement | null;
+
     if (!container) return;
 
-    const handleScroll = () => {
+    const handleScroll = (e: Event) => {
       if (isSyncingRef.current || !onScrollRef.current) return;
 
-      const { scrollTop, scrollHeight, clientHeight } = container;
+      const target = e.target as HTMLElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
       const maxScroll = scrollHeight - clientHeight;
       if (maxScroll <= 0) return;
 
@@ -335,28 +339,52 @@ export const EnhancedInlineEditor = ({
       onScrollRef.current(scrollRatio);
     };
 
+    // Attach to wrapper container
     container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, []); // No dependencies - listener is attached once and uses refs
+    // Also attach to ProseMirror element if it exists
+    if (editorElement) {
+      editorElement.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      if (editorElement) {
+        editorElement.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [editor]); // Re-attach when editor changes
 
   // Scroll sync: apply scroll position from paired editor
   useEffect(() => {
     const container = scrollContainerRef.current;
+    const editorElement = container?.querySelector('.ProseMirror') as HTMLElement | null;
+
     if (syncScrollRatio === undefined || !container) return;
 
-    const { scrollHeight, clientHeight } = container;
-    const maxScroll = scrollHeight - clientHeight;
-    if (maxScroll <= 0) return;
+    // Try scrolling the container first
+    const { scrollHeight: containerScrollHeight, clientHeight: containerClientHeight } = container;
+    const containerMaxScroll = containerScrollHeight - containerClientHeight;
 
-    // Prevent loop by marking that we're syncing
-    isSyncingRef.current = true;
-    container.scrollTop = syncScrollRatio * maxScroll;
+    if (containerMaxScroll > 0) {
+      isSyncingRef.current = true;
+      container.scrollTop = syncScrollRatio * containerMaxScroll;
+    }
+
+    // Also try scrolling the editor element
+    if (editorElement) {
+      const { scrollHeight, clientHeight } = editorElement;
+      const maxScroll = scrollHeight - clientHeight;
+      if (maxScroll > 0) {
+        isSyncingRef.current = true;
+        editorElement.scrollTop = syncScrollRatio * maxScroll;
+      }
+    }
 
     // Reset sync flag after animation frame
     requestAnimationFrame(() => {
       isSyncingRef.current = false;
     });
-  }, [syncScrollRatio, scrollSyncId]);
+  }, [syncScrollRatio, scrollSyncId, editor]);
 
   // Handle editable state changes
   useEffect(() => {
