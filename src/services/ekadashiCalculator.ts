@@ -79,6 +79,60 @@ export interface DailyPanchangTimes {
   sunsetFormatted: string;
 }
 
+// Fasting levels for appearance/disappearance days
+export type FastingLevel = 'nirjala' | 'full' | 'half' | 'none';
+
+// Event types
+export type VaishnavEventType = 'ekadashi' | 'appearance' | 'disappearance' | 'festival';
+
+/**
+ * Universal fasting times for any Vaishnava event
+ * (appearances, disappearances, festivals, etc.)
+ */
+export interface VaishnavEventFastingTimes {
+  // Event info
+  eventType: VaishnavEventType;
+  eventName?: string;
+  eventDate: Date;
+  eventDateFormatted: string;
+
+  // Fasting level
+  fastingLevel: FastingLevel;
+  fastingLevelDescription_ua: string;
+  fastingLevelDescription_en: string;
+
+  // Fasting start (sunrise on event day)
+  fastingStart: Date;
+  fastingStartFormatted: string;
+
+  // Fasting end / Breaking fast time
+  fastingEnd: Date;
+  fastingEndFormatted: string;
+  breakFastDescription_ua: string;
+  breakFastDescription_en: string;
+
+  // Sunrise/Sunset on event day
+  sunrise: Date;
+  sunset: Date;
+  sunriseFormatted: string;
+  sunsetFormatted: string;
+
+  // Solar noon (important for "fasting until noon")
+  solarNoon: Date;
+  solarNoonFormatted: string;
+
+  // Next day sunrise (for breaking fast next morning)
+  nextDaySunrise?: Date;
+  nextDaySunriseFormatted?: string;
+
+  // Location info
+  location: GeoLocation;
+
+  // Additional notes
+  notes_ua: string;
+  notes_en: string;
+}
+
 // ============================================
 // ASTRONOMICAL CALCULATIONS
 // ============================================
@@ -269,6 +323,220 @@ export function calculateEkadashiFastingTimes(
     isDvadashiParana: true,
     notes_ua,
     notes_en,
+  };
+}
+
+// ============================================
+// APPEARANCE/DISAPPEARANCE FASTING CALCULATIONS
+// ============================================
+
+/**
+ * Get fasting level descriptions
+ */
+function getFastingLevelDescriptions(level: FastingLevel): {
+  ua: string;
+  en: string;
+} {
+  const descriptions: Record<FastingLevel, { ua: string; en: string }> = {
+    nirjala: {
+      ua: 'Повний піст без води (ніраджала)',
+      en: 'Complete fast without water (nirjala)',
+    },
+    full: {
+      ua: 'Повний піст (без зернових та бобових)',
+      en: 'Full fast (no grains or beans)',
+    },
+    half: {
+      ua: 'Піст до полудня',
+      en: 'Fast until noon',
+    },
+    none: {
+      ua: 'Без посту (святкування)',
+      en: 'No fasting (celebration)',
+    },
+  };
+
+  return descriptions[level];
+}
+
+/**
+ * Get break fast descriptions based on fasting level
+ */
+function getBreakFastDescriptions(
+  level: FastingLevel,
+  solarNoon: Date,
+  nextSunrise: Date,
+  timezone?: string
+): {
+  ua: string;
+  en: string;
+  breakTime: Date;
+} {
+  const noonFormatted = formatTime(solarNoon, timezone);
+  const nextSunriseFormatted = formatTime(nextSunrise, timezone);
+
+  switch (level) {
+    case 'nirjala':
+      return {
+        ua: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
+        en: `Break fast next day after sunrise (${nextSunriseFormatted})`,
+        breakTime: nextSunrise,
+      };
+    case 'full':
+      return {
+        ua: `Переривання посту наступного дня після сходу сонця (${nextSunriseFormatted})`,
+        en: `Break fast next day after sunrise (${nextSunriseFormatted})`,
+        breakTime: nextSunrise,
+      };
+    case 'half':
+      return {
+        ua: `Переривання посту після полудня (${noonFormatted})`,
+        en: `Break fast after noon (${noonFormatted})`,
+        breakTime: solarNoon,
+      };
+    case 'none':
+      return {
+        ua: 'Піст не потрібен',
+        en: 'No fasting required',
+        breakTime: solarNoon,
+      };
+  }
+}
+
+/**
+ * Generate notes for appearance/disappearance day fasting
+ */
+function generateEventFastingNotes(
+  eventType: VaishnavEventType,
+  level: FastingLevel,
+  eventName?: string
+): { ua: string; en: string } {
+  const eventTypeNames = {
+    appearance: { ua: 'явлення', en: 'appearance' },
+    disappearance: { ua: 'відходу', en: 'disappearance' },
+    festival: { ua: 'свята', en: 'festival' },
+    ekadashi: { ua: 'екадаші', en: 'ekadashi' },
+  };
+
+  const typeName = eventTypeNames[eventType];
+  const name = eventName || '';
+
+  let notes_ua = '';
+  let notes_en = '';
+
+  if (eventType === 'appearance') {
+    notes_ua = `День явлення ${name}. `;
+    notes_en = `Appearance day of ${name}. `;
+
+    if (level === 'half') {
+      notes_ua += 'Рекомендується дотримуватись посту до полудня, а потім святкувати з прасадом.';
+      notes_en += 'It is recommended to fast until noon, then celebrate with prasadam.';
+    } else if (level === 'full') {
+      notes_ua += 'Рекомендується повний піст без зернових. Святкування з прасадом наступного дня.';
+      notes_en += 'Full fast without grains is recommended. Celebrate with prasadam the next day.';
+    }
+  } else if (eventType === 'disappearance') {
+    notes_ua = `День відходу ${name}. `;
+    notes_en = `Disappearance day of ${name}. `;
+
+    if (level === 'half') {
+      notes_ua += 'Рекомендується дотримуватись посту до полудня на честь відданого.';
+      notes_en += 'It is recommended to fast until noon in honor of the devotee.';
+    } else if (level === 'full') {
+      notes_ua += 'Рекомендується повний піст на честь відданого.';
+      notes_en += 'Full fast is recommended in honor of the devotee.';
+    }
+  } else if (eventType === 'festival') {
+    notes_ua = `Свято ${name}. `;
+    notes_en = `Festival of ${name}. `;
+
+    if (level !== 'none') {
+      notes_ua += 'Дотримуйтесь рекомендованого посту та беріть участь у святкуванні.';
+      notes_en += 'Follow the recommended fasting and participate in the celebration.';
+    } else {
+      notes_ua += 'Беріть участь у святкуванні з прасадом!';
+      notes_en += 'Participate in the celebration with prasadam!';
+    }
+  }
+
+  return { ua: notes_ua, en: notes_en };
+}
+
+/**
+ * Calculate fasting times for appearance/disappearance days and festivals
+ *
+ * @param eventDate - The date of the event
+ * @param location - Geographic location
+ * @param eventType - Type of event (appearance, disappearance, festival)
+ * @param fastingLevel - Level of fasting for this event
+ * @param eventName - Optional name of the event/person
+ */
+export function calculateVaishnavEventFastingTimes(
+  eventDate: Date,
+  location: GeoLocation,
+  eventType: VaishnavEventType,
+  fastingLevel: FastingLevel = 'half',
+  eventName?: string
+): VaishnavEventFastingTimes {
+  // Calculate sun times for event day
+  const sunTimes = calculateSunTimes(eventDate, location);
+
+  // Calculate next day sunrise (for breaking fast)
+  const nextDay = new Date(eventDate);
+  nextDay.setDate(nextDay.getDate() + 1);
+  const nextDaySunTimes = calculateSunTimes(nextDay, location);
+
+  // Get descriptions
+  const levelDesc = getFastingLevelDescriptions(fastingLevel);
+  const breakFastInfo = getBreakFastDescriptions(
+    fastingLevel,
+    sunTimes.solarNoon,
+    nextDaySunTimes.sunrise,
+    location.timezone
+  );
+  const notes = generateEventFastingNotes(eventType, fastingLevel, eventName);
+
+  // Format event date
+  const eventDateFormatted = eventDate.toLocaleDateString('uk-UA', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: location.timezone,
+  });
+
+  return {
+    eventType,
+    eventName,
+    eventDate,
+    eventDateFormatted,
+
+    fastingLevel,
+    fastingLevelDescription_ua: levelDesc.ua,
+    fastingLevelDescription_en: levelDesc.en,
+
+    fastingStart: sunTimes.sunrise,
+    fastingStartFormatted: formatTime(sunTimes.sunrise, location.timezone),
+
+    fastingEnd: breakFastInfo.breakTime,
+    fastingEndFormatted: formatTime(breakFastInfo.breakTime, location.timezone),
+    breakFastDescription_ua: breakFastInfo.ua,
+    breakFastDescription_en: breakFastInfo.en,
+
+    sunrise: sunTimes.sunrise,
+    sunset: sunTimes.sunset,
+    sunriseFormatted: formatTime(sunTimes.sunrise, location.timezone),
+    sunsetFormatted: formatTime(sunTimes.sunset, location.timezone),
+
+    solarNoon: sunTimes.solarNoon,
+    solarNoonFormatted: formatTime(sunTimes.solarNoon, location.timezone),
+
+    nextDaySunrise: nextDaySunTimes.sunrise,
+    nextDaySunriseFormatted: formatTime(nextDaySunTimes.sunrise, location.timezone),
+
+    location,
+
+    notes_ua: notes.ua,
+    notes_en: notes.en,
   };
 }
 
@@ -529,6 +797,7 @@ const ekadashiCalculator = {
   calculateSunTimes,
   calculateDailyPanchang,
   calculateEkadashiFastingTimes,
+  calculateVaishnavEventFastingTimes,
   calculateSunTimesForRange,
   calculateMoonPhase,
   getMoonIllumination,

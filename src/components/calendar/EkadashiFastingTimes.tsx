@@ -25,7 +25,7 @@ import {
   MapPin,
   Info,
   AlertCircle,
-  Coffee,
+  UtensilsCrossed,
   Timer,
   RefreshCw,
 } from "lucide-react";
@@ -185,7 +185,7 @@ export function EkadashiFastingTimes({
         {/* Parana - Breaking the fast on Dvadashi */}
         <div className="space-y-2">
           <h4 className="text-sm font-medium flex items-center gap-2 text-green-700 dark:text-green-300">
-            <Coffee className="h-4 w-4" />
+            <UtensilsCrossed className="h-4 w-4" />
             {language === "ua" ? "Парана (переривання посту)" : "Parana (Breaking Fast)"}
           </h4>
           <div className="bg-white dark:bg-slate-900 rounded-lg p-3 space-y-3">
@@ -307,7 +307,7 @@ function EkadashiFastingTimesCompact({
         {/* Parana */}
         <div className="space-y-1">
           <div className="text-xs text-muted-foreground flex items-center gap-1">
-            <Coffee className="h-3 w-3" />
+            <UtensilsCrossed className="h-3 w-3" />
             {language === "ua" ? "Парана" : "Parana"}
           </div>
           <div className="font-medium text-green-600 dark:text-green-400">
@@ -371,7 +371,7 @@ export function ParanaBadge({ paranaStart, paranaEnd, language }: ParanaBadgePro
       variant="outline"
       className="bg-green-50 dark:bg-green-950/50 border-green-300 dark:border-green-800 text-green-700 dark:text-green-300"
     >
-      <Coffee className="h-3 w-3 mr-1" />
+      <UtensilsCrossed className="h-3 w-3 mr-1" />
       {language === "ua" ? "Парана:" : "Parana:"} {paranaStart}–{paranaEnd}
     </Badge>
   );

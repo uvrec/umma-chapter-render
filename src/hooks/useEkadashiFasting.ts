@@ -11,6 +11,9 @@ import ekadashiCalculator, {
   type EkadashiFastingTimes,
   type DailyPanchangTimes,
   type SunTimes,
+  type VaishnavEventFastingTimes,
+  type VaishnavEventType,
+  type FastingLevel,
 } from '@/services/ekadashiCalculator';
 import type { CalendarLocation } from '@/types/calendar';
 
@@ -365,6 +368,120 @@ export function useSunTimesForMonth(
     isLoading,
     error: error as Error | null,
   };
+}
+
+// ============================================
+// HOOK: useVaishnavEventFasting
+// ============================================
+
+/**
+ * Hook for calculating fasting times for appearance/disappearance days and festivals
+ */
+export function useVaishnavEventFasting(
+  eventDate: Date | null,
+  location: GeoLocation | null,
+  eventType: VaishnavEventType,
+  fastingLevel: FastingLevel = 'half',
+  eventName?: string,
+  options: UseEkadashiFastingOptions = {}
+): {
+  fastingTimes: VaishnavEventFastingTimes | null;
+  isLoading: boolean;
+  error: Error | null;
+} {
+  const { enabled = true } = options;
+
+  const queryKey = useMemo(
+    () => [
+      'vaishnavEventFasting',
+      eventDate?.toISOString().split('T')[0],
+      location?.latitude,
+      location?.longitude,
+      eventType,
+      fastingLevel,
+    ],
+    [eventDate, location?.latitude, location?.longitude, eventType, fastingLevel]
+  );
+
+  const { data, isLoading, error } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      if (!eventDate || !location) return null;
+      return ekadashiCalculator.calculateVaishnavEventFastingTimes(
+        eventDate,
+        location,
+        eventType,
+        fastingLevel,
+        eventName
+      );
+    },
+    enabled: enabled && !!eventDate && !!location,
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  return {
+    fastingTimes: data || null,
+    isLoading,
+    error: error as Error | null,
+  };
+}
+
+/**
+ * Hook for calculating fasting times based on calendar event type
+ */
+export function useCalendarEventFasting(
+  event: {
+    event_date: string;
+    event_type: string;
+    name_ua?: string;
+    name_en?: string;
+    fasting_level?: string;
+  } | null,
+  location: GeoLocation | null,
+  language: 'ua' | 'en' = 'ua',
+  options: UseEkadashiFastingOptions = {}
+): {
+  fastingTimes: VaishnavEventFastingTimes | null;
+  isLoading: boolean;
+  error: Error | null;
+} {
+  const { enabled = true } = options;
+
+  const eventDate = useMemo(() => {
+    if (!event?.event_date) return null;
+    return new Date(event.event_date);
+  }, [event?.event_date]);
+
+  const eventType = useMemo((): VaishnavEventType => {
+    if (!event?.event_type) return 'festival';
+    const type = event.event_type.toLowerCase();
+    if (type === 'appearance') return 'appearance';
+    if (type === 'disappearance') return 'disappearance';
+    if (type === 'ekadashi') return 'ekadashi';
+    return 'festival';
+  }, [event?.event_type]);
+
+  const fastingLevel = useMemo((): FastingLevel => {
+    if (!event?.fasting_level) return 'half';
+    const level = event.fasting_level.toLowerCase();
+    if (level === 'nirjala') return 'nirjala';
+    if (level === 'full') return 'full';
+    if (level === 'half') return 'half';
+    if (level === 'none') return 'none';
+    return 'half';
+  }, [event?.fasting_level]);
+
+  const eventName = language === 'ua' ? event?.name_ua : event?.name_en;
+
+  return useVaishnavEventFasting(
+    eventDate,
+    location,
+    eventType,
+    fastingLevel,
+    eventName,
+    { enabled: enabled && eventType !== 'ekadashi' } // Ekadashi has its own calculator
+  );
 }
 
 // ============================================

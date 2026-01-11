@@ -35,7 +35,9 @@ import {
   useEkadashiFastingForDate,
   useLocationToGeo,
   useDailyPanchang,
+  useVaishnavEventFasting,
 } from "@/hooks/useEkadashiFasting";
+import type { VaishnavEventType, FastingLevel } from "@/services/ekadashiCalculator";
 import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
@@ -55,6 +57,8 @@ import {
   Sunrise,
   Sunset,
   Clock,
+  Timer,
+  UtensilsCrossed,
 } from "lucide-react";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
@@ -173,6 +177,50 @@ export default function VaishnavCalendar() {
     tithi: selectedDayTithi,
     moonIllumination: selectedDayMoon,
   } = useDailyPanchang(selectedDate, geoLocation);
+
+  // Знайти подію з постом серед вибраних подій дня
+  const selectedEventWithFasting = useMemo(() => {
+    if (!selectedDateEvents.length) return null;
+    // Пріоритет: екадаші > явлення > відхід > свято
+    const ekadashi = selectedDateEvents.find(e => e.is_ekadashi || e.event_type === 'ekadashi');
+    if (ekadashi) return { event: ekadashi, type: 'ekadashi' as VaishnavEventType };
+
+    const appearance = selectedDateEvents.find(e => e.event_type === 'appearance');
+    if (appearance) return { event: appearance, type: 'appearance' as VaishnavEventType };
+
+    const disappearance = selectedDateEvents.find(e => e.event_type === 'disappearance');
+    if (disappearance) return { event: disappearance, type: 'disappearance' as VaishnavEventType };
+
+    const festival = selectedDateEvents.find(e => e.fasting_level && e.fasting_level !== 'none');
+    if (festival) return { event: festival, type: 'festival' as VaishnavEventType };
+
+    return null;
+  }, [selectedDateEvents]);
+
+  // Розрахунок часів посту для вибраної події
+  const selectedEventFastingLevel = useMemo((): FastingLevel => {
+    if (!selectedEventWithFasting) return 'half';
+    const level = selectedEventWithFasting.event.fasting_level;
+    if (level === 'nirjala') return 'nirjala';
+    if (level === 'full') return 'full';
+    if (level === 'half') return 'half';
+    if (level === 'none') return 'none';
+    return 'half';
+  }, [selectedEventWithFasting]);
+
+  const {
+    fastingTimes: selectedEventFastingTimes,
+    isLoading: isLoadingSelectedEventFasting,
+  } = useVaishnavEventFasting(
+    selectedDate,
+    geoLocation,
+    selectedEventWithFasting?.type || 'festival',
+    selectedEventFastingLevel,
+    language === 'ua'
+      ? selectedEventWithFasting?.event.name_ua
+      : selectedEventWithFasting?.event.name_en,
+    { enabled: !!selectedEventWithFasting && selectedEventWithFasting.type !== 'ekadashi' }
+  );
 
   // Локалізовані назви днів тижня
   const weekDays = language === "ua"
@@ -457,6 +505,59 @@ export default function VaishnavCalendar() {
                 ))}
               </div>
             )}
+
+            {/* Часи посту для події (явлення/відхід) */}
+            {selectedEventWithFasting &&
+              selectedEventWithFasting.type !== 'ekadashi' &&
+              selectedLocation &&
+              selectedEventFastingTimes && (
+                <div className="mt-3 pt-3 border-t space-y-2">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <Timer className="h-4 w-4 text-muted-foreground" />
+                    {language === "ua" ? "Часи посту" : "Fasting Times"}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 text-sm p-2 bg-muted/20 rounded-lg">
+                    <div className="flex items-center gap-1.5">
+                      <Sunrise className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="text-muted-foreground text-xs">
+                        {language === "ua" ? "Схід:" : "Start:"}
+                      </span>
+                      <span className="font-medium">
+                        {selectedEventFastingTimes.sunriseFormatted}
+                      </span>
+                    </div>
+                    {selectedEventFastingTimes.fastingLevel === 'half' && (
+                      <div className="flex items-center gap-1.5">
+                        <Sun className="h-3.5 w-3.5 text-green-500" />
+                        <span className="text-muted-foreground text-xs">
+                          {language === "ua" ? "До:" : "Until:"}
+                        </span>
+                        <span className="font-medium text-green-600 dark:text-green-400">
+                          {selectedEventFastingTimes.solarNoonFormatted}
+                        </span>
+                      </div>
+                    )}
+                    {(selectedEventFastingTimes.fastingLevel === 'full' ||
+                      selectedEventFastingTimes.fastingLevel === 'nirjala') &&
+                      selectedEventFastingTimes.nextDaySunriseFormatted && (
+                        <div className="flex items-center gap-1.5">
+                          <UtensilsCrossed className="h-3.5 w-3.5 text-green-500" />
+                          <span className="text-muted-foreground text-xs">
+                            {language === "ua" ? "Парана:" : "Break:"}
+                          </span>
+                          <span className="font-medium text-green-600 dark:text-green-400">
+                            {selectedEventFastingTimes.nextDaySunriseFormatted}
+                          </span>
+                        </div>
+                      )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {language === "ua"
+                      ? selectedEventFastingTimes.fastingLevelDescription_ua
+                      : selectedEventFastingTimes.fastingLevelDescription_en}
+                  </p>
+                </div>
+              )}
 
             {selectedDateEvents.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-2">
