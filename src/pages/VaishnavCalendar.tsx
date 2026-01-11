@@ -129,7 +129,7 @@ export default function VaishnavCalendar() {
     }
   };
 
-  // Hooks календаря
+  // Hooks календаря (з підтримкою розрахованих екадаші через ?calc=true)
   const {
     monthData,
     isLoading: isLoadingMonth,
@@ -143,7 +143,7 @@ export default function VaishnavCalendar() {
     goToNextMonth,
     goToToday,
     selectDate,
-  } = useCalendar({ locationId: selectedLocationId });
+  } = useCalendar({ locationId: selectedLocationId, geoLocation });
 
   const { events: todayEvents, nextEkadashi: todayNextEkadashi } =
     useTodayEvents(selectedLocationId);

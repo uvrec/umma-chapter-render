@@ -4,8 +4,11 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
+import { useMonthEkadashis, ekadashiToCalendarEvent } from "./useCalculatedEkadashis";
+import type { GeoLocation } from "@/services/ekadashiCalculator";
 import type {
   CalendarEventDisplay,
   MonthData,
@@ -29,11 +32,16 @@ import * as calendarService from "@/services/calendarService";
 interface UseCalendarOptions {
   initialDate?: Date;
   locationId?: string;
+  geoLocation?: GeoLocation | null; // For calculated ekadashis
 }
 
 export function useCalendar(options: UseCalendarOptions = {}) {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+
+  // Feature flag: ?calc=true enables calculated ekadashis
+  const useCalculatedEkadashis = searchParams.get("calc") === "true";
 
   // Стан календаря
   const [currentDate, setCurrentDate] = useState(options.initialDate || new Date());
@@ -48,9 +56,9 @@ export function useCalendar(options: UseCalendarOptions = {}) {
   const startDate = format(startOfMonth(currentDate), "yyyy-MM-dd");
   const endDate = format(endOfMonth(currentDate), "yyyy-MM-dd");
 
-  // Завантаження даних місяця
+  // Завантаження даних місяця з БД
   const {
-    data: monthData,
+    data: dbMonthData,
     isLoading: isLoadingMonth,
     error: monthError,
   } = useQuery({
@@ -58,6 +66,48 @@ export function useCalendar(options: UseCalendarOptions = {}) {
     queryFn: () => calendarService.getMonthData(year, month, options.locationId),
     staleTime: 5 * 60 * 1000, // 5 хвилин
   });
+
+  // Розрахунок екадаші (якщо увімкнено)
+  const { ekadashis: calculatedEkadashis, isLoading: isLoadingEkadashis } = useMonthEkadashis(
+    year,
+    month,
+    useCalculatedEkadashis ? options.geoLocation || null : null
+  );
+
+  // Об'єднання даних БД з розрахованими екадаші
+  const monthData = useMemo(() => {
+    if (!dbMonthData) return null;
+    if (!useCalculatedEkadashis || !calculatedEkadashis.length) return dbMonthData;
+
+    // Clone the month data
+    const mergedData: MonthData = {
+      ...dbMonthData,
+      days: dbMonthData.days.map(day => {
+        const dateStr = format(day.date, "yyyy-MM-dd");
+
+        // Check if there's a calculated ekadashi for this day
+        const ekadashi = calculatedEkadashis.find(e => e.dateStr === dateStr);
+
+        if (ekadashi) {
+          // Check if DB already has an ekadashi event
+          const hasDbEkadashi = day.events.some(e => e.is_ekadashi);
+
+          if (!hasDbEkadashi) {
+            // Add calculated ekadashi to events
+            const ekadashiEvent = ekadashiToCalendarEvent(ekadashi, language as 'ua' | 'en');
+            return {
+              ...day,
+              events: [ekadashiEvent, ...day.events],
+            };
+          }
+        }
+
+        return day;
+      }),
+    };
+
+    return mergedData;
+  }, [dbMonthData, calculatedEkadashis, useCalculatedEkadashis, language]);
 
   // Навігація
   const goToPreviousMonth = useCallback(() => {
