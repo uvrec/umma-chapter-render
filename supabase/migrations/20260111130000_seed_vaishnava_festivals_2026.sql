@@ -10,7 +10,7 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
 
 -- Gaura Purnima - Appearance of Chaitanya Mahaprabhu
 ('gaura-purnima', 4, 'Gaura Pūrṇimā', 'Ґаура Пурніма', 'Gaura Purnima',
- 'День явлення Шрі Чайтаньї Магапрабгу, Золотого Аватари, який прийшов, щоб навчити любові до Бога через спільний спів Святих Імен.',
+ 'День явлення Шрі Чайтаньї Махапрабгу, Золотого Аватари, який прийшов, щоб навчити любові до Бога через спільний спів Святих Імен.',
  'Appearance day of Sri Chaitanya Mahaprabhu, the Golden Avatar who came to teach love of God through the congregational chanting of the Holy Names.',
  'Найважливіше свято для ґаудія-вайшнавів. Шрі Чайтанья явився у 1486 році в Навадвіпі, Західна Бенґалія.',
  'The most important festival for Gaudiya Vaishnavas. Sri Chaitanya appeared in 1486 in Navadvipa, West Bengal.',
@@ -33,10 +33,10 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
  'half', true, 3),
 
 -- Narasimha Chaturdashi - Appearance of Lord Narasimha
-('narasimha-chaturdashi', 4, 'Nṛsiṁha Caturdaśī', 'Нарасімга Чатурдаші', 'Narasimha Chaturdashi',
- 'День явлення Господа Нарасімгадева, напів-людини, напів-лева, який захистив Своїх відданих.',
+('narasimha-chaturdashi', 4, 'Nṛsiṁha Caturdaśī', 'Нарасімха Чатурдаші', 'Narasimha Chaturdashi',
+ 'День явлення Господа Нарасімхадева, напів-людини, напів-лева, який захистив Своїх відданих.',
  'Appearance day of Lord Narasimhadeva, the half-man, half-lion form who protects His devotees.',
- 'Господь Нарасімга явився, щоб захистити Прагладу Магараджа від його демонічного батька Хіран''якашіпу.',
+ 'Господь Нарасімха явився, щоб захистити Прахладу Махараджа від його демонічного батька Хіран''якашіпу.',
  'Lord Narasimha appeared to protect Prahlada Maharaja from his demonic father Hiranyakashipu.',
  'full', true, 4),
 
@@ -49,7 +49,7 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
  'half', true, 5),
 
 -- Ratha Yatra - Chariot Festival
-('ratha-yatra', 4, 'Ratha Yātrā', 'Ратга Ятра', 'Ratha Yatra',
+('ratha-yatra', 4, 'Ratha Yātrā', 'Ратха Ятра', 'Ratha Yatra',
  'Фестиваль колісниць, коли Господь Джаґаннатх, Баладева та Субгадра подорожують на величезних колісницях.',
  'The chariot festival when Lord Jagannatha, Baladeva and Subhadra travel on huge chariots.',
  'Одне з найстаріших та найбільших свят в Індії. Шрі Чайтанья танцював перед колісницею Джаґаннатха.',
@@ -82,7 +82,7 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
 
 -- Nityananda Trayodashi
 ('nityananda-trayodashi', 4, 'Nityānanda Trayodaśī', 'Нітьянанда Трайодаші', 'Nityananda Trayodashi',
- 'День явлення Господа Нітьянанди, вічного супутника Шрі Чайтаньї Магапрабгу.',
+ 'День явлення Господа Нітьянанди, вічного супутника Шрі Чайтаньї Махапрабгу.',
  'Appearance day of Lord Nityananda, the eternal associate of Sri Chaitanya Mahaprabhu.',
  'Нітьянанда Прабгу роздавав любов до Бога навіть найбільш грішним людям.',
  'Nityananda Prabhu distributed love of God even to the most sinful people.',
@@ -132,33 +132,33 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
 -- Bhaktisiddhanta Sarasvati
 ('bhaktisiddhanta-appearance', 2, 'appearance', 'Śrīla Bhaktisiddhānta Sarasvatī', 'Шріла Бгактісіддганта Сарасваті', 'Srila Bhaktisiddhanta Sarasvati',
  'Духовний учитель Шріли Прабгупади', 'Spiritual master of Srila Prabhupada',
- 'День явлення Шріли Бгактісіддганти Сарасваті Тгакура, великого проповідника свідомості Крішни.',
+ 'День явлення Шріли Бгактісіддганти Сарасваті Тхакура, великого проповідника свідомості Крішни.',
  'Appearance day of Srila Bhaktisiddhanta Sarasvati Thakura, the great preacher of Krishna consciousness.',
  'half', true, 3),
 
 ('bhaktisiddhanta-disappearance', 3, 'disappearance', 'Śrīla Bhaktisiddhānta Sarasvatī', 'Шріла Бгактісіддганта Сарасваті', 'Srila Bhaktisiddhanta Sarasvati',
  'Духовний учитель Шріли Прабгупади', 'Spiritual master of Srila Prabhupada',
- 'День відходу Шріли Бгактісіддганти Сарасваті Тгакура.',
+ 'День відходу Шріли Бгактісіддганти Сарасваті Тхакура.',
  'Disappearance day of Srila Bhaktisiddhanta Sarasvati Thakura.',
  'half', true, 4),
 
 -- Bhaktivinoda Thakura
-('bhaktivinoda-appearance', 2, 'appearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінод Тгакур', 'Srila Bhaktivinoda Thakura',
+('bhaktivinoda-appearance', 2, 'appearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінод Тхакур', 'Srila Bhaktivinoda Thakura',
  'Сьомий Ґосвамі', 'The Seventh Goswami',
- 'День явлення Шріли Бгактівінода Тгакура, відродника ґаудія-вайшнавізму.',
+ 'День явлення Шріли Бгактівінода Тхакура, відродника ґаудія-вайшнавізму.',
  'Appearance day of Srila Bhaktivinoda Thakura, the reviver of Gaudiya Vaishnavism.',
  'half', true, 5),
 
-('bhaktivinoda-disappearance', 3, 'disappearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінод Тгакур', 'Srila Bhaktivinoda Thakura',
+('bhaktivinoda-disappearance', 3, 'disappearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінод Тхакур', 'Srila Bhaktivinoda Thakura',
  'Сьомий Ґосвамі', 'The Seventh Goswami',
- 'День відходу Шріли Бгактівінода Тгакура.',
+ 'День відходу Шріли Бгактівінода Тхакура.',
  'Disappearance day of Srila Bhaktivinoda Thakura.',
  'half', true, 6),
 
 -- Six Goswamis
 ('rupa-goswami-disappearance', 3, 'disappearance', 'Śrīla Rūpa Gosvāmī', 'Шріла Рупа Ґосвамі', 'Srila Rupa Goswami',
  'Один із Шести Ґосвамі Вріндавана', 'One of the Six Goswamis of Vrindavan',
- 'День відходу Шріли Рупи Ґосвамі, головного учня Шрі Чайтаньї Магапрабгу.',
+ 'День відходу Шріли Рупи Ґосвамі, головного учня Шрі Чайтаньї Махапрабгу.',
  'Disappearance day of Srila Rupa Goswami, the chief disciple of Sri Chaitanya Mahaprabhu.',
  'half', true, 7),
 
@@ -174,9 +174,9 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
  'Appearance day of Srila Jiva Goswami, the greatest philosopher of Gaudiya Vaishnavism.',
  'half', true, 9),
 
-('raghunatha-dasa-goswami-disappearance', 3, 'disappearance', 'Śrīla Raghunātha Dāsa Gosvāmī', 'Шріла Раґгунатга Даса Ґосвамі', 'Srila Raghunatha Dasa Goswami',
+('raghunatha-dasa-goswami-disappearance', 3, 'disappearance', 'Śrīla Raghunātha Dāsa Gosvāmī', 'Шріла Раґгунатха Даса Ґосвамі', 'Srila Raghunatha Dasa Goswami',
  'Один із Шести Ґосвамі Вріндавана', 'One of the Six Goswamis of Vrindavan',
- 'День відходу Шріли Раґгунатги Даси Ґосвамі, ідеального відреченого.',
+ 'День відходу Шріли Раґгунатхи Даси Ґосвамі, ідеального відреченого.',
  'Disappearance day of Srila Raghunatha Dasa Goswami, the ideal renunciate.',
  'half', true, 10),
 
@@ -187,29 +187,29 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
  'half', true, 11),
 
 -- Narottama Dasa Thakura
-('narottama-dasa-appearance', 2, 'appearance', 'Śrīla Narottama Dāsa Ṭhākura', 'Шріла Нароттама Даса Тгакур', 'Srila Narottama Dasa Thakura',
+('narottama-dasa-appearance', 2, 'appearance', 'Śrīla Narottama Dāsa Ṭhākura', 'Шріла Нароттама Даса Тхакур', 'Srila Narottama Dasa Thakura',
  'Великий ачар''я та поет', 'Great acharya and poet',
- 'День явлення Шріли Нароттами Даси Тгакура, автора багатьох бгаджанів.',
+ 'День явлення Шріли Нароттами Даси Тхакура, автора багатьох бгаджанів.',
  'Appearance day of Srila Narottama Dasa Thakura, author of many bhajans.',
  'half', true, 12),
 
-('narottama-dasa-disappearance', 3, 'disappearance', 'Śrīla Narottama Dāsa Ṭhākura', 'Шріла Нароттама Даса Тгакур', 'Srila Narottama Dasa Thakura',
+('narottama-dasa-disappearance', 3, 'disappearance', 'Śrīla Narottama Dāsa Ṭhākura', 'Шріла Нароттама Даса Тхакур', 'Srila Narottama Dasa Thakura',
  'Великий ачар''я та поет', 'Great acharya and poet',
- 'День відходу Шріли Нароттами Даси Тгакура.',
+ 'День відходу Шріли Нароттами Даси Тхакура.',
  'Disappearance day of Srila Narottama Dasa Thakura.',
  'half', true, 13),
 
 -- Haridasa Thakura
-('haridasa-thakura-disappearance', 3, 'disappearance', 'Śrīla Haridāsa Ṭhākura', 'Шріла Харідаса Тгакур', 'Srila Haridasa Thakura',
+('haridasa-thakura-disappearance', 3, 'disappearance', 'Śrīla Haridāsa Ṭhākura', 'Шріла Харідаса Тхакур', 'Srila Haridasa Thakura',
  'Намачар''я — вчитель Святого Імені', 'Namacharya — Teacher of the Holy Name',
- 'День відходу Шріли Харідаси Тгакура, який повторював 300 000 імен щодня.',
+ 'День відходу Шріли Харідаси Тхакура, який повторював 300 000 імен щодня.',
  'Disappearance day of Srila Haridasa Thakura, who chanted 300,000 names daily.',
  'half', true, 14),
 
 -- Gaura Kishora Dasa Babaji
 ('gaura-kishora-dasa-disappearance', 3, 'disappearance', 'Śrīla Gaura Kiśora Dāsa Bābājī', 'Шріла Ґаура Кішора Даса Бабаджі', 'Srila Gaura Kishora Dasa Babaji',
  'Духовний учитель Бгактісіддганти Сарасваті', 'Spiritual master of Bhaktisiddhanta Sarasvati',
- 'День відходу Шріли Ґаури Кішори Даси Бабаджі Магараджа.',
+ 'День відходу Шріли Ґаури Кішори Даси Бабаджі Махараджа.',
  'Disappearance day of Srila Gaura Kishora Dasa Babaji Maharaja.',
  'half', true, 15),
 
@@ -241,13 +241,13 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
 
 -- Madhvacharya
 ('madhvacharya-appearance', 2, 'appearance', 'Śrī Madhvācārya', 'Шрі Мадгвачар''я', 'Sri Madhvacharya',
- 'Засновник Брагма-Мадгва-сампрадаї', 'Founder of the Brahma-Madhva sampradaya',
+ 'Засновник Брахма-Мадгва-сампрадаї', 'Founder of the Brahma-Madhva sampradaya',
  'День явлення Шрі Мадгвачар''ї, великого вчителя двайта-веданти.',
  'Appearance day of Sri Madhvacharya, the great teacher of dvaita-vedanta.',
  'half', true, 20),
 
 ('madhvacharya-disappearance', 3, 'disappearance', 'Śrī Madhvācārya', 'Шрі Мадгвачар''я', 'Sri Madhvacharya',
- 'Засновник Брагма-Мадгва-сампрадаї', 'Founder of the Brahma-Madhva sampradaya',
+ 'Засновник Брахма-Мадгва-сампрадаї', 'Founder of the Brahma-Madhva sampradaya',
  'День відходу Шрі Мадгвачар''ї.',
  'Disappearance day of Sri Madhvacharya.',
  'half', true, 21),
