@@ -414,6 +414,84 @@ export interface ParanaTime {
 }
 
 // ============================================
+// ЧАСИ ПОСТУ ЕКАДАШІ (КАЛЬКУЛЯТОР)
+// ============================================
+
+export interface EkadashiFastingCalculation {
+  // Початок посту (схід сонця на Екадаші)
+  fastingStart: Date;
+  fastingStartFormatted: string;
+
+  // Кінець посту / Парана
+  paranaDate: Date;
+  paranaStart: Date;
+  paranaEnd: Date;
+  paranaStartFormatted: string;
+  paranaEndFormatted: string;
+
+  // Hari Vasara (перша чверть Двадаші - уникати парани)
+  hariVasaraEnd?: Date;
+  hariVasaraEndFormatted?: string;
+
+  // Схід/Захід на день Екадаші
+  ekadashiSunrise: Date;
+  ekadashiSunset: Date;
+  ekadashiSunriseFormatted: string;
+  ekadashiSunsetFormatted: string;
+
+  // Схід сонця на Двадаші
+  dvadashiSunrise: Date;
+  dvadashiSunriseFormatted: string;
+
+  // Інформація про локацію
+  location: {
+    latitude: number;
+    longitude: number;
+    timezone?: string;
+  };
+
+  // Додаткова інформація
+  isDvadashiParana: boolean;
+  notes_ua?: string;
+  notes_en?: string;
+}
+
+export interface SunTimesData {
+  date: Date;
+  sunrise: Date;
+  sunset: Date;
+  solarNoon: Date;
+  sunriseFormatted: string;
+  sunsetFormatted: string;
+}
+
+export interface DailyPanchangData {
+  date: Date;
+  sunrise: Date;
+  sunset: Date;
+  solarNoon: Date;
+  dayDuration: number; // у хвилинах
+  nightDuration: number; // у хвилинах
+  brahmamuhurata: { start: Date; end: Date };
+  pratahkala: { start: Date; end: Date };
+  sunriseFormatted: string;
+  sunsetFormatted: string;
+}
+
+export interface TithiData {
+  tithi: number; // 1-30
+  paksha: Paksha;
+  tithiInPaksha: number; // 1-15
+}
+
+export interface MoonPhaseData {
+  phase: number; // 0-1 (0=новий місяць, 0.5=повний місяць)
+  illumination: number; // 0-100%
+  nextNewMoon: Date;
+  nextFullMoon: Date;
+}
+
+// ============================================
 // ЕКАДАШІ ДЕТАЛЬНИЙ ОГЛЯД
 // ============================================
 
