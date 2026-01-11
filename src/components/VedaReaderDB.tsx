@@ -665,40 +665,7 @@ export const VedaReaderDB = () => {
     };
   }, [handleTextSelection, handleSelectionChange]);
 
-  // 🆕 Keyboard navigation (← →)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ігноруємо якщо фокус в input/textarea
-      const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
-        return;
-      }
-      if (e.key === "ArrowLeft" && currentVerseIndex > 0) {
-        const prevVerse = verses[currentVerseIndex - 1];
-        // ✅ Для комбінованих віршів "7-8" використовуємо перше число
-        const urlVerseNumber = String(prevVerse.verse_number).includes('-') ? String(prevVerse.verse_number).split('-')[0] : prevVerse.verse_number;
-        // Special handling for NOI navigation
-        const path = bookId === 'noi' ? `/veda-reader/noi/${urlVerseNumber}` : isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}` : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
-        navigate(path);
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-      } else if (e.key === "ArrowRight" && currentVerseIndex < verses.length - 1) {
-        const nextVerse = verses[currentVerseIndex + 1];
-        // ✅ Для комбінованих віршів "7-8" використовуємо перше число
-        const urlVerseNumber = String(nextVerse.verse_number).includes('-') ? String(nextVerse.verse_number).split('-')[0] : nextVerse.verse_number;
-        const path = bookId === 'noi' ? `/veda-reader/noi/${urlVerseNumber}` : isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}` : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
-        navigate(path);
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentVerseIndex, verses.length, verses, isCantoMode, bookId, cantoNumber, chapterNumber, effectiveChapterParam, navigate]);
+  // Keyboard navigation (← →) is now handled via useKeyboardShortcuts below
   const handlePrevVerse = () => {
     if (currentVerseIndex > 0) {
       const prevVerse = verses[currentVerseIndex - 1];
@@ -934,51 +901,59 @@ export const VedaReaderDB = () => {
     },
     category: 'help'
   },
-  // Presentation navigation
+  // Arrow key navigation - works in all modes
   {
     key: 'ArrowRight',
-    description: t('Наступний вірш (презентація)', 'Next verse (presentation)'),
+    description: t('Наступний вірш', 'Next verse'),
     handler: () => {
       if (presentationMode && verses.length > 0) {
         setCurrentPresentationVerseIndex(prev =>
           prev < verses.length - 1 ? prev + 1 : prev
         );
+      } else {
+        handleNextVerse();
       }
     },
     category: 'navigation'
   },
   {
     key: 'ArrowLeft',
-    description: t('Попередній вірш (презентація)', 'Previous verse (presentation)'),
+    description: t('Попередній вірш', 'Previous verse'),
     handler: () => {
       if (presentationMode && verses.length > 0) {
         setCurrentPresentationVerseIndex(prev =>
           prev > 0 ? prev - 1 : prev
         );
+      } else {
+        handlePrevVerse();
       }
     },
     category: 'navigation'
   },
   {
     key: 'ArrowDown',
-    description: t('Наступний вірш (презентація)', 'Next verse (presentation)'),
+    description: t('Наступний вірш', 'Next verse'),
     handler: () => {
       if (presentationMode && verses.length > 0) {
         setCurrentPresentationVerseIndex(prev =>
           prev < verses.length - 1 ? prev + 1 : prev
         );
+      } else {
+        handleNextVerse();
       }
     },
     category: 'navigation'
   },
   {
     key: 'ArrowUp',
-    description: t('Попередній вірш (презентація)', 'Previous verse (presentation)'),
+    description: t('Попередній вірш', 'Previous verse'),
     handler: () => {
       if (presentationMode && verses.length > 0) {
         setCurrentPresentationVerseIndex(prev =>
           prev > 0 ? prev - 1 : prev
         );
+      } else {
+        handlePrevVerse();
       }
     },
     category: 'navigation'
