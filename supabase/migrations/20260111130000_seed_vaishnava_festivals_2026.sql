@@ -36,7 +36,7 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
 ('narasimha-chaturdashi', 4, 'Nṛsiṁha Caturdaśī', 'Нарасімха Чатурдаші', 'Narasimha Chaturdashi',
  'День явлення Господа Нарасімхадева, напів-людини, напів-лева, який захистив Своїх відданих.',
  'Appearance day of Lord Narasimhadeva, the half-man, half-lion form who protects His devotees.',
- 'Господь Нарасімха явився, щоб захистити Прахлада Махараджа від його демонічного батька Хіран''якашіпу.',
+ 'Господь Нарасімха явився, щоб захистити Прахлад Махараджа від його демонічного батька Хіран''якашіпу.',
  'Lord Narasimha appeared to protect Prahlada Maharaja from his demonic father Hiranyakashipu.',
  'full', true, 4),
 
