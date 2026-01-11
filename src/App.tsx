@@ -51,6 +51,7 @@ import TransliterationTool from "./pages/TransliterationTool";
 import Numerology from "./pages/tools/Numerology";
 import ScriptLearning from "./pages/tools/ScriptLearning";
 import TextNormalization from "./pages/tools/TextNormalization";
+import JyotishCalculator from "./pages/tools/JyotishCalculator";
 import KnowledgeCompiler from "./pages/KnowledgeCompiler";
 import SynonymsSearch from "./pages/SynonymsSearch";
 import SanskritDictionary from "./pages/SanskritDictionary";
@@ -207,6 +208,7 @@ function AppContent() {
           <Route path="/glossary" element={<GlossaryDB />} />
           <Route path="/tools/transliteration" element={<TransliterationTool />} />
           <Route path="/tools/numerology" element={<Numerology />} />
+          <Route path="/tools/jyotish" element={<JyotishCalculator />} />
           <Route path="/tools/learning" element={<ScriptLearning />} />
           <Route path="/tools/normalization" element={<TextNormalization />} />
           <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
