@@ -4,7 +4,8 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Play, Pause } from "lucide-react";
+import { useAudio } from "@/contexts/ModernAudioContext";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -97,6 +98,10 @@ export const VedaReaderDB = () => {
     presentationMode,
     setPresentationMode,
   } = useReaderSettings();
+
+  // Audio context for presentation mode
+  const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
+
   const [currentPresentationVerseIndex, setCurrentPresentationVerseIndex] = useState(0);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
   const getDisplayVerseNumber = (verseNumber: string): string => {
@@ -997,6 +1002,42 @@ export const VedaReaderDB = () => {
     const canGoPrev = currentPresentationVerseIndex > 0;
     const canGoNext = currentPresentationVerseIndex < verses.length - 1;
 
+    // Audio URL for presentation mode (respects language and dual mode)
+    const presentationAudioUrl = (currentVerse as any).full_verse_audio_url || (currentVerse as any).audio_url || "";
+    const hasAudio = !!presentationAudioUrl;
+
+    // Check if this verse is currently playing
+    const isPresentationVersePlaying = isPlaying && currentTrack && (
+      currentTrack.verseId === currentVerse.id ||
+      currentTrack.id?.startsWith(`${currentVerse.verse_number}-`)
+    );
+
+    // Play audio handler for presentation mode
+    const handlePresentationPlay = () => {
+      if (!presentationAudioUrl) return;
+
+      const trackId = `${currentVerse.verse_number}-presentation`;
+
+      if (currentTrack?.verseId === currentVerse.id || currentTrack?.id === trackId) {
+        togglePlay();
+        return;
+      }
+
+      const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+      const fullVerseNumber = isCantoMode
+        ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
+        : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
+
+      playVerseWithChapterContext({
+        id: trackId,
+        title: `${fullVerseNumber}`,
+        subtitle: chapterTitle || bookTitle,
+        src: presentationAudioUrl,
+        verseId: currentVerse.id,
+        verseNumber: currentVerse.verse_number,
+      });
+    };
+
     return (
       <div className="min-h-screen bg-background presentation-container">
         {/* Кнопка виходу */}
@@ -1036,6 +1077,40 @@ export const VedaReaderDB = () => {
           <div className="presentation-verse-number text-primary mb-6">
             {effectiveChapter.chapter_number}.{getDisplayVerseNumber(currentVerse.verse_number)}
           </div>
+
+          {/* Кнопка відтворення аудіо */}
+          {hasAudio && (
+            <button
+              onClick={handlePresentationPlay}
+              className={`
+                mb-8 flex items-center justify-center gap-3 px-6 py-3 rounded-full mx-auto
+                transition-all duration-200
+                ${isPresentationVersePlaying
+                  ? 'bg-primary text-primary-foreground shadow-lg scale-105'
+                  : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+                }
+              `}
+              aria-label={isPresentationVersePlaying ? t("Пауза", "Pause") : t("Слухати", "Listen")}
+            >
+              {isPresentationVersePlaying ? (
+                <>
+                  <Pause className="h-5 w-5" />
+                  <div className="audio-wave-bars">
+                    <div className="audio-wave-bar" />
+                    <div className="audio-wave-bar" />
+                    <div className="audio-wave-bar" />
+                    <div className="audio-wave-bar" />
+                    <div className="audio-wave-bar" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Play className="h-5 w-5" />
+                  <span className="text-base font-medium">{t('Слухати', 'Listen')}</span>
+                </>
+              )}
+            </button>
+          )}
 
           {/* Санскрит */}
           {textDisplaySettings.showSanskrit && currentVerse.sanskrit && (
