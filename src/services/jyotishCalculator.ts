@@ -3,7 +3,45 @@
  * Інтеграція з @bidyashish/panchang та локальними даними
  */
 
-import { getPanchanga, type PanchangaInput, type PanchangaOutput } from '@bidyashish/panchang';
+// Dynamic import to avoid __dirname error in Vite browser environment
+// The @bidyashish/panchang package uses swisseph which requires Node.js globals
+type PanchangaInput = {
+  date: Date;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+};
+
+type PanchangaOutput = {
+  tithi?: { number: number; paksha: string; progress?: number; endTime?: string };
+  nakshatra?: { degree: number; endTime?: string };
+  yoga?: { number: number; progress?: number; endTime?: string };
+  karana?: { number: number; progress?: number; endTime?: string };
+  sunSign?: { degree: number };
+  sunrise?: string;
+  sunset?: string;
+  moonrise?: string;
+  moonset?: string;
+  rahuKaal?: { start: string; end: string };
+};
+
+let panchangaModule: { getPanchanga: (input: PanchangaInput) => Promise<PanchangaOutput> } | null = null;
+let panchangaLoadAttempted = false;
+
+async function loadPanchangaModule(): Promise<typeof panchangaModule> {
+  if (panchangaLoadAttempted) return panchangaModule;
+  panchangaLoadAttempted = true;
+
+  try {
+    const mod = await import('@bidyashish/panchang');
+    panchangaModule = { getPanchanga: mod.getPanchanga };
+    return panchangaModule;
+  } catch (error) {
+    console.warn('Failed to load @bidyashish/panchang (expected in browser):', error);
+    return null;
+  }
+}
+
 import { getNakshatraByDegree, getNakshatraPada, getNakshatraProgress, NAKSHATRAS } from '@/data/jyotish/nakshatras';
 import { getRashiByDegree, getRashiProgress, RASHIS } from '@/data/jyotish/rashis';
 import { getGrahaById, getGrahaByDayOfWeek, GRAHAS, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from '@/data/jyotish/grahas';
@@ -126,18 +164,25 @@ export async function calculatePanchanga(
   timezone: string
 ): Promise<Panchanga> {
   try {
-    // Використовуємо бібліотеку @bidyashish/panchang
-    const input: PanchangaInput = {
-      date,
-      latitude,
-      longitude,
-      timezone,
-    };
+    // Спробуємо завантажити бібліотеку @bidyashish/panchang динамічно
+    const mod = await loadPanchangaModule();
 
-    const panchangaData = await getPanchanga(input);
+    if (mod) {
+      const input: PanchangaInput = {
+        date,
+        latitude,
+        longitude,
+        timezone,
+      };
 
-    // Мапимо дані бібліотеки на наші типи
-    return mapPanchangaOutput(panchangaData, date, latitude, longitude, timezone);
+      const panchangaData = await mod.getPanchanga(input);
+
+      // Мапимо дані бібліотеки на наші типи
+      return mapPanchangaOutput(panchangaData, date, latitude, longitude, timezone);
+    }
+
+    // Бібліотека недоступна - використовуємо локальні розрахунки
+    return calculateLocalPanchanga(date, latitude, longitude, timezone);
   } catch (error) {
     console.error('Error calculating panchanga:', error);
     // Fallback на локальні розрахунки
