@@ -4,8 +4,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Play, Pause } from "lucide-react";
-import { useAudio } from "@/contexts/ModernAudioContext";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -95,14 +94,7 @@ export const VedaReaderDB = () => {
     setFullscreenMode,
     zenMode,
     setZenMode,
-    presentationMode,
-    setPresentationMode,
   } = useReaderSettings();
-
-  // Audio context for presentation mode
-  const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
-
-  const [currentPresentationVerseIndex, setCurrentPresentationVerseIndex] = useState(0);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
   const getDisplayVerseNumber = (verseNumber: string): string => {
     const parts = verseNumber.split(/[\s.]+/);
@@ -849,17 +841,6 @@ export const VedaReaderDB = () => {
       window.dispatchEvent(new Event("vv-reader-prefs-changed"));
     },
     category: 'modes'
-  }, {
-    key: 'p',
-    description: t('Режим презентації', 'Presentation mode'),
-    handler: () => {
-      setPresentationMode(prev => !prev);
-      if (!presentationMode) {
-        // При вмиканні скидаємо на перший вірш
-        setCurrentPresentationVerseIndex(0);
-      }
-    },
-    category: 'modes'
   },
   // Navigation - Jump to verse
   {
@@ -892,9 +873,7 @@ export const VedaReaderDB = () => {
     key: 'Escape',
     description: t('Закрити модальне вікно / Вийти з режиму', 'Close modal / Exit mode'),
     handler: () => {
-      if (presentationMode) {
-        setPresentationMode(false);
-      } else if (zenMode) {
+      if (zenMode) {
         setZenMode(false);
       } else if (fullscreenMode) {
         setFullscreenMode(false);
@@ -906,61 +885,29 @@ export const VedaReaderDB = () => {
     },
     category: 'help'
   },
-  // Arrow key navigation - works in all modes
+  // Arrow key navigation
   {
     key: 'ArrowRight',
     description: t('Наступний вірш', 'Next verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev < verses.length - 1 ? prev + 1 : prev
-        );
-      } else {
-        handleNextVerse();
-      }
-    },
+    handler: handleNextVerse,
     category: 'navigation'
   },
   {
     key: 'ArrowLeft',
     description: t('Попередній вірш', 'Previous verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev > 0 ? prev - 1 : prev
-        );
-      } else {
-        handlePrevVerse();
-      }
-    },
+    handler: handlePrevVerse,
     category: 'navigation'
   },
   {
     key: 'ArrowDown',
     description: t('Наступний вірш', 'Next verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev < verses.length - 1 ? prev + 1 : prev
-        );
-      } else {
-        handleNextVerse();
-      }
-    },
+    handler: handleNextVerse,
     category: 'navigation'
   },
   {
     key: 'ArrowUp',
     description: t('Попередній вірш', 'Previous verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev > 0 ? prev - 1 : prev
-        );
-      } else {
-        handlePrevVerse();
-      }
-    },
+    handler: handlePrevVerse,
     category: 'navigation'
   }];
 
@@ -995,166 +942,6 @@ export const VedaReaderDB = () => {
 
   // ✅ fontSize керується через useReaderSettings → оновлює CSS змінну --vv-reader-font-size
   // Не потрібно встановлювати inline font-size на контейнер
-
-  // Presentation Mode - показуємо один вірш на весь екран
-  if (presentationMode && verses.length > 0) {
-    const currentVerse = verses[currentPresentationVerseIndex];
-    const canGoPrev = currentPresentationVerseIndex > 0;
-    const canGoNext = currentPresentationVerseIndex < verses.length - 1;
-
-    // Audio URL for presentation mode (respects language and dual mode)
-    const presentationAudioUrl = (currentVerse as any).full_verse_audio_url || (currentVerse as any).audio_url || "";
-    const hasAudio = !!presentationAudioUrl;
-
-    // Check if this verse is currently playing
-    const isPresentationVersePlaying = isPlaying && currentTrack && (
-      currentTrack.verseId === currentVerse.id ||
-      currentTrack.id?.startsWith(`${currentVerse.verse_number}-`)
-    );
-
-    // Play audio handler for presentation mode
-    const handlePresentationPlay = () => {
-      if (!presentationAudioUrl) return;
-
-      const trackId = `${currentVerse.verse_number}-presentation`;
-
-      if (currentTrack?.verseId === currentVerse.id || currentTrack?.id === trackId) {
-        togglePlay();
-        return;
-      }
-
-      const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
-      const fullVerseNumber = isCantoMode
-        ? `${cantoNumber}.${chapterNumber}.${verseIdx}`
-        : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
-
-      playVerseWithChapterContext({
-        id: trackId,
-        title: `${fullVerseNumber}`,
-        subtitle: chapterTitle || bookTitle,
-        src: presentationAudioUrl,
-        verseId: currentVerse.id,
-        verseNumber: currentVerse.verse_number,
-      });
-    };
-
-    return (
-      <div className="min-h-screen bg-background presentation-container">
-        {/* Кнопка виходу */}
-        <button
-          onClick={() => setPresentationMode(false)}
-          className="presentation-exit-btn"
-          title={t("Вийти з презентації (Esc)", "Exit presentation (Esc)")}
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        {/* Кнопка попередній вірш */}
-        {canGoPrev && (
-          <button
-            onClick={() => setCurrentPresentationVerseIndex(prev => prev - 1)}
-            className="presentation-nav-btn prev"
-            title={t("Попередній вірш (←)", "Previous verse (←)")}
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </button>
-        )}
-
-        {/* Кнопка наступний вірш */}
-        {canGoNext && (
-          <button
-            onClick={() => setCurrentPresentationVerseIndex(prev => prev + 1)}
-            className="presentation-nav-btn next"
-            title={t("Наступний вірш (→)", "Next verse (→)")}
-          >
-            <ChevronRight className="h-8 w-8" />
-          </button>
-        )}
-
-        {/* Основний контент */}
-        <div className="presentation-verse-content text-center max-w-5xl mx-auto px-8" key={currentPresentationVerseIndex}>
-          {/* Номер вірша */}
-          <div className="presentation-verse-number text-primary mb-6">
-            {effectiveChapter.chapter_number}.{getDisplayVerseNumber(currentVerse.verse_number)}
-          </div>
-
-          {/* Кнопка відтворення аудіо */}
-          {hasAudio && (
-            <button
-              onClick={handlePresentationPlay}
-              className={`
-                mb-8 flex items-center justify-center gap-3 px-6 py-3 rounded-full mx-auto
-                transition-all duration-200
-                ${isPresentationVersePlaying
-                  ? 'bg-primary text-primary-foreground shadow-lg scale-105'
-                  : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
-                }
-              `}
-              aria-label={isPresentationVersePlaying ? t("Пауза", "Pause") : t("Слухати", "Listen")}
-            >
-              {isPresentationVersePlaying ? (
-                <>
-                  <Pause className="h-5 w-5" />
-                  <div className="audio-wave-bars">
-                    <div className="audio-wave-bar" />
-                    <div className="audio-wave-bar" />
-                    <div className="audio-wave-bar" />
-                    <div className="audio-wave-bar" />
-                    <div className="audio-wave-bar" />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Play className="h-5 w-5" />
-                  <span className="text-base font-medium">{t('Слухати', 'Listen')}</span>
-                </>
-              )}
-            </button>
-          )}
-
-          {/* Санскрит */}
-          {textDisplaySettings.showSanskrit && currentVerse.sanskrit && (
-            <div className="presentation-sanskrit text-2xl md:text-3xl lg:text-4xl mb-8 font-sanskrit leading-relaxed">
-              {currentVerse.sanskrit}
-            </div>
-          )}
-
-          {/* Транслітерація */}
-          {textDisplaySettings.showTransliteration && currentVerse.transliteration && (
-            <div className="presentation-transliteration text-lg md:text-xl lg:text-2xl mb-6 italic opacity-90">
-              {currentVerse.transliteration}
-            </div>
-          )}
-
-          {/* Синоніми */}
-          {textDisplaySettings.showSynonyms && getTranslationWithFallback(currentVerse, 'synonyms') && (
-            <div className="presentation-synonyms text-base md:text-lg lg:text-xl mb-6 opacity-80">
-              {getTranslationWithFallback(currentVerse, 'synonyms')}
-            </div>
-          )}
-
-          {/* Переклад */}
-          {textDisplaySettings.showTranslation && getTranslationWithFallback(currentVerse, 'translation') && (
-            <div className="presentation-translation text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed">
-              {getTranslationWithFallback(currentVerse, 'translation')}
-            </div>
-          )}
-        </div>
-
-        {/* Індикатор позиції */}
-        <div className="presentation-position">
-          {currentPresentationVerseIndex + 1} / {verses.length}
-        </div>
-
-        {/* Навігаційні підказки */}
-        <div className="presentation-nav-hints">
-          <span>← {t("попередній", "prev")}</span>
-          <span>{t("наступний", "next")} →</span>
-          <span>Esc {t("вийти", "exit")}</span>
-        </div>
-      </div>
-    );
-  }
 
   return <div className="min-h-screen bg-background">
       {/* Кнопка виходу з zen/fullscreen режиму */}
