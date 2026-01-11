@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square, Sun, Moon, Leaf, Snowflake, Eye } from "lucide-react";
+import { Settings, Globe, Palette, RotateCcw, Smartphone, Maximize, Square, Sun, Moon, Leaf, Snowflake, Eye, HardDrive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -13,6 +13,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { AdminTypographyPanel } from "@/components/AdminTypographyPanel";
+import { OfflineManager } from "@/components/OfflineManager";
 import { errorLogger } from "@/utils/errorLogger";
 
 const MIN_FONT = 12;
@@ -196,9 +197,13 @@ export const GlobalSettingsPanel = () => {
           </SheetHeader>
 
           <Tabs defaultValue="general" className="w-full">
-            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <TabsList className={`grid w-full ${isAdmin ? 'grid-cols-3' : 'grid-cols-2'}`}>
               <TabsTrigger value="general">{t("Загальні", "General")}</TabsTrigger>
-              {isAdmin && <TabsTrigger value="admin">{t("Стилі (Admin)", "Styles (Admin)")}</TabsTrigger>}
+              <TabsTrigger value="offline" className="gap-1">
+                <HardDrive className="h-3 w-3" />
+                {t("Офлайн", "Offline")}
+              </TabsTrigger>
+              {isAdmin && <TabsTrigger value="admin">{t("Стилі", "Styles")}</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="general" className="space-y-6 pb-6 mt-6">
@@ -455,6 +460,11 @@ export const GlobalSettingsPanel = () => {
                 {t("Скинути до початкових", "Reset to Defaults")}
               </Button>
             </div>
+            </TabsContent>
+
+            {/* Offline Manager */}
+            <TabsContent value="offline" className="mt-6 pb-6">
+              <OfflineManager />
             </TabsContent>
 
             {/* Admin Typography Panel */}
