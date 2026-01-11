@@ -8,7 +8,7 @@
  * - Налаштування локації
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,9 +31,15 @@ import {
 } from "@/hooks/useCalendar";
 import { useAutoLocation } from "@/hooks/useGeolocation";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useEkadashiFastingForDate,
+  useLocationToGeo,
+  useDailyPanchang,
+} from "@/hooks/useEkadashiFasting";
 import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
+import { EkadashiFastingTimes } from "@/components/calendar/EkadashiFastingTimes";
 import {
   ChevronLeft,
   ChevronRight,
@@ -46,6 +52,9 @@ import {
   BookOpen,
   Locate,
   Loader2,
+  Sunrise,
+  Sunset,
+  Clock,
 } from "lucide-react";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
@@ -137,6 +146,34 @@ export default function VaishnavCalendar() {
 
   const { nextEkadashi, daysUntil } = useNextEkadashi(selectedLocationId);
 
+  // Поточна локація для калькулятора
+  const selectedLocation = useMemo(
+    () => locations.find((loc) => loc.id === selectedLocationId) || null,
+    [locations, selectedLocationId]
+  );
+  const geoLocation = useLocationToGeo(selectedLocation);
+
+  // Розрахунок часів посту для наступного екадаші
+  const nextEkadashiDate = useMemo(() => {
+    if (!nextEkadashi) return null;
+    const dateStr = nextEkadashi.event.event_date;
+    if (!dateStr) return null;
+    return new Date(dateStr);
+  }, [nextEkadashi]);
+
+  const {
+    fastingTimes: nextEkadashiFastingTimes,
+    isLoading: isLoadingFastingTimes,
+    error: fastingTimesError,
+  } = useEkadashiFastingForDate(nextEkadashiDate, geoLocation);
+
+  // Розрахунок часів для вибраного дня
+  const {
+    panchang: selectedDayPanchang,
+    tithi: selectedDayTithi,
+    moonIllumination: selectedDayMoon,
+  } = useDailyPanchang(selectedDate, geoLocation);
+
   // Локалізовані назви днів тижня
   const weekDays = language === "ua"
     ? ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"]
@@ -210,7 +247,7 @@ export default function VaishnavCalendar() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <p className="font-semibold text-purple-900 dark:text-purple-100">
                   {nextEkadashi.event.name}
                 </p>
@@ -218,7 +255,7 @@ export default function VaishnavCalendar() {
                   {nextEkadashi.formattedDate}
                 </p>
                 {daysUntil !== undefined && (
-                  <Badge variant="secondary" className="mt-2">
+                  <Badge variant="secondary">
                     {daysUntil === 0
                       ? language === "ua"
                         ? "Сьогодні"
@@ -231,6 +268,35 @@ export default function VaishnavCalendar() {
                       ? `Через ${daysUntil} днів`
                       : `In ${daysUntil} days`}
                   </Badge>
+                )}
+
+                {/* Часи посту */}
+                {selectedLocation && nextEkadashiFastingTimes && (
+                  <div className="mt-3 pt-3 border-t border-purple-200 dark:border-purple-800 space-y-2">
+                    <div className="flex items-center gap-2 text-xs">
+                      <Sunrise className="h-3.5 w-3.5 text-amber-500" />
+                      <span className="text-muted-foreground">
+                        {language === "ua" ? "Початок посту:" : "Fast starts:"}
+                      </span>
+                      <span className="font-medium text-amber-600 dark:text-amber-400">
+                        {nextEkadashiFastingTimes.ekadashiSunriseFormatted}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <Clock className="h-3.5 w-3.5 text-green-500" />
+                      <span className="text-muted-foreground">
+                        {language === "ua" ? "Парана:" : "Parana:"}
+                      </span>
+                      <span className="font-medium text-green-600 dark:text-green-400">
+                        {nextEkadashiFastingTimes.paranaStartFormatted}—{nextEkadashiFastingTimes.paranaEndFormatted}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {isLoadingFastingTimes && selectedLocation && (
+                  <div className="mt-3 pt-3 border-t border-purple-200 dark:border-purple-800">
+                    <Skeleton className="h-8 w-full" />
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -340,7 +406,7 @@ export default function VaishnavCalendar() {
       </Card>
 
       {/* Події вибраної дати */}
-      {selectedDate && selectedDateEvents.length > 0 && (
+      {selectedDate && (selectedDateEvents.length > 0 || selectedDayPanchang) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">
@@ -349,16 +415,70 @@ export default function VaishnavCalendar() {
               })}
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {selectedDateEvents.map((event) => (
-              <CalendarEventCard
-                key={event.event_id}
-                event={event}
-                language={language}
-              />
-            ))}
+          <CardContent className="space-y-4">
+            {/* Схід/захід для вибраного дня */}
+            {selectedDayPanchang && (
+              <div className="flex flex-wrap items-center gap-4 text-sm p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Sunrise className="h-4 w-4 text-amber-500" />
+                  <span className="text-muted-foreground">
+                    {language === "ua" ? "Схід:" : "Sunrise:"}
+                  </span>
+                  <span className="font-medium">{selectedDayPanchang.sunriseFormatted}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Sunset className="h-4 w-4 text-orange-500" />
+                  <span className="text-muted-foreground">
+                    {language === "ua" ? "Захід:" : "Sunset:"}
+                  </span>
+                  <span className="font-medium">{selectedDayPanchang.sunsetFormatted}</span>
+                </div>
+                {selectedDayMoon !== null && (
+                  <div className="flex items-center gap-2">
+                    <Moon className="h-4 w-4 text-slate-400" />
+                    <span className="text-muted-foreground">
+                      {language === "ua" ? "Місяць:" : "Moon:"}
+                    </span>
+                    <span className="font-medium">{selectedDayMoon}%</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Події дня */}
+            {selectedDateEvents.length > 0 && (
+              <div className="space-y-3">
+                {selectedDateEvents.map((event) => (
+                  <CalendarEventCard
+                    key={event.event_id}
+                    event={event}
+                    language={language}
+                  />
+                ))}
+              </div>
+            )}
+
+            {selectedDateEvents.length === 0 && (
+              <p className="text-sm text-muted-foreground text-center py-2">
+                {language === "ua"
+                  ? "Немає особливих подій цього дня"
+                  : "No special events on this day"}
+              </p>
+            )}
           </CardContent>
         </Card>
+      )}
+
+      {/* Детальна інформація про часи посту наступного екадаші */}
+      {nextEkadashi && selectedLocation && (
+        <EkadashiFastingTimes
+          fastingTimes={nextEkadashiFastingTimes}
+          ekadashiName={nextEkadashi.event.name}
+          location={selectedLocation}
+          language={language}
+          isLoading={isLoadingFastingTimes}
+          error={fastingTimesError}
+        />
       )}
 
       {/* Легенда */}
