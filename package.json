@@ -18,6 +18,7 @@
     "assets:generate": "npx capacitor-assets generate --assetPath assets"
   },
   "dependencies": {
+    "@bidyashish/panchang": "^1.0.10",
     "@capacitor-community/sqlite": "^7.0.2",
     "@capacitor/android": "^8.0.0",
     "@capacitor/cli": "^8.0.0",
