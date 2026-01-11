@@ -4,7 +4,6 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
 import { useMonthEkadashis, ekadashiToCalendarEvent } from "./useCalculatedEkadashis";
@@ -38,10 +37,14 @@ interface UseCalendarOptions {
 export function useCalendar(options: UseCalendarOptions = {}) {
   const { language } = useLanguage();
   const queryClient = useQueryClient();
-  const [searchParams] = useSearchParams();
 
   // Feature flag: ?calc=true enables calculated ekadashis
-  const useCalculatedEkadashis = searchParams.get("calc") === "true";
+  // Use window.location to avoid Router context issues
+  const useCalculatedEkadashis = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    return params.get("calc") === "true";
+  }, []);
 
   // Стан календаря
   const [currentDate, setCurrentDate] = useState(options.initialDate || new Date());
