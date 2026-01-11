@@ -94,10 +94,7 @@ export const VedaReaderDB = () => {
     setFullscreenMode,
     zenMode,
     setZenMode,
-    presentationMode,
-    setPresentationMode,
   } = useReaderSettings();
-  const [currentPresentationVerseIndex, setCurrentPresentationVerseIndex] = useState(0);
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
   const getDisplayVerseNumber = (verseNumber: string): string => {
     const parts = verseNumber.split(/[\s.]+/);
@@ -844,17 +841,6 @@ export const VedaReaderDB = () => {
       window.dispatchEvent(new Event("vv-reader-prefs-changed"));
     },
     category: 'modes'
-  }, {
-    key: 'p',
-    description: t('Режим презентації', 'Presentation mode'),
-    handler: () => {
-      setPresentationMode(prev => !prev);
-      if (!presentationMode) {
-        // При вмиканні скидаємо на перший вірш
-        setCurrentPresentationVerseIndex(0);
-      }
-    },
-    category: 'modes'
   },
   // Navigation - Jump to verse
   {
@@ -887,9 +873,7 @@ export const VedaReaderDB = () => {
     key: 'Escape',
     description: t('Закрити модальне вікно / Вийти з режиму', 'Close modal / Exit mode'),
     handler: () => {
-      if (presentationMode) {
-        setPresentationMode(false);
-      } else if (zenMode) {
+      if (zenMode) {
         setZenMode(false);
       } else if (fullscreenMode) {
         setFullscreenMode(false);
@@ -901,61 +885,29 @@ export const VedaReaderDB = () => {
     },
     category: 'help'
   },
-  // Arrow key navigation - works in all modes
+  // Arrow key navigation
   {
     key: 'ArrowRight',
     description: t('Наступний вірш', 'Next verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev < verses.length - 1 ? prev + 1 : prev
-        );
-      } else {
-        handleNextVerse();
-      }
-    },
+    handler: handleNextVerse,
     category: 'navigation'
   },
   {
     key: 'ArrowLeft',
     description: t('Попередній вірш', 'Previous verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev > 0 ? prev - 1 : prev
-        );
-      } else {
-        handlePrevVerse();
-      }
-    },
+    handler: handlePrevVerse,
     category: 'navigation'
   },
   {
     key: 'ArrowDown',
     description: t('Наступний вірш', 'Next verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev < verses.length - 1 ? prev + 1 : prev
-        );
-      } else {
-        handleNextVerse();
-      }
-    },
+    handler: handleNextVerse,
     category: 'navigation'
   },
   {
     key: 'ArrowUp',
     description: t('Попередній вірш', 'Previous verse'),
-    handler: () => {
-      if (presentationMode && verses.length > 0) {
-        setCurrentPresentationVerseIndex(prev =>
-          prev > 0 ? prev - 1 : prev
-        );
-      } else {
-        handlePrevVerse();
-      }
-    },
+    handler: handlePrevVerse,
     category: 'navigation'
   }];
 
@@ -990,96 +942,6 @@ export const VedaReaderDB = () => {
 
   // ✅ fontSize керується через useReaderSettings → оновлює CSS змінну --vv-reader-font-size
   // Не потрібно встановлювати inline font-size на контейнер
-
-  // Presentation Mode - показуємо один вірш на весь екран
-  if (presentationMode && verses.length > 0) {
-    const currentVerse = verses[currentPresentationVerseIndex];
-    const canGoPrev = currentPresentationVerseIndex > 0;
-    const canGoNext = currentPresentationVerseIndex < verses.length - 1;
-
-    return (
-      <div className="min-h-screen bg-background presentation-container">
-        {/* Кнопка виходу */}
-        <button
-          onClick={() => setPresentationMode(false)}
-          className="presentation-exit-btn"
-          title={t("Вийти з презентації (Esc)", "Exit presentation (Esc)")}
-        >
-          <X className="h-5 w-5" />
-        </button>
-
-        {/* Кнопка попередній вірш */}
-        {canGoPrev && (
-          <button
-            onClick={() => setCurrentPresentationVerseIndex(prev => prev - 1)}
-            className="presentation-nav-btn prev"
-            title={t("Попередній вірш (←)", "Previous verse (←)")}
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </button>
-        )}
-
-        {/* Кнопка наступний вірш */}
-        {canGoNext && (
-          <button
-            onClick={() => setCurrentPresentationVerseIndex(prev => prev + 1)}
-            className="presentation-nav-btn next"
-            title={t("Наступний вірш (→)", "Next verse (→)")}
-          >
-            <ChevronRight className="h-8 w-8" />
-          </button>
-        )}
-
-        {/* Основний контент */}
-        <div className="presentation-verse-content text-center max-w-5xl mx-auto px-8" key={currentPresentationVerseIndex}>
-          {/* Номер вірша */}
-          <div className="presentation-verse-number text-primary mb-6">
-            {effectiveChapter.chapter_number}.{getDisplayVerseNumber(currentVerse.verse_number)}
-          </div>
-
-          {/* Санскрит */}
-          {textDisplaySettings.showSanskrit && currentVerse.sanskrit && (
-            <div className="presentation-sanskrit text-2xl md:text-3xl lg:text-4xl mb-8 font-sanskrit leading-relaxed">
-              {currentVerse.sanskrit}
-            </div>
-          )}
-
-          {/* Транслітерація */}
-          {textDisplaySettings.showTransliteration && currentVerse.transliteration && (
-            <div className="presentation-transliteration text-lg md:text-xl lg:text-2xl mb-6 italic opacity-90">
-              {currentVerse.transliteration}
-            </div>
-          )}
-
-          {/* Синоніми */}
-          {textDisplaySettings.showSynonyms && getTranslationWithFallback(currentVerse, 'synonyms') && (
-            <div className="presentation-synonyms text-base md:text-lg lg:text-xl mb-6 opacity-80">
-              {getTranslationWithFallback(currentVerse, 'synonyms')}
-            </div>
-          )}
-
-          {/* Переклад */}
-          {textDisplaySettings.showTranslation && getTranslationWithFallback(currentVerse, 'translation') && (
-            <div className="presentation-translation text-xl md:text-2xl lg:text-3xl font-medium leading-relaxed">
-              {getTranslationWithFallback(currentVerse, 'translation')}
-            </div>
-          )}
-        </div>
-
-        {/* Індикатор позиції */}
-        <div className="presentation-position">
-          {currentPresentationVerseIndex + 1} / {verses.length}
-        </div>
-
-        {/* Навігаційні підказки */}
-        <div className="presentation-nav-hints">
-          <span>← {t("попередній", "prev")}</span>
-          <span>{t("наступний", "next")} →</span>
-          <span>Esc {t("вийти", "exit")}</span>
-        </div>
-      </div>
-    );
-  }
 
   return <div className="min-h-screen bg-background">
       {/* Кнопка виходу з zen/fullscreen режиму */}
@@ -1215,7 +1077,7 @@ export const VedaReaderDB = () => {
             showTranslation: continuousReadingSettings.showTranslation,
             showCommentary: continuousReadingSettings.showCommentary
           };
-          return dualLanguageMode ? <DualLanguageVerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((verse as any).sanskrit_ua || (verse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliterationUa={(verse as any).transliteration_ua || ""} synonymsUa={(verse as any).synonyms_ua || ""} translationUa={(verse as any).translation_ua || ""} commentaryUa={(verse as any).commentary_ua || ""} transliterationEn={(verse as any).transliteration_en || ""} synonymsEn={(verse as any).synonyms_en || ""} translationEn={(verse as any).translation_en || ""} commentaryEn={(verse as any).commentary_en || ""} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+          return dualLanguageMode ? <DualLanguageVerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((verse as any).sanskrit_ua || (verse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliterationUa={(verse as any).transliteration_ua || ""} synonymsUa={(verse as any).synonyms_ua || ""} translationUa={(verse as any).translation_ua || ""} commentaryUa={(verse as any).commentary_ua || ""} transliterationEn={(verse as any).transliteration_en || ""} synonymsEn={(verse as any).synonyms_en || ""} translationEn={(verse as any).translation_en || ""} commentaryEn={(verse as any).commentary_en || ""} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslationUa={(verse as any).explanation_ua_audio_url || ""} audioTranslationEn={(verse as any).explanation_en_audio_url || ""} audioCommentaryUa={(verse as any).explanation_ua_audio_url || ""} audioCommentaryEn={(verse as any).explanation_en_audio_url || ""} textDisplaySettings={contSettings} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
             verseId,
             updates,
             chapterId: effectiveChapter?.id,
@@ -1232,7 +1094,7 @@ export const VedaReaderDB = () => {
           const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
           return <div className="space-y-6">
-                  {dualLanguageMode ? <DualLanguageVerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliterationUa={(currentVerse as any).transliteration_ua || ""} synonymsUa={(currentVerse as any).synonyms_ua || ""} translationUa={(currentVerse as any).translation_ua || ""} commentaryUa={(currentVerse as any).commentary_ua || ""} transliterationEn={(currentVerse as any).transliteration_en || ""} synonymsEn={(currentVerse as any).synonyms_en || ""} translationEn={(currentVerse as any).translation_en || ""} commentaryEn={(currentVerse as any).commentary_en || ""} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                  {dualLanguageMode ? <DualLanguageVerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliterationUa={(currentVerse as any).transliteration_ua || ""} synonymsUa={(currentVerse as any).synonyms_ua || ""} translationUa={(currentVerse as any).translation_ua || ""} commentaryUa={(currentVerse as any).commentary_ua || ""} transliterationEn={(currentVerse as any).transliteration_en || ""} synonymsEn={(currentVerse as any).synonyms_en || ""} translationEn={(currentVerse as any).translation_en || ""} commentaryEn={(currentVerse as any).commentary_en || ""} audioUrl={(currentVerse as any).full_verse_audio_url || (currentVerse as any).audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslationUa={(currentVerse as any).explanation_ua_audio_url || ""} audioTranslationEn={(currentVerse as any).explanation_en_audio_url || ""} audioCommentaryUa={(currentVerse as any).explanation_ua_audio_url || ""} audioCommentaryEn={(currentVerse as any).explanation_en_audio_url || ""} textDisplaySettings={textDisplaySettings} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
               verseId,
               updates,
               chapterId: effectiveChapter?.id,

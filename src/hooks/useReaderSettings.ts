@@ -33,7 +33,6 @@ const LS = {
   showVerseContour: "vv_reader_showVerseContour",
   fullscreenMode: "vv_reader_fullscreenMode",
   zenMode: "vv_reader_zenMode",
-  presentationMode: "vv_reader_presentationMode",
 };
 
 // Перевірка доступності localStorage (Firefox private mode, Enhanced Tracking Protection)
@@ -140,7 +139,6 @@ export function useReaderSettings() {
   const [showVerseContour, setShowVerseContour] = useState<boolean>(() => readBool(LS.showVerseContour, true));
   const [fullscreenMode, setFullscreenMode] = useState<boolean>(() => readBool(LS.fullscreenMode, false));
   const [zenMode, setZenMode] = useState<boolean>(() => readBool(LS.zenMode, false));
-  const [presentationMode, setPresentationMode] = useState<boolean>(() => readBool(LS.presentationMode, false));
 
   const rootRef = useRef<HTMLElement | null>(null);
 
@@ -157,7 +155,6 @@ export function useReaderSettings() {
     showVerseContour,
     fullscreenMode,
     zenMode,
-    presentationMode,
   });
 
   // Оновлюємо refs при кожній зміні
@@ -174,9 +171,8 @@ export function useReaderSettings() {
       showVerseContour,
       fullscreenMode,
       zenMode,
-      presentationMode,
     };
-  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode, zenMode, presentationMode]);
+  }, [fontSizeAdjustment, lineHeight, dualLanguageMode, textDisplaySettings, continuousReadingSettings, showNumbers, flowMode, mobileSafeMode, showVerseContour, fullscreenMode, zenMode]);
 
   const dispatchPrefs = useCallback(() => {
     window.dispatchEvent(new Event("vv-reader-prefs-changed"));
@@ -280,17 +276,6 @@ export function useReaderSettings() {
     dispatchPrefs();
   }, [zenMode, fullscreenMode, dispatchPrefs]);
 
-  useEffect(() => {
-    safeSetItem(LS.presentationMode, String(presentationMode));
-    // Presentation Mode атрибут для CSS - великий шрифт, центрування
-    document.documentElement.setAttribute('data-presentation-mode', String(presentationMode));
-    // Presentation mode автоматично вмикає fullscreen
-    if (presentationMode && !fullscreenMode) {
-      setFullscreenMode(true);
-    }
-    dispatchPrefs();
-  }, [presentationMode, fullscreenMode, dispatchPrefs]);
-
   // синхронізація між вкладками
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -306,7 +291,6 @@ export function useReaderSettings() {
       if (e.key === LS.showVerseContour) setShowVerseContour(readBool(LS.showVerseContour, true));
       if (e.key === LS.fullscreenMode) setFullscreenMode(readBool(LS.fullscreenMode, false));
       if (e.key === LS.zenMode) setZenMode(readBool(LS.zenMode, false));
-      if (e.key === LS.presentationMode) setPresentationMode(readBool(LS.presentationMode, false));
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -328,7 +312,6 @@ export function useReaderSettings() {
       const newShowVerseContour = readBool(LS.showVerseContour, true);
       const newFullscreenMode = readBool(LS.fullscreenMode, false);
       const newZenMode = readBool(LS.zenMode, false);
-      const newPresentationMode = readBool(LS.presentationMode, false);
 
       // Порівнюємо з поточними значеннями через refs (уникаємо циклу)
       const current = stateRefs.current;
@@ -344,7 +327,6 @@ export function useReaderSettings() {
       if (newShowVerseContour !== current.showVerseContour) setShowVerseContour(newShowVerseContour);
       if (newFullscreenMode !== current.fullscreenMode) setFullscreenMode(newFullscreenMode);
       if (newZenMode !== current.zenMode) setZenMode(newZenMode);
-      if (newPresentationMode !== current.presentationMode) setPresentationMode(newPresentationMode);
     };
 
     window.addEventListener("vv-reader-prefs-changed", handlePrefsChanged);
@@ -407,8 +389,6 @@ export function useReaderSettings() {
     setFullscreenMode,
     zenMode,
     setZenMode,
-    presentationMode,
-    setPresentationMode,
     multipliers,
   };
 }
