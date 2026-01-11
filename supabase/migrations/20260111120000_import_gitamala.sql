@@ -23,7 +23,7 @@ BEGIN
 
   -- Canto 1: Yamuna Bhavavali
   INSERT INTO public.cantos (book_id, canto_number, title_en, title_ua, is_published)
-  VALUES (v_book_id, 1, E'Yamuna Bhavavali', E'Ямуна-бгава̄валі', true)
+  VALUES (v_book_id, 1, E'Yamuna Bhavavali', E'Йамуна-бгава̄валі', true)
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua;
@@ -66,7 +66,7 @@ BEGIN
   WHERE book_id = v_book_id AND canto_number = 1;
 
   INSERT INTO public.chapters (canto_id, chapter_number, title_en, title_ua, chapter_type, is_published)
-  VALUES (v_canto_id, 1, E'Ohe Prabhu Doyamoy', E'', 'verses', true)
+  VALUES (v_canto_id, 1, E'Ohe Prabhu Doyamoy', E'Охе Прабгу Дойамоі', 'verses', true)
   ON CONFLICT (canto_id, chapter_number) WHERE canto_id IS NOT NULL DO UPDATE SET
     title_en = EXCLUDED.title_en,
     title_ua = EXCLUDED.title_ua,
