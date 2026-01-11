@@ -613,31 +613,41 @@ export function findNextFullMoon(date: Date): Date {
 }
 
 // ============================================
-// TITHI CALCULATIONS (Approximate)
+// TITHI CALCULATIONS
 // ============================================
 
 /**
- * Calculate approximate tithi for a given date and time
+ * Calculate tithi for a given date and time
  *
- * Tithi is based on the angular distance between Sun and Moon (12° per tithi)
- * There are 30 tithis in a lunar month (15 in Shukla Paksha, 15 in Krishna Paksha)
+ * Tithi is based on the Moon's phase angle (0-360°), with each tithi spanning 12°
+ * There are 30 tithis in a lunar month:
+ * - Shukla Paksha (waxing, bright fortnight): tithis 1-15 (phase 0°-180°)
+ * - Krishna Paksha (waning, dark fortnight): tithis 16-30 (phase 180°-360°)
  *
- * Returns: { tithi: 1-30, paksha: 'shukla' | 'krishna' }
+ * MoonPhase returns:
+ * - 0° = New Moon (Amavasya - end of Krishna / start of Shukla)
+ * - 90° = First Quarter
+ * - 180° = Full Moon (Purnima - end of Shukla / start of Krishna)
+ * - 270° = Last Quarter
+ * - 360° = New Moon again
+ *
+ * @param date - The date and time to calculate tithi for
+ * @returns { tithi: 1-30, paksha: 'shukla' | 'krishna', tithiInPaksha: 1-15 }
  */
 export function calculateTithi(date: Date): { tithi: number; paksha: 'shukla' | 'krishna'; tithiInPaksha: number } {
   const astroTime = Astronomy.MakeTime(date);
 
-  // Get elongation (angular distance) between Moon and Sun
-  const elongation = Astronomy.Elongation(Astronomy.Body.Moon, astroTime);
+  // MoonPhase returns 0-360° representing the lunar cycle
+  // 0° = New Moon, 180° = Full Moon, 360° = New Moon again
+  const moonPhase = Astronomy.MoonPhase(astroTime);
 
-  // Calculate tithi (each tithi spans 12 degrees)
-  // Elongation goes from 0° (New Moon) to 360° back to New Moon
-  const tithiFloat = elongation.elongation / 12;
+  // Calculate tithi (each tithi spans 12 degrees: 360° / 30 = 12°)
+  const tithiFloat = moonPhase / 12;
   const tithi = Math.floor(tithiFloat) + 1; // 1-30
 
   // Determine paksha
-  // 1-15 = Shukla (waxing, bright fortnight)
-  // 16-30 = Krishna (waning, dark fortnight)
+  // Tithis 1-15 = Shukla Paksha (waxing moon, phase 0°-180°)
+  // Tithis 16-30 = Krishna Paksha (waning moon, phase 180°-360°)
   const paksha = tithi <= 15 ? 'shukla' : 'krishna';
   const tithiInPaksha = tithi <= 15 ? tithi : tithi - 15;
 
