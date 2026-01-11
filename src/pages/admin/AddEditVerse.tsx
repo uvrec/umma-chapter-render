@@ -9,11 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, Music } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { AudioUploader } from "@/components/admin/shared/AudioUploader";
 import { Breadcrumbs, BreadcrumbItem } from "@/components/admin/Breadcrumbs";
+import { LRCEditor } from "@/components/admin/LRCEditor";
 
 export default function AddEditVerse() {
   const { id } = useParams();
@@ -46,6 +48,10 @@ export default function AddEditVerse() {
 
   // UI state for collapsible advanced audio section
   const [showAdvancedAudio, setShowAdvancedAudio] = useState(false);
+
+  // LRC Editor state
+  const [showLRCEditor, setShowLRCEditor] = useState(false);
+  const [lrcSection, setLrcSection] = useState<'sanskrit' | 'translation' | 'commentary'>('sanskrit');
 
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
@@ -563,6 +569,98 @@ export default function AddEditVerse() {
                     placeholder="https://example.com/audio.mp3"
                     className="mt-2"
                   />
+                </div>
+              )}
+
+              {/* LRC Timestamps Editor */}
+              {id && fullVerseAudioUrl && (
+                <div className="mt-6 pt-6 border-t">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h4 className="font-medium">Синхронізація аудіо з текстом</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Створіть LRC timestamps для караоке-стилю підсвітки тексту
+                      </p>
+                    </div>
+                    <Dialog open={showLRCEditor} onOpenChange={setShowLRCEditor}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Music className="mr-2 h-4 w-4" />
+                          LRC Editor
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>LRC Timestamps Editor — Вірш {verseNumber}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {/* Section selector */}
+                          <div className="flex gap-2">
+                            <Button
+                              variant={lrcSection === 'sanskrit' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setLrcSection('sanskrit')}
+                            >
+                              Санскрит
+                            </Button>
+                            <Button
+                              variant={lrcSection === 'translation' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setLrcSection('translation')}
+                            >
+                              Переклад
+                            </Button>
+                            <Button
+                              variant={lrcSection === 'commentary' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setLrcSection('commentary')}
+                            >
+                              Коментар
+                            </Button>
+                          </div>
+
+                          {/* LRC Editor */}
+                          <LRCEditor
+                            verseId={id}
+                            audioUrl={fullVerseAudioUrl}
+                            initialText={
+                              lrcSection === 'sanskrit'
+                                ? sanskritUa || sanskritEn
+                                : lrcSection === 'translation'
+                                  ? translationUa || translationEn
+                                  : commentaryUa || commentaryEn
+                            }
+                            section={lrcSection}
+                            onSave={async (lrcContent) => {
+                              // TODO: Save to verse_lyrics table
+                              try {
+                                await supabase.from('verse_lyrics').upsert({
+                                  verse_id: id,
+                                  audio_type: 'full',
+                                  language: 'ua',
+                                  lrc_content: lrcContent,
+                                  sync_type: 'line',
+                                }, {
+                                  onConflict: 'verse_id,audio_type,language',
+                                });
+                                toast({
+                                  title: "LRC збережено",
+                                  description: `Timestamps для ${lrcSection} збережено`,
+                                });
+                              } catch (error) {
+                                toast({
+                                  title: "Помилка",
+                                  description: (error as any).message,
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            onCancel={() => setShowLRCEditor(false)}
+                          />
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
               )}
             </div>
