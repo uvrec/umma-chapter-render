@@ -134,7 +134,7 @@ BEGIN
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -143,10 +143,10 @@ BEGIN
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''',
+    v_chapter_id, '1',
+    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি',
     E'śrī-kṛṣṇa-caitanya
 prabhu jīve doyā kori''
 swa-pārṣada
@@ -179,7 +179,7 @@ saranagati is the very life of the true devotee
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -188,7 +188,7 @@ saranagati is the very life of the true devotee
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'অত্যন্ত দুর্লভ প্রেম করিবারে দান
 শিখায় শরণাগতি ভকতের প্রান', E'অত্যন্ত দুর্লভ প্রেম করিবারে দান
 শিখায় শরণাগতি ভকতের প্রান',
@@ -222,7 +222,7 @@ conduct adverse to pure devotion.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -231,7 +231,7 @@ conduct adverse to pure devotion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
 ''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন', E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
 ''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন',
@@ -266,7 +266,7 @@ takes refuge in Him by this six-fold practice.
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -275,7 +275,7 @@ takes refuge in Him by this six-fold practice.
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'ভকি-অনুকূল-মাত্র কার্যের স্বীকর
 ভক্তি-প্রতিকূল-ভাব বর্জনাঙ্গিকার', E'ভকি-অনুকূল-মাত্র কার্যের স্বীকর
 ভক্তি-প্রতিকূল-ভাব বর্জনাঙ্গিকার',
@@ -310,7 +310,7 @@ best of men by teaching me the ways of saranagati', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -319,7 +319,7 @@ best of men by teaching me the ways of saranagati', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'ষড-অঙ্গ শরণাগতি হৈবে যাহার
 তাহার প্রার্থনা শুনে শ্রী-নন্দ-কুমার', E'ষড-অঙ্গ শরণাগতি হৈবে যাহার
 তাহার প্রার্থনা শুনে শ্রী-নন্দ-কুমার',
@@ -350,7 +350,7 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -359,10 +359,10 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''', E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''',
+    v_chapter_id, '6',
+    E'রূপ-সনাতন-পদে দন্তে তৃণ করি
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি', E'রূপ-সনাতন-পদে দন্তে তৃণ করি
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি',
     E'rūpa-sanātana-pade
 dante tṛṇa kori''
 bhakativinoda
@@ -390,7 +390,7 @@ poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -399,9 +399,9 @@ poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
-    E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
-শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
+    v_chapter_id, '7',
+    E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
+শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
 শিখায়ে শরণাগতি কর হে উত্তম',
     E'kāńdiyā
 kāńdiyā bole āmi to'' adhama
@@ -445,7 +445,7 @@ kāńdiyā bole āmi to'' adhama
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -454,7 +454,7 @@ kāńdiyā bole āmi to'' adhama
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'ভুলিয়া তোমারে, সংসারে আসিয়া,
 পেয়ে নানাবিধ ব্যথা
 তোমার চরণে, আসিয়াছি আমি,
@@ -493,7 +493,7 @@ tale of woe at Your lotus feet.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -502,7 +502,7 @@ tale of woe at Your lotus feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'জননী-জঠরে, ছিলাম যখন,
 বিষম বন্ধনপাশে
 একবার প্রভু! দেখা দিয়া মোরে,
@@ -541,7 +541,7 @@ Yours.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -550,7 +550,7 @@ Yours.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তখন ভাবিনু, জনম পাইয়া,
 করিব ভজন তব
 জনম হৈল, পড়ি'' মায়া-জালে,
@@ -589,7 +589,7 @@ it the network of worldly illusion which robbed me of all good sense.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -598,7 +598,7 @@ it the network of worldly illusion which robbed me of all good sense.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'আদরের ছেলে, স্বজনের কোলে,
 হাসিয়া কাটানু কাল
 জনক-জননী-স্নেহেতে ভুলিয়া,
@@ -638,7 +638,7 @@ world was very nice.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -647,7 +647,7 @@ world was very nice.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'ক্রমে দিন দিন, বালক হৈয়া,
 খেলিনু বালক-সহ
 আর কিছু দিনে, জ্ঞান উপজিল,
@@ -686,7 +686,7 @@ understanding emerged. I read and studied my lessons incessantly.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -695,8 +695,8 @@ understanding emerged. I read and studied my lessons incessantly.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'বিদ্যার গৌরবে, ভ্রমি'' দেশে দেশে,
+    v_chapter_id, '6',
+    E'বিদ্যার গৌরবে, ভ্রমি দেশে দেশে,
 ধন উপার্জন করি
 স্বজন পালন, করি একমনে,
 ভুলিনু তোমারে, হরি!', E'বিদ্যার গৌরবে, ভ্রমি'' দেশে দেশে,
@@ -733,7 +733,7 @@ maintained my family with undivided attention. O Lord Hari, I forgot You!', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -742,7 +742,7 @@ maintained my family with undivided attention. O Lord Hari, I forgot You!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'বার্ধক্যে এখন, ভকতিবিনোদ,
 কাঁদিয়া কাতর অতি
 না ভজিয়া তোরে, দিন বৃথা গেল,
@@ -855,7 +855,7 @@ what to do. Therefore, I surrender.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -864,7 +864,7 @@ what to do. Therefore, I surrender.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'বিদ্যার বিলাসে, কাটাইনু কাল,
 পরম সাহসে আমি
 তোমার চরণ, না ভজিনু কভু,
@@ -902,7 +902,7 @@ never worshiped Your lotus feet, O Lord. Now You are my only shelter.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -911,7 +911,7 @@ never worshiped Your lotus feet, O Lord. Now You are my only shelter.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'পড়িতে পড়িতে, ভরসা বারিল,
 জ্ঞানে গতি হবে মানি''
 সে আশা বিফল, সে জ্ঞান দুর্ব্বল,
@@ -951,7 +951,7 @@ is actually pure ignorance.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -960,7 +960,7 @@ is actually pure ignorance.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'জড-বিদ্যা জত, মাযার বৈভব,
 তোমার ভজনে বাধা
 মোহ জনমিযা, অনিত্য সংসারে,
@@ -1000,7 +1000,7 @@ eternal soul by encouraging his infatuation with this temporary world.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1009,8 +1009,8 @@ eternal soul by encouraging his infatuation with this temporary world.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'সেই গাধা হ''যে, সংসারের বোঝা,
+    v_chapter_id, '4',
+    E'সেই গাধা হযে, সংসারের বোঝা,
 বহিনু অনেক কাল
 বার্ধক্যে এখন, শক্তির অভাবে,
 কিছু নাহি লাগে ভাল', E'সেই গাধা হ''যে, সংসারের বোঝা,
@@ -1048,7 +1048,7 @@ age, for want of the power to enjoy, I find that nothing at all pleases me.', E'
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1057,7 +1057,7 @@ age, for want of the power to enjoy, I find that nothing at all pleases me.', E'
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'জীবন জাতনা, হৈল এখন,
 সে বিদ্যা অবিদ্যা ভেল
 অবিদ্যার জ্বালা, ঘটিল বিষম,
@@ -1096,7 +1096,7 @@ and has pierced my heart with the intolerable, burning pain of ignorance.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1105,7 +1105,7 @@ and has pierced my heart with the intolerable, burning pain of ignorance.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'তোমার চরণ, বিনা কিছু ধন,
 সংসারে না আছে আর
 ভকতিবিনোদ, জড-বিদ্যা ছাড়ি,''
@@ -1163,7 +1163,7 @@ the sum and substance of his life.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1172,7 +1172,7 @@ the sum and substance of his life.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'যৌবনে যখন, ধন-উপার্জনে,
 হৈনু বিপুল কামী
 ধরম স্মরিয়া, গৃহিনীর কর,
@@ -1216,7 +1216,7 @@ the codes of religion, I took a wife.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1225,8 +1225,8 @@ the codes of religion, I took a wife.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'সংসার পাতা''য়ে, তাহার সহিত,
+    v_chapter_id, '2',
+    E'সংসার পাতায়ে, তাহার সহিত,
 কাল-খয় কৈনু কত
 বহু সুত-সুতা, জনম লোভিল,
 মরমে হৈনু হত', E'সংসার পাতা''য়ে, তাহার সহিত,
@@ -1269,7 +1269,7 @@ my heart grew heavy.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1278,7 +1278,7 @@ my heart grew heavy.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সংসারের ভার, বাড়ে দিনে দিনে,
 অচল হৈল গতি
 বার্ধক্য আসিয়া, ঘেরিল আমারে,
@@ -1323,7 +1323,7 @@ grabbed me, and made my mind fickle and disturbed.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1332,7 +1332,7 @@ grabbed me, and made my mind fickle and disturbed.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'পীড়ায় অস্থির, চিন্তায় জ্বরিত,
 অভাবে জ্বলিত চিত
 উপায় না দেখি, অন্ধকার-ময়,
@@ -1377,7 +1377,7 @@ very much afraid.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1386,7 +1386,7 @@ very much afraid.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'সংসার-তটনী- স্রোত নহে শেষ,
 মরণ নিকটে ঘোর
 সব সমাপিয়া, ভজিব তোমায়,
@@ -1432,7 +1432,7 @@ worship You, O Lord, but it is a useless hope.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1441,7 +1441,7 @@ worship You, O Lord, but it is a useless hope.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'এবে শুন প্রভু! আমি গতি-হীন,
 ভকতিবিনোদ কয়
 তব কৃপা বিনা, সকলি নিরাশা,
@@ -1501,7 +1501,7 @@ Your mercy, everything is lost. Please give me the shelter of Your lotus feet.
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1510,7 +1510,7 @@ Your mercy, everything is lost. Please give me the shelter of Your lotus feet.
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'আমার জীবন, সদা পাপে রত,
 নাহিক পুণ্যের লেষ
 পরেরে উদ্বেগ, দিয়াছি যে কত,
@@ -1554,7 +1554,7 @@ an impious sinner and have caused others great anxiety and trouble.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1563,8 +1563,8 @@ an impious sinner and have caused others great anxiety and trouble.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'নিজ সুখ লাগি'', পাপে নাহি ডোরি,
+    v_chapter_id, '2',
+    E'নিজ সুখ লাগি, পাপে নাহি ডোরি,
 দয়া-হীন স্বার্থ-পর
 পর-সুখে দুঃখী, সদা মিথ্য-ভাষী,
 পর-দুঃখ সুখ-কর', E'নিজ সুখ লাগি'', পাপে নাহি ডোরি,
@@ -1610,7 +1610,7 @@ source of great pleasure for me.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1619,7 +1619,7 @@ source of great pleasure for me.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'আশেষ কামনা, হৃদি মাঝে মোর,
 ক্রোধী, দম্ভ-পরায়ণ
 মদ-মত্ত সদা, বিষয়ে মোহিত,
@@ -1665,7 +1665,7 @@ worldly affairs. Envy and egotism are the ornaments I wear.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1674,7 +1674,7 @@ worldly affairs. Envy and egotism are the ornaments I wear.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'নিদ্রালস্য হত, সুকার্য়্যে বিরত,
 অকার্য়্যে উদ্যোগী আমি
 প্রতিষ্ঠ লাগিয়া, শাঠ্য-আচরণ,
@@ -1720,7 +1720,7 @@ and am always lustful.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1729,7 +1729,7 @@ and am always lustful.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'এ হেন দুর্জ্জন, সজ-জন-বর্জ্জিত,
 অপরাধি নিরন্তর
 শুভ-কার্য়্য-শূন্য, সদানর্থ-মনাঃ,
@@ -1775,7 +1775,7 @@ evil, worn out and wasted by various miseries.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1784,7 +1784,7 @@ evil, worn out and wasted by various miseries.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'বার্ধক্যে এখন, উপায়-বিহীন,
 তা''তে দীন অকিঞ্চন
 ভকতিবিনোদ, প্রভুর চরণে,
@@ -1890,7 +1890,7 @@ activities at the lotus feet of the Supreme Lord.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1899,7 +1899,7 @@ activities at the lotus feet of the Supreme Lord.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'(প্রভু হে!) শুন মোর দুঃখের কাহিনী
 বিষয়-হলাহল, সুধা-ভানে পিয়লুঁ,
 আব অবসান দিনমণি', E'(প্রভু হে!) শুন মোর দুঃখের কাহিনী
@@ -1937,7 +1937,7 @@ pretending it was nectar, and now the sun is setting on the horizon of my life.'
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -1946,7 +1946,7 @@ pretending it was nectar, and now the sun is setting on the horizon of my life.'
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'খেলা-রসে শৈশব, পঢ়ৈতে কৈশোর,
 গঙাওলুঁ, না ভেল বিবেক
 ভোগ-বশে যৌবনে, ঘর পাতি'' বসিলুঁ,
@@ -1992,7 +1992,7 @@ multiplied.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2001,7 +2001,7 @@ multiplied.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'বৃদ্ধ-কাল আওল, সব সুখ ভাগল,
 পীড়া-বশে হৈনু কাতর
 সর্বেন্দ্রিয় দুর্বল, ক্ষীন কলেবর,
@@ -2046,7 +2046,7 @@ spirits downcast in the absence of youthful pleasures.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2055,7 +2055,7 @@ spirits downcast in the absence of youthful pleasures.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'জ্ঞান-লব-হীন, ভক্তি-রসে বঞ্ছিত,
 আর মোর কি হবে উপায়
 পতিত-বন্ধু, তুহুঁ, পতিতাধম হাম,
@@ -2100,7 +2100,7 @@ fallen, the lowest of men. Please, therefore lift me to Your lotus feet.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2109,7 +2109,7 @@ fallen, the lowest of men. Please, therefore lift me to Your lotus feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'বিচারিতে আবহি, গুন নাহি পাওবি,
 কৃপা কর, ছোড়ত বিচার
 তব পদ-পঙ্কজ- সীধু পিবাওতো,
@@ -2169,7 +2169,7 @@ deliver this Bhaktivinoda.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2178,7 +2178,7 @@ deliver this Bhaktivinoda.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'(প্রভু হে!) তুয়া পদে এ মিনতি মোর
 তুয়া পদ-পল্লব, ত্যজত মরু-মন,
 বিষম বিষয়ে ভেল ভর', E'(প্রভু হে!) তুয়া পদে এ মিনতি মোর
@@ -2219,7 +2219,7 @@ dried up like a desert.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2228,7 +2228,7 @@ dried up like a desert.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'উঠয়িতে তাকত, পুন নাহি মিলো-ই,
 অনুদিন করহুঁ হুতাশ
 দীন-জন-নাথ, তুহুঁ কহায়সি,
@@ -2273,7 +2273,7 @@ now is for Your lotus feet, O Lord of the meek and humble.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2282,7 +2282,7 @@ now is for Your lotus feet, O Lord of the meek and humble.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'ঐছন দীন-জন, কহি নাহি মিলো-ই,
 তুহুঁ মোরে কর পরসাদ
 তুয়া জন-সঙ্গে, তুয়া কথা-রঙ্গে,
@@ -2328,7 +2328,7 @@ pastimes I shall give up all evils.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2337,7 +2337,7 @@ pastimes I shall give up all evils.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তুয়া ধাম-মাহে, তুয়া নাম গাওত,
 গঙায়বুঁ দিবা-নিশি আশ
 তুয়া পদ-ছায়া, পরম সুশীতল,
@@ -2398,7 +2398,7 @@ cooling shade of Your feet.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2407,7 +2407,7 @@ cooling shade of Your feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'(প্রভু হে!)
 এমন দুর্মতি, সংসার ভিতরে,
 পড়িয়া আছিনু আমি
@@ -2458,7 +2458,7 @@ and elevated devotees has come to bring me out of it.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2467,8 +2467,8 @@ and elevated devotees has come to bring me out of it.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'দয়া করি'' মোরে, পতিত দেখিয়া,
+    v_chapter_id, '2',
+    E'দয়া করি মোরে, পতিত দেখিয়া,
 কহিল আমারে গিয়া
 ওহে দীন-জন, শুন ভাল কথা,
 উল্লসিত হ''বে হিয়া', E'দয়া করি'' মোরে, পতিত দেখিয়া,
@@ -2512,7 +2512,7 @@ soul, please listen to this good tiding, for it will gladden your heart.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2521,7 +2521,7 @@ soul, please listen to this good tiding, for it will gladden your heart.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তোমারে তারিতে, শ্রী-কৃষ্ণ-চৈতন্য,
 নবদ্বীপে অবতার
 তোমা হেন কত, দীন হীন জনে,
@@ -2566,7 +2566,7 @@ existence.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2575,7 +2575,7 @@ existence.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'বেদের প্রতিজ্ঞা, রাখিবার তরে,
 রুক্ম-বর্ন বিপ্র-সুত
 মহাপ্রভু নামে, নদীয়া মাতায়,
@@ -2621,7 +2621,7 @@ Nityananda. Together They have overwhelmed all of Nadia with divine ecstasy.',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2630,7 +2630,7 @@ Nityananda. Together They have overwhelmed all of Nadia with divine ecstasy.',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'নন্দ-সুত যিনি, চৈতন্য গোসাই,
 নিজ-নাম করি'' দান
 তারিল জগত্‍, তুমি-ও যাইয়া,
@@ -2674,7 +2674,7 @@ freely distributing His own holy name. Go also and receive your deliverance.',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2683,7 +2683,7 @@ freely distributing His own holy name. Go also and receive your deliverance.',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'সে কথা শুনিয়া, আসিয়াছি, নাথ!
 তোমার চরণ-তলে
 ভকতিবিনোদ, কাঁদিয়া কাঁদিয়া,
@@ -2747,7 +2747,7 @@ lotus feet and tells the story of his life.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2756,7 +2756,7 @@ lotus feet and tells the story of his life.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'না করলুঁ করম, গেয়ান নাহি ভেল,
 না সেবিলুঁ চরণ তোহার
 জড়-সুখে মাতিয়া, আপনকু বঞ্চ-ই,
@@ -2800,7 +2800,7 @@ have cheated myself and now see only darkness in all directions.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2809,7 +2809,7 @@ have cheated myself and now see only darkness in all directions.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তুহুঁ নাথ! করুণা-নিদান
 তুয়া পদ-পঙ্কজে, আত্ম সমর্পিলুঁ,
 মোরে কৃপা করবি বিধান', E'তুহুঁ নাথ! করুণা-নিদান
@@ -2847,7 +2847,7 @@ feet. Kindly show me Your compassion.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2856,7 +2856,7 @@ feet. Kindly show me Your compassion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'প্রতিজ্ঞা তোহার ঐ, যো হি শরণাগত,
 নাহি সো জানব পরমাদ
 সো হাম দুষ্কৃতি, গতি না হের-ই আন,
@@ -2901,7 +2901,7 @@ grace.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2910,7 +2910,7 @@ grace.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'আন মনো-রথ, নিঃশেষ ছোড়ত,
 কব হাম হৌবুঁ তোহারা
 নিত্য-সেব্য তুহুঁ, নিত্য-সেবক মুঞি,
@@ -2970,7 +2970,7 @@ devotional mood.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -2979,7 +2979,7 @@ devotional mood.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'(প্রাণেশ্বর!) কহবুঁ কি শরম কি বাত
 ঐছন পাপ নাহি, যো হাম না করলুঁ,
 সহস্র সহস্র বেরি নাথ', E'(প্রাণেশ্বর!) কহবুঁ কি শরম কি বাত
@@ -3017,7 +3017,7 @@ have not committed thousands and thousands of times.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3026,7 +3026,7 @@ have not committed thousands and thousands of times.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'সহি করম-ফল, ভবে মোকে পেশ-ই,
 দোখ দেওব আব কাহি
 তখনক পরিনাম, কছু না বিচারলুঁ,
@@ -3071,7 +3071,7 @@ consequences; now, in the aftermath, I seek to be saved.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3080,7 +3080,7 @@ consequences; now, in the aftermath, I seek to be saved.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'দোখ বিচার-ই, তুঁহু দণ্ড দেওবি,
 হাম ভোগ করবুঁ সংসার
 করত গতাগতি, ভকত-জন-সঙ্গে,
@@ -3126,7 +3126,7 @@ Vaisnavas.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3135,7 +3135,7 @@ Vaisnavas.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'আপন চতুর্পন, তুয়া পদে সোঁপলুঁ,
 হৃদয়-গরব দূরে গেল
 দীন-দয়া-ময়, তুয়া কৃপা নিরমল,
@@ -3195,7 +3195,7 @@ hope.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3204,7 +3204,7 @@ hope.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'মানস, দেহ, গেহ, যো কিছু মোর
 অর্পিলূ তুয়া পদে, নন্দ-কিশোর!', E'মানস, দেহ, গেহ, যো কিছু মোর
 অর্পিলূ তুয়া পদে, নন্দ-কিশোর!',
@@ -3234,7 +3234,7 @@ O youthful son of Nanda!', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3243,7 +3243,7 @@ O youthful son of Nanda!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'সম্পদে বিপদে, জীবনে-মরণে
 দায় মম গেলা, তুবা ও-পদ বরণে', E'সম্পদে বিপদে, জীবনে-মরণে
 দায় মম গেলা, তুবা ও-পদ বরণে',
@@ -3274,7 +3274,7 @@ disappeared by choosing those feet of Yours as my only shelter.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3283,7 +3283,7 @@ disappeared by choosing those feet of Yours as my only shelter.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'মারবি রাখবি-যো ইচ্ছা তোহারা
 নিত্য-দাস প্রতি তুবা অধিকারা', E'মারবি রাখবি-যো ইচ্ছা তোহারা
 নিত্য-দাস প্রতি তুবা অধিকারা',
@@ -3312,7 +3312,7 @@ nitya-dāsa prati tuwā adhikārā', E'ма̄робі
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3321,7 +3321,7 @@ nitya-dāsa prati tuwā adhikārā', E'ма̄робі
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'জন্মাওবি মোরে ইচ্ছা যদি তোর
 ভক্ত-গৃহে জনি জন্ম হৌ মোর', E'জন্মাওবি মোরে ইচ্ছা যদি তোর
 ভক্ত-গৃহে জনি জন্ম হৌ মোর',
@@ -3352,7 +3352,7 @@ devotee.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3361,7 +3361,7 @@ devotee.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'কীট-জন্ম হৌ যথা তুবা দাস
 বহির-মুখ ব্রহ্ম জন্মে নাহি আশ', E'কীট-জন্ম হৌ যথা তুবা দাস
 বহির-মুখ ব্রহ্ম জন্মে নাহি আশ',
@@ -3392,7 +3392,7 @@ desire to be born as a Brahma averse to You.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3401,7 +3401,7 @@ desire to be born as a Brahma averse to You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'ভুক্তি-মুক্তি-স্পৃহা বিহীন যে ভক্ত
 লভৈতে তাক সঙ্গ অনুরক্ত', E'ভুক্তি-মুক্তি-স্পৃহা বিহীন যে ভক্ত
 লভৈতে তাক সঙ্গ অনুরক্ত',
@@ -3432,7 +3432,7 @@ worldly enjoyment or liberation.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3441,7 +3441,7 @@ worldly enjoyment or liberation.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'জনক, জননী, দয়িত, তনয়
 প্রভু, গুরু, পতি-তুহূ সর্ব-ময়', E'জনক, জননী, দয়িত, তনয়
 প্রভু, গুরু, পতি-তুহূ সর্ব-ময়',
@@ -3471,7 +3471,7 @@ me.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3480,7 +3480,7 @@ me.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ কহে, শুন কান!
 রাধা-নাথ! তুহূ হামার পরাণ', E'ভকতিবিনোদ কহে, শুন কান!
 রাধা-নাথ! তুহূ হামার পরাণ',
@@ -3529,7 +3529,7 @@ are my life and soul!"', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3538,9 +3538,9 @@ are my life and soul!"', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'অহং মম''-শব্দ-অর্থে যাহা কিছু হয়
-অর্পিলুঙ তোমার পদে, ওহে দয়া-ময়!', E'অহং মম''-শব্দ-অর্থে যাহা কিছু হয়
+    v_chapter_id, '1',
+    E'অহং মম-শব্দ-অর্থে যাহা কিছু হয়
+অর্পিলুঙ তোমার পদে, ওহে দয়া-ময়!', E'অহং মম-শব্দ-অর্থে যাহা কিছু হয়
 অর্পিলুঙ তোমার পদে, ওহে দয়া-ময়!',
     E'`ahaḿ
 mama''-śabda-arthe jāhā kichu hoy
@@ -3570,7 +3570,7 @@ I no longer belong to myself. Now I am exclusively Yours.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3579,9 +3579,9 @@ I no longer belong to myself. Now I am exclusively Yours.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'আমার'' আমি ত'' নাথ! না রোহিনু আর
-এখন হৈনু আমি কেবল তোমার', E'আমার'' আমি ত'' নাথ! না রোহিনু আর
+    v_chapter_id, '2',
+    E'আমার আমি ত নাথ! না রোহিনু আর
+এখন হৈনু আমি কেবল তোমার', E'আমার আমি ত নাথ! না রোহিনু আর
 এখন হৈনু আমি কেবল তোমার',
     E'`āmāra''
 āmi to'' nātha! nā rohinu ār
@@ -3613,7 +3613,7 @@ soul inhabiting this mortal body has given up the false ego attached to the word
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3622,9 +3622,9 @@ soul inhabiting this mortal body has given up the false ego attached to the word
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
-    E'আমি'' শব্দে দেহী জীব অহংতা ছাড়িল
-ত্বদীয়াভিমান আজি হৃদয়ে পশিল', E'আমি'' শব্দে দেহী জীব অহংতা ছাড়িল
+    v_chapter_id, '3',
+    E'আমি শব্দে দেহী জীব অহংতা ছাড়িল
+ত্বদীয়াভিমান আজি হৃদয়ে পশিল', E'আমি শব্দে দেহী জীব অহংতা ছাড়িল
 ত্বদীয়াভিমান আজি হৃদয়ে পশিল',
     E'`āmi''
 śabde dehī jīva ahaḿtā chāḍilo
@@ -3655,7 +3655,7 @@ Your servant. Now I dwell in Your house.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3664,7 +3664,7 @@ Your servant. Now I dwell in Your house.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'আমার সর্বস্ব-দেহ, গেহ অনুচর
 ভাই, বন্ধু, দারা, সুত, দ্রব্য, দ্বার, ঘর', E'আমার সর্বস্ব-দেহ, গেহ অনুচর
 ভাই, বন্ধু, দারা, সুত, দ্রব্য, দ্বার, ঘর',
@@ -3697,7 +3697,7 @@ my only endeavor now.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3706,7 +3706,7 @@ my only endeavor now.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'সে সব হৈল তব, আমি হৈনু দাস
 তোমার গৃহেতে এবে আমি করি বাস', E'সে সব হৈল তব, আমি হৈনু দাস
 তোমার গৃহেতে এবে আমি করি বাস',
@@ -3738,7 +3738,7 @@ for I am redeemed', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3747,7 +3747,7 @@ for I am redeemed', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'তুমি গৃহ-স্বামী, আমি সেবক তোমার
 তোমার সুখেতে চেষ্টা এখন আমার', E'তুমি গৃহ-স্বামী, আমি সেবক তোমার
 তোমার সুখেতে চেষ্টা এখন আমার',
@@ -3779,7 +3779,7 @@ has become one with Yours. From this day Bhaktivinoda has no other identity.', E
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3788,7 +3788,7 @@ has become one with Yours. From this day Bhaktivinoda has no other identity.', E
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'স্থূল-লিঙ্গ-দেহে মোর সুকৃত দুষ্কৃত
 আর মোর নহে, প্রভু! আমি তো'' নিষ্কৃত', E'স্থূল-লিঙ্গ-দেহে মোর সুকৃত দুষ্কৃত
 আর মোর নহে, প্রভু! আমি তো'' নিষ্কৃত',
@@ -3819,7 +3819,7 @@ mora nahe, prabhu! āmi to'' niṣkṛta', E'стхӯла-ліńґа-дехе
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3828,7 +3828,7 @@ mora nahe, prabhu! āmi to'' niṣkṛta', E'стхӯла-ліńґа-дехе
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'তোমার ইচ্ছায় মোর ইচ্ছা মিশাইল
 ভকতিবিনোদ আজ আপনে ভুলিল', E'তোমার ইচ্ছায় মোর ইচ্ছা মিশাইল
 ভকতিবিনোদ আজ আপনে ভুলিল',
@@ -3874,7 +3874,7 @@ bhakativinoda
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3883,9 +3883,9 @@ bhakativinoda
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'আমার'' বলিতে প্রভু! আরে কিছু নাই
-তুমি-ই আমার মাত্র পিতা-বন্ধু-ভাই', E'আমার'' বলিতে প্রভু! আরে কিছু নাই
+    v_chapter_id, '1',
+    E'আমার বলিতে প্রভু! আরে কিছু নাই
+তুমি-ই আমার মাত্র পিতা-বন্ধু-ভাই', E'আমার বলিতে প্রভু! আরে কিছু নাই
 তুমি-ই আমার মাত্র পিতা-বন্ধু-ভাই',
     E'`āmāra''
 bolite prabhu! āre kichu nāi
@@ -3914,7 +3914,7 @@ tumi-i
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3923,7 +3923,7 @@ tumi-i
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'বন্ধু, দারা, সুত, সুতা-তব দাসী দাস
 সেই তো'' সম্বন্ধে সবে আমার প্রয়াস', E'বন্ধু, দারা, সুত, সুতা-তব দাসী দাস
 সেই তো'' সম্বন্ধে সবে আমার প্রয়াস',
@@ -3955,7 +3955,7 @@ maidservants. Whatever care I take for them is only as it relates to You.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -3964,9 +3964,9 @@ maidservants. Whatever care I take for them is only as it relates to You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
-    E'ধন, জন, গৃহ, দার তোমার'' বলিয়া
-রখা করি আমি মাত্র সেবক হৈয়া', E'ধন, জন, গৃহ, দার তোমার'' বলিয়া
+    v_chapter_id, '3',
+    E'ধন, জন, গৃহ, দার তোমার বলিয়া
+রখা করি আমি মাত্র সেবক হৈয়া', E'ধন, জন, গৃহ, দার তোমার বলিয়া
 রখা করি আমি মাত্র সেবক হৈয়া',
     E'dhana,
 jana, gṛha, dāra `tomāra'' boliyā
@@ -3997,7 +3997,7 @@ they are Yours. I am a mere servant.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4006,7 +4006,7 @@ they are Yours. I am a mere servant.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তোমার কার্যের তোরে উপর্জিব ধন
 তোমার সংসারে-ব্যয় করিব বহন', E'তোমার কার্যের তোরে উপর্জিব ধন
 তোমার সংসারে-ব্যয় করিব বহন',
@@ -4038,7 +4038,7 @@ Your service I will earn money and bear the expense of Your household.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4047,7 +4047,7 @@ Your service I will earn money and bear the expense of Your household.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'ভাল-মন্দ নাহি জানি সেবা মাত্র করি
 তোমার সংসারে আমি বিষয়-প্রহরী', E'ভাল-মন্দ নাহি জানি সেবা মাত্র করি
 তোমার সংসারে আমি বিষয়-প্রহরী',
@@ -4080,7 +4080,7 @@ properties in Your household.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4089,7 +4089,7 @@ properties in Your household.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'তোমার ইচ্ছায় মোর ইন্দ্রিয়-চালনা
 শ্রবন, দর্শন, ঘ্রান, ভোজন-বাসনা', E'তোমার ইচ্ছায় মোর ইন্দ্রিয়-চালনা
 শ্রবন, দর্শন, ঘ্রান, ভোজন-বাসনা',
@@ -4122,7 +4122,7 @@ done according to Your desire.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4131,10 +4131,12 @@ done according to Your desire.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
-    E'নিজ-সুখ লাগি'' কিছু নাহি করি আর
-ভকতিবিনোদ বলে, তব সুখ-সার', E'নিজ-সুখ লাগি'' কিছু নাহি করি আর
-ভকতিবিনোদ বলে, তব সুখ-সার',
+    v_chapter_id, '7',
+    E'নিজ-সুখ লাগি কিছু নাহি করি আর
+ভকতিবিনোদ বলে, তব সুখ-সার
+2017', E'নিজ-সুখ লাগি কিছু নাহি করি আর
+ভকতিবিনোদ বলে, তব সুখ-সার
+2017',
     E'nija-sukha
 lāgi'' kichu nāhi kori ār
 bhakativinoda
@@ -4179,7 +4181,7 @@ is the essence of everything.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4188,7 +4190,7 @@ is the essence of everything.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'বস্তুতঃ সকলি তব, জীব কেহ নয়
 অহম''-মম''-ভ্রমে ভ্রমি'' ভোগে শোক-ভয়', E'বস্তুতঃ সকলি তব, জীব কেহ নয়
 অহম''-মম''-ভ্রমে ভ্রমি'' ভোগে শোক-ভয়',
@@ -4222,7 +4224,7 @@ everything related to this body is mine. Thus he suffers sorrow and fear.', E'
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4231,7 +4233,7 @@ everything related to this body is mine. Thus he suffers sorrow and fear.', E'
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'অহং-মম-অভিমান এই-মাত্র ধন
 বদ্ধ-জীব নিজ বলি'' জানে মনে মন', E'অহং-মম-অভিমান এই-মাত্র ধন
 বদ্ধ-জীব নিজ বলি'' জানে মনে মন',
@@ -4264,7 +4266,7 @@ words I and mine to be his treasures alone.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4273,7 +4275,7 @@ words I and mine to be his treasures alone.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সেই অভিমানে আমি সংসারে পড়িয়া
 হাবুডুবু খাই ভব-সিন্ধু সাঁতারিয়া', E'সেই অভিমানে আমি সংসারে পড়িয়া
 হাবুডুবু খাই ভব-সিন্ধু সাঁতারিয়া',
@@ -4307,7 +4309,7 @@ in that ocean.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4316,7 +4318,7 @@ in that ocean.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তোমার অভয়-পদে লৈয়া শরণ
 আজি আমি করিলাম আত্ম-নিবেদন', E'তোমার অভয়-পদে লৈয়া শরণ
 আজি আমি করিলাম আত্ম-নিবেদন',
@@ -4349,7 +4351,7 @@ to You on this day.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4358,9 +4360,9 @@ to You on this day.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
-    E'অহং''-মম''-অভিমান ছাড়িল আমায়
-আর যেন মম হৃদে স্তান নাহি পায়', E'অহং''-মম''-অভিমান ছাড়িল আমায়
+    v_chapter_id, '5',
+    E'অহং-মম-অভিমান ছাড়িল আমায়
+আর যেন মম হৃদে স্তান নাহি পায়', E'অহং-মম-অভিমান ছাড়িল আমায়
 আর যেন মম হৃদে স্তান নাহি পায়',
     E'`ahaḿ''-`mama''-abhimāna
 chāḍilo āmāy
@@ -4391,7 +4393,7 @@ within my heart.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4400,7 +4402,7 @@ within my heart.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'এই মাত্র বল প্রভু! দিবে হে আমারে
 অহংতা-মমতা দূরে পারি রাখিবারে', E'এই মাত্র বল প্রভু! দিবে হে আমারে
 অহংতা-মমতা দূরে পারি রাখিবারে',
@@ -4433,7 +4435,7 @@ conceptions of I and Mine far away.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4442,7 +4444,7 @@ conceptions of I and Mine far away.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'আত্ম-নিবেদন-ভাব হৃদে দৃঢ় রয়
 হস্তি-স্নান সম যেন খনিক না হয়', E'আত্ম-নিবেদন-ভাব হৃদে দৃঢ় রয়
 হস্তি-স্নান সম যেন খনিক না হয়',
@@ -4475,7 +4477,7 @@ and not prove to be like the momentary cleanliness of an elephant after a bath.'
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4484,7 +4486,7 @@ and not prove to be like the momentary cleanliness of an elephant after a bath.'
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ প্রভু নিত্যানন্দ পায়
 মাগে পরসাদ, জাহে অভিমান যায়', E'ভকতিবিনোদ প্রভু নিত্যানন্দ পায়
 মাগে পরসাদ, জাহে অভিমান যায়',
@@ -4531,7 +4533,7 @@ delivers one from all false pride.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4540,7 +4542,7 @@ delivers one from all false pride.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'নিবেদন করি প্রভু! তোমার চরণে
 পতিত অধম আমি, জানে ত্রি-ভুবনে', E'নিবেদন করি প্রভু! তোমার চরণে
 পতিত অধম আমি, জানে ত্রি-ভুবনে',
@@ -4573,7 +4575,7 @@ to the three worlds.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4582,7 +4584,7 @@ to the three worlds.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'আমা-সম পাপী নাহি জগত-ভিতরে
 মম সম অপরাধী নাহিক সংসারে', E'আমা-সম পাপী নাহি জগত-ভিতরে
 মম সম অপরাধী নাহিক সংসারে',
@@ -4614,7 +4616,7 @@ is no offender whose offenses equal mine.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4623,7 +4625,7 @@ is no offender whose offenses equal mine.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সেই সব পাপ আর অপরাধ, আমি
 পরিহারে পাই লজ্জা, সব জান'' তুমি', E'সেই সব পাপ আর অপরাধ, আমি
 পরিহারে পাই লজ্জা, সব জান'' তুমি',
@@ -4656,7 +4658,7 @@ beg Your forgiveness. All this is understood by You.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4665,9 +4667,9 @@ beg Your forgiveness. All this is understood by You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'তুমি বিনা কা''র আমি লৈব শরণ?
-তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-নন্দন!', E'তুমি বিনা কা''র আমি লৈব শরণ?
+    v_chapter_id, '4',
+    E'তুমি বিনা কার আমি লৈব শরণ?
+তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-নন্দন!', E'তুমি বিনা কার আমি লৈব শরণ?
 তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-নন্দন!',
     E'tumi
 binā kā''ra āmi loibo śaraṇ?
@@ -4698,7 +4700,7 @@ the Lord of all lords.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4707,7 +4709,7 @@ the Lord of all lords.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'জগত তোমার নাথ! তুমি সর্ব-ময়
 তোমা প্রতি অপরাধ তুমি কর'' ক্ষয়', E'জগত তোমার নাথ! তুমি সর্ব-ময়
 তোমা প্রতি অপরাধ তুমি কর'' ক্ষয়',
@@ -4739,7 +4741,7 @@ committed against You.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4748,9 +4750,9 @@ committed against You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'তুমি তো'' স্খলিত-পদ জনের আশ্রয়
-তুমি বিনা আর কিবা আছে, দয়া-ময়!', E'তুমি তো'' স্খলিত-পদ জনের আশ্রয়
+    v_chapter_id, '6',
+    E'তুমি তো স্খলিত-পদ জনের আশ্রয়
+তুমি বিনা আর কিবা আছে, দয়া-ময়!', E'তুমি তো স্খলিত-পদ জনের আশ্রয়
 তুমি বিনা আর কিবা আছে, দয়া-ময়!',
     E'tumi
 to'' skhalita-pada janera āśroy
@@ -4781,7 +4783,7 @@ exists, O merciful Lord?', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4790,7 +4792,7 @@ exists, O merciful Lord?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'সেই-রূপ তব অপরাধী জন যত
 তোমার শরণাগত হৈবে সতত', E'সেই-রূপ তব অপরাধী জন যত
 তোমার শরণাগত হৈবে সতত',
@@ -4822,7 +4824,7 @@ shelter.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4831,7 +4833,7 @@ shelter.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ এবে লৈয়া শরণ
 তুয়া পদে করে আজ আত্ম-সমর্পণ', E'ভকতিবিনোদ এবে লৈয়া শরণ
 তুয়া পদে করে আজ আত্ম-সমর্পণ',
@@ -4878,7 +4880,7 @@ this very day.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4887,8 +4889,8 @@ this very day.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'আত্ম-নিবেদন, তুয়া পদে করি'',
+    v_chapter_id, '1',
+    E'আত্ম-নিবেদন, তুয়া পদে করি,
 হৈনু পরম সুখী
 দুঃখ দূরে গেল, চিন্তা না রহিল,
 চৌদিকে আনন্দ দেখি', E'আত্ম-নিবেদন, তুয়া পদে করি'',
@@ -4933,7 +4935,7 @@ directions.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4942,7 +4944,7 @@ directions.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'অশোক-অভয়, অমৃত-আধার,
 তোমার চরণ-দ্বয়
 তাহাতে এখন, বিশ্রাম লভিয়া
@@ -4987,7 +4989,7 @@ of worldly existence.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -4996,7 +4998,7 @@ of worldly existence.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তোমার সংসারে, করিব সেবন,
 নাহিব ফলের ভাগী
 তব সুখ জাহে, করিব যতন,
@@ -5042,7 +5044,7 @@ to Your lotus feet.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5051,7 +5053,7 @@ to Your lotus feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তোমার সেবায়, দুঃখ হয় যত,
 সে-ও তো'' পরম সুখ
 সেবা-সুখ-দুঃখ, পরম সম্পদ,
@@ -5096,7 +5098,7 @@ destroy the misery of ignorance.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5105,7 +5107,7 @@ destroy the misery of ignorance.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'পূর্ব ইতিহাস, ভুলিনু সকল,
 সেবা-সুখ পে''য়ে মনে
 আমি তো'' তোমার, তুমি তো'' আমার,
@@ -5151,7 +5153,7 @@ other treasure?', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5160,7 +5162,7 @@ other treasure?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'ভকতিবিনোদ, আনন্দে ডুবিয়া,
 তোমার সেবার তরে
 সব চেষ্টা করে, তব ইচ্ছা-মত,
@@ -5219,7 +5221,7 @@ service and dwells in Your house according to Your wishes.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5228,7 +5230,7 @@ service and dwells in Your house according to Your wishes.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'কি জানি কি বলে, তোমার ধামেতে,
 হৈনু শরণাগত
 তুমি দয়া-ময়, পতিত-পাবন,
@@ -5273,7 +5275,7 @@ You are everseeking the purification and deliverance of the fallen souls.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5282,7 +5284,7 @@ You are everseeking the purification and deliverance of the fallen souls.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'ভরসা আমার, এই মাত্র নাথ!
 তুমি তো'' করুনা-ময়
 তব দয়া-পাত্র, নাহি মোর সম,
@@ -5327,7 +5329,7 @@ needs Your mercy more than I. You will surely drive away all fear.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5336,7 +5338,7 @@ needs Your mercy more than I. You will surely drive away all fear.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'আমারে তারিতে, কাহার শকতি,
 অবনী-ভিতরে নাহি
 দয়াল ঠাকুর! ঘোষনা তোমার,
@@ -5381,7 +5383,7 @@ kindly deliver this vile and lowly sinner.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5390,7 +5392,7 @@ kindly deliver this vile and lowly sinner.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'সকল ছাডিয়া, আসিয়াছি আমি,
 তোমার চরণে নাথ!
 আমি নিত্য-দাস, তুমি পালয়িতা,
@@ -5435,7 +5437,7 @@ servant, and You are my protector and maintainer, O Lord of the universe!', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5444,7 +5446,7 @@ servant, and You are my protector and maintainer, O Lord of the universe!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'তোমার সকল, আমি মাত্র দাস,
 আমার তারিবে তুমি
 তোমার চরণ, করিনু বরণ,
@@ -5488,7 +5490,7 @@ have chosen Your lotus feet as my only shelter. I no longer belong to myself.', 
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5497,7 +5499,7 @@ have chosen Your lotus feet as my only shelter. I no longer belong to myself.', 
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'ভকতিবিনোদ, কাঁদিয়া শরণ,
 ল''য়েছে তোমার পায়
 ক্ষমি'' অপরাধ, নামে রুচি দিয়া,
@@ -5556,7 +5558,7 @@ him a taste for the holy name, and kindly maintain him.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5565,7 +5567,7 @@ him a taste for the holy name, and kindly maintain him.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'দারা-পুত্র-নিজ-দেহ-কুটুম্ব-পালনে
 সর্বদা ব্যাকুল আমি ছিনু মনে মনে', E'দারা-পুত্র-নিজ-দেহ-কুটুম্ব-পালনে
 সর্বদা ব্যাকুল আমি ছিনু মনে মনে',
@@ -5595,7 +5597,7 @@ children, my own body and relatives.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5604,7 +5606,7 @@ children, my own body and relatives.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'কেমনে অর্জিব অর্থ, যশ কিসে পাব
 কন্যা-পুত্র-বিবাহ কেমনে সম্পাদিব', E'কেমনে অর্জিব অর্থ, যশ কিসে পাব
 কন্যা-পুত্র-বিবাহ কেমনে সম্পাদিব',
@@ -5637,7 +5639,7 @@ my sons and daughter?', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5646,7 +5648,7 @@ my sons and daughter?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'এবে আত্ম-সমর্পনে চিন্তা নাহি আর
 তুমি নির্বাহিবে প্রভু, সংসার তোমার', E'এবে আত্ম-সমর্পনে চিন্তা নাহি আর
 তুমি নির্বাহিবে প্রভু, সংসার তোমার',
@@ -5678,7 +5680,7 @@ You will provide for the maintenance of Your household.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5687,9 +5689,9 @@ You will provide for the maintenance of Your household.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'তুমি তো'' পালিবে মোরে নিজ-দাস জানি''
-তোমার সেবায় প্রভু বড় সুখ মানি', E'তুমি তো'' পালিবে মোরে নিজ-দাস জানি''
+    v_chapter_id, '4',
+    E'তুমি তো পালিবে মোরে নিজ-দাস জানি
+তোমার সেবায় প্রভু বড় সুখ মানি', E'তুমি তো পালিবে মোরে নিজ-দাস জানি
 তোমার সেবায় প্রভু বড় সুখ মানি',
     E'tumi
 to'' pālibe more nija-dāsa jāni''
@@ -5719,7 +5721,7 @@ devotional service I feel great happiness.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5728,7 +5730,7 @@ devotional service I feel great happiness.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'তোমার ইচ্ছয় প্রভু সব কার্য হয়
 জীব বলে,-করি আমি'', সে তো'' সত্য নয়', E'তোমার ইচ্ছয় প্রভু সব কার্য হয়
 জীব বলে,-করি আমি'', সে তো'' সত্য নয়',
@@ -5761,7 +5763,7 @@ declares, I am the doer, but this is pure folly.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5770,7 +5772,7 @@ declares, I am the doer, but this is pure folly.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'জীব কি করিতে পরে, তুমি না করিলে?
 আশা-মাত্র জীব করে, তব ইচ্ছা-ফলে', E'জীব কি করিতে পরে, তুমি না করিলে?
 আশা-মাত্র জীব করে, তব ইচ্ছা-ফলে',
@@ -5804,7 +5806,7 @@ anything.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5813,7 +5815,7 @@ anything.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'নিশ্চিন্ত হৈয়া আমি সেবিব তোমায়
 গৃহে ভাল-মন্দ হ''লে নাহি মোর দায়', E'নিশ্চিন্ত হৈয়া আমি সেবিব তোমায়
 গৃহে ভাল-মন্দ হ''লে নাহি মোর দায়',
@@ -5846,7 +5848,7 @@ occur, it will not be my responsibility.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5855,7 +5857,7 @@ occur, it will not be my responsibility.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ নিজ-স্বাতন্ত্র্য ত্যজিয়া
 তোমার চরণ সেবে'' অকিঞ্চন হৈয়া', E'ভকতিবিনোদ নিজ-স্বাতন্ত্র্য ত্যজিয়া
 তোমার চরণ সেবে'' অকিঞ্চন হৈয়া',
@@ -5902,7 +5904,7 @@ service of Your lotus feet with no other interest in life.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5911,7 +5913,7 @@ service of Your lotus feet with no other interest in life.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'সর্বস্ব তোমার, চরণে সঁপিয়া,
 পড়েছি তোমার ঘরে
 তুমি তো'' ঠাকুর, তোমার কুকুর,
@@ -5956,7 +5958,7 @@ are the Supreme Lord. Kindly consider me Your household dog.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -5965,7 +5967,7 @@ are the Supreme Lord. Kindly consider me Your household dog.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'বাঙ্ধিয়া নিকটে, আমারে পালিবে,
 রহিব তোমার দ্বারে
 প্রতীপ-জনেরে, আসিতে না দিব,
@@ -6010,7 +6012,7 @@ moat surrounding Your home.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6019,7 +6021,7 @@ moat surrounding Your home.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তব নিজ-জন, প্রসাদ সেবিয়া,
 উচ্ছিষ্ট রাখিবে যাহা
 আমার ভোজন, পরম-আনন্দে,
@@ -6063,7 +6065,7 @@ be my daily sustenance. I will feast on those remnants with great ecstasy.', E''
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6072,7 +6074,7 @@ be my daily sustenance. I will feast on those remnants with great ecstasy.', E''
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'বসিয়া শুইয়া, তোমার চরণ,
 চিন্তিব সতত আমি
 নাচিতে নাচিতে, নিকটে যাইব,
@@ -6116,7 +6118,7 @@ feet. Whenever You call, I will immediately run to You and dance in rapture.', E
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6125,7 +6127,7 @@ feet. Whenever You call, I will immediately run to You and dance in rapture.', E
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'নিজের পোষন, কভু না ভাবিব,
 রহিব ভাবের ভরে
 ভকতিবিনোদ, তোমারে পালক,
@@ -6185,7 +6187,7 @@ multitude of ecstasies. Bhaktivinoda accepts You as his only support.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6194,7 +6196,7 @@ multitude of ecstasies. Bhaktivinoda accepts You as his only support.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-কুমার!
 তোমার ইচ্ছায় বিশ্বে সৃজন সংহার', E'তুমি সর্বেশ্বরেশ্বর, ব্রজেন্দ্র-কুমার!
 তোমার ইচ্ছায় বিশ্বে সৃজন সংহার',
@@ -6225,7 +6227,7 @@ will, creation and destruction take place in the universe.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6234,7 +6236,7 @@ will, creation and destruction take place in the universe.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তব ইচ্ছা-মত ব্রহ্মা করেন সৃজন
 তব ইচ্ছা-মত বিষ্নু করেন পালন', E'তব ইচ্ছা-মত ব্রহ্মা করেন সৃজন
 তব ইচ্ছা-মত বিষ্নু করেন পালন',
@@ -6264,7 +6266,7 @@ Visnu maintains.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6273,7 +6275,7 @@ Visnu maintains.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তব ইচ্ছা-মতে শিব করেন সংহার
 তব ইচ্ছা-মতে মায়া সৃজে কারাগার', E'তব ইচ্ছা-মতে শিব করেন সংহার
 তব ইচ্ছা-মতে মায়া সৃজে কারাগার',
@@ -6303,7 +6305,7 @@ constructs the prison house of this world.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6312,7 +6314,7 @@ constructs the prison house of this world.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তব ইচ্ছা-মতে জীবের জনম-মরণ
 সমৃদ্ধি-নিপাতে দুঃখ সুখ-সংঘটন', E'তব ইচ্ছা-মতে জীবের জনম-মরণ
 সমৃদ্ধি-নিপাতে দুঃখ সুখ-সংঘটন',
@@ -6342,7 +6344,7 @@ Your will they meet with prosperity and ruin, happiness and sorrow.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6351,9 +6353,9 @@ Your will they meet with prosperity and ruin, happiness and sorrow.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
-    E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে''
-তব ইচ্ছা বিনা কিছু করিতে না পারে', E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে''
+    v_chapter_id, '5',
+    E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে
+তব ইচ্ছা বিনা কিছু করিতে না পারে', E'মিছে মায়া-বদ্ধ জীব আশা-পাশে ফিরে
 তব ইচ্ছা বিনা কিছু করিতে না পারে',
     E'miche
 māyā-baddha jīva āśā-pāśe phire''
@@ -6382,7 +6384,7 @@ Without Your sanction he is unable to do anything.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6391,9 +6393,9 @@ Without Your sanction he is unable to do anything.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'তুমি তো'' রাখক আর পালক আমার
-তোমার চরণ বিনা আশা নাহি আর', E'তুমি তো'' রাখক আর পালক আমার
+    v_chapter_id, '6',
+    E'তুমি তো রাখক আর পালক আমার
+তোমার চরণ বিনা আশা নাহি আর', E'তুমি তো রাখক আর পালক আমার
 তোমার চরণ বিনা আশা নাহি আর',
     E'tumi
 to'' rākhaka ār pālaka āmāra
@@ -6422,7 +6424,7 @@ other hope for me.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6431,7 +6433,7 @@ other hope for me.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'নিজ-বল-চেষ্টা-প্রতি ভরসা ছাড়িয়া
 তোমার ইচ্ছায় আছি নির্ভর করিয়া', E'নিজ-বল-চেষ্টা-প্রতি ভরসা ছাড়িয়া
 তোমার ইচ্ছায় আছি নির্ভর করিয়া',
@@ -6462,7 +6464,7 @@ dependent on Your will.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6471,7 +6473,7 @@ dependent on Your will.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ অতি দীন অকিঞ্চন
 তোমার ইচ্ছায় তা''র জীবন মরণ', E'ভকতিবিনোদ অতি দীন অকিঞ্চন
 তোমার ইচ্ছায় তা''র জীবন মরণ',
@@ -6516,7 +6518,7 @@ with Your will he lives and dies.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6525,7 +6527,7 @@ with Your will he lives and dies.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'এখোন বুঝিনু প্রভু! তোমার চরণ
 অশোকাভয়ামৃত-পূর্ণ সর্ব-ক্ষন', E'এখোন বুঝিনু প্রভু! তোমার চরণ
 অশোকাভয়ামৃত-পূর্ণ সর্ব-ক্ষন',
@@ -6558,7 +6560,7 @@ full of sweet nectar.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6567,7 +6569,7 @@ full of sweet nectar.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'সকল ছাড়িয়া তুয়া চরণ-কমলে
 পড়িয়াছি আমি নাথ! তব পদ-তলে', E'সকল ছাড়িয়া তুয়া চরণ-কমলে
 পড়িয়াছি আমি নাথ! তব পদ-তলে',
@@ -6599,7 +6601,7 @@ the soles of those lotus feet I surrender myself and all I possess.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6608,7 +6610,7 @@ the soles of those lotus feet I surrender myself and all I possess.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তব পাদ-পদ্ম নাথ! রক্ষিবে আমারে
 আর রক্ষা-কর্তা নাহি এ ভব-সংসারে', E'তব পাদ-পদ্ম নাথ! রক্ষিবে আমারে
 আর রক্ষা-কর্তা নাহি এ ভব-সংসারে',
@@ -6640,7 +6642,7 @@ Lord, there is no other protection but You in this world of birth and death.', E
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6649,7 +6651,7 @@ Lord, there is no other protection but You in this world of birth and death.', E
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'আমি তব নিত্য-দাস-জানিনু এ-বার
 আমার পালন-ভার এখোন তোমার', E'আমি তব নিত্য-দাস-জানিনু এ-বার
 আমার পালন-ভার এখোন তোমার',
@@ -6682,7 +6684,7 @@ assured.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6691,7 +6693,7 @@ assured.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'বড় দুঃখ পাইয়াছি স্বতন্ত্র জীবনে
 দুঃখ দূরে গেল ও পদ-বরণে', E'বড় দুঃখ পাইয়াছি স্বতন্ত্র জীবনে
 দুঃখ দূরে গেল ও পদ-বরণে',
@@ -6723,7 +6725,7 @@ misery', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6732,7 +6734,7 @@ misery', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'যে-পদ লাগিয়া রমা তপস্য করিলা
 যে-পদ পাইয়া শিব শিবত্ব লোভিলা', E'যে-পদ লাগিয়া রমা তপস্য করিলা
 যে-পদ পাইয়া শিব শিবত্ব লোভিলা',
@@ -6765,7 +6767,7 @@ quality of auspiciousness.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6774,7 +6776,7 @@ quality of auspiciousness.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'যে-পদ লভিয়া ব্রহ্মা কৃতার্থ হৈলা
 যে-পদ নারদ মুনি হৃদয়ে ধরিলা', E'যে-পদ লভিয়া ব্রহ্মা কৃতার্থ হৈলা
 যে-পদ নারদ মুনি হৃদয়ে ধরিলা',
@@ -6806,7 +6808,7 @@ sage Narada Muni held those two feet to his heart.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6815,7 +6817,7 @@ sage Narada Muni held those two feet to his heart.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'সেই সে অভয় পদ শিরেতে ধরিয়া
 পরম-আনন্দে নাচি পদ-গুন গাইয়া', E'সেই সে অভয় পদ শিরেতে ধরিয়া
 পরম-আনন্দে নাচি পদ-গুন গাইয়া',
@@ -6847,7 +6849,7 @@ great ecstasy, singing their glories.', E'',
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6856,9 +6858,9 @@ great ecstasy, singing their glories.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
-    E'সংসার-বিপদ হ''তে অবশ্য উদ্ধার
-ভকতিবিনোদ, ও-পদ করিবে তোমার', E'সংসার-বিপদ হ''তে অবশ্য উদ্ধার
+    v_chapter_id, '9',
+    E'সংসার-বিপদ হতে অবশ্য উদ্ধার
+ভকতিবিনোদ, ও-পদ করিবে তোমার', E'সংসার-বিপদ হতে অবশ্য উদ্ধার
 ভকতিবিনোদ, ও-পদ করিবে তোমার',
     E'saḿsāra-vipada
 ho''te avaśya uddhār
@@ -6902,7 +6904,7 @@ o-pada koribe tomār', E'саḿса̄ра-віпада
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6911,8 +6913,8 @@ o-pada koribe tomār', E'саḿса̄ра-віпада
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'তুমি তো'' মারিবে যারে, কে তারে রাখিতে পারে,
+    v_chapter_id, '1',
+    E'তুমি তো মারিবে যারে, কে তারে রাখিতে পারে,
 ইচ্ছা-বশ ত্রিভুবন
 ব্রহ্মা-আদি দেব-গণ, তব দাস অগনণ,
 করে তব আজ্ঞার পালন', E'তুমি তো'' মারিবে যারে, কে তারে রাখিতে পারে,
@@ -6956,7 +6958,7 @@ and stand ready to execute Your command,', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -6965,7 +6967,7 @@ and stand ready to execute Your command,', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তব ইচ্ছা-মতে যত, গ্রহ-গণ অবিরত,
 শুভাশুভ ফল করে দান
 রোগ-শোক-মৃতি-ভয়, তব ইচ্ছা-মতে হয়,
@@ -7010,7 +7012,7 @@ all-powerful.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7019,7 +7021,7 @@ all-powerful.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তব ভয়ে বায়ু বয়, চন্দ্র সূর্য সমুদয়,
 স্ব-স্ব নিয়মিত কর্য করে
 তুমি তো'' পরমেশ্বর, পর-ব্রহ্ম পরাত্পর,
@@ -7064,7 +7066,7 @@ all. Your residence is in the heart of Your loving devotee.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7073,8 +7075,8 @@ all. Your residence is in the heart of Your loving devotee.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল'' নাম,
+    v_chapter_id, '4',
+    E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল নাম,
 ভকত-জনের নিত্য-স্বামী
 তুমি তো'' রাখিবে যারে, কে তারে মারিতে পারে,
 সকল বিধির বিধি তুমি', E'সদা-শুদ্ধ সিদ্ধ-কাম, ভকত-বত্সল'' নাম,
@@ -7119,7 +7121,7 @@ protect? You are the law of all laws.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7128,7 +7130,7 @@ protect? You are the law of all laws.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'তোমার চরণে নাথ! করিয়াছে প্রনিপাত,
 ভকতিবিনোদ তব দাস
 বিপদ হৈতে স্বামী! অবশ্য তাহারে তুমি,
@@ -7188,7 +7190,7 @@ dangers.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7197,7 +7199,7 @@ dangers.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'আত্ম-সমর্পনে গেলা অভিমান
 নাহি করবুঁ নিজ রখা-বিধান', E'আত্ম-সমর্পনে গেলা অভিমান
 নাহি করবুঁ নিজ রখা-বিধান',
@@ -7229,7 +7231,7 @@ try to secure my own well-being.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7238,10 +7240,10 @@ try to secure my own well-being.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'তুয়া ধন জানি'' তুহুঁ রাখবি, নাথ!
-পাল্য় গোধন জ্ঞান করি'' তুয়া সাথ', E'তুয়া ধন জানি'' তুহুঁ রাখবি, নাথ!
-পাল্য় গোধন জ্ঞান করি'' তুয়া সাথ',
+    v_chapter_id, '2',
+    E'তুয়া ধন জানি তুহুঁ রাখবি, নাথ!
+পাল্য় গোধন জ্ঞান করি তুয়া সাথ', E'তুয়া ধন জানি তুহুঁ রাখবি, নাথ!
+পাল্য় গোধন জ্ঞান করি তুয়া সাথ',
     E'tuwā
 dhana jāni'' tuhuń rākhobi, nāth!
 pālya
@@ -7271,7 +7273,7 @@ I am Your treasured property.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7280,7 +7282,7 @@ I am Your treasured property.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'চরায়বি মাধব! জামুন-তীরে
 বংশী বাজায়ত ডাকবি ধীরে', E'চরায়বি মাধব! জামুন-তীরে
 বংশী বাজায়ত ডাকবি ধীরে',
@@ -7315,7 +7317,7 @@ You call to them by gently playing Your flute.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7324,7 +7326,7 @@ You call to them by gently playing Your flute.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'অঘ-বক মারত রখা-বিধান
 করবি সদা তুহুঁ গোকুল-কান!', E'অঘ-বক মারত রখা-বিধান
 করবি সদা তুহুঁ গোকুল-কান!',
@@ -7357,7 +7359,7 @@ protection, O Gokula Kana!', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7366,7 +7368,7 @@ protection, O Gokula Kana!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'রখা করবি তুহুঁ নিশ্চয় জানি
 পান করবুঁ হাম জামুন-পানি', E'রখা করবি তুহুঁ নিশ্চয় জানি
 পান করবুঁ হাম জামুন-পানি',
@@ -7398,7 +7400,7 @@ Yamuna.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7407,7 +7409,7 @@ Yamuna.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'কালিয়-দোখ করবি বিনাশা
 শোধোবি নদী-জল, বাড়াওবি আশা', E'কালিয়-দোখ করবি বিনাশা
 শোধোবি নদী-জল, বাড়াওবি আশা',
@@ -7440,7 +7442,7 @@ act. You will purify the Yamuna and by such heroic deeds enhance our faith.', E'
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7449,10 +7451,10 @@ act. You will purify the Yamuna and by such heroic deeds enhance our faith.', E'
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
-    E'পিয়ত দাবানল রাখবি ম''য়
-গোপাল'', গোবিন্দ'' নাম তব হয়', E'পিয়ত দাবানল রাখবি ম''য়
-গোপাল'', গোবিন্দ'' নাম তব হয়',
+    v_chapter_id, '7',
+    E'পিয়ত দাবানল রাখবি ময়
+গোপাল, গোবিন্দ নাম তব হয়', E'পিয়ত দাবানল রাখবি ময়
+গোপাল, গোবিন্দ নাম তব হয়',
     E'piyato
 dāvānala rākhobi mo''y
 `gopāla'',
@@ -7482,7 +7484,7 @@ forest fire.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7491,9 +7493,9 @@ forest fire.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
-    E'সুর-পতি-দুর্মতি-নাশ বিচারি''
-রাখবি বর্ষনে, গিরি-বর-ধারি!', E'সুর-পতি-দুর্মতি-নাশ বিচারি''
+    v_chapter_id, '8',
+    E'সুর-পতি-দুর্মতি-নাশ বিচারি
+রাখবি বর্ষনে, গিরি-বর-ধারি!', E'সুর-পতি-দুর্মতি-নাশ বিচারি
 রাখবি বর্ষনে, গিরি-বর-ধারি!',
     E'sura-pati-durmati-nāśa
 vicāri''
@@ -7523,7 +7525,7 @@ malice and protect us by lifting the mighty Govardhana Hill!', E'',
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7532,7 +7534,7 @@ malice and protect us by lifting the mighty Govardhana Hill!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
+    v_chapter_id, '9',
     E'চতুর-আনন করব যব চোরি
 রখা করবি মুঝে, গোকুল-হরি!', E'চতুর-আনন করব যব চোরি
 রখা করবি মুঝে, গোকুল-হরি!',
@@ -7564,7 +7566,7 @@ too, You will surely protect me, O Gokula Hari!', E'',
 
   -- Verse 10
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7573,7 +7575,7 @@ too, You will surely protect me, O Gokula Hari!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '10', 10,
+    v_chapter_id, '10',
     E'ভকতিবিনোদ-তুয়া গোকুল-ধন
 রাখবি কেশব! করত যতন', E'ভকতিবিনোদ-তুয়া গোকুল-ধন
 রাখবি কেশব! করত যতন',
@@ -7620,7 +7622,7 @@ protect him with care.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7629,7 +7631,7 @@ protect him with care.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'ছোড়ত পুরুষ-অভিমান
 কিঙ্করী হৈলুঁ আজি, কান!', E'ছোড়ত পুরুষ-অভিমান
 কিঙ্করী হৈলুঁ আজি, কান!',
@@ -7660,7 +7662,7 @@ hoiluń āji, kān!', E'чход̣ато
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7669,7 +7671,7 @@ hoiluń āji, kān!', E'чход̣ато
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'বরজ-বিপিনে সখী-সাথ
 সেবন করবুঁ, রাধা-নাথ!', E'বরজ-বিপিনে সখী-সাথ
 সেবন করবুঁ, রাধা-নাথ!',
@@ -7702,7 +7704,7 @@ follower of one of the sakhis.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7711,7 +7713,7 @@ follower of one of the sakhis.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'কুসুমে গাঁথোবুঁ হার
 তুলসী-মণি-মঞ্জরী তার', E'কুসুমে গাঁথোবুঁ হার
 তুলসী-মণি-মঞ্জরী তার',
@@ -7744,7 +7746,7 @@ jewels of that necklace.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7753,7 +7755,7 @@ jewels of that necklace.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'যতনে দেওবুঁ সখী-করে
 হাতে লওব সখী আদরে', E'যতনে দেওবুঁ সখী-করে
 হাতে লওব সখী আদরে',
@@ -7785,7 +7787,7 @@ devotee, and she will take it with affection.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7794,7 +7796,7 @@ devotee, and she will take it with affection.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'সখী দিব তুয়া দুহুক গলে
 দূরত হেরবুঁ কুতূহলে', E'সখী দিব তুয়া দুহুক গলে
 দূরত হেরবুঁ কুতূহলে',
@@ -7826,7 +7828,7 @@ from afar.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7835,7 +7837,7 @@ from afar.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'সখী কহব, শুন সুন্দরী!
 রহবি কুঞ্জে মম
 কিঙ্করী', E'সখী কহব, শুন সুন্দরী!
@@ -7870,7 +7872,7 @@ this grove as my attendant.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7879,7 +7881,7 @@ this grove as my attendant.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'গাঁথোবি মালা মন-হারিনী
 নিতি রাধা-কৃষ্ণ-বিমোহিনী', E'গাঁথোবি মালা মন-হারিনী
 নিতি রাধা-কৃষ্ণ-বিমোহিনী',
@@ -7911,7 +7913,7 @@ Radha and Krsna.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7920,7 +7922,7 @@ Radha and Krsna.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'তুয়া রখন-ভার হামারা
 মম কুঞ্জ-কুটীর তোহারা', E'তুয়া রখন-ভার হামারা
 মম কুঞ্জ-কুটীর তোহারা',
@@ -7952,7 +7954,7 @@ is yours.', E'',
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7961,7 +7963,7 @@ is yours.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
+    v_chapter_id, '9',
     E'রাধা-মাধব-সেবন-কালে
 রহবি হামার অন্তরালে', E'রাধা-মাধব-সেবন-কালে
 রহবি হামার অন্তরালে',
@@ -7990,7 +7992,7 @@ hāmāra antarāle', E'ра̄дга̄-ма̄дгава-севана-ка̄ле
 
   -- Verse 10
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -7999,10 +8001,10 @@ hāmāra antarāle', E'ра̄дга̄-ма̄дгава-севана-ка̄ле
     is_published
   )
   VALUES (
-    v_chapter_id, '10', 10,
-    E'তাম্বুল সাজি'' কর্পূর আনি''
-দেওবি মোএ আপন জানি''', E'তাম্বুল সাজি'' কর্পূর আনি''
-দেওবি মোএ আপন জানি''',
+    v_chapter_id, '10',
+    E'তাম্বুল সাজি কর্পূর আনি
+দেওবি মোএ আপন জানি', E'তাম্বুল সাজি কর্পূর আনি
+দেওবি মোএ আপন জানি',
     E'tāmbula
 sāji'' karpūra āni''
 deobi
@@ -8031,7 +8033,7 @@ me to be yours.', E'',
 
   -- Verse 11
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8040,9 +8042,9 @@ me to be yours.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '11', 11,
-    E'ভকতিবিনোদ শুনি'' বাত
-সখী-পদে করে প্রনিপাত', E'ভকতিবিনোদ শুনি'' বাত
+    v_chapter_id, '11',
+    E'ভকতিবিনোদ শুনি বাত
+সখী-পদে করে প্রনিপাত', E'ভকতিবিনোদ শুনি বাত
 সখী-পদে করে প্রনিপাত',
     E'bhakativinoda
 śuni'' bāt
@@ -8087,7 +8089,7 @@ of that confidential sakhi.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8096,7 +8098,7 @@ of that confidential sakhi.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'তুয়া-ভক্তি-অনুকূল যে-যে কার্য হয়
 পরম-যতনে তাহা করিব নিশ্চয়', E'তুয়া-ভক্তি-অনুকূল যে-যে কার্য হয়
 পরম-যতনে তাহা করিব নিশ্চয়',
@@ -8129,7 +8131,7 @@ devotional service.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8138,7 +8140,7 @@ devotional service.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'ভক্তি-অনুকূল যত বিষয় সংসারে
 করিব তাহাতে রতি ইন্দ্রিয়ের দ্বারে', E'ভক্তি-অনুকূল যত বিষয় সংসারে
 করিব তাহাতে রতি ইন্দ্রিয়ের দ্বারে',
@@ -8171,7 +8173,7 @@ devotion, and with my senses I will engage them in Your service.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8180,7 +8182,7 @@ devotion, and with my senses I will engage them in Your service.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'শুনিব তোমার কথা যতন করিয়া
 দেখিব তোমার ধাম নয়ন ভরিয়া', E'শুনিব তোমার কথা যতন করিয়া
 দেখিব তোমার ধাম নয়ন ভরিয়া',
@@ -8213,7 +8215,7 @@ of my eyes will be to behold Your divine abode.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8222,7 +8224,7 @@ of my eyes will be to behold Your divine abode.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তোমার প্রসাদে দেহ করিব পোষন
 নৈবেদ্য-তুলসী-ঘ্রান করিব গ্রহন', E'তোমার প্রসাদে দেহ করিব পোষন
 নৈবেদ্য-তুলসী-ঘ্রান করিব গ্রহন',
@@ -8255,7 +8257,7 @@ scent of tulasi leaves adorning those offerings.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8264,7 +8266,7 @@ scent of tulasi leaves adorning those offerings.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'কর-দ্বারে করিব তোমার সেবা সদা
 তোমার বসতি-স্থলে বসিব সর্বদা', E'কর-দ্বারে করিব তোমার সেবা সদা
 তোমার বসতি-স্থলে বসিব সর্বদা',
@@ -8296,7 +8298,7 @@ that place where You abide.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8305,7 +8307,7 @@ that place where You abide.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'তোমার সেবায় কাম নিয়োগ করিব
 তোমার বিদ্বেষি-জনে ক্রোধ দেখাইব', E'তোমার সেবায় কাম নিয়োগ করিব
 তোমার বিদ্বেষি-জনে ক্রোধ দেখাইব',
@@ -8338,7 +8340,7 @@ are envious of You.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8347,7 +8349,7 @@ are envious of You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'এই-রূপে সর্ব-বৃত্তি আর সর্ব-ভাব
 তুয়া অনুকূল হয়ে লভুক প্রভাব', E'এই-রূপে সর্ব-বৃত্তি আর সর্ব-ভাব
 তুয়া অনুকূল হয়ে লভুক প্রভাব',
@@ -8380,7 +8382,7 @@ being favorable to You.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8389,7 +8391,7 @@ being favorable to You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'তুয়া ভক্ত-অনুকূল যাহা যাহা করি
 তুয়া ভক্তি-অনুকূল বলি'' তাহা ধরি', E'তুয়া ভক্ত-অনুকূল যাহা যাহা করি
 তুয়া ভক্তি-অনুকূল বলি'' তাহা ধরি',
@@ -8422,7 +8424,7 @@ favorable to Your devotee.', E'',
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8431,7 +8433,7 @@ favorable to Your devotee.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
+    v_chapter_id, '9',
     E'ভকতিবিনোদ নাহি জানে ধর্মাধর্ম
 ভক্তি-অনুকূল তার হৌ সব কর্ম', E'ভকতিবিনোদ নাহি জানে ধর্মাধর্ম
 ভক্তি-অনুকূল তার হৌ সব কর্ম',
@@ -8478,7 +8480,7 @@ his activities be conductive for pure devotion to You.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8487,7 +8489,7 @@ his activities be conductive for pure devotion to You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'গোদ্রুম-ধামে ভজন-অনুকূলে
 মাথুর-শ্রী-নন্দীশ্বর-সমতুলে', E'গোদ্রুম-ধামে ভজন-অনুকূলে
 মাথুর-শ্রী-নন্দীশ্বর-সমতুলে',
@@ -8520,7 +8522,7 @@ sacred place called Nandagram, located in the holy district of Mathura.
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8529,7 +8531,7 @@ sacred place called Nandagram, located in the holy district of Mathura.
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তহি মাহ সুরভি-কুঞ্জ-কুটীরে
 বৈঠবুঁ হাম সুর-তটিনী-তীরে', E'তহি মাহ সুরভি-কুঞ্জ-কুটীরে
 বৈঠবুঁ হাম সুর-তটিনী-তীরে',
@@ -8564,7 +8566,7 @@ Bakula, Kadamba, and Tamala, I will make an extensive grove by my cottage.
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8573,7 +8575,7 @@ Bakula, Kadamba, and Tamala, I will make an extensive grove by my cottage.
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'গৌর-ভকত-প্রিয়-বেশ দধানা
 তিলক-তুলসী-মালা-শোভমানা', E'গৌর-ভকত-প্রিয়-বেশ দধানা
 তিলক-তুলসী-মালা-শোভমানা',
@@ -8607,7 +8609,7 @@ as mrdanga drums, karatalas (hand cymbals), and gongs, and place them there.', E
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8616,7 +8618,7 @@ as mrdanga drums, karatalas (hand cymbals), and gongs, and place them there.', E
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'চম্পক, বকুল, কদম্ব, তমাল
 রোপত নিরমিব কুঞ্জ বিশাল', E'চম্পক, বকুল, কদম্ব, তমাল
 রোপত নিরমিব কুঞ্জ বিশাল',
@@ -8647,7 +8649,7 @@ niramibo kuñja viśāl', E'чампака,
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8656,7 +8658,7 @@ niramibo kuñja viśāl', E'чампака,
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'মাধবী মালতী উঠাবুঁ তাহে
 ছায়া-মণ্ডপ করবুঁ তঁহি মাহে', E'মাধবী মালতী উঠাবুঁ তাহে
 ছায়া-মণ্ডপ করবুঁ তঁহি মাহে',
@@ -8687,7 +8689,7 @@ korobuń tańhi māhe', E'ма̄дгавı̄
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8696,7 +8698,7 @@ korobuń tańhi māhe', E'ма̄дгавı̄
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'রোপোবুঁ তত্র কুসুম-বন-রাজি
 জূথি, জাতি, মল্লী বিরাজব সাজি''', E'রোপোবুঁ তত্র কুসুম-বন-রাজি
 জূথি, জাতি, মল্লী বিরাজব সাজি''',
@@ -8727,7 +8729,7 @@ jāti, mallī virājabo sāji''', E'ропобуń
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8736,7 +8738,7 @@ jāti, mallī virājabo sāji''', E'ропобуń
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'মঞ্চে বসাওবুঁ তুলসী-মহারাণী
 কীর্তন-সজ্জ তঁহি রাখব আনি''', E'মঞ্চে বসাওবুঁ তুলসী-মহারাণী
 কীর্তন-সজ্জ তঁহি রাখব আনি''',
@@ -8767,7 +8769,7 @@ tańhi rākhabo āni''', E'ман̃че
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8776,7 +8778,7 @@ tańhi rākhabo āni''', E'ман̃че
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'বৈষ্ণব-জন-সহ গাওবুঁ নাম
 জয় গোদ্রুম জয় গৌর কি ধাম', E'বৈষ্ণব-জন-সহ গাওবুঁ নাম
 জয় গোদ্রুম জয় গৌর কি ধাম',
@@ -8807,7 +8809,7 @@ godruma jaya gaura ki dhām', E'ваішн̣ава-джана-саха
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8816,7 +8818,7 @@ godruma jaya gaura ki dhām', E'ваішн̣ава-джана-саха
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
+    v_chapter_id, '9',
     E'ভকতিবিনোদ ভক্তি-অনুকূল
 জয় কুঞ্জ, মুঞ্জ, সুর-নদী-কূল', E'ভকতিবিনোদ ভক্তি-অনুকূল
 জয় কুঞ্জ, মুঞ্জ, সুর-নদী-কূল',
@@ -8862,7 +8864,7 @@ kuñja, muñja, sura-nadī-kūl', E'бгакатівінода
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8871,7 +8873,7 @@ kuñja, muñja, sura-nadī-kūl', E'бгакатівінода
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'শুদ্ধ-ভকত-চরণ-রেণু,
 ভজন-অনুকূল
 ভকত-সেবা, পরম-সিদ্ধি,
@@ -8908,7 +8910,7 @@ creeper of devotion.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8917,7 +8919,7 @@ creeper of devotion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'মাধব-তিথি, ভক্তি-জননী,
 যেতনে পালন করি
 কৃষ্ণ-বসতি, বসতি বলি'',
@@ -8956,7 +8958,7 @@ of worship, and bless me.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -8965,7 +8967,7 @@ of worship, and bless me.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'গৌর আমার, যে-সব স্থানে,
 করল ভ্রমণ রঙ্গে
 সে-সব স্থান, হেরিব আমি,
@@ -9003,7 +9005,7 @@ Caitanya and His devotees.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9012,7 +9014,7 @@ Caitanya and His devotees.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'মৃদঙ্গ-বাদ্য, শুনিতে মন,
 অবসর সদা যাচে
 গৌর-বিহিত, কীর্ত্তন শুনি'',
@@ -9051,7 +9053,7 @@ pastimes, my heart dances in ecstasy.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9060,7 +9062,7 @@ pastimes, my heart dances in ecstasy.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'যুগল-মূর্ত্তি, দেখিয়া মোর,
 পরম-আনন্দ হয়
 প্রসাদ-সেবা করিতে হয়,
@@ -9099,7 +9101,7 @@ elements.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9108,7 +9110,7 @@ elements.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'যে-দিন গৃহে, ভজন দেখি,
 গৃহেতে গোলোক ভায়
 চরণ-সীধু, দেখিয়া গঙ্গা,
@@ -9148,7 +9150,7 @@ bounds.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9157,8 +9159,8 @@ bounds.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
-    E'তুলসী দেখি'',
+    v_chapter_id, '7',
+    E'তুলসী দেখি,
 জুড়ায় প্রাণ,
 মাধব-তোষণী জানি''
 গৌর-প্রিয়, শাক-সেবনে,
@@ -9200,7 +9202,7 @@ effects of this type of prasada.)', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9209,7 +9211,7 @@ effects of this type of prasada.)', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ, কৃষ্ণ-ভজনে,
 অনকূল পায় যাহা
 প্রতি-দিবসে, পরম-সুখে,
@@ -9267,7 +9269,7 @@ he may be."', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9276,7 +9278,7 @@ he may be."', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'রাধা-কুণ্ড-তট-কুঞ্জ-কুটীর
 গোবর্ধন-পর্বত, যামুন-তীর', E'রাধা-কুণ্ড-তট-কুঞ্জ-কুটীর
 গোবর্ধন-পর্বত, যামুন-তীর',
@@ -9315,7 +9317,7 @@ pastimes more intense.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9324,7 +9326,7 @@ pastimes more intense.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'কুসুম-সরোবর, মানস-গঙ্গা
 কলিন্দ-নন্দিনী বিপুল-তরঙ্গ', E'কুসুম-সরোবর, মানস-গঙ্গা
 কলিন্দ-নন্দিনী বিপুল-তরঙ্গ',
@@ -9356,7 +9358,7 @@ for to abandon them is to abandon life itself.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9365,7 +9367,7 @@ for to abandon them is to abandon life itself.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'বংশী-বট, গোকুল, ধীর-সমীর
 বৃন্দাবন-তরু-লতিকা-বানীর', E'বংশী-বট, গোকুল, ধীর-সমীর
 বৃন্দাবন-তরু-লতিকা-বানীর',
@@ -9395,7 +9397,7 @@ stimulate remembrance of You and are the very source of my life.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9404,7 +9406,7 @@ stimulate remembrance of You and are the very source of my life.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'খগ-মৃগ-কুল, মলয়-বাতাস
 ময়ূর, ভ্রমর, মুরলী-বিলাস', E'খগ-মৃগ-কুল, মলয়-বাতাস
 ময়ূর, ভ্রমর, মুরলী-বিলাস',
@@ -9435,7 +9437,7 @@ bhramara, muralī-vilās', E'кхаґа-мр̣ґа-кула,
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9444,7 +9446,7 @@ bhramara, muralī-vilās', E'кхаґа-мр̣ґа-кула,
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'বেনু, শৃঙ্গ, পদ-চিহ্ন, মেঘ-মালা
 বসন্ত, শশঙ্ক, শঙ্খ, করতাল', E'বেনু, শৃঙ্গ, পদ-চিহ্ন, মেঘ-মালা
 বসন্ত, শশঙ্ক, শঙ্খ, করতাল',
@@ -9475,7 +9477,7 @@ vasanta,
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9484,7 +9486,7 @@ vasanta,
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'য়ুগল-বিলাসে অনুকূল জানি
 লীলা-বিলাসে-উদ্দীপক মানি', E'য়ুগল-বিলাসে অনুকূল জানি
 লীলা-বিলাসে-উদ্দীপক মানি',
@@ -9515,7 +9517,7 @@ māni', E'йуґала-віла̄се
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9524,7 +9526,7 @@ māni', E'йуґала-віла̄се
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'এ সব ছোড়ত কঁহি নাহি যাউ
 এ সব ছোড়ত পরাণ হারাউ', E'এ সব ছোড়ত কঁহি নাহি যাউ
 এ সব ছোড়ত পরাণ হারাউ',
@@ -9555,7 +9557,7 @@ saba choḍato parāna hārāu', E'е
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9564,7 +9566,7 @@ saba choḍato parāna hārāu', E'е
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ কহে, শুন কান!
 তুয়া উদ্দীপক হামারা পরাণ', E'ভকতিবিনোদ কহে, শুন কান!
 তুয়া উদ্দীপক হামারা পরাণ',
@@ -9608,7 +9610,7 @@ hāmārā parān', E'бгакатівінода кохе, ш́уно ка̄н!
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9617,7 +9619,7 @@ hāmārā parān', E'бгакатівінода кохе, ш́уно ка̄н!
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'কেশব! তুয়া জগত বিচিত্র
 করম-বিপাকে, ভব-বন ভ্রম-ই,
 পেখলুঁ রঙ্গ বহু চিত্র', E'কেশব! তুয়া জগত বিচিত্র
@@ -9656,7 +9658,7 @@ have beheld many strange and curious sights.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9665,7 +9667,7 @@ have beheld many strange and curious sights.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তুয়া পদ-বিস্মৃতি, আ-মর যন্ত্রনা,
 ক্লেশ-দহনে দোহি'' যায়
 কপিল, পতঞ্জলি, গৌতম, কনভোজী,
@@ -9710,7 +9712,7 @@ and Buddha  come running to my aid.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9719,7 +9721,7 @@ and Buddha  come running to my aid.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'তব কৈ নিজ-মতে, ভুক্তি, মুক্তি যাচত,
 পাত-ই নানা-বিধ ফাঁদ
 সো-সবু-বঞ্চক, তুয়া ভক্তি বহির-মুখ,
@@ -9764,7 +9766,7 @@ devotional service and thus fatally dangerous.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9773,7 +9775,7 @@ devotional service and thus fatally dangerous.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'বৈমুখ-বঞ্চনে, ভট সো-সবু,
 নিরমিল বিবিধ পসার
 দণ্ডবত দূরত, ভকতিবিনোদ ভেল,
@@ -9834,7 +9836,7 @@ philosophers from afar.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9843,9 +9845,9 @@ philosophers from afar.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জা''তে রয়
-পরম যতনে তাহা ত্যজিব নিশ্চয়', E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জা''তে রয়
+    v_chapter_id, '1',
+    E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জাতে রয়
+পরম যতনে তাহা ত্যজিব নিশ্চয়', E'তুয়া-ভক্তি-প্রতিকূল ধর্ম জাতে রয়
 পরম যতনে তাহা ত্যজিব নিশ্চয়',
     E'tuwā-bhakti-pratikūla
 dharma jā''te roy
@@ -9876,7 +9878,7 @@ service.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9885,7 +9887,7 @@ service.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তুয়া-ভক্তি-বহির-মুখ সঙ্গ না করিব
 গৌরাঙ্গ-বিরোধি-জন-মুখ না হেরিব', E'তুয়া-ভক্তি-বহির-মুখ সঙ্গ না করিব
 গৌরাঙ্গ-বিরোধি-জন-মুখ না হেরিব',
@@ -9918,7 +9920,7 @@ face of a person inimical toward Lord Gauranga.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9927,7 +9929,7 @@ face of a person inimical toward Lord Gauranga.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'ভক্তি-প্রতিকূল স্থানে না করি বসতি
 ভক্তির অপ্রিয় কার্যে নাহি করি রতি', E'ভক্তি-প্রতিকূল স্থানে না করি বসতি
 ভক্তির অপ্রিয় কার্যে নাহি করি রতি',
@@ -9960,7 +9962,7 @@ never take pleasure in non-devotional works.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -9969,7 +9971,7 @@ never take pleasure in non-devotional works.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'ভক্তির বিরোধী গ্রন্থ পাঠ না করিব
 ভক্তির বিরোধী ব্যাখ্যা কভু না শুনিব', E'ভক্তির বিরোধী গ্রন্থ পাঠ না করিব
 ভক্তির বিরোধী ব্যাখ্যা কভু না শুনিব',
@@ -10002,7 +10004,7 @@ disagrees with pure devotional principles.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10011,7 +10013,7 @@ disagrees with pure devotional principles.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'গৌরাঙ্গ-বর্জিত স্থান তীর্থ নাহি মানি
 ভক্তির বাধক জ্ঞান-কর্ম তুচ্ছ জানি', E'গৌরাঙ্গ-বর্জিত স্থান তীর্থ নাহি মানি
 ভক্তির বাধক জ্ঞান-কর্ম তুচ্ছ জানি',
@@ -10044,7 +10046,7 @@ knowledge hindering pure devotional service I consider worthless.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10053,7 +10055,7 @@ knowledge hindering pure devotional service I consider worthless.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'ভক্তির বাধক কালে না করি আদর
 ভক্তি বহির-মুখ নিজ-জনে জানি পর', E'ভক্তির বাধক কালে না করি আদর
 ভক্তি বহির-মুখ নিজ-জনে জানি পর',
@@ -10087,7 +10089,7 @@ pure devotion as strangers.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10096,7 +10098,7 @@ pure devotion as strangers.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'ভক্তির বাধিকা স্পৃহা করিব বর্জন
 অভক্ত-প্রদত্ত অন্ন না করি গ্রহন', E'ভক্তির বাধিকা স্পৃহা করিব বর্জন
 অভক্ত-প্রদত্ত অন্ন না করি গ্রহন',
@@ -10129,7 +10131,7 @@ me by non-devotee atheists.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10138,9 +10140,9 @@ me by non-devotee atheists.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
-    E'জাহা কিছু ভক্তি-প্রতিকূল বলি'' জানি
-ত্যজিব যতনে তাহা, এ নিশ্চয় বানী', E'জাহা কিছু ভক্তি-প্রতিকূল বলি'' জানি
+    v_chapter_id, '8',
+    E'জাহা কিছু ভক্তি-প্রতিকূল বলি জানি
+ত্যজিব যতনে তাহা, এ নিশ্চয় বানী', E'জাহা কিছু ভক্তি-প্রতিকূল বলি জানি
 ত্যজিব যতনে তাহা, এ নিশ্চয় বানী',
     E'jāhā
 kichu bhakti-pratikūla boli'' jāni
@@ -10171,7 +10173,7 @@ strongly promise.', E'',
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10180,10 +10182,12 @@ strongly promise.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
-    E'ভকতিবিনোদ পড়ি'' প্রভুর চরণে
-মাগয়ে শকতি প্রতিকূল্যের বর্জনে', E'ভকতিবিনোদ পড়ি'' প্রভুর চরণে
-মাগয়ে শকতি প্রতিকূল্যের বর্জনে',
+    v_chapter_id, '9',
+    E'ভকতিবিনোদ পড়ি প্রভুর চরণে
+মাগয়ে শকতি প্রতিকূল্যের বর্জনে
+2017', E'ভকতিবিনোদ পড়ি প্রভুর চরণে
+মাগয়ে শকতি প্রতিকূল্যের বর্জনে
+2017',
     E'bhakativinoda
 poḍi'' prabhura caraṇe
 māgaye
@@ -10227,7 +10231,7 @@ all obstacles to pure devotion.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10236,7 +10240,7 @@ all obstacles to pure devotion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'বিষয়-বিমূঢ আর মায়াবাদী জন
 ভক্তি-শূন্য দুঁহে প্রাণ ধরে অকারণ', E'বিষয়-বিমূঢ আর মায়াবাদী জন
 ভক্তি-শূন্য দুঁহে প্রাণ ধরে অকারণ',
@@ -10268,7 +10272,7 @@ vain, for both are devoid of devotion to You.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10277,7 +10281,7 @@ vain, for both are devoid of devotion to You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'এই দুই-সঙ্গ নাথ! না হয় আমার
 প্রার্থনা করিয়ে আমি চরণে তোমার', E'এই দুই-সঙ্গ নাথ! না হয় আমার
 প্রার্থনা করিয়ে আমি চরণে তোমার',
@@ -10309,7 +10313,7 @@ both.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10318,7 +10322,7 @@ both.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সে দুয়ের মধ্যে বিষয়ী তবু ভাল
 মায়াবাদী-সঙ্গ নাহি মাগি কন কাল', E'সে দুয়ের মধ্যে বিষয়ী তবু ভাল
 মায়াবাদী-সঙ্গ নাহি মাগি কন কাল',
@@ -10350,7 +10354,7 @@ mayavadi.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10359,7 +10363,7 @@ mayavadi.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'বিষয়ী-হৃদয় যবে সাধু-সঙ্গ পায়
 অনায়াসে লভে ভক্তি ভক্তের কৃপায়', E'বিষয়ী-হৃদয় যবে সাধু-সঙ্গ পায়
 অনায়াসে লভে ভক্তি ভক্তের কৃপায়',
@@ -10391,7 +10395,7 @@ heart he becomes inspired by pure devotion through the mercy of those devotees.'
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10400,10 +10404,10 @@ heart he becomes inspired by pure devotion through the mercy of those devotees.'
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
-    E'মায়াবাদ-দোষ যা''র হৃদয়ে পশিল
-কুতর্কে হৃদয় তা''র বজ্র-সম ভেল', E'মায়াবাদ-দোষ যা''র হৃদয়ে পশিল
-কুতর্কে হৃদয় তা''র বজ্র-সম ভেল',
+    v_chapter_id, '5',
+    E'মায়াবাদ-দোষ যার হৃদয়ে পশিল
+কুতর্কে হৃদয় তার বজ্র-সম ভেল', E'মায়াবাদ-দোষ যার হৃদয়ে পশিল
+কুতর্কে হৃদয় তার বজ্র-সম ভেল',
     E'māyāvāda-doṣa
 jā''ra hṛdoye paśilo
 kutarke
@@ -10432,7 +10436,7 @@ philosophy. Such sophistry makes the heart hard as a thunderbolt.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10441,10 +10445,10 @@ philosophy. Such sophistry makes the heart hard as a thunderbolt.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'ভক্তির স্বরূপ, আর বিষয়'', আশ্রয়''
-মায়াবাদী অনিত্য'' বলিয়া সব কয়', E'ভক্তির স্বরূপ, আর বিষয়'', আশ্রয়''
-মায়াবাদী অনিত্য'' বলিয়া সব কয়',
+    v_chapter_id, '6',
+    E'ভক্তির স্বরূপ, আর বিষয়, আশ্রয়
+মায়াবাদী অনিত্য বলিয়া সব কয়', E'ভক্তির স্বরূপ, আর বিষয়, আশ্রয়
+মায়াবাদী অনিত্য বলিয়া সব কয়',
     E'bhaktira
 swarūpa, āra `viṣaya'', `āśroy''
 māyāvādī
@@ -10473,7 +10477,7 @@ Krishna), and its possessor (the devotee) are all transitory and thus illusory.'
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10482,9 +10486,9 @@ Krishna), and its possessor (the devotee) are all transitory and thus illusory.'
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
-    E'ধিক তা''র কৃষ্ণ-সেবা-শ্রবন-কীর্তন
-কৃষ্ণ-অঙ্গে বজ্র হানে তাহার স্তবন', E'ধিক তা''র কৃষ্ণ-সেবা-শ্রবন-কীর্তন
+    v_chapter_id, '7',
+    E'ধিক তার কৃষ্ণ-সেবা-শ্রবন-কীর্তন
+কৃষ্ণ-অঙ্গে বজ্র হানে তাহার স্তবন', E'ধিক তার কৃষ্ণ-সেবা-শ্রবন-কীর্তন
 কৃষ্ণ-অঙ্গে বজ্র হানে তাহার স্তবন',
     E'dhik
 tā''ra kṛṣṇa-sevā-śravana-kīrtan
@@ -10515,7 +10519,7 @@ thunderbolt.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10524,7 +10528,7 @@ thunderbolt.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'মায়াবাদ সম ভক্তি-প্রতিকূল নাই
 অতএব মায়াবাদী-সঙ্গ নাহি চাই', E'মায়াবাদ সম ভক্তি-প্রতিকূল নাই
 অতএব মায়াবাদী-সঙ্গ নাহি চাই',
@@ -10556,7 +10560,7 @@ philosophy. Therefore I do not desire the association of the mayavadi.', E'',
 
   -- Verse 9
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10565,7 +10569,7 @@ philosophy. Therefore I do not desire the association of the mayavadi.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '9', 9,
+    v_chapter_id, '9',
     E'ভকতিবিনোদ মায়াবাদ দূর করি
 বৈষ্ণব-সঙ্গেতে বৈসে নামাশ্রয় ধরি''', E'ভকতিবিনোদ মায়াবাদ দূর করি
 বৈষ্ণব-সঙ্গেতে বৈসে নামাশ্রয় ধরি''',
@@ -10612,7 +10616,7 @@ society of Vaisnavas under the shelter of the holy name.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10621,9 +10625,9 @@ society of Vaisnavas under the shelter of the holy name.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'আমি তো'' স্বানন্দ-সুখদ-বাসী
-রাধিকা-মাধব-চরণ-দাসী', E'আমি তো'' স্বানন্দ-সুখদ-বাসী
+    v_chapter_id, '1',
+    E'আমি তো স্বানন্দ-সুখদ-বাসী
+রাধিকা-মাধব-চরণ-দাসী', E'আমি তো স্বানন্দ-সুখদ-বাসী
 রাধিকা-মাধব-চরণ-দাসী',
     E'āmi
 to'' swānanda-sukhada-bāsī
@@ -10652,7 +10656,7 @@ Radhika and Madhava.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10661,7 +10665,7 @@ Radhika and Madhava.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'দুঁহার মিলনে আনন্দ করি
 দুঁহার বিয়োগে দুঃখেতে মরি', E'দুঁহার মিলনে আনন্দ করি
 দুঁহার বিয়োগে দুঃখেতে মরি',
@@ -10694,7 +10698,7 @@ anguish.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10703,7 +10707,7 @@ anguish.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সখী-স্থলী নাহি হেরি নয়নে
 দেখিলে শৈব্যাকে পরয়ে মনে', E'সখী-স্থলী নাহি হেরি নয়নে
 দেখিলে শৈব্যাকে পরয়ে মনে',
@@ -10736,7 +10740,7 @@ such a place it reminds me of Candravali''s gopi friend, Saibya.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10745,7 +10749,7 @@ such a place it reminds me of Candravali''s gopi friend, Saibya.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'যে-যে প্রতিকূল চন্দ্রার সখী
 প্রাণে দুঃখ পাই তাহারে দেখি''', E'যে-যে প্রতিকূল চন্দ্রার সখী
 প্রাণে দুঃখ পাই তাহারে দেখি''',
@@ -10778,7 +10782,7 @@ are opposed to Radha.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10787,9 +10791,9 @@ are opposed to Radha.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
-    E'রাধিকা-কুঞ্জ আঁধার করি''
-লৈতে চাহে সে রাধার হরি', E'রাধিকা-কুঞ্জ আঁধার করি''
+    v_chapter_id, '5',
+    E'রাধিকা-কুঞ্জ আঁধার করি
+লৈতে চাহে সে রাধার হরি', E'রাধিকা-কুঞ্জ আঁধার করি
 লৈতে চাহে সে রাধার হরি',
     E'rādhikā-kuñja
 āńdhāra kori''
@@ -10819,7 +10823,7 @@ Radhika with the darkness of gloom.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10828,7 +10832,7 @@ Radhika with the darkness of gloom.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'শ্রী-রাধা-গোবিন্দ-মিলন-সুখ
 প্রতিকূল-জন না হেরি মুখ', E'শ্রী-রাধা-গোবিন্দ-মিলন-সুখ
 প্রতিকূল-জন না হেরি মুখ',
@@ -10859,7 +10863,7 @@ joyous union.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10868,7 +10872,7 @@ joyous union.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'রাধা-প্রতিকূল যতেক জন-
 সম্ভাষনে কভু না হয় মন', E'রাধা-প্রতিকূল যতেক জন-
 সম্ভাষনে কভু না হয় মন',
@@ -10900,7 +10904,7 @@ do I find any pleasure in conversing with those who are opposed to Radha.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10909,7 +10913,7 @@ do I find any pleasure in conversing with those who are opposed to Radha.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'ভকতিবিনোদ শ্রী-রাধা-চরণে
 সঁপেছে পরাণ অতীব যতনে', E'ভকতিবিনোদ শ্রী-রাধা-চরণে
 সঁপেছে পরাণ অতীব যতনে',
@@ -10956,7 +10960,7 @@ Srimati Radharani.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -10965,7 +10969,7 @@ Srimati Radharani.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 প্রপঞ্চে পড়িয়া, অগতি হৈয়া,
 না দেখি উপায় আর
@@ -11016,7 +11020,7 @@ I accept the shelter of Your lotus feet as essential.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11025,7 +11029,7 @@ I accept the shelter of Your lotus feet as essential.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'করম গেয়ান, কিছু নাহি মোর,
 সাধন ভজন নাই
 তুমি কৃপা-ময়, আমি তো'' কাঙ্গাল,
@@ -11070,7 +11074,7 @@ Therefore, although I am certainly destitute, I solicit Your causeless mercy.', 
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11079,7 +11083,7 @@ Therefore, although I am certainly destitute, I solicit Your causeless mercy.', 
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'বাক্য-মন-বেগ, ক্রোধ-জিহ্বা-বেগ,
 উদর-উপস্থ-বেগ
 মিলিয়া এ সব, সংসারে ভাসা''য়ে,
@@ -11122,7 +11126,7 @@ causing me great anxiety and trouble.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11131,7 +11135,7 @@ causing me great anxiety and trouble.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'অনেক যতনে, সে সব দমনে,
 ছাড়িয়াছি আশা আমি
 অনাথের নাথ! ডাকি তব নাম,
@@ -11191,7 +11195,7 @@ are my only shelter.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11200,7 +11204,7 @@ are my only shelter.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 অর্থের সঞ্চয়ে, বিষয়-প্রয়াসে,
 আন-কথা-প্রজল্পনে
@@ -11251,7 +11255,7 @@ desire for fame and honor.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11260,7 +11264,7 @@ desire for fame and honor.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'অস্থির সিদ্ধান্তে, রহিনু মজিয়া,
 হরি-ভক্তি রৈল দূরে
 এ হৃদয়ে মাত্র, পর-হিংসা, মদ,
@@ -11305,7 +11309,7 @@ what am I to do now?', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11314,7 +11318,7 @@ what am I to do now?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'এ সব আগ্রহ, ছাডিতে নারিনু,
 আপন দোষতে মরি
 জনম বিফল, হৈল আমার,
@@ -11358,7 +11362,7 @@ that holy name, I have taken shelter at Your lotus feet.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11367,8 +11371,8 @@ that holy name, I have taken shelter at Your lotus feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'আমি তো'' পতিত, পতিত-পাবন,
+    v_chapter_id, '4',
+    E'আমি তো পতিত, পতিত-পাবন,
 তোমার পবিত্র নাম
 সে সম্বন্ধ ধরি'', তোমার চরণে,
 শরণ লৈনু হাম', E'আমি তো'' পতিত, পতিত-পাবন,
@@ -11425,7 +11429,7 @@ loinu hāma', E'а̄мі
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11434,7 +11438,7 @@ loinu hāma', E'а̄мі
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 ভজনে উত্সাহ, ভক্তিতে বিশ্বাস,
 প্রেম-লভে ধৈর্য-ধন
@@ -11486,7 +11490,7 @@ and worship Your lotus feet, O Lord?', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11495,7 +11499,7 @@ and worship Your lotus feet, O Lord?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'ভক্তি-সদাচার, এই ছয গুন,
 নাহিল আমার নাথ!
 কেমনে ভজিব, তোমার চরণ,
@@ -11539,7 +11543,7 @@ adopt the garb of the sadhus and instruct others. This is maya''s big joke.', E'
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11548,8 +11552,8 @@ adopt the garb of the sadhus and instruct others. This is maya''s big joke.', E'
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
-    E'গর্হিত আচারে, রহিলাম মজি'',
+    v_chapter_id, '3',
+    E'গর্হিত আচারে, রহিলাম মজি,
 না করিনু সাধু-সঙ্গ
 ল''য়ে সাধু-বেশ, আনে উপদেশি,
 এ বড় মায়ার রঙ্গ', E'গর্হিত আচারে, রহিলাম মজি'',
@@ -11594,7 +11598,7 @@ with humble prayers?', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11603,7 +11607,7 @@ with humble prayers?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'এ হেন দশায়, অহৈতুকী কৃপা,
 তোমার পাইব, হরি!
 শ্রী-গুরু-আশ্রয়ে, ডাকিব তোমায়,
@@ -11661,7 +11665,7 @@ vā minati kori''', E'е
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11670,7 +11674,7 @@ vā minati kori''', E'е
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 দান, প্রতিগ্রহ, মিথ গুপ্ত-কথা,
 ভক্ষন, ভোজন-দান
@@ -11723,7 +11727,7 @@ them is found the very soul of devotion.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11732,7 +11736,7 @@ them is found the very soul of devotion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'তত্ত্ব না বুঝিয়ে, জ্ঞানে বা অজ্ঞানে,
 অসতে এ সব করি''
 ভক্তি হারাইনু, সংসারী হৈনু,
@@ -11778,7 +11782,7 @@ devotion. Thus I have become a materialist. For me, You, O Lord, remain afar.', 
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11787,7 +11791,7 @@ devotion. Thus I have become a materialist. For me, You, O Lord, remain afar.', 
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'কৃষ্ণ-ভক্ত-জনে, এই সঙ্গ-লক্ষনে,
 আদর করিব যবে
 ভক্তি-মহা-দেবী, আমার হৃদয়-
@@ -11833,7 +11837,7 @@ heart.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11842,7 +11846,7 @@ heart.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'যোষিত-সঙ্গী-জন, কৃষ্ণাভক্ত আর,
 দুঙ্হু-সঙ্গ-পরিহরি''
 তব ভক্ত-জন- সঙ্গ অনুক্ষন,
@@ -11900,7 +11904,7 @@ devotees, O Lord?', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11909,7 +11913,7 @@ devotees, O Lord?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 সঙ্গ-দোষ-শূন্য, দীক্ষিতাদীক্ষিত,
 যদি তব নাম গা''য়
@@ -11959,7 +11963,7 @@ company and sings Your holy name, be he formally initiated or not.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -11968,7 +11972,7 @@ company and sings Your holy name, be he formally initiated or not.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'দীক্ষিত হৈয়া, ভজে তুয়া পদ,
 তাহারে প্রনতি করি
 অনন্য-ভজনে, বিজ্ঞ যেই জন,
@@ -12013,7 +12017,7 @@ You.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12022,7 +12026,7 @@ You.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সর্ব-ভূতে সম, যে ভক্তের মতি,
 তাহার দর্শনে মানি
 আপনাকে ধন্য, সে সঙ্গ পাইয়া,
@@ -12067,7 +12071,7 @@ successful in life.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12076,7 +12080,7 @@ successful in life.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'নিষ্কপট-মতি, বৈষ্ণবের প্রতি,
 এই ধর্ম কবে পা''ব
 কবে সংসার- সিন্ধু-পার হ''য়ে,
@@ -12135,7 +12139,7 @@ will I cross over the ocean of worldly existence to reach Your abode of Vraja?',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12144,7 +12148,7 @@ will I cross over the ocean of worldly existence to reach Your abode of Vraja?',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 নীর-ধর্ম-গত, জাহ্নবী-সলিলে,
 পঙ্ক-ফেন দৃষ্ট হয়
@@ -12194,7 +12198,7 @@ nature of river water. Yet Ganges water never loses its transcendental nature.',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12203,7 +12207,7 @@ nature of river water. Yet Ganges water never loses its transcendental nature.',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'বৈষ্নব-শরীর, অপ্রাকৃত সদা,
 স্বভাব-বপুর ধর্মে
 কভু নাহে জড়, তথাপি যে নিন্দে,
@@ -12248,7 +12252,7 @@ falls into deadly irreligion.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12257,7 +12261,7 @@ falls into deadly irreligion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সেই অপরাধে, যমের যাতনা,
 পায় জীব অবিরত
 হে নন্দ-নন্দন! সেই অপরাধে,
@@ -12302,7 +12306,7 @@ committing such an offense.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12311,7 +12315,7 @@ committing such an offense.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'তোমার বৈষ্ণব, বৈভব তোমার,
 আমারে করুনা দয়া
 তবে মোর গতি, হ''বে তব প্রতি,
@@ -12371,7 +12375,7 @@ lotus feet.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12380,7 +12384,7 @@ lotus feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'ওহে! বৈষ্ণব ঠাকুর, দয়ার সাগর,
 এ দাসে করুণা করি''
 দিয়া পদ-ছায়া, শোধো হে আমায়,
@@ -12419,7 +12423,7 @@ lotus feet.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12428,13 +12432,13 @@ lotus feet.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'ছয় বেগ দমি'', ছয় দোষ শোধি'',
-ছয় গুণ দেহো'' দাসে
-ছয় সত-সঙ্গ, দেহো'' হে আমারে,
-বশেছি সঙ্গের আশে', E'ছয় বেগ দমি'', ছয় দোষ শোধি'',
-ছয় গুণ দেহো'' দাসে
-ছয় সত-সঙ্গ, দেহো'' হে আমারে,
+    v_chapter_id, '2',
+    E'ছয় বেগ দমি, ছয় দোষ শোধি,
+ছয় গুণ দেহো দাসে
+ছয় সত-সঙ্গ, দেহো হে আমারে,
+বশেছি সঙ্গের আশে', E'ছয় বেগ দমি, ছয় দোষ শোধি,
+ছয় গুণ দেহো দাসে
+ছয় সত-সঙ্গ, দেহো হে আমারে,
 বশেছি সঙ্গের আশে',
     E'chaya
 bega domi'', chaya doṣa śodhi'',
@@ -12466,7 +12470,7 @@ six qualities, and offer unto me the six kinds of holy association.*', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12475,7 +12479,7 @@ six qualities, and offer unto me the six kinds of holy association.*', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'একাকী আমার, নাহি পায় বল,
 হরি-নাম-সঙ্কীর্ত্তনে
 তুমি কৃপা করি'', শ্রদ্ধা-বিন্দু দিয়া,
@@ -12514,7 +12518,7 @@ the great treasure of the holy name of Krsna.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12523,7 +12527,7 @@ the great treasure of the holy name of Krsna.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'কৃষ্ণ সে তোমার, কৃষ্ণ দিতে পার,
 তোমার শকতি আছে
 আমি তো'' কাঙ্গল, ''কৃষ্ণ'' ''কৃষ্ণ'' বলি'',
@@ -12582,7 +12586,7 @@ running behind you shouting, "Krsna! Krsna!"', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12591,7 +12595,7 @@ running behind you shouting, "Krsna! Krsna!"', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 তোমারে ভুলিয়া, অবিদ্যা-পীড়ায়,
 পীড়িত রসনা মোর
@@ -12643,7 +12647,7 @@ addicted to the taste of worldly pleasures.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12652,7 +12656,7 @@ addicted to the taste of worldly pleasures.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'প্রতি-দিন যদি, আদর করিয়া,
 সে নাম কীর্তন করি
 সিতপল যেন, নাশি'' রোগ-মূল,
@@ -12699,7 +12703,7 @@ me to gradually taste His sweetness.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12708,7 +12712,7 @@ me to gradually taste His sweetness.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'দুর্দৈব আমার, সে নামে আদর,
 না হৈল, দয়াময়!
 দশ অপরাধ, আমার দুর্দৈব,
@@ -12754,7 +12758,7 @@ ten offenses to the holy name?', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12763,7 +12767,7 @@ ten offenses to the holy name?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'অনুদিন যেন, তব নাম গাই,
 ক্রমেতে কৃপায় তব
 অপরাধ যা''বে, নামে রুচি হ''বে,
@@ -12824,7 +12828,7 @@ taste the intoxicating spirit of the name.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12833,7 +12837,7 @@ taste the intoxicating spirit of the name.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'হরি হে!
 শ্রী-রূপ-গোসাঞি, শ্রী-গুরু-রূপেতে,
 শিক্ষা দিল মোর কানে
@@ -12885,7 +12889,7 @@ for chanting the holy name.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12894,7 +12898,7 @@ for chanting the holy name.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'কৃষ্ণ-নাম-রূপ- গুন-সুচরিত,
 পরম যতনে করি''
 রসনা-মানসে, করহ নিয়োগ,
@@ -12939,7 +12943,7 @@ wonderful pastimes of Lord Krishna.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -12948,8 +12952,8 @@ wonderful pastimes of Lord Krishna.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
-    E'ব্রজে করি'' বাস, রাগানুগা হৈয়া,
+    v_chapter_id, '3',
+    E'ব্রজে করি বাস, রাগানুগা হৈয়া,
 স্মরণ কীর্তন কর
 এ নিখিল কাল, করহ জাপন,
 উপদেশ-সার ধর''', E'ব্রজে করি'' বাস, রাগানুগা হৈয়া,
@@ -12993,7 +12997,7 @@ glories of Sri Hari. Just accept these as the essence of all instructions.', E
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13002,8 +13006,8 @@ glories of Sri Hari. Just accept these as the essence of all instructions.', E
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'হা! রূপ-গোসাঞি, দয়া করি'' কবে,
+    v_chapter_id, '4',
+    E'হা! রূপ-গোসাঞি, দয়া করি কবে,
 দিবে দিনে ব্রজ-বাস
 রাগাত্মিক তুমি, তব পদানুগ,
 হৈতে দাসের আশা', E'হা! রূপ-গোসাঞি, দয়া করি'' কবে,
@@ -13063,7 +13067,7 @@ desires to become a follower at your lotus feet', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13072,7 +13076,7 @@ desires to become a follower at your lotus feet', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'গুরুদেব!
 বড় কৃপা করি'', গৌড়-বন মাঝে,
 গোদ্রুমে দিয়াছ স্থান
@@ -13121,7 +13125,7 @@ the holy name of Hari.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13130,7 +13134,7 @@ the holy name of Hari.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'কিন্তু কবে প্রভু, যোগ্যতা অর্পিবে,
 এ দাসেরে দয়া করি''
 চিত্ত স্থির হবে, সকল সহিব,
@@ -13177,7 +13181,7 @@ without distractions?', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13186,7 +13190,7 @@ without distractions?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'শৈশব-যৌবনে, জড়-সুখ-সঙ্গে,
 অভ্যাস হৈল মন্দ
 নিজ-কর্ম-দোষে, এ দেহ হৈল,
@@ -13232,7 +13236,7 @@ service of the Supreme Lord.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13241,7 +13245,7 @@ service of the Supreme Lord.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'বার্ধক্যে এখন, পঞ্চ-রোগে হত,
 কেমনে ভজিব বল''
 কাঁদিয়া কাঁদিয়া, তোমার চরণে,
@@ -13301,7 +13305,7 @@ by anxiety.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13310,7 +13314,7 @@ by anxiety.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'গুরুদেব!
 কৃপা-বিন্দু দিয়া, কর'' এই দাসে,
 তৃণাপেখা অতি হীন
@@ -13351,7 +13355,7 @@ you are, without desires or aspirations.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13360,7 +13364,7 @@ you are, without desires or aspirations.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'সকলে সম্মান করিতে শকতি,
 দেহ'' নাথ! যথাযথ
 তবে ত'' গাইব, হরি-নাম-সুখে,
@@ -13399,7 +13403,7 @@ Then, by chanting the holy name in great ecstasy, all my offenses will cease.', 
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13408,7 +13412,7 @@ Then, by chanting the holy name in great ecstasy, all my offenses will cease.', 
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'কবে হেন কৃপা, লভিয়া এ জন,
 কৃতার্থ হৈবে, নাথ!
 শক্তি-বুদ্ধি-হীন, আমি অতি দীন,
@@ -13446,7 +13450,7 @@ Allow me to be with you.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13455,7 +13459,7 @@ Allow me to be with you.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'জোগ্যতা-বিচারে, কিছু নাহি পাই,
 তোমার করুণা-সার
 করুণা না হৈলে, কান্দিয়া কান্দিয়া,
@@ -13514,7 +13518,7 @@ maintain my life.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13523,7 +13527,7 @@ maintain my life.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'গুরুদেব!
 কবে মোর সেই দিন হ''বে
 মন স্থির করি'', নির্জনে বসিয়া,
@@ -13583,7 +13587,7 @@ away? When will that day be mine?', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13592,8 +13596,8 @@ away? When will that day be mine?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'হরে কৃষ্ণ'' বলি'', গাহিতে গাহিতে,
+    v_chapter_id, '2',
+    E'হরে কৃষ্ণ বলি, গাহিতে গাহিতে,
 নয়নে বহিবে লোর
 দেহেতে পুলক, উদিত হৈবে,
 প্রেমেতে করিবে ভোর', E'হরে কৃষ্ণ'' বলি'', গাহিতে গাহিতে,
@@ -13637,7 +13641,7 @@ to become overwhelmed with divine love.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13646,7 +13650,7 @@ to become overwhelmed with divine love.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'গদ-গদ
 বানী, মুখে বাহিরিবে,
 কাঁপিবে শরীর মম
@@ -13694,7 +13698,7 @@ unconscious.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13703,14 +13707,14 @@ unconscious.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'নিষ্কপটে হেন, দশা কবে হ''বে,
-নিরন্তর নাম গা''ব
-আবেশে রহিয়া, দেহ-যাত্রা করি'',
-তোমার করুনা পা''ব', E'নিষ্কপটে হেন, দশা কবে হ''বে,
-নিরন্তর নাম গা''ব
-আবেশে রহিয়া, দেহ-যাত্রা করি'',
-তোমার করুনা পা''ব',
+    v_chapter_id, '4',
+    E'নিষ্কপটে হেন, দশা কবে হবে,
+নিরন্তর নাম গাব
+আবেশে রহিয়া, দেহ-যাত্রা করি,
+তোমার করুনা পাব', E'নিষ্কপটে হেন, দশা কবে হবে,
+নিরন্তর নাম গাব
+আবেশে রহিয়া, দেহ-যাত্রা করি,
+তোমার করুনা পাব',
     E'niṣkapaṭe
 heno, daśā kabe ha''be,
 nirantara
@@ -13763,7 +13767,7 @@ material body. In this way I will obtain your mercy.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13772,7 +13776,7 @@ material body. In this way I will obtain your mercy.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'গুরুদেব!
 কবে তব করুনা-প্রকাশে
 শ্রী-গৌরাঙ্গ-লীলা, হয় নিত্য-তত্ত্ব,
@@ -13828,7 +13832,7 @@ and hoping to behold those pastimes.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13837,7 +13841,7 @@ and hoping to behold those pastimes.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'নিতাই, গৌরাঙ্গ, অদ্বৈত, শ্রীবাস,
 গদাধর,-পঞ্চ-জন
 কৃষ্ণ-নাম-রসে, ভাসা''বে জগত,
@@ -13880,7 +13884,7 @@ by performing a maha-sankirtana.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13889,7 +13893,7 @@ by performing a maha-sankirtana.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'নর্তন-বিলাস, মৃদঙ্গ-বাদন,
 শুনিব আপন-কানে
 দেখিয়া দেখিয়া, সে লীলা-মাধুরী,
@@ -13934,7 +13938,7 @@ Gauranga''s, I will swim in the flood tide of divine love.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -13943,9 +13947,9 @@ Gauranga''s, I will swim in the flood tide of divine love.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'না দেখি'' আবার, সে লীলা-রতন,
-কাঁদি হা গৌরাঙ্গ! বলি''
+    v_chapter_id, '4',
+    E'না দেখি আবার, সে লীলা-রতন,
+কাঁদি হা গৌরাঙ্গ! বলি
 আমারে বিষয়ী, পাগল বলিয়া,
 অঙ্গেতে দিবেক ধূলি', E'না দেখি'' আবার, সে লীলা-রতন,
 কাঁদি হা গৌরাঙ্গ! বলি''
@@ -14003,7 +14007,7 @@ out, O my Lord Gauranga!', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14012,7 +14016,7 @@ out, O my Lord Gauranga!', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'কবে গৌর-বনে, সুরধুনী-তটে,
 ''হা রাধে হা কৃষ্ণ'' বোলে''
 কান্দিয়া বেড়াবো, দেহ-সুখ ছাড়ি'',
@@ -14052,7 +14056,7 @@ the so-called pleasures of this material body.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14061,7 +14065,7 @@ the so-called pleasures of this material body.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'স্ব-পচ-গৃহেতে, মাগিয়া খা‌ইবো,
 পিবো সরস্বতী-জল
 পুলিনে পুলিনে, গড়াগড়ি দিবো,
@@ -14101,7 +14105,7 @@ raising a loud uproar of "Krsna! Krsna!"', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14110,7 +14114,7 @@ raising a loud uproar of "Krsna! Krsna!"', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'ধাম-বাসী জনে, প্রণতি করিয়া,
 মাগিবো কৃপার লেশ
 বৈষ্ণব-চরণ-রেণূ গায় মাখি'',
@@ -14150,7 +14154,7 @@ mendicant.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14159,7 +14163,7 @@ mendicant.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'গৌড়-ব্রজ-জনে, ভেদ না দেখিব,
 হো‌ইবো বরজ-বাসী
 ধামের স্বরূপ, স্ফুরিবে নয়নে,
@@ -14219,7 +14223,7 @@ Radharanai.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14228,7 +14232,7 @@ Radharanai.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'দেখিতে দেখিতে, ভুলিব বা কবে,
 নিজ-স্থূল-পরিচয়
 নয়নে হেরিব, ব্রজ-পুর-শোভা,
@@ -14272,7 +14276,7 @@ which is completely paraded with eternal, conscious bliss.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14281,7 +14285,7 @@ which is completely paraded with eternal, conscious bliss.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'বৃষভানু-পুরে, জনম লৈব,
 যাবটে বিবাহ হ''বে
 ব্রজ-গোপী-ভাব, হৈবে স্বভাব,
@@ -14326,7 +14330,7 @@ be that of a simple cowherd girl, and I shall not know any other mood.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14335,7 +14339,7 @@ be that of a simple cowherd girl, and I shall not know any other mood.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'নিজ-সিদ্ধ-দেহ, নিজ-সিদ্ধ-নাম,
 নিজ-রূপ-স্ব-বসন
 রাধা-কৃপা-বলে, লোভিব বা কবে,
@@ -14377,7 +14381,7 @@ divine love of Krsna?', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14386,7 +14390,7 @@ divine love of Krsna?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'যমুনা-সলিল- আহরণে গিয়া,
 বুঝিব যুগল-রস
 প্রেম-মুগ্ধ হ''য়ে, পাগলিনী-প্রায়,
@@ -14447,7 +14451,7 @@ glories of Sri Radha just like a raving lunatic.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14456,7 +14460,7 @@ glories of Sri Radha just like a raving lunatic.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'বৃষভানু-সুতা- চরণ-সেবনে,
 হৈব যে পাল্য-দাসী
 শ্রী-রাধার সুখ, সতত সাধনে,
@@ -14501,7 +14505,7 @@ the happiness of Sri Radha, and I will always endeavor to increase Her joy.', E'
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14510,7 +14514,7 @@ the happiness of Sri Radha, and I will always endeavor to increase Her joy.', E'
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'শ্রী-রাধার সুখে, কৃষ্ণএর যে সুখ,
 জানিব মনেতে আমি
 রাধা-পদ ছাড়ি'', শ্রী-কৃষ্ণ-সঙ্গমে,
@@ -14555,7 +14559,7 @@ lotus feet to be with Krsna myself.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14564,7 +14568,7 @@ lotus feet to be with Krsna myself.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'সখী-গণ মম, পরম-সুহৃত,
 যুগল-প্রেমের গুরু
 তদ-অনুগা হ''য়ে, সেবিব রাধার,
@@ -14608,7 +14612,7 @@ trees.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14617,8 +14621,8 @@ trees.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'রাধা-পক্ষ ছাড়ি'', যে-জন সে-জন,
+    v_chapter_id, '4',
+    E'রাধা-পক্ষ ছাড়ি, যে-জন সে-জন,
 যে ভাবে সে ভাবে থাকে
 আমি তো'' রাধিকা- পক্ষ-পাতী সদা,
 কভু নাহি হেরি তা''কে', E'রাধা-পক্ষ ছাড়ি'', যে-জন সে-জন,
@@ -14677,7 +14681,7 @@ they may be and regardless of what they preach.', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14686,12 +14690,12 @@ they may be and regardless of what they preach.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'কবে হ''বে বল সে-দিন আমার
-(আমার) অপরাধ ঘুচি'', শুদ্ধ নামে রুচি,
-কৃপা-বলে হ''বে হৃদয়ে সঞ্চার', E'কবে হ''বে বল সে-দিন আমার
-(আমার) অপরাধ ঘুচি'', শুদ্ধ নামে রুচি,
-কৃপা-বলে হ''বে হৃদয়ে সঞ্চার',
+    v_chapter_id, '1',
+    E'কবে হবে বল সে-দিন আমার
+(আমার) অপরাধ ঘুচি, শুদ্ধ নামে রুচি,
+কৃপা-বলে হবে হৃদয়ে সঞ্চার', E'কবে হবে বল সে-দিন আমার
+(আমার) অপরাধ ঘুচি, শুদ্ধ নামে রুচি,
+কৃপা-বলে হবে হৃদয়ে সঞ্চার',
     E'kabe
 ha''be bolo se-dina āmār
 (āmār) aparādha ghuci'', śuddha nāme ruci,
@@ -14721,7 +14725,7 @@ Name in purity?', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14730,9 +14734,9 @@ Name in purity?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
-    E'তৃণাধিক হীন, কবে নিজে মানি'',
-সহিষ্ণুতা-গুণ হৃদয়েতে আনি''
+    v_chapter_id, '2',
+    E'তৃণাধিক হীন, কবে নিজে মানি,
+সহিষ্ণুতা-গুণ হৃদয়েতে আনি
 সকলে মানদ, আপনি অমানী,
 হ''য়ে আস্বাদিবো নাম-রস-সার', E'তৃণাধিক হীন, কবে নিজে মানি'',
 সহিষ্ণুতা-গুণ হৃদয়েতে আনি''
@@ -14769,7 +14773,7 @@ others and be free from desire for respect from them?', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14778,7 +14782,7 @@ others and be free from desire for respect from them?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'ধন জন আর, কবিতা-সুন্দরী,
 বলিব না চাহি দেহ-সুখ-করী
 জন্মে-জন্মে দাও, ওহে গৌরহরি!
@@ -14818,7 +14822,7 @@ birth after birth.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14827,7 +14831,7 @@ birth after birth.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'(কবে) করিতে শ্রী-কৃষ্ণ-নাম উচ্চারণ,
 পুলকিত দেহ গদ্গদ বচন
 বৈবর্ণ্য-বেপথু হ''বে সঙ্ঘটন,
@@ -14866,7 +14870,7 @@ with endless tears as I chant?', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14875,7 +14879,7 @@ with endless tears as I chant?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'কবে নবদ্বীপে, সুরধুনী-তটে,
 গৌর-নিত্যানন্দ বলি'' নিষ্কপটে
 নাচিয়া গাইয়া, বেরাইব ছুটে,
@@ -14914,7 +14918,7 @@ calling out the names of Gaura and Nityananda?', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14923,8 +14927,8 @@ calling out the names of Gaura and Nityananda?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'কবে নিত্যানন্দ, মোরে করি ''দয়া,
+    v_chapter_id, '6',
+    E'কবে নিত্যানন্দ, মোরে করি দয়া,
 ছারাইবে মোর বিষয়ের মায়া
 দিয়া মোরে নিজ-চরণের ছায়া,
 নামের হাটেতে দিবে অধিকার', E'কবে নিত্যানন্দ, মোরে করি ''দয়া,
@@ -14963,7 +14967,7 @@ Name?', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -14972,7 +14976,7 @@ Name?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'কিনিব, লুটিব, হরি-নাম-রস,
 নাম-রসে মাতি'' হৈব বিবশ
 রসের রসিক-চরণ পরশ,
@@ -15012,7 +15016,7 @@ relishes the flavors [rasa] of devotion?', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15021,7 +15025,7 @@ relishes the flavors [rasa] of devotion?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'কবে জীবে দয়া, হৈবে উদয়,
 নিজ-সুখ ভুলি'' সুদীন-হৃদয়
 ভকতিবিনোদ, করিয়া বিনয়,
@@ -15079,7 +15083,7 @@ from door to door, preaching your message of love?', E'',
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15088,7 +15092,7 @@ from door to door, preaching your message of love?', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
+    v_chapter_id, '1',
     E'কৃষ্ণ-নাম ধরে কত বল
 বিষয়-বাসনানলে, মোর চিত্ত সদা জ্বলে,
 রবি-তপ্ত মরু-ভূমি-সম
@@ -15140,7 +15144,7 @@ nectar upon my soul.', E'',
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15149,7 +15153,7 @@ nectar upon my soul.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'হৃদয় হৈতে বলে, জিহ্বার অগ্রেতে চলে,
 শব্দ-রূপে নাচে অনুক্ষন
 কন্ঠে মোর ভঙ্গে স্বর, অঙ্গ কাঁপে থর থর,
@@ -15196,7 +15200,7 @@ uncontrollably.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15205,7 +15209,7 @@ uncontrollably.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'চক্ষে ধারা, দেহে ঘর্ম, পুলকিত সব চর্ম,
 বিবর্ন হৈল কলেবর
 মূর্ছিত হৈল মন, প্রলয়ের আগমন,
@@ -15251,7 +15255,7 @@ devastation. My entire body is shattered in a flood of ecstasies.', E'',
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15260,8 +15264,8 @@ devastation. My entire body is shattered in a flood of ecstasies.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
-    E'করি'' এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
+    v_chapter_id, '4',
+    E'করি এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
 মোরে ডারে প্রেমের সাগরে
 কিছু না বুঝিতে দিল, মোরে তো'' বাতুল কৈল,
 মোর চিত্ত-বিত্ত সব হরে', E'করি'' এত উপদ্রব, চিত্তে বর্ষে সুধা-দ্রব,
@@ -15306,7 +15310,7 @@ away my heart and all my wealth.', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15315,8 +15319,8 @@ away my heart and all my wealth.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
-    E'লৈনু আশ্রয় যা''র, হেন ব্যবহার তা''র,
+    v_chapter_id, '5',
+    E'লৈনু আশ্রয় যার, হেন ব্যবহার তার,
 বর্নিতে না পারি এ সকল
 কৃষ্ণ-নাম ইচ্ছা-ময়, যাহে যাহে সুখী হয়,
 সেই মোর সুখের সম্বল', E'লৈনু আশ্রয় যা''র, হেন ব্যবহার তা''র,
@@ -15361,7 +15365,7 @@ happiness.', E'',
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15370,7 +15374,7 @@ happiness.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
+    v_chapter_id, '6',
     E'প্রেমের কলিকা নাম, অদ্ভুত রসের ধাম,
 হেন বল করয়ে প্রকাশ
 ঈষত বিকশি'' পুনঃ, দেখায় নিজ-রূপ-গুন,
@@ -15416,7 +15420,7 @@ steals my heart and takes it to Krsna.', E'',
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15425,7 +15429,7 @@ steals my heart and takes it to Krsna.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
+    v_chapter_id, '7',
     E'পূর্ন বিকশিত হৈয়া, ব্রজে মোরে যায় লৈয়া,
 দেখায় মোরে স্বরূপ-বিলাস
 মোরে সিদ্ধ-দেহ দিয়া, কৃষ্ণ-পাশে রাখে গিয়া,
@@ -15472,7 +15476,7 @@ Krsna and completely destroys this mortal frame of mine.', E'',
 
   -- Verse 8
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -15481,7 +15485,7 @@ Krsna and completely destroys this mortal frame of mine.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '8', 8,
+    v_chapter_id, '8',
     E'কৃষ্ণ-নাম-চিন্তামণি, অখিল রসের খনি,
 নিত্য-মুক্ত শুদ্ধ-রস-ময়
 নামের বালাই যত, সব ল''য়ে হয় হত,

@@ -134,7 +134,7 @@ BEGIN
 
   -- Verse 1
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -143,10 +143,10 @@ BEGIN
     is_published
   )
   VALUES (
-    v_chapter_id, '1', 1,
-    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি''
-স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি''',
+    v_chapter_id, '1',
+    E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি', E'শ্রী-কৃষ্ণ-চৈতন্য প্রভু জীবে দয়া করি
+স্ব-পার্ষদ স্বীয় ধাম সহ অবতরি',
     E'śrī-kṛṣṇa-caitanya
 prabhu jīve doyā kori''
 swa-pārṣada
@@ -179,7 +179,7 @@ saranagati is the very life of the true devotee
 
   -- Verse 2
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -188,7 +188,7 @@ saranagati is the very life of the true devotee
     is_published
   )
   VALUES (
-    v_chapter_id, '2', 2,
+    v_chapter_id, '2',
     E'অত্যন্ত দুর্লভ প্রেম করিবারে দান
 শিখায় শরণাগতি ভকতের প্রান', E'অত্যন্ত দুর্লভ প্রেম করিবারে দান
 শিখায় শরণাগতি ভকতের প্রান',
@@ -222,7 +222,7 @@ conduct adverse to pure devotion.', E'',
 
   -- Verse 3
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -231,7 +231,7 @@ conduct adverse to pure devotion.', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '3', 3,
+    v_chapter_id, '3',
     E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
 ''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন', E'দৈন্য, আত্ম-নিবেদন, গোপ্তৃত্বে বরণ
 ''অবশ্য রক্ষীবে কৃষ্ণ''-বিশ্বাস, পালন',
@@ -266,7 +266,7 @@ takes refuge in Him by this six-fold practice.
 
   -- Verse 4
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -275,7 +275,7 @@ takes refuge in Him by this six-fold practice.
     is_published
   )
   VALUES (
-    v_chapter_id, '4', 4,
+    v_chapter_id, '4',
     E'ভকি-অনুকূল-মাত্র কার্যের স্বীকর
 ভক্তি-প্রতিকূল-ভাব বর্জনাঙ্গিকার', E'ভকি-অনুকূল-মাত্র কার্যের স্বীকর
 ভক্তি-প্রতিকূল-ভাব বর্জনাঙ্গিকার',
@@ -310,7 +310,7 @@ best of men by teaching me the ways of saranagati', E'',
 
   -- Verse 5
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -319,7 +319,7 @@ best of men by teaching me the ways of saranagati', E'',
     is_published
   )
   VALUES (
-    v_chapter_id, '5', 5,
+    v_chapter_id, '5',
     E'ষড-অঙ্গ শরণাগতি হৈবে যাহার
 তাহার প্রার্থনা শুনে শ্রী-নন্দ-কুমার', E'ষড-অঙ্গ শরণাগতি হৈবে যাহার
 তাহার প্রার্থনা শুনে শ্রী-নন্দ-কুমার',
@@ -350,7 +350,7 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
 
   -- Verse 6
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -359,10 +359,10 @@ prārthanā śune śrī-nanda-kumāra', E'шад̣-аńґа
     is_published
   )
   VALUES (
-    v_chapter_id, '6', 6,
-    E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''', E'রূপ-সনাতন-পদে দন্তে তৃণ করি''
-ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি''',
+    v_chapter_id, '6',
+    E'রূপ-সনাতন-পদে দন্তে তৃণ করি
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি', E'রূপ-সনাতন-পদে দন্তে তৃণ করি
+ভকতিবিনোদ পড়ে দুহুঁ পদ ধরি',
     E'rūpa-sanātana-pade
 dante tṛṇa kori''
 bhakativinoda
@@ -390,7 +390,7 @@ poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
 
   -- Verse 7
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua,
     transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua,
@@ -399,9 +399,9 @@ poḍe duhuń pada dhori''', E'рӯпа-сана̄тана-паде
     is_published
   )
   VALUES (
-    v_chapter_id, '7', 7,
-    E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
-শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো'' অধম
+    v_chapter_id, '7',
+    E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
+শিখায়ে শরণাগতি কর হে উত্তম', E'কাঁদিয়া কাঁদিয়া বলে আমি তো অধম
 শিখায়ে শরণাগতি কর হে উত্তম',
     E'kāńdiyā
 kāńdiyā bole āmi to'' adhama
