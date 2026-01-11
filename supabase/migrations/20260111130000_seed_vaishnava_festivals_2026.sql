@@ -50,17 +50,17 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
 
 -- Ratha Yatra - Chariot Festival
 ('ratha-yatra', 4, 'Ratha Yātrā', 'Ратга Ятра', 'Ratha Yatra',
- 'Фестиваль колісниць, коли Господь Джаґаннатг, Баладева та Субгадра подорожують на величезних колісницях.',
+ 'Фестиваль колісниць, коли Господь Джаґаннатх, Баладева та Субгадра подорожують на величезних колісницях.',
  'The chariot festival when Lord Jagannatha, Baladeva and Subhadra travel on huge chariots.',
- 'Одне з найстаріших та найбільших свят в Індії. Шрі Чайтанья танцював перед колісницею Джаґаннатга.',
+ 'Одне з найстаріших та найбільших свят в Індії. Шрі Чайтанья танцював перед колісницею Джаґаннатха.',
  'One of the oldest and biggest festivals in India. Sri Chaitanya danced before Lord Jagannatha''s chariot.',
  'none', true, 6),
 
 -- Govardhana Puja
-('govardhana-puja', 4, 'Govardhana Pūjā', 'Ґовардгана Пуджа', 'Govardhana Puja',
- 'Свято поклоніння пагорбу Ґовардгана, який Крішна підняв, щоб захистити мешканців Враджа.',
+('govardhana-puja', 4, 'Govardhana Pūjā', 'Ґовардган Пуджа', 'Govardhana Puja',
+ 'Свято поклоніння пагорбу Ґовардган, який Крішна підняв, щоб захистити мешканців Враджа.',
  'Festival of worshiping Govardhana Hill which Krishna lifted to protect the residents of Vraja.',
- 'Крішна підняв Ґовардгану на мізинці і тримав 7 днів, захищаючи від гніву Індри.',
+ 'Крішна підняв Ґовардган на мізинці і тримав 7 днів, захищаючи від гніву Індри.',
  'Krishna lifted Govardhana on His little finger for 7 days, protecting from the wrath of Indra.',
  'none', true, 7),
 
@@ -143,15 +143,15 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
  'half', true, 4),
 
 -- Bhaktivinoda Thakura
-('bhaktivinoda-appearance', 2, 'appearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінода Тгакур', 'Srila Bhaktivinoda Thakura',
+('bhaktivinoda-appearance', 2, 'appearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінод Тгакур', 'Srila Bhaktivinoda Thakura',
  'Сьомий Ґосвамі', 'The Seventh Goswami',
- 'День явлення Шріли Бгактівіноди Тгакура, відродника ґаудія-вайшнавізму.',
+ 'День явлення Шріли Бгактівінода Тгакура, відродника ґаудія-вайшнавізму.',
  'Appearance day of Srila Bhaktivinoda Thakura, the reviver of Gaudiya Vaishnavism.',
  'half', true, 5),
 
-('bhaktivinoda-disappearance', 3, 'disappearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінода Тгакур', 'Srila Bhaktivinoda Thakura',
+('bhaktivinoda-disappearance', 3, 'disappearance', 'Śrīla Bhaktivinoda Ṭhākura', 'Шріла Бгактівінод Тгакур', 'Srila Bhaktivinoda Thakura',
  'Сьомий Ґосвамі', 'The Seventh Goswami',
- 'День відходу Шріли Бгактівіноди Тгакура.',
+ 'День відходу Шріли Бгактівінода Тгакура.',
  'Disappearance day of Srila Bhaktivinoda Thakura.',
  'half', true, 6),
 
