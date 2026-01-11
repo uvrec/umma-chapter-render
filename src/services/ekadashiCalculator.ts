@@ -10,7 +10,16 @@
  * Uses astronomy-engine for precise astronomical calculations
  */
 
-import * as Astronomy from 'astronomy-engine';
+import {
+  Observer,
+  Body,
+  MakeTime,
+  SearchRiseSet,
+  SearchHourAngle,
+  MoonPhase,
+  SearchMoonPhase,
+  Illumination,
+} from 'astronomy-engine';
 
 // ============================================
 // TYPES
@@ -138,10 +147,10 @@ export interface VaishnavEventFastingTimes {
 // ============================================
 
 /**
- * Creates an Astronomy.Observer for a given location
+ * Creates an Observer for a given location
  */
-function createObserver(location: GeoLocation): Astronomy.Observer {
-  return new Astronomy.Observer(
+function createObserver(location: GeoLocation): Observer {
+  return new Observer(
     location.latitude,
     location.longitude,
     0 // elevation in meters
@@ -157,11 +166,11 @@ export function calculateSunTimes(date: Date, location: GeoLocation): SunTimes {
   // Start searching from midnight of the given date
   const searchDate = new Date(date);
   searchDate.setHours(0, 0, 0, 0);
-  const astroTime = Astronomy.MakeTime(searchDate);
+  const astroTime = MakeTime(searchDate);
 
   // Find sunrise
-  const sunriseResult = Astronomy.SearchRiseSet(
-    Astronomy.Body.Sun,
+  const sunriseResult = SearchRiseSet(
+    Body.Sun,
     observer,
     +1, // direction: +1 = rise
     astroTime,
@@ -169,8 +178,8 @@ export function calculateSunTimes(date: Date, location: GeoLocation): SunTimes {
   );
 
   // Find sunset
-  const sunsetResult = Astronomy.SearchRiseSet(
-    Astronomy.Body.Sun,
+  const sunsetResult = SearchRiseSet(
+    Body.Sun,
     observer,
     -1, // direction: -1 = set
     astroTime,
@@ -178,8 +187,8 @@ export function calculateSunTimes(date: Date, location: GeoLocation): SunTimes {
   );
 
   // Find solar noon (culmination)
-  const noonResult = Astronomy.SearchHourAngle(
-    Astronomy.Body.Sun,
+  const noonResult = SearchHourAngle(
+    Body.Sun,
     observer,
     0, // hour angle 0 = meridian crossing
     astroTime,
@@ -577,16 +586,16 @@ export function calculateSunTimesForRange(
  * - 0.75 = Last Quarter
  */
 export function calculateMoonPhase(date: Date): number {
-  const astroTime = Astronomy.MakeTime(date);
-  return Astronomy.MoonPhase(astroTime) / 360; // Convert degrees to 0-1 range
+  const astroTime = MakeTime(date);
+  return MoonPhase(astroTime) / 360; // Convert degrees to 0-1 range
 }
 
 /**
  * Get moon illumination percentage
  */
 export function getMoonIllumination(date: Date): number {
-  const astroTime = Astronomy.MakeTime(date);
-  const phase = Astronomy.MoonPhase(astroTime);
+  const astroTime = MakeTime(date);
+  const phase = MoonPhase(astroTime);
 
   // Moon illumination based on phase angle
   // 0° = New Moon (0% illumination)
@@ -598,8 +607,8 @@ export function getMoonIllumination(date: Date): number {
  * Find next new moon from a given date
  */
 export function findNextNewMoon(date: Date): Date {
-  const astroTime = Astronomy.MakeTime(date);
-  const nextNewMoon = Astronomy.SearchMoonPhase(0, astroTime, 40); // Search for 0° = New Moon
+  const astroTime = MakeTime(date);
+  const nextNewMoon = SearchMoonPhase(0, astroTime, 40); // Search for 0° = New Moon
   return nextNewMoon.date;
 }
 
@@ -607,37 +616,47 @@ export function findNextNewMoon(date: Date): Date {
  * Find next full moon from a given date
  */
 export function findNextFullMoon(date: Date): Date {
-  const astroTime = Astronomy.MakeTime(date);
-  const nextFullMoon = Astronomy.SearchMoonPhase(180, astroTime, 40); // Search for 180° = Full Moon
+  const astroTime = MakeTime(date);
+  const nextFullMoon = SearchMoonPhase(180, astroTime, 40); // Search for 180° = Full Moon
   return nextFullMoon.date;
 }
 
 // ============================================
-// TITHI CALCULATIONS (Approximate)
+// TITHI CALCULATIONS
 // ============================================
 
 /**
- * Calculate approximate tithi for a given date and time
+ * Calculate tithi for a given date and time
  *
- * Tithi is based on the angular distance between Sun and Moon (12° per tithi)
- * There are 30 tithis in a lunar month (15 in Shukla Paksha, 15 in Krishna Paksha)
+ * Tithi is based on the Moon's phase angle (0-360°), with each tithi spanning 12°
+ * There are 30 tithis in a lunar month:
+ * - Shukla Paksha (waxing, bright fortnight): tithis 1-15 (phase 0°-180°)
+ * - Krishna Paksha (waning, dark fortnight): tithis 16-30 (phase 180°-360°)
  *
- * Returns: { tithi: 1-30, paksha: 'shukla' | 'krishna' }
+ * MoonPhase returns:
+ * - 0° = New Moon (Amavasya - end of Krishna / start of Shukla)
+ * - 90° = First Quarter
+ * - 180° = Full Moon (Purnima - end of Shukla / start of Krishna)
+ * - 270° = Last Quarter
+ * - 360° = New Moon again
+ *
+ * @param date - The date and time to calculate tithi for
+ * @returns { tithi: 1-30, paksha: 'shukla' | 'krishna', tithiInPaksha: 1-15 }
  */
 export function calculateTithi(date: Date): { tithi: number; paksha: 'shukla' | 'krishna'; tithiInPaksha: number } {
-  const astroTime = Astronomy.MakeTime(date);
+  const astroTime = MakeTime(date);
 
-  // Get elongation (angular distance) between Moon and Sun
-  const elongation = Astronomy.Elongation(Astronomy.Body.Moon, astroTime);
+  // MoonPhase returns 0-360° representing the lunar cycle
+  // 0° = New Moon, 180° = Full Moon, 360° = New Moon again
+  const moonPhase = MoonPhase(astroTime);
 
-  // Calculate tithi (each tithi spans 12 degrees)
-  // Elongation goes from 0° (New Moon) to 360° back to New Moon
-  const tithiFloat = elongation.elongation / 12;
+  // Calculate tithi (each tithi spans 12 degrees: 360° / 30 = 12°)
+  const tithiFloat = moonPhase / 12;
   const tithi = Math.floor(tithiFloat) + 1; // 1-30
 
   // Determine paksha
-  // 1-15 = Shukla (waxing, bright fortnight)
-  // 16-30 = Krishna (waning, dark fortnight)
+  // Tithis 1-15 = Shukla Paksha (waxing moon, phase 0°-180°)
+  // Tithis 16-30 = Krishna Paksha (waning moon, phase 180°-360°)
   const paksha = tithi <= 15 ? 'shukla' : 'krishna';
   const tithiInPaksha = tithi <= 15 ? tithi : tithi - 15;
 
