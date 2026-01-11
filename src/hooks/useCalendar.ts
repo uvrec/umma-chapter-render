@@ -465,7 +465,8 @@ export function useCalendarSettings() {
     settings: effectiveSettings as Partial<UserCalendarSettings>,
     isLoading,
     error,
-    updateSettings: updateSettings.mutate,
+    updateSettings: updateSettings.mutateAsync,
+    isSaving: updateSettings.isPending,
     saveLocalSettings,
     isLoggedIn: !!data,
   };

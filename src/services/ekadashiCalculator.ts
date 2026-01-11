@@ -664,28 +664,152 @@ export function calculateTithi(date: Date): { tithi: number; paksha: 'shukla' | 
 }
 
 /**
- * Check if a date is Ekadashi (11th tithi of either paksha)
+ * Check if a date is Ekadashi using ISKCON rules
+ *
+ * ISKCON uses Brahma Muhurta (Arunodaya - 96 min before sunrise) as the check time:
+ * 1. If Ekadashi (11th tithi) at Brahma Muhurta → that's Ekadashi day
+ * 2. If Dashami (10th) at Brahma Muhurta → Ekadashi is "viddha" (contaminated)
+ * 3. Mahadvadashi: If Dvadashi at Brahma Muhurta but Ekadashi was overnight
+ *    and previous day was contaminated → observe today
+ *
+ * @param date - The date to check
+ * @param location - Geographic location (required for accurate ISKCON calculation)
  */
-export function isEkadashi(date: Date): boolean {
-  const { tithiInPaksha } = calculateTithi(date);
-  return tithiInPaksha === 11;
+export function isEkadashi(date: Date, location?: GeoLocation): boolean {
+  // Simple check without location (legacy behavior - just check noon tithi)
+  if (!location) {
+    const { tithiInPaksha } = calculateTithi(date);
+    return tithiInPaksha === 11;
+  }
+
+  // ISKCON-compliant check with location
+  const result = isEkadashiISKCON(date, location);
+  return result.isEkadashi;
 }
 
 /**
- * Find next Ekadashi from a given date
+ * ISKCON-compliant Ekadashi detection
+ *
+ * Returns detailed information about whether a date is Ekadashi
+ * according to ISKCON rules (Brahma Muhurta check + Mahadvadashi handling)
  */
-export function findNextEkadashi(fromDate: Date): Date {
+export function isEkadashiISKCON(date: Date, location: GeoLocation): {
+  isEkadashi: boolean;
+  tithi: number;
+  paksha: 'shukla' | 'krishna';
+  checkType?: 'brahma_muhurta' | 'mahadvadashi';
+} {
+  const sunTimes = calculateSunTimes(date, location);
+  const brahmaMuhurta = new Date(sunTimes.sunrise.getTime() - 96 * 60 * 1000);
+  const tithiAtBrahma = calculateTithi(brahmaMuhurta);
+
+  // Primary rule: Ekadashi at Brahma Muhurta
+  if (tithiAtBrahma.tithiInPaksha === 11) {
+    return {
+      isEkadashi: true,
+      tithi: tithiAtBrahma.tithiInPaksha,
+      paksha: tithiAtBrahma.paksha,
+      checkType: 'brahma_muhurta'
+    };
+  }
+
+  // Mahadvadashi rule: Dvadashi at Brahma Muhurta, but check overnight
+  if (tithiAtBrahma.tithiInPaksha === 12) {
+    const prevDay = new Date(date);
+    prevDay.setDate(prevDay.getDate() - 1);
+    const prevSunTimes = calculateSunTimes(prevDay, location);
+    const tithiAtPrevSunset = calculateTithi(prevSunTimes.sunset);
+    const prevBrahma = new Date(prevSunTimes.sunrise.getTime() - 96 * 60 * 1000);
+    const tithiAtPrevBrahma = calculateTithi(prevBrahma);
+
+    // If Ekadashi at prev sunset AND Dashami at prev Brahma Muhurta → Mahadvadashi
+    if (tithiAtPrevSunset.tithiInPaksha === 11 && tithiAtPrevBrahma.tithiInPaksha === 10) {
+      return {
+        isEkadashi: true,
+        tithi: 11,
+        paksha: tithiAtPrevSunset.paksha,
+        checkType: 'mahadvadashi'
+      };
+    }
+  }
+
+  return {
+    isEkadashi: false,
+    tithi: tithiAtBrahma.tithiInPaksha,
+    paksha: tithiAtBrahma.paksha
+  };
+}
+
+/**
+ * Find next Ekadashi from a given date using ISKCON rules
+ *
+ * @param fromDate - Starting date for search
+ * @param location - Geographic location (optional, uses simple tithi check if not provided)
+ */
+export function findNextEkadashi(fromDate: Date, location?: GeoLocation): Date {
   const searchDate = new Date(fromDate);
 
   // Search for up to 30 days
   for (let i = 0; i < 30; i++) {
-    if (isEkadashi(searchDate)) {
+    if (isEkadashi(searchDate, location)) {
       return searchDate;
     }
     searchDate.setDate(searchDate.getDate() + 1);
   }
 
   return searchDate;
+}
+
+/**
+ * Find all Ekadashi dates in a year for a specific location
+ *
+ * Uses ISKCON rules and handles consecutive Brahma Muhurta Ekadashis
+ * by preferring the later date (Shuddha Ekadashi)
+ */
+export function findAllEkadashisInYear(year: number, location: GeoLocation): Array<{
+  date: Date;
+  paksha: 'shukla' | 'krishna';
+  checkType: 'brahma_muhurta' | 'mahadvadashi';
+}> {
+  const ekadashis: Array<{
+    date: Date;
+    paksha: 'shukla' | 'krishna';
+    checkType: 'brahma_muhurta' | 'mahadvadashi';
+  }> = [];
+
+  const startDate = new Date(year, 0, 1);
+  const endDate = new Date(year, 11, 31);
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    const result = isEkadashiISKCON(currentDate, location);
+
+    if (result.isEkadashi && result.checkType) {
+      // Check if next day also has Ekadashi at Brahma Muhurta (same paksha)
+      // If so, skip today and use tomorrow (Shuddha Ekadashi preference)
+      const nextDay = new Date(currentDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+      const nextResult = isEkadashiISKCON(nextDay, location);
+
+      if (nextResult.isEkadashi &&
+          nextResult.paksha === result.paksha &&
+          nextResult.checkType === 'brahma_muhurta') {
+        // Skip today, will pick up tomorrow
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      }
+
+      ekadashis.push({
+        date: new Date(currentDate),
+        paksha: result.paksha,
+        checkType: result.checkType
+      });
+    }
+
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return ekadashis;
 }
 
 // ============================================
@@ -824,7 +948,9 @@ const ekadashiCalculator = {
   findNextFullMoon,
   calculateTithi,
   isEkadashi,
+  isEkadashiISKCON,
   findNextEkadashi,
+  findAllEkadashisInYear,
   formatDuration,
   getDayLengthInfo,
 };
