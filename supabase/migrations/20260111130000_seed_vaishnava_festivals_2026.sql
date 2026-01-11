@@ -36,7 +36,7 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
 ('narasimha-chaturdashi', 4, 'Nṛsiṁha Caturdaśī', 'Нарасімха Чатурдаші', 'Narasimha Chaturdashi',
  'День явлення Господа Нарасімхадева, напів-людини, напів-лева, який захистив Своїх відданих.',
  'Appearance day of Lord Narasimhadeva, the half-man, half-lion form who protects His devotees.',
- 'Господь Нарасімха явився, щоб захистити Прахладу Махараджа від його демонічного батька Хіран''якашіпу.',
+ 'Господь Нарасімха явився, щоб захистити Прахлада Махараджа від його демонічного батька Хіран''якашіпу.',
  'Lord Narasimha appeared to protect Prahlada Maharaja from his demonic father Hiranyakashipu.',
  'full', true, 4),
 
@@ -174,9 +174,9 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
  'Appearance day of Srila Jiva Goswami, the greatest philosopher of Gaudiya Vaishnavism.',
  'half', true, 9),
 
-('raghunatha-dasa-goswami-disappearance', 3, 'disappearance', 'Śrīla Raghunātha Dāsa Gosvāmī', 'Шріла Раґгунатха Даса Ґосвамі', 'Srila Raghunatha Dasa Goswami',
+('raghunatha-dasa-goswami-disappearance', 3, 'disappearance', 'Śrīla Raghunātha Dāsa Gosvāmī', 'Шріла Раґгунатх Даса Ґосвамі', 'Srila Raghunatha Dasa Goswami',
  'Один із Шести Ґосвамі Вріндавана', 'One of the Six Goswamis of Vrindavan',
- 'День відходу Шріли Раґгунатхи Даси Ґосвамі, ідеального відреченого.',
+ 'День відходу Шріли Раґгунатха Даси Ґосвамі, ідеального відреченого.',
  'Disappearance day of Srila Raghunatha Dasa Goswami, the ideal renunciate.',
  'half', true, 10),
 
