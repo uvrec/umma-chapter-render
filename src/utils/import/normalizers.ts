@@ -109,3 +109,54 @@ export function stripParagraphTags(text: string): string {
     .replace(/\s+/g, ' ')          // Нормалізуємо множинні пробіли
     .trim();
 }
+
+/**
+ * Санітизація HTML для рендерингу в компонентах.
+ * Видаляє небезпечні стилі (background-color, background) з inline стилів,
+ * які можуть потрапити з EPUB та інших джерел.
+ *
+ * Використовуй цю функцію замість DOMPurify.sanitize() в компонентах рендерингу.
+ */
+export function sanitizeForRender(html: string): string {
+  if (!html) return '';
+
+  // Налаштовуємо хук для видалення небажаних CSS властивостей
+  DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
+    if (data.attrName === 'style' && data.attrValue) {
+      // Видаляємо background-color та background властивості
+      const cleanedStyle = data.attrValue
+        .split(';')
+        .filter(prop => {
+          const propName = prop.split(':')[0]?.trim().toLowerCase();
+          return propName !== 'background-color' && propName !== 'background';
+        })
+        .join(';')
+        .trim();
+
+      // Якщо залишився порожній style - видаляємо атрибут повністю
+      if (!cleanedStyle) {
+        data.attrValue = '';
+        data.forceKeepAttr = false;
+      } else {
+        data.attrValue = cleanedStyle;
+      }
+    }
+  });
+
+  const result = DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: [
+      'p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
+      'blockquote', 'code', 'pre', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img', 'sup', 'sub', 'i', 'b'
+    ],
+    ALLOWED_ATTR: [
+      'href', 'target', 'rel', 'src', 'alt', 'title', 'class', 'style',
+      'width', 'height', 'colspan', 'rowspan'
+    ],
+  });
+
+  // Видаляємо хук після використання, щоб не впливати на інші виклики DOMPurify
+  DOMPurify.removeHook('uponSanitizeAttribute');
+
+  return result;
+}

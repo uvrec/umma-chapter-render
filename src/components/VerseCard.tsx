@@ -15,7 +15,7 @@ import { VerseNumberEditor } from "@/components/VerseNumberEditor";
 import { addLearningWord, isWordInLearningList } from "@/utils/learningWords";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
-import { stripParagraphTags } from "@/utils/import/normalizers";
+import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
 import { applyDropCap } from "@/utils/text/dropCap";
@@ -636,7 +636,7 @@ export const VerseCard = ({
               <div
                 className="text-foreground text-justify purport first"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
-                dangerouslySetInnerHTML={{ __html: applyDropCap(DOMPurify.sanitize(commentary || "")) }}
+                dangerouslySetInnerHTML={{ __html: applyDropCap(sanitizeForRender(commentary || "")) }}
               />
             )}
           </div>

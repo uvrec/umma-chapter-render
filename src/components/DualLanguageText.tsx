@@ -1,5 +1,5 @@
 import React from "react";
-import DOMPurify from "dompurify";
+import { sanitizeForRender } from "@/utils/import/normalizers";
 import { applyDropCap } from "@/utils/text/dropCap";
 
 interface Paragraph {
@@ -99,7 +99,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               style={textStyle}
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
+                __html: sanitizeForRender(
                   isFirstParagraph && enableDropCap && uaContent !== "&nbsp;"
                     ? applyDropCap(uaContent)
                     : uaContent
@@ -110,7 +110,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
               className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               style={textStyle}
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(
+                __html: sanitizeForRender(
                   isFirstParagraph && enableDropCap && enContent !== "&nbsp;"
                     ? applyDropCap(enContent)
                     : enContent

@@ -15,7 +15,7 @@ import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
-import { stripParagraphTags } from "@/utils/import/normalizers";
+import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 
 // Type for verse data
@@ -395,13 +395,13 @@ export const ChapterVersesList = () => {
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none"
                               dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(paraUa || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: sanitizeForRender(paraUa || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                             <div
                               className="prose prose-slate dark:prose-invert max-w-none border-l border-border pl-6"
                               dangerouslySetInnerHTML={{
-                                __html: DOMPurify.sanitize(paraEn || '<span class="italic text-muted-foreground">—</span>'),
+                                __html: sanitizeForRender(paraEn || '<span class="italic text-muted-foreground">—</span>'),
                               }}
                             />
                           </div>
@@ -414,7 +414,7 @@ export const ChapterVersesList = () => {
                   className="prose prose-slate dark:prose-invert max-w-none"
                   style={readerTextStyle}
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(
+                    __html: sanitizeForRender(
                       language === "ua"
                         ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || ""
                         : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "",
