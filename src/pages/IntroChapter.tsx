@@ -12,6 +12,7 @@ import { EnhancedInlineEditor } from '@/components/EnhancedInlineEditor';
 import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect } from 'react';
 import DOMPurify from 'dompurify';
+import { sanitizeForRender } from '@/utils/import/normalizers';
 
 // Функція для розбиття HTML на параграфи
 const parseHTMLToParagraphs = (html: string): string[] => {
@@ -276,7 +277,7 @@ export const IntroChapter = () => {
                       className="prose prose-slate dark:prose-invert max-w-none"
                       style={{ fontSize: `${fontSize}px`, lineHeight }}
                       dangerouslySetInnerHTML={{
-                        __html: pair.ua
+                        __html: sanitizeForRender(pair.ua)
                       }}
                     />
 
@@ -285,7 +286,7 @@ export const IntroChapter = () => {
                       className="prose prose-slate dark:prose-invert max-w-none"
                       style={{ fontSize: `${fontSize}px`, lineHeight }}
                       dangerouslySetInnerHTML={{
-                        __html: pair.en
+                        __html: sanitizeForRender(pair.en)
                       }}
                     />
                   </div>
@@ -297,7 +298,7 @@ export const IntroChapter = () => {
                 className="prose prose-slate dark:prose-invert max-w-none"
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
                 dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(
+                  __html: sanitizeForRender(
                     language === 'ua'
                       ? (introChapter?.content_ua || introChapter?.content_en || "")
                       : (introChapter?.content_en || introChapter?.content_ua || "")
