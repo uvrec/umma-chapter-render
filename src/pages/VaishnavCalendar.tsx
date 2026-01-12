@@ -86,6 +86,13 @@ export default function VaishnavCalendar() {
     handleLocationChange
   );
 
+  // Поточна локація для калькулятора (moved before useCalendar to avoid temporal dead zone)
+  const selectedLocation = useMemo(
+    () => locations.find((loc) => loc.id === selectedLocationId) || null,
+    [locations, selectedLocationId]
+  );
+  const geoLocation = useLocationToGeo(selectedLocation);
+
   // Переклад помилок геолокації
   const getGeoErrorMessage = (errorCode: string) => {
     const messages: Record<string, { ua: string; en: string }> = {
@@ -149,13 +156,6 @@ export default function VaishnavCalendar() {
     useTodayEvents(selectedLocationId);
 
   const { nextEkadashi, daysUntil } = useNextEkadashi(selectedLocationId);
-
-  // Поточна локація для калькулятора
-  const selectedLocation = useMemo(
-    () => locations.find((loc) => loc.id === selectedLocationId) || null,
-    [locations, selectedLocationId]
-  );
-  const geoLocation = useLocationToGeo(selectedLocation);
 
   // Розрахунок часів посту для наступного екадаші
   const nextEkadashiDate = useMemo(() => {
