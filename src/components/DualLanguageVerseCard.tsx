@@ -15,6 +15,13 @@ import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
 
+// Перевіряє чи є реальний текстовий контент (не тільки HTML теги або пробіли)
+const hasContent = (text: string | null | undefined): boolean => {
+  if (!text) return false;
+  const stripped = stripParagraphTags(text);
+  return stripped.length > 0;
+};
+
 interface DualLanguageVerseCardProps {
   verseId?: string;
   verseNumber: string;
@@ -672,12 +679,12 @@ export const DualLanguageVerseCard = ({
         )}
 
         {/* ПОЯСНЕННЯ */}
-        {textDisplaySettings.showCommentary && (isEditing || commentaryUa || commentaryEn) && (
+        {textDisplaySettings.showCommentary && (isEditing || hasContent(commentaryUa) || hasContent(commentaryEn)) && (
           <div className="p-8">
             {/* Заголовки - показуються тільки якщо є текст */}
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 mb-4">
               <div className="flex items-center justify-center gap-1 sm:gap-4">
-                {(isEditing || commentaryUa) && (
+                {(isEditing || hasContent(commentaryUa)) && (
                   <>
                     <h3 className="text-sm sm:text-xl font-bold text-center">Пояснення</h3>
                     <button
@@ -692,7 +699,7 @@ export const DualLanguageVerseCard = ({
                 )}
               </div>
               <div className="flex items-center justify-center gap-1 sm:gap-4">
-                {(isEditing || commentaryEn) && (
+                {(isEditing || hasContent(commentaryEn)) && (
                   <>
                     <h3 className="text-sm sm:text-xl font-bold text-center">Purport</h3>
                     <button
