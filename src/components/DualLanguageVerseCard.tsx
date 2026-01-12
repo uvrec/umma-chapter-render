@@ -321,9 +321,9 @@ export const DualLanguageVerseCard = ({
           </div>
         )}
 
-        {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша */}
+        {/* КНОПКА РЕДАГУВАННЯ - sticky при редагуванні */}
         {isAdmin && (
-          <div className="flex justify-center mb-4">
+          <div className={`flex justify-center mb-4 ${isEditing ? 'sticky top-0 z-50 bg-background/95 backdrop-blur-sm py-3 -mx-6 px-6 border-b shadow-sm' : ''}`}>
             {isEditing ? (
               <div className="flex gap-2">
                 <Button variant="default" size="sm" onClick={saveEdit}>
