@@ -354,6 +354,24 @@ const Dashboard = () => {
 
           <Card>
             <CardHeader>
+              <CardTitle>LRC Editor</CardTitle>
+              <CardDescription>Синхронізація аудіо з текстом</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/lrc-editor">
+                  <Music className="w-4 h-4 mr-2" />
+                  Редактор LRC Timestamps
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Створення караоке-стилю підсвітки тексту для віршів
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Сторінки</CardTitle>
               <CardDescription>Управління контентом сторінок</CardDescription>
             </CardHeader>
