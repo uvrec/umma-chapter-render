@@ -103,8 +103,26 @@ function readContinuousReading(): ContinuousReadingState {
   return DEFAULTS.continuousReading;
 }
 
-export const GlobalSettingsPanel = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface GlobalSettingsPanelProps {
+  /** Controlled mode: external open state */
+  isOpen?: boolean;
+  /** Controlled mode: callback when open state changes */
+  onOpenChange?: (open: boolean) => void;
+  /** Show floating button (default: true for backward compatibility) */
+  showFloatingButton?: boolean;
+}
+
+export const GlobalSettingsPanel = ({
+  isOpen: externalIsOpen,
+  onOpenChange: externalOnOpenChange,
+  showFloatingButton = true,
+}: GlobalSettingsPanelProps) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  // Support both controlled and uncontrolled modes
+  const isControlled = externalIsOpen !== undefined;
+  const isOpen = isControlled ? externalIsOpen : internalIsOpen;
+  const setIsOpen = isControlled ? (externalOnOpenChange ?? (() => {})) : setInternalIsOpen;
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
   const { isAdmin } = useAuth();
@@ -179,15 +197,17 @@ export const GlobalSettingsPanel = () => {
 
   return (
     <>
-      {/* Floating Button */}
-      <Button
-        onClick={() => setIsOpen(true)}
-        className="global-settings-btn fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
-        size="icon"
-        aria-label="Open settings"
-      >
-        <Settings className="h-6 w-6" />
-      </Button>
+      {/* Floating Button - only shown when not in controlled mode or explicitly enabled */}
+      {showFloatingButton && (
+        <Button
+          onClick={() => setIsOpen(true)}
+          className="global-settings-btn fixed bottom-32 right-6 z-40 h-14 w-14 rounded-full shadow-lg"
+          size="icon"
+          aria-label="Open settings"
+        >
+          <Settings className="h-6 w-6" />
+        </Button>
+      )}
 
       {/* Settings Panel */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
