@@ -2,7 +2,7 @@
 // Нижня навігаційна панель для мобільних пристроїв
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { Book, Headphones, Calendar, Search, User } from "lucide-react";
+import { Home, Book, Headphones, Calendar, User } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 
@@ -13,9 +13,18 @@ interface TabItem {
   labelEn: string;
   path: string;
   matchPaths?: string[];
+  exactMatch?: boolean;
 }
 
 const tabs: TabItem[] = [
+  {
+    id: "home",
+    icon: Home,
+    labelUa: "Головна",
+    labelEn: "Home",
+    path: "/",
+    exactMatch: true,
+  },
   {
     id: "library",
     icon: Book,
@@ -41,20 +50,12 @@ const tabs: TabItem[] = [
     matchPaths: ["/calendar"],
   },
   {
-    id: "search",
-    icon: Search,
-    labelUa: "Пошук",
-    labelEn: "Search",
-    path: "/search",
-    matchPaths: ["/search"],
-  },
-  {
     id: "profile",
     icon: User,
     labelUa: "Профіль",
     labelEn: "Profile",
     path: "/auth",
-    matchPaths: ["/auth", "/stats", "/admin"],
+    matchPaths: ["/auth", "/stats", "/admin", "/search"],
   },
 ];
 
@@ -64,6 +65,10 @@ export function MobileTabBar() {
   const { language } = useLanguage();
 
   const isActive = (tab: TabItem) => {
+    // Exact match for home tab
+    if (tab.exactMatch) {
+      return location.pathname === tab.path;
+    }
     if (tab.matchPaths) {
       return tab.matchPaths.some((p) => location.pathname.startsWith(p));
     }
