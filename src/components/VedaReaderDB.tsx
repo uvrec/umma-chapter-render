@@ -31,6 +31,7 @@ import { VerseTattvas } from "@/components/verse/VerseTattvas";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
 export const VedaReaderDB = () => {
   const {
@@ -719,6 +720,10 @@ export const VedaReaderDB = () => {
     enabled: !continuousReadingSettings.enabled, // Disable in continuous mode to allow scrolling
   });
 
+  // Scroll direction for auto-hide header (mobile)
+  const scrollDirection = useScrollDirection({ threshold: 15 });
+  const isHeaderHidden = scrollDirection === 'down' && !fullscreenMode && !zenMode;
+
   const handleSaveHighlight = useCallback((notes: string) => {
     if (!book?.id || !effectiveChapter?.id) return;
     createHighlight({
@@ -963,8 +968,8 @@ export const VedaReaderDB = () => {
 
       <Header />
 
-      {/* 🆕 Sticky Breadcrumbs - прилипає під хедером */}
-      <div className="sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* 🆕 Sticky Breadcrumbs - прилипає під хедером, ховається при скролі вниз на мобільних */}
+      <div className={`sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between gap-2">
             {/* Breadcrumbs - responsive with overflow handling */}
