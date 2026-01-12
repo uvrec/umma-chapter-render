@@ -11,6 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SleepTimerDialog, SleepTimerIndicator } from '@/components/SleepTimerDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { stripParagraphTags } from '@/utils/import/normalizers';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -243,7 +244,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     {(verseData.translation_ua || verseData.translation_en) && (
                       <div className="mt-4">
                         <p className="text-base xl:text-lg text-white/90 leading-relaxed text-center max-w-lg mx-auto">
-                          {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                          {stripParagraphTags(language === 'ua' ? verseData.translation_ua || '' : verseData.translation_en || '')}
                         </p>
                       </div>
                     )}
@@ -522,7 +523,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 {(verseData.translation_ua || verseData.translation_en) && (
                   <div className="mb-4">
                     <p className="text-sm text-foreground/90 leading-relaxed text-center">
-                      {language === 'ua' ? verseData.translation_ua : verseData.translation_en}
+                      {stripParagraphTags(language === 'ua' ? verseData.translation_ua || '' : verseData.translation_en || '')}
                     </p>
                   </div>
                 )}
