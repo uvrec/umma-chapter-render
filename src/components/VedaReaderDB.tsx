@@ -1141,7 +1141,11 @@ export const VedaReaderDB = () => {
           </>}
       </div>
 
-      <GlobalSettingsPanel />
+      <GlobalSettingsPanel
+        isOpen={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        showFloatingButton={false}
+      />
 
       <SelectionTooltip
         isVisible={selectionTooltipVisible}
