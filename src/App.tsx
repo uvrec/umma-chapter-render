@@ -87,6 +87,7 @@ import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
+import LRCEditorPage from "./pages/admin/LRCEditorPage";
 import { NoIRedirect } from "./pages/NoIRedirect";
 import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
@@ -280,6 +281,7 @@ function AppContent() {
           <Route path="/admin/lectures" element={<LecturesManager />} />
           <Route path="/admin/letters" element={<LettersManager />} />
           <Route path="/admin/numcal" element={<NumCal />} />
+          <Route path="/admin/lrc-editor" element={<LRCEditorPage />} />
           {/* Redirect /admin to dashboard */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
