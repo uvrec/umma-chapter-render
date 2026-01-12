@@ -9,10 +9,17 @@
  * - Responsive: hidden on mobile, visible on desktop
  */
 
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 interface Verse {
   id: string;
@@ -148,7 +155,7 @@ export function ChapterMinimap({
 }
 
 /**
- * Compact version for mobile - shows as horizontal strip
+ * Compact version for mobile - shows as slim progress bar that opens drawer with full verse list
  */
 export function ChapterMinimapCompact({
   verses,
@@ -161,6 +168,7 @@ export function ChapterMinimapCompact({
 }: ChapterMinimapProps) {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Calculate progress
   const progress = useMemo(() => {
@@ -185,65 +193,99 @@ export function ChapterMinimapCompact({
     return `/veda-reader/${bookId}/${chapterNumber}/${verseNum}`;
   }, [bookId, cantoNumber, chapterNumber, isCantoMode]);
 
-  // Handle click on progress bar
-  const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = x / rect.width;
-    const targetIndex = Math.floor(percentage * verses.length);
-    const clampedIndex = Math.max(0, Math.min(targetIndex, verses.length - 1));
-
-    if (clampedIndex !== currentVerseIndex) {
-      const url = buildVerseUrl(verses[clampedIndex]);
-      navigate(url);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Handle verse click in drawer
+  const handleVerseClick = useCallback((verse: Verse, index: number) => {
+    if (index === currentVerseIndex) {
+      setIsDrawerOpen(false);
+      return;
     }
-  }, [verses, currentVerseIndex, buildVerseUrl, navigate]);
+
+    const url = buildVerseUrl(verse);
+    navigate(url);
+    setIsDrawerOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentVerseIndex, buildVerseUrl, navigate]);
+
+  // Get verse display number
+  const getVerseLabel = (verse: Verse) => {
+    const num = String(verse.verse_number);
+    if (num.includes('-')) {
+      return num;
+    }
+    const parts = num.split('.');
+    return parts[parts.length - 1];
+  };
 
   if (verses.length === 0) return null;
 
   return (
-    <div
-      className={cn(
-        "lg:hidden fixed bottom-20 left-4 right-4 z-30",
-        "bg-background/90 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg border",
-        className
-      )}
-    >
-      <div className="flex items-center gap-2">
-        {/* Current position indicator */}
-        <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">
-          {currentVerseIndex + 1}/{verses.length}
-        </span>
-
-        {/* Clickable progress bar */}
-        <div
-          className="flex-1 h-2 bg-muted rounded-full overflow-hidden cursor-pointer relative group"
-          onClick={handleProgressClick}
-          title={t("Клікніть для навігації", "Click to navigate")}
+    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+      <DrawerTrigger asChild>
+        <button
+          className={cn(
+            "lg:hidden fixed bottom-[env(safe-area-inset-bottom,0px)] left-0 right-0 z-30",
+            "h-1.5 bg-muted/80 backdrop-blur-sm",
+            "touch-manipulation active:bg-muted",
+            className
+          )}
+          aria-label={t("Відкрити навігацію по віршах", "Open verse navigation")}
         >
           {/* Progress fill */}
           <div
-            className="h-full bg-primary transition-all duration-300"
+            className="h-full bg-primary/70 transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
+        </button>
+      </DrawerTrigger>
 
-          {/* Hover indicator */}
-          <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors" />
+      <DrawerContent className="max-h-[70vh]">
+        <DrawerHeader className="pb-2">
+          <DrawerTitle className="flex items-center justify-between">
+            <span>{t("Навігація", "Navigation")}</span>
+            <span className="text-sm font-normal text-muted-foreground">
+              {currentVerseIndex + 1} / {verses.length} ({Math.round(progress)}%)
+            </span>
+          </DrawerTitle>
+        </DrawerHeader>
 
-          {/* Current position marker */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full shadow-md transition-all duration-300"
-            style={{ left: `calc(${progress}% - 6px)` }}
-          />
+        {/* Verses grid */}
+        <div className="px-4 pb-6 overflow-y-auto">
+          <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5">
+            {verses.map((verse, index) => {
+              const isCurrent = index === currentVerseIndex;
+              const isPast = index < currentVerseIndex;
+
+              return (
+                <button
+                  key={verse.id}
+                  onClick={() => handleVerseClick(verse, index)}
+                  className={cn(
+                    "h-10 rounded-lg text-sm font-mono transition-all",
+                    "flex items-center justify-center",
+                    "active:scale-95",
+                    isCurrent && "bg-primary text-primary-foreground font-bold shadow-md ring-2 ring-primary/30",
+                    isPast && !isCurrent && "bg-primary/20 text-primary",
+                    !isPast && !isCurrent && "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {getVerseLabel(verse)}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Percentage */}
-        <span className="text-xs font-mono text-muted-foreground">
-          {Math.round(progress)}%
-        </span>
-      </div>
-    </div>
+        {/* Progress bar at bottom */}
+        <div className="px-4 pb-4">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
