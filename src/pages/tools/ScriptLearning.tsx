@@ -105,41 +105,53 @@ const DEVANAGARI_ALPHABET: Letter[] = [
   { script: "ऐ", iast: "ai", ukrainian: "аі", type: "vowel" },
   { script: "ओ", iast: "o", ukrainian: "о", type: "vowel" },
   { script: "औ", iast: "au", ukrainian: "ау", type: "vowel" },
-  
-  // Приголосні
+
+  // Приголосні - Gutturals (горлові)
   { script: "क", iast: "ka", ukrainian: "ка", type: "consonant" },
   { script: "ख", iast: "kha", ukrainian: "кха", type: "consonant" },
   { script: "ग", iast: "ga", ukrainian: "ґа", type: "consonant" },
   { script: "घ", iast: "gha", ukrainian: "ґга", type: "consonant" },
   { script: "ङ", iast: "ṅa", ukrainian: "н̇а", type: "consonant" },
+  // Palatals (піднебінні)
   { script: "च", iast: "ca", ukrainian: "ча", type: "consonant" },
   { script: "छ", iast: "cha", ukrainian: "чха", type: "consonant" },
   { script: "ज", iast: "ja", ukrainian: "джа", type: "consonant" },
   { script: "झ", iast: "jha", ukrainian: "джха", type: "consonant" },
   { script: "ञ", iast: "ña", ukrainian: "н̃а", type: "consonant" },
+  // Cerebrals (церебральні)
   { script: "ट", iast: "ṭa", ukrainian: "т̣а", type: "consonant" },
   { script: "ठ", iast: "ṭha", ukrainian: "т̣ха", type: "consonant" },
   { script: "ड", iast: "ḍa", ukrainian: "д̣а", type: "consonant" },
   { script: "ढ", iast: "ḍha", ukrainian: "д̣га", type: "consonant" },
   { script: "ण", iast: "ṇa", ukrainian: "н̣а", type: "consonant" },
+  // Dentals (зубні)
   { script: "त", iast: "ta", ukrainian: "та", type: "consonant" },
   { script: "थ", iast: "tha", ukrainian: "тха", type: "consonant" },
   { script: "द", iast: "da", ukrainian: "да", type: "consonant" },
   { script: "ध", iast: "dha", ukrainian: "дга", type: "consonant" },
   { script: "न", iast: "na", ukrainian: "на", type: "consonant" },
+  // Labials (губні)
   { script: "प", iast: "pa", ukrainian: "па", type: "consonant" },
   { script: "फ", iast: "pha", ukrainian: "пха", type: "consonant" },
   { script: "ब", iast: "ba", ukrainian: "ба", type: "consonant" },
   { script: "भ", iast: "bha", ukrainian: "бга", type: "consonant" },
   { script: "म", iast: "ma", ukrainian: "ма", type: "consonant" },
+  // Semivowels (напівголосні)
   { script: "य", iast: "ya", ukrainian: "йа", type: "consonant" },
   { script: "र", iast: "ra", ukrainian: "ра", type: "consonant" },
   { script: "ल", iast: "la", ukrainian: "ла", type: "consonant" },
+  { script: "ळ", iast: "ḷa", ukrainian: "л̣а", type: "consonant" }, // Cerebral L (Marathi/Vedic)
   { script: "व", iast: "va", ukrainian: "ва", type: "consonant" },
+  // Sibilants (шиплячі)
   { script: "श", iast: "śa", ukrainian: "ш́а", type: "consonant" },
   { script: "ष", iast: "ṣa", ukrainian: "ша", type: "consonant" },
   { script: "स", iast: "sa", ukrainian: "са", type: "consonant" },
+  // Aspirate
   { script: "ह", iast: "ha", ukrainian: "ха", type: "consonant" },
+  // Anusvara, Visarga, Candrabindu (модифікатори)
+  { script: "ं", iast: "ṃ", ukrainian: "м̣", type: "vowel" }, // Anusvara (nasalization)
+  { script: "ः", iast: "ḥ", ukrainian: "х̣", type: "vowel" }, // Visarga (aspiration)
+  { script: "ँ", iast: "m̐", ukrainian: "м̃", type: "vowel" }, // Candrabindu (nasalization)
 ];
 
 const BENGALI_ALPHABET: Letter[] = [
@@ -155,7 +167,7 @@ const BENGALI_ALPHABET: Letter[] = [
   { script: "ঐ", iast: "ai", ukrainian: "аі", type: "vowel" },
   { script: "ও", iast: "o", ukrainian: "о", type: "vowel" },
   { script: "ঔ", iast: "au", ukrainian: "ау", type: "vowel" },
-  
+
   // Приголосні
   { script: "ক", iast: "ka", ukrainian: "ка", type: "consonant" },
   { script: "খ", iast: "kha", ukrainian: "кха", type: "consonant" },
@@ -170,7 +182,9 @@ const BENGALI_ALPHABET: Letter[] = [
   { script: "ট", iast: "ṭa", ukrainian: "т̣а", type: "consonant" },
   { script: "ঠ", iast: "ṭha", ukrainian: "т̣ха", type: "consonant" },
   { script: "ড", iast: "ḍa", ukrainian: "д̣а", type: "consonant" },
+  { script: "ড়", iast: "ṛa", ukrainian: "р̣а", type: "consonant" }, // Bengali-specific
   { script: "ঢ", iast: "ḍha", ukrainian: "д̣га", type: "consonant" },
+  { script: "ঢ়", iast: "ṛha", ukrainian: "р̣га", type: "consonant" }, // Bengali-specific
   { script: "ণ", iast: "ṇa", ukrainian: "н̣а", type: "consonant" },
   { script: "ত", iast: "ta", ukrainian: "та", type: "consonant" },
   { script: "থ", iast: "tha", ukrainian: "тха", type: "consonant" },
@@ -179,17 +193,21 @@ const BENGALI_ALPHABET: Letter[] = [
   { script: "ন", iast: "na", ukrainian: "на", type: "consonant" },
   { script: "প", iast: "pa", ukrainian: "па", type: "consonant" },
   { script: "ফ", iast: "pha", ukrainian: "пха", type: "consonant" },
-  { script: "ব", iast: "ba", ukrainian: "ба", type: "consonant" },
+  { script: "ব", iast: "ba/va", ukrainian: "ба/ва", type: "consonant" }, // In Bengali, ব represents both 'b' and 'v'
   { script: "ভ", iast: "bha", ukrainian: "бга", type: "consonant" },
   { script: "ম", iast: "ma", ukrainian: "ма", type: "consonant" },
   { script: "য", iast: "ya", ukrainian: "йа", type: "consonant" },
+  { script: "য়", iast: "ẏa", ukrainian: "я", type: "consonant" }, // Bengali-specific
   { script: "র", iast: "ra", ukrainian: "ра", type: "consonant" },
   { script: "ল", iast: "la", ukrainian: "ла", type: "consonant" },
-  { script: "ব", iast: "va", ukrainian: "ва", type: "consonant" },
   { script: "শ", iast: "śa", ukrainian: "ш́а", type: "consonant" },
   { script: "ষ", iast: "ṣa", ukrainian: "ша", type: "consonant" },
   { script: "স", iast: "sa", ukrainian: "са", type: "consonant" },
   { script: "হ", iast: "ha", ukrainian: "ха", type: "consonant" },
+  // Anusvara, Visarga, Candrabindu
+  { script: "ং", iast: "ṃ", ukrainian: "м̣", type: "vowel" }, // Anusvara (nasalization)
+  { script: "ঃ", iast: "ḥ", ukrainian: "х̣", type: "vowel" }, // Visarga (aspiration)
+  { script: "ঁ", iast: "m̐", ukrainian: "м̃", type: "vowel" }, // Candrabindu (nasalization)
 ];
 
 // Популярні слова для практики
@@ -374,16 +392,24 @@ export default function ScriptLearning() {
   }, [t]);
 
   // Play pronunciation for current item
+  // Note: TTS is disabled for alphabet letters because Web Speech API
+  // uses Hindi (hi-IN) which doesn't accurately represent Sanskrit phonetics.
+  // Sanskrit has specific pronunciation rules that differ from modern Hindi.
   const playPronunciation = () => {
-    if (learningMode === "alphabet" && currentLetter) {
-      const lang = scriptType === "devanagari" ? "hi-IN" : "bn-IN";
-      speak(currentLetter.script, lang);
+    if (learningMode === "alphabet") {
+      // TTS disabled for alphabet - Hindi/Bengali voices don't accurately
+      // represent classical Sanskrit/Bengali letter pronunciation
+      toast.info(t(
+        "Аудіо вимова літер недоступна. Браузерний синтез мовлення не підтримує точну вимову санскриту.",
+        "Letter audio unavailable. Browser speech synthesis doesn't support accurate Sanskrit pronunciation."
+      ));
+      return;
     } else if (learningMode === "words" && currentItem && 'script' in currentItem) {
-      // Determine language based on script content
-      const lang = "hi-IN"; // Default to Sanskrit/Hindi
+      // For words, TTS can still be useful as an approximation
+      const lang = "hi-IN";
       speak(currentItem.script, lang);
     } else if (learningMode === "slokas" && currentItem && 'sanskritText' in currentItem) {
-      // Speak the Sanskrit text of the verse
+      // For verses, TTS can still be useful as an approximation
       speak(currentItem.sanskritText, "hi-IN");
     }
   };
@@ -1372,15 +1398,7 @@ export default function ScriptLearning() {
                       </div>
 
                       <div className="flex items-center justify-center gap-2">
-                        <Button
-                          variant="default"
-                          size="lg"
-                          onClick={playPronunciation}
-                          disabled={isPlaying}
-                        >
-                          <Volume2 className={`w-5 h-5 mr-2 ${isPlaying ? "animate-pulse" : ""}`} />
-                          {isPlaying ? t("Відтворюється...", "Playing...") : t("Прослухати", "Listen")}
-                        </Button>
+                        {/* Audio button hidden for alphabet - TTS doesn't support accurate Sanskrit pronunciation */}
 
                         {mode === "flashcards" && (
                           <Button
@@ -1567,6 +1585,14 @@ export default function ScriptLearning() {
                 <Button onClick={handleNext} variant="outline" size="lg">
                   {t("Наступна", "Next")} →
                 </Button>
+              </div>
+
+              {/* Підказки клавіатурних скорочень */}
+              <div className="text-center text-xs text-muted-foreground pt-2">
+                <span className="hidden md:inline">
+                  {t("Клавіші", "Keys")}: ← → {t("навігація", "navigate")} | Space {t("відповідь", "answer")} | S {t("перемішати", "shuffle")}
+                  {mode === "practice" && ` | 1 ${t("неправильно", "wrong")} | 2 ${t("правильно", "correct")}`}
+                </span>
               </div>
             </div>
           </div>
