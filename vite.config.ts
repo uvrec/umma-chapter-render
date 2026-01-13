@@ -173,6 +173,10 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Mock virtual:pwa-register/react in development (VitePWA is disabled)
+      ...(mode !== 'production' && {
+        'virtual:pwa-register/react': path.resolve(__dirname, './src/lib/pwa-register-stub.ts'),
+      }),
     },
   },
   build: {

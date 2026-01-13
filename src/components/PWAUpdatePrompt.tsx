@@ -5,26 +5,17 @@
  * При виявленні нової версії — автоматично перезавантажує сторінку
  * (без кнопки "Закрити", щоб гарантувати свіжий код)
  *
- * В development режимі (Lovable preview) — PWA вимкнено, компонент не рендериться
+ * В development режимі (Lovable preview) — PWA вимкнено, компонент використовує stub
  */
 
 import { lazy, Suspense } from 'react';
-import type { ComponentType } from 'react';
 
-// Only import PWAUpdatePromptImpl in production mode
-// In dev mode, virtual:pwa-register is not available
-let PWAUpdatePromptImpl: ComponentType | null = null;
-
-if (import.meta.env.PROD) {
-  PWAUpdatePromptImpl = lazy(() => import('./PWAUpdatePromptImpl'));
-}
+// Lazy load PWA component - in dev mode it will use the stub from vite.config.ts alias
+const PWAUpdatePromptImpl = lazy(() => import('./PWAUpdatePromptImpl'));
 
 export function PWAUpdatePrompt() {
-  // Always return null in development
-  if (!PWAUpdatePromptImpl) {
-    return null;
-  }
-
+  // In development, the stub makes useRegisterSW return needRefresh: false
+  // so the component renders null anyway
   return (
     <Suspense fallback={null}>
       <PWAUpdatePromptImpl />
