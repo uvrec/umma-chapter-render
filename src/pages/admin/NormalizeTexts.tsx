@@ -87,12 +87,14 @@ export default function NormalizeTexts() {
     setScanCompleted(false);
     setEncodingRemnants([]);
     try {
+      // @ts-expect-error - RPC function exists in database but not in generated types
       const { data, error } = await supabase.rpc('find_html_encoding_remnants');
       if (error) throw error;
-      setEncodingRemnants(data || []);
+      const rows = (data as EncodingRemnant[] | null) ?? [];
+      setEncodingRemnants(rows);
       setScanCompleted(true);
-      if (data && data.length > 0) {
-        toast.warning(`Знайдено ${data.length} полів з проблемами кодування`, {
+      if (rows.length > 0) {
+        toast.warning(`Знайдено ${rows.length} полів з проблемами кодування`, {
           description: 'Перегляньте деталі нижче та запустіть виправлення'
         });
       } else {
@@ -118,10 +120,12 @@ export default function NormalizeTexts() {
 
     setIsFixing(true);
     try {
+      // @ts-expect-error - RPC function exists in database but not in generated types
       const { data, error } = await supabase.rpc('fix_html_encoding_remnants');
       if (error) throw error;
 
-      const totalFixed = data?.reduce((sum: number, row: any) => sum + (row.fixed_count || 0), 0) || 0;
+      const fixRows = (data as Array<{ fixed_count?: number }> | null) ?? [];
+      const totalFixed = fixRows.reduce((sum, row) => sum + (row.fixed_count ?? 0), 0);
 
       if (totalFixed > 0) {
         toast.success(`✅ Виправлено ${totalFixed} записів!`, {

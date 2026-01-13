@@ -65,6 +65,58 @@ async function cleanupOldCaches() {
 // Запускаємо очищення старих кешів при завантаженні
 cleanupOldCaches();
 
+// Preview-only auto cleanup for Lovable preview environment
+// Це прибирає старі service workers та кеші, щоб preview завжди показував актуальний код
+async function previewForceCleanup() {
+  const isPreview = !import.meta.env.PROD || location.hostname.includes('lovable');
+
+  if (!isPreview) return;
+
+  console.log('[Vedavoice] Preview mode detected, running force cleanup...');
+
+  // Unregister all service workers
+  if ('serviceWorker' in navigator) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      console.log(`[Vedavoice] Found ${registrations.length} SW registrations`);
+      for (const reg of registrations) {
+        console.log('[Vedavoice] Unregistering SW:', reg.scope);
+        await reg.unregister();
+      }
+      console.log(`[Vedavoice] SW registrations after cleanup: 0`);
+    } catch (e) {
+      console.warn('[Vedavoice] SW cleanup error:', e);
+    }
+  }
+
+  // Clear all caches that might affect preview
+  if ('caches' in window) {
+    try {
+      const cacheNames = await caches.keys();
+      console.log('[Vedavoice] Cache keys before cleanup:', cacheNames);
+      const cachesToDelete = cacheNames.filter(name =>
+        name.includes('pages-cache') ||
+        name.includes('workbox-precache') ||
+        name.includes('images-cache') ||
+        name.includes('assets-cache')
+      );
+
+      for (const name of cachesToDelete) {
+        console.log('[Vedavoice] Deleting cache:', name);
+        await caches.delete(name);
+      }
+
+      const remainingCaches = await caches.keys();
+      console.log('[Vedavoice] Cache keys after cleanup:', remainingCaches);
+    } catch (e) {
+      console.warn('[Vedavoice] Cache cleanup error:', e);
+    }
+  }
+}
+
+// Run preview cleanup
+previewForceCleanup();
+
 // Ініціалізація error tracking (Sentry в production якщо налаштовано)
 initErrorTracking();
 
