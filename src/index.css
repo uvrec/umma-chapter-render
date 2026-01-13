@@ -671,6 +671,11 @@ body {
   .verse-section {
     margin-bottom: 1.5rem;
   }
+
+  /* Послівник - зменшений line-height для мобільних */
+  [data-synced-section="synonyms"] .text-justify {
+    line-height: 1.2 !important;
+  }
 }
 
 /* Дуже маленькі екрани (<420px) - xs breakpoint */
