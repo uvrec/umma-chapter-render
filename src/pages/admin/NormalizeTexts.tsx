@@ -3,17 +3,31 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, Search, Wrench } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Header } from "@/components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+interface EncodingRemnant {
+  table_name: string;
+  column_name: string;
+  affected_count: number;
+  sample_id: string;
+  sample_verse_number: string;
+  sample_text: string;
+}
 
 export default function NormalizeTexts() {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const [isNormalizingUA, setIsNormalizingUA] = useState(false);
   const [isNormalizingEN, setIsNormalizingEN] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isFixing, setIsFixing] = useState(false);
+  const [encodingRemnants, setEncodingRemnants] = useState<EncodingRemnant[]>([]);
+  const [scanCompleted, setScanCompleted] = useState(false);
 
   useEffect(() => {
     if (!user || !isAdmin) {
@@ -64,6 +78,69 @@ export default function NormalizeTexts() {
       });
     } finally {
       setIsNormalizingEN(false);
+    }
+  };
+
+  // Scan for HTML encoding remnants
+  const handleScanEncodingRemnants = async () => {
+    setIsScanning(true);
+    setScanCompleted(false);
+    setEncodingRemnants([]);
+    try {
+      const { data, error } = await supabase.rpc('find_html_encoding_remnants');
+      if (error) throw error;
+      setEncodingRemnants(data || []);
+      setScanCompleted(true);
+      if (data && data.length > 0) {
+        toast.warning(`Знайдено ${data.length} полів з проблемами кодування`, {
+          description: 'Перегляньте деталі нижче та запустіть виправлення'
+        });
+      } else {
+        toast.success('✅ База даних чиста!', {
+          description: 'Залишків HTML кодування не знайдено'
+        });
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error('❌ Помилка сканування', {
+        description: error.message || 'Переконайтеся що SQL функція створена в Supabase'
+      });
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  // Fix HTML encoding remnants
+  const handleFixEncodingRemnants = async () => {
+    if (!confirm('⚠️ Це декодує всі HTML ентіті (&lt;p&gt; → <p>) у всіх текстових полях.\n\nРезервна копія буде створена автоматично.\n\nПродовжити?')) {
+      return;
+    }
+
+    setIsFixing(true);
+    try {
+      const { data, error } = await supabase.rpc('fix_html_encoding_remnants');
+      if (error) throw error;
+
+      const totalFixed = data?.reduce((sum: number, row: any) => sum + (row.fixed_count || 0), 0) || 0;
+
+      if (totalFixed > 0) {
+        toast.success(`✅ Виправлено ${totalFixed} записів!`, {
+          description: 'Резервну копію збережено в таблиці html_encoding_cleanup_backup'
+        });
+        // Re-scan to show updated status
+        await handleScanEncodingRemnants();
+      } else {
+        toast.info('Нічого виправляти', {
+          description: 'Всі записи вже чисті'
+        });
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error('❌ Помилка виправлення', {
+        description: error.message || 'Спробуйте ще раз'
+      });
+    } finally {
+      setIsFixing(false);
     }
   };
 
@@ -148,6 +225,104 @@ export default function NormalizeTexts() {
           </CardContent>
         </Card>
 
+        {/* HTML Encoding Remnants Card */}
+        <Card className="border-red-200 dark:border-red-900">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <span>🔍</span>
+              HTML Encoding Remnants
+            </CardTitle>
+            <CardDescription>
+              Знайти та виправити закодовані HTML ентіті (&lt;p&gt; замість &lt;p&gt;),
+              які відображаються як видимі теги в режимі редагування
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="rounded-lg bg-muted p-4">
+              <h4 className="font-semibold mb-2">Що шукаємо:</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                <li><code>&amp;lt;p&amp;gt;</code> → <code>&lt;p&gt;</code></li>
+                <li><code>&amp;lt;/p&amp;gt;</code> → <code>&lt;/p&gt;</code></li>
+                <li><code>&amp;nbsp;</code> → пробіл</li>
+                <li>Подвійне кодування: <code>&amp;amp;lt;</code> → <code>&lt;</code></li>
+              </ul>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={handleScanEncodingRemnants}
+                disabled={isScanning}
+                variant="outline"
+                className="flex-1"
+              >
+                {isScanning && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {!isScanning && <Search className="mr-2 h-4 w-4" />}
+                {isScanning ? 'Сканування...' : 'Сканувати базу даних'}
+              </Button>
+
+              <Button
+                onClick={handleFixEncodingRemnants}
+                disabled={isFixing || !scanCompleted || encodingRemnants.length === 0}
+                variant="destructive"
+                className="flex-1"
+              >
+                {isFixing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {!isFixing && <Wrench className="mr-2 h-4 w-4" />}
+                {isFixing ? 'Виправлення...' : 'Виправити все'}
+              </Button>
+            </div>
+
+            {/* Scan Results */}
+            {scanCompleted && (
+              <div className="space-y-2">
+                {encodingRemnants.length === 0 ? (
+                  <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-800 dark:text-green-200">
+                      База даних чиста! Залишків HTML кодування не знайдено.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="space-y-2">
+                    <Alert className="bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
+                      <AlertCircle className="h-4 w-4 text-amber-600" />
+                      <AlertDescription className="text-amber-800 dark:text-amber-200">
+                        Знайдено {encodingRemnants.reduce((sum, r) => sum + r.affected_count, 0)} записів
+                        з проблемами кодування в {encodingRemnants.length} полях.
+                      </AlertDescription>
+                    </Alert>
+
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Таблиця</TableHead>
+                            <TableHead>Поле</TableHead>
+                            <TableHead className="text-right">Кількість</TableHead>
+                            <TableHead>Приклад</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {encodingRemnants.map((remnant, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium">{remnant.table_name}</TableCell>
+                              <TableCell>{remnant.column_name}</TableCell>
+                              <TableCell className="text-right">{remnant.affected_count}</TableCell>
+                              <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
+                                {remnant.sample_text?.substring(0, 80)}...
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card className="border-orange-200 dark:border-orange-900">
           <CardHeader>
             <CardTitle>⚠️ Інструкція для створення SQL функцій</CardTitle>
@@ -160,17 +335,24 @@ export default function NormalizeTexts() {
               <p className="text-sm font-medium">1. Відкрийте Supabase SQL Editor</p>
               <p className="text-sm font-medium">2. Виконайте наступні SQL команди:</p>
               <div className="text-xs font-mono bg-muted p-3 rounded overflow-x-auto">
-                <pre>{`-- Функція для нормалізації українських текстів
+                <pre>{`-- 1. Застосуйте міграцію для HTML encoding remnants:
+-- supabase/migrations/20260113120000_fix_html_encoding_remnants.sql
+
+-- 2. Функція для нормалізації українських текстів
 CREATE OR REPLACE FUNCTION normalize_ukrainian_cc_texts()
 RETURNS void AS $$
 -- (повний код функції з документації)
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Функція для видалення дублів у synonyms
+-- 3. Функція для видалення дублів у synonyms
 CREATE OR REPLACE FUNCTION remove_duplicate_words_in_synonyms()
 RETURNS void AS $$
 -- (повний код функції з документації)
-$$ LANGUAGE plpgsql SECURITY DEFINER;`}</pre>
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 4. Функції для HTML encoding remnants (вже в міграції):
+-- find_html_encoding_remnants() - діагностика
+-- fix_html_encoding_remnants() - виправлення`}</pre>
               </div>
             </div>
           </CardContent>
