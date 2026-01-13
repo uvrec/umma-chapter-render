@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,9 +26,17 @@ const telegramSchema = z.string().refine(isValidTelegramUrlOrEmpty, {
 });
 
 export default function AddEditBlogPost() {
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = !!id;
+
+  // Auth guard
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   // ——— основні стани
   const [titleUa, setTitleUa] = useState("");
@@ -387,6 +396,9 @@ export default function AddEditBlogPost() {
       toast({ title: "Помилка збереження", variant: "destructive" });
     }
   };
+
+  // Early return for unauthorized users
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8">

@@ -3,9 +3,10 @@
  * /admin/letters
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -45,8 +46,15 @@ import { toast } from "sonner";
 
 export default function LettersManager() {
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [editingLetter, setEditingLetter] = useState<Letter | null>(null);
 
   // Завантажити листи
@@ -177,6 +185,8 @@ export default function LettersManager() {
       l.slug?.toLowerCase().includes(search.toLowerCase()) ||
       l.location_en?.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">

@@ -1,5 +1,7 @@
 // src/pages/admin/BlogTags.tsx
 import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,15 @@ type BlogTag = {
 };
 
 export default function BlogTags() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
 
@@ -145,6 +156,8 @@ export default function BlogTags() {
       return ua.includes(debouncedSearch) || en.includes(debouncedSearch) || sl.includes(debouncedSearch);
     });
   }, [tags, debouncedSearch]);
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8">

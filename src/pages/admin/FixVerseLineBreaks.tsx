@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -12,7 +13,15 @@ const PAGE_SIZE = 200; // скільки віршів тягнемо за оди
 const UPDATE_BATCH = 25; // скільки оновлень послідовно в межах однієї сторінки
 
 export default function FixVerseLineBreaks() {
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [total, setTotal] = useState(0);
@@ -161,6 +170,8 @@ export default function FixVerseLineBreaks() {
       setIsProcessing(false);
     }
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">

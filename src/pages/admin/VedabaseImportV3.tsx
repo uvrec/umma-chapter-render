@@ -1,6 +1,7 @@
 // ПОВНА ВЕРСІЯ VedabaseImportV3 - Двомовний імпорт + Вступні глави
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -237,6 +238,13 @@ function extractGitabaseContent(html: string) {
 
 export default function VedabaseImportV3() {
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const [activeTab, setActiveTab] = useState<"verses" | "intro">("verses");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -754,6 +762,8 @@ export default function VedabaseImportV3() {
   // ========================================================================
   // UI
   // ========================================================================
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">

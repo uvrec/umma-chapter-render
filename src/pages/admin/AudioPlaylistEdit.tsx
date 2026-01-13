@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,10 +22,17 @@ type Category = {
 };
 
 export default function AudioPlaylistEdit() {
+  const { user, isAdmin } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isNew = id === "new";
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const [formData, setFormData] = useState({
     title_ua: "",
@@ -244,6 +252,8 @@ export default function AudioPlaylistEdit() {
     queryClient.invalidateQueries({ queryKey: ["audio-tracks", id] });
     toast.success("Трек успішно додано до плейлиста!");
   };
+
+  if (!user || !isAdmin) return null;
 
   // ---- UI
   return (

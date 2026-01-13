@@ -1,10 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { BookOpen, CheckCircle, Loader2, Database, Library } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -127,9 +129,17 @@ function hasContent(chapter: ParsedChapterWithVerses | ParsedChapterWithContent)
 }
 
 export default function BBTImportUniversal() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [selectedBook, setSelectedBook] = useState<string>(BOOK_CONFIGS[0].slug);
   const [saving, setSaving] = useState(false);
   const [saveProgress, setSaveProgress] = useState(0);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const bookConfig = useMemo(() =>
     BOOK_CONFIGS.find(b => b.slug === selectedBook) || BOOK_CONFIGS[0],
@@ -444,6 +454,8 @@ export default function BBTImportUniversal() {
       setSelectedItems(allIds);
     }
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8 space-y-6">

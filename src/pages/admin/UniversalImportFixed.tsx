@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { Globe, BookOpen, FileText, CheckCircle, Download, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { ParserStatus } from "@/components/admin/ParserStatus";
 import { getMaxVerseFromChapter } from "@/utils/vedabaseParser";
@@ -149,9 +150,17 @@ function sleep(ms: number) {
 }
 
 export default function UniversalImportFixed() {
+  const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>("source");
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [importData, setImportData] = useState<ImportData>({
     source: "file",
     rawText: "",
@@ -179,8 +188,6 @@ export default function UniversalImportFixed() {
   // Wisdomlib import
   const [wisdomlibThrottle, setWisdomlibThrottle] = useState(1000); // ms between requests
   const [skippedUrls, setSkippedUrls] = useState<Array<{ url: string; reason: string }>>([]);
-
-  const navigate = useNavigate();
 
   const currentBookInfo = useMemo(() => getBookConfigByVedabaseSlug(vedabaseBook), [vedabaseBook]);
 
@@ -1864,6 +1871,8 @@ export default function UniversalImportFixed() {
     },
     [importData],
   );
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
