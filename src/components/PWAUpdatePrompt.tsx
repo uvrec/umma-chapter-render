@@ -9,14 +9,19 @@
  */
 
 import { lazy, Suspense } from 'react';
+import type { ComponentType } from 'react';
 
-// Lazy load PWA компонент тільки в production
-const PWAUpdatePromptImpl = import.meta.env.PROD
-  ? lazy(() => import('./PWAUpdatePromptImpl'))
-  : () => null;
+// Only import PWAUpdatePromptImpl in production mode
+// In dev mode, virtual:pwa-register is not available
+let PWAUpdatePromptImpl: ComponentType | null = null;
+
+if (import.meta.env.PROD) {
+  PWAUpdatePromptImpl = lazy(() => import('./PWAUpdatePromptImpl'));
+}
 
 export function PWAUpdatePrompt() {
-  if (import.meta.env.DEV) {
+  // Always return null in development
+  if (!PWAUpdatePromptImpl) {
     return null;
   }
 
