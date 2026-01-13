@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Plus, Eye, EyeOff, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Eye, EyeOff, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -117,7 +117,15 @@ const Books = () => {
             {books.map((book) => (
               <Card key={book.id}>
                 <CardHeader>
-                  <CardTitle>{book.title_ua}</CardTitle>
+                  <CardTitle>
+                    <Link
+                      to={`/books/${book.slug}`}
+                      className="hover:text-primary hover:underline inline-flex items-center gap-2 transition-colors"
+                    >
+                      {book.title_ua}
+                      <ExternalLink className="w-4 h-4 opacity-50" />
+                    </Link>
+                  </CardTitle>
                   <CardDescription>{book.title_en}</CardDescription>
                 </CardHeader>
                 <CardContent>

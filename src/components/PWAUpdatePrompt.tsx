@@ -10,7 +10,7 @@
 
 import { lazy, Suspense } from 'react';
 
-// Lazy load PWA component - in dev mode it will use the stub
+// Lazy load PWA component - in dev mode it will use the stub from vite.config.ts alias
 const PWAUpdatePromptImpl = lazy(() => import('./PWAUpdatePromptImpl'));
 
 export function PWAUpdatePrompt() {

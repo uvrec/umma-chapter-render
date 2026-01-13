@@ -1458,7 +1458,12 @@ export type Database = {
           name_en: string
           name_sanskrit: string
           name_ua: string
+          padma_purana_book_slug: string | null
+          padma_purana_chapter: number | null
           paksha: string
+          prabhupada_instructions_en: string | null
+          prabhupada_instructions_ua: string | null
+          prabhupada_source: string | null
           presiding_deity_en: string | null
           presiding_deity_ua: string | null
           recommended_activities_en: string | null
@@ -1489,7 +1494,12 @@ export type Database = {
           name_en: string
           name_sanskrit: string
           name_ua: string
+          padma_purana_book_slug?: string | null
+          padma_purana_chapter?: number | null
           paksha: string
+          prabhupada_instructions_en?: string | null
+          prabhupada_instructions_ua?: string | null
+          prabhupada_source?: string | null
           presiding_deity_en?: string | null
           presiding_deity_ua?: string | null
           recommended_activities_en?: string | null
@@ -1520,7 +1530,12 @@ export type Database = {
           name_en?: string
           name_sanskrit?: string
           name_ua?: string
+          padma_purana_book_slug?: string | null
+          padma_purana_chapter?: number | null
           paksha?: string
+          prabhupada_instructions_en?: string | null
+          prabhupada_instructions_ua?: string | null
+          prabhupada_source?: string | null
           presiding_deity_en?: string | null
           presiding_deity_ua?: string | null
           recommended_activities_en?: string | null
@@ -1591,6 +1606,7 @@ export type Database = {
           death_year: number | null
           display_order: number | null
           era: string | null
+          fts: unknown
           guru_id: string | null
           id: string
           image_url: string | null
@@ -1618,6 +1634,7 @@ export type Database = {
           death_year?: number | null
           display_order?: number | null
           era?: string | null
+          fts?: unknown
           guru_id?: string | null
           id?: string
           image_url?: string | null
@@ -1645,6 +1662,7 @@ export type Database = {
           death_year?: number | null
           display_order?: number | null
           era?: string | null
+          fts?: unknown
           guru_id?: string | null
           id?: string
           image_url?: string | null
@@ -1730,6 +1748,7 @@ export type Database = {
           description_ua: string | null
           display_order: number | null
           external_url: string | null
+          fts: unknown
           id: string
           importance_level: number | null
           internal_book_slug: string | null
@@ -1764,6 +1783,7 @@ export type Database = {
           description_ua?: string | null
           display_order?: number | null
           external_url?: string | null
+          fts?: unknown
           id?: string
           importance_level?: number | null
           internal_book_slug?: string | null
@@ -1798,6 +1818,7 @@ export type Database = {
           description_ua?: string | null
           display_order?: number | null
           external_url?: string | null
+          fts?: unknown
           id?: string
           importance_level?: number | null
           internal_book_slug?: string | null
@@ -4091,6 +4112,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      decode_html_entities: { Args: { input_text: string }; Returns: string }
       end_reading_session: {
         Args: {
           p_end_verse?: string
@@ -4124,6 +4146,17 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      find_html_encoding_remnants: {
+        Args: never
+        Returns: {
+          affected_count: number
+          column_name: string
+          sample_id: string
+          sample_text: string
+          sample_verse_number: string
+          table_name: string
+        }[]
+      }
       find_verse_id: {
         Args: {
           p_book_slug: string
@@ -4132,6 +4165,14 @@ export type Database = {
           p_verse_number: string
         }
         Returns: string
+      }
+      fix_html_encoding_remnants: {
+        Args: never
+        Returns: {
+          column_name: string
+          fixed_count: number
+          table_name: string
+        }[]
       }
       get_book_by_vedabase_slug: {
         Args: { v_slug: string }
