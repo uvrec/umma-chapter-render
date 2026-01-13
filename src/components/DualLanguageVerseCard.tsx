@@ -489,7 +489,7 @@ export const DualLanguageVerseCard = ({
 
         {/* ПОСЛІВНИЙ ПЕРЕКЛАД */}
         {textDisplaySettings.showSynonyms && (isEditing || synonymsUa || synonymsEn) && (
-          <div className="p-8">
+          <div className="p-8" data-synced-section="synonyms">
             <div className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8">
               {/* Ukrainian Synonyms */}
               <div>
