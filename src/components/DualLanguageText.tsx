@@ -95,7 +95,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
 
         return (
           <div key={idx} className="grid grid-cols-2 gap-2 sm:gap-4 lg:gap-8 items-start">
-            <p
+            <div
               className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               style={textStyle}
               dangerouslySetInnerHTML={{
@@ -106,7 +106,7 @@ export const DualLanguageText: React.FC<DualLanguageTextProps> = ({
                 ),
               }}
             />
-            <p
+            <div
               className={`text-justify ${isFirstParagraph && enableDropCap ? 'purport first' : ''} ${bold ? 'font-bold' : ''}`}
               style={textStyle}
               dangerouslySetInnerHTML={{
