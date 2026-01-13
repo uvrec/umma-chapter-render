@@ -12,9 +12,21 @@ type PanchangaInput = {
   timezone: string;
 };
 
+// Type matching what the @bidyashish/panchang library actually returns
+type PanchangaLibResult = {
+  tithi?: { name?: string; number?: number };
+  nakshatra?: { name?: string; number?: number };
+  yoga?: { name?: string; number?: number };
+  karana?: { name?: string; number?: number };
+  vara?: { name?: string; number?: number };
+  sunrise?: string;
+  sunset?: string;
+};
+
+// Our normalized output type used internally
 type PanchangaOutput = {
-  tithi?: { number: number; paksha: string; progress?: number; endTime?: string };
-  nakshatra?: { degree: number; endTime?: string };
+  tithi?: { number: number; paksha: 'shukla' | 'krishna'; progress?: number; endTime?: string };
+  nakshatra?: { number: number; degree?: number; endTime?: string };
   yoga?: { number: number; progress?: number; endTime?: string };
   karana?: { number: number; progress?: number; endTime?: string };
   sunSign?: { degree: number };
@@ -25,8 +37,36 @@ type PanchangaOutput = {
   rahuKaal?: { start: string; end: string };
 };
 
-let panchangaModule: { getPanchanga: (input: PanchangaInput) => Promise<PanchangaOutput> } | null = null;
+let panchangaModule: { getPanchanga: (input: PanchangaInput) => Promise<PanchangaLibResult> } | null = null;
 let panchangaLoadAttempted = false;
+
+/**
+ * Normalize library output to our internal format
+ */
+function normalizeLibPanchanga(lib: PanchangaLibResult): PanchangaOutput {
+  const tithiNumber = lib.tithi?.number ?? 1;
+  // Derive paksha: 1-15 = shukla (waxing), 16-30 = krishna (waning)
+  const paksha: 'shukla' | 'krishna' = tithiNumber <= 15 ? 'shukla' : 'krishna';
+
+  return {
+    tithi: lib.tithi?.number != null ? {
+      number: tithiNumber,
+      paksha,
+    } : undefined,
+    nakshatra: lib.nakshatra?.number != null ? {
+      number: lib.nakshatra.number,
+      // degree not available from library, will be computed in mapPanchangaOutput if needed
+    } : undefined,
+    yoga: lib.yoga?.number != null ? {
+      number: lib.yoga.number,
+    } : undefined,
+    karana: lib.karana?.number != null ? {
+      number: lib.karana.number,
+    } : undefined,
+    sunrise: lib.sunrise,
+    sunset: lib.sunset,
+  };
+}
 
 async function loadPanchangaModule(): Promise<typeof panchangaModule> {
   if (panchangaLoadAttempted) return panchangaModule;
@@ -34,8 +74,7 @@ async function loadPanchangaModule(): Promise<typeof panchangaModule> {
 
   try {
     const mod = await import('@bidyashish/panchang');
-    // Create adapter to match our PanchangaInput interface
-    // The library's getPanchanga expects (date, lat, lon, timezone) as separate args
+    // Create adapter: library expects (date, lat, lon, timezone) as separate args
     panchangaModule = {
       getPanchanga: (input: PanchangaInput) =>
         mod.getPanchanga(input.date, input.latitude, input.longitude, input.timezone)
@@ -47,7 +86,7 @@ async function loadPanchangaModule(): Promise<typeof panchangaModule> {
   }
 }
 
-import { getNakshatraByDegree, getNakshatraPada, getNakshatraProgress, NAKSHATRAS } from '@/data/jyotish/nakshatras';
+import { getNakshatraByDegree, getNakshatraById, getNakshatraPada, getNakshatraProgress, NAKSHATRAS } from '@/data/jyotish/nakshatras';
 import { getRashiByDegree, getRashiProgress, RASHIS } from '@/data/jyotish/rashis';
 import { getGrahaById, getGrahaByDayOfWeek, GRAHAS, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from '@/data/jyotish/grahas';
 import type {
@@ -180,7 +219,9 @@ export async function calculatePanchanga(
         timezone,
       };
 
-      const panchangaData = await mod.getPanchanga(input);
+      const libResult = await mod.getPanchanga(input);
+      // Normalize library output to our internal format
+      const panchangaData = normalizeLibPanchanga(libResult);
 
       // Мапимо дані бібліотеки на наші типи
       return mapPanchangaOutput(panchangaData, date, latitude, longitude, timezone);
@@ -205,17 +246,29 @@ function mapPanchangaOutput(
   longitude: number,
   timezone: string
 ): Panchanga {
-  // Отримуємо накшатру та раші за градусом Місяця
-  const moonDegree = data.nakshatra?.degree || 0;
-  const sunDegree = data.sunSign?.degree || 0;
+  // Отримуємо накшатру - prefer number from library, fallback to degree calculation
+  let nakshatra;
+  let moonDegree = data.nakshatra?.degree ?? 0;
 
-  const nakshatra = getNakshatraByDegree(moonDegree);
+  if (data.nakshatra?.number != null) {
+    // Use nakshatra number from library
+    nakshatra = getNakshatraById(data.nakshatra.number) ?? getNakshatraByDegree(0);
+    // Estimate degree from nakshatra number (each nakshatra spans 13°20' = 13.333°)
+    if (moonDegree === 0) {
+      moonDegree = (data.nakshatra.number - 1) * 13.333333 + 6.666667; // center of nakshatra
+    }
+  } else {
+    nakshatra = getNakshatraByDegree(moonDegree);
+  }
+
+  // Раші - derive from moonDegree or estimate from day of year
+  const sunDegree = data.sunSign?.degree || 0;
   const moonRashi = getRashiByDegree(moonDegree);
   const sunRashi = getRashiByDegree(sunDegree);
 
-  // Тітхі
+  // Тітхі - paksha already derived in normalizer
   const tithiNumber = data.tithi?.number || 1;
-  const paksha = data.tithi?.paksha === 'Shukla' ? 'shukla' : 'krishna';
+  const paksha = data.tithi?.paksha || (tithiNumber <= 15 ? 'shukla' : 'krishna');
   const tithiData = TITHIS[(tithiNumber - 1) % 15];
   const tithi: Tithi = {
     ...tithiData,
