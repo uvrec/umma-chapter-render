@@ -1,4 +1,4 @@
-import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Heart, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash, Bot } from "lucide-react";
+import { Menu, LogIn, Home, BookOpen, Book, MessageCircle, Languages, ChevronDown, ChevronRight, FileText, User, Plus, GraduationCap, BookMarked, Wand2, Wrench, Hash, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -11,8 +11,6 @@ import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 export const Header = () => {
   const [open, setOpen] = useState(false);
-  const [translationsOpen, setTranslationsOpen] = useState(false);
-  const [prabhupadaOpen, setPrabhupadaOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const {
     t
@@ -147,48 +145,6 @@ export const Header = () => {
                   <span>Бібліотека</span>
                 </Link>
 
-                <Collapsible open={translationsOpen} onOpenChange={setTranslationsOpen}>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
-                    <div className="flex items-center space-x-3">
-                      <Languages className="h-5 w-5" />
-                      <span>Переклади</span>
-                    </div>
-                    {translationsOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </CollapsibleTrigger>
-
-                  <CollapsibleContent className="ml-6 mt-2 space-y-2">
-                    <Collapsible open={prabhupadaOpen} onOpenChange={setPrabhupadaOpen}>
-                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20">
-                        <span>Прабгупада</span>
-                        {prabhupadaOpen ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                      </CollapsibleTrigger>
-
-                      <CollapsibleContent className="ml-4 mt-1 space-y-1">
-                        <Link to="/translations/prabhupada/letters" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Листи</span>
-                        </Link>
-                        <Link to="/translations/prabhupada/lectures" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Лекції</span>
-                        </Link>
-                        <Link to="/translations/prabhupada/books" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Книги</span>
-                        </Link>
-                        <Link to="/translations/prabhupada/photos" className="flex items-center space-x-3 rounded-md px-3 py-1 text-xs transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                          <span>Фото</span>
-                        </Link>
-                      </CollapsibleContent>
-                    </Collapsible>
-
-                    <Link to="/translations/aindra-prabhu" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <span>Аіндри прабгу</span>
-                    </Link>
-
-                    <Link to="/translations/acharya-books" className="flex items-center space-x-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                      <span>Книги ачар'їв</span>
-                    </Link>
-                  </CollapsibleContent>
-                </Collapsible>
-
                 <Link to="/glossary" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <Book className="h-5 w-5" />
                   <span>Глосарій</span>
@@ -244,11 +200,6 @@ export const Header = () => {
                 <Link to="/contact" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
                   <MessageCircle className="h-5 w-5" />
                   <span>Контакти</span>
-                </Link>
-
-                <Link to="/donation" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>
-                  <Heart className="h-5 w-5" />
-                  <span>Підтримати проєкт</span>
                 </Link>
 
                 {!user && <Link to="/auth" className="flex items-center space-x-3 rounded-md px-3 py-3 text-foreground transition-colors hover:bg-foreground/5 hover:border hover:border-foreground/20" onClick={() => setOpen(false)}>

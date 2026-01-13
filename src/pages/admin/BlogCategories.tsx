@@ -1,6 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +25,16 @@ type CategoryRow = {
 };
 
 export default function BlogCategories() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [editId, setEditId] = useState<string | null>(null);
@@ -191,6 +201,8 @@ export default function BlogCategories() {
       setSlug(generateSlug(nameUa.trim()));
     }
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto py-8">

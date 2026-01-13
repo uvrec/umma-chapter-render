@@ -6,7 +6,8 @@
  * ВАЖЛИВО: Потрібна міграція 20251107000002_create_letters_tables.sql
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,15 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function LetterImport() {
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
+
   const [activeTab, setActiveTab] = useState("import");
 
   // Статистика листів (після міграції)
@@ -80,6 +89,8 @@ export default function LetterImport() {
     },
     retry: false,
   });
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">

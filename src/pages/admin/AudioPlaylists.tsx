@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -33,8 +34,15 @@ type PlaylistRow = {
 };
 
 export default function AudioPlaylists() {
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const { data: categories } = useQuery({
     queryKey: ["audio-categories"],
@@ -102,6 +110,8 @@ export default function AudioPlaylists() {
       navigate(`/admin/audio-playlists/${row.id}`);
     },
   });
+
+  if (!user || !isAdmin) return null;
 
   if (isLoading) {
     return (

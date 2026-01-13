@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,11 +7,19 @@ import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Header } from "@/components/Header";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function NormalizeTexts() {
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
   const [isNormalizingUA, setIsNormalizingUA] = useState(false);
   const [isNormalizingEN, setIsNormalizingEN] = useState(false);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
 
   const handleNormalizeUA = async () => {
     if (!confirm('⚠️ Це оновить ВСІ українські тексти Чайтанья-чарітамріти (послівний переклад, літературний переклад та пояснення).\n\nПродовжити?')) {
@@ -58,6 +66,8 @@ export default function NormalizeTexts() {
       setIsNormalizingEN(false);
     }
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-background">

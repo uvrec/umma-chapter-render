@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Edit, Trash2, Loader2 } from "lucide-react";
 import * as Icons from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 
 interface AudioCategory {
@@ -44,8 +45,16 @@ function generateSlug(input: string) {
 }
 
 export default function AudioCategories() {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    if (!user || !isAdmin) {
+      navigate("/auth");
+    }
+  }, [user, isAdmin, navigate]);
   const [editingCategory, setEditingCategory] = useState<AudioCategory | null>(null);
   const [isCheckingSlug, setIsCheckingSlug] = useState(false);
 
@@ -190,6 +199,8 @@ export default function AudioCategories() {
     e.preventDefault();
     saveMutation.mutate(formData);
   };
+
+  if (!user || !isAdmin) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
