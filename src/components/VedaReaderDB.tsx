@@ -607,17 +607,47 @@ export const VedaReaderDB = () => {
     const range = selection?.getRangeAt(0);
     if (!range) return;
 
-    const rect = range.getBoundingClientRect();
-    const tooltipX = rect.left + rect.width / 2;
-    const tooltipY = rect.top + window.scrollY;
+    // ✅ ВИПРАВЛЕНО: Використовуємо getClientRects() для точнішого позиціонування
+    // при виділенні через кілька елементів (як в DualLanguageText)
+    const rects = range.getClientRects();
+    let tooltipX: number;
+    let tooltipY: number;
 
-    // Get context
-    const container = range.commonAncestorContainer;
-    const fullText = container.textContent || '';
-    const startOffset = range.startOffset;
-    const endOffset = range.endOffset;
-    const before = fullText.substring(Math.max(0, startOffset - 50), startOffset);
-    const after = fullText.substring(endOffset, Math.min(fullText.length, endOffset + 50));
+    if (rects.length > 0) {
+      // Використовуємо перший прямокутник для позиції (початок виділення)
+      const firstRect = rects[0];
+      tooltipX = firstRect.left + firstRect.width / 2;
+      tooltipY = firstRect.top + window.scrollY;
+    } else {
+      // Fallback на getBoundingClientRect
+      const rect = range.getBoundingClientRect();
+      tooltipX = rect.left + rect.width / 2;
+      tooltipY = rect.top + window.scrollY;
+    }
+
+    // ✅ ВИПРАВЛЕНО: Безпечне отримання контексту для multi-element selections
+    let before = '';
+    let after = '';
+
+    try {
+      const startContainer = range.startContainer;
+      const endContainer = range.endContainer;
+
+      // Отримуємо текст до виділення
+      if (startContainer.nodeType === Node.TEXT_NODE) {
+        const text = startContainer.textContent || '';
+        before = text.substring(Math.max(0, range.startOffset - 50), range.startOffset);
+      }
+
+      // Отримуємо текст після виділення
+      if (endContainer.nodeType === Node.TEXT_NODE) {
+        const text = endContainer.textContent || '';
+        after = text.substring(range.endOffset, Math.min(text.length, range.endOffset + 50));
+      }
+    } catch (e) {
+      // Ігноруємо помилки контексту - вони не критичні
+      console.warn('Could not extract selection context:', e);
+    }
 
     // ✅ Довша затримка (700ms) - дає час для копіювання без перешкод
     selectionTimeoutRef.current = setTimeout(() => {
