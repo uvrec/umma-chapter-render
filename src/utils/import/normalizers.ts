@@ -111,6 +111,28 @@ export function stripParagraphTags(text: string): string {
 }
 
 /**
+ * Видаляє background та background-color з inline стилів
+ * Використовується перед DOMPurify для уникнення проблем з глобальними хуками
+ */
+function stripBackgroundStyles(html: string): string {
+  return html.replace(
+    /style\s*=\s*["']([^"']*)["']/gi,
+    (match, styleContent) => {
+      const cleanedStyle = styleContent
+        .split(';')
+        .filter((prop: string) => {
+          const propName = prop.split(':')[0]?.trim().toLowerCase();
+          return propName !== 'background-color' && propName !== 'background';
+        })
+        .join(';')
+        .trim();
+
+      return cleanedStyle ? `style="${cleanedStyle}"` : '';
+    }
+  );
+}
+
+/**
  * Санітизація HTML для рендерингу в компонентах.
  * Видаляє небезпечні стилі (background-color, background) з inline стилів,
  * які можуть потрапити з EPUB та інших джерел.
@@ -120,30 +142,11 @@ export function stripParagraphTags(text: string): string {
 export function sanitizeForRender(html: string): string {
   if (!html) return '';
 
-  // Налаштовуємо хук для видалення небажаних CSS властивостей
-  DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
-    if (data.attrName === 'style' && data.attrValue) {
-      // Видаляємо background-color та background властивості
-      const cleanedStyle = data.attrValue
-        .split(';')
-        .filter(prop => {
-          const propName = prop.split(':')[0]?.trim().toLowerCase();
-          return propName !== 'background-color' && propName !== 'background';
-        })
-        .join(';')
-        .trim();
+  // Спочатку видаляємо background стилі через regex (простіший підхід без хуків DOMPurify)
+  const htmlWithoutBackground = stripBackgroundStyles(html);
 
-      // Якщо залишився порожній style - видаляємо атрибут повністю
-      if (!cleanedStyle) {
-        data.attrValue = '';
-        data.forceKeepAttr = false;
-      } else {
-        data.attrValue = cleanedStyle;
-      }
-    }
-  });
-
-  const result = DOMPurify.sanitize(html, {
+  // Потім санітизуємо через DOMPurify
+  return DOMPurify.sanitize(htmlWithoutBackground, {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
       'blockquote', 'code', 'pre', 'span', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -154,9 +157,4 @@ export function sanitizeForRender(html: string): string {
       'width', 'height', 'colspan', 'rowspan'
     ],
   });
-
-  // Видаляємо хук після використання, щоб не впливати на інші виклики DOMPurify
-  DOMPurify.removeHook('uponSanitizeAttribute');
-
-  return result;
 }
