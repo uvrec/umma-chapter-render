@@ -662,18 +662,15 @@ export const VedaReaderDB = () => {
     }, 700);
   }, []);
 
-  // Hide tooltip when selection changes or is cleared
+  // Hide tooltip when selection is cleared (but don't cancel pending timeout)
   const handleSelectionChange = useCallback(() => {
     const selection = window.getSelection();
     const selectedText = selection?.toString().trim();
 
-    // If no selection or very short, hide tooltip
+    // Only hide VISIBLE tooltip if selection is cleared
+    // Don't cancel pending timeout - let it complete and check selection then
     if (!selectedText || selectedText.length < 10) {
       setSelectionTooltipVisible(false);
-      if (selectionTimeoutRef.current) {
-        clearTimeout(selectionTimeoutRef.current);
-        selectionTimeoutRef.current = null;
-      }
     }
   }, []);
 
