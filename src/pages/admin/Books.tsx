@@ -119,7 +119,7 @@ const Books = () => {
                 <CardHeader>
                   <CardTitle>
                     <Link
-                      to={`/books/${book.slug}`}
+                      to={`/veda-reader/${book.slug}`}
                       className="hover:text-primary hover:underline inline-flex items-center gap-2 transition-colors"
                     >
                       {book.title_ua}
