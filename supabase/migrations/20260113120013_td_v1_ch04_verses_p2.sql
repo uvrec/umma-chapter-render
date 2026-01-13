@@ -15,12 +15,12 @@ BEGIN
 
   -- December 19th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 19th, 1975', 4,
+    v_chapter_id, E'December 19th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda’s quarters here are simple, clean, and functional with barely any furniture. The floor is a “crazy- paved” style of either white ceramic tiles or marble chips. Only in his <em>darśana</em> room does he have the traditional sheet-covered mattresses to provide seating for guests, and there is a simple <em>āsana</em> and a desk and a bookcase.</p>
@@ -120,19 +120,18 @@ BEGIN
 <p>Prabhupāda talked briefly about Freud. He said that producing such a complicated philosophy and writing volumes of books just to understand sexual attraction, which is there naturally even in the pigs, is like bringing a cannon to kill a mosquito. “Big philosophy,” he said, “is not required for these things.”</p>', '', '1975-12-19', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 20th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 20th, 1975', 5,
+    v_chapter_id, E'December 20th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda is not feeling well; swelling in his legs, feet, and hands trouble him. To see his body puffed with fluid is very disturbing. Nevertheless, he went on his walk, continuing with the education of Dr. Patel and the other devotees.</p>
@@ -172,19 +171,18 @@ BEGIN
 <p>Arrangements are being made to go to Australia for the Ratha-yātrā on January 10th, but our plans might have to change due to Prabhupāda’s ill health. Moreover, some difficulty has arisen regarding Prabhupāda’s visa.</p>', '', '1975-12-20', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 21st, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 21st, 1975', 6,
+    v_chapter_id, E'December 21st, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>There was no morning walk today. Missing Prabhupāda on the beach, Dr. Patel arrived at his apartment with his son. He took a cardiograph reading and gave Prabhupāda some pills. His diagnosis is high blood pressure.</p>
@@ -196,19 +194,18 @@ BEGIN
 <p>As part of his cure Prabhupāda told us that for at least one week he wants to be free of appointments and visitors. Harikeśa is doubtful that we will be able to enforce this rule. Prabhupāda is too enthusiastic to stop preaching and too kind to turn away unexpected visitors.</p>', '', '1975-12-21', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 22nd, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 22nd, 1975', 7,
+    v_chapter_id, E'December 22nd, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is Śrīla Bhaktisiddhānta Sarasvatī Ṭhākura’s disappearance day. Śrīla Prabhupāda is feeling a little stronger, but the morning walk was again canceled.</p>
@@ -296,19 +293,18 @@ BEGIN
 <p>With great satisfaction he took some <em>mahā-prasādam</em> that had been offered this evening to his Guru Mahārāja. He also had Harikeśa make some <em>kachoris</em>. To see him eat heartily is a good sign that his health is improving.</p>', '', '1975-12-22', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 23rd, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 23rd, 1975', 8,
+    v_chapter_id, E'December 23rd, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Śrīla Prabhupāda is feeling stronger, and the swelling in his body has gone down because of the diuretic pills Dr. Patel supplied yesterday. But Prabhupāda didn’t take all the pills prescribed. After taking a half tablet, as soon as he got the desired effect, he stopped taking the medication.</p>
@@ -360,19 +356,18 @@ BEGIN
 <p>Now, with the same determination and strong desire, Śrīla Prabhupāda is pushing on the building effort. This will be the biggest temple and <em>āśrama</em> complex in ISKCON to date, and he wants to offer it to Their Lordships Śrī Śrī Rādhā-Rāsabihārī.</p>', '', '1975-12-23', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 24th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 24th, 1975', 9,
+    v_chapter_id, E'December 24th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>This is Śrīla Prabhupāda’s final day in Bombay. He is scheduled to go to Gujarat tomorrow.</p>
@@ -410,7 +405,6 @@ BEGIN
 <p>I spent the day packing and preparing for tomorrow’s trip. Several village programs have been arranged, and Śrīla Prabhupāda is very enthusiastic. He stressed the importance of preaching in the villages, telling Hansadūta, Harikeśa and me that he had a long cherished desire to preach from village to village in India. Prior to coming to the West he was unable to do it, but now he is getting the opportunity to fulfill his desire.</p>', '', '1975-12-24', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

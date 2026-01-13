@@ -148,18 +148,17 @@ BEGIN
         sql_parts.append(f"""
   -- {verse_num}
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'{verse_num}', {verse_sort},
+    v_chapter_id, E'{verse_num}',
     '', '', '', '',
     '', '', '', '',
     E'{commentary}', '', {event_date}, true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 """)

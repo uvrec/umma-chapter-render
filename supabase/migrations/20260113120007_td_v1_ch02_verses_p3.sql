@@ -15,12 +15,12 @@ BEGIN
 
   -- December 7th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 7th, 1975', 6,
+    v_chapter_id, E'December 7th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>One of Śrīla Prabhupāda’s foremost desires is to develop a first-class <em>gurukula</em> system. He was personally involved in the development of the school in Dallas, ISKCON’s first <em>gurukula</em>, and now here.</p>
@@ -46,19 +46,18 @@ BEGIN
 <p>Prabhupāda derives great inspiration from the life of Prahlāda Mahārāja and often refers to his exemplary behavior when preaching. A recent letter from Yogeścandra dāsa requested Prabhupāda’s blessings for a party of eight men who are to collect funds for the Māyāpur temple. “You always have my blessings,” Prabhupāda replied. “The father always wishes that the son may be more successful than himself. This is the spiritual conception. If one is doing well, then the materialistic persons become envious and try to check his progress. This was actually so with Prahlada Maharaja. He was only five years old, he was preaching Krsna consciousness to his school friends, and the father Hiranyakasipu became so envious that he attempted to kill his five-year-old son in so many ways. Krsna consciousness is just the opposite. If someone is doing well then the attitude of the devotee is to give him all facility to go on and improve more and more.”</p>', '', '1975-12-07', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 8th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 8th, 1975', 7,
+    v_chapter_id, E'December 8th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda is always concerned about our welfare—not just philosophically, but in many practical ways as well. For example, this morning was very cold; winter is really setting in. He remarked about it on his walk and then asked if the devotees are getting ghee on their <em>capātīs</em>. Akṣayānanda Swami replied that only the guests are given some because it’s expensive and not necessary for the devotees.</p>
@@ -146,19 +145,18 @@ BEGIN
 <p>Śrīla Prabhupāda is always flexible. Gargamuni Swami is to come to India with five Mercedes vans and twenty men to begin traveling <em>saṅkīrtana</em> and standing-order distribution to libraries. Although Prabhupāda had requested him to manage the Calcutta temple again, when he heard his new program of selling books he wrote, “Yes! Your present engagement is more important. Managing Calcutta temple is not so important. I am pleased that you are selling my books; this is superior engagement, so please increase it more and more.”</p>', '', '1975-12-08', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 9th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 9th, 1975', 8,
+    v_chapter_id, E'December 9th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>There are problems with the drainage from our guest house. The septic tanks are inadequate, and there is no room to build larger ones. Neither is the local municipality providing sewage lines to this area. Overflow is polluting the back alley, and there have been complaints from local residents. Prabhupāda has had many discussions with Saurabha, Guṇārṇava, and the other managers aimed at finding a solution.</p>
@@ -244,7 +242,6 @@ BEGIN
 <p>I accepted his words as good advice, and tomorrow I will ask Śrīla Prabhupāda personally.</p>', '', '1975-12-09', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

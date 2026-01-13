@@ -15,12 +15,12 @@ BEGIN
 
   -- December 10th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 10th, 1975', 9,
+    v_chapter_id, E'December 10th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Morning walks are always fascinating. Devotees often bring up controversial subjects just to get Prabhupāda’s reaction. Akṣayānanda Swami initiated the discussion this morning by mentioning a questionable statement made by a senior devotee in a class recently. “I was told by one devotee that the <em>ācārya</em> does not have to be a pure devotee.”</p>
@@ -204,19 +204,18 @@ BEGIN
 <p>“All the elements have accompanying characteristics and attributes. In this way, by the influence of time, the elements are generated, one after another. All the bodies of the living beings are made from these elements. So why not fire bodies? The scientists cannot perceive. The defect is theirs, but they judge everything by their own standards of imperfection and advertise this as knowledge.”</p>', '', '1975-12-10', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 12th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 12th, 1975', 10,
+    v_chapter_id, E'December 12th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>There is an old man with white hair and beard who recently moved into the <em>āśrama</em>. When Prabhupāda came out from his front porch to begin his walk, all the devotees offered their obeisances except the old man. He was busy throwing water from a brass <em>loṭā</em> onto the <em>tulasī</em> plants in the small garden in front of Prabhupāda’s house. He wasn’t very conscious of Śrīla Prabhupāda’s presence, and a few devotees felt he was being offensive. Prabhupāda’s mood was different. “This is devotee!” he said, turning to all of us. “Just see how nicely he is watering the <em>tulasī</em> tree. You should all do this.”</p>
@@ -274,7 +273,6 @@ BEGIN
 <p>Prabhupāda observed his normal program, while we spent most of the day preparing for three months’ travel. He will not be returning until the Gaura Pūrṇimā festival in March. We stored everything not required in his almirah and cupboards, while packing everything else to be ready for our early morning departure. We left his desk paraphernalia, toiletries, and dictaphone. They’ll go in at the last minute.</p>', '', '1975-12-12', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

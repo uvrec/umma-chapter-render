@@ -15,12 +15,12 @@ BEGIN
 
   -- February 6th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 6th, 1976', 21,
+    v_chapter_id, E'February 6th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>The two new swamis left for Calcutta this morning. Harikeśa Mahārāja will go to the USA via London. I gave him my quilted cotton jacket, a <em>bagalbundi</em> from Vṛndāvana, because he had no clothes for colder climates.</p>
@@ -130,19 +130,18 @@ BEGIN
 <p>Overall, Prabhupāda’s response to their proposals was not very favorable. So they will reconsider and modify them.</p>', '', '1976-02-06', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 7th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 7th, 1976', 22,
+    v_chapter_id, E'February 7th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is Śrī Advaitācārya’s appearance day, a half-day fast, and the day chosen for the launch of the boat.</p>
@@ -184,19 +183,18 @@ BEGIN
 <p>Immediately after lunch Prabhupāda went upstairs and took his afternoon nap in one of the rooftop rooms on the roof. He enjoyed the fresh open air. The setting was so peaceful and quiet that he has decided to stay up there every day from 10:00 a.m. until 4:00 p.m., taking his massage, bath, and lunch all there.</p>', '', '1976-02-07', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 8th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 8th, 1976', 23,
+    v_chapter_id, E'February 8th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>For the first time since we arrived, Prabhupāda gave a class after <em>guru-pūjā</em>, speaking in English on the <em>Śrīmad-Bhāgavatam</em> Seventh Canto 9.1. The subject was Prahlāda Mahārāja’s prayers to Lord Nṛsiàhadeva.</p>
@@ -226,19 +224,18 @@ BEGIN
 <p>He called in his new cook, Nandarāṇī, and explained how to make <em>rasagullās</em>. The curd has to be thoroughly kneaded. Then when rolled, a small piece of rock candy can be placed in the middle. The whole thing has to be cooked until sticky.</p>', '', '1976-02-08', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 9th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 9th, 1976', 24,
+    v_chapter_id, E'February 9th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>On his morning walk Prabhupāda explained that the <em>varṇāśrama</em> system is not necessary for our ISKCON society; it is a material arrangement. When one chants the holy name and performs devotional service one immediately rises above that platform, like using a lift instead of stairs. However, as long as some bodily concept is present, <em>varṇāśrama</em> is useful and it can be utilized.</p>
@@ -276,19 +273,18 @@ BEGIN
 <p>Although he has been here before, he was taken on a tour. He greatly appreciated the transcendental atmosphere of Māyāpur. Afterward he relished <em>prasādam</em>, then Śrīla Prabhupāda entertained him very graciously in his room for an hour, conversing on various topics. He left paying high tribute to Śrīla Prabhupāda for the great work he is doing in spreading the movement of Lord Caitanya far and wide.</p>', '', '1976-02-09', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 10th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 10th, 1976', 25,
+    v_chapter_id, E'February 10th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Śrīla Prabhupāda is constantly meditating on the development of ISKCON. He regularly discusses managerial concerns as well as spiritual standards in order to assure that everything in the Society is running efficiently. He is constantly on the watch for signs of mismanagement. It is common for him to call in his GBC men at all hours to garner information and give direction. We are all untrained, both materially and spiritually, and Prabhupāda has to educate us in both realms in order to create a Society with a solid framework for advancement.</p>
@@ -350,19 +346,18 @@ BEGIN
 <p>Prabhupāda raised his eyebrows. “Yes!” He agreed it was a good idea. Bhavānanda left immediately.</p>', '', '1976-02-10', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 11th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 11th, 1976', 26,
+    v_chapter_id, E'February 11th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>The observance of Ekādaśī today is coupled with a half-day fast for Lord Varāhadeva’s appearance, although the Lord’s appearance is actually tomorrow.</p>
@@ -410,19 +405,18 @@ BEGIN
 <p>Prabhupāda liked the idea and told him, “Regarding publishing books, these books can be published by you and men in your rank. Ordinary men cannot write such books. So therefore if a book is written by one man with ‘Bhaktivedanta’ or ‘Bhaktisarvabhauma’ and it is of high quality, then it may be considered by me for publishing.”</p>', '', '1976-02-11', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 12th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 12th, 1976', 27,
+    v_chapter_id, E'February 12th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is the appearance day of Lord Varāha. There is no fast.</p>
@@ -444,19 +438,18 @@ BEGIN
 <p>Prabhupāda also sent a letter to Saurabha in Bombay, requesting him to provide Gaura Govinda with suitable plans for the proposed temple complex.</p>', '', '1976-02-12', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 13th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 13th, 1976', 28,
+    v_chapter_id, E'February 13th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is Lord Nityānanda’s appearance, a half-day fast. Nityānanda Prabhu liked <em>urad dāl</em>, so this was one obvious preparation that was made for His feast.</p>
@@ -482,7 +475,6 @@ BEGIN
 <p>Seeing his pleasure at my reformed character, I reflected how it must be the same as the happiness that Nārada Muni must have felt when transforming the hunter Mṛgāri. A sense of deep gratitude surged through me as I contemplated my good fortune at having also met such a wonderful spiritual master.</p>', '', '1976-02-13', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

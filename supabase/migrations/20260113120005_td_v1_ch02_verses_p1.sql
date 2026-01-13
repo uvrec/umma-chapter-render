@@ -15,12 +15,12 @@ BEGIN
 
   -- December 2nd, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 2nd, 1975', 1,
+    v_chapter_id, E'December 2nd, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>After a short early morning walk, our party left New Delhi, following the main Agra road as far as the District of Mathurā, a two hour trip. Just before the Vṛndāvana turn-off, Prabhupāda was pleased to see a newly erected sign on the Agra Road advertising our ISKCON Krishna-Balaram International Guest House. As his car turned left onto Chattikara Road, Guṇārṇava dāsa, eagerly waiting at the roadside on a motorcycle, sped ahead to inform the devotees of His Divine Grace’s imminent arrival.</p>
@@ -152,19 +152,18 @@ BEGIN
 <p>I have therefore resolved within myself to learn as much as I can while I have this matchless opportunity to observe him closely. Simply watching Śrīla Prabhupāda in his daily activities—how he deals with devotees, how he responds to different situations, how he preaches, how he manages the worldwide affairs of his ever-expanding society, how he relaxes, how he continually pushes forward the movement of Lord Caitanya, how absolutely every facet of his being is fully Kṛṣṇa conscious—it is quite feasible to understand the full import of the sacred scriptures. By studying and preaching one may make steady advancement, but at least for me, although I have full faith in Kṛṣṇa consciousness, many ideas and principles are still only intellectually perceived, not yet fully realized. But by observing Śrīla Prabhupāda I can see they are a natural, integral part of his very being.</p>', '', '1975-12-02', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 3rd, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 3rd, 1975', 2,
+    v_chapter_id, E'December 3rd, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>First thing this morning Prabhupāda complained that during the night someone’s snoring had disturbed him. Prabhupāda translates in his sitting room, which is next to the servants’ room where all three of us sleep. Since Harikeśa has not previously drawn any complaint we concluded that the culprit is either Hansadūta or myself, so we now share a guest house room.</p>
@@ -270,7 +269,6 @@ BEGIN
 <p>From this incident I can understand that although it is essential to follow the instructions of the spiritual master closely, a little intelligence in the application of those instructions is also required. A first-class servant will anticipate the needs of his spiritual master, rather than simply wait to be told everything. One who is expert at pleasing the guru can do many things on his own initiative and still adhere strictly to all instructions. Our intelligence shouldn’t be stereotyped or inflexible.</p>', '', '1975-12-03', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

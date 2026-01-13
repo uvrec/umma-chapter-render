@@ -15,12 +15,12 @@ BEGIN
 
   -- February 14th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 14th, 1976', 29,
+    v_chapter_id, E'February 14th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>The roof is a convenient place for Śrīla Prabhupāda to take his morning walk. Its sizable 45-foot width by 150-foot-long expanse is large enough for him to get sufficient exercise without having to leave the building. It also limits the number of devotees who accompany him to just a few senior men. The panorama from the roof is magnificent. From that single vantage point, Prabhupāda can view what is going on within our entire compound. The perimeter of the roof is profusely decorated with potted plants and <em>tulasī</em> trees, creating a pleasurable, natural ambience.</p>
@@ -62,19 +62,18 @@ BEGIN
 <p>Prabhupāda was sympathetic, but purposeful. In his reply he encouraged Brahmānanda to work vigorously and continue with his efforts to preach. He also suggested he base himself in Mauritius, which Prabhupāda described as “a nice place by the sea.” As for whether he should remain in Africa or not, Śrīla Prabhupāda said that will have to be discussed by the GBC.</p>', '', '1976-02-14', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 15th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 15th, 1976', 30,
+    v_chapter_id, E'February 15th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In this morning’s class Śrīla Prabhupāda described his ambitious plans for showing the higher regions of the universe in the Vedic Planetarium he’s proposed for Māyāpur.</p>
@@ -118,19 +117,18 @@ BEGIN
 <p>Śrīla Prabhupāda sent Jayapatāka Swami to Calcutta to meet Mr. Chaudhuri. He will help Jayapatāka approach government officials with our request for acquiring land in Māyāpur for our proposed Vedic City.</p>', '', '1976-02-15', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 16th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 16th, 1976', 31,
+    v_chapter_id, E'February 16th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Last night Prabhupāda had <em>rasagullā</em> and <em>nimkins</em>, tasty homemade biscuits, which are offered to the Deities each evening. He spilled some <em>rasagullā</em> juice on the mat; immediately hundreds of ants came to enjoy. This has happened a few times. Each time as I clean up, Prabhupāda stops to watch me and makes some pertinent philosophical remark.</p>
@@ -196,19 +194,18 @@ BEGIN
 <p>Śrīla Prabhupāda wrote back encouraging him to try to rectify our position. He said that Trivikrama Swami is “well expert” in Japanese dealings, and if Gurukṛpa Swami is not needed there, he may be sent to Bangladesh.</p>', '', '1976-02-16', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 17th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 17th, 1976', 32,
+    v_chapter_id, E'February 17th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Instead of going to the roof for his morning walk, Prabhupāda decided to inspect the construction site of the new building.</p>
@@ -284,19 +281,18 @@ BEGIN
 <p>Prabhupāda told us today that everyone should shave up every <em>pūrṇimā</em>, or full moon.</p>', '', '1976-02-17', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 18th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 18th, 1976', 33,
+    v_chapter_id, E'February 18th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>With so many <em>sannyāsīs</em> around I am constantly being asked to run here and there on errands. This distracts me from my service to Śrīla Prabhupāda, but it is difficult to refuse their requests. Therefore I asked Śrīla Prabhupāda during his walk what I should do. His simple quote made things very clear. “Everybody’s servant is no one’s servant.” That settled my mind. I decided to tend to him alone, and the <em>sannyāsīs</em> will have to make their own arrangements.</p>
@@ -342,19 +338,18 @@ BEGIN
 <p>He explained that land acquisition works in this way: if the government is convinced that a major project is important or beneficial enough for the district, then an average price for a parcel of land for the last ten years is calculated. The land owners of the plots required must sell at that price. This prevents artificial inflation of land values, which is to no one’s benefit. Initially, we are asking for only twenty-three acres, and we will ask for more later.</p>', '', '1976-02-18', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 19th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 19th, 1976', 34,
+    v_chapter_id, E'February 19th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>The morning walk was on the roof again, but it has become too hot for Prabhupāda to have his massage in the sun, even when a breeze is blowing. It is, however, still very pleasant to be on the roof during the morning hours, and Prabhupāda seems to enjoy the simple facilities. Because of the heat, he sits in the shade atop the wide, wooden bench in the lee of the room to receive his massage. But for bathing he sits in his <em>gamchā</em> on a <em>choṅki</em> in the sunshine and washes off the oils from a bucket of solar-heated water.</p>
@@ -372,7 +367,6 @@ BEGIN
 <p>Prabhupāda’s son, Vrindavana Chandra, and also his sister, known affectionately to the devotees as Pisimā, Bengali for ‘Aunty,’ arrived in the afternoon. She plans to stay for the whole festival.</p>', '', '1976-02-19', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

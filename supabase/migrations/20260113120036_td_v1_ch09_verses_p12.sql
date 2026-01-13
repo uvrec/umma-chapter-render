@@ -15,12 +15,12 @@ BEGIN
 
   -- March 21st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 21st, 1976', 65,
+    v_chapter_id, E'March 21st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today was Śrīla Prabhupāda’s final day in Māyāpur.</p>
@@ -102,7 +102,6 @@ BEGIN
 <p>Prabhupāda smiled with pleasure and appreciation, and he slipped it on the little finger of his right hand. Then, opening the drawer in his desk, he pulled out another ring, a large, decorative, golden one with a big, black stone, which he handed to Bhavānanda Mahārāja. Very gratefully, Bhavānanda immediately put it on, and it fitted perfectly.</p>', '', '1976-03-21', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

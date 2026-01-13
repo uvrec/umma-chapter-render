@@ -15,12 +15,12 @@ BEGIN
 
   -- January 3rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 3rd, 1976', 1,
+    v_chapter_id, E'January 3rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In the early morning Śrīla Prabhupāda, Tamal Krishna Mahārāja, Harikeśa, and I boarded a train heading north to Nellore, a small city in the state of Andhra Pradesh. The local Madras devotees saw us off at the station with a rousing <em>kīrtana</em>. The clamor alerted some of the other passengers to Prabhupāda’s presence, and several men hovered around the carriage, peering in with great interest. We shut the door and relaxed in the quiet privacy of the first-class compartment.</p>
@@ -176,19 +176,18 @@ BEGIN
 <p>When we chanted, several of the house servants sat by the door. The sisters also came, attracted by the <em>kīrtana</em>. After about half an hour we stopped. Prabhupāda had Tamal Krishna Mahārāja read from <em>Śrī Īśopaniṣad</em>. By the time he had finished reading we were alone again.</p>', '', '1976-01-03', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 4th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 4th, 1976', 2,
+    v_chapter_id, E'January 4th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Early in the morning Śrīla Prabhupāda called us into his room, wanting to know why the other devotees had not risen by four o’clock for <em>maṅgala</em>-<em>ārati</em> and <em>kīrtana</em>. He was annoyed by our indolence and said, “If our habits are not changed then what is the use of spending so much money?”</p>
@@ -376,7 +375,6 @@ BEGIN
 <p>On the way back to the house Śrīla Prabhupāda told us that it is very good to tell a story in the middle of a talk. He explained that in Kali-yuga people are less intelligent, so the <em>Bhāgavatam</em> is ideal for this age because it gives instruction by way of stories.</p>', '', '1976-01-04', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

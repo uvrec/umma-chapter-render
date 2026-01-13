@@ -15,12 +15,12 @@ BEGIN
 
   -- January 9th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 9th, 1976', 1,
+    v_chapter_id, E'January 9th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p><strong>Hare Krishna Land, Juhu Beach, Bombay</strong></p>
@@ -50,19 +50,18 @@ BEGIN
 <p>At the same time he also pointed out that, “In our Vedic Universities we will not encourage anyone to become merely a bookworm... . There must be life—rising early in the morning, attending mangala arati, taking prasadam etc. The man who is studying will be brahmana, the farmer will be vaisya. In this way there will be divisions, but they are all one in the service to Krsna.”</p>', '', '1976-01-09', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 10th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 10th, 1976', 2,
+    v_chapter_id, E'January 10th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda felt a little better this morning. He took his walk following the usual route along the beach and enjoyed a long and interesting talk with a local movie director. Bombay is the center of India’s film industry, the third biggest in the world. Many people connected with the movie trade are now becoming interested in the activities of ISKCON. This particular man was polite and receptive but had many philosophical misconceptions about spiritual matters, which he allowed Śrīla Prabhupāda to correct.</p>
@@ -106,19 +105,18 @@ BEGIN
 <p>In the early evening Prabhupāda called me to give him a dry, full-body massage. He is not feeling well, and took rest at 8:00 p.m. I felt frustrated that I was unable to help him in any way. Then, amazingly, at 9:30 p.m. he got up and continued his translation work throughout the entire night!</p>', '', '1976-01-10', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 11th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 11th, 1976', 3,
+    v_chapter_id, E'January 11th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda obviously felt better this morning. The movie producer came down to the beach again and engaged Prabhupāda in a lively debate. He wasn’t shy to express his thoughts and opinions, but he listened with great respect and attention to Prabhupāda’s responses. Prabhupāda was so enlivened by the man’s questions and challenges that the walk took much longer than usual. We recorded two full sides of tape on the reel-to-reel Uher recorder. Prabhupāda showed no signs of illness and at the end of the walk he seemed stronger than ever.</p>
@@ -140,19 +138,18 @@ BEGIN
 <p>During the day he relaxed, taking advantage of the absence of visitors to read, chant and conserve his energy. In the evening he gave the Sunday feast lecture in Hindi.</p>', '', '1976-01-11', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 12th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 12th, 1976', 4,
+    v_chapter_id, E'January 12th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Dr. Patel joined us on the walk this morning. In his usual boisterous manner he often interrupted Prabhupāda before Prabhupāda could finish what he was saying. Sometimes he was so eager to speak that he couldn’t get his words out at all. His overly-familiar manner with Śrīla Prabhupāda sometimes annoys us disciples and leads to a little friction between him and us. But Prabhupāda has infinite tolerance, born from his eagerness to help others advance in their spiritual lives. He sees only the good in others, and this morning his liberal and friendly dealing was clearly manifest.</p>
@@ -240,19 +237,18 @@ BEGIN
 <p>Sudāmā Mahārāja has only recently returned after falling away from his spiritual practices for some time. When he left the room, Prabhupāda, obviously pleased with his eagerness to serve, said that he was “a nice boy” who had been misled. He was exceedingly happy to see him back and enthusiastically engaging in devotional service.</p>', '', '1976-01-12', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 13th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 13th, 1976', 5,
+    v_chapter_id, E'January 13th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today was Ekādaśī, and Śrīla Prabhupāda took his morning walk along the Gaṅgā. Hundreds of pilgrims were taking a dawn bath there, having come for the Gaṅgā-Sāgara-melā. Prabhupāda explained that <em>sāgara</em> is the sea, so the <em>melā</em> is a spiritual gathering on an island in the Gaṅgā’s estuary.</p>
@@ -280,19 +276,18 @@ BEGIN
 <p>In the evening Prabhupāda spoke in Hindi and Bengali to the large crowd that packed the temple room. The <em>darśana</em> seemed especially sweet and enjoyable because Śrīla Prabhupāda is the local Calcutta success story. Although Prabhupāda always remains wholly transcendental in consciousness, he is fully familiar with the surroundings and cultural idiosyncrasies of Bengal. There thus seemed a special rapport between him and the audience as he preached on the necessity of becoming Kṛṣṇa conscious.</p>', '', '1976-01-13', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 14th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 14th, 1976', 6,
+    v_chapter_id, E'January 14th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda took his walk along the Gaṅgā again. Although it was early morning, hundreds of people lined the river bank bathing, doing <em>pūjā</em>, and washing clothes.</p>
@@ -344,19 +339,18 @@ BEGIN
 <p>These reflections on his past struggles to establish ISKCON revealed just a hint of his inner, intimate—and to us, hidden—relationship with Their Lordships. Śrīla Prabhupāda’s smiles and laughter at Tamal Krishna Mahārāja’s recollections made me wonder what kind of special <em>līlā</em> he has with Śrī Śrī Rādhā-Londonīśvara. Prabhupāda said that They are the best in the Society; the first large Deities to be installed.</p>', '', '1976-01-14', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 15th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 15th, 1976', 7,
+    v_chapter_id, E'January 15th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>For a change Śrīla Prabhupāda took his walk around the grounds of Calcutta’s famous Victoria Memorial. Many people were out exercising and walking. Rather than speak, Prabhupāda had us perform a gentle <em>kīrtana</em> the entire time.</p>
@@ -374,19 +368,18 @@ BEGIN
 <p>Later in the day I came before Prabhupāda wearing a new raw silk <em>dhotī</em>, which he immediately noticed. He asked me whether it was silk and how much it cost. Remembering that in Vṛndāvana he had complimented me for getting a good <em>dhotī</em> for only fourteen rupees, I thought he might not be happy that I had spent 175 on this one. However, he was quite pleased and remarked that silk is very nice.</p>', '', '1976-01-15', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 16th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 16th, 1976', 8,
+    v_chapter_id, E'January 16th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>We walked in Victoria Gardens again, but without an accompanying <em>kīrtana</em>. Prabhupāda said little, and we all chanted <em>japa</em> as we walked around the huge, empty, marble edifice.</p>
@@ -412,7 +405,6 @@ BEGIN
 <p>Prabhupāda told us today how to make <em>baḍa</em> by grinding up rice and <em>urad dāl</em> after first soaking them, making a paste, spicing it with chopped green chili, salt, and pepper, and then deep-frying small balls of it in hot ghee. An accompanying chutney can be made from the soft, white flesh of a young coconut mixed with green chili, salt, and lemon juice. He took a few <em>baḍas</em> made by Harikeśa in the evening to gain strength for his night’s translation work.</p>', '', '1976-01-16', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

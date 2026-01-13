@@ -15,12 +15,12 @@ BEGIN
 
   -- December 13th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 13th, 1975', 1,
+    v_chapter_id, E'December 13th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda likes to travel early in the morning. At 6:00 a.m., he chanted Gāyatrī <em>mantra</em>, donned his coat, gloves, and hat, and headed for the door. In a flurry of activity Harikeśa and I quickly packed last-minute items. Harikeśa placed the dictaphone and <em>Bhāgavatam</em>s into a black attachê case. Meanwhile I hastily filled Prabhupāda’s red vinyl briefcase with his desk paraphernalia (a pen case, a golden straw for drinking coconut juice, a jar of ink, a small silver cask filled with cardamom seeds, his glasses, <em>tilaka</em> clay, <em>loṭā</em>, mirror, mortar and pestle, a small enameled tin full of snuff for his high blood pressure, and a black Revlon manicure case). Finally, I swiftly stuffed Śrīla Prabhupāda’s indoor slippers and the brass spittoon engraved with his name into my shoulder bag and rushed to catch up.</p>
@@ -58,19 +58,18 @@ BEGIN
 <p>Śrīla Prabhupāda smiled and immediately gave the answer. “It is like Prahlāda Mahārāja. He did not become degraded by his birth in a demonic family. Rather, the family was glorified because of him.”</p>', '', '1975-12-13', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 14th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 14th, 1975', 2,
+    v_chapter_id, E'December 14th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Early this morning Prabhupāda walked his usual route past the <em>kalā-kendras</em> and <em>bhavans</em>. Cocks crowed, and occasionally a few cars and trucks passed by. Tejīyas, Hansadūta, Harikeśa, Nayanābhirāma, and I kept close as he strode the littered streets. Noting the dilapidated appearance of New Delhi, Prabhupāda remarked with disapproval, “If this is the capital, what does it indicate about the condition of the country?”</p>
@@ -146,19 +145,18 @@ BEGIN
 <p>He concluded, “Therefore, these rascals they have no clear understanding, and they are svāmīs, yogis, and <em>avatāras</em>. It is a very dangerous position, very dangerous. We have to deal with all rascals and fools. And they have made some position; of course, that position is nothing. Mr. Nanda is also big on this idea, <em>nirviśeṣa śūnyavādi</em>. Still, we cannot change our position. We must go on with our conviction, and that is real, reality. So, begin <em>kīrtana</em>.”</p>', '', '1975-12-14', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 15th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 15th, 1975', 3,
+    v_chapter_id, E'December 15th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Bhagavat dāsa, an intelligent and talkative twenty-five year old New Yorker, currently the Calcutta temple president, passed through on his way to renew his visa in the West. He told Prabhupāda that some astrologers and political experts are predicting a big war early in 1976 with China, Pakistan, and America against India and Russia.</p>
@@ -184,7 +182,6 @@ BEGIN
 <p>Harikeśa gave me a sympathetic smile and shrugged. Within a moment my ticket was handed over to Mr. Singh. The man happily left, and Śrīla Prabhupāda took rest.</p>', '', '1975-12-15', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

@@ -15,12 +15,12 @@ BEGIN
 
   -- December 16th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 16th, 1975', 1,
+    v_chapter_id, E'December 16th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Delhi airport was filled with its usual bustle, and while Hansadūta and Harikeśa dealt with the baggage and other formalities, Śrīla Prabhupāda sat calmly in the boarding area. As he waited, a friendly Bengali gentleman, Mr. Chaudhuri, talked with him for some time. It pleased Prabhupāda to discover that the man worked in the West Bengal Department of Development and Planning.</p>
@@ -64,19 +64,18 @@ BEGIN
 <p>Hansadūta thus busied himself today investigating prices both here and in Europe for a suitable vehicle.</p>', '', '1975-12-16', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 17th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 17th, 1975', 2,
+    v_chapter_id, E'December 17th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>It was a little chilly this morning, and while getting ready for the morning walk Prabhupāda noticed that I was shivering. I was wearing only a <em>kurtā</em>. He called me into his room and gave me a lightly embroidered <em>chaddar</em>. It had been given to him in Delhi, and he had worn it a few times. I was surprised. It was indeed a special honor. His Divine Grace’s thoughtfulness and concern are completely endearing.</p>
@@ -188,19 +187,18 @@ BEGIN
 <p>After a cordial departure, we finally arrived back at the temple by eleven o’clock. It was a successful preaching engagement, but on the way back Prabhupāda mentioned to Girirāja, “That no questions were asked after the lecture indicated a lack of interest on the part of the guests.”</p>', '', '1975-12-17', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 18th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 18th, 1975', 3,
+    v_chapter_id, E'December 18th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Kīrtanānanda Swami, one of Śrīla Prabhupāda’s first disciples and a GBC member, arrived very early this morning from America. He gave a brief report on New Vrindaban, our ISKCON farm community in West Virginia. He distributed some delicious <em>mahā-prasādam</em> from Śrī Śrī Rādhā-Vṛndāvanacandra.</p>
@@ -356,7 +354,6 @@ BEGIN
 <p>“I understand that you are translating Bhagavad-gita As It Is into Malayalam language. Hansaduta has spoken to me about you. Please send me a sample, and we will see about its publication and distribution in India. Maybe in the future you will like to come to India and help preach this message to your countrymen.”</p>', '', '1975-12-18', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

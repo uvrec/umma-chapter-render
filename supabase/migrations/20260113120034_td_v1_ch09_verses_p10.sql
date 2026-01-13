@@ -15,12 +15,12 @@ BEGIN
 
   -- March 12th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 12th, 1976', 56,
+    v_chapter_id, E'March 12th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Hundreds of devotees from around the world are packed into rooms all around the temple compound. The atmosphere is very festive.</p>
@@ -80,19 +80,18 @@ BEGIN
 <p>All the devotees cheered, “<em>Jaya</em>, Śrīla Prabhupāda!” Even a few simple words from him are enough to completely capture everyone’s heart.</p>', '', '1976-03-12', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 13th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 13th, 1976', 57,
+    v_chapter_id, E'March 13th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Mahāàsa Swami is here, and on this morning’s walk he gave Śrīla Prabhupāda an update on some land in Hyderabad being donated to ISKCON. Mr. Hari Prasad Badruka, the current owner, wants to create a joint trust and have ISKCON develop the land, but legal complications have caused a delay. We may get only 250 acres, rather than the 600 originally promised. Mahāàsa expects the case to clear through the courts within a month or so.</p>
@@ -158,19 +157,18 @@ BEGIN
 <p>Thirteen members of Prabhupāda’s former family came to see him. They will stay for Gaura Pūrṇimā. Prabhupāda met with them all briefly, making sure they were comfortably situated. After some light conversation they went out. Prabhupāda was warm and cordial, but he didn’t give them any special attention beyond that which he extends to all his visitors. He clearly has no sense of bodily identification and deals with everyone equitably. He has truly realized that every living being is spirit soul, part of Kṛṣṇa. His dealings at every moment reflect his sense of all existence as a homogenous whole.</p>', '', '1976-03-13', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 14th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 14th, 1976', 58,
+    v_chapter_id, E'March 14th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During the morning walk on the roof, Rāmeśvara prabhu raised a common doubt: If Kṛṣṇa knows everything, past, present, and future, then He must know that a soul is going to fall into the material world, yet He allows it. Therefore He must be cruel.</p>
@@ -308,7 +306,6 @@ BEGIN
 <p>I entered Prabhupāda’s room and found him clearly relieved at having resolved the matter. He smiled at me and said, “Of all the GBC, he,” indicating Tamal Krishna Mahārāja with a tip of his head, “is the most intelligent. But the problem is, those with intelligence want to control everything. And he wants to control the whole Society. He wants to be the supreme controller.”</p>', '', '1976-03-14', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

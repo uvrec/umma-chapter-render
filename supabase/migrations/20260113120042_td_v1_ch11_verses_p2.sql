@@ -15,12 +15,12 @@ BEGIN
 
   -- April 8th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 8th, 1976', 9,
+    v_chapter_id, E'April 8th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>A couple of interesting questions came up during the walk this morning. Paṣcadraviḍa Mahārāja asked Śrīla Prabhupāda what he was thinking when he first went to the West. What idea for a program did he have?</p>
@@ -72,19 +72,18 @@ BEGIN
 <p>In the early afternoon some Gaudiya Math men came and took a big feast. They came again in the evening and, along with the High Commissioner and District Magistrate from Mathurā, attended our program. They spoke on Kṛṣṇa consciousness and gave their recognition of Prabhupāda’s efforts to glorify the holy <em>dhāma</em> all over the world.</p>', '', '1976-04-08', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 9th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 9th, 1976', 10,
+    v_chapter_id, E'April 9th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is <em>Rāma-navamī,</em> the appearance day of Lord Rāmacandra, and everyone fasted until 4:00 p.m.</p>
@@ -130,19 +129,18 @@ BEGIN
 <p>Prabhupāda was telling me some of the psychology of family life as I gave him his evening massage. He explained that a child usually puts food directly into its own mouth, but when older, he may distribute it among his family. It’s the same selfishness, only extended. On the other hand, he also told me that the reason why Westerners squander money so much is because they have no family affection, so therefore they are not careful how they spend it.</p>', '', '1976-04-09', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 10th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 10th, 1976', 11,
+    v_chapter_id, E'April 10th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>As we walked in the same forest again this morning, Yaśodānandana Swami, who returned from South India yesterday, asked Prabhupāda to confirm Ahobalam in the South as the actual place of Lord Nṛsiàhadeva’s pastimes. He had taken photos that he wanted to publish in <em>Back To Godhead</em>magazine. However, Jayādvaita and other editors doubted the claim.</p>
@@ -198,19 +196,18 @@ BEGIN
 <p>Śrīla Prabhupāda instructed Śāstrījī to remain in Vṛndāvana. He wants him to work with the <em>gurukula,</em> rather than add to the travel expenses by coming along. So the party will be just Puṣṭa Kṛṣṇa Swami and myself.</p>', '', '1976-04-10', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 11th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 11th, 1976', 12,
+    v_chapter_id, E'April 11th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p><em>Ekādaśī-brata</em>. Śrīla Prabhupāda, Puṣṭa Kṛṣṇa Swami, Caitya-guru dāsa and I left the Krishna Balaram Mandir at exactly 4:30 a.m., bound for Delhi—and near disaster.</p>
@@ -240,7 +237,6 @@ BEGIN
 <p>Then he went to see the Deities, Śrī Śrī Rādhā-Pārtha-sarathī. They are now in the flat where he previously stayed at 9 Todar Mal Lane, because the lease on number 19 has run out. The situation is difficult, but They are being well looked after.</p>', '', '1976-04-11', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

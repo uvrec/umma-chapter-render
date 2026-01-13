@@ -15,12 +15,12 @@ BEGIN
 
   -- February 26th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 26th, 1976', 41,
+    v_chapter_id, E'February 26th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During the morning walk, Jayapatāka Mahārāja commented that it seemed easier to preach and make devotees in Bengal than other places in India.</p>
@@ -138,19 +138,18 @@ BEGIN
 <p>Prabhupāda still indicated that he wanted him here in Māyāpur. But finally, seeing Mahāvīra’s anxiety, he kindly consented to his return to South America. “All right, whether a <em>gopī</em> or a cow, both are serving Kṛṣṇa. Go to Brazil. You may serve there.”</p>', '', '1976-02-26', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 27th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 27th, 1976', 42,
+    v_chapter_id, E'February 27th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda is not feeling well, yet he continues to receive visitors and take his walks. On top of a bad cold, he now has uremia again, so he is not taking rice.</p>
@@ -192,19 +191,18 @@ BEGIN
 <p>He also criticized a children’s quiz that was included in the magazine, which offered prizes for participants. Prabhupāda said it was gambling.</p>', '', '1976-02-27', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 28th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 28th, 1976', 43,
+    v_chapter_id, E'February 28th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda sat at his desk as he put on his <em>tilaka</em> this morning. He told us he was the very same man now as he was before. Previously he had been unable to do anything in India because he had no money. But now with his intelligence and our cooperation, he said that he could do something.</p>
@@ -290,19 +288,18 @@ BEGIN
 <p>Never self-laudatory, and always humble about his success, Śrīla Prabhupāda captivates his audience with his unique and remarkable character. He has a combination of youthful simplicity coupled with an astonishingly deep perceptiveness of human nature and life in general. He attributes everything to Lord Kṛṣṇa’s special mercy rather than to any expertise of his own. This selfless quality makes him irresistibly attractive, an ideal teacher, and our most trustworthy friend.</p>', '', '1976-02-28', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 29th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 29th, 1976', 44,
+    v_chapter_id, E'February 29th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In his lecture this morning Prabhupāda vividly described how the covering power of <em>māyā</em> influences a person’s sense of enjoyment. He explained that in Burma they have a drink called <em>naphi</em>. People keep special pots into which they place dead bodies of animals, which are then left to decompose. Later, after some years, the fluids are drained and bottled to be drunk at festivals.</p>
@@ -332,19 +329,18 @@ BEGIN
 <p>As he relaxed on his <em>āsana</em> afterward, he told me she should stay in Calcutta and look after their childhood Deities. He shook his head and laughed. “She has some idea of traveling with me. She thinks I am her brother. This is the problem. Therefore Caitanya Mahāprabhu took <em>sannyāsa</em>. Not because it changed Him as a person, but to get away from the family. Generally family members don’t take instruction. I was the same person before taking <em>sannyāsa</em> as after. I took <em>sannyāsa</em> for this reason. Otherwise, I could have done the same things without it.”</p>', '', '1976-02-29', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 1st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 1st, 1976', 45,
+    v_chapter_id, E'March 1st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>There was lively discussion on the walk this morning about modern scientific theories.</p>
@@ -406,7 +402,6 @@ BEGIN
 <p>Serving Śrīla Prabhupāda personally is sometimes very demanding; but it is extremely rewarding and always fully satisfying to the heart.</p>', '', '1976-03-01', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

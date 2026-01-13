@@ -15,12 +15,12 @@ BEGIN
 
   -- April 11th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 11th, 1976', 1,
+    v_chapter_id, E'April 11th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>We landed in Bombay at 10:30 a.m. to a big airport reception from the devotees. The ISKCON Bombay devotees honored Śrīla Prabhupāda with a lavish foot-bathing ceremony and <em>guru-pūjā</em> on his arrival at Hare Kṛṣṇa Land. They do this every time he visits.</p>
@@ -30,19 +30,18 @@ BEGIN
 <p>This evening Prabhupāda gave a long <em>darśana</em> that lasted until 8:30 p.m.</p>', '', '1976-04-11', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 12th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 12th, 1976', 2,
+    v_chapter_id, E'April 12th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda made a careful inspection of the entire building site before taking his walk on the beach. All the ground-floor construction for the temple, the auditorium, and the twin-towered guest house is finished.</p>
@@ -88,19 +87,18 @@ BEGIN
 <p>As in Vṛndāvana, Prabhupāda also wants a <em>gurukula</em> here in Bombay. There may be a side benefit from this as well: there is a law that we can rightfully evict any existing tenants if we claim use of the buildings for a school.</p>', '', '1976-04-12', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 13th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 13th, 1976', 3,
+    v_chapter_id, E'April 13th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>On the walk along the sands of Juhu beach, Dr. Patel suggested to Śrīla Prabhupāda that he have a Sanskrit school in the new temple complex. Prabhupāda said that he has no objection, but it is not essential since he has already translated so many Sanskrit texts into English, which any educated person can read.</p>
@@ -174,19 +172,18 @@ BEGIN
 <p>A few other items which have also been left on the roof to be exposed to the sun’s powerful rays are some of the many books Prabhupāda uses for translation work. These books have been stored in his <em>almirah,</em> and when Pradyumna sorted through them he discovered that many had become infested with book worms. Thus Prabhupāda prescribed a prolonged dose of sunshine to remedy the problem.</p>', '', '1976-04-13', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 14th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 14th, 1976', 4,
+    v_chapter_id, E'April 14th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is Hanumān Jayantī and Balarāma Rāsayātrā. The devotees celebrated with a big festival.</p>
@@ -288,19 +285,18 @@ BEGIN
 <p>During tonight’s session, Prabhupāda told a visitor that the potency of chanting done in the temple is increased a thousand times compared to that done elsewhere. Therefore so many people go to places like Vṛndāvana to chant.</p>', '', '1976-04-14', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 15th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 15th, 1976', 5,
+    v_chapter_id, E'April 15th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>One of the memorable features of being in Bombay is waking up in the morning to the all-pervasive stench of an open sewer channel that runs right past our back boundary. It is enough to make you gag, and it seems all the worse to me because our quarters are at the back of the land. The smell only disappears once the sun comes up, so it is something of a relief to go down to the beach every day and breath some fresh air. It is an unfortunate blemish in an otherwise idyllic setting.</p>
@@ -374,19 +370,18 @@ BEGIN
 <p>Prabhupāda doesn’t give away such items often, so I was in ecstasy to get this special gift from him without any prompting and for no apparent reason.</p>', '', '1976-04-15', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 16th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 16th, 1976', 6,
+    v_chapter_id, E'April 16th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>On today’s walk along the beach, Śrīla Prabhupāda continued his discussions with Dr. Patel, focusing again on the topic of scientists.</p>
@@ -422,7 +417,6 @@ BEGIN
 <p>Despite this, Prabhupāda continued to stress the point that teachers must be very kind and loving with the children, as well as strict.</p>', '', '1976-04-16', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

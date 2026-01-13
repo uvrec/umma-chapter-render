@@ -15,12 +15,12 @@ BEGIN
 
   -- April 17th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 17th, 1976', 7,
+    v_chapter_id, E'April 17th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>We took our last walk along Juhu Beach this morning, as Śrīla Prabhupāda will be leaving tomorrow to begin his world tour. The conversation took up from yesterday’s discussion about science. Dr. Patel began by stating that the scientists of <em>aparā-vidyā,</em> or material knowledge, and those with <em>parā-vidyā,</em> or superior spiritual knowledge, like Śrīla Prabhupāda, must not have any quarrel.</p>
@@ -106,19 +106,18 @@ BEGIN
 <p>Prabhupāda had me look up the meaning of “transcendental” in the dictionary. It was given as “going above the mind.” So he asked, if transcendental means “above the mind,” why is this guru calling his system “Transcendental Meditation” when it only deals on the level of the mind’s activities? It is simply cheating, he told them.</p>', '', '1976-04-17', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 18th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 18th, 1976', 8,
+    v_chapter_id, E'April 18th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda took his massage at 5:00 a.m. after which he bathed.</p>
@@ -174,7 +173,6 @@ BEGIN
 <p>Although he tolerated everything without complaint, the unbroken, seven-hour flight to Australia, plus the long delay in Singapore, was very difficult for him. He mentioned that any trip longer than three to four hours is a strain. Nevertheless, for preaching he is prepared to accept any difficulty; his own personal comfort is his last consideration.</p>', '', '1976-04-18', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

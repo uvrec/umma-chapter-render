@@ -15,12 +15,12 @@ BEGIN
 
   -- January 17th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 17th, 1976', 1,
+    v_chapter_id, E'January 17th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>After a walk in a nearby park, Śrīla Prabhupāda set off for Māyāpur at 7:30 a.m. With Prabhupāda, Madhudviṣa Swami, Tamal Krishna Goswami, and Jayapatāka Swami were in the lead car; Śrīdhara Swami, Harikeśa, Caitya-guru, who has come from Bombay to associate with Śrīla Prabhupāda, and I followed in another.</p>
@@ -70,19 +70,18 @@ BEGIN
 <p>There were no visitors. After a hot cup of milk from our own cows, Prabhupāda took rest at ten o’clock before starting his night’s translation work.</p>', '', '1976-01-17', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 18th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 18th, 1976', 2,
+    v_chapter_id, E'January 18th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>First thing this morning Śrīla Prabhupāda went on a tour of all the buildings on our property. He inspected the entire grounds, beginning at the new <em>pukkur</em>, a small reservoir near the main gate dug out over the last year and now partially landscaped. He said fruit trees should be planted on the high banks surrounding it and a path made all around.</p>
@@ -158,19 +157,18 @@ BEGIN
 <p>Śrīla Prabhupāda said that he should be allowed to continue, and not forced to give it up. He quoted <em>Bhagavad-gītā</em> (18.48): “Every endeavor is covered by some sort of fault, just as fire is covered by smoke. Therefore one should not give up the work which is born of his nature, O son of Kuntī, even if such work is full of fault.” Prabhupāda expressed confidence that if he is chanting Hare Kṛṣṇa, these things will soon be properly adjusted.</p>', '', '1976-01-18', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 19th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 19th, 1976', 3,
+    v_chapter_id, E'January 19th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Jayapatāka Mahārāja has been busy initiating the work on the new building for the northern boundary. As Prabhupāda walked down the road to nearby Hoola Ghat Jayapatāka reported that they could get up to 250,000 bricks within a month. So the work on the new building is to begin immediately.</p>
@@ -256,19 +254,18 @@ BEGIN
 <p>As it often does, the electricity went off and we lit the oil lamps, adding to the intimacy of the atmosphere. Sitting in the soft glow of the lanterns, his mood was gentle and at ease, as if he was with the best of friends. At such times, in such an air of informality, we try not to become so familiar lest we forget our position. Nevertheless Prabhupāda makes himself completely accessible, a genuine helper and guide in our struggle for transcendental life. I am realizing more and more that association with a pure devotee is really the essence of spiritual life.</p>', '', '1976-01-19', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 20th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 20th, 1976', 4,
+    v_chapter_id, E'January 20th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda took his morning walk in the fields to the east of the building, examining the proposed site of the big future temple. Saurabha, our ISKCON architect, is drawing up plans for a structure at least 350 feet high.</p>
@@ -312,7 +309,6 @@ BEGIN
 <p>Śrīla Prabhupāda seems to know practically everything. No matter how seemingly ordinary the subject matter, he can always offer a completely spiritual perspective. He is like a cornucopia of knowledge, overflowing with truth and wisdom. The warmth and friendliness of his personality make each exchange a completely fulfilling experience. We are indeed extremely fortunate to have his association.</p>', '', '1976-01-20', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

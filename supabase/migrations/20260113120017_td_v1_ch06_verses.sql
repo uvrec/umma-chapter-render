@@ -15,12 +15,12 @@ BEGIN
 
   -- January 1st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 1st, 1976', 1,
+    v_chapter_id, E'January 1st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Tamal Krishna Goswami arrived from America at 5:00 a.m. this morning to serve as Prabhupāda’s secretary for the month of January. Prabhupāda was very happy to see him. He brought with him the newly printed volumes 1 and 2 of the <em>Śrīmad-Bhāgavatam</em>, Sixth Canto. The books look beautiful with gilt-edged pages and a new full-color painting for the end covers. The painting is of Śukadeva Gosvāmī, surrounded by all the great sages, speaking the <em>Bhāgavatam</em> to Mahārāja Parīkṣit on the banks of the Ganges. The front cover and spine are gold stamped, giving an attractive, high-quality appearance. Prabhupāda is delighted with them.</p>
@@ -130,19 +130,18 @@ BEGIN
 <p>We also appreciated the beauty of Śrīla Prabhupāda’s character. He is so pure and free from malice or envy of others that he can speak with utter candor about people’s faults and call them fools and rascals without anyone taking the least offense. Moreover, his own innocent wonder at how he is able to do this simply increases his charm many times over.</p>', '', '1976-01-01', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 2nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 2nd, 1976', 2,
+    v_chapter_id, E'January 2nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Madras appears a pleasant city, not congested and generally clean and well-managed. On the way to Marina Beach for his morning walk Śrīla Prabhupāda commended the well-kept, attractive buildings and wide beachfront road. The shore itself is a clean, wide, long stretch of sand. Along the shoreline fishing boats, catamarans, and nets were beached in clusters. The sea breeze was refreshing, and the lack of commercialization—coconut sellers, <em>pān</em> merchants, hotels and the like, and even people—made it a pleasant contrast to Bombay’s Juhu Beach. In his usual fashion, Prabhupāda walked up and down the beach for half an hour both ways, engaging us in conversation. He’d stop occasionally to emphasize his points, enjoying the exercise and freshness of sand, sea, and sky.</p>
@@ -300,7 +299,6 @@ BEGIN
 <p>On the way back to Mr. Bhai’s house Prabhupāda said he was happy to find the people of Madras eager to hear spiritual instruction. Both the arrangements and the response have pleased him.</p>', '', '1976-01-02', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

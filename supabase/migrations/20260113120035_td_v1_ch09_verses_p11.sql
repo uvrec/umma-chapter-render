@@ -15,12 +15,12 @@ BEGIN
 
   -- March 15th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 15th, 1976', 59,
+    v_chapter_id, E'March 15th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Right before <em>maṅgala-ārati</em> Prabhupāda buzzed me. He called for Tamal Krishna Goswami and Trivikrama Swami, but I could only find Trivikrama, since Tamal Krishna had already entered the temple. Prabhupāda told Trivikrama Mahārāja that he wanted him to go immediately to China with Tamal. He had been meditating on it all night, he said, and decided that we should definitely do something in the Communist countries.</p>
@@ -102,19 +102,18 @@ BEGIN
 <p>Opportunity lost.</p>', '', '1976-03-15', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 16th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 16th, 1976', 60,
+    v_chapter_id, E'March 16th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>GAURA PÜRṆIMĀ. The appearance day of Śrī Caitanya Mahāprabhu. Everyone fasted until moonrise and then took an Ekādaśī feast, although Prabhupāda said this was not compulsory.</p>
@@ -244,19 +243,18 @@ BEGIN
 <p>At one point Prabhupāda sent me out to see how many visitors had come, and he was very, very happy to hear of the large crowds. Typically, he wanted assurance that <em>prasādam</em> was being distributed to all.</p>', '', '1976-03-16', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 17th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 17th, 1976', 61,
+    v_chapter_id, E'March 17th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During his morning walk on the roof, Prabhupāda heard a brief report of yesterday’s festival. He was extremely pleased. Crowd estimates ranged up to 200,000 visitors. Prabhupāda said that’s why he had originally planned four buildings as well as a temple.</p>
@@ -288,19 +286,18 @@ BEGIN
 <p>Siddha Svarūpa’s letter was apologetic, but agreed in principle with Sudāmā Vipra’s. Under the circumstances he wrote, he found it impossible to remain in Māyāpur.</p>', '', '1976-03-17', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 18th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 18th, 1976', 62,
+    v_chapter_id, E'March 18th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda followed his usual program.</p>
@@ -338,19 +335,18 @@ BEGIN
 <p>Some devotees are now beginning to leave for Vṛndāvana for the second leg of the festival.</p>', '', '1976-03-18', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 19th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 19th, 1976', 63,
+    v_chapter_id, E'March 19th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda had a lot to say this morning on his walk about the poor standards of today’s education and civilization. One of the devotees began to object, “But they will say...”</p>
@@ -376,19 +372,18 @@ BEGIN
 <p>Prabhupāda was sitting quietly in his room, relishing the blissful atmosphere created by the melodic Bengali <em>kīrtana</em> floating out from the temple room below. He told us the chanting is the only solace; it is nothing material. He even suggested that five hundred men at a time could come here to Māyāpur simply to chant.</p>', '', '1976-03-19', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 20th 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 20th 1976', 64,
+    v_chapter_id, E'March 20th 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Before the festival a man named Prabhu Svarūpa came to Māyāpur to see Prabhupāda. He requested ISKCON’s involvement at a place called Haridāspur, just on the border with Bangladesh. Śrīla Prabhupāda agreed to visit there with his foreign disciples, and so today he left by car in the early morning, a drive which took three hours.</p>
@@ -418,7 +413,6 @@ BEGIN
 <p>Today he talked about the present generation and why so many have become hippies, rejecting all the so-called comforts offered by their parents. He said that the fact that young people are adopting lower standards is an indication that such a so-called civilization actually stems from irreligion. Lacking guidance, women have become uncontrolled and have fallen prey to lusty men, with <em>varṇa</em>-<em>saṅkara</em>, or unwanted, irresponsible children the direct result.</p>', '', '1976-03-20', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

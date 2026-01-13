@@ -15,12 +15,12 @@ BEGIN
 
   -- January 5th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 5th, 1976', 3,
+    v_chapter_id, E'January 5th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>On their preaching tour in the South, Acyutānanda and Yaśodānandana Swamis have met an assortment of spiritual practitioners who have their own interpretations and twists on traditional Vedic <em>siddhānta</em>. Now they are taking full advantage of Prabhupāda’s association to get definitive answers to the challenges they regularly face.</p>
@@ -134,19 +134,18 @@ BEGIN
 <p>The evening ended with another presentation of books to new life members. As the devotees showed a film and chanted, Prabhupāda returned by car to the house.</p>', '', '1976-01-05', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 6th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 6th, 1976', 4,
+    v_chapter_id, E'January 6th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>On the morning walk there was some discussion about the Tirupati temple, which houses Bālajī, the richest Deity in India. Prabhupāda suggested that Mahāàsa Swami approach the managers of the temple for a grant to build our temple here in Nellore. Mahāàsa explained that in recent years the management of Tirupati, along with that of all the temples in the state, had been taken over by the government.</p>
@@ -250,7 +249,6 @@ BEGIN
 <p>Each night there is an increasing number of gentlemen coming on stage to receive books from Prabhupāda. The devotees go out preaching during the day, and Prabhupāda’s presence has greatly enhanced the life membership enrollments. There is a great deal of enthusiasm on the part of the local people, so the future looks promising for preaching in Nellore.</p>', '', '1976-01-06', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

@@ -15,12 +15,12 @@ BEGIN
 
   -- December 25th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 25th, 1975', 1,
+    v_chapter_id, E'December 25th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>At noon Prabhupāda flew due north to Ahmedabad, a short thirty-five minute trip. Jaśomatīnandana and Kārttikeya Mahādevia, one of our more enthusiastic Bombay Life Members, were there to greet him. They drove us in two cars to a small town nearby called Sanand. The car I was in was delayed at a railway crossing, and Śrīla Prabhupāda’s car sped ahead.</p>
@@ -64,19 +64,18 @@ BEGIN
 <p>On the way out of the <em>paṇḍāl</em> area Śrīla Prabhupāda stopped the car at the entrance and inquired whether all the visitors were being given <em>prasādam</em>. He was shown some small white sugar beads which are commonly given out at many temples. He wasn’t very impressed, but seemed to think it was better than nothing. We arrived back at the palace by 10:30 p.m.</p>', '', '1975-12-25', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 26th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 26th, 1975', 2,
+    v_chapter_id, E'December 26th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>At about 7:00 a.m. Prabhupāda and his small <em>yātrā</em> of devotees took a short morning walk in the countryside. It was a late start by his usual standard, but now that the winter season has set in, the sun is rising later.</p>
@@ -134,19 +133,18 @@ BEGIN
 <p>The crowd was clearly impressed. I doubt anyone had ever spoken so directly and forcefully to them, yet they appreciated it. Even though it was very late, most of the audience stayed after Prabhupāda left to see a film depicting Kṛṣṇa consciousness around the world.</p>', '', '1975-12-26', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 27th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 27th, 1975', 3,
+    v_chapter_id, E'December 27th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>During this morning’s walk Prabhupāda again criticized the local farmers for growing tobacco rather than grains, cotton, and other necessities. He said it was a symptom of degradation to grow cash crops instead of food.</p>
@@ -276,19 +274,18 @@ BEGIN
 <p>So many programs are clearly too much. Only one per day should be the limit, otherwise he is becoming ill.</p>', '', '1975-12-27', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 28th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 28th, 1975', 4,
+    v_chapter_id, E'December 28th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>No morning walk today. After resting until seven-thirty, Śrīla Prabhupāda felt a little better. Still, Jaśomatīnandana performed the morning program. Prabhupāda told him that he should lead the remaining morning <em>paṇḍāls</em> with help from Hansadūta.</p>
@@ -320,19 +317,18 @@ BEGIN
 <p>Immediately after the close of the lecture, as the excited townspeople clamored around, he climbed back into the car and returned to Sanand. Upon arrival, he went straight to the <em>paṇḍāl</em> where he gave another lecture, this time in Hindi. It was after ten o’clock when we arrived back at the palace.</p>', '', '1975-12-28', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 29th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 29th, 1975', 5,
+    v_chapter_id, E'December 29th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>No morning walk again today, although Prabhupāda is feeling a little better.</p>
@@ -356,19 +352,18 @@ BEGIN
 <p>We performed <em>kīrtana</em>, and all the family members and prominent citizens sang a traditional <em>bhajana</em>. There were some short speeches of thanks, and finally the highly successful <em>paṇḍāl </em>series was brought to a close.</p>', '', '1975-12-29', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 30th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 30th, 1975', 6,
+    v_chapter_id, E'December 30th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Early in the morning Prabhupāda took his leave, graciously thanking the king’s entire family for their kindness and hospitality. He was very happy with the programs and talked with the king’s son about organizing the village preaching. Prabhupāda’s enthusiasm has clearly rubbed off on the Yuvrāj, and he seemed very eager to help us push forward Śrī Caitanya Mahāprabhu’s mission.</p>
@@ -400,19 +395,18 @@ BEGIN
 <p>We flew back to Bombay at 5 o’clock, and by mid-evening Śrīla Prabhupāda was back in his quarters at Hare Kṛṣṇa Land, Juhu Beach. Upon arrival in his room he again admitted that his heart was getting weaker and that he was not feeling well.</p>', '', '1975-12-30', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 31st, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 31st, 1975', 7,
+    v_chapter_id, E'December 31st, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Madhudviṣa Swami, GBC for Australia, contacted us today and requested a confirmation of Śrīla Prabhupāda’s intention to attend their fourth annual Melbourne Ratha-yātrā in mid-January.</p>
@@ -440,7 +434,6 @@ BEGIN
 <p>Śrīla Prabhupāda likes the idea of having some of his senior preachers active in India. In many ways he is personally carrying the full weight of the Indian preaching. He has few experienced men based here and consequently has to do much of the preaching and management himself. Thus the presence of another one of his trained preachers is therefore welcome to him.</p>', '', '1975-12-31', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

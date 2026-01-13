@@ -15,12 +15,12 @@ BEGIN
 
   -- March 31st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 31st, 1976', 1,
+    v_chapter_id, E'March 31st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Śrīla Prabhupāda arrived in Vṛndāvana-dhāma to an enthusiastic greeting from the devotees, most of whom have traveled from Māyāpur. We arrived in time to greet the Deities, and Prabhupāda gave a short class on the nine processes of devotional service. Perhaps half the devotees have returned to their home temples, but there was still a large crowd, and the temple was packed to capacity.</p>
@@ -28,19 +28,18 @@ BEGIN
 <p>He then returned to the quarters he had left just over three months ago. He spent the day relaxing, recuperating from the hectic travels and demands of the last few days.</p>', '', '1976-03-31', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 1st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 1st, 1976', 2,
+    v_chapter_id, E'April 1st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>For his morning walk, rather than take the usual route along Chattikara road, Prabhupāda drove out to the local municipal park. Another car, filled with <em>sannyāsīs,</em> followed him. He didn’t speak much during the walk, save to comment that the park was very poorly maintained.</p>
@@ -68,19 +67,18 @@ BEGIN
 <p>Gurudāsa Swami is taking the devotees out on <em>parikrama</em> each day. He used to live here in the early days of ISKCON Vṛndāvana, and thus he knows many wonderful stories and histories about the different places of Kṛṣṇa’s pastimes.</p>', '', '1976-04-01', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 2nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 2nd, 1976', 3,
+    v_chapter_id, E'April 2nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During his morning walk Prabhupāda visited one of his Godbrother’s <em>maṭhas</em> on the road out to Mathurā. We found the gates closed when we arrived and no sign of life within, what to speak of any kind of program going on. After loitering around for a minute or two, someone finally came and let us in to see the Deities.</p>
@@ -134,19 +132,18 @@ BEGIN
 <p>As far as Himāvatī is concerned, Prabhupāda told him not to worry about coming here just yet. He may manage Vṛndāvana conjointly by correspondence. He informed him that Himāvatī is now engaged in organizing a nursery for young children here in Vṛndāvana.</p>', '', '1976-04-02', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 3rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 3rd, 1976', 4,
+    v_chapter_id, E'April 3rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>This morning Gurudāsa Mahārāja once again located another nice garden for Prabhupāda to take his morning walk. This one was in a big <em>āśrama,</em> behind high, stone walls. A casual visitor would never suspect that such a place of serenity and beauty existed.</p>
@@ -172,19 +169,18 @@ BEGIN
 <p>He concluded by saying that we should be very careful to keep this understanding. Just like the devotee who takes the dust of Vṛndāvana on his head. This is the proper mood, because Vṛndāvana dust <em>is</em> Kṛṣṇa. If we remember that every atom is Kṛṣṇa, then our Kṛṣṇa consciousness will be very, very strong and firmly established. Likewise the great sky is also Kṛṣṇa. So Kṛṣṇa can be everywhere in His all-pervasive form, or He can appear in the small form of the Deity just to accept our service. Of course, this is the vision of the very advanced devotee, he told us, and we should not imitate, but this is the ideal platform to aim for.</p>', '', '1976-04-03', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 4th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 4th, 1976', 5,
+    v_chapter_id, E'April 4th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>This morning’s walk took us past a small temple of Kātyāyanī, the goddess Durgā. Prabhupāda explained that one can worship her in order to gain admittance to Kṛṣṇa. It’s for this reason that her deity is prevalent in Vṛndāvana. He offered her his respects by quoting out loud <em>Brahma-saàhitā</em>verse 5.44, describing Durgā as the shadow potency of Rādhārāṇī.</p>
@@ -212,19 +208,18 @@ BEGIN
 <p>As they left, Puṣṭa Kṛṣṇa noted how enthusiastic they all were to preach. Prabhupāda smiled. “Yes. That is life. One who is enthusiastic to preach, he is living. Others are dead.”</p>', '', '1976-04-04', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 5th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 5th, 1976', 6,
+    v_chapter_id, E'April 5th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>For his walk Prabhupāda went to look at some vacant land in Rāman Reṭi that he wants to purchase. He suggested that our householders build their own houses there and “colonize it” like our Los Angeles community.</p>
@@ -288,19 +283,18 @@ BEGIN
 <p>As he explained their meanings to me, tears began to stream down his face. Although I didn’t say anything, it put me off. I appreciated his devotional sentiments, but his display of emotion made me uncomfortable. It seemed more an attempt to impress me with his own level of devotion than actual loving feelings for Śrīla Prabhupāda.</p>', '', '1976-04-05', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 6th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 6th, 1976', 7,
+    v_chapter_id, E'April 6th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During his walk at the Ranga Gardens today Śrīla Prabhupāda answered questions about the tendency of devotees to wear extra paraphernalia like Rādhā Kuṇḍa clay beads, <em>tulasī</em> beads interspaced with silver or gold beads, and items like the used sacred threads from the Deities, which they wrap around their wrists.</p>
@@ -340,19 +334,18 @@ BEGIN
 <p>Today was the first of a three-day program in the back area of the temple, just inside the main entrance. It was held from 5:00–7:30 p.m. Many distinguished guests in the area came to offer their appreciation of Prabhupāda’s work.</p>', '', '1976-04-06', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- April 7th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'April 7th, 1976', 8,
+    v_chapter_id, E'April 7th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>This morning we drove out well beyond the outskirts of Vṛndāvana village. At one point Prabhupāda stopped the car and climbed out and began walking across the fields.</p>
@@ -422,7 +415,6 @@ BEGIN
 <p>His speech was well received, and his guests seemed impressed with the devotees, the majestic ISKCON temple, and most of all the vibrant spiritual atmosphere created by Śrīla Prabhupāda. It was a very successful program.</p>', '', '1976-04-07', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

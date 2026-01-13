@@ -15,12 +15,12 @@ BEGIN
 
   -- March 29th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 29th, 1976', 8,
+    v_chapter_id, E'March 29th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p><strong>Modinagar</strong></p>
@@ -38,19 +38,18 @@ BEGIN
 <p>On his return to the house, Mrs. Modi gave Śrīla Prabhupāda a thousand rupees as <em>dakṣiṇa</em>.</p>', '', '1976-03-29', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 30th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 30th, 1976', 9,
+    v_chapter_id, E'March 30th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Śrīla Prabhupāda took a brief walk around the Modi estate before his departure. During the walk he noted some large bottle palms, similar to the ones we had seen at the sisters’ estate in Nellore. He suggested they would be suitable trees for decorating the grounds of our Māyāpur complex.</p>
@@ -94,19 +93,18 @@ BEGIN
 <p>Prabhupāda stayed to see a film that was shown at the end. All-in-all, it was a well organized program, and Prabhupāda was very satisfied with all the arrangements.</p>', '', '1976-03-30', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 31st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 31st, 1976', 10,
+    v_chapter_id, E'March 31st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Before leaving Aligarh, Prabhupāda was presented with three books about the life and teachings of Rāma Tīrtha, by the head of that mission. Although cordially received, he paid them scant attention, being already familiar with their contents.</p>
@@ -116,7 +114,6 @@ BEGIN
 <p>Prabhupāda left the books behind. Taking leave of his hosts he boarded his car for the hour-long drive to Śrī Vṛndāvana-dhāma.</p>', '', '1976-03-31', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

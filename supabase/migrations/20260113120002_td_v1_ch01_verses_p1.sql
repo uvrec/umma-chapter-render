@@ -15,12 +15,12 @@ BEGIN
 
   -- November 26th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'November 26th, 1975', 1,
+    v_chapter_id, E'November 26th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p><strong>ISKCON, 19, Todar Mal Lane,</strong></p>
@@ -64,19 +64,18 @@ BEGIN
 <p>Excited and elated, I immediately rushed to the New Janata Book Depot, a small shop on the corner next to Nathu’s Sweet Shop, and purchased a blank, lined notebook. Although my new engagement is to last only the next couple of days while Prabhupāda remains in New Delhi, I have decided to keep a diary of events so that in the future I will have something with which to remember this rare chance to personally serve His Divine Grace.</p>', '', '1975-11-26', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- November 27th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'November 27th, 1975', 2,
+    v_chapter_id, E'November 27th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>While Prabhupāda took his morning walk, I cleaned his apartment. It is a small residence, with four rooms—very basic, but adequate quarters. The entry from the stairwell brings one into the main room, measuring about twenty feet by ten. I dusted off the sparse furnishings, including Prabhupāda’s sitting place and the small, low desk at which he spends most of his time either receiving guests or translating during the night. I went through the back and straightened up the servants’ room, where Harikeśa and Hansadūta are staying.</p>
@@ -140,19 +139,18 @@ BEGIN
 <p>I went back to the temple to rest, feeling satisfied with my first attempts to personally serve his Divine Grace, and completely enlivened from the intimate contact I had had with him.</p>', '', '1975-11-27', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- November 28th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'November 28th, 1975', 3,
+    v_chapter_id, E'November 28th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>At six o’clock this morning Harikeśa came panting in to the small <em>brahmacārī āśrama</em> exclaiming, “Where are the socks? Prabhupāda’s asking for them!” His face fell when he saw I was already wearing one pair. Naturally I couldn’t give him those. Fortunately the other pair was still unused. He gratefully took them to Prabhupāda. They fit perfectly, and he wore them on his walk.</p>
@@ -242,19 +240,18 @@ BEGIN
 <p>This whole experience is tremendous. It is extremely blissful to be so close to the vital essence of what Kṛṣṇa consciousness is all about—association with and service to the pure devotee of the Lord.</p>', '', '1975-11-28', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- November 29th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'November 29th, 1975', 4,
+    v_chapter_id, E'November 29th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>For his morning walk Prabhupāda followed a route that took us along Tansen Marg, across Mandi House, up Feroz Shah as far as Curzon, then left, almost to India Gate, before turning along Tilak Marg and then returning.</p>
@@ -350,19 +347,18 @@ BEGIN
 <p>In Prabhupāda’s presence it is becoming quite clear how little I have learned in almost four years in the movement. Being with Śrīla Prabhupāda is opening up a whole new perspective on devotional service to me. As Śrīla Prabhupāda’s assistant, one has to learn to see matters from his point of view, and that takes precedence over one’s own.</p>', '', '1975-11-29', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- November 30th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'November 30th, 1975', 5,
+    v_chapter_id, E'November 30th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>As Śrīla Prabhupāda took his massage on the roof, Hansadūta prabhu came up to join him. After sitting for a while and reading from the Fifth Canto of <em>Śrīmad-Bhāgavatam</em>, he expressed to Śrīla Prabhupāda his appreciation of the newly published volume. Prabhupāda chatted a little with him, extolling the pleasures of sitting in the sunshine. He said the <em>rājarṣis</em> of former ages all made their capitals in India on account of the pleasant, sunny weather. Even during winter the days are warm and sunny, and in the summer the evenings are very pleasant and mild.</p>
@@ -406,7 +402,6 @@ BEGIN
 <p>So my short sojourn is, sadly, coming to an end. But still, I have a feeling of overwhelming gratitude for having been allowed in His Divine Grace’s personal service these past few days. It is something I never expected nor deserved; truly the causeless mercy of Śrīla Prabhupāda and Kṛṣṇa.</p>', '', '1975-11-30', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

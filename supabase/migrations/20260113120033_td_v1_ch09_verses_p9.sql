@@ -15,12 +15,12 @@ BEGIN
 
   -- March 8th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 8th, 1976', 52,
+    v_chapter_id, E'March 8th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In the early morning Prabhupāda called Tamal Krishna Goswami into his room. He told him that Madhudviṣa Swami should be made GBC Vice Chairman for the year and that Gargamuni Swami should be given GBC responsibility.</p>
@@ -144,19 +144,18 @@ BEGIN
 <p>Today I presented Śrīla Prabhupāda with some new neck beads, strung and cleaned up by Rasājṣā dāsa, a young Australian devotee working with the Nāma Haṭṭa party in Japan. The tiny beads on his existing strand were beginning to split off. So he accepted the new set and, to my great delight, gave me the old ones, some of which I presented to Rasājṣā prabhu.</p>', '', '1976-03-08', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 9th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 9th, 1976', 53,
+    v_chapter_id, E'March 9th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During the walk Śrīla Prabhupāda again criticized some of his Godbrothers for making false claims. He said that in sixty years they have not been able to attract any foreign students, nor have they published any books. Still they are envious and proudly claim to have all the blessings of Śrīla Bhaktisiddhānta.</p>
@@ -190,19 +189,18 @@ BEGIN
 <p>Sixty-five devotees arrived from the USA today.</p>', '', '1976-03-09', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 10th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 10th, 1976', 54,
+    v_chapter_id, E'March 10th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>News of yesterday’s GBC resolutions has traveled fast. Among the householders there is considerable resistance and resentment. Most temple presidents are householders and, according to the new directives, they will all have to go out and establish outside sources of income while still continuing to run their temples. Many feel that certain <em>sannyāsīs</em> are questioning their sincerity in being fully dedicated devotees, as if being married is at odds with the spiritual principles.</p>
@@ -278,19 +276,18 @@ BEGIN
 <p>As Gaura Pūrṇimā nears, the electrical power has been going off for longer and longer periods. Today it was off almost all day, but it came on again in the evening, in time for Prabhupāda to view a new ISKCON movie in his room. It was shown on Gargamuni Swami’s Fairchild projector. The movie was about the production of his books and was called <em>Brilliant as the Sun</em>. Prabhupāda loved it. He ate potato <em>sabji</em> and <em>purīs</em> as he watched, finishing with a <em>rasagullā</em>.</p>', '', '1976-03-10', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 11th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 11th, 1976', 55,
+    v_chapter_id, E'March 11th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda took his walk on the roof with the GBC members and <em>sannyāsīs</em>.</p>
@@ -372,7 +369,6 @@ BEGIN
 <p>The conversation naturally centered on whether the living being is actually independent or not. Śrīla Prabhupāda is scheduled to be visit the capital, Washington, D.C., this coming July 4th. BTG will carry the article in that month’s issue.</p>', '', '1976-03-11', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

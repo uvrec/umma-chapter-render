@@ -15,12 +15,12 @@ BEGIN
 
   -- January 21st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 21st, 1976', 5,
+    v_chapter_id, E'January 21st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>As we walked this morning, Prabhupāda discussed plans for the new temple and the proposed exhibitions it’s to house. It will be a cultural center as well as temple.</p>
@@ -82,19 +82,18 @@ BEGIN
 <p>Śrīla Prabhupāda was extremely enthusiastic about the plans. He wants the planetarium to demonstrate the Vedic alternative to modern scientific cosmological propaganda, illustrating the structure of the universe as described in the <em>Śrīmad-Bhāgavatam</em>. Impressed with Saurabha’s work, Prabhupāda suggested that the plans be presented to the state government with an application for official acquisition of the land we require. Prabhupāda always thinks big; he even suggested that we try to get them to relocate Calcutta’s Dum Dum airport nearby. For Prabhupāda no vision is impossible, because it is for Kṛṣṇa.</p>', '', '1976-01-21', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 22nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 22nd, 1976', 6,
+    v_chapter_id, E'January 22nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>This morning’s walk took Śrīla Prabhupāda north up the main road toward the Gaṅgā. He looked over the new building site, which Caitya-guru will supervise. Already some laborers are beginning work on the foundation. Prabhupāda instructed Saurabha to make up the site plans for the new residences.</p>
@@ -158,19 +157,18 @@ BEGIN
 <p>In the evening a devotee brought the prototype of a new <em>mṛdaṅga</em> to show Śrīla Prabhupāda. Instead of a clay shell it had one of fibreglass, but was still fitted with leather straps and heads. Devotees in the West are working to produce a completely synthetic drum to replace the clay ones, which break easily. Prabhupāda felt the shell was a little too thick and heavy, otherwise he liked it. He even played a little on it himself, although he said he was out of practice.</p>', '', '1976-01-22', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 23rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 23rd, 1976', 7,
+    v_chapter_id, E'January 23rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Śrīla Prabhupāda took his walk across the fields to the proposed temple site. He discussed with Jayapatāka Swami the possibility of convincing the government to give us the land we need for building the temple.</p>
@@ -200,19 +198,18 @@ BEGIN
 <p>At lunch Prabhupāda requested that I learn how to cook from Harikeśa.</p>', '', '1976-01-23', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 24th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 24th, 1976', 8,
+    v_chapter_id, E'January 24th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Each morning at <em>guru-pūjā</em> Prabhupāda is personally giving out sweets to all the children. He sits on the <em>vyāsāsana</em> as each child comes forward to receive his <em>prasādam</em>.</p>
@@ -236,19 +233,18 @@ BEGIN
 <p>The guru was pleased at this, until he returned home to discover that it really <em>was </em>coming from him. For when he looked in his bank book his balance was now zero!</p>', '', '1976-01-24', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 25th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 25th, 1976', 9,
+    v_chapter_id, E'January 25th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda decided to take his walk on the roof of the temple building. On the way up he inspected the top floor, where all the <em>brahmacārīs</em> stay. He did not like what he saw—everything was dirty and poorly maintained. Walking around the end of the veranda he saw thick wire strung to the wall as a crude washing line, gouging grooves in the plaster. He was very displeased.</p>
@@ -302,19 +298,18 @@ BEGIN
 <p>And then he disappeared through the door and down the corridor—leaving me once again wondering just who he really is.</p>', '', '1976-01-25', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 26th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 26th, 1976', 10,
+    v_chapter_id, E'January 26th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Before Prabhupāda took his walk he sat in his room and listened while Bhavānanda Mahārāja read aloud a newly released pamphlet. It was from the neighboring Caitanya Gaudiya Math that is led by one of his prominent God-brothers, Tīrtha Mahārāja. This propaganda piece, written in somewhat convoluted prose, declared the glories of Tīrtha Mahārāja, making several outrageous claims. The tract described him as Śrīla Bhaktisiddhānta Sarasvatī’s most confidential disciple, “almost a counterpart.” It also stated that his preaching had attracted people from all over the world, that his <em>maṭha</em> stretched for over a mile (which would include ISKCON’s temple), and that twenty-four hour <em>kīrtana</em> is going on there (only our men are doing this). Obviously he was trying to claim a status for himself that he does not deserve.</p>
@@ -388,7 +383,6 @@ BEGIN
 <p>His remembrance gave me another revealing glimpse of Śrīla Prabhupāda’s kindness and concern for every living being, even those that might be aggressors. I felt happy to have escaped an offense to the mosquito and privileged to have shared a moment of intimate confession with Śrīla Prabhupāda.</p>', '', '1976-01-26', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

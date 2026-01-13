@@ -15,12 +15,12 @@ BEGIN
 
   -- January 27th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 27th, 1976', 11,
+    v_chapter_id, E'January 27th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>This morning Mahāmāyā dāsī, one of the Western ladies serving here in Māyāpur, gave me a polite note requesting me to ask Śrīla Prabhupāda a question for her. She wanted to know whether women could be allowed into the temple room during menstruation. “If so,” she asked, “should they wear silken garments?” The reason she asked was because ladies in India generally do not enter the temple during this time.</p>
@@ -40,19 +40,18 @@ BEGIN
 <p>Tamal Krishna Mahārāja mentioned to me that on the day he had given Prabhupāda his massage in Calcutta, he had noticed that when no one else was present, his body was very soft and supple, but as soon as a visitor entered Prabhupāda became alert and his body tensed up. It is a fact. Here in Māyāpur, with no visitors to speak of, he sits so relaxed and quiet that he practically seems unaware that I am massaging him at all. Several times he has inquired, when I have completed my work, whether I was finished or not. It is almost like someone taking their car into a garage for a service, going off for an hour or so, and then returning to inquire whether everything is done.</p>', '', '1976-01-27', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 28th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 28th, 1976', 12,
+    v_chapter_id, E'January 28th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Śrīla Prabhupāda is enjoying his walks in the mornings. He mentioned today that he finds it especially pleasing that he can take his full exercise without leaving our property. Because it is still a little brisk before the sun rises he is wearing a saffron colored cape to prevent catching a chill. And he enjoys the company of the young <em>gurukula</em> students as they join him on the road to enter the temple for the Deity greeting and <em>guru-pūjā</em>. He derives a great deal of satisfaction from their enthusiastic participation in the dancing and chanting. They share a natural rapport and he returns their affection with smiles and words of encouragement.</p>
@@ -78,19 +77,18 @@ BEGIN
 <p>“Actually,” Prabhupāda said, “this is a fact. One has to be blessed by a devotee to become a devotee. And he who is the servant of the servant of the servant—one hundred times removed—is not worse than one who directly serves the guru. If one thinks, ‘Because I am direct servant, I am better than others,’ then he is not a Vaiṣṇava. To offer one’s respects to guru and not to his disciples, this is wrong. This is not Vaiṣṇava. One has to be humble and try to serve all Vaiṣṇavas—not some and not others.”</p>', '', '1976-01-28', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 29th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 29th, 1976', 13,
+    v_chapter_id, E'January 29th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda is taking his morning walk on the roof every day now and following the same daily routine: massage at 10:00 a.m. on the veranda and answering letters; lunch at 1:30 p.m., a rest and return downstairs by 4:00 p.m.</p>
@@ -130,19 +128,18 @@ BEGIN
 <p>Śrīla Prabhupāda is mercifully showing me the proper service attitude. In the spiritual world everyone is fully and completely aware of their duty to Kṛṣṇa, at all times, without even a moment’s diversion. Śrīla Prabhupāda is trying to train us to the highest standard. My false ego has taken a battering. And I am left humbled and relieved, with a deeper understanding of what real spiritual awareness is all about.</p>', '', '1976-01-29', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 30th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 30th, 1976', 14,
+    v_chapter_id, E'January 30th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Gopāla Kṛṣṇa arrived today with news from Nellore. It turns out that the two sisters will not change the conditions on their “gift” of land under any circumstance.</p>
@@ -162,19 +159,18 @@ BEGIN
 <p>Prabhupāda laughed and replied, “And if it is not done, that means I have no mercy?”</p>', '', '1976-01-30', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 31st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 31st, 1976', 15,
+    v_chapter_id, E'January 31st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>For many months a thief named Agarwal has been masquerading as Acyutānanda Swami in several states. He’s been making life members and keeping their fees. Our men only heard about him when the new “members” came to claim their benefits. He was eventually apprehended with stolen life membership forms, rubber stamps, and other paraphernalia. Before being handed over to the police he pleaed for mercy. Thus he was brought here to Māyāpur to see Śrīla Prabhupāda. He admitted to fraudulently using ISKCON’s name to extort funds; but he claimed that he was truly interested in becoming a devotee.</p>
@@ -200,19 +196,18 @@ BEGIN
 <p>I told Prabhupāda that Harikeśa thinks his condition is colitis. And he feels that if he stays in India, it will only get worse. He feels that only a return to the West will enable him to get well. But while he feels this way, Harikeśa just doesn’t want to leave Prabhupāda’s service. But Prabhupāda told me that one’s health is primary.</p>', '', '1976-01-31', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 1st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 1st, 1976', 16,
+    v_chapter_id, E'February 1st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>As I laid out the straw mat on the sunlit veranda to prepare for his massage, Śrīla Prabhupāda drew my attention to some sparrows making a nest. They had chosen a hole in the wall behind the electrical circuit box just outside Prabhupāda’s sitting-room window. He said their chirping disturbed him at night while translating his books. So before they could build a complete nest and settle in, I removed the bits of straw they had gathered.</p>
@@ -244,19 +239,18 @@ BEGIN
 <p>I was out on the veranda as Harikeśa emerged into the night air, his ego somewhat shattered, but in a quite blissful state. He was satisfied to have been put in his place by the mercy of Śrīla Prabhupāda.</p>', '', '1976-02-01', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 2nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 2nd, 1976', 17,
+    v_chapter_id, E'February 2nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In the early morning before <em>maṅgala</em>-<em>ārati</em> Prabhupāda sent me to get Tamal Krishna Goswami. He told him that after serious consideration, he had decided that Harikeśa may take <em>sannyāsa</em>. He suggested that Harikeśa travel and preach with the Rādhā-Dāmodara party. He should be trained to eventually take charge of one of the buses.</p>
@@ -274,19 +268,18 @@ BEGIN
 <p>In another discussion later in the day with Bhavānanda Mahārāja, Śrīla Prabhupāda decided that the Deities for the proposed new temple in Māyāpur should be life-size, like the Hyderabad Deities. He wants to install Paṣca-tattva, Lord Caitanya, and His personal associates, with at least five predecessor gurus, Rādhā-Kṛṣṇa, and the eight principal <em>gopīs</em>.</p>', '', '1976-02-02', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 3rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 3rd, 1976', 18,
+    v_chapter_id, E'February 3rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda walked on the roof this morning. Sudāmā Mahārāja told him that many students in the West are now beginning to appreciate his extraordinary feat of spreading Kṛṣṇa consciousness all around the world. He said even some yogis and svāmīs hold him in high esteem for what he has done.</p>
@@ -346,19 +339,18 @@ BEGIN
 <p>Since the exams are not to be held until next year on Gaura Pūrṇimā, Prabhupāda sees no need for the devotees to give up their normal engagements to do more study. And as far as his idea for teaching classes, he wrote, “This should be discussed at the GBC meeting. If it does not hamper our normal procedure then it is welcome.”</p>', '', '1976-02-03', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 4th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 4th, 1976', 19,
+    v_chapter_id, E'February 4th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In the early morning Prabhupāda took up the topic of cheating gurus again. He told us about some of the nefarious activities of a few so-called gurus. One well know svāmī had been found in bed with his secretary. So his disciples sued him.</p>
@@ -398,19 +390,18 @@ BEGIN
 <p>Prabhupāda sat happily undisturbed in the darkness of his room. The distant heavens meanwhile were lit up by multiple forks of bluish-yellow lightning streaking across the sky, making an awesome display of the power of material nature. Prabhupāda repeated that rainfall at this time of year is considered auspicious and very welcome.</p>', '', '1976-02-04', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 5th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 5th, 1976', 20,
+    v_chapter_id, E'February 5th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>The discussions of the morning walks are getting very lively now with Hridayānanda, Tamal Krishna, and Harikeśa all debating with Śrīla Prabhupāda on the latest scientific theories. They, of course, get soundly defeated.</p>
@@ -442,7 +433,6 @@ BEGIN
 <p>Hridayānanda Mahārāja explained that Viraha Prakaśā only speaks Spanish, so it would be difficult for him to preach in India. But Prabhupāda promptly called for the two new <em>sannyāsīs</em> and told them, “Leave immediately for somewhere—anywhere—and preach. When there is a fire, if you don’t know the language, somehow you communicate and the message gets through. Even if you cannot speak the language properly it doesn’t matter. Preaching must be done.” He said that the best use of intelligence is to accept <em>sannyāsa</em> and go preach. It is also the best way to associate with the guru. Personal association is not so important, but to associate with the teachings of the guru is essential. Prabhupāda said that he had not seen his Guru Mahārāja for more than ten or fifteen days in fourteen years. Thus his words were of personal encouragement and comfort to Harikeśa Swami as well, since he is now leaving Śrīla Prabhupāda’s personal service.</p>', '', '1976-02-05', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

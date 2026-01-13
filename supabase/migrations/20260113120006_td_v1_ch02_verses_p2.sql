@@ -15,12 +15,12 @@ BEGIN
 
   -- December 4th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 4th, 1975', 3,
+    v_chapter_id, E'December 4th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>On the walk this morning Akṣayānanda Swami told Śrīla Prabhupāda that people sometimes ask his opinion about a local <em>bābājī</em> who is building a big temple on the Vṛndāvana-Mathurā road. Looking across the fields we could see it in the far distance. An unfinished edifice as yet, it is reported that it will house various deities in its lower chambers and the <em>bābājī</em>’s personal quarters on top. This man is well known for smoking large quantities of cigarettes, thus earning him the nickname “Pagal Baba.” <em>Pagal</em> means “crazy.” Akṣayānanda said that he answers people’s queries by explaining that our Guru Mahārāja does not approve of us smoking cigarettes.</p>
@@ -76,19 +76,18 @@ BEGIN
 <p>“Haree Showree,” Prabhupāda corrected in his elegant Bengali accent. Giving me a warm smile he asked for some water.</p>', '', '1975-12-04', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 5th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 5th, 1975', 4,
+    v_chapter_id, E'December 5th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>It is hard to say when Prabhupāda’s day begins and when it ends, because he never seems to conclude his activities in the way we do. He only rests for a few hours each day, and even that is intermittent.</p>
@@ -280,19 +279,18 @@ BEGIN
 <p>Putting aside his <em>japa-mālā</em> he donned his spectacles and clicked on the desk light. He opened the <em>Bhāgavatams</em> at the bookmarks—the large green Varanasi edition with the Sanskrit commentaries of previous <em>ācāryas</em> and the red Bengali one with commentaries by Śrīla Bhaktisiddhānta Sarasvatī Ṭhākura—leaned forward, and studied them intently. The microphone close to his mouth, he flicked on the tape and began his dictation: “<em>Śrīmad-Bhāgavatam</em>, Seventh Canto, Seventh Chapter, verse twenty-five, purport continued....”</p>', '', '1975-12-05', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- December 6th, 1975
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'December 6th, 1975', 5,
+    v_chapter_id, E'December 6th, 1975',
     '', '', '', '',
     '', '', '', '',
     E'<p>Early this morning Prabhupāda sent for the temple managers and angrily chastised them because we have spent fifty <em>lakhs</em> of rupees to build such a big temple and guest house, yet he cannot get hot water in the cold season. The past few mornings the water has been so cold that he couldn’t even brush his teeth. One after another, Gopāla Kṛṣṇa, Akṣayānanda Swami, Guṇārṇava and Dhanaṣjaya were called. No one seemed to want to take responsibility. Śrīla Prabhupāda demanded to know why. Whenever they offered a feeble excuse or explanation, he abruptly cut them off. It was clear he wanted to hear a plan for rectifying the mistakes, not excuses.</p>
@@ -322,7 +320,6 @@ BEGIN
 <p>Prabhupāda has given Harikeśa a new service. He wants him to write an essay titled “Experimental Knowledge,” explaining the defects of modern science and presenting the scientific basis of Kṛṣṇa consciousness. Prabhupāda has been personally coaching him, calling him in regularly to discuss points of logic. He told Harikeśa not to criticize modern science as such but the misuse of it. Science should not be used as a tool to propagate atheistic theories, and false claims must be exposed. Modern scientists are challenging God, and now Prabhupāda as God’s servant and representative is challenging them. “Inventions you can take credit for, but why claim to be God?”</p>', '', '1975-12-06', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

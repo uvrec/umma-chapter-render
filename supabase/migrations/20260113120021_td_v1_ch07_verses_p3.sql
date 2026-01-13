@@ -15,12 +15,12 @@ BEGIN
 
   -- January 7th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 7th, 1976', 5,
+    v_chapter_id, E'January 7th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>On the walk this morning Acyutānanda Swami made Prabhupāda laugh when he humorously described his meetings with a few well-known svāmīs and <em>sādhus</em>.</p>
@@ -192,19 +192,18 @@ BEGIN
 <p>Prabhupāda is very happy and satisfied with the trip—apart from the peculiarities of the land offer.</p>', '', '1976-01-07', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- January 8th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'January 8th, 1976', 6,
+    v_chapter_id, E'January 8th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Before leaving to catch the train to Madras, the two sisters came to see Prabhupāda in his room. He thanked them for their hospitality. Without directly bringing up the strange conditions put upon the deed of gift, he preached to them very positively that they should try to become real devotees of Kṛṣṇa.</p>
@@ -230,7 +229,6 @@ BEGIN
 <p>As a final touch, Śravaṇānanda had arranged through a Life Member to have the car drive right onto the airport tarmac, right up to the plane. Thus at about nine o’clock we flew out, arriving in Bombay late at night.</p>', '', '1976-01-08', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

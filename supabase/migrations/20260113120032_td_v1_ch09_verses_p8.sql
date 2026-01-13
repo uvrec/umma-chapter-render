@@ -15,12 +15,12 @@ BEGIN
 
   -- March 2nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 2nd, 1976', 46,
+    v_chapter_id, E'March 2nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>The <em>sannyāsī</em>/<em>gṛhastha</em> controversy continues to simmer, although in Śrīla Prabhupāda’s presence the criticism’s are muted. Even among the <em>sannyāsīs</em> there is no clear consensus.</p>
@@ -58,19 +58,18 @@ BEGIN
 <p>Prabhupāda heard the complaints but said that all things must be decided by the GBC and no one can go against their decision. He declined to make a final statement one way or the other, but he again suggested the women and children could live on ISKCON farms and help develop small-scale cottage industries. He said that our whole preaching program is detachment from material enjoyment: stopping sex life altogether. <em>Gṛhastha</em> life is a concession to those unable to give up sex immediately. But he added that in actuality, marriage is not at all required. It is simply burdensome. Licit or illicit, the after-effects of sex simply mean difficulty.</p>', '', '1976-03-02', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 3rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 3rd, 1976', 47,
+    v_chapter_id, E'March 3rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>In the morning Śrīla Prabhupāda met with two of his Godbrothers, Govinda Mahārāja and one other, who came from the Caitanya Gaudiya Math to see him. Prabhupāda referred to Govinda Mahārāja as an old friend. After Tīrtha Mahārāja, who is now apparently crippled, he is second in command at the Caitanya Math. Prabhupāda gave him a copy of his translation and commentary on the <em>Caitanya-caritāmṛta</em>, <em>Ādi-līlā</em> Volume One. He also discussed his book production and distribution with Govinda Mahārāja. Their meeting was short but pleasant. It seems Prabhupāda will reciprocate with a visit to their <em>maṭha</em>.</p>
@@ -96,19 +95,18 @@ BEGIN
 <p>Siddha Svarūpānanda Goswami also arrived. He went to the banana plantation we have near the Jalāṅgī river to stay with Sudāmā Vipra Mahārāja.</p>', '', '1976-03-03', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 4th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 4th, 1976', 48,
+    v_chapter_id, E'March 4th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Dayānanda prabhu left at daybreak, bound for Dallas. He was armed with two letters from Śrīla Prabhupāda: one addressed to the parents of the students asking them to return their children to the school, with an additional request that they be prompt in paying tuition fees; and one to the devotees involved with the running of the school, asking them to cooperate with Dayānanda to keep it open.</p>
@@ -192,19 +190,18 @@ BEGIN
 <p>I left his room happy in mind and gratified in heart. This is one of the advantages of being with him personally—all doubts can be immediately resolved. As disciples, we may read Śrīla Prabhupāda’s books yet still end up speculating. But a few direct words from His Divine Grace and everything becomes clear. He always refers to a scriptural verse when asked a question and has the purport read out. It invariably explains the point perfectly. Śrīla Prabhupāda is intimately familiar with everything in each of his books, and his deep realizations enable him to answer every question to one’s complete satisfaction.</p>', '', '1976-03-04', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 5th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 5th, 1976', 49,
+    v_chapter_id, E'March 5th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda is a reservoir of information on all topics. He has quotes and meaningful comments to make on all varieties of topics, and with just a few words he can enlighten his eager listeners on any subject. He has a clear vision of what constitutes the best qualities and attributes required by man for peaceful and successful human life. His observations on culture and education are especially penetrating. He likes to quote the great sage Cāṇakya, whose writings offer penetrating observations on the psychology of human living.</p>
@@ -240,19 +237,18 @@ BEGIN
 <p>Afterward all the villagers were fed sumptuous <em>prasādam</em>.</p>', '', '1976-03-05', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 6th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 6th, 1976', 50,
+    v_chapter_id, E'March 6th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>About 6:30 a.m. Prabhupāda went with his senior <em>sannyāsīs</em> to the Caitanya Gaudiya Math to visit Govinda Mahārāja. He was received cordially in the <em>darśana</em>-<em>maṇḍap</em>, or viewing area, at the <em>samādhi</em>, or tomb, of Śrīla Bhaktisiddhānta Sarasvatī Ṭhākura. After offering his obeisances to his Guru Mahārāja, he sat on the spacious marble floor as many members of the <em>āśrama</em> gathered around. As Govinda Mahārāja and Prabhupāda talked, delicious <em>gulabjamuns</em> were passed around to the visitors.</p>
@@ -270,19 +266,18 @@ BEGIN
 <p>Śrīla Prabhupāda having set the tone, the GBCs began their annual meetings in the afternoon.</p>', '', '1976-03-06', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 7th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 7th, 1976', 51,
+    v_chapter_id, E'March 7th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>With all the GBC here and so many <em>sannyāsīs</em>, it is getting too crowded on the roof for Prabhupāda’s walk. So he came down and exercised around the grounds this morning.</p>
@@ -350,7 +345,6 @@ BEGIN
 <p>Śrīla Prabhupāda was shocked. He shook his head in amazement. “Now I can understand the advantage of a birth in India. People here could not even <em>dream</em> of such a thing.” Then he added, “Kṛṣṇa saved you because He knew you were a devotee.” He lamented over the unfortunate position of women in the West, who he said are encouraged by their parents to behave like prostitutes in order to capture some rich man while still youthful. He pointed out the risks they are prepared to take to become murderesses simply out of sexual urge.</p>', '', '1976-03-07', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

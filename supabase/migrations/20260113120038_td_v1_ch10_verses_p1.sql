@@ -15,12 +15,12 @@ BEGIN
 
   -- March 22nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 22nd, 1976', 1,
+    v_chapter_id, E'March 22nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>At 5:30 a.m. Śrīla Prabhupāda descended the stairs amid a loud <em>kīrtana</em> and excited shouts from the devotees. He stepped into the back seat of the car, and we sped off for Calcutta, accompanied by an escort of six vans and one of Hansadūta Swami’s buses. Puṣṭa Kṛṣṇa Mahārāja drove our car, Tamal Krishna Mahārāja sat in front, and I sat in the back next to Prabhupāda.</p>
@@ -62,19 +62,18 @@ BEGIN
 <p>We have to haul water to Prabhupāda’s bathroom and store it in a small tank. Most devotees are bathing in the lake across the road. So Śrīla Prabhupāda called for the new temple president, Abhirām dāsa, a tall American previously in charge of our Miami center. He told him to immediately install a new holding tank.</p>', '', '1976-03-22', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 23rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 23rd, 1976', 2,
+    v_chapter_id, E'March 23rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda took his walk around the lake opposite the temple and inspected a large house on the corner of it that may be up for sale soon. Although it is run down, Prabhupāda was interested in buying it because of the lakeside location. A price of fourteen <em>lakhs</em> of rupees was mentioned.</p>
@@ -120,19 +119,18 @@ BEGIN
 <p>It was an exciting evening, made especially sweet by the opportunity to listen as Śrīla Prabhupāda mercifully shared his reminiscences of his younger days.</p>', '', '1976-03-23', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 24th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 24th, 1976', 3,
+    v_chapter_id, E'March 24th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p><strong>New Delhi</strong></p>
@@ -150,19 +148,18 @@ BEGIN
 <p>The Agarwals are devotees of Lord Kṛṣṇa and have a beautiful set of thirty-inch marble Rādhā-Kṛṣṇa Deities. They keep the Deities on the first floor of their home, and worship Them daily in a simple fashion.</p>', '', '1976-03-24', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 25th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 25th, 1976', 4,
+    v_chapter_id, E'March 25th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>For his morning exercise Prabhupāda took an easy walk up and down the grass reserve of the front street. He answered questions from his small band of listeners—Gurudāsa Swami, Atreya Ṛṣi, Chayavana, Puṣṭa Kṛṣṇa, Gopāla Kṛṣṇa, Yadubara, and myself.</p>
@@ -272,19 +269,18 @@ BEGIN
 <p>Due to the hot weather, Prabhupāda had his bed and net set up in the backyard, where he took his rest in the cool night air. Mr. Agarwal took the opportunity to get his association and also had a bed and net set up alongside him. They chatted for a while before going to sleep.</p>', '', '1976-03-25', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 26th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 26th, 1976', 5,
+    v_chapter_id, E'March 26th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is Ekādaśī.</p>
@@ -322,19 +318,18 @@ BEGIN
 <p>This was the first day of our <em>paṇḍāl</em> at the Ram Lila festival grounds. It was very well attended by nearly 4,000 people, a receptive crowd that asked many questions after Prabhupāda’s lecture. Prabhupāda stayed to see a play by the devotees, and he was much pleased by the whole affair.</p>', '', '1976-03-26', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 27th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 27th, 1976', 6,
+    v_chapter_id, E'March 27th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Prabhupāda was driven to the Buddha Jayanti commemorative Park for his walk this morning. It is a spacious park with some natural rocky outcrops cleverly integrated with carefully cultivated patches of bright purple shrubs and groves of frangipani, neem, and banyan trees. Spacious lawns are divided by manmade waterways and connected by small bridges and dams.</p>
@@ -388,19 +383,18 @@ BEGIN
 <p>Amazingly, he uttered not a sound, neither when the carpet slipped, nor after the fall. He simply sat with his eyes closed for about ten or twenty seconds tolerating the pain he surely felt. Then with my help he rose to his feet. His foot was also injured, but without comment he walked to the bathroom. When he came out, he advised me that the carpet should be properly adjusted. But apart from this he made no reference to the incident again.</p>', '', '1976-03-27', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- March 28th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'March 28th, 1976', 7,
+    v_chapter_id, E'March 28th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Mr. Agarwal hosted a program in the <em>paṇḍāl</em> in front of his house, which was well attended by his neighbors because it was Sunday morning. Prabhupāda enjoyed it, and so did the devotees. We were able to perform <em>guru-pūjā</em> and offer flowers personally to Śrīla Prabhupāda as he sat regally on the small stage upon a nicely carved and opulently upholstered wooden seat, provided for the occasion by Mr. Agarwal.</p>
@@ -428,7 +422,6 @@ BEGIN
 <p>A newspaper printed an excellent article today, the result of yesterday’s interview. Prabhupāda was happy with it because the reporter had accurately noted his main theme. The headline read, “Kṛṣṇa Forgotten in Land of His Birth.”</p>', '', '1976-03-28', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 

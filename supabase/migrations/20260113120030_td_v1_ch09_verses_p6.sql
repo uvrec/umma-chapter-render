@@ -15,12 +15,12 @@ BEGIN
 
   -- February 20th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 20th, 1976', 35,
+    v_chapter_id, E'February 20th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is the appearance day of Śrīla Bhaktisiddhānta Sarasvatī Gosvāmī Prabhupāda, which we are all observing with a half-day fast.</p>
@@ -84,19 +84,18 @@ BEGIN
 <p>Earlier in the day, toward the end of the massage, a <em>brahmacārī</em> from his Godbrother Śrīdhar Swami’s <em>maṭha</em> had also visited. He had a short discussion with Prabhupāda about Śrīdhar Swami’s coming here to visit. The <em>brahmacārī</em> returned with a few others in the afternoon and held further discussions.</p>', '', '1976-02-20', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 21st, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 21st, 1976', 36,
+    v_chapter_id, E'February 21st, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Early in the morning Śrīla Prabhupāda called for Acyutānanda and Hridayānanda Swamis and requested them to go to the Gosvāmī Math to speak on his behalf. He told them to invite their devotees to come with us and preach from village to village. Since we have the finances and they know the language, it could be a very successful combination. Such a united preaching effort would benefit everyone—ISKCON, the Gaudiya Math, and the general public. He said to tell them that if there is a problem with the management of their temple, we shall provide all the finance necessary. They have only to come preach with us.</p>
@@ -156,19 +155,18 @@ BEGIN
 <p>Prabhupāda said that once his books have been sold extensively throughout India, we will be able to defeat all the bogus yogis and impersonalists. As well as this, the books will greatly boost the life membership program. “It is not that we are beggars,” he said, “but we must give the public some return. Therefore I have started up this Life Membership program so that people will feel some gain for their contribution and will be encouraged when they see us spread and increase.”</p>', '', '1976-02-21', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 22nd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 22nd, 1976', 37,
+    v_chapter_id, E'February 22nd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Before his walk Prabhupāda suggested that Dayānanda and I write to the devotees in London and New Zealand to find out whether we can sell Indian clothes and brassware there. He said that he has some capital in Lloyds Bank, and if we start exporting Indian cloth and other items, the government will think well of us. At the same time we shall make a useful profit. Actually from Māyāpur the devotees are already supplying many ISKCON temples with cloth that has been made on our own hand-looms.</p>
@@ -214,19 +212,18 @@ BEGIN
 <p>Although he is the transcendental overseer of a large international movement, operating with thousands of men, millions of dollars, and selling tens of millions of books every year, he is still so humble and unassuming; the perfect <em>ācārya</em> and pure devotee.</p>', '', '1976-02-22', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 23rd, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 23rd, 1976', 38,
+    v_chapter_id, E'February 23rd, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>During class this morning Prabhupāda described the important role the temple plays in helping people to advance in spiritual life by <em>ajṣāta-sukṛti</em>, unknown pious activity. “<em>Sukṛti</em> means the way by which one can approach the Supreme Personality of Godhead. That is called <em>sukṛti</em>. <em>Ajṣāta-sukṛti</em>. This temple means to give chance to the people in general, <em>ajṣāta-sukṛti</em>. Anyone who will come to this temple where the Deity is there, and even by imitating others, if one offers obeisances to the Lord, that is taken into account. That is not useless, because this is Kṛṣṇa’s desire. He gives the four principles, that ‘Always think of Me,’ and ‘become My devotee,’ ‘worship Me,’ and ‘just offer little obeisances.’ These four principles will deliver you from this bondage of material existence, and ‘without any doubt, you’ll come back to Me.’</p>
@@ -264,19 +261,18 @@ BEGIN
 <p>A government man named Mr. Ganguli arrived in the evening to stay overnight. He is a senior officer from the same department as Mr. Chaudhuri and came to personally see the Māyāpur project and discuss the land acquisition proposal. Prabhupāda talked with him for a few hours, discussing in detail all the plans and requirements for the land.</p>', '', '1976-02-23', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 24th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 24th, 1976', 39,
+    v_chapter_id, E'February 24th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Because of his cold, Prabhupāda didn’t talk much this morning on his walk.</p>
@@ -304,19 +300,18 @@ BEGIN
 <p>Gopāla Kṛṣṇa gave the finalized dates for the second half of the festival after Gaura Pūrṇimā. There will be a <em>paṇḍāl</em> in New Delhi from 26–31 March, one day in Modinagar, and then on to Vṛndāvana.</p>', '', '1976-02-24', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
 
   -- February 25th, 1976
   INSERT INTO public.verses (
-    chapter_id, verse_number, verse_number_sort,
+    chapter_id, verse_number,
     sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
     synonyms_en, synonyms_ua, translation_en, translation_ua,
     commentary_en, commentary_ua, event_date, is_published
   ) VALUES (
-    v_chapter_id, E'February 25th, 1976', 40,
+    v_chapter_id, E'February 25th, 1976',
     '', '', '', '',
     '', '', '', '',
     E'<p>Today is Ekādaśī. More and more devotees are arriving for the festival.</p>
@@ -378,7 +373,6 @@ BEGIN
 <p>Bilvamaṅgala dāsa brought the finished plans for the Māyāpur temple from Saurabha in Bombay. The total area required has again been revised; now we will apply for 320 acres.</p>', '', '1976-02-25', true
   )
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
-    verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
     event_date = EXCLUDED.event_date;
 
