@@ -5,7 +5,9 @@ import './index.css'
 import { initErrorTracking, errorLogger } from './utils/errorLogger'
 
 // Версія білда для діагностики кешування
-const BUILD_VERSION = '__BUILD_TIME__';
+// __BUILD_TIME__ інжектується Vite через define у vite.config.ts
+declare const __BUILD_TIME__: string;
+const BUILD_VERSION = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'dev';
 console.log('[Vedavoice] Build:', BUILD_VERSION);
 
 // Перевірка версії та примусове оновлення
