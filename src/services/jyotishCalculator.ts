@@ -34,7 +34,12 @@ async function loadPanchangaModule(): Promise<typeof panchangaModule> {
 
   try {
     const mod = await import('@bidyashish/panchang');
-    panchangaModule = { getPanchanga: mod.getPanchanga };
+    // Create adapter to match our PanchangaInput interface
+    // The library's getPanchanga expects (date, lat, lon, timezone) as separate args
+    panchangaModule = {
+      getPanchanga: (input: PanchangaInput) =>
+        mod.getPanchanga(input.date, input.latitude, input.longitude, input.timezone)
+    };
     return panchangaModule;
   } catch (error) {
     console.warn('Failed to load @bidyashish/panchang (expected in browser):', error);

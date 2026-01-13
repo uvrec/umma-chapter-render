@@ -91,6 +91,12 @@ interface AuthResult {
   supabaseClient: any;  // Type simplified - client only used for auth.getUser()
 }
 
+// Type for chat message rows from database
+interface ChatMessageRow {
+  role: string;
+  content: string | null;
+}
+
 // ============================================================================
 // AUTHENTICATION
 // ============================================================================
@@ -613,9 +619,9 @@ Deno.serve(async (req) => {
         .limit(10);
 
       if (existingMessages) {
-        conversationHistory = existingMessages
-          .filter(m => m.role !== 'system')
-          .map(m => ({ role: m.role, content: m.content }));
+        conversationHistory = (existingMessages as ChatMessageRow[])
+          .filter((m: ChatMessageRow) => m.role !== 'system')
+          .map((m: ChatMessageRow) => ({ role: m.role, content: m.content ?? '' }));
       }
     } else {
       // Create new session with user_id
