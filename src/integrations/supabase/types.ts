@@ -2197,6 +2197,84 @@ export type Database = {
         }
         Relationships: []
       }
+      prabhupada_events: {
+        Row: {
+          content_en: string | null
+          content_preview_en: string | null
+          content_preview_ua: string | null
+          content_ua: string | null
+          created_at: string | null
+          date_display: string
+          day: number | null
+          event_date: string
+          id: string
+          is_published: boolean | null
+          location_en: string | null
+          location_ua: string | null
+          month: number | null
+          source_book_slug: string | null
+          source_chapter: number | null
+          source_type: string
+          source_url: string | null
+          source_verse: string | null
+          source_volume: number | null
+          title_en: string | null
+          title_ua: string | null
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          content_en?: string | null
+          content_preview_en?: string | null
+          content_preview_ua?: string | null
+          content_ua?: string | null
+          created_at?: string | null
+          date_display: string
+          day?: number | null
+          event_date: string
+          id?: string
+          is_published?: boolean | null
+          location_en?: string | null
+          location_ua?: string | null
+          month?: number | null
+          source_book_slug?: string | null
+          source_chapter?: number | null
+          source_type: string
+          source_url?: string | null
+          source_verse?: string | null
+          source_volume?: number | null
+          title_en?: string | null
+          title_ua?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          content_en?: string | null
+          content_preview_en?: string | null
+          content_preview_ua?: string | null
+          content_ua?: string | null
+          created_at?: string | null
+          date_display?: string
+          day?: number | null
+          event_date?: string
+          id?: string
+          is_published?: boolean | null
+          location_en?: string | null
+          location_ua?: string | null
+          month?: number | null
+          source_book_slug?: string | null
+          source_chapter?: number | null
+          source_type?: string
+          source_url?: string | null
+          source_verse?: string | null
+          source_volume?: number | null
+          title_en?: string | null
+          title_ua?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -3382,6 +3460,7 @@ export type Database = {
           display_blocks: Json | null
           embedding: string | null
           end_verse: number | null
+          event_date: string | null
           explanation_en_audio_url: string | null
           explanation_ua_audio_url: string | null
           full_verse_audio_url: string | null
@@ -3421,6 +3500,7 @@ export type Database = {
           display_blocks?: Json | null
           embedding?: string | null
           end_verse?: number | null
+          event_date?: string | null
           explanation_en_audio_url?: string | null
           explanation_ua_audio_url?: string | null
           full_verse_audio_url?: string | null
@@ -3460,6 +3540,7 @@ export type Database = {
           display_blocks?: Json | null
           embedding?: string | null
           end_verse?: number | null
+          event_date?: string | null
           explanation_en_audio_url?: string | null
           explanation_ua_audio_url?: string | null
           full_verse_audio_url?: string | null
