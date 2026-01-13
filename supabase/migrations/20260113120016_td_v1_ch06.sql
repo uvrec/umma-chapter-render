@@ -14,7 +14,6 @@ BEGIN
   VALUES (v_canto_id, 6, E'Chapter Six', '', 'verses', true)
   ON CONFLICT (canto_id, chapter_number) DO UPDATE SET
     title_en = EXCLUDED.title_en,
-    chapter_type = 'verses',
-    updated_at = now();
+    chapter_type = 'verses';
 
 END $$;

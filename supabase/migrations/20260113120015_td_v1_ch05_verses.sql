@@ -66,8 +66,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- December 26th, 1975
@@ -137,8 +136,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- December 27th, 1975
@@ -280,8 +278,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- December 28th, 1975
@@ -325,8 +322,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- December 29th, 1975
@@ -362,8 +358,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- December 30th, 1975
@@ -407,8 +402,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- December 31st, 1975
@@ -448,8 +442,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
 END $$;

@@ -32,8 +32,7 @@ BEGIN
   ON CONFLICT (book_id, slug) DO UPDATE SET
     title_en = EXCLUDED.title_en,
     content_en = EXCLUDED.content_en,
-    display_order = EXCLUDED.display_order,
-    updated_at = now();
+    display_order = EXCLUDED.display_order;
 
 
   INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
@@ -63,8 +62,7 @@ BEGIN
   ON CONFLICT (book_id, slug) DO UPDATE SET
     title_en = EXCLUDED.title_en,
     content_en = EXCLUDED.content_en,
-    display_order = EXCLUDED.display_order,
-    updated_at = now();
+    display_order = EXCLUDED.display_order;
 
 
   INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
@@ -106,8 +104,7 @@ BEGIN
   ON CONFLICT (book_id, slug) DO UPDATE SET
     title_en = EXCLUDED.title_en,
     content_en = EXCLUDED.content_en,
-    display_order = EXCLUDED.display_order,
-    updated_at = now();
+    display_order = EXCLUDED.display_order;
 
 
   INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
@@ -133,8 +130,7 @@ BEGIN
   ON CONFLICT (book_id, slug) DO UPDATE SET
     title_en = EXCLUDED.title_en,
     content_en = EXCLUDED.content_en,
-    display_order = EXCLUDED.display_order,
-    updated_at = now();
+    display_order = EXCLUDED.display_order;
 
 
   INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
@@ -176,8 +172,7 @@ BEGIN
   ON CONFLICT (book_id, slug) DO UPDATE SET
     title_en = EXCLUDED.title_en,
     content_en = EXCLUDED.content_en,
-    display_order = EXCLUDED.display_order,
-    updated_at = now();
+    display_order = EXCLUDED.display_order;
 
 
 END $$;

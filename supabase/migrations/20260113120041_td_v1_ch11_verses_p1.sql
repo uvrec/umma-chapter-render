@@ -30,8 +30,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 1st, 1976
@@ -71,8 +70,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 2nd, 1976
@@ -138,8 +136,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 3rd, 1976
@@ -177,8 +174,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 4th, 1976
@@ -218,8 +214,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 5th, 1976
@@ -295,8 +290,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 6th, 1976
@@ -348,8 +342,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
   -- April 7th, 1976
@@ -431,8 +424,7 @@ BEGIN
   ON CONFLICT (chapter_id, verse_number) DO UPDATE SET
     verse_number_sort = EXCLUDED.verse_number_sort,
     commentary_en = EXCLUDED.commentary_en,
-    event_date = EXCLUDED.event_date,
-    updated_at = now();
+    event_date = EXCLUDED.event_date;
 
 
 END $$;
