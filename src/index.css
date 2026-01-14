@@ -815,11 +815,12 @@ p[style*="fontSize"] * {
   line-height: inherit;
 }
 
-/* Виключення для drop-cap - він має власний розмір */
+/* Виключення для drop-cap - він має власний розмір та колір */
 div[style*="fontSize"] .drop-cap,
 p[style*="fontSize"] .drop-cap {
   font-size: 3.5em;
   line-height: 0.8;
+  color: hsl(var(--primary));
 }
 
 /* =========================
