@@ -13,6 +13,7 @@ import { ChapterVersesList } from "@/pages/ChapterVersesList";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { BooksProvider } from "@/contexts/BooksContext";
 
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { AudioProvider as ModernAudioProvider } from "@/contexts/ModernAudioContext";
@@ -322,15 +323,17 @@ const App = () => (
       <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
         <LanguageProvider>
           <AuthProvider>
-            <TooltipProvider>
-              <ModernAudioProvider>
-                <UserContentProvider>
-                  <Toaster />
-                  <Sonner />
-                  <AppContent />
-                </UserContentProvider>
-              </ModernAudioProvider>
-            </TooltipProvider>
+            <BooksProvider>
+              <TooltipProvider>
+                <ModernAudioProvider>
+                  <UserContentProvider>
+                    <Toaster />
+                    <Sonner />
+                    <AppContent />
+                  </UserContentProvider>
+                </ModernAudioProvider>
+              </TooltipProvider>
+            </BooksProvider>
           </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>
