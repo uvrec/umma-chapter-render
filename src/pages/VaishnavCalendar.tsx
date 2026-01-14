@@ -152,8 +152,8 @@ export default function VaishnavCalendar() {
     selectDate,
   } = useCalendar({ locationId: selectedLocationId, geoLocation });
 
-  const { events: todayEvents, nextEkadashi: todayNextEkadashi } =
-    useTodayEvents(selectedLocationId);
+  const { events: todayEvents, nextEkadashi: todayNextEkadashi, calculatedEkadashi } =
+    useTodayEvents(selectedLocationId, geoLocation);
 
   const { nextEkadashi, daysUntil } = useNextEkadashi(selectedLocationId);
 

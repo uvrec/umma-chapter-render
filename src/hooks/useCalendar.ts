@@ -6,7 +6,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
-import { useMonthEkadashis, ekadashiToCalendarEvent } from "./useCalculatedEkadashis";
+import { useMonthEkadashis, ekadashiToCalendarEvent, useIsEkadashi } from "./useCalculatedEkadashis";
 import type { GeoLocation } from "@/services/ekadashiCalculator";
 import type {
   CalendarEventDisplay,
@@ -182,7 +182,7 @@ export function useCalendar(options: UseCalendarOptions = {}) {
 // HOOK ДЛЯ СЬОГОДНІШНІХ ПОДІЙ
 // ============================================
 
-export function useTodayEvents(locationId?: string) {
+export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | null) {
   const { language } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
@@ -192,16 +192,42 @@ export function useTodayEvents(locationId?: string) {
     refetchOnWindowFocus: true,
   });
 
+  // Перевірка чи сьогодні екадаші через астрономічний розрахунок
+  const today = useMemo(() => new Date(), []);
+  const calculatedEkadashi = useIsEkadashi(today, geoLocation || null);
+
   // Форматовані події
   const events = useMemo(() => {
-    if (!data?.events) return [];
-    return data.events.map((event) => ({
+    const dbEvents = data?.events || [];
+    const formattedEvents = dbEvents.map((event) => ({
       ...event,
       name: language === "ua" ? event.name_ua : event.name_en,
       description:
         language === "ua" ? event.description_ua : event.description_en,
     }));
-  }, [data?.events, language]);
+
+    // Якщо в БД немає екадаші, але астрономічний розрахунок каже що сьогодні екадаші
+    const hasDbEkadashi = formattedEvents.some(e => e.is_ekadashi);
+    if (!hasDbEkadashi && calculatedEkadashi?.isEkadashi && geoLocation) {
+      const ekadashiEvent = ekadashiToCalendarEvent({
+        date: today,
+        dateStr: format(today, 'yyyy-MM-dd'),
+        paksha: calculatedEkadashi.paksha,
+        checkType: calculatedEkadashi.reason === 'mahadvadashi' ? 'mahadvadashi' : 'brahma_muhurta',
+      }, language as 'ua' | 'en');
+
+      return [
+        {
+          ...ekadashiEvent,
+          name: language === "ua" ? ekadashiEvent.name_ua : ekadashiEvent.name_en,
+          description: language === "ua" ? ekadashiEvent.description_ua : ekadashiEvent.description_en,
+        },
+        ...formattedEvents
+      ];
+    }
+
+    return formattedEvents;
+  }, [data?.events, language, calculatedEkadashi, geoLocation, today]);
 
   // Наступний екадаші
   const nextEkadashi = useMemo(() => {
@@ -227,6 +253,7 @@ export function useTodayEvents(locationId?: string) {
     moonPhase: data?.moon_phase,
     isLoading,
     error,
+    calculatedEkadashi,
   };
 }
 
