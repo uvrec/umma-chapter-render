@@ -49,7 +49,7 @@ export function getVerseReference(
  */
 export function getVerseUrl(params: VerseParams, baseUrl?: string): string {
   const { bookSlug, cantoNumber, chapterNumber, verseNumber } = params;
-  const base = baseUrl || "https://vedavoice.ua";
+  const base = baseUrl || "https://vedavoice.org";
 
   if (cantoNumber) {
     return `${base}/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
