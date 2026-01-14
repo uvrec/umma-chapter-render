@@ -89,15 +89,7 @@ ON CONFLICT (slug) DO UPDATE SET
   title_ua = EXCLUDED.title_ua,
   display_category = EXCLUDED.display_category;
 
--- 12. Perfect Questions Perfect Answers (pqpa) - conversation with Bob Cohen
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
-VALUES ('pqpa', 'Perfect Questions, Perfect Answers', 'Досконалі запитання, досконалі відповіді', true, false, 'small')
-ON CONFLICT (slug) DO UPDATE SET
-  title_en = EXCLUDED.title_en,
-  title_ua = EXCLUDED.title_ua,
-  display_category = EXCLUDED.display_category;
-
--- 14. The Science of Self-Realization (ssr) - interviews and essays
+-- 12. The Science of Self-Realization (ssr) - interviews and essays
 INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
 VALUES ('ssr', 'The Science of Self-Realization', 'Наука самоусвідомлення', true, false, 'small')
 ON CONFLICT (slug) DO UPDATE SET

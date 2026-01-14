@@ -28,7 +28,6 @@ const NEW_ISKCONPRESS_BOOKS = [
   { slug: "nbs", title_en: "Narada-bhakti-sutra", chapters: 8 },
   { slug: "owk", title_en: "On the Way to Krsna", chapters: 5 },
   { slug: "pop", title_en: "The Path of Perfection", chapters: 10 },
-  { slug: "pqpa", title_en: "Perfect Questions, Perfect Answers", chapters: 10 },
   { slug: "ssr", title_en: "The Science of Self-Realization", chapters: 8 },
   { slug: "tlc", title_en: "Teachings of Lord Caitanya", chapters: 32 },
   { slug: "tqk", title_en: "Teachings of Queen Kunti", chapters: 26 },
@@ -41,6 +40,7 @@ const EXISTING_BOOKS_TO_UPSERT = [
   { slug: "bs", title_en: "Brahma-samhita", chapters: 62 },
   { slug: "tlk", title_en: "Teachings of Lord Kapila", chapters: 32 },
   { slug: "kb", title_en: "Krsna Book", chapters: 90 },
+  { slug: "pqpa", title_en: "Perfect Questions, Perfect Answers", chapters: 10 },
   // SB handled separately due to canto structure
 ];
 
