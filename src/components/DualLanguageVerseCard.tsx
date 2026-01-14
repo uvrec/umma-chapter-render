@@ -1,7 +1,7 @@
 // DualLanguageVerseCard.tsx - Side-by-side view як на vedabase.io
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit, Save, X, Volume2, Star, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAudio } from "@/contexts/ModernAudioContext";
@@ -68,6 +68,7 @@ interface DualLanguageVerseCardProps {
   flowMode?: boolean;
   isAdmin?: boolean;
   onVerseUpdate?: (verseId: string, updates: any) => void;
+  onVerseDelete?: (verseId: string) => void;
   onVerseNumberUpdate?: () => void;
   // Навігація між віршами
   onPrevVerse?: () => void;
@@ -117,6 +118,7 @@ export const DualLanguageVerseCard = ({
   flowMode = false,
   isAdmin = false,
   onVerseUpdate,
+  onVerseDelete,
   onVerseNumberUpdate,
   onPrevVerse,
   onNextVerse,
@@ -148,6 +150,15 @@ export const DualLanguageVerseCard = ({
   const { playVerseWithChapterContext, currentTrack, togglePlay } = useAudio();
   const [isEditing, setIsEditing] = useState(false);
   const [isAddedToLearning, setIsAddedToLearning] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Видалення вірша
+  const handleDelete = useCallback(() => {
+    if (verseId && onVerseDelete) {
+      onVerseDelete(verseId);
+      setShowDeleteConfirm(false);
+    }
+  }, [verseId, onVerseDelete]);
 
   // Check if verse is already in learning list
   useEffect(() => {
@@ -335,11 +346,34 @@ export const DualLanguageVerseCard = ({
                   Скасувати
                 </Button>
               </div>
+            ) : showDeleteConfirm ? (
+              <div className="flex items-center gap-2 bg-destructive/10 rounded-lg px-4 py-2">
+                <span className="text-sm text-destructive">Видалити цей вірш?</span>
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
+                  Так, видалити
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
+                  Скасувати
+                </Button>
+              </div>
             ) : (
-              <Button variant="ghost" size="sm" onClick={startEdit}>
-                <Edit className="mr-2 h-4 w-4" />
-                Редагувати
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={startEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Редагувати
+                </Button>
+                {onVerseDelete && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Видалити
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         )}

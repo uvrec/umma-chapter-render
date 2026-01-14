@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight } from "lucide-react";
+import { Edit, Save, X, Volume2, GraduationCap, Play, Pause, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -67,6 +67,7 @@ interface VerseCardProps {
       commentary: string;
     },
   ) => void;
+  onVerseDelete?: (verseId: string) => void;
   onVerseNumberUpdate?: () => void; // коллбек після зміни номера
   language?: "ua" | "en"; // ✅ НОВЕ: мова інтерфейсу
   // Навігація між віршами
@@ -113,6 +114,7 @@ export const VerseCard = ({
   showVerseContour = true,
   isAdmin = false,
   onVerseUpdate,
+  onVerseDelete,
   onVerseNumberUpdate,
   language = "ua",
   onPrevVerse,
@@ -191,6 +193,16 @@ export const VerseCard = ({
   }, [isNowPlaying]);
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Видалення вірша
+  const handleDelete = useCallback(() => {
+    if (verseId && onVerseDelete) {
+      onVerseDelete(verseId);
+      setShowDeleteConfirm(false);
+    }
+  }, [verseId, onVerseDelete]);
+
   const [edited, setEdited] = useState({
     sanskrit: sanskritText,
     transliteration: transliteration || "",
@@ -358,11 +370,34 @@ export const VerseCard = ({
                   Скасувати
                 </Button>
               </div>
+            ) : showDeleteConfirm ? (
+              <div className="flex items-center gap-2 bg-destructive/10 rounded-lg px-4 py-2">
+                <span className="text-sm text-destructive">Видалити цей вірш?</span>
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
+                  Так, видалити
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
+                  Скасувати
+                </Button>
+              </div>
             ) : (
-              <Button variant="ghost" size="sm" onClick={startEdit}>
-                <Edit className="mr-2 h-4 w-4" />
-                Редагувати
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={startEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Редагувати
+                </Button>
+                {onVerseDelete && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Видалити
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         )}
