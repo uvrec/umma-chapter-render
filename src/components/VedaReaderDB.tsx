@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Copy, Link } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -29,6 +29,7 @@ import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinim
 import { RelatedVerses } from "@/components/RelatedVerses";
 import { VerseTattvas } from "@/components/verse/VerseTattvas";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
+import { shareVerse, copyVerseWithLink, copyVerseUrl, VerseParams } from "@/utils/verseShare";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
@@ -506,21 +507,132 @@ export const VedaReaderDB = () => {
     });
   };
 
-  // 🆕 Share функція
-  const handleShare = () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      navigator.share({
-        title: `${bookTitle} - ${chapterTitle}`,
-        url
+  // 🆕 Share функція - тепер ділиться текстом вірша з посиланням
+  const handleShare = async () => {
+    if (!currentVerse) {
+      // Fallback to old behavior if no verse
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({
+          title: `${bookTitle} - ${chapterTitle}`,
+          url
+        });
+      } else {
+        navigator.clipboard.writeText(url);
+        toast({
+          title: t("Посилання скопійовано", "Link copied"),
+          description: url
+        });
+      }
+      return;
+    }
+
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      bookTitle: bookTitle,
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: verseIdx,
+      verseText: language === 'ua' ? currentVerse.translation_ua : currentVerse.translation_en,
+      sanskritText: currentVerse.text,
+    };
+
+    await shareVerse(verseParams, {
+      lang: language as "uk" | "en",
+      onSuccess: () => {
+        toast({
+          title: t("Поділено успішно", "Shared successfully"),
+        });
+      },
+      onFallbackCopy: () => {
+        toast({
+          title: t("Скопійовано з посиланням", "Copied with link"),
+          description: t("Web Share недоступний, текст скопійовано", "Web Share unavailable, text copied"),
+        });
+      },
+      onError: (error) => {
+        console.error("Share failed:", error);
+        toast({
+          title: t("Помилка поширення", "Share error"),
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
+  // 🆕 Copy with link функція - копіює текст вірша з посиланням
+  const handleCopyWithLink = async () => {
+    if (!currentVerse) {
+      toast({
+        title: t("Немає поточного вірша", "No current verse"),
+        variant: "destructive",
       });
-    } else {
-      navigator.clipboard.writeText(url);
+      return;
+    }
+
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      bookTitle: bookTitle,
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: verseIdx,
+      verseText: language === 'ua' ? currentVerse.translation_ua : currentVerse.translation_en,
+      sanskritText: currentVerse.text,
+    };
+
+    await copyVerseWithLink(verseParams, {
+      lang: language as "uk" | "en",
+      onSuccess: () => {
+        toast({
+          title: t("Скопійовано з посиланням", "Copied with link"),
+          description: t("Текст вірша та URL скопійовано", "Verse text and URL copied"),
+        });
+      },
+      onError: (error) => {
+        console.error("Copy failed:", error);
+        toast({
+          title: t("Помилка копіювання", "Copy error"),
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
+  // 🆕 Copy URL only
+  const handleCopyUrl = async () => {
+    if (!currentVerse) {
+      // Fallback
+      navigator.clipboard.writeText(window.location.href);
       toast({
         title: t("Посилання скопійовано", "Link copied"),
-        description: url
       });
+      return;
     }
+
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: verseIdx,
+    };
+
+    await copyVerseUrl(verseParams, {
+      onSuccess: () => {
+        toast({
+          title: t("Посилання скопійовано", "Link copied"),
+        });
+      },
+      onError: () => {
+        // Fallback
+        navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: t("Посилання скопійовано", "Link copied"),
+        });
+      },
+    });
   };
 
   // 🆕 Download функція
@@ -679,6 +791,54 @@ export const VedaReaderDB = () => {
     setSelectionTooltipVisible(false);
     setHighlightDialogOpen(true);
   }, []);
+
+  // Handler for copying selected text with verse reference
+  const handleCopySelectedText = useCallback(async () => {
+    if (!selectedTextForHighlight || !currentVerse) return;
+
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      bookTitle: bookTitle,
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: verseIdx,
+      verseText: selectedTextForHighlight,
+    };
+
+    await copyVerseWithLink(verseParams, {
+      lang: language as "uk" | "en",
+      onSuccess: () => {
+        toast({
+          title: t("Скопійовано з посиланням", "Copied with link"),
+        });
+      },
+    });
+  }, [selectedTextForHighlight, currentVerse, bookId, bookTitle, cantoNumber, effectiveChapterParam, language, t]);
+
+  // Handler for sharing selected text
+  const handleShareSelectedText = useCallback(async () => {
+    if (!selectedTextForHighlight || !currentVerse) return;
+
+    const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
+    const verseParams: VerseParams = {
+      bookSlug: bookId || "",
+      bookTitle: bookTitle,
+      cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
+      chapterNumber: parseInt(effectiveChapterParam || "1"),
+      verseNumber: verseIdx,
+      verseText: selectedTextForHighlight,
+    };
+
+    await shareVerse(verseParams, {
+      lang: language as "uk" | "en",
+      onFallbackCopy: () => {
+        toast({
+          title: t("Скопійовано з посиланням", "Copied with link"),
+        });
+      },
+    });
+  }, [selectedTextForHighlight, currentVerse, bookId, bookTitle, cantoNumber, effectiveChapterParam, language, t]);
 
   // Mouseup and selectionchange listeners for highlights
   useEffect(() => {
@@ -1030,6 +1190,12 @@ export const VedaReaderDB = () => {
               {isAdmin && <Button variant="ghost" size="icon" onClick={() => navigate("/admin/highlights")} title={t("Виділення", "Highlights")}>
                   <Highlighter className="h-5 w-5" />
                 </Button>}
+              <Button variant="ghost" size="icon" onClick={handleCopyWithLink} disabled={!currentVerse} title={t("Копіювати з посиланням", "Copy with link")}>
+                <Copy className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleCopyUrl} title={t("Копіювати посилання", "Copy link")}>
+                <Link className="h-5 w-5" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={handleShare} title={t("Поділитися", "Share")}>
                 <Share2 className="h-5 w-5" />
               </Button>
@@ -1182,8 +1348,11 @@ export const VedaReaderDB = () => {
       <SelectionTooltip
         isVisible={selectionTooltipVisible}
         position={selectionTooltipPosition}
+        selectedText={selectedTextForHighlight}
         onSave={handleOpenHighlightDialog}
         onClose={() => setSelectionTooltipVisible(false)}
+        onCopy={handleCopySelectedText}
+        onShare={handleShareSelectedText}
       />
       <HighlightDialog isOpen={highlightDialogOpen} onClose={() => setHighlightDialogOpen(false)} onSave={handleSaveHighlight} selectedText={selectedTextForHighlight} />
 
