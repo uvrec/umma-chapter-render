@@ -326,9 +326,10 @@ function formatReference(result: SearchResult, language: 'uk' | 'en'): string {
  * Format: /lib/bg/2/2 or /lib/sb/1/1/1 (canto/chapter/verse)
  */
 function createVerseUrl(result: SearchResult): string {
-  // SB uses canto structure
-  if (result.book_slug === 'sb' && result.canto_number) {
-    return `/lib/sb/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
+  // Books with canto/volume structure: SB, CC, Saranagati, TD, SCB
+  const cantoBooks = ['sb', 'cc', 'scc', 'saranagati', 'td', 'scb'];
+  if (cantoBooks.includes(result.book_slug) && result.canto_number) {
+    return `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
   }
   // Other books use simple structure
   return `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
