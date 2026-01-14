@@ -488,12 +488,12 @@ export const VedaReaderDB = () => {
     }
   });
 
-  // Мутація для soft delete вірша (встановлює deleted_at)
+  // Мутація для видалення вірша
   const deleteVerseMutation = useMutation({
     mutationFn: async (verseId: string) => {
       const { error } = await supabase
         .from("verses")
-        .update({ deleted_at: new Date().toISOString() })
+        .delete()
         .eq("id", verseId);
       if (error) throw error;
     },
@@ -501,7 +501,7 @@ export const VedaReaderDB = () => {
       queryClient.invalidateQueries({ queryKey: ["verses"] });
       toast({
         title: t("Видалено", "Deleted"),
-        description: t("Вірш видалено (можна відновити в БД)", "Verse deleted (can be restored in DB)")
+        description: t("Вірш видалено з бази даних", "Verse deleted from database")
       });
       // Якщо видалили поточний вірш, переходимо до попереднього або наступного
       if (currentVerseIndex > 0) {
