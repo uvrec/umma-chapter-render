@@ -9,7 +9,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -42,7 +42,8 @@ export const ChapterVersesList = () => {
   } = useLanguage();
   const navigate = useNavigate();
   const {
-    user
+    user,
+    isAdmin
   } = useAuth();
   const queryClient = useQueryClient();
   const {
@@ -299,6 +300,18 @@ export const ChapterVersesList = () => {
                   <span className="hidden sm:inline">{language === "ua" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
+              {isAdmin && effectiveChapterObj?.id && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/admin/verses/new?chapterId=${effectiveChapterObj.id}`)}
+                  className="gap-1 flex-1 sm:flex-none"
+                  title={language === "ua" ? "Додати вірш" : "Add verse"}
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">{language === "ua" ? "Додати вірш" : "Add verse"}</span>
+                </Button>
+              )}
             </div>
           </div>
 
