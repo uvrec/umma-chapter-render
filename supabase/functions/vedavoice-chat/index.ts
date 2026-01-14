@@ -323,15 +323,15 @@ function formatReference(result: SearchResult, language: 'uk' | 'en'): string {
 
 /**
  * Create internal path for verse navigation
- * Format: /veda-reader/bg/2/2 or /veda-reader/sb/canto/1/chapter/1/1
+ * Format: /lib/bg/2/2 or /lib/sb/1/1/1 (canto/chapter/verse)
  */
 function createVerseUrl(result: SearchResult): string {
   // SB uses canto structure
   if (result.book_slug === 'sb' && result.canto_number) {
-    return `/veda-reader/sb/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`;
+    return `/lib/sb/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
   }
   // Other books use simple structure
-  return `/veda-reader/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
+  return `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
 }
 
 /**
