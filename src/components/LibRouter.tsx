@@ -13,7 +13,7 @@
 import { useParams, Navigate } from "react-router-dom";
 
 // Книги з канто (canto/chapter/verse структура)
-const CANTO_BOOKS = ["sb", "cc"];
+const CANTO_BOOKS = ["sb", "cc", "scc"];
 
 // Книги з частинами (part/chapter/verse) - CC має Adi, Madhya, Antya
 const hasCantoStructure = (bookId: string): boolean => {
