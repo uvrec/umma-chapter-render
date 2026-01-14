@@ -46,8 +46,8 @@ const BOOK_SLUGS: Record<string, string> = {
   'caitanya': 'cc',
 };
 
-// Books that have cantos
-const CANTO_BOOKS = ['sb', 'cc'];
+// Books that have cantos/volumes
+const CANTO_BOOKS = ['sb', 'cc', 'scc', 'saranagati', 'td', 'scb'];
 
 // CC canto name mappings
 const CC_CANTO_NAMES: Record<string, number> = {
