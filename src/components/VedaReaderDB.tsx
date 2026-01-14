@@ -228,7 +228,7 @@ export const VedaReaderDB = () => {
           end_verse,
           verse_count,
           sort_key
-        `).eq("chapter_id", chapter.id).order("sort_key", {
+        `).eq("chapter_id", chapter.id).is("deleted_at", null).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
@@ -255,7 +255,7 @@ export const VedaReaderDB = () => {
           end_verse,
           verse_count,
           sort_key
-        `).eq("chapter_id", fallbackChapter.id).order("sort_key", {
+        `).eq("chapter_id", fallbackChapter.id).is("deleted_at", null).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
