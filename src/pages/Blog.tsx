@@ -155,14 +155,17 @@ export const Blog = () => {
                 ? post.blog_categories?.name_ua 
                 : post.blog_categories?.name_en;
 
+              // Використовуємо featured_image як основне, cover_image_url як fallback
+              const imageUrl = post.featured_image || post.cover_image_url;
+
               return (
                 <Link key={post.id} to={`/blog/${post.slug}`} className="block hover:bg-muted/30 transition-colors py-4">
-                  {post.cover_image_url && (
+                  {imageUrl && (
                     <div className="aspect-video mb-4">
                       <img
-                        src={post.cover_image_url}
+                        src={imageUrl}
                         alt={title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover rounded-lg"
                       />
                     </div>
                   )}

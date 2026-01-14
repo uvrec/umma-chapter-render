@@ -563,7 +563,7 @@ export const EnhancedInlineEditor = ({
 
   return (
     <div
-      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative flex flex-col max-h-[70vh]`}
+      className={`rounded-md border ${editable ? "border-amber-400/40 hover:border-amber-400/80" : "border-transparent"} transition-colors relative flex flex-col`}
     >
 
       {/* STICKY TOOLBAR - завжди видимий, поза скрольним контейнером */}
@@ -987,10 +987,11 @@ export const EnhancedInlineEditor = ({
         </div>
       )}
 
-      {/* EDITOR CONTENT - скрольний контейнер з обмеженою висотою */}
+      {/* EDITOR CONTENT - скрольний контейнер */}
       <div
         ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto min-h-0 max-h-[50vh]"
+        className="flex-1 overflow-y-auto min-h-[200px]"
+        style={{ minHeight }}
       >
         <EditorContent editor={editor} />
       </div>
