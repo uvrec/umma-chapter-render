@@ -13,9 +13,11 @@
 import { useParams, Navigate } from "react-router-dom";
 
 // Книги з канто (canto/chapter/verse структура)
-const CANTO_BOOKS = ["sb", "cc"];
+// sb = Шрімад-Бгаґаватам
+// cc = Чайтанья-чарітамріта (Vedabase slug)
+// scc = Чайтанья-чарітамріта (наш внутрішній slug)
+const CANTO_BOOKS = ["sb", "cc", "scc"];
 
-// Книги з частинами (part/chapter/verse) - CC має Adi, Madhya, Antya
 const hasCantoStructure = (bookId: string): boolean => {
   return CANTO_BOOKS.includes(bookId.toLowerCase());
 };
