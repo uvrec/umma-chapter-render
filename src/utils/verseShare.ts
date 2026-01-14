@@ -16,15 +16,15 @@ export interface VerseParams {
 
 // Скорочення для книг
 const BOOK_ABBREVIATIONS: Record<string, { uk: string; en: string }> = {
-  bg: { uk: "БГ", en: "BG" },
-  sb: { uk: "ШБ", en: "SB" },
-  cc: { uk: "ЧЧ", en: "CC" },
-  iso: { uk: "Ішо", en: "ISO" },
+  bg: { uk: "Б.-ґ.", en: "Bg." },
+  sb: { uk: "Бгаґ.", en: "SB" },
+  cc: { uk: "Ч.-ч.", en: "Cc." },
+  iso: { uk: "Ішо.", en: "Iso." },
   noi: { uk: "НВ", en: "NOI" },
   nod: { uk: "НВ", en: "NOD" },
   tlk: { uk: "ВНК", en: "TLK" },
   kb: { uk: "КБ", en: "KB" },
-  easy: { uk: "БГЛЧ", en: "BGEW" },
+  easy: { uk: "Б.-ґ.ЛЧ", en: "BGEW" },
 };
 
 /**
