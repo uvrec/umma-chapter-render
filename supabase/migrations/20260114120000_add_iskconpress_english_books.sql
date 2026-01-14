@@ -17,15 +17,7 @@ ON CONFLICT (slug) DO UPDATE SET
   title_ua = EXCLUDED.title_ua,
   display_category = EXCLUDED.display_category;
 
--- 2. Easy Journey to Other Planets (ej) - 2 chapters
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
-VALUES ('ej', 'Easy Journey to Other Planets', 'Легка подорож до інших планет', true, false, 'small')
-ON CONFLICT (slug) DO UPDATE SET
-  title_en = EXCLUDED.title_en,
-  title_ua = EXCLUDED.title_ua,
-  display_category = EXCLUDED.display_category;
-
--- 3. Elevation to Krsna Consciousness (ekc) - 6 chapters
+-- 2. Elevation to Krsna Consciousness (ekc) - 6 chapters
 INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
 VALUES ('ekc', 'Elevation to Krsna Consciousness', 'Підняття до свідомості Крішни', true, false, 'small')
 ON CONFLICT (slug) DO UPDATE SET
@@ -97,23 +89,7 @@ ON CONFLICT (slug) DO UPDATE SET
   title_ua = EXCLUDED.title_ua,
   display_category = EXCLUDED.display_category;
 
--- 12. The Perfection of Yoga (poy) - 8 chapters
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
-VALUES ('poy', 'The Perfection of Yoga', 'Досконалість йоги', true, false, 'small')
-ON CONFLICT (slug) DO UPDATE SET
-  title_en = EXCLUDED.title_en,
-  title_ua = EXCLUDED.title_ua,
-  display_category = EXCLUDED.display_category;
-
--- 13. Perfect Questions Perfect Answers (pqpa) - conversation with Bob Cohen
-INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
-VALUES ('pqpa', 'Perfect Questions, Perfect Answers', 'Досконалі запитання, досконалі відповіді', true, false, 'small')
-ON CONFLICT (slug) DO UPDATE SET
-  title_en = EXCLUDED.title_en,
-  title_ua = EXCLUDED.title_ua,
-  display_category = EXCLUDED.display_category;
-
--- 14. The Science of Self-Realization (ssr) - interviews and essays
+-- 12. The Science of Self-Realization (ssr) - interviews and essays
 INSERT INTO public.books (slug, title_en, title_ua, is_published, has_cantos, display_category)
 VALUES ('ssr', 'The Science of Self-Realization', 'Наука самоусвідомлення', true, false, 'small')
 ON CONFLICT (slug) DO UPDATE SET

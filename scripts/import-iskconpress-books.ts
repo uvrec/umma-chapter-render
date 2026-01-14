@@ -16,9 +16,9 @@ const GITHUB_API_BASE = "https://api.github.com/repos/iskconpress/books/contents
 const DELAY_MS = 500;
 
 // Book configurations with chapter counts
-const ISKCONPRESS_BOOKS = [
+// NEW books to create in DB
+const NEW_ISKCONPRESS_BOOKS = [
   { slug: "bbd", title_en: "Beyond Birth and Death", chapters: 5 },
-  { slug: "ej", title_en: "Easy Journey to Other Planets", chapters: 2 },
   { slug: "ekc", title_en: "Elevation to Krsna Consciousness", chapters: 6 },
   { slug: "lcfl", title_en: "Life Comes From Life", chapters: 16 },
   { slug: "lob", title_en: "Light of the Bhagavata", chapters: 48 },
@@ -28,13 +28,24 @@ const ISKCONPRESS_BOOKS = [
   { slug: "nbs", title_en: "Narada-bhakti-sutra", chapters: 8 },
   { slug: "owk", title_en: "On the Way to Krsna", chapters: 5 },
   { slug: "pop", title_en: "The Path of Perfection", chapters: 10 },
-  { slug: "poy", title_en: "The Perfection of Yoga", chapters: 8 },
-  { slug: "pqpa", title_en: "Perfect Questions, Perfect Answers", chapters: 10 },
   { slug: "ssr", title_en: "The Science of Self-Realization", chapters: 8 },
   { slug: "tlc", title_en: "Teachings of Lord Caitanya", chapters: 32 },
   { slug: "tqk", title_en: "Teachings of Queen Kunti", chapters: 26 },
   { slug: "ttp", title_en: "Teachings of Prahlada Maharaja", chapters: 6 },
 ];
+
+// EXISTING books to upsert English content from iskconpress
+const EXISTING_BOOKS_TO_UPSERT = [
+  { slug: "nod", title_en: "Nectar of Devotion", chapters: 51 },
+  { slug: "bs", title_en: "Brahma-samhita", chapters: 62 },
+  { slug: "tlk", title_en: "Teachings of Lord Kapila", chapters: 32 },
+  { slug: "kb", title_en: "Krsna Book", chapters: 90 },
+  { slug: "pqpa", title_en: "Perfect Questions, Perfect Answers", chapters: 10 },
+  // SB handled separately due to canto structure
+];
+
+// All books to import
+const ISKCONPRESS_BOOKS = [...NEW_ISKCONPRESS_BOOKS, ...EXISTING_BOOKS_TO_UPSERT];
 
 // Supabase client
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
