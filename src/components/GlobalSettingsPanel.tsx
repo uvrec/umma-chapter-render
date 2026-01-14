@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { AdminTypographyPanel } from "@/components/AdminTypographyPanel";
 import { OfflineManager } from "@/components/OfflineManager";
+import { VersionDebugBadge } from "@/components/VersionDebugBadge";
 import { errorLogger } from "@/utils/errorLogger";
 
 const MIN_FONT = 12;
@@ -479,6 +480,14 @@ export const GlobalSettingsPanel = ({
                 <RotateCcw className="h-4 w-4" />
                 {t("Скинути до початкових", "Reset to Defaults")}
               </Button>
+            </div>
+
+            <Separator />
+
+            {/* Версія для діагностики */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-2 block">{t("Версія", "Version")}</Label>
+              <VersionDebugBadge />
             </div>
             </TabsContent>
 
