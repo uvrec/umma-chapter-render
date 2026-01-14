@@ -12,11 +12,13 @@
 
 import { useParams, Navigate } from "react-router-dom";
 
-// Книги з канто (canto/chapter/verse структура)
+// Книги з канто/томами (canto/chapter/verse структура)
 // sb = Шрімад-Бгаґаватам
-// cc = Чайтанья-чарітамріта (Vedabase slug)
-// scc = Чайтанья-чарітамріта (наш внутрішній slug)
-const CANTO_BOOKS = ["sb", "cc", "scc"];
+// cc/scc = Чайтанья-чарітамріта
+// saranagati = Шаранаґаті (9 канто)
+// td = Трансцендентний щоденник (5 томів)
+// scb = Шрі Чайтанья-бгаґавата (3 кханди)
+const CANTO_BOOKS = ["sb", "cc", "scc", "saranagati", "td", "scb"];
 
 const hasCantoStructure = (bookId: string): boolean => {
   return CANTO_BOOKS.includes(bookId.toLowerCase());
