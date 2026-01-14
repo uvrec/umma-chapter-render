@@ -16,9 +16,9 @@ const GITHUB_API_BASE = "https://api.github.com/repos/iskconpress/books/contents
 const DELAY_MS = 500;
 
 // Book configurations with chapter counts
+// Books to import from iskconpress (excluding ones already in DB: ej, poy)
 const ISKCONPRESS_BOOKS = [
   { slug: "bbd", title_en: "Beyond Birth and Death", chapters: 5 },
-  { slug: "ej", title_en: "Easy Journey to Other Planets", chapters: 2 },
   { slug: "ekc", title_en: "Elevation to Krsna Consciousness", chapters: 6 },
   { slug: "lcfl", title_en: "Life Comes From Life", chapters: 16 },
   { slug: "lob", title_en: "Light of the Bhagavata", chapters: 48 },
@@ -28,7 +28,6 @@ const ISKCONPRESS_BOOKS = [
   { slug: "nbs", title_en: "Narada-bhakti-sutra", chapters: 8 },
   { slug: "owk", title_en: "On the Way to Krsna", chapters: 5 },
   { slug: "pop", title_en: "The Path of Perfection", chapters: 10 },
-  { slug: "poy", title_en: "The Perfection of Yoga", chapters: 8 },
   { slug: "pqpa", title_en: "Perfect Questions, Perfect Answers", chapters: 10 },
   { slug: "ssr", title_en: "The Science of Self-Realization", chapters: 8 },
   { slug: "tlc", title_en: "Teachings of Lord Caitanya", chapters: 32 },
