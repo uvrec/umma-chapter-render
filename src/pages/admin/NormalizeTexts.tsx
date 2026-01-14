@@ -87,7 +87,6 @@ export default function NormalizeTexts() {
     setScanCompleted(false);
     setEncodingRemnants([]);
     try {
-      // @ts-expect-error - RPC function exists in database but not in generated types
       const { data, error } = await supabase.rpc('find_html_encoding_remnants');
       if (error) throw error;
       const rows = (data as EncodingRemnant[] | null) ?? [];
@@ -120,7 +119,6 @@ export default function NormalizeTexts() {
 
     setIsFixing(true);
     try {
-      // @ts-expect-error - RPC function exists in database but not in generated types
       const { data, error } = await supabase.rpc('fix_html_encoding_remnants');
       if (error) throw error;
 
