@@ -4,19 +4,19 @@
 
 export const VEDABASE_BOOKS = [
   {
-    slug: 'bg',
-    name: 'Bhagavad-gita As It Is',
-    vedabaseSlug: 'bg',
-    our_slug: 'gita',
-    name_ua: 'Бгаґавад-ґіта як вона є',
-    name_en: 'Bhagavad-gita As It Is',
+    slug: "bg",
+    name: "Bhagavad-gita As It Is",
+    vedabaseSlug: "bg",
+    our_slug: "bg", // ✅ Змінено з 'gita' на 'bg' для відповідності Vedabase
+    name_ua: "Бгаґавад-ґіта як вона є",
+    name_en: "Bhagavad-gita As It Is",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Глава',
+    volumeLabel: "Глава",
     cantos: undefined,
     // Парсинг
-    templateId: 'bhagavad-gita',
+    templateId: "bhagavad-gita",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -28,19 +28,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'sb',
-    name: 'Srimad-Bhagavatam',
-    vedabaseSlug: 'sb',
-    our_slug: 'bhagavatam',
-    name_ua: 'Шрімад-Бгаґаватам',
-    name_en: 'Srimad-Bhagavatam',
+    slug: "sb",
+    name: "Srimad-Bhagavatam",
+    vedabaseSlug: "sb",
+    our_slug: "sb", // ✅ Змінено з 'bhagavatam' на 'sb' для відповідності Vedabase
+    name_ua: "Шрімад-Бгаґаватам",
+    name_en: "Srimad-Bhagavatam",
     // Структура книги
     isMultiVolume: true,
     has_cantos: true,
-    volumeLabel: 'Пісня',
+    volumeLabel: "Пісня",
     cantos: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     // Парсинг
-    templateId: 'srimad-bhagavatam',
+    templateId: "srimad-bhagavatam",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -52,23 +52,23 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'cc',
-    name: 'Caitanya-caritamrta',
-    vedabaseSlug: 'cc',
-    our_slug: 'scc',
-    name_ua: 'Шрі Чайтанья-чарітамріта',
-    name_en: 'Caitanya-caritamrta',
+    slug: "cc",
+    name: "Caitanya-caritamrta",
+    vedabaseSlug: "cc",
+    our_slug: "scc",
+    name_ua: "Шрі Чайтанья-чарітамріта",
+    name_en: "Caitanya-caritamrta",
     // Структура книги
     isMultiVolume: true,
     has_cantos: true,
-    volumeLabel: 'Ліла',
-    cantos: ['adi', 'madhya', 'antya'],
+    volumeLabel: "Ліла",
+    cantos: ["adi", "madhya", "antya"],
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: true, // ✅ Є UA версія на Gitabase
     gitabase_available: true,
-    gitabaseSlug: 'CC',
+    gitabaseSlug: "CC",
     // Джерело (опціонально)
     source: undefined as string | undefined,
     sourceUrl: undefined as string | undefined,
@@ -76,19 +76,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'iso',
-    name: 'Sri Isopanisad',
-    vedabaseSlug: 'iso',
-    our_slug: 'iso',
-    name_ua: 'Шрі Ішопанішад',
-    name_en: 'Sri Isopanisad',
+    slug: "iso",
+    name: "Sri Isopanisad",
+    vedabaseSlug: "iso",
+    our_slug: "iso",
+    name_ua: "Шрі Ішопанішад",
+    name_en: "Sri Isopanisad",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Мантра',
+    volumeLabel: "Мантра",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -100,23 +100,23 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'noi',
-    name: 'Nectar of Instruction',
-    vedabaseSlug: 'noi',
-    our_slug: 'noi',
-    name_ua: 'Нектар настанов',
-    name_en: 'Nectar of Instruction',
+    slug: "noi",
+    name: "Nectar of Instruction",
+    vedabaseSlug: "noi",
+    our_slug: "noi",
+    name_ua: "Нектар настанов",
+    name_en: "Nectar of Instruction",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Текст',
+    volumeLabel: "Текст",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: true, // ✅ Є UA версія на Gitabase
     gitabase_available: true,
-    gitabaseSlug: 'NoI',
+    gitabaseSlug: "NoI",
     // Джерело (опціонально)
     source: undefined as string | undefined,
     sourceUrl: undefined as string | undefined,
@@ -128,19 +128,19 @@ export const VEDABASE_BOOKS = [
     hasSpecialStructure: true as boolean | undefined,
   },
   {
-    slug: 'nod',
-    name: 'Nectar of Devotion',
-    vedabaseSlug: 'nod',
-    our_slug: 'nod',
-    name_ua: 'Нектар відданості',
-    name_en: 'Nectar of Devotion',
+    slug: "nod",
+    name: "Nectar of Devotion",
+    vedabaseSlug: "nod",
+    our_slug: "nod",
+    name_ua: "Нектар відданості",
+    name_en: "Nectar of Devotion",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Глава',
+    volumeLabel: "Глава",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -152,19 +152,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'kb',
-    name: 'Krsna, The Supreme Personality of Godhead',
-    vedabaseSlug: 'kb',
-    our_slug: 'kb',
-    name_ua: 'Крішна — Верховна Особистість Бога',
-    name_en: 'Krsna, The Supreme Personality of Godhead',
+    slug: "kb",
+    name: "Krsna, The Supreme Personality of Godhead",
+    vedabaseSlug: "kb",
+    our_slug: "kb",
+    name_ua: "Крішна — Верховна Особистість Бога",
+    name_en: "Krsna, The Supreme Personality of Godhead",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Глава',
+    volumeLabel: "Глава",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -176,19 +176,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'tlk',
-    name: 'Teachings of Lord Kapila',
-    vedabaseSlug: 'tlk',
-    our_slug: 'tlk',
-    name_ua: 'Наука самоусвідомлення',
-    name_en: 'Teachings of Lord Kapila',
+    slug: "tlk",
+    name: "Teachings of Lord Kapila",
+    vedabaseSlug: "tlk",
+    our_slug: "tlk",
+    name_ua: "Наука самоусвідомлення",
+    name_en: "Teachings of Lord Kapila",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Глава',
+    volumeLabel: "Глава",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -200,19 +200,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'bs',
-    name: 'Brahma-saṁhitā',
-    vedabaseSlug: 'bs',
-    our_slug: 'bs',
-    name_ua: 'Брахма-самгіта',
-    name_en: 'Brahma-saṁhitā',
+    slug: "bs",
+    name: "Brahma-saṁhitā",
+    vedabaseSlug: "bs",
+    our_slug: "bs",
+    name_ua: "Брахма-самгіта",
+    name_en: "Brahma-saṁhitā",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Вірш',
+    volumeLabel: "Вірш",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -224,19 +224,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'transcripts',
-    name: 'Transcripts',
-    vedabaseSlug: 'transcripts',
-    our_slug: 'lectures',
-    name_ua: 'Лекції',
-    name_en: 'Lectures',
+    slug: "transcripts",
+    name: "Transcripts",
+    vedabaseSlug: "transcripts",
+    our_slug: "lectures",
+    name_ua: "Лекції",
+    name_en: "Lectures",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Лекція',
+    volumeLabel: "Лекція",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -248,19 +248,19 @@ export const VEDABASE_BOOKS = [
     author_ua: undefined as string | undefined,
   },
   {
-    slug: 'letters',
-    name: 'Letters',
-    vedabaseSlug: 'letters',
-    our_slug: 'letters',
-    name_ua: 'Листи',
-    name_en: 'Letters',
+    slug: "letters",
+    name: "Letters",
+    vedabaseSlug: "letters",
+    our_slug: "letters",
+    name_ua: "Листи",
+    name_en: "Letters",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Лист',
+    volumeLabel: "Лист",
     cantos: undefined,
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
@@ -273,35 +273,35 @@ export const VEDABASE_BOOKS = [
   },
   // ========== КНИГИ BHAKTIVINODA THAKUR ==========
   {
-    slug: 'saranagati',
-    name: 'Śaraṇāgati',
+    slug: "saranagati",
+    name: "Śaraṇāgati",
     vedabaseSlug: null,
-    our_slug: 'saranagati',
-    name_ua: 'Шаранагаті',
-    name_en: 'Śaraṇāgati - Songs of Surrender',
+    our_slug: "saranagati",
+    name_ua: "Шаранагаті",
+    name_en: "Śaraṇāgati - Songs of Surrender",
     // Автор
-    author: 'Bhaktivinoda Thakur',
-    author_ua: 'Бгактівінод Тхакур',
+    author: "Bhaktivinoda Thakur",
+    author_ua: "Бгактівінод Тхакур",
     // Джерело
-    source: 'kksongs',
-    sourceUrl: 'https://kksongs.org/authors/literature/saranagati.html',
+    source: "kksongs",
+    sourceUrl: "https://kksongs.org/authors/literature/saranagati.html",
     // Структура книги
     isMultiVolume: false,
     has_cantos: true, // ✅ 9 cantos (sections), 54 songs total
-    volumeLabel: 'Song', // Пісня
+    volumeLabel: "Song", // Пісня
     cantos: [
-      { number: 1, name: 'Dainya', name_ua: 'Смирення', songs: 7 },
-      { number: 2, name: 'Ātma Nivedana', name_ua: 'Посвячення себе', songs: 8 },
-      { number: 3, name: 'Goptṛtve-Varaṇa', name_ua: 'Вибір Захисника', songs: 4 },
-      { number: 4, name: 'Avaśya Rakṣibe Kṛṣṇa', name_ua: 'Крішна неодмінно захистить', songs: 6 },
-      { number: 5, name: 'Bhakti-Pratikūla-Bhāva', name_ua: 'Відкинути несприятливе для бгакті', songs: 5 },
-      { number: 6, name: 'Svīkara', name_ua: 'Прийняти сприятливе', songs: 5 },
-      { number: 7, name: 'Bhajana Lālasā', name_ua: 'Прагнення до бгаджану', songs: 13 },
-      { number: 8, name: 'Siddhi Lālasā', name_ua: 'Прагнення до досконалості', songs: 3 },
-      { number: 9, name: 'Vijñapti & Śrī Nāma Māhātmya', name_ua: 'Молитва і слава Святого Імені', songs: 2 }
+      { number: 1, name: "Dainya", name_ua: "Смирення", songs: 7 },
+      { number: 2, name: "Ātma Nivedana", name_ua: "Посвячення себе", songs: 8 },
+      { number: 3, name: "Goptṛtve-Varaṇa", name_ua: "Вибір Захисника", songs: 4 },
+      { number: 4, name: "Avaśya Rakṣibe Kṛṣṇa", name_ua: "Крішна неодмінно захистить", songs: 6 },
+      { number: 5, name: "Bhakti-Pratikūla-Bhāva", name_ua: "Відкинути несприятливе для бгакті", songs: 5 },
+      { number: 6, name: "Svīkara", name_ua: "Прийняти сприятливе", songs: 5 },
+      { number: 7, name: "Bhajana Lālasā", name_ua: "Прагнення до бгаджану", songs: 13 },
+      { number: 8, name: "Siddhi Lālasā", name_ua: "Прагнення до досконалості", songs: 3 },
+      { number: 9, name: "Vijñapti & Śrī Nāma Māhātmya", name_ua: "Молитва і слава Святого Імені", songs: 2 },
     ],
     // Парсинг
-    templateId: 'kksongs-songs', // ✅ Bengali, transliteration, synonyms, translation, commentary
+    templateId: "kksongs-songs", // ✅ Bengali, transliteration, synonyms, translation, commentary
     // Gitabase
     hasGitabaseUA: false, // ❌ Імпортується з kksongs.org (Bengali + EN)
     gitabase_available: false,
@@ -309,108 +309,109 @@ export const VEDABASE_BOOKS = [
   },
   // ========== RAJA VIDYA (VEDABASE) ==========
   {
-    slug: 'rv',
-    name: 'Raja Vidya',
-    vedabaseSlug: 'rv',
-    our_slug: 'rvs',
-    name_ua: 'Раджа відья',
-    name_en: 'Raja Vidya - The King of Knowledge',
+    slug: "rv",
+    name: "Raja Vidya",
+    vedabaseSlug: "rv",
+    our_slug: "rvs",
+    name_ua: "Раджа відья",
+    name_en: "Raja Vidya - The King of Knowledge",
     // Автор
-    author: 'A. C. Bhaktivedanta Swami Prabhupada',
-    author_ua: 'А. Ч. Бгактіведанта Свамі Прабгупада',
+    author: "A. C. Bhaktivedanta Swami Prabhupada",
+    author_ua: "А. Ч. Бгактіведанта Свамі Прабгупада",
     // Структура книги
     isMultiVolume: false,
     has_cantos: false,
-    volumeLabel: 'Глава',
+    volumeLabel: "Глава",
     cantos: undefined,
     // Парсинг
-    templateId: 'raja-vidya',
+    templateId: "raja-vidya",
     // Gitabase
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase (українську беремо з файлу)
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело
-    source: 'vedabase',
-    sourceUrl: 'https://vedabase.io/en/library/rv/',
+    source: "vedabase",
+    sourceUrl: "https://vedabase.io/en/library/rv/",
   },
   // ========== TRANSCENDENTAL DIARY (PRABHUPADAVANI.ORG) ==========
   {
-    slug: 'td',
-    name: 'Transcendental Diary',
+    slug: "td",
+    name: "Transcendental Diary",
     vedabaseSlug: null,
-    our_slug: 'td',
-    name_ua: 'Трансцендентний щоденник',
-    name_en: 'Transcendental Diary',
+    our_slug: "td",
+    name_ua: "Трансцендентний щоденник",
+    name_en: "Transcendental Diary",
     // Автор
-    author: 'Hari Sauri dasa',
-    author_ua: 'Харі Шаурі дас',
+    author: "Hari Sauri dasa",
+    author_ua: "Харі Шаурі дас",
     // Джерело
-    source: 'prabhupadavani',
-    sourceUrl: 'https://prabhupadavani.org/bio/transcendental-diary/',
+    source: "prabhupadavani",
+    sourceUrl: "https://prabhupadavani.org/bio/transcendental-diary/",
     // Структура книги - 5 томів
     isMultiVolume: true,
     has_cantos: true, // ✅ 5 volumes
-    volumeLabel: 'Том', // Volume
+    volumeLabel: "Том", // Volume
     cantos: [1, 2, 3, 4, 5],
     // Парсинг
-    templateId: 'transcendental-diary',
+    templateId: "transcendental-diary",
     // Gitabase
     hasGitabaseUA: false, // ❌ Імпортується з prabhupadavani.org (EN only for now)
     gitabase_available: false,
     gitabaseSlug: null,
     // Metadata
     volumeInfo: [
-      { number: 1, title: 'Volume 1', subtitle: 'November 1975 – April 1976', chapters: 12 },
-      { number: 2, title: 'Volume 2', subtitle: 'April 1976 – June 1976', chapters: 6 },
-      { number: 3, title: 'Volume 3', subtitle: 'June 1976 – August 1976', chapters: 6 },
-      { number: 4, title: 'Volume 4', subtitle: 'August 1976 – October 1976', chapters: 6 },
-      { number: 5, title: 'Volume 5', subtitle: 'October 1976 – November 1977', chapters: 8 },
+      { number: 1, title: "Volume 1", subtitle: "November 1975 – April 1976", chapters: 12 },
+      { number: 2, title: "Volume 2", subtitle: "April 1976 – June 1976", chapters: 6 },
+      { number: 3, title: "Volume 3", subtitle: "June 1976 – August 1976", chapters: 6 },
+      { number: 4, title: "Volume 4", subtitle: "August 1976 – October 1976", chapters: 6 },
+      { number: 5, title: "Volume 5", subtitle: "October 1976 – November 1977", chapters: 8 },
     ] as Array<{ number: number; title: string; subtitle: string; chapters: number }> | undefined,
   },
   // ========== CHAITANYA BHAGAVATA (WISDOMLIB.ORG) ==========
   {
-    slug: 'scb',
-    name: 'Chaitanya Bhagavata',
+    slug: "scb",
+    name: "Chaitanya Bhagavata",
     vedabaseSlug: null,
-    our_slug: 'scb',
-    name_ua: 'Шрі Чайтанья-бгаґавата',
-    name_en: 'Sri Chaitanya Bhagavata',
+    our_slug: "scb",
+    name_ua: "Шрі Чайтанья-бгаґавата",
+    name_en: "Sri Chaitanya Bhagavata",
     // Автор
-    author: 'Vrindavan Das Thakur',
-    author_ua: 'Вріндаван Дас Тхакур',
+    author: "Vrindavan Das Thakur",
+    author_ua: "Вріндаван Дас Тхакур",
     // Джерело
-    source: 'wisdomlib',
-    sourceUrl: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata',
+    source: "wisdomlib",
+    sourceUrl: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata",
     // Структура книги
     isMultiVolume: true,
     has_cantos: true, // ✅ 3 khaṇḍas: Ādi, Madhya, Antya
-    volumeLabel: 'Khaṇḍa', // Розділ
-    cantos: ['adi', 'madhya', 'antya'],
+    volumeLabel: "Khaṇḍa", // Розділ
+    cantos: ["adi", "madhya", "antya"],
     // Парсинг
-    templateId: 'default',
+    templateId: "default",
     // Gitabase
     hasGitabaseUA: false, // ❌ Імпортується з wisdomlib.org (Bengali + EN)
     gitabase_available: false,
     gitabaseSlug: null,
     // Specific URLs for each khaṇḍa
     khandaUrls: {
-      adi: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1092508.html',
-      madhya: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1098648.html',
-      antya: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1108871.html',
-      intro: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1112454.html',
-      gaudiya_bhasya_1: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1112455.html',
-      gaudiya_bhasya_2: 'https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1095577.html',
+      adi: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1092508.html",
+      madhya: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1098648.html",
+      antya: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1108871.html",
+      intro: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1112454.html",
+      gaudiya_bhasya_1: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1112455.html",
+      gaudiya_bhasya_2: "https://www.wisdomlib.org/hinduism/book/chaitanya-bhagavata/d/doc1095577.html",
     } as Record<string, string> | undefined,
   },
 ] as const;
 
 // Типи для TypeScript
-export type VedabaseBook = typeof VEDABASE_BOOKS[number];
-export type VedabaseBookSlug = VedabaseBook['slug'];
-export type OurBookSlug = VedabaseBook['our_slug'];
+export type VedabaseBook = (typeof VEDABASE_BOOKS)[number];
+export type VedabaseBookSlug = VedabaseBook["slug"];
+export type OurBookSlug = VedabaseBook["our_slug"];
 
 /**
- * Знайти конфігурацію книги по нашому внутрішньому slug (gita, bhagavatam, scc, etc.)
+ * Знайти конфігурацію книги по нашому внутрішньому slug (bg, sb, scc, etc.)
+ * ✅ Slug'и відповідають Vedabase: bg для Бгаґавад-ґіти, sb для Шрімад-Бгаґаватам
  */
 export function getBookConfig(ourSlug: string) {
   return VEDABASE_BOOKS.find((b) => b.our_slug === ourSlug);
@@ -433,9 +434,9 @@ export function getBookConfigByVedabaseSlug(vedabaseSlug: string) {
  */
 export function buildVedabaseUrl(
   bookConfig: VedabaseBook | string,
-  options: { canto?: number | string; chapter?: number; verse?: string } = {}
+  options: { canto?: number | string; chapter?: number; verse?: string } = {},
 ) {
-  const slug = typeof bookConfig === 'string' ? bookConfig : bookConfig.vedabaseSlug;
+  const slug = typeof bookConfig === "string" ? bookConfig : bookConfig.vedabaseSlug;
   let url = `https://vedabase.io/en/library/${slug}`;
   if (options.canto) url += `/${options.canto}`;
   if (options.chapter) url += `/${options.chapter}`;
@@ -451,7 +452,7 @@ export function buildVedabaseUrl(
  */
 export function buildGitabaseUrl(
   bookSlug: string,
-  options: { lila?: number | string; chapter?: number; verse?: string | number } = {}
+  options: { lila?: number | string; chapter?: number; verse?: string | number } = {},
 ) {
   let url = `https://gitabase.com/ua/${bookSlug.toUpperCase()}`;
   if (options.lila) url += `/${options.lila}`;
