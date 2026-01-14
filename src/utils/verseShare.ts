@@ -45,15 +45,16 @@ export function getVerseReference(
 
 /**
  * Генерує повний URL для вірша
+ * Формат: /lib/sb/1/3/19 (для книг з канто) або /lib/bg/3/19 (для інших)
  */
 export function getVerseUrl(params: VerseParams, baseUrl?: string): string {
   const { bookSlug, cantoNumber, chapterNumber, verseNumber } = params;
-  const base = baseUrl || window.location.origin;
+  const base = baseUrl || "https://vedavoice.org";
 
   if (cantoNumber) {
-    return `${base}/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+    return `${base}/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
   }
-  return `${base}/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
+  return `${base}/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
 }
 
 /**

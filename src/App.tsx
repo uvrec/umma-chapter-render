@@ -89,6 +89,7 @@ import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
 import LRCEditorPage from "./pages/admin/LRCEditorPage";
 import { NoIRedirect } from "./pages/NoIRedirect";
+import { LibOneParamRouter, LibTwoParamRouter, LibThreeParamRouter } from "./components/LibRouter";
 import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import { BookAuthorPage } from "./pages/book/BookAuthorPage";
@@ -183,6 +184,13 @@ function AppContent() {
           <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/veda-reader/iso/1" replace />} />
           <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/veda-reader/sb" replace />} />
           <Route path="/veda-reader/bhagavatam/*" element={<Navigate to="/veda-reader/sb" replace />} />
+
+          {/* Спрощені URL для писань: /lib/bg/3/19 або /lib/sb/1/3/19 */}
+          <Route path="/lib/:bookId/:p1/:p2/:p3" element={<LibThreeParamRouter />} />
+          <Route path="/lib/:bookId/:p1/:p2" element={<LibTwoParamRouter />} />
+          <Route path="/lib/:bookId/:p1" element={<LibOneParamRouter />} />
+          <Route path="/lib/:bookId" element={<BookOverview />} />
+          <Route path="/lib" element={<Navigate to="/library" replace />} />
 
           {/* Бібліотека */}
           <Route path="/library" element={<Library />} />
