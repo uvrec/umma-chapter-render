@@ -12,8 +12,6 @@
 
 import { useParams, Navigate } from "react-router-dom";
 
-// Книги з канто (canto/chapter/verse структура)
-const CANTO_BOOKS = ["sb", "cc", "scc"];
 // Книги з канто/томами (canto/chapter/verse структура)
 // sb = Шрімад-Бгаґаватам
 // cc/scc = Чайтанья-чарітамріта
