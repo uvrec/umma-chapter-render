@@ -7,7 +7,7 @@ export const VEDABASE_BOOKS = [
     slug: "bg",
     name: "Bhagavad-gita As It Is",
     vedabaseSlug: "bg",
-    our_slug: "bg", // ✅ Змінено з 'gita' на 'bg' для відповідності Vedabase
+    our_slug: "bg",
     name_ua: "Бгаґавад-ґіта як вона є",
     name_en: "Bhagavad-gita As It Is",
     // Структура книги
@@ -31,7 +31,7 @@ export const VEDABASE_BOOKS = [
     slug: "sb",
     name: "Srimad-Bhagavatam",
     vedabaseSlug: "sb",
-    our_slug: "sb", // ✅ Змінено з 'bhagavatam' на 'sb' для відповідності Vedabase
+    our_slug: "sb",
     name_ua: "Шрімад-Бгаґаватам",
     name_en: "Srimad-Bhagavatam",
     // Структура книги
@@ -410,8 +410,7 @@ export type VedabaseBookSlug = VedabaseBook["slug"];
 export type OurBookSlug = VedabaseBook["our_slug"];
 
 /**
- * Знайти конфігурацію книги по нашому внутрішньому slug (bg, sb, scc, etc.)
- * ✅ Slug'и відповідають Vedabase: bg для Бгаґавад-ґіти, sb для Шрімад-Бгаґаватам
+ * Знайти конфігурацію книги по нашому внутрішньому slug (gita, bhagavatam, scc, etc.)
  */
 export function getBookConfig(ourSlug: string) {
   return VEDABASE_BOOKS.find((b) => b.our_slug === ourSlug);
