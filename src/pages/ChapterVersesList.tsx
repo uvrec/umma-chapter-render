@@ -9,7 +9,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Settings } from "lucide-react";
+import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -59,6 +60,7 @@ export const ChapterVersesList = () => {
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
   const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -339,6 +341,14 @@ export const ChapterVersesList = () => {
                   <span className="hidden sm:inline">{language === "ua" ? "Додати вірш" : "Add verse"}</span>
                 </Button>
               )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSettingsOpen(true)}
+                title={language === "ua" ? "Налаштування" : "Settings"}
+              >
+                <Settings className="h-5 w-5" />
+              </Button>
             </div>
           </div>
 
@@ -605,5 +615,11 @@ export const ChapterVersesList = () => {
         </div>
       </main>
       <Footer />
+
+      <GlobalSettingsPanel
+        isOpen={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        showFloatingButton={false}
+      />
     </div>;
 };
