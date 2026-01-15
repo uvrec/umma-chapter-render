@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { isCantoBookSlug } from "@/contexts/BooksContext";
 import { Navigation, ArrowRight, AlertCircle } from "lucide-react";
 
 interface JumpToVerseDialogProps {
@@ -46,8 +47,8 @@ const BOOK_SLUGS: Record<string, string> = {
   'caitanya': 'cc',
 };
 
-// Books that have cantos/volumes
-const CANTO_BOOKS = ['sb', 'cc', 'scc', 'saranagati', 'td', 'scb'];
+// Books that have cantos/volumes - використовуємо централізовану функцію з BooksContext
+// isCantoBookSlug() імпортований з @/contexts/BooksContext
 
 // CC canto name mappings
 const CC_CANTO_NAMES: Record<string, number> = {
@@ -115,7 +116,7 @@ function parseVerseReference(input: string, currentBookId?: string): ParsedRefer
 
   if (numbersOnly.length >= 2 && numbersOnly.every(n => /^\d+(-\d+)?$/.test(n))) {
     if (currentBookId) {
-      const isCanto = CANTO_BOOKS.includes(currentBookId);
+      const isCanto = isCantoBookSlug(currentBookId);
 
       if (isCanto && numbersOnly.length >= 3) {
         // Format: canto.chapter.verse
@@ -151,7 +152,7 @@ function parseVerseReference(input: string, currentBookId?: string): ParsedRefer
  * Parse the numbers part of a reference (after book abbreviation)
  */
 function parseNumbersPart(numbersPart: string, bookSlug: string): ParsedReference {
-  const isCanto = CANTO_BOOKS.includes(bookSlug);
+  const isCanto = isCantoBookSlug(bookSlug);
 
   // Check for CC canto names like "Adi 1.1"
   if (bookSlug === 'cc') {

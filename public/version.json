@@ -1,0 +1,5 @@
+{
+  "build": "fallback",
+  "timestamp": 0,
+  "note": "This is a fallback file. In production builds, it will be overwritten by vite.config.ts generateVersionJson plugin."
+}
