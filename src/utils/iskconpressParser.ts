@@ -11,6 +11,8 @@
  * - `[[books:...]]` cross-references
  */
 
+import { convertIASTtoUkrainian } from "./textNormalizer";
+
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/iskconpress/books/master";
 const GITHUB_API_BASE = "https://api.github.com/repos/iskconpress/books/contents";
 
@@ -24,7 +26,9 @@ export interface IskconpressChapter {
 export interface IskconpressVerse {
   verse_number: string;
   sanskrit?: string;
+  sanskrit_ua?: string; // Same Devanagari for UA field
   transliteration_en?: string;
+  transliteration_ua?: string; // IAST converted to Ukrainian script
   synonyms_en?: string;
   translation_en?: string;
   commentary_en?: string; // Purport - HTML formatted
@@ -223,10 +227,17 @@ export function parseIskconpressVerse(content: string, verseNumber: string): Isk
     .replace(/\/\/(.+?)\/\//g, "$1") // Remove italic markers
     .trim();
 
+  // Convert IAST transliteration to Ukrainian script
+  const transliteration_ua = sections.transliteration_en
+    ? convertIASTtoUkrainian(sections.transliteration_en)
+    : undefined;
+
   return {
     verse_number: verseNumber,
     sanskrit: sections.sanskrit,
+    sanskrit_ua: sections.sanskrit, // Same Devanagari for both EN and UA
     transliteration_en: sections.transliteration_en,
+    transliteration_ua,
     synonyms_en: synonyms_en || undefined,
     translation_en: translation_en || undefined,
     commentary_en,
