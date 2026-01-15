@@ -149,28 +149,29 @@ export function ChapterVerseSelector({
   if (!currentChapter || !currentVerse) return null;
 
   return (
-    <div className={cn("flex items-center justify-center gap-0", className)}>
+    <div className={cn("flex items-center justify-center gap-1", className)}>
       {/* Chapter selector */}
       {chapters.length > 1 && (
         <Popover open={chapterOpen} onOpenChange={setChapterOpen}>
           <PopoverTrigger asChild>
             <button
               className={cn(
-                "flex items-center gap-1 px-3 py-1.5 rounded-l-lg",
-                "bg-primary text-primary-foreground",
-                "hover:bg-primary/90 transition-colors",
-                "text-sm font-medium"
+                "flex items-center gap-0.5 px-2 py-1 rounded-md",
+                "bg-primary/10 text-primary border border-primary/20",
+                "hover:bg-primary/20 transition-colors",
+                "text-xs font-medium"
               )}
             >
-              {t("Глава", "Chapter")} {currentChapter.chapter_number}
-              <ChevronDown className="h-4 w-4" />
+              <span className="text-muted-foreground">{t("Гл.", "Ch.")}</span>
+              <span className="font-semibold">{currentChapter.chapter_number}</span>
+              <ChevronDown className="h-3 w-3 ml-0.5" />
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-72 p-0 max-h-[60vh] overflow-hidden"
+            className="w-64 p-0 max-h-[50vh] overflow-hidden"
             align="center"
           >
-            <div className="overflow-y-auto max-h-[60vh]">
+            <div className="overflow-y-auto max-h-[50vh]">
               {chapters.map((chapter, index) => {
                 const isCurrent = index === currentChapterIndex;
                 return (
@@ -179,20 +180,25 @@ export function ChapterVerseSelector({
                     ref={isCurrent ? currentChapterRef : undefined}
                     onClick={() => handleChapterSelect(chapter, index)}
                     className={cn(
-                      "w-full px-4 py-3 text-left transition-colors",
+                      "w-full px-3 py-2 text-left transition-colors",
                       "border-b border-border/50 last:border-b-0",
                       "hover:bg-muted/50",
                       isCurrent && "bg-primary/10"
                     )}
                   >
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide">
-                      {t("Глава", "Chapter")} {chapter.chapter_number}
-                    </div>
-                    <div className={cn(
-                      "font-medium mt-0.5",
-                      isCurrent && "text-primary"
-                    )}>
-                      {getChapterTitle(chapter)}
+                    <div className="flex items-center gap-2">
+                      <span className={cn(
+                        "text-xs font-medium min-w-[28px]",
+                        isCurrent ? "text-primary" : "text-muted-foreground"
+                      )}>
+                        {chapter.chapter_number}
+                      </span>
+                      <span className={cn(
+                        "text-sm truncate",
+                        isCurrent && "text-primary font-medium"
+                      )}>
+                        {getChapterTitle(chapter)}
+                      </span>
                     </div>
                   </button>
                 );
@@ -207,22 +213,22 @@ export function ChapterVerseSelector({
         <PopoverTrigger asChild>
           <button
             className={cn(
-              "flex items-center gap-1 px-3 py-1.5",
-              chapters.length > 1 ? "rounded-r-lg" : "rounded-lg",
-              "bg-primary text-primary-foreground",
-              "hover:bg-primary/90 transition-colors",
-              "text-sm font-medium"
+              "flex items-center gap-0.5 px-2 py-1 rounded-md",
+              "bg-primary/10 text-primary border border-primary/20",
+              "hover:bg-primary/20 transition-colors",
+              "text-xs font-medium"
             )}
           >
-            {t("Вірш", "Text")} {getVerseLabel(currentVerse)}
-            <ChevronDown className="h-4 w-4" />
+            <span className="text-muted-foreground">{t("В.", "V.")}</span>
+            <span className="font-semibold">{getVerseLabel(currentVerse)}</span>
+            <ChevronDown className="h-3 w-3 ml-0.5" />
           </button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-72 p-0 max-h-[60vh] overflow-hidden"
+          className="w-64 p-0 max-h-[50vh] overflow-hidden"
           align="center"
         >
-          <div className="overflow-y-auto max-h-[60vh]">
+          <div className="overflow-y-auto max-h-[50vh]">
             {verses.map((verse, index) => {
               const isCurrent = index === currentVerseIndex;
               const preview = getVersePreview(verse);
@@ -232,21 +238,21 @@ export function ChapterVerseSelector({
                   ref={isCurrent ? currentVerseRef : undefined}
                   onClick={() => handleVerseSelect(verse, index)}
                   className={cn(
-                    "w-full px-4 py-2.5 text-left transition-colors",
+                    "w-full px-3 py-2 text-left transition-colors",
                     "border-b border-border/50 last:border-b-0",
                     "hover:bg-muted/50",
                     isCurrent && "bg-primary/10"
                   )}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-2">
                     <span className={cn(
-                      "font-mono text-sm font-medium min-w-[50px]",
-                      isCurrent && "text-primary"
+                      "font-mono text-xs font-medium min-w-[32px]",
+                      isCurrent ? "text-primary" : "text-muted-foreground"
                     )}>
-                      {t("Вірш", "Text")} {getVerseLabel(verse)}
+                      {getVerseLabel(verse)}
                     </span>
                     {preview && (
-                      <span className="text-sm text-muted-foreground truncate">
+                      <span className="text-xs text-muted-foreground truncate">
                         {preview}
                       </span>
                     )}

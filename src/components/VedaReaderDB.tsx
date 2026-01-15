@@ -1206,6 +1206,7 @@ export const VedaReaderDB = () => {
       {/* 🆕 Sticky Breadcrumbs - прилипає під хедером, ховається при скролі вниз на мобільних */}
       <div className={`sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+          {/* Row 1: Breadcrumbs + Icons */}
           <div className="flex items-center justify-between gap-2">
             {/* Breadcrumbs - responsive with overflow handling */}
             <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground min-w-0 overflow-hidden">
@@ -1226,20 +1227,6 @@ export const VedaReaderDB = () => {
               <span className="flex-shrink-0">›</span>
               <span className="text-foreground font-medium truncate">{chapterTitle}</span>
             </div>
-
-            {/* Chapter/Verse Selector - центральна навігація */}
-            {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
-              <ChapterVerseSelector
-                chapters={allChapters}
-                verses={verses}
-                currentChapterIndex={currentChapterIndex}
-                currentVerseIndex={currentVerseIndex}
-                bookId={bookId}
-                cantoNumber={cantoNumber}
-                isCantoMode={isCantoMode}
-                className="hidden sm:flex"
-              />
-            )}
 
             {/* Icons - responsive */}
             <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
@@ -1281,6 +1268,21 @@ export const VedaReaderDB = () => {
               </Button>
             </div>
           </div>
+
+          {/* Row 2: Chapter/Verse Selector - окремий рядок по центру */}
+          {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
+            <div className="hidden sm:flex justify-center mt-3">
+              <ChapterVerseSelector
+                chapters={allChapters}
+                verses={verses}
+                currentChapterIndex={currentChapterIndex}
+                currentVerseIndex={currentVerseIndex}
+                bookId={bookId}
+                cantoNumber={cantoNumber}
+                isCantoMode={isCantoMode}
+              />
+            </div>
+          )}
         </div>
       </div>
 
