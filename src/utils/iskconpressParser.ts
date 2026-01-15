@@ -371,3 +371,118 @@ export async function importIskconpressChapter(
   // Convert to standard format - pass templateId and raw content for verse parsing
   return iskconpressChapterToStandard(parsed, templateId, content);
 }
+
+// =============================================================================
+// SRIMAD-BHAGAVATAM (SB) - Canto-based import
+// Structure: sb/{canto}/{chapter}/{verse}.txt
+// =============================================================================
+
+/**
+ * Fetch list of chapters in a SB canto
+ */
+export async function fetchSBCantoChapters(canto: number): Promise<string[]> {
+  const response = await fetch(`${GITHUB_API_BASE}/sb/${canto}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch SB canto ${canto} chapters`);
+  }
+
+  const data = await response.json();
+  // Filter only directories (chapters), not .txt files
+  return data
+    .filter((item: any) => item.type === "dir")
+    .map((item: any) => item.name)
+    .sort((a: string, b: string) => parseInt(a) - parseInt(b));
+}
+
+/**
+ * Fetch list of verse files in a SB chapter
+ */
+export async function fetchSBChapterVerses(canto: number, chapter: number): Promise<string[]> {
+  const response = await fetch(`${GITHUB_API_BASE}/sb/${canto}/${chapter}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch SB ${canto}.${chapter} verses`);
+  }
+
+  const data = await response.json();
+  // Filter only .txt files (verses)
+  return data
+    .filter((item: any) => item.type === "file" && item.name.endsWith(".txt"))
+    .map((item: any) => item.name)
+    .sort((a: string, b: string) => {
+      // Sort by verse number, handling compound verses like "1-2.txt"
+      const numA = parseInt(a.split("-")[0]);
+      const numB = parseInt(b.split("-")[0]);
+      return numA - numB;
+    });
+}
+
+/**
+ * Fetch verse content from SB
+ */
+export async function fetchSBVerseContent(canto: number, chapter: number, verseFile: string): Promise<string> {
+  const url = `${GITHUB_RAW_BASE}/sb/${canto}/${chapter}/${verseFile}`;
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch SB ${canto}.${chapter}.${verseFile}`);
+  }
+  return response.text();
+}
+
+/**
+ * Import a single SB chapter (all verses)
+ * Returns a ParsedIskconpressChapter with all verses
+ */
+export async function importSBChapter(
+  canto: number,
+  chapter: number,
+  onProgress?: (current: number, total: number, verse: string) => void,
+): Promise<ParsedIskconpressChapter> {
+  // Fetch list of verse files
+  const verseFiles = await fetchSBChapterVerses(canto, chapter);
+
+  if (verseFiles.length === 0) {
+    throw new Error(`No verses found in SB ${canto}.${chapter}`);
+  }
+
+  const verses: IskconpressVerse[] = [];
+
+  for (let i = 0; i < verseFiles.length; i++) {
+    const verseFile = verseFiles[i];
+    // Extract verse number from filename (e.g., "1.txt" -> "1", "1-2.txt" -> "1-2")
+    const verseNumber = verseFile.replace(".txt", "");
+
+    onProgress?.(i + 1, verseFiles.length, `${canto}.${chapter}.${verseNumber}`);
+
+    // Fetch verse content
+    const content = await fetchSBVerseContent(canto, chapter, verseFile);
+
+    // Parse verse
+    const verse = parseIskconpressVerse(content, verseNumber);
+    verses.push(verse);
+
+    // Small delay to avoid rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  // Get chapter title from first verse file or use default
+  let title_en = `Chapter ${chapter}`;
+  if (verseFiles.length > 0) {
+    const firstContent = await fetchSBVerseContent(canto, chapter, verseFiles[0]);
+    // Try to extract chapter title from description tag
+    const descMatch = firstContent.match(/\{\{description>(.+?)\}\}/s);
+    if (descMatch) {
+      // Use first sentence as title hint
+      const desc = descMatch[1].trim();
+      if (desc.length < 100) {
+        title_en = desc;
+      }
+    }
+  }
+
+  return {
+    chapter_number: chapter,
+    chapter_type: "verses",
+    title_en,
+    verses,
+  };
+}

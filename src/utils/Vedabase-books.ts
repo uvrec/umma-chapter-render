@@ -34,6 +34,8 @@ export const VEDABASE_BOOKS = [
     our_slug: "sb",
     name_ua: "Шрімад-Бгаґаватам",
     name_en: "Srimad-Bhagavatam",
+    author: "A. C. Bhaktivedanta Swami Prabhupada",
+    author_ua: "А. Ч. Бгактіведанта Свамі Прабгупада",
     // Структура книги
     isMultiVolume: true,
     has_cantos: true,
@@ -45,11 +47,9 @@ export const VEDABASE_BOOKS = [
     hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
-    // Джерело (опціонально)
-    source: undefined as string | undefined,
-    sourceUrl: undefined as string | undefined,
-    author: undefined as string | undefined,
-    author_ua: undefined as string | undefined,
+    // Джерело - iskconpress (канти 1-10, 11-12 немає)
+    source: "iskconpress",
+    sourceUrl: "https://github.com/iskconpress/books/tree/master/sb",
   },
   {
     slug: "cc",

@@ -43,6 +43,8 @@ import {
 import {
   importIskconpressBook,
   importIskconpressChapter,
+  importSBChapter,
+  fetchSBCantoChapters,
 } from "@/utils/iskconpressParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
@@ -1509,6 +1511,141 @@ export default function UniversalImportFixed() {
     [vedabaseBook, importData],
   );
 
+  /** Імпорт Шрімад-Бгаґаватам з iskconpress (canto-based structure) */
+  const handleSBImport = useCallback(
+    async (singleChapter?: number) => {
+      const bookInfo = getBookConfigByVedabaseSlug("sb")!;
+
+      if (!vedabaseCanto) {
+        toast({ title: "Помилка", description: "Оберіть канту (пісню)", variant: "destructive" });
+        return;
+      }
+
+      const cantoNum = parseInt(vedabaseCanto);
+      if (isNaN(cantoNum) || cantoNum < 1 || cantoNum > 10) {
+        toast({ title: "Помилка", description: "iskconpress має лише канти 1-10", variant: "destructive" });
+        return;
+      }
+
+      setIsProcessing(true);
+      setProgress(10);
+
+      try {
+        if (singleChapter !== undefined) {
+          // Import single chapter
+          toast({ title: "Завантаження...", description: `ШБ ${cantoNum}.${singleChapter} з GitHub...` });
+
+          const chapter = await importSBChapter(cantoNum, singleChapter, (current, total, verse) => {
+            const progressValue = 10 + Math.round((current / total) * 80);
+            setProgress(progressValue);
+          });
+
+          setProgress(95);
+
+          // Create import data
+          const newImport: ImportData = {
+            ...importData,
+            source: "file",
+            rawText: "",
+            processedText: JSON.stringify(chapter, null, 2),
+            chapters: [chapter],
+            metadata: {
+              ...importData.metadata,
+              title_en: `SB ${cantoNum}.${singleChapter}`,
+              title_ua: `ШБ ${cantoNum}.${singleChapter}`,
+              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
+              book_slug: "sb",
+              source_url: `https://github.com/iskconpress/books/tree/master/sb/${cantoNum}/${singleChapter}`,
+              canto: cantoNum.toString(),
+              volume: cantoNum.toString(),
+            },
+          };
+
+          setImportData(newImport);
+          setProgress(100);
+
+          toast({
+            title: "✅ Успішно!",
+            description: `Імпортовано ШБ ${cantoNum}.${singleChapter} (${chapter.verses.length} віршів)`,
+          });
+
+          await saveToDatabase(newImport);
+        } else {
+          // Import all chapters in canto
+          toast({ title: "Завантаження...", description: `Отримання списку глав ШБ ${cantoNum}...` });
+
+          const chapterList = await fetchSBCantoChapters(cantoNum);
+          if (chapterList.length === 0) {
+            throw new Error(`Не знайдено глав у канті ${cantoNum}`);
+          }
+
+          toast({ title: `Знайдено ${chapterList.length} глав`, description: `Канта ${cantoNum}` });
+
+          const allChapters: any[] = [];
+          let totalVerses = 0;
+
+          for (let i = 0; i < chapterList.length; i++) {
+            const chapterNum = parseInt(chapterList[i]);
+            toast({ title: `Глава ${i + 1}/${chapterList.length}`, description: `ШБ ${cantoNum}.${chapterNum}` });
+
+            const chapter = await importSBChapter(cantoNum, chapterNum, (current, total, verse) => {
+              const baseProgress = 10 + Math.round((i / chapterList.length) * 80);
+              const chapterProgress = Math.round((current / total) * (80 / chapterList.length));
+              setProgress(baseProgress + chapterProgress);
+            });
+
+            allChapters.push(chapter);
+            totalVerses += chapter.verses.length;
+          }
+
+          setProgress(95);
+
+          // Create import data for all chapters
+          const newImport: ImportData = {
+            ...importData,
+            source: "file",
+            rawText: "",
+            processedText: JSON.stringify(allChapters, null, 2),
+            chapters: allChapters,
+            metadata: {
+              ...importData.metadata,
+              title_en: `Srimad Bhagavatam Canto ${cantoNum}`,
+              title_ua: `Шрімад-Бгаґаватам, Пісня ${cantoNum}`,
+              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
+              book_slug: "sb",
+              source_url: `https://github.com/iskconpress/books/tree/master/sb/${cantoNum}`,
+              canto: cantoNum.toString(),
+              volume: cantoNum.toString(),
+            },
+          };
+
+          setImportData(newImport);
+          setProgress(100);
+
+          toast({
+            title: "✅ Успішно!",
+            description: `Імпортовано ШБ канта ${cantoNum}: ${allChapters.length} глав, ${totalVerses} віршів`,
+          });
+
+          // Save each chapter to database
+          for (const chapter of allChapters) {
+            await saveToDatabase({
+              ...newImport,
+              chapters: [chapter],
+            });
+          }
+        }
+      } catch (e: any) {
+        console.error("SB import error:", e);
+        toast({ title: "Помилка", description: e.message, variant: "destructive" });
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
+      }
+    },
+    [vedabaseCanto, importData],
+  );
+
   /** Обробка файлу */
   const handleFileUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2151,7 +2288,30 @@ export default function UniversalImportFixed() {
                   </Button>
                 )}
 
-                {currentBookInfo?.source === "iskconpress" && (
+                {currentBookInfo?.source === "iskconpress" && vedabaseBook === "sb" && (
+                  <>
+                    <Button
+                      onClick={() => handleSBImport(vedabaseChapter ? parseInt(vedabaseChapter) : undefined)}
+                      disabled={isProcessing || !vedabaseCanto}
+                      variant="secondary"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {vedabaseChapter
+                        ? `Імпортувати ШБ ${vedabaseCanto}.${vedabaseChapter}`
+                        : vedabaseCanto
+                          ? `Імпортувати всі глави канти ${vedabaseCanto}`
+                          : "Оберіть канту"}
+                    </Button>
+                    {vedabaseChapter && vedabaseCanto && (
+                      <Button onClick={() => handleSBImport()} disabled={isProcessing} variant="outline">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Імпортувати всю канту {vedabaseCanto}
+                      </Button>
+                    )}
+                  </>
+                )}
+
+                {currentBookInfo?.source === "iskconpress" && vedabaseBook !== "sb" && (
                   <>
                     <Button
                       onClick={() => handleIskconpressImport(vedabaseChapter ? parseInt(vedabaseChapter) : undefined)}
@@ -2198,7 +2358,12 @@ export default function UniversalImportFixed() {
                     >
                       GitHub репозиторію iskconpress/books
                     </a>
-                    . Вміст у форматі DokuWiki конвертується в чистий текст. Українську версію можна додати пізніше.
+                    . Вміст у форматі DokuWiki конвертується в HTML.
+                  </p>
+                  <p className="text-sm text-amber-800 dark:text-amber-200 mt-2">
+                    <strong>⚠️ Примітка:</strong> Це <em>оригінальні видання до 1977 року</em> під редакцією Шріли
+                    Прабгупади. Можуть відрізнятися від сучасних перевидань BBT.
+                    {vedabaseBook === "sb" && " Доступні лише канти 1-10 (11-12 немає)."}
                   </p>
                   {currentBookInfo?.sourceUrl && (
                     <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
