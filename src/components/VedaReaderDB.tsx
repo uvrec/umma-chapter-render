@@ -26,6 +26,7 @@ import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
 import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
+import { ChapterVerseSelector } from "@/components/ChapterVerseSelector";
 import { RelatedVerses } from "@/components/RelatedVerses";
 import { VerseTattvas } from "@/components/verse/VerseTattvas";
 import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
@@ -1226,6 +1227,20 @@ export const VedaReaderDB = () => {
               <span className="text-foreground font-medium truncate">{chapterTitle}</span>
             </div>
 
+            {/* Chapter/Verse Selector - центральна навігація */}
+            {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
+              <ChapterVerseSelector
+                chapters={allChapters}
+                verses={verses}
+                currentChapterIndex={currentChapterIndex}
+                currentVerseIndex={currentVerseIndex}
+                bookId={bookId}
+                cantoNumber={cantoNumber}
+                isCantoMode={isCantoMode}
+                className="hidden sm:flex"
+              />
+            )}
+
             {/* Icons - responsive */}
             <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
               <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
@@ -1270,6 +1285,20 @@ export const VedaReaderDB = () => {
       </div>
 
       <div className="container mx-auto px-4 py-8" data-reader-root="true">
+        {/* Mobile Chapter/Verse Selector - показується тільки на мобільних */}
+        {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
+          <ChapterVerseSelector
+            chapters={allChapters}
+            verses={verses}
+            currentChapterIndex={currentChapterIndex}
+            currentVerseIndex={currentVerseIndex}
+            bookId={bookId}
+            cantoNumber={cantoNumber}
+            isCantoMode={isCantoMode}
+            className="flex sm:hidden justify-center mb-6"
+          />
+        )}
+
         {/* Заголовок - тільки для безперервного читання або текстових глав */}
         {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-8">
             <h1 className="text-center font-extrabold text-5xl text-primary">{chapterTitle}</h1>
