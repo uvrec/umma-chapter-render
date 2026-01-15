@@ -113,30 +113,36 @@ export default function AddEditVerse() {
     enabled: !!id && !!user && isAdmin,
   });
 
-  // Підвантажуємо контекст глави (книгу/пісню) у режимі редагування
+  // Підвантажуємо контекст глави (книгу/пісню) за chapterId з URL
   useEffect(() => {
     const loadChapterContext = async () => {
-      if (chapterId && chapters) {
-        const chapter = chapters.find((c) => c.id === chapterId);
-        if (chapter) {
-          if (chapter.book_id) {
-            setSelectedBookId(chapter.book_id);
-          } else if (chapter.canto_id) {
-            const { data: canto } = await supabase
-              .from("cantos")
-              .select("book_id, id")
-              .eq("id", chapter.canto_id)
-              .single();
-            if (canto) {
-              setSelectedBookId(canto.book_id);
-              setSelectedCantoId(canto.id);
-            }
-          }
+      if (!chapterId || selectedBookId) return;
+
+      // Завантажуємо главу напряму з бази даних
+      const { data: chapter, error } = await supabase
+        .from("chapters")
+        .select("book_id, canto_id")
+        .eq("id", chapterId)
+        .single();
+
+      if (error || !chapter) return;
+
+      if (chapter.book_id) {
+        setSelectedBookId(chapter.book_id);
+      } else if (chapter.canto_id) {
+        const { data: canto } = await supabase
+          .from("cantos")
+          .select("book_id, id")
+          .eq("id", chapter.canto_id)
+          .single();
+        if (canto) {
+          setSelectedBookId(canto.book_id);
+          setSelectedCantoId(canto.id);
         }
       }
     };
     loadChapterContext();
-  }, [chapterId, chapters]);
+  }, [chapterId, selectedBookId]);
 
   useEffect(() => {
     if (verse) {
