@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "source": "purebhakti.com",
-    "source_url": "https://www.purebhakti.com/resources/vaisnava-calendar",
+    "source": "ISKCON GBC Calendar Committee",
+    "source_urls": ["https://www.vaisnavacalendar.info"],
     "source_location": "Nuremberg, Germany",
-    "calendar_name": "Śrī Caitanya Pañjikā Vaiṣṇava Calendar 2026-2027 (Śrī Gaurābda 539-540)",
-    "authority": "Bhaktivedānta Trust International, Vṛndāvan",
+    "calendar_name": "ISKCON Vaishnava Calendar 2026",
+    "authority": "GBC Calendar Committee / ISKCON",
     "year": 2026,
     "timezone": "Europe/Berlin",
     "utc_offset_winter": "+01:00 CET",
@@ -27,13 +27,6 @@
   },
   "events": [
     {
-      "date": "2026-01-01",
-      "name_en": "Sri Srimad Bhakti Kumuda Santa Gosvami Maharaja - Disappearance",
-      "name_ua": "Шрі Шрімад Бгакті Кумуда Санта Госвамі Махараджа - Відхід",
-      "type": "disappearance",
-      "fasting": null
-    },
-    {
       "date": "2026-01-03",
       "name_en": "Sri Krsna Pusya Abhiseka",
       "name_ua": "Шрі Крішна Пушья Абхішека",
@@ -51,13 +44,6 @@
       "date": "2026-01-05",
       "name_en": "Sri Ramacandra Kaviraja - Disappearance",
       "name_ua": "Шрі Рамачандра Кавіраджа - Відхід",
-      "type": "disappearance",
-      "fasting": null
-    },
-    {
-      "date": "2026-01-07",
-      "name_en": "Sri Narahari Sevavigraha - Disappearance",
-      "name_ua": "Шрі Нарахарі Севавіграха - Відхід",
       "type": "disappearance",
       "fasting": null
     },
@@ -104,13 +90,6 @@
       "type": "parana",
       "parana_start": "08:06",
       "parana_end": "10:59"
-    },
-    {
-      "date": "2026-01-18",
-      "name_en": "Appearance of Srimad Bhaktivedanta Narayana Gosvami Maharaja",
-      "name_ua": "Явлення Шрімад Бгактіведанти Нараяни Госвамі Махараджа",
-      "type": "appearance",
-      "fasting": null
     },
     {
       "date": "2026-01-23",
