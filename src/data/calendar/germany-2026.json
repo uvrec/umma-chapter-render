@@ -1,19 +1,38 @@
 {
   "metadata": {
-    "source": "vaisnavacalendar.info",
-    "source_location": "Frankfurt am Main, Germany",
+    "source": "purebhakti.com",
+    "source_url": "https://www.purebhakti.com/resources/vaisnava-calendar",
+    "source_location": "Nuremberg, Germany",
+    "calendar_name": "Śrī Caitanya Pañjikā Vaiṣṇava Calendar 2026-2027 (Śrī Gaurābda 539-540)",
+    "authority": "Bhaktivedānta Trust International, Vṛndāvan",
     "year": 2026,
     "timezone": "Europe/Berlin",
-    "utc_offset": "+01:00",
+    "utc_offset_winter": "+01:00 CET",
+    "utc_offset_summer": "+02:00 CEST",
     "coordinates": {
-      "latitude": 50.1109,
-      "longitude": 8.6821
+      "latitude": 49.45,
+      "longitude": 11.0667,
+      "notation": "49N27 011E04"
     },
-    "applicable_cities": ["Frankfurt am Main", "Würzburg", "Nürnberg", "Heidelberg", "Mannheim"],
+    "applicable_cities": ["Nürnberg", "Würzburg", "Erlangen", "Bamberg", "Regensburg", "Bayreuth"],
     "generated_at": "2026-01-15",
-    "notes": "Times are for Frankfurt am Main. Würzburg and Nürnberg are within ~100km, times vary by ~1-2 minutes."
+    "last_updated": "2026-01-01",
+    "notes": "Times are for Nuremberg (Nürnberg), Germany. Calendar follows Hari-bhakti-vilāsa rules for exact solar and lunar calculations. Würzburg is ~100km west, times vary by ~1-2 minutes.",
+    "special_notes": {
+      "purusottama_masa": "Adhika (extra) month from May 17 - June 14, 2026",
+      "caturmasya_system": "Purnima system",
+      "dst_change_spring": "March 29, 2026 (CET to CEST)",
+      "dst_change_autumn": "October 25, 2026 (CEST to CET)"
+    }
   },
   "events": [
+    {
+      "date": "2026-01-01",
+      "name_en": "Sri Srimad Bhakti Kumuda Santa Gosvami Maharaja - Disappearance",
+      "name_ua": "Шрі Шрімад Бгакті Кумуда Санта Госвамі Махараджа - Відхід",
+      "type": "disappearance",
+      "fasting": null
+    },
     {
       "date": "2026-01-03",
       "name_en": "Sri Krsna Pusya Abhiseka",
@@ -22,7 +41,14 @@
       "fasting": null
     },
     {
-      "date": "2026-01-07",
+      "date": "2026-01-05",
+      "name_en": "Srila Gopala Bhatta Gosvami - Appearance",
+      "name_ua": "Шріла Гопала Бхатта Госвамі - Явлення",
+      "type": "appearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-05",
       "name_en": "Sri Ramacandra Kaviraja - Disappearance",
       "name_ua": "Шрі Рамачандра Кавіраджа - Відхід",
       "type": "disappearance",
@@ -30,9 +56,9 @@
     },
     {
       "date": "2026-01-07",
-      "name_en": "Srila Gopala Bhatta Gosvami - Appearance",
-      "name_ua": "Шріла Гопала Бхатта Госвамі - Явлення",
-      "type": "appearance",
+      "name_en": "Sri Narahari Sevavigraha - Disappearance",
+      "name_ua": "Шрі Нарахарі Севавіграха - Відхід",
+      "type": "disappearance",
       "fasting": null
     },
     {
@@ -59,6 +85,13 @@
     },
     {
       "date": "2026-01-14",
+      "name_en": "Makara-sankranti - Sun enters Capricorn",
+      "name_ua": "Макара-санкранті - Сонце входить у Козерога",
+      "type": "festival",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-14",
       "name_en": "Ganga Sagara Mela",
       "name_ua": "Ганга Сагар Мела",
       "type": "festival",
@@ -66,11 +99,118 @@
     },
     {
       "date": "2026-01-15",
-      "name_en": "Break fast 08:18-11:09",
-      "name_ua": "Парана 08:18-11:09",
+      "name_en": "Break fast 08:06-10:59 CET",
+      "name_ua": "Парана 08:06-10:59 CET",
       "type": "parana",
-      "parana_start": "08:18",
-      "parana_end": "11:09"
+      "parana_start": "08:06",
+      "parana_end": "10:59"
+    },
+    {
+      "date": "2026-01-18",
+      "name_en": "Appearance of Srimad Bhaktivedanta Narayana Gosvami Maharaja",
+      "name_ua": "Явлення Шрімад Бгактіведанти Нараяни Госвамі Махараджа",
+      "type": "appearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-23",
+      "name_en": "Vasanta Panchami",
+      "name_ua": "Васанта Панчамі",
+      "type": "festival",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-23",
+      "name_en": "Sarasvati Puja",
+      "name_ua": "Сарасваті Пуджа",
+      "type": "festival",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-23",
+      "name_en": "Srimati Visnupriya-devi - Appearance",
+      "name_ua": "Шріматі Вішнупрія-деві - Явлення",
+      "type": "appearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-23",
+      "name_en": "Sri Pundarika Vidyanidhi - Appearance",
+      "name_ua": "Шрі Пундаріка Від'янідхі - Явлення",
+      "type": "appearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-23",
+      "name_en": "Srila Raghunatha dasa Gosvami - Appearance",
+      "name_ua": "Шріла Рагхунатха даса Госвамі - Явлення",
+      "type": "appearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-23",
+      "name_en": "Srila Visvanatha Cakravarti Thakura - Disappearance",
+      "name_ua": "Шріла Вішванатха Чакраварті Тхакур - Відхід",
+      "type": "disappearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-25",
+      "name_en": "Maha-visnu-avatara Sri Advaita Acarya - Appearance",
+      "name_ua": "Маха-вішну-аватара Шрі Адвайта Ачарья - Явлення",
+      "type": "appearance",
+      "fasting": "half",
+      "fasting_note_en": "Fast till noon then Ekadasi preparations only",
+      "fasting_note_ua": "Піст до полудня, потім тільки екадаші-приготування",
+      "is_major": true
+    },
+    {
+      "date": "2026-01-27",
+      "name_en": "Sri Madhvacarya - Disappearance",
+      "name_ua": "Шрі Мадхвачарья - Відхід",
+      "type": "disappearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-28",
+      "name_en": "Sri Ramanujacarya - Disappearance",
+      "name_ua": "Шрі Рамануджачарья - Відхід",
+      "type": "disappearance",
+      "fasting": null
+    },
+    {
+      "date": "2026-01-29",
+      "name_en": "Trisprsa Mahadvadasi - Bhaimi Ekadasi",
+      "name_ua": "Тріспрша Махадвадаші - Бгаімі Екадаші",
+      "type": "ekadashi",
+      "fasting": "full",
+      "ekadashi_name": "bhaimi"
+    },
+    {
+      "date": "2026-01-29",
+      "name_en": "Varaha Dvadasi - Appearance of Lord Varahadeva",
+      "name_ua": "Вараха Двадаші - Явлення Господа Варахадева",
+      "type": "festival",
+      "fasting": null,
+      "is_major": true
+    },
+    {
+      "date": "2026-01-30",
+      "name_en": "Break fast 07:50-10:56 CET",
+      "name_ua": "Парана 07:50-10:56 CET",
+      "type": "parana",
+      "parana_start": "07:50",
+      "parana_end": "10:56"
+    },
+    {
+      "date": "2026-01-30",
+      "name_en": "Nityananda Trayodasi - Appearance of Sri Nityananda Prabhu",
+      "name_ua": "Нітьянанда Трайодаші - Явлення Шрі Нітьянанди Прабгу",
+      "type": "festival",
+      "fasting": "half",
+      "fasting_note_en": "Fast till noon then Ekadasi preparations only",
+      "fasting_note_ua": "Піст до полудня, потім тільки екадаші-приготування",
+      "is_major": true
     },
     {
       "date": "2026-02-01",
