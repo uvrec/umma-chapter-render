@@ -25,6 +25,7 @@ export interface ParsedIskconpressChapter {
   chapter_number: number;
   title_en?: string;
   title_ua?: string;
+  content_en?: string; // HTML content for prose books
   verses: Array<{
     verse_number: string;
     text_en?: string;
@@ -111,37 +112,43 @@ export function parseIskconpressContent(
   const descMatch = content.match(/\{\{description>(.+?)\}\}/s);
   const description_en = descMatch ? descMatch[1].trim() : undefined;
 
-  // Clean content - convert DokuWiki markup to clean text/markdown
+  // Clean content - convert DokuWiki markup to HTML
   let content_en = content
     // Remove metadata tags
     .replace(/~~[^~]+~~/g, "")
     // Remove description tags
     .replace(/\{\{description>.+?\}\}/gs, "")
-    // Convert wiki headers to markdown
-    .replace(/======\s*(.+?)\s*======/g, "# $1")
-    .replace(/=====\s*(.+?)\s*=====/g, "## $1")
-    .replace(/====\s*(.+?)\s*====/g, "### $1")
-    .replace(/===\s*(.+?)\s*===/g, "#### $1")
-    // Convert wiki links to plain text
+    // Convert wiki headers to HTML
+    .replace(/======\s*(.+?)\s*======/g, "<h1>$1</h1>")
+    .replace(/=====\s*(.+?)\s*=====/g, "<h2>$1</h2>")
+    .replace(/====\s*(.+?)\s*====/g, "<h3>$1</h3>")
+    .replace(/===\s*(.+?)\s*===/g, "<h4>$1</h4>")
+    // Convert wiki links to plain text (keep the visible text)
     .replace(/\[\[books:[^\]]+\|([^\]]+)\]\]/g, "$1")
     .replace(/\[\[books:[^\]]+\]\]/g, "")
     .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
     .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
-    // Convert wiki italics //text// to markdown *text*
-    .replace(/\/\/(.+?)\/\//g, "*$1*")
-    // Keep bold **text**
-    .replace(/\*\*(.+?)\*\*/g, "**$1**")
+    // Convert wiki italics //text// to HTML <em> (for Sanskrit terms)
+    .replace(/\/\/(.+?)\/\//g, "<em>$1</em>")
+    // Convert wiki bold **text** to HTML <strong>
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     // Convert blockquotes (> lines)
-    .replace(/^>\s*(.+)$/gm, "> $1")
+    .replace(/^>\s*(.+)$/gm, "<blockquote>$1</blockquote>")
     // Remove page includes
     .replace(/\{\{page>[^}]+\}\}/g, "")
     // Convert horizontal rules
-    .replace(/^----$/gm, "---")
+    .replace(/^----$/gm, "<hr>")
     // Convert line breaks
-    .replace(/\\\\/g, "\n")
+    .replace(/\\\\/g, "<br>")
+    // Convert paragraphs (double newlines to <p> tags)
+    .replace(/\n\n+/g, "</p><p>")
     // Clean up extra whitespace
-    .replace(/\n{3,}/g, "\n\n")
     .trim();
+
+  // Wrap in paragraph tags if content doesn't start with a block element
+  if (content_en && !content_en.startsWith("<h") && !content_en.startsWith("<p")) {
+    content_en = "<p>" + content_en + "</p>";
+  }
 
   return {
     chapter_number: chapterNum,
@@ -153,23 +160,16 @@ export function parseIskconpressContent(
 
 /**
  * Convert iskconpress chapter to standard import format
- * For prose books, we treat the entire chapter as a single "verse" with the content
+ * For prose books, we use content_en field (HTML) instead of verses
  */
 export function iskconpressChapterToStandard(chapter: IskconpressChapter): ParsedIskconpressChapter {
-  // Split content into paragraphs for verse-like structure
-  const paragraphs = chapter.content_en
-    .split(/\n\n+/)
-    .filter((p) => p.trim().length > 0)
-    .map((p, i) => ({
-      verse_number: String(i + 1),
-      text_en: p.trim(),
-      translation_en: undefined,
-    }));
-
   return {
     chapter_number: chapter.chapter_number,
     title_en: chapter.title_en,
-    verses: paragraphs,
+    // For prose books - store HTML content directly
+    content_en: chapter.content_en,
+    // Empty verses array - prose doesn't have verses
+    verses: [],
   };
 }
 
