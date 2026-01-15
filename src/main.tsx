@@ -74,12 +74,38 @@ if (storedVersion && storedVersion !== BUILD_VERSION) {
 localStorage.setItem(VERSION_KEY, BUILD_VERSION);
 
 /**
+ * Перевірка чи це preview/dev середовище
+ * Preview не має version.json і не повинен використовувати version mismatch reload
+ */
+function isPreviewEnvironment(): boolean {
+  const hostname = location.hostname;
+  return (
+    hostname.includes('lovable.app') ||
+    hostname.includes('lovableproject.com') ||
+    hostname.includes('lovable.dev') ||
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    !import.meta.env.PROD
+  );
+}
+
+/**
  * Перевірка версії на сервері через version.json
  * Fetch з cache: 'no-store' гарантує свіжі дані з сервера
+ *
+ * ВАЖЛИВО: В preview середовищі ця функція тільки логує, не робить reload
+ * бо version.json може не існувати або повертати HTML
  */
 async function checkServerVersion(): Promise<void> {
   // Не перевіряємо в dev режимі
   if (BUILD_VERSION === 'dev') return;
+
+  const isPreview = isPreviewEnvironment();
+
+  if (isPreview) {
+    console.log('[Vedavoice] Preview environment detected, skipping version mismatch reload');
+    return;
+  }
 
   try {
     const response = await fetch('/version.json', {
@@ -89,6 +115,13 @@ async function checkServerVersion(): Promise<void> {
 
     if (!response.ok) {
       console.warn('[Vedavoice] version.json не знайдено:', response.status);
+      return;
+    }
+
+    // Перевіряємо що відповідь - це JSON, а не HTML
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.warn('[Vedavoice] version.json має неправильний content-type:', contentType);
       return;
     }
 
@@ -203,11 +236,22 @@ cleanupOldCaches();
 // Preview-only auto cleanup for Lovable preview environment
 // Це прибирає старі service workers та кеші, щоб preview завжди показував актуальний код
 async function previewForceCleanup() {
-  const isPreview = !import.meta.env.PROD || location.hostname.includes('lovable');
+  const isPreview = isPreviewEnvironment();
 
   if (!isPreview) return;
 
   console.log('[Vedavoice] Preview mode detected, running force cleanup...');
+
+  // Очищаємо version-related localStorage щоб уникнути неконсистентності
+  // Це запобігає ситуації коли preview намагається порівняти версії
+  try {
+    localStorage.removeItem(VERSION_KEY);
+    localStorage.removeItem(SERVER_VERSION_KEY);
+    localStorage.removeItem(LAST_RELOAD_KEY);
+    console.log('[Vedavoice] Preview: cleared version localStorage keys');
+  } catch (e) {
+    console.warn('[Vedavoice] Preview: localStorage cleanup error:', e);
+  }
 
   // Unregister all service workers
   if ('serviceWorker' in navigator) {
@@ -224,19 +268,15 @@ async function previewForceCleanup() {
     }
   }
 
-  // Clear all caches that might affect preview
+  // Clear ALL caches in preview - не тільки специфічні
+  // Це гарантує що preview не використовує ніяких застарілих ресурсів
   if ('caches' in window) {
     try {
       const cacheNames = await caches.keys();
       console.log('[Vedavoice] Cache keys before cleanup:', cacheNames);
-      const cachesToDelete = cacheNames.filter(name =>
-        name.includes('pages-cache') ||
-        name.includes('workbox-precache') ||
-        name.includes('images-cache') ||
-        name.includes('assets-cache')
-      );
 
-      for (const name of cachesToDelete) {
+      // В preview видаляємо ВСІ кеші для гарантії свіжості
+      for (const name of cacheNames) {
         console.log('[Vedavoice] Deleting cache:', name);
         await caches.delete(name);
       }

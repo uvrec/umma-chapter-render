@@ -13,9 +13,18 @@ interface BooksContextType {
 }
 
 // Fallback список для початкового рендеру (поки не завантажено з БД)
-const FALLBACK_CANTO_BOOKS = new Set([
+// Експортується для використання в утилітах без React контексту
+export const FALLBACK_CANTO_BOOKS = new Set([
   "sb", "cc", "scc", "saranagati", "td", "scb"
 ]);
+
+/**
+ * Статична перевірка чи книга має канто-структуру (використовує fallback)
+ * Використовується в утилітах, де немає доступу до React контексту
+ */
+export function isCantoBookSlug(slug: string): boolean {
+  return FALLBACK_CANTO_BOOKS.has(slug.toLowerCase());
+}
 
 const BooksContext = createContext<BooksContextType>({
   cantoBookSlugs: FALLBACK_CANTO_BOOKS,
