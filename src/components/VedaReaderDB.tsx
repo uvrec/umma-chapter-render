@@ -25,7 +25,6 @@ import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShort
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
-import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
 import { ChapterVerseSelector } from "@/components/ChapterVerseSelector";
 import { RelatedVerses } from "@/components/RelatedVerses";
 import { VerseTattvas } from "@/components/verse/VerseTattvas";
@@ -1460,28 +1459,5 @@ export const VedaReaderDB = () => {
         }
       />
 
-      {/* Chapter minimap - only in single verse mode */}
-      {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 1 && (
-        <div data-minimap="true">
-          {/* Desktop: vertical sidebar */}
-          <ChapterMinimap
-            verses={verses}
-            currentVerseIndex={currentVerseIndex}
-            bookId={bookId}
-            cantoNumber={cantoNumber}
-            chapterNumber={effectiveChapterParam}
-            isCantoMode={isCantoMode}
-          />
-          {/* Mobile: horizontal bottom bar */}
-          <ChapterMinimapCompact
-            verses={verses}
-            currentVerseIndex={currentVerseIndex}
-            bookId={bookId}
-            cantoNumber={cantoNumber}
-            chapterNumber={effectiveChapterParam}
-            isCantoMode={isCantoMode}
-          />
-        </div>
-      )}
     </div>;
 };

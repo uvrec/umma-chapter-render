@@ -17,7 +17,6 @@ import {
   PenSquare,
   Headphones,
   Music,
-  WrapText,
   FileEdit,
   Search,
   Mic,
@@ -288,21 +287,6 @@ const Dashboard = () => {
                   <Upload className="w-4 h-4 mr-2" />
                   Універсальний імпорт
                 </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/import-wizard">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Імпорт глави
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/fix-verse-linebreaks">
-                  <WrapText className="w-4 h-4 mr-2" />
-                  Виправити розриви рядків
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/admin/data-migration">Старий імпорт</Link>
               </Button>
             </CardContent>
           </Card>

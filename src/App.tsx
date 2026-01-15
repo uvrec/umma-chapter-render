@@ -63,7 +63,6 @@ import ScriptureManager from "./pages/admin/ScriptureManager";
 import Chapters from "./pages/admin/Chapters";
 import AddEditBook from "./pages/admin/AddEditBook";
 import AddEditVerse from "./pages/admin/AddEditVerse";
-import DataMigration from "./pages/admin/DataMigration";
 import { VedaReaderDB } from "./components/VedaReaderDB";
 import GlossaryDB from "./pages/GlossaryDB";
 import { BookOverview } from "./pages/BookOverview";
@@ -80,10 +79,8 @@ import BlogTags from "./pages/admin/BlogTags";
 import AudioCategories from "./pages/admin/AudioCategories";
 import AudioPlaylists from "./pages/admin/AudioPlaylists";
 import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
-import ImportWizard from "./pages/admin/ImportWizard";
 import UniversalImportFixed from "./pages/admin/UniversalImportFixed";
 import BBTImport from "./pages/admin/BBTImportUniversal";
-import FixVerseLineBreaks from "./pages/admin/FixVerseLineBreaks";
 import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
 import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
@@ -265,11 +262,8 @@ function AppContent() {
           <Route path="/admin/verses/new" element={<AddEditVerse />} />
           <Route path="/admin/verses/:id/edit" element={<AddEditVerse />} />
           <Route path="/admin/scripture" element={<ScriptureManager />} />
-          <Route path="/admin/data-migration" element={<DataMigration />} />
-          <Route path="/admin/import-wizard" element={<ImportWizard />} />
           <Route path="/admin/universal-import" element={<UniversalImportFixed />} />
           <Route path="/admin/bbt-import" element={<BBTImport />} />
-          <Route path="/admin/fix-verse-linebreaks" element={<FixVerseLineBreaks />} />
           <Route path="/admin/fix-rls-policies" element={<FixRLSPolicies />} />
           <Route path="/admin/blog-posts" element={<BlogPosts />} />
           <Route path="/admin/blog-posts/new" element={<AddEditBlogPost />} />
