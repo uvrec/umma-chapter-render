@@ -23,9 +23,10 @@ export interface IskconpressChapter {
 
 export interface ParsedIskconpressChapter {
   chapter_number: number;
+  chapter_type: "verses" | "text";
   title_en?: string;
   title_ua?: string;
-  content_en?: string; // HTML content for prose books
+  content_en?: string; // HTML content for prose/text books
   verses: Array<{
     verse_number: string;
     text_en?: string;
@@ -165,6 +166,7 @@ export function parseIskconpressContent(
 export function iskconpressChapterToStandard(chapter: IskconpressChapter): ParsedIskconpressChapter {
   return {
     chapter_number: chapter.chapter_number,
+    chapter_type: "text", // Prose books use text type, not verses
     title_en: chapter.title_en,
     // For prose books - store HTML content directly
     content_en: chapter.content_en,
