@@ -5,6 +5,22 @@
 
 import { normalizeVerseField } from './textNormalizer';
 
+/**
+ * Декодує HTML-сутності (entities) в звичайний текст
+ * Наприклад: "&nbsp;" → " ", "&amp;" → "&", тощо
+ */
+function decodeHtmlEntities(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'");
+}
+
 interface VedabaseVerseData {
   bengali: string;
   transliteration: string;
@@ -51,10 +67,11 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
       if (bengaliContainers.length > 0) {
         const bengaliParts: string[] = [];
         bengaliContainers.forEach((container, index) => {
-          const text = container.innerHTML
-            .replace(/<br\s*\/?>/g, '\n')
-            .replace(/<[^>]*>/g, '')
-            .trim();
+          const text = decodeHtmlEntities(
+            container.innerHTML
+              .replace(/<br\s*\/?>/g, '\n')
+              .replace(/<[^>]*>/g, '')
+          ).trim();
           if (text) {
             bengaliParts.push(text);
             console.log(`📖 Блок ${index + 1}: ${text.substring(0, 50)}...`);
@@ -106,18 +123,20 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
           if (emElements.length > 0) {
             const emTexts: string[] = [];
             emElements.forEach(em => {
-              const emText = em.innerHTML
-                .replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<[^>]+>/g, '')
-                .trim();
+              const emText = decodeHtmlEntities(
+                em.innerHTML
+                  .replace(/<br\s*\/?>/gi, '\n')
+                  .replace(/<[^>]+>/g, '')
+              ).trim();
               if (emText) emTexts.push(emText);
             });
             text = emTexts.join('\n');
           } else {
-            text = container.innerHTML
-              .replace(/<br\s*\/?>/gi, '\n')
-              .replace(/<[^>]+>/g, '')
-              .trim();
+            text = decodeHtmlEntities(
+              container.innerHTML
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<[^>]+>/g, '')
+            ).trim();
           }
 
           if (text) {
@@ -138,10 +157,11 @@ export function parseVedabaseCC(html: string, url: string): VedabaseVerseData | 
       if (translitElements.length > 0) {
         const translitParts: string[] = [];
         translitElements.forEach(element => {
-          const text = element.innerHTML
-            .replace(/<br\s*\/?>/gi, '\n')
-            .replace(/<[^>]+>/g, '')
-            .trim();
+          const text = decodeHtmlEntities(
+            element.innerHTML
+              .replace(/<br\s*\/?>/gi, '\n')
+              .replace(/<[^>]+>/g, '')
+          ).trim();
           if (text) {
             translitParts.push(text);
           }
