@@ -787,7 +787,7 @@ export const defaultRules: NormalizationRule[] = [
   { id: "ending_narayana", incorrect: "Нараян", correct: "Нараяна", category: "endings", description: "Нараяна (не Нараян)" },
   { id: "ending_goloka", incorrect: "Ґолок", correct: "Ґолока", category: "endings", description: "Ґолока (не Ґолок)" },
   { id: "ending_dvaraka", incorrect: "Дварак", correct: "Дварака", category: "endings", description: "Дварака (не Дварак)" },
-  { id: "ending_rama", incorrect: "Рам", correct: "Рама", category: "endings", description: "Рама (не Рам)", caseSensitive: true },
+  { id: "ending_rama", incorrect: "Рам(?![а-яіїєґА-ЯІЇЄҐ'ʼ])", correct: "Рама", category: "endings", description: "Рама (не Рам)", caseSensitive: true, regex: true },
   { id: "ending_vibhishana", incorrect: "Вібгішан", correct: "Вібгішана", category: "endings", description: "Вібгішана (не Вібгішан)" },
   { id: "ending_indraprastha", incorrect: "Індрапрастх", correct: "Індрапрастха", category: "endings", description: "Індрапрастха (не Індрапрастх)" },
   { id: "ending_jada_bharata", incorrect: "Джада Бгарат", correct: "Джада Бгарата", category: "endings", description: "Джада Бгарата (не Джада Бгарат)" },
@@ -972,10 +972,15 @@ export function applyNormalizationRules(
     let match;
     const tempResult = result;
     while ((match = pattern.exec(tempResult)) !== null) {
+      // Determine the correct replacement with case preservation
+      let replacement = rule.correct;
+      if (!rule.caseSensitive && match[0][0] === match[0][0].toUpperCase() && match[0][0] !== match[0][0].toLowerCase()) {
+        replacement = rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
+      }
       changes.push({
         ruleId: rule.id,
         original: match[0],
-        replacement: rule.correct,
+        replacement,
         position: match.index,
         category: rule.category,
       });
@@ -985,7 +990,18 @@ export function applyNormalizationRules(
       }
     }
 
-    result = result.replace(pattern, rule.correct);
+    // Preserve original case when doing case-insensitive replacements
+    if (!rule.caseSensitive) {
+      result = result.replace(pattern, (match) => {
+        // If original match starts with uppercase, capitalize the replacement
+        if (match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()) {
+          return rule.correct.charAt(0).toUpperCase() + rule.correct.slice(1);
+        }
+        return rule.correct;
+      });
+    } else {
+      result = result.replace(pattern, rule.correct);
+    }
   }
 
   return { result, changes };
