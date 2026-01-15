@@ -9,7 +9,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
@@ -58,6 +58,7 @@ export const ChapterVersesList = () => {
   const [isEditingContent, setIsEditingContent] = useState(false);
   const [editedContentUa, setEditedContentUa] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
+  const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -239,6 +240,32 @@ export const ChapterVersesList = () => {
       });
     }
   });
+
+  // Мутація для видалення вірша
+  const deleteVerseMutation = useMutation({
+    mutationFn: async (verseId: string) => {
+      const { error } = await supabase
+        .from("verses")
+        .delete()
+        .eq("id", verseId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["chapter-verses-list"] });
+      queryClient.invalidateQueries({ queryKey: ["chapter-verses-fallback"] });
+      setVerseToDelete(null);
+      toast({
+        title: language === "ua" ? "Вірш видалено" : "Verse deleted"
+      });
+    },
+    onError: () => {
+      toast({
+        title: language === "ua" ? "Помилка видалення" : "Delete error",
+        variant: "destructive"
+      });
+    }
+  });
+
   useEffect(() => {
     if (effectiveChapterObj) {
       setEditedContentUa(effectiveChapterObj.content_ua || "");
@@ -454,9 +481,41 @@ export const ChapterVersesList = () => {
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
                         <div className="space-y-3">
-                          {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                              ВІРШ {verse.verse_number}
-                            </Link>}
+                          {showNumbers && <div className="flex items-center gap-2">
+                              <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                                ВІРШ {verse.verse_number}
+                              </Link>
+                              {isAdmin && (
+                                verseToDelete === verse.id ? (
+                                  <div className="flex items-center gap-1">
+                                    <Button
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => deleteVerseMutation.mutate(verse.id)}
+                                      disabled={deleteVerseMutation.isPending}
+                                    >
+                                      Так
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => setVerseToDelete(null)}
+                                    >
+                                      Ні
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setVerseToDelete(verse.id)}
+                                    className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </Button>
+                                )
+                              )}
+                            </div>}
                           <p className="text-foreground text-justify" style={readerTextStyle}>
                             {stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span>}
                           </p>
@@ -471,9 +530,41 @@ export const ChapterVersesList = () => {
                           </p>
                         </div>
                       </div> : <div className="space-y-3">
-                        {showNumbers && <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                            {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
-                          </Link>}
+                        {showNumbers && <div className="flex items-center gap-2">
+                            <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
+                              {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
+                            </Link>
+                            {isAdmin && (
+                              verseToDelete === verse.id ? (
+                                <div className="flex items-center gap-1">
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => deleteVerseMutation.mutate(verse.id)}
+                                    disabled={deleteVerseMutation.isPending}
+                                  >
+                                    {language === "ua" ? "Так" : "Yes"}
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setVerseToDelete(null)}
+                                  >
+                                    {language === "ua" ? "Ні" : "No"}
+                                  </Button>
+                                </div>
+                              ) : (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setVerseToDelete(verse.id)}
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10 h-7 px-2"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              )
+                            )}
+                          </div>}
                         <p className="text-foreground" style={readerTextStyle}>
                           {language === "ua" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
