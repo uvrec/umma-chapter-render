@@ -11,6 +11,8 @@
  * - `[[books:...]]` cross-references
  */
 
+import { convertIASTtoUkrainian } from "./textNormalizer";
+
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/iskconpress/books/master";
 const GITHUB_API_BASE = "https://api.github.com/repos/iskconpress/books/contents";
 
@@ -21,15 +23,75 @@ export interface IskconpressChapter {
   description_en?: string;
 }
 
+export interface IskconpressVerse {
+  verse_number: string;
+  sanskrit?: string;
+  sanskrit_ua?: string; // Same Devanagari for UA field
+  transliteration_en?: string;
+  transliteration_ua?: string; // IAST converted to Ukrainian script
+  synonyms_en?: string;
+  translation_en?: string;
+  commentary_en?: string; // Purport - HTML formatted
+}
+
 export interface ParsedIskconpressChapter {
   chapter_number: number;
+  chapter_type: "verses" | "text";
   title_en?: string;
   title_ua?: string;
-  verses: Array<{
-    verse_number: string;
-    text_en?: string;
-    translation_en?: string;
-  }>;
+  content_en?: string; // HTML content for prose/text books
+  verses: IskconpressVerse[];
+}
+
+/**
+ * Convert DokuWiki markup to HTML
+ * Preserves formatting for Sanskrit terms (italics), bold text, etc.
+ */
+export function dokuwikiToHtml(content: string): string {
+  if (!content) return "";
+
+  return content
+    // Remove metadata tags
+    .replace(/~~[^~]+~~/g, "")
+    // Remove description tags
+    .replace(/\{\{description>.+?\}\}/gs, "")
+    // Convert wiki headers to HTML
+    .replace(/======\s*(.+?)\s*======/g, "<h1>$1</h1>")
+    .replace(/=====\s*(.+?)\s*=====/g, "<h2>$1</h2>")
+    .replace(/====\s*(.+?)\s*====/g, "<h3>$1</h3>")
+    .replace(/===\s*(.+?)\s*===/g, "<h4>$1</h4>")
+    // Convert wiki links to plain text (keep the visible text)
+    .replace(/\[\[books:[^\]]+\|([^\]]+)\]\]/g, "$1")
+    .replace(/\[\[books:[^\]]+\]\]/g, "")
+    .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
+    .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
+    // Convert wiki italics //text// to HTML <em> (for Sanskrit terms)
+    .replace(/\/\/(.+?)\/\//g, "<em>$1</em>")
+    // Convert wiki bold **text** to HTML <strong>
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    // Convert blockquotes (> lines)
+    .replace(/^>\s*(.+)$/gm, "<blockquote>$1</blockquote>")
+    // Remove page includes
+    .replace(/\{\{page>[^}]+\}\}/g, "")
+    // Convert horizontal rules
+    .replace(/^----$/gm, "<hr>")
+    // Convert line breaks
+    .replace(/\\\\/g, "<br>")
+    // Convert paragraphs (double newlines to <p> tags)
+    .replace(/\n\n+/g, "</p><p>")
+    // Clean up extra whitespace
+    .trim();
+}
+
+/**
+ * Wrap content in paragraph tags if needed
+ */
+export function wrapInParagraphs(content: string): string {
+  if (!content) return "";
+  if (content.startsWith("<h") || content.startsWith("<p")) {
+    return content;
+  }
+  return "<p>" + content + "</p>";
 }
 
 /**
@@ -76,7 +138,7 @@ export async function fetchIskconpressChapterContent(
 }
 
 /**
- * Parse DokuWiki markup content into structured chapter data
+ * Parse DokuWiki markup content into structured chapter data (for prose books)
  */
 export function parseIskconpressContent(
   content: string,
@@ -111,37 +173,8 @@ export function parseIskconpressContent(
   const descMatch = content.match(/\{\{description>(.+?)\}\}/s);
   const description_en = descMatch ? descMatch[1].trim() : undefined;
 
-  // Clean content - convert DokuWiki markup to clean text/markdown
-  let content_en = content
-    // Remove metadata tags
-    .replace(/~~[^~]+~~/g, "")
-    // Remove description tags
-    .replace(/\{\{description>.+?\}\}/gs, "")
-    // Convert wiki headers to markdown
-    .replace(/======\s*(.+?)\s*======/g, "# $1")
-    .replace(/=====\s*(.+?)\s*=====/g, "## $1")
-    .replace(/====\s*(.+?)\s*====/g, "### $1")
-    .replace(/===\s*(.+?)\s*===/g, "#### $1")
-    // Convert wiki links to plain text
-    .replace(/\[\[books:[^\]]+\|([^\]]+)\]\]/g, "$1")
-    .replace(/\[\[books:[^\]]+\]\]/g, "")
-    .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
-    .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
-    // Convert wiki italics //text// to markdown *text*
-    .replace(/\/\/(.+?)\/\//g, "*$1*")
-    // Keep bold **text**
-    .replace(/\*\*(.+?)\*\*/g, "**$1**")
-    // Convert blockquotes (> lines)
-    .replace(/^>\s*(.+)$/gm, "> $1")
-    // Remove page includes
-    .replace(/\{\{page>[^}]+\}\}/g, "")
-    // Convert horizontal rules
-    .replace(/^----$/gm, "---")
-    // Convert line breaks
-    .replace(/\\\\/g, "\n")
-    // Clean up extra whitespace
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  // Convert DokuWiki markup to HTML and wrap in paragraphs
+  const content_en = wrapInParagraphs(dokuwikiToHtml(content));
 
   return {
     chapter_number: chapterNum,
@@ -152,24 +185,78 @@ export function parseIskconpressContent(
 }
 
 /**
- * Convert iskconpress chapter to standard import format
- * For prose books, we treat the entire chapter as a single "verse" with the content
+ * Parse a single verse file from iskconpress (for verse-based books like SB)
+ * File structure: Sanskrit, Transliteration, Synonyms, Translation, Purport
  */
-export function iskconpressChapterToStandard(chapter: IskconpressChapter): ParsedIskconpressChapter {
-  // Split content into paragraphs for verse-like structure
-  const paragraphs = chapter.content_en
-    .split(/\n\n+/)
-    .filter((p) => p.trim().length > 0)
-    .map((p, i) => ({
-      verse_number: String(i + 1),
-      text_en: p.trim(),
-      translation_en: undefined,
-    }));
+export function parseIskconpressVerse(content: string, verseNumber: string): IskconpressVerse {
+  // Extract sections from the content
+  const sections: Record<string, string> = {};
+
+  // Common section markers in iskconpress verse files
+  const sectionPatterns = [
+    { key: "sanskrit", pattern: /===== Text =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "transliteration_en", pattern: /===== Transliteration =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "synonyms_en", pattern: /===== Synonyms =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "translation_en", pattern: /===== Translation =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "commentary_en", pattern: /===== Purport =====\s*([\s\S]*?)(?=====|$)/i },
+  ];
+
+  for (const { key, pattern } of sectionPatterns) {
+    const match = content.match(pattern);
+    if (match) {
+      sections[key] = match[1].trim();
+    }
+  }
+
+  // Convert synonyms - remove wiki link markup but keep structure
+  let synonyms_en = sections.synonyms_en || "";
+  synonyms_en = synonyms_en
+    .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
+    .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
+    .replace(/---/g, " — "); // Convert --- to em dash for word definitions
+
+  // Convert purport to HTML with formatting preserved
+  const commentary_en = sections.commentary_en
+    ? wrapInParagraphs(dokuwikiToHtml(sections.commentary_en))
+    : undefined;
+
+  // Convert translation - usually in bold
+  let translation_en = sections.translation_en || "";
+  translation_en = translation_en
+    .replace(/\*\*(.+?)\*\*/g, "$1") // Remove bold markers, keep text
+    .replace(/\/\/(.+?)\/\//g, "$1") // Remove italic markers
+    .trim();
+
+  // Convert IAST transliteration to Ukrainian script
+  const transliteration_ua = sections.transliteration_en
+    ? convertIASTtoUkrainian(sections.transliteration_en)
+    : undefined;
 
   return {
+    verse_number: verseNumber,
+    sanskrit: sections.sanskrit,
+    sanskrit_ua: sections.sanskrit, // Same Devanagari for both EN and UA
+    transliteration_en: sections.transliteration_en,
+    transliteration_ua,
+    synonyms_en: synonyms_en || undefined,
+    translation_en: translation_en || undefined,
+    commentary_en,
+  };
+}
+
+/**
+ * Convert iskconpress chapter to standard import format
+ * For prose books, we use content_en field (HTML) instead of verses
+ */
+export function iskconpressChapterToStandard(chapter: IskconpressChapter): ParsedIskconpressChapter {
+  return {
     chapter_number: chapter.chapter_number,
+    chapter_type: "text", // Prose books use text type, not verses
     title_en: chapter.title_en,
-    verses: paragraphs,
+    // For prose books - store HTML content directly
+    content_en: chapter.content_en,
+    // Empty verses array - prose doesn't have verses
+    verses: [],
   };
 }
 
