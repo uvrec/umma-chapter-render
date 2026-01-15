@@ -947,7 +947,20 @@ export const VedaReaderDB = () => {
   const isHeaderHidden = scrollDirection === 'down' && !fullscreenMode && !zenMode;
 
   const handleSaveHighlight = useCallback((notes: string) => {
-    if (!book?.id || !effectiveChapter?.id) return;
+    // Перевірка наявності даних
+    if (!book?.id || !effectiveChapter?.id) {
+      console.error("handleSaveHighlight: Missing book or chapter data", { bookId: book?.id, chapterId: effectiveChapter?.id });
+      sonnerToast.error(t("Помилка: дані книги ще завантажуються", "Error: book data is still loading"));
+      return;
+    }
+
+    // Перевірка наявності виділеного тексту
+    if (!selectedTextForHighlight) {
+      console.error("handleSaveHighlight: No selected text");
+      sonnerToast.error(t("Немає виділеного тексту", "No selected text"));
+      return;
+    }
+
     createHighlight({
       book_id: book.id,
       canto_id: canto?.id,
@@ -960,7 +973,7 @@ export const VedaReaderDB = () => {
       notes: notes || undefined,
       highlight_color: "yellow"
     });
-  }, [book, canto, effectiveChapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight]);
+  }, [book, canto, effectiveChapter, currentVerse, selectedTextForHighlight, selectionContext, createHighlight, t]);
 
   // Визначити всі keyboard shortcuts
   const shortcuts: KeyboardShortcut[] = [
