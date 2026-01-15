@@ -213,7 +213,7 @@ export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | 
         date: today,
         dateStr: format(today, 'yyyy-MM-dd'),
         paksha: calculatedEkadashi.paksha,
-        checkType: calculatedEkadashi.reason === 'mahadvadashi' ? 'mahadvadashi' : 'brahma_muhurta',
+        checkType: calculatedEkadashi.checkType ?? 'brahma_muhurta',
       }, language as 'ua' | 'en');
 
       return [
