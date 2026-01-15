@@ -40,6 +40,10 @@ import {
   parseRajaVidyaVedabase,
   mergeRajaVidyaChapters,
 } from "@/utils/rajaVidyaParser";
+import {
+  importIskconpressBook,
+  importIskconpressChapter,
+} from "@/utils/iskconpressParser";
 import { supabase } from "@/integrations/supabase/client";
 import { normalizeTransliteration } from "@/utils/text/translitNormalize";
 import { importSingleChapter } from "@/utils/import/importer";
@@ -1395,6 +1399,114 @@ export default function UniversalImportFixed() {
     [vedabaseBook, importData],
   );
 
+  /** Імпорт з iskconpress GitHub repository */
+  const handleIskconpressImport = useCallback(
+    async (singleChapter?: number) => {
+      const bookInfo = getBookConfigByVedabaseSlug(vedabaseBook)!;
+
+      if (bookInfo.source !== "iskconpress") {
+        toast({ title: "Помилка", description: "Ця книга не з iskconpress", variant: "destructive" });
+        return;
+      }
+
+      setIsProcessing(true);
+      setProgress(10);
+
+      try {
+        const bookSlug = bookInfo.our_slug || bookInfo.slug;
+
+        if (singleChapter !== undefined) {
+          // Import single chapter
+          toast({ title: "Завантаження...", description: `Глава ${singleChapter} з GitHub...` });
+
+          const chapter = await importIskconpressChapter(bookSlug, singleChapter);
+          if (!chapter) {
+            throw new Error(`Главу ${singleChapter} не знайдено`);
+          }
+
+          setProgress(80);
+
+          // Create import data for single chapter
+          const newImport: ImportData = {
+            ...importData,
+            source: "file", // Use file type for prose content
+            rawText: "",
+            processedText: JSON.stringify(chapter, null, 2),
+            chapters: [chapter],
+            metadata: {
+              ...importData.metadata,
+              title_en: bookInfo.name_en,
+              title_ua: bookInfo.name_ua,
+              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
+              book_slug: bookSlug,
+              source_url: bookInfo.sourceUrl,
+            },
+          };
+
+          setImportData(newImport);
+          setProgress(100);
+
+          toast({
+            title: "✅ Успішно!",
+            description: `Імпортовано главу ${chapter.chapter_number}: ${chapter.title_en}`,
+          });
+
+          await saveToDatabase(newImport);
+        } else {
+          // Import all chapters
+          toast({ title: "Завантаження...", description: "Отримання списку глав з GitHub..." });
+
+          const chapters = await importIskconpressBook(bookSlug, (current, total, filename) => {
+            const progressValue = 10 + Math.round((current / total) * 80);
+            setProgress(progressValue);
+            toast({ title: `Глава ${current}/${total}`, description: filename });
+          });
+
+          if (chapters.length === 0) {
+            throw new Error("Не знайдено жодної глави");
+          }
+
+          setProgress(95);
+
+          // Create import data
+          const newImport: ImportData = {
+            ...importData,
+            source: "file",
+            rawText: "",
+            processedText: JSON.stringify(chapters, null, 2),
+            chapters: chapters,
+            metadata: {
+              ...importData.metadata,
+              title_en: bookInfo.name_en,
+              title_ua: bookInfo.name_ua,
+              author: bookInfo.author || "A. C. Bhaktivedanta Swami Prabhupada",
+              book_slug: bookSlug,
+              source_url: bookInfo.sourceUrl,
+            },
+          };
+
+          setImportData(newImport);
+          setProgress(100);
+
+          const totalParagraphs = chapters.reduce((acc, ch) => acc + ch.verses.length, 0);
+          toast({
+            title: "✅ Успішно!",
+            description: `Імпортовано ${chapters.length} глав (${totalParagraphs} абзаців)`,
+          });
+
+          await saveToDatabase(newImport);
+        }
+      } catch (e: any) {
+        console.error("iskconpress import error:", e);
+        toast({ title: "Помилка", description: e.message, variant: "destructive" });
+      } finally {
+        setIsProcessing(false);
+        setProgress(0);
+      }
+    },
+    [vedabaseBook, importData],
+  );
+
   /** Обробка файлу */
   const handleFileUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1999,7 +2111,8 @@ export default function UniversalImportFixed() {
                   disabled={
                     isProcessing ||
                     currentBookInfo?.source === "bhaktivinodainstitute" ||
-                    currentBookInfo?.source === "kksongs"
+                    currentBookInfo?.source === "kksongs" ||
+                    currentBookInfo?.source === "iskconpress"
                   }
                 >
                   <Globe className="w-4 h-4 mr-2" />
@@ -2011,7 +2124,8 @@ export default function UniversalImportFixed() {
                   disabled={
                     isProcessing ||
                     currentBookInfo?.source === "bhaktivinodainstitute" ||
-                    currentBookInfo?.source === "kksongs"
+                    currentBookInfo?.source === "kksongs" ||
+                    currentBookInfo?.source === "iskconpress"
                   }
                   variant="secondary"
                 >
@@ -2034,12 +2148,32 @@ export default function UniversalImportFixed() {
                     Імпортувати з WisdomLib.org
                   </Button>
                 )}
+
+                {currentBookInfo?.source === "iskconpress" && (
+                  <>
+                    <Button
+                      onClick={() => handleIskconpressImport(vedabaseChapter ? parseInt(vedabaseChapter) : undefined)}
+                      disabled={isProcessing}
+                      variant="secondary"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      {vedabaseChapter ? `Імпортувати главу ${vedabaseChapter}` : "Імпортувати всі глави"}
+                    </Button>
+                    {vedabaseChapter && (
+                      <Button onClick={() => handleIskconpressImport()} disabled={isProcessing} variant="outline">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Імпортувати всі глави
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
 
               {/* Інфо про масовий імпорт */}
               {currentBookInfo?.source !== "bhaktivinodainstitute" &&
                 currentBookInfo?.source !== "kksongs" &&
-                currentBookInfo?.source !== "wisdomlib" && (
+                currentBookInfo?.source !== "wisdomlib" &&
+                currentBookInfo?.source !== "iskconpress" && (
                   <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                     <p className="text-sm text-green-900 dark:text-green-100">
                       <strong>💡 Порада:</strong> Кнопка "Імпортувати всі глави" автоматично визначить кількість глав
@@ -2049,6 +2183,28 @@ export default function UniversalImportFixed() {
                     </p>
                   </div>
                 )}
+
+              {currentBookInfo?.source === "iskconpress" && (
+                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                  <p className="text-sm text-amber-900 dark:text-amber-100">
+                    <strong>📚 iskconpress (GitHub):</strong> Імпортується <strong>English</strong> версія книги з{" "}
+                    <a
+                      href={currentBookInfo?.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:no-underline"
+                    >
+                      GitHub репозиторію iskconpress/books
+                    </a>
+                    . Вміст у форматі DokuWiki конвертується в чистий текст. Українську версію можна додати пізніше.
+                  </p>
+                  {currentBookInfo?.sourceUrl && (
+                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-2">
+                      Джерело: {currentBookInfo.sourceUrl}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {currentBookInfo?.source === "kksongs" && (
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
