@@ -159,11 +159,24 @@ export function parseIskconpressContent(
 
   // Parse title from content
   // Format: ~~Title:Book Name Chapter Number: Chapter Title~~
-  const titleMatch =
-    content.match(/~~Title:(.+?)~~/) || content.match(/======\s*(.+?)\s*======/);
-  let title_en = titleMatch ? titleMatch[1].trim() : `Chapter ${chapterNum}`;
+  // Or header: ====== Chapter Title ======
+  const metaTitleMatch = content.match(/~~Title:(.+?)~~/);
+  const headerTitleMatch = content.match(/======\s*(.+?)\s*======/);
 
-  // Clean up title
+  // Prefer header title for verse-based content (Sūtra, Text, Verse patterns)
+  // as it's more descriptive (e.g., "Sūtra 1" vs "NBS 1")
+  let title_en: string;
+  if (headerTitleMatch && /^(Sūtra|Sutra|Text|Verse|Sloka|Śloka)/i.test(headerTitleMatch[1].trim())) {
+    title_en = headerTitleMatch[1].trim();
+  } else if (metaTitleMatch) {
+    title_en = metaTitleMatch[1].trim();
+  } else if (headerTitleMatch) {
+    title_en = headerTitleMatch[1].trim();
+  } else {
+    title_en = `Chapter ${chapterNum}`;
+  }
+
+  // Clean up title - remove book prefix like "SSR 1: ", "Chapter 1: "
   title_en = title_en
     .replace(/^[A-Z]+\s+\d+:\s*/, "") // Remove "SSR 1: " prefix
     .replace(/^Chapter\s+\d+:\s*/i, "") // Remove "Chapter 1: " prefix
