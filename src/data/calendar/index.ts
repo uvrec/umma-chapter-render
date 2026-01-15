@@ -7,17 +7,30 @@ import germanyCalendar2026 from './germany-2026.json';
 
 export interface CalendarMetadata {
   source: string;
+  source_urls?: string[];
   source_location: string;
+  calendar_name?: string;
+  authority?: string;
   year: number;
   timezone: string;
-  utc_offset: string;
+  utc_offset?: string;
+  utc_offset_winter?: string;
+  utc_offset_summer?: string;
   coordinates: {
     latitude: number;
     longitude: number;
+    notation?: string;
   };
   applicable_cities: string[];
   generated_at: string;
+  last_updated?: string;
   notes: string;
+  special_notes?: {
+    purusottama_masa?: string;
+    caturmasya_system?: string;
+    dst_change_spring?: string;
+    dst_change_autumn?: string;
+  };
 }
 
 export interface CalendarEventData {
