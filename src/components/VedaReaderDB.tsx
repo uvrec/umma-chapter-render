@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Copy, Link } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Bookmark, Share2, Download, Home, Highlighter, HelpCircle, GraduationCap, X, Maximize, Leaf, Copy, Link, Presentation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { VerseCard } from "@/components/VerseCard";
 import { DualLanguageVerseCard } from "@/components/DualLanguageVerseCard";
@@ -96,6 +96,8 @@ export const VedaReaderDB = () => {
     setFullscreenMode,
     zenMode,
     setZenMode,
+    presentationMode,
+    setPresentationMode,
   } = useReaderSettings();
   const [originalLanguage, setOriginalLanguage] = useState<"sanskrit" | "ua" | "en">("sanskrit");
   const getDisplayVerseNumber = (verseNumber: string): string => {
@@ -1087,6 +1089,13 @@ export const VedaReaderDB = () => {
     handler: () => setZenMode(prev => !prev),
     category: 'modes'
   },
+  // Presentation Mode
+  {
+    key: 'p',
+    description: t('Презентація (для проектора/ТВ)', 'Presentation (for projector/TV)'),
+    handler: () => setPresentationMode(prev => !prev),
+    category: 'modes'
+  },
   // Help
   {
     key: '?',
@@ -1097,7 +1106,9 @@ export const VedaReaderDB = () => {
     key: 'Escape',
     description: t('Закрити модальне вікно / Вийти з режиму', 'Close modal / Exit mode'),
     handler: () => {
-      if (zenMode) {
+      if (presentationMode) {
+        setPresentationMode(false);
+      } else if (zenMode) {
         setZenMode(false);
       } else if (fullscreenMode) {
         setFullscreenMode(false);
@@ -1168,17 +1179,21 @@ export const VedaReaderDB = () => {
   // Не потрібно встановлювати inline font-size на контейнер
 
   return <div className="min-h-screen bg-background">
-      {/* Кнопка виходу з zen/fullscreen режиму */}
-      {(zenMode || fullscreenMode) && (
+      {/* Кнопка виходу з presentation/zen/fullscreen режиму */}
+      {(presentationMode || zenMode || fullscreenMode) && (
         <button
           onClick={() => {
-            if (zenMode) setZenMode(false);
+            if (presentationMode) setPresentationMode(false);
+            else if (zenMode) setZenMode(false);
             else setFullscreenMode(false);
           }}
-          className={zenMode ? "zen-exit-btn" : "fullscreen-exit-btn"}
-          title={zenMode
-            ? t("Вийти з Zen режиму (Esc)", "Exit Zen mode (Esc)")
-            : t("Вийти з повноекранного режиму (Esc)", "Exit fullscreen (Esc)")
+          className={presentationMode ? "presentation-exit-btn" : (zenMode ? "zen-exit-btn" : "fullscreen-exit-btn")}
+          title={presentationMode
+            ? t("Вийти з презентації (Esc)", "Exit presentation (Esc)")
+            : (zenMode
+              ? t("Вийти з Zen режиму (Esc)", "Exit Zen mode (Esc)")
+              : t("Вийти з повноекранного режиму (Esc)", "Exit fullscreen (Esc)")
+            )
           }
         >
           <X className="h-5 w-5" />
@@ -1236,6 +1251,9 @@ export const VedaReaderDB = () => {
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
                 <HelpCircle className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setPresentationMode(!presentationMode)} title={t("Презентація (p)", "Presentation (p)")}>
+                <Presentation className={`h-5 w-5 ${presentationMode ? "text-primary" : ""}`} />
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setZenMode(!zenMode)} title={t("Zen режим (z)", "Zen mode (z)")}>
                 <Leaf className={`h-5 w-5 ${zenMode ? "text-primary" : ""}`} />
