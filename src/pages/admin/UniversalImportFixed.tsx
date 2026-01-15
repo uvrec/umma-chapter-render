@@ -1414,12 +1414,14 @@ export default function UniversalImportFixed() {
 
       try {
         const bookSlug = bookInfo.our_slug || bookInfo.slug;
+        // Determine template type from book config
+        const templateId = (bookInfo.templateId === "verses" ? "verses" : "text") as "verses" | "text";
 
         if (singleChapter !== undefined) {
           // Import single chapter
           toast({ title: "Завантаження...", description: `Глава ${singleChapter} з GitHub...` });
 
-          const chapter = await importIskconpressChapter(bookSlug, singleChapter);
+          const chapter = await importIskconpressChapter(bookSlug, singleChapter, templateId);
           if (!chapter) {
             throw new Error(`Главу ${singleChapter} не знайдено`);
           }
@@ -1456,7 +1458,7 @@ export default function UniversalImportFixed() {
           // Import all chapters
           toast({ title: "Завантаження...", description: "Отримання списку глав з GitHub..." });
 
-          const chapters = await importIskconpressBook(bookSlug, (current, total, filename) => {
+          const chapters = await importIskconpressBook(bookSlug, templateId, (current, total, filename) => {
             const progressValue = 10 + Math.round((current / total) * 80);
             setProgress(progressValue);
             toast({ title: `Глава ${current}/${total}`, description: filename });

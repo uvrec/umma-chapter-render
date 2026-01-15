@@ -246,25 +246,45 @@ export function parseIskconpressVerse(content: string, verseNumber: string): Isk
 
 /**
  * Convert iskconpress chapter to standard import format
- * For prose books, we use content_en field (HTML) instead of verses
+ * @param chapter - Parsed chapter content
+ * @param templateId - "verses" for verse-based books (NBS, BS), "text" for prose
+ * @param rawContent - Original raw content (needed for verse parsing)
  */
-export function iskconpressChapterToStandard(chapter: IskconpressChapter): ParsedIskconpressChapter {
+export function iskconpressChapterToStandard(
+  chapter: IskconpressChapter,
+  templateId: "verses" | "text" = "text",
+  rawContent?: string,
+): ParsedIskconpressChapter {
+  if (templateId === "verses" && rawContent) {
+    // For verse-based books (NBS, BS, etc.) - parse as single verse per chapter
+    const verse = parseIskconpressVerse(rawContent, String(chapter.chapter_number));
+    return {
+      chapter_number: chapter.chapter_number,
+      chapter_type: "verses",
+      title_en: chapter.title_en,
+      verses: [verse],
+    };
+  }
+
+  // For prose books - use text type
   return {
     chapter_number: chapter.chapter_number,
-    chapter_type: "text", // Prose books use text type, not verses
+    chapter_type: "text",
     title_en: chapter.title_en,
-    // For prose books - store HTML content directly
     content_en: chapter.content_en,
-    // Empty verses array - prose doesn't have verses
     verses: [],
   };
 }
 
 /**
  * Import all chapters from an iskconpress book
+ * @param bookSlug - Book identifier
+ * @param templateId - "verses" for verse-based books (NBS, BS), "text" for prose
+ * @param onProgress - Progress callback
  */
 export async function importIskconpressBook(
   bookSlug: string,
+  templateId: "verses" | "text" = "text",
   onProgress?: (current: number, total: number, chapter: string) => void,
 ): Promise<ParsedIskconpressChapter[]> {
   // Fetch list of chapter files
@@ -291,8 +311,8 @@ export async function importIskconpressBook(
       continue;
     }
 
-    // Convert to standard format
-    const standardChapter = iskconpressChapterToStandard(parsed);
+    // Convert to standard format - pass templateId and raw content for verse parsing
+    const standardChapter = iskconpressChapterToStandard(parsed, templateId, content);
     chapters.push(standardChapter);
 
     // Small delay to avoid rate limiting
@@ -304,10 +324,14 @@ export async function importIskconpressBook(
 
 /**
  * Import a single chapter from an iskconpress book
+ * @param bookSlug - Book identifier
+ * @param chapterNumber - Chapter number to import
+ * @param templateId - "verses" for verse-based books (NBS, BS), "text" for prose
  */
 export async function importIskconpressChapter(
   bookSlug: string,
   chapterNumber: number,
+  templateId: "verses" | "text" = "text",
 ): Promise<ParsedIskconpressChapter | null> {
   // Fetch list of chapter files to find the right one
   const files = await fetchIskconpressChapterFiles(bookSlug);
@@ -331,6 +355,6 @@ export async function importIskconpressChapter(
     throw new Error(`Failed to parse chapter ${chapterNumber}`);
   }
 
-  // Convert to standard format
-  return iskconpressChapterToStandard(parsed);
+  // Convert to standard format - pass templateId and raw content for verse parsing
+  return iskconpressChapterToStandard(parsed, templateId, content);
 }
