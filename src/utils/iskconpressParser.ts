@@ -21,17 +21,73 @@ export interface IskconpressChapter {
   description_en?: string;
 }
 
+export interface IskconpressVerse {
+  verse_number: string;
+  sanskrit?: string;
+  transliteration_en?: string;
+  synonyms_en?: string;
+  translation_en?: string;
+  commentary_en?: string; // Purport - HTML formatted
+}
+
 export interface ParsedIskconpressChapter {
   chapter_number: number;
   chapter_type: "verses" | "text";
   title_en?: string;
   title_ua?: string;
   content_en?: string; // HTML content for prose/text books
-  verses: Array<{
-    verse_number: string;
-    text_en?: string;
-    translation_en?: string;
-  }>;
+  verses: IskconpressVerse[];
+}
+
+/**
+ * Convert DokuWiki markup to HTML
+ * Preserves formatting for Sanskrit terms (italics), bold text, etc.
+ */
+export function dokuwikiToHtml(content: string): string {
+  if (!content) return "";
+
+  return content
+    // Remove metadata tags
+    .replace(/~~[^~]+~~/g, "")
+    // Remove description tags
+    .replace(/\{\{description>.+?\}\}/gs, "")
+    // Convert wiki headers to HTML
+    .replace(/======\s*(.+?)\s*======/g, "<h1>$1</h1>")
+    .replace(/=====\s*(.+?)\s*=====/g, "<h2>$1</h2>")
+    .replace(/====\s*(.+?)\s*====/g, "<h3>$1</h3>")
+    .replace(/===\s*(.+?)\s*===/g, "<h4>$1</h4>")
+    // Convert wiki links to plain text (keep the visible text)
+    .replace(/\[\[books:[^\]]+\|([^\]]+)\]\]/g, "$1")
+    .replace(/\[\[books:[^\]]+\]\]/g, "")
+    .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
+    .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
+    // Convert wiki italics //text// to HTML <em> (for Sanskrit terms)
+    .replace(/\/\/(.+?)\/\//g, "<em>$1</em>")
+    // Convert wiki bold **text** to HTML <strong>
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    // Convert blockquotes (> lines)
+    .replace(/^>\s*(.+)$/gm, "<blockquote>$1</blockquote>")
+    // Remove page includes
+    .replace(/\{\{page>[^}]+\}\}/g, "")
+    // Convert horizontal rules
+    .replace(/^----$/gm, "<hr>")
+    // Convert line breaks
+    .replace(/\\\\/g, "<br>")
+    // Convert paragraphs (double newlines to <p> tags)
+    .replace(/\n\n+/g, "</p><p>")
+    // Clean up extra whitespace
+    .trim();
+}
+
+/**
+ * Wrap content in paragraph tags if needed
+ */
+export function wrapInParagraphs(content: string): string {
+  if (!content) return "";
+  if (content.startsWith("<h") || content.startsWith("<p")) {
+    return content;
+  }
+  return "<p>" + content + "</p>";
 }
 
 /**
@@ -78,7 +134,7 @@ export async function fetchIskconpressChapterContent(
 }
 
 /**
- * Parse DokuWiki markup content into structured chapter data
+ * Parse DokuWiki markup content into structured chapter data (for prose books)
  */
 export function parseIskconpressContent(
   content: string,
@@ -113,49 +169,67 @@ export function parseIskconpressContent(
   const descMatch = content.match(/\{\{description>(.+?)\}\}/s);
   const description_en = descMatch ? descMatch[1].trim() : undefined;
 
-  // Clean content - convert DokuWiki markup to HTML
-  let content_en = content
-    // Remove metadata tags
-    .replace(/~~[^~]+~~/g, "")
-    // Remove description tags
-    .replace(/\{\{description>.+?\}\}/gs, "")
-    // Convert wiki headers to HTML
-    .replace(/======\s*(.+?)\s*======/g, "<h1>$1</h1>")
-    .replace(/=====\s*(.+?)\s*=====/g, "<h2>$1</h2>")
-    .replace(/====\s*(.+?)\s*====/g, "<h3>$1</h3>")
-    .replace(/===\s*(.+?)\s*===/g, "<h4>$1</h4>")
-    // Convert wiki links to plain text (keep the visible text)
-    .replace(/\[\[books:[^\]]+\|([^\]]+)\]\]/g, "$1")
-    .replace(/\[\[books:[^\]]+\]\]/g, "")
-    .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
-    .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
-    // Convert wiki italics //text// to HTML <em> (for Sanskrit terms)
-    .replace(/\/\/(.+?)\/\//g, "<em>$1</em>")
-    // Convert wiki bold **text** to HTML <strong>
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    // Convert blockquotes (> lines)
-    .replace(/^>\s*(.+)$/gm, "<blockquote>$1</blockquote>")
-    // Remove page includes
-    .replace(/\{\{page>[^}]+\}\}/g, "")
-    // Convert horizontal rules
-    .replace(/^----$/gm, "<hr>")
-    // Convert line breaks
-    .replace(/\\\\/g, "<br>")
-    // Convert paragraphs (double newlines to <p> tags)
-    .replace(/\n\n+/g, "</p><p>")
-    // Clean up extra whitespace
-    .trim();
-
-  // Wrap in paragraph tags if content doesn't start with a block element
-  if (content_en && !content_en.startsWith("<h") && !content_en.startsWith("<p")) {
-    content_en = "<p>" + content_en + "</p>";
-  }
+  // Convert DokuWiki markup to HTML and wrap in paragraphs
+  const content_en = wrapInParagraphs(dokuwikiToHtml(content));
 
   return {
     chapter_number: chapterNum,
     title_en,
     content_en,
     description_en,
+  };
+}
+
+/**
+ * Parse a single verse file from iskconpress (for verse-based books like SB)
+ * File structure: Sanskrit, Transliteration, Synonyms, Translation, Purport
+ */
+export function parseIskconpressVerse(content: string, verseNumber: string): IskconpressVerse {
+  // Extract sections from the content
+  const sections: Record<string, string> = {};
+
+  // Common section markers in iskconpress verse files
+  const sectionPatterns = [
+    { key: "sanskrit", pattern: /===== Text =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "transliteration_en", pattern: /===== Transliteration =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "synonyms_en", pattern: /===== Synonyms =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "translation_en", pattern: /===== Translation =====\s*([\s\S]*?)(?=====|$)/i },
+    { key: "commentary_en", pattern: /===== Purport =====\s*([\s\S]*?)(?=====|$)/i },
+  ];
+
+  for (const { key, pattern } of sectionPatterns) {
+    const match = content.match(pattern);
+    if (match) {
+      sections[key] = match[1].trim();
+    }
+  }
+
+  // Convert synonyms - remove wiki link markup but keep structure
+  let synonyms_en = sections.synonyms_en || "";
+  synonyms_en = synonyms_en
+    .replace(/\[\[synonyms:[^\]]+\|([^\]]+)\]\]/g, "$1")
+    .replace(/\[\[synonyms:[^\]]+\]\]/g, "")
+    .replace(/---/g, " — "); // Convert --- to em dash for word definitions
+
+  // Convert purport to HTML with formatting preserved
+  const commentary_en = sections.commentary_en
+    ? wrapInParagraphs(dokuwikiToHtml(sections.commentary_en))
+    : undefined;
+
+  // Convert translation - usually in bold
+  let translation_en = sections.translation_en || "";
+  translation_en = translation_en
+    .replace(/\*\*(.+?)\*\*/g, "$1") // Remove bold markers, keep text
+    .replace(/\/\/(.+?)\/\//g, "$1") // Remove italic markers
+    .trim();
+
+  return {
+    verse_number: verseNumber,
+    sanskrit: sections.sanskrit,
+    transliteration_en: sections.transliteration_en,
+    synonyms_en: synonyms_en || undefined,
+    translation_en: translation_en || undefined,
+    commentary_en,
   };
 }
 
