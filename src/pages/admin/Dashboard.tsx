@@ -21,6 +21,7 @@ import {
   Search,
   Mic,
   Mail,
+  Download,
 } from "lucide-react";
 
 type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
@@ -350,6 +351,24 @@ const Dashboard = () => {
               </Button>
               <p className="text-xs text-muted-foreground">
                 Створення караоке-стилю підсвітки тексту для віршів
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Експорт книг</CardTitle>
+              <CardDescription>Експорт глав з форматуванням</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button asChild className="w-full">
+                <Link to="/admin/book-export">
+                  <Download className="w-4 h-4 mr-2" />
+                  Експорт контенту
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Експорт глав/віршів з маркерами @, @@, @@@
               </p>
             </CardContent>
           </Card>

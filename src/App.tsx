@@ -87,6 +87,7 @@ import Pages from "./pages/admin/Pages";
 import EditPage from "./pages/admin/EditPage";
 import StaticPages from "./pages/admin/StaticPages";
 import LRCEditorPage from "./pages/admin/LRCEditorPage";
+import BookExport from "./pages/admin/BookExport";
 import { NoIRedirect } from "./pages/NoIRedirect";
 import { LibOneParamRouter, LibTwoParamRouter, LibThreeParamRouter } from "./components/LibRouter";
 import {
@@ -300,6 +301,7 @@ function AppContent() {
           <Route path="/admin/letters" element={<LettersManager />} />
           <Route path="/admin/numcal" element={<NumCal />} />
           <Route path="/admin/lrc-editor" element={<LRCEditorPage />} />
+          <Route path="/admin/book-export" element={<BookExport />} />
           {/* Redirect /admin to dashboard */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
