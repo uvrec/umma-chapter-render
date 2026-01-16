@@ -33,6 +33,13 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import {
+  initializeGoogleDrive,
+  uploadToGoogleDrive,
+  isGoogleDriveConfigured,
+  isAuthorized,
+  requestAccessToken,
+} from "@/services/googleDriveService";
 
 // Types
 interface Book {
@@ -292,6 +299,10 @@ export default function BookExport() {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('select');
 
+  // Google Drive states
+  const [googleDriveReady, setGoogleDriveReady] = useState(false);
+  const [isUploadingToDrive, setIsUploadingToDrive] = useState(false);
+
   // Get current selections
   const selectedBook = useMemo(() =>
     books.find(b => b.id === selectedBookId),
@@ -314,6 +325,20 @@ export default function BookExport() {
       navigate("/auth");
     }
   }, [user, isAdmin, navigate]);
+
+  // Initialize Google Drive
+  useEffect(() => {
+    if (isGoogleDriveConfigured()) {
+      initializeGoogleDrive()
+        .then(() => {
+          setGoogleDriveReady(true);
+        })
+        .catch((error) => {
+          console.warn('Google Drive initialization failed:', error);
+          setGoogleDriveReady(false);
+        });
+    }
+  }, []);
 
   // Load books
   useEffect(() => {
@@ -668,14 +693,65 @@ ${exportPreview.split('\n').map(line => {
     toast.success(`Файл ${filename}.html завантажено`);
   };
 
-  // Save to Google Drive (placeholder - requires OAuth setup)
+  // Save to Google Drive
   const saveToGoogleDrive = async () => {
-    toast.info('Google Drive інтеграція потребує налаштування OAuth. Поки що використовуйте локальне завантаження.');
-    // TODO: Implement Google Drive API integration
-    // This would require:
-    // 1. Google Cloud Console project with Drive API enabled
-    // 2. OAuth 2.0 credentials
-    // 3. Google API client library (gapi)
+    if (!exportPreview || !selectedBook || !selectedChapter) {
+      toast.error('Немає даних для експорту');
+      return;
+    }
+
+    if (!isGoogleDriveConfigured()) {
+      toast.error('Google Drive не налаштовано. Зверніться до адміністратора.');
+      return;
+    }
+
+    if (!googleDriveReady) {
+      toast.error('Google Drive ще завантажується. Спробуйте ще раз.');
+      return;
+    }
+
+    setIsUploadingToDrive(true);
+
+    try {
+      // Request authorization if not already authorized
+      if (!isAuthorized()) {
+        await requestAccessToken();
+      }
+
+      const filename = generateFilename(
+        selectedBook.slug,
+        selectedCanto?.canto_number || null,
+        selectedChapter.chapter_number
+      );
+
+      // Upload the text file
+      const result = await uploadToGoogleDrive(
+        exportPreview,
+        `${filename}.txt`,
+        'text/plain;charset=utf-8'
+      );
+
+      toast.success(
+        <div className="flex flex-col gap-1">
+          <span>Файл збережено в Google Drive!</span>
+          <a
+            href={result.webViewLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline text-sm"
+          >
+            Відкрити файл
+          </a>
+        </div>,
+        { duration: 5000 }
+      );
+    } catch (error) {
+      console.error('Google Drive upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Невідома помилка';
+      toast.error(`Помилка завантаження: ${errorMessage}`);
+    } finally {
+      setIsUploadingToDrive(false);
+    }
   };
 
   if (!user || !isAdmin) return null;
@@ -1056,10 +1132,20 @@ ${exportPreview.split('\n').map(line => {
                         Завантажити .html
                       </Button>
 
-                      <Button onClick={saveToGoogleDrive} variant="outline" disabled>
-                        <Cloud className="w-4 h-4 mr-2" />
+                      <Button
+                        onClick={saveToGoogleDrive}
+                        variant="outline"
+                        disabled={!googleDriveReady || isUploadingToDrive || !isGoogleDriveConfigured()}
+                      >
+                        {isUploadingToDrive ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Cloud className="w-4 h-4 mr-2" />
+                        )}
                         Google Drive
-                        <Badge variant="secondary" className="ml-2 text-xs">Скоро</Badge>
+                        {!isGoogleDriveConfigured() && (
+                          <Badge variant="secondary" className="ml-2 text-xs">Не налаштовано</Badge>
+                        )}
                       </Button>
                     </div>
                   </>
