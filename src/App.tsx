@@ -126,10 +126,19 @@ import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
 import { MobileLayout } from "./components/mobile";
+import { useEffect } from "react";
 
 // Внутрішній компонент з доступом до hooks
 function AppContent() {
   const { open: searchOpen, setOpen: setSearchOpen } = useUnifiedSearch();
+
+  // Очищаємо режими читання при завантаженні застосунку
+  // щоб вони не впливали на сторінки поза читачем
+  useEffect(() => {
+    document.documentElement.setAttribute('data-fullscreen-reading', 'false');
+    document.documentElement.setAttribute('data-zen-mode', 'false');
+    document.documentElement.setAttribute('data-presentation-mode', 'false');
+  }, []);
 
   return (
     <>
