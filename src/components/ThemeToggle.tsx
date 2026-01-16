@@ -52,7 +52,7 @@ export function ThemeToggle() {
   ];
 
   return (
-    <DropdownMenu>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" aria-label={t("Налаштування", "Settings")}>
           <Settings className="h-[1.2rem] w-[1.2rem]" />
@@ -60,14 +60,14 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" sideOffset={6} className="w-48">
+      <DropdownMenuContent align="end" sideOffset={6} className="w-48 z-[100]">
         {/* Theme submenu */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <Palette className="mr-2 h-4 w-4" />
             {t("Тема", "Theme")}
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
+          <DropdownMenuSubContent className="z-[100]">
             {themes.map((themeOption) => {
               const Icon = themeOption.icon;
               return (
@@ -95,7 +95,7 @@ export function ThemeToggle() {
             <Globe className="mr-2 h-4 w-4" />
             {t("Мова", "Language")}
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
+          <DropdownMenuSubContent className="z-[100]">
             <DropdownMenuItem
               role="menuitemradio"
               aria-checked={language === "ua"}
