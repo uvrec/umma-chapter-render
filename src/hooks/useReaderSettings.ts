@@ -274,14 +274,24 @@ export function useReaderSettings() {
     };
   }, [fullscreenMode, dispatchPrefs]);
 
+  // Зберігаємо попередній стан zen для відстеження виходу
+  const prevZenMode = useRef(zenMode);
+
   useEffect(() => {
     safeSetItem(LS.zenMode, String(zenMode));
     // Zen Mode атрибут для CSS - ховає ВСЕ окрім тексту
     document.documentElement.setAttribute('data-zen-mode', String(zenMode));
+
     // Zen mode автоматично вмикає fullscreen
     if (zenMode && !fullscreenMode) {
       setFullscreenMode(true);
     }
+    // Вимикаємо fullscreen коли виходимо з zen mode
+    if (!zenMode && prevZenMode.current && fullscreenMode) {
+      setFullscreenMode(false);
+    }
+
+    prevZenMode.current = zenMode;
     dispatchPrefs();
 
     // Cleanup: reset to false when reader unmounts
@@ -290,18 +300,28 @@ export function useReaderSettings() {
     };
   }, [zenMode, fullscreenMode, dispatchPrefs]);
 
+  // Зберігаємо попередній стан презентації для відстеження виходу
+  const prevPresentationMode = useRef(presentationMode);
+
   useEffect(() => {
     safeSetItem(LS.presentationMode, String(presentationMode));
     // Presentation Mode атрибут для CSS - великий шрифт для проектора
     document.documentElement.setAttribute('data-presentation-mode', String(presentationMode));
+
     // Presentation mode автоматично вмикає fullscreen
     if (presentationMode && !fullscreenMode) {
       setFullscreenMode(true);
+    }
+    // Вимикаємо fullscreen коли виходимо з presentation mode
+    if (!presentationMode && prevPresentationMode.current && fullscreenMode) {
+      setFullscreenMode(false);
     }
     // Вимикаємо zen mode якщо вмикаємо presentation
     if (presentationMode && zenMode) {
       setZenMode(false);
     }
+
+    prevPresentationMode.current = presentationMode;
     dispatchPrefs();
 
     // Cleanup: reset to false when reader unmounts

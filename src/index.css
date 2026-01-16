@@ -1062,8 +1062,8 @@ body.keyboard-open {
     background-color: hsl(var(--background));
   }
 
-  /* Центруємо текст з великими відступами */
-  .container {
+  /* Центруємо текст з великими відступами - ТІЛЬКИ для читача */
+  [data-reader-root="true"] {
     max-width: 42rem;
     padding-top: 3rem;
     padding-bottom: 3rem;
@@ -1071,7 +1071,7 @@ body.keyboard-open {
 
   /* На десктопі в двомовному режимі робимо колонки вдвічі ширшими */
   @media (min-width: 1024px) {
-    .container {
+    [data-reader-root="true"] {
       max-width: 84rem;
     }
   }
@@ -1135,8 +1135,8 @@ body.keyboard-open {
     overflow: hidden;
   }
 
-  /* Контейнер на весь екран */
-  .container,
+  /* Контейнер на весь екран - ТІЛЬКИ для читача, не для всього сайту */
+  [data-reader-root="true"],
   .presentation-container {
     max-width: 100%;
     width: 100%;
