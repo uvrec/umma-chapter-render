@@ -105,8 +105,8 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     } else if (currentTrack?.bookSlug && currentTrack?.chapterNumber && currentTrack?.verseNumber) {
       const { bookSlug, cantoNumber, chapterNumber, verseNumber } = currentTrack;
       const path = cantoNumber
-        ? `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`
-        : `/veda-reader/${bookSlug}/chapter/${chapterNumber}/${verseNumber}`;
+        ? `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`
+        : `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
       navigate(path);
       setIsExpanded(false);
     }

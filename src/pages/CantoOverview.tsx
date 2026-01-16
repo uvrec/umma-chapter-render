@@ -8,11 +8,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useEffect, useState } from "react";
+
 export const CantoOverview = () => {
-  const {
-    bookId,
-    cantoNumber
-  } = useParams();
+  // Support both /veda-reader/ and /lib/ URL patterns
+  const params = useParams<{
+    bookId?: string;
+    cantoNumber?: string;
+    // /lib/ param: for canto books, p1 is the canto number
+    p1?: string;
+  }>();
+
+  // Normalize params from /lib/ format
+  // /lib/sb/1 → canto=1
+  const bookId = params.bookId;
+  const cantoNumber = params.cantoNumber ?? params.p1;
+
   const {
     language,
     t
@@ -94,7 +104,7 @@ export const CantoOverview = () => {
         href: "/library"
       }, {
         label: bookTitle || "",
-        href: `/veda-reader/${bookId}`
+        href: `/lib/${bookId}`
       }, {
         label: `${t("Пісня", "Canto")} ${cantoNumber}: ${cantoTitle}`
       }]} />
@@ -114,7 +124,7 @@ export const CantoOverview = () => {
 
           return dualLanguageMode ?
           // Side-by-side для chapters
-          <Link key={chapter.id} to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={`/lib/${bookId}/${cantoNumber}/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
@@ -127,7 +137,7 @@ export const CantoOverview = () => {
                   </div>
                 </Link> :
           // Одна мова для chapters
-          <Link key={chapter.id} to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={`/lib/${bookId}/${cantoNumber}/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-primary">
                       {t("Глава", "Chapter")} {chapterNum}

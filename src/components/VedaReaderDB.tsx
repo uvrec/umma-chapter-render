@@ -25,7 +25,6 @@ import { useKeyboardShortcuts, KeyboardShortcut } from "@/hooks/useKeyboardShort
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { JumpToVerseDialog } from "@/components/JumpToVerseDialog";
 import { SwipeIndicator } from "@/components/SwipeIndicator";
-import { ChapterMinimap, ChapterMinimapCompact } from "@/components/ChapterMinimap";
 import { ChapterVerseSelector } from "@/components/ChapterVerseSelector";
 import { RelatedVerses } from "@/components/RelatedVerses";
 import { VerseTattvas } from "@/components/verse/VerseTattvas";
@@ -35,15 +34,36 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
+import { useBooks } from "@/contexts/BooksContext";
+
 export const VedaReaderDB = () => {
-  const {
-    bookId,
-    cantoNumber,
-    chapterNumber,
-    verseNumber,
-    verseId
-  } = useParams();
-  const routeVerseNumber = verseNumber ?? verseId;
+  // Support both /veda-reader/ and /lib/ URL patterns
+  const params = useParams<{
+    bookId?: string;
+    cantoNumber?: string;
+    chapterNumber?: string;
+    verseNumber?: string;
+    verseId?: string;
+    // /lib/ params
+    p1?: string;
+    p2?: string;
+    p3?: string;
+  }>();
+
+  const { hasCantoStructure } = useBooks();
+
+  // Normalize params from /lib/ format to standard format
+  const bookId = params.bookId;
+  const isCantoBook = bookId ? hasCantoStructure(bookId) : false;
+
+  // For /lib/ routes: p1/p2/p3 need to be mapped based on book type
+  // /lib/sb/1/3/19 → canto=1, chapter=3, verse=19 (canto book)
+  // /lib/bg/3/19 → chapter=3, verse=19 (non-canto book)
+  const cantoNumber = params.cantoNumber ?? (isCantoBook ? params.p1 : undefined);
+  const chapterNumber = params.chapterNumber ?? (isCantoBook ? params.p2 : params.p1);
+  const verseNumber = params.verseNumber ?? params.verseId ?? (isCantoBook ? params.p3 : params.p2);
+
+  const routeVerseNumber = verseNumber;
   const navigate = useNavigate();
   const {
     language,
@@ -890,7 +910,7 @@ export const VedaReaderDB = () => {
     if (currentVerseIndex > 0) {
       const prevVerse = verses[currentVerseIndex - 1];
       const urlVerseNumber = String(prevVerse.verse_number).includes('-') ? String(prevVerse.verse_number).split('-')[0] : prevVerse.verse_number;
-      const path = bookId === 'noi' ? `/veda-reader/noi/${urlVerseNumber}` : isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}` : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+      const path = bookId === 'noi' ? `/lib/noi/${urlVerseNumber}` : isCantoMode ? `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${urlVerseNumber}` : `/lib/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({
         top: 0,
@@ -905,7 +925,7 @@ export const VedaReaderDB = () => {
     if (currentVerseIndex < verses.length - 1) {
       const nextVerse = verses[currentVerseIndex + 1];
       const urlVerseNumber = String(nextVerse.verse_number).includes('-') ? String(nextVerse.verse_number).split('-')[0] : nextVerse.verse_number;
-      const path = bookId === 'noi' ? `/veda-reader/noi/${urlVerseNumber}` : isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}` : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+      const path = bookId === 'noi' ? `/lib/noi/${urlVerseNumber}` : isCantoMode ? `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${urlVerseNumber}` : `/lib/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({
         top: 0,
@@ -919,7 +939,7 @@ export const VedaReaderDB = () => {
   const handlePrevChapter = () => {
     if (currentChapterIndex > 0) {
       const prevChapter = allChapters[currentChapterIndex - 1];
-      const path = isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}` : `/veda-reader/${bookId}/${prevChapter.chapter_number}`;
+      const path = isCantoMode ? `/lib/${bookId}/${cantoNumber}/${prevChapter.chapter_number}` : `/lib/${bookId}/${prevChapter.chapter_number}`;
       navigate(path);
       setCurrentVerseIndex(0);
     }
@@ -927,7 +947,7 @@ export const VedaReaderDB = () => {
   const handleNextChapter = () => {
     if (currentChapterIndex < allChapters.length - 1) {
       const nextChapter = allChapters[currentChapterIndex + 1];
-      const path = isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}` : `/veda-reader/${bookId}/${nextChapter.chapter_number}`;
+      const path = isCantoMode ? `/lib/${bookId}/${cantoNumber}/${nextChapter.chapter_number}` : `/lib/${bookId}/${nextChapter.chapter_number}`;
       navigate(path);
       setCurrentVerseIndex(0);
     }
@@ -1180,7 +1200,7 @@ export const VedaReaderDB = () => {
         <Header />
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="mb-4 text-muted-foreground">{t("Немає даних для цієї глави", "No data for this chapter")}</p>
-          <Button variant="outline" onClick={() => navigate(isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}` : `/veda-reader/${bookId}`)}>
+          <Button variant="outline" onClick={() => navigate(isCantoMode ? `/lib/${bookId}/${cantoNumber}` : `/lib/${bookId}`)}>
             <ChevronLeft className="mr-2 h-4 w-4" />
             {t("Назад", "Back")}
           </Button>
@@ -1228,12 +1248,12 @@ export const VedaReaderDB = () => {
                 <span className="hidden sm:inline">{t("Бібліотека", "Library")}</span>
               </a>
               <span className="flex-shrink-0">›</span>
-              <a href={`/veda-reader/${bookId}`} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
+              <a href={`/lib/${bookId}`} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
                 {bookTitle}
               </a>
               {cantoTitle && <>
                   <span className="flex-shrink-0">›</span>
-                  <a href={`/veda-reader/${bookId}/canto/${cantoNumber}`} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
+                  <a href={`/lib/${bookId}/${cantoNumber}`} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
                     {cantoTitle}
                   </a>
                 </>}
@@ -1475,28 +1495,5 @@ export const VedaReaderDB = () => {
         }
       />
 
-      {/* Chapter minimap - only in single verse mode */}
-      {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 1 && (
-        <div data-minimap="true">
-          {/* Desktop: vertical sidebar */}
-          <ChapterMinimap
-            verses={verses}
-            currentVerseIndex={currentVerseIndex}
-            bookId={bookId}
-            cantoNumber={cantoNumber}
-            chapterNumber={effectiveChapterParam}
-            isCantoMode={isCantoMode}
-          />
-          {/* Mobile: horizontal bottom bar */}
-          <ChapterMinimapCompact
-            verses={verses}
-            currentVerseIndex={currentVerseIndex}
-            bookId={bookId}
-            cantoNumber={cantoNumber}
-            chapterNumber={effectiveChapterParam}
-            isCantoMode={isCantoMode}
-          />
-        </div>
-      )}
     </div>;
 };

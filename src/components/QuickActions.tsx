@@ -21,7 +21,7 @@ export function QuickActions({ className }: QuickActionsProps) {
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
           <Button variant="outline" size="sm" asChild>
-            <a href="/veda-reader/bg">
+            <a href="/lib/bg">
               <BookOpen className="h-4 w-4 mr-2" />
               {t('Бгаґавад-ґіта', 'Bhagavad-gita')}
             </a>

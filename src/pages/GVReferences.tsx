@@ -220,7 +220,7 @@ export const GVReferences = () => {
                             {/* Link to book if available */}
                             {book.is_available_in_app && book.internal_book_slug && (
                               <Link
-                                to={`/veda-reader/${book.internal_book_slug}`}
+                                to={`/lib/${book.internal_book_slug}`}
                                 className="flex items-center gap-1 text-sm text-primary hover:underline shrink-0"
                               >
                                 {t('Читати', 'Read')}

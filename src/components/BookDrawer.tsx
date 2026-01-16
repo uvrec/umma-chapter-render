@@ -143,8 +143,8 @@ export const BookDrawer = ({
   };
 
   // Build base path for the book
-  const bookBasePath = `/veda-reader/${bookSlug}`;
-  const cantoPath = cantoNumber ? `${bookBasePath}/canto/${cantoNumber}` : bookBasePath;
+  const bookBasePath = `/lib/${bookSlug}`;
+  const cantoPath = cantoNumber ? `${bookBasePath}/${cantoNumber}` : bookBasePath;
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

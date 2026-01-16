@@ -64,14 +64,14 @@ export function ChapterMinimap({
       : verse.verse_number;
 
     if (bookId === 'noi') {
-      return `/veda-reader/noi/${verseNum}`;
+      return `/lib/noi/${verseNum}`;
     }
 
     if (isCantoMode) {
-      return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNum}`;
+      return `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNum}`;
     }
 
-    return `/veda-reader/${bookId}/${chapterNumber}/${verseNum}`;
+    return `/lib/${bookId}/${chapterNumber}/${verseNum}`;
   }, [bookId, cantoNumber, chapterNumber, isCantoMode]);
 
   // Handle verse click
@@ -183,14 +183,14 @@ export function ChapterMinimapCompact({
       : verse.verse_number;
 
     if (bookId === 'noi') {
-      return `/veda-reader/noi/${verseNum}`;
+      return `/lib/noi/${verseNum}`;
     }
 
     if (isCantoMode) {
-      return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNum}`;
+      return `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNum}`;
     }
 
-    return `/veda-reader/${bookId}/${chapterNumber}/${verseNum}`;
+    return `/lib/${bookId}/${chapterNumber}/${verseNum}`;
   }, [bookId, cantoNumber, chapterNumber, isCantoMode]);
 
   // Handle verse click in drawer

@@ -294,11 +294,11 @@ export function useDailyQuote() {
 
           // Якщо книга має канти і є canto_id
           if (hasCantos && cantoNumber) {
-            return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+            return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
           }
 
           // Інакше використовуємо chapterNumber
-          return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
+          return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
         })()
       : null,
   } : null;

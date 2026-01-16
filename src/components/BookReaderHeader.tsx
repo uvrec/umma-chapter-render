@@ -76,16 +76,16 @@ export const BookReaderHeader = ({
   // Build navigation paths
   const getChapterPath = (chapter: number) => {
     if (cantoNumber) {
-      return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapter}/1`;
+      return `/lib/${bookSlug}/${cantoNumber}/${chapter}/1`;
     }
-    return `/veda-reader/${bookSlug}/${chapter}/1`;
+    return `/lib/${bookSlug}/${chapter}/1`;
   };
 
   const getVersePath = (verse: string) => {
     if (cantoNumber) {
-      return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse}`;
+      return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verse}`;
     }
-    return `/veda-reader/${bookSlug}/${chapterNumber}/${verse}`;
+    return `/lib/${bookSlug}/${chapterNumber}/${verse}`;
   };
 
   // Get current chapter title

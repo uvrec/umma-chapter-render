@@ -31,7 +31,7 @@ const tabs: TabItem[] = [
     labelUa: "Бібліотека",
     labelEn: "Library",
     path: "/library",
-    matchPaths: ["/library", "/veda-reader"],
+    matchPaths: ["/library", "/lib", "/veda-reader"],
   },
   {
     id: "audio",

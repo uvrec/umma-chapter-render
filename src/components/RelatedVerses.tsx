@@ -64,14 +64,14 @@ function buildVerseUrl(ref: CrossReference): string {
     : verseNumber;
 
   if (bookSlug === "noi") {
-    return `/veda-reader/noi/${verseNum}`;
+    return `/lib/noi/${verseNum}`;
   }
 
   if (cantoNumber) {
-    return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNum}`;
+    return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNum}`;
   }
 
-  return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNum}`;
+  return `/lib/${bookSlug}/${chapterNumber}/${verseNum}`;
 }
 
 /**

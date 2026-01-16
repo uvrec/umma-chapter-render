@@ -2,9 +2,9 @@
  * JumpToVerseDialog - Quick navigation modal for jumping to any verse
  *
  * Supported formats:
- * - "БГ 2.14" / "BG 2.14" → /veda-reader/bg/2/14
- * - "ШБ 1.1.1" / "SB 1.1.1" → /veda-reader/sb/canto/1/chapter/1/1
- * - "ЧЧ Аді 1.1" / "CC Adi 1.1" → /veda-reader/cc/canto/1/chapter/1/1
+ * - "БГ 2.14" / "BG 2.14" → /lib/bg/2/14
+ * - "ШБ 1.1.1" / "SB 1.1.1" → /lib/sb/1/1/1
+ * - "ЧЧ Аді 1.1" / "CC Adi 1.1" → /lib/cc/1/1/1
  * - "2.14" (within current book) → relative navigation
  */
 
@@ -225,15 +225,15 @@ function buildUrl(ref: ParsedReference): string {
   if (!ref.isValid) return '';
 
   if (ref.bookSlug === 'noi') {
-    // NOI special case: /veda-reader/noi/{verse}
-    return `/veda-reader/noi/${ref.verseNumber}`;
+    // NOI special case: /lib/noi/{verse}
+    return `/lib/noi/${ref.verseNumber}`;
   }
 
   if (ref.cantoNumber) {
-    return `/veda-reader/${ref.bookSlug}/canto/${ref.cantoNumber}/chapter/${ref.chapterNumber}/${ref.verseNumber}`;
+    return `/lib/${ref.bookSlug}/${ref.cantoNumber}/${ref.chapterNumber}/${ref.verseNumber}`;
   }
 
-  return `/veda-reader/${ref.bookSlug}/${ref.chapterNumber}/${ref.verseNumber}`;
+  return `/lib/${ref.bookSlug}/${ref.chapterNumber}/${ref.verseNumber}`;
 }
 
 export function JumpToVerseDialog({

@@ -10,10 +10,16 @@
  * - /lib/bg → BG (огляд книги)
  *
  * Книги з канто-структурою (has_cantos=true в БД) автоматично підхоплюються.
+ *
+ * Тепер /lib/ є основним форматом URL (рендерить компоненти напряму).
  */
 
 import { useParams, Navigate } from "react-router-dom";
 import { useBooks } from "@/contexts/BooksContext";
+import { VedaReaderDB } from "@/components/VedaReaderDB";
+import { ChapterVersesList } from "@/pages/ChapterVersesList";
+import CantoOverview from "@/pages/CantoOverview";
+import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 
 /**
  * Роутер для /lib/:bookId/:p1
@@ -29,12 +35,12 @@ export function LibOneParamRouter() {
   }
 
   if (hasCantoStructure(bookId)) {
-    // SB/CC/etc: /lib/sb/1 → /veda-reader/sb/canto/1
-    return <Navigate to={`/veda-reader/${bookId}/canto/${p1}`} replace />;
+    // SB/CC/etc: /lib/sb/1 → CantoOverview
+    return <CantoOverview />;
   }
 
-  // BG/ISO/NOI: /lib/bg/3 → /veda-reader/bg/3
-  return <Navigate to={`/veda-reader/${bookId}/${p1}`} replace />;
+  // BG/ISO/NOI: /lib/bg/3 → ChapterVersesList
+  return <ChapterVersesList />;
 }
 
 /**
@@ -51,12 +57,16 @@ export function LibTwoParamRouter() {
   }
 
   if (hasCantoStructure(bookId)) {
-    // SB/CC/etc: /lib/sb/1/3 → /veda-reader/sb/canto/1/chapter/3
-    return <Navigate to={`/veda-reader/${bookId}/canto/${p1}/chapter/${p2}`} replace />;
+    // SB/CC/etc: /lib/sb/1/3 → ChapterVersesList
+    return <ChapterVersesList />;
   }
 
-  // BG/ISO/NOI: /lib/bg/3/19 → /veda-reader/bg/3/19
-  return <Navigate to={`/veda-reader/${bookId}/${p1}/${p2}`} replace />;
+  // BG/ISO/NOI: /lib/bg/3/19 → VedaReaderDB
+  return (
+    <RouteErrorBoundary routeName="VedaReader">
+      <VedaReaderDB />
+    </RouteErrorBoundary>
+  );
 }
 
 /**
@@ -73,10 +83,14 @@ export function LibThreeParamRouter() {
   }
 
   if (hasCantoStructure(bookId)) {
-    // SB/CC/etc: /lib/sb/1/3/19 → /veda-reader/sb/canto/1/chapter/3/19
-    return <Navigate to={`/veda-reader/${bookId}/canto/${p1}/chapter/${p2}/${p3}`} replace />;
+    // SB/CC/etc: /lib/sb/1/3/19 → VedaReaderDB
+    return (
+      <RouteErrorBoundary routeName="VedaReader">
+        <VedaReaderDB />
+      </RouteErrorBoundary>
+    );
   }
 
   // Для книг без канто 3 параметри некоректні - редирект на книгу
-  return <Navigate to={`/veda-reader/${bookId}`} replace />;
+  return <Navigate to={`/lib/${bookId}`} replace />;
 }

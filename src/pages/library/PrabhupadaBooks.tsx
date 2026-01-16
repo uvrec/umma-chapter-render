@@ -27,7 +27,7 @@ const prabhupadaBooks: Book[] = [
     description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
     price: "595 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/sb/canto/1",
+    verseLink: "/lib/sb/1",
     coverImage: srimadBhagavatam1Cover,
     purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
   },
@@ -45,7 +45,7 @@ const prabhupadaBooks: Book[] = [
     description: "Суть усієї ведичної мудрості. У цьому творі у стислому вигляді викладено основні ідеї давньоіндійської філософії.",
     price: "425 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/bg/1",
+    verseLink: "/lib/bg/1",
     coverImage: bhagavadGitaCover,
     purchaseUrl: "https://books.krishna.ua/ua/bhagavad-gita-jak-vona-je/"
   },
@@ -55,7 +55,7 @@ const prabhupadaBooks: Book[] = [
     description: "Переклад одного з найважливіших філософських трактатів Стародавньої Індії.",
     price: "50 грн",
     hasVerse: true,
-    verseLink: "/veda-reader/iso/1",
+    verseLink: "/lib/iso/1",
     coverImage: "https://optim.tildacdn.com/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
     purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
   },

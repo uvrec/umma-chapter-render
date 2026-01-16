@@ -978,8 +978,8 @@ export default function UniversalImportFixed() {
       if (results.success > 0 && chapterLinks.length > 0) {
         const firstChapter = chapterLinks[0];
         const targetPath = bookInfo.isMultiVolume
-          ? `/veda-reader/${bookInfo.our_slug}/canto/${lilaNum}/chapter/${firstChapter}`
-          : `/veda-reader/${bookInfo.our_slug}/${firstChapter}`;
+          ? `/lib/${bookInfo.our_slug}/${lilaNum}/${firstChapter}`
+          : `/lib/${bookInfo.our_slug}/${firstChapter}`;
 
         navigate(targetPath);
       }
@@ -2010,8 +2010,8 @@ export default function UniversalImportFixed() {
 
       // Навігація до розділу
       const targetPath = cantoId
-        ? `/veda-reader/${slug}/canto/${vedabaseCanto}/chapter/${chapter.chapter_number}`
-        : `/veda-reader/${slug}/${chapter.chapter_number}`;
+        ? `/lib/${slug}/${vedabaseCanto}/${chapter.chapter_number}`
+        : `/lib/${slug}/${chapter.chapter_number}`;
 
       navigate(targetPath);
     } catch (err: any) {
@@ -2108,8 +2108,8 @@ export default function UniversalImportFixed() {
         const slugForPath = data.metadata.book_slug || "library";
         const cantoNum = data.metadata.canto;
         const targetPath = cantoNum
-          ? `/veda-reader/${slugForPath}/canto/${cantoNum}/chapter/${chapterNum}`
-          : `/veda-reader/${slugForPath}/${chapterNum}`;
+          ? `/lib/${slugForPath}/${cantoNum}/${chapterNum}`
+          : `/lib/${slugForPath}/${chapterNum}`;
 
         setCurrentStep("save");
         navigate(targetPath);
