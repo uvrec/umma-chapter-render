@@ -341,8 +341,8 @@ export const IntroChapter = () => {
             <Button
               variant="default"
               onClick={() => {
-                const firstChapterPath = book?.has_cantos 
-                  ? `/lib/${bookId}/canto/1/chapter/1`
+                const firstChapterPath = book?.has_cantos
+                  ? `/lib/${bookId}/1/1`
                   : `/lib/${bookId}/1`;
                 navigate(firstChapterPath);
               }}

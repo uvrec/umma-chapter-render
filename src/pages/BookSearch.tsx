@@ -168,7 +168,7 @@ export default function BookSearch() {
   // Перехід до вірша
   const navigateToVerse = (result: SearchResult) => {
     const path = result.canto_number
-      ? `/lib/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`
+      ? `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`
       : `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
     navigate(path);
   };

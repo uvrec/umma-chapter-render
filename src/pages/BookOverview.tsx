@@ -179,7 +179,7 @@ export const BookOverview = () => {
             const cantoTitleEn = canto.title_en;
             return dualLanguageMode ?
             // Side-by-side для cantos
-            <Link key={canto.id} to={`/lib/${bookSlug}/canto/${canto.canto_number}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            <Link key={canto.id} to={`/lib/${bookSlug}/${canto.canto_number}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="grid gap-8 md:grid-cols-2">
                         <div className="flex items-start gap-3">
                           <span className="text-lg font-bold text-primary whitespace-nowrap">
@@ -196,7 +196,7 @@ export const BookOverview = () => {
                       </div>
                     </Link> :
             // Одна мова для cantos
-            <Link key={canto.id} to={`/lib/${bookSlug}/canto/${canto.canto_number}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+            <Link key={canto.id} to={`/lib/${bookSlug}/${canto.canto_number}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                       <div className="flex items-center gap-3">
                         <span className="text-lg font-bold text-primary">
                           {t("Пісня", "Canto")} {canto.canto_number}

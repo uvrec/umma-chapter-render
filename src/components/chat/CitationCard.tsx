@@ -23,8 +23,8 @@ export function CitationCard({ citation, className }: CitationCardProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Build internal link - correct format for veda-reader
-  // For SB with canto: /lib/sb/canto/1/chapter/1/1
+  // Build internal link using compact format
+  // For SB with canto: /lib/sb/1/1/1
   // For other books: /lib/bg/2/2
   const buildInternalPath = () => {
     if (!citation.bookSlug) return '/lib/bg';
@@ -33,7 +33,7 @@ export function CitationCard({ citation, className }: CitationCardProps) {
     }
     // Books with canto structure: SB (Srimad-Bhagavatam) and SCC (Sri Caitanya-caritamrta)
     if ((citation.bookSlug === 'sb' || citation.bookSlug === 'scc') && citation.cantoNumber) {
-      return `/lib/${citation.bookSlug}/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
+      return `/lib/${citation.bookSlug}/${citation.cantoNumber}/${citation.chapterNumber}/${citation.verseNumber}`;
     }
     // Other books use simple structure
     return `/lib/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`;

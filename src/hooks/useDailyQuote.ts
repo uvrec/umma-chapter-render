@@ -294,7 +294,7 @@ export function useDailyQuote() {
 
           // Якщо книга має канти і є canto_id
           if (hasCantos && cantoNumber) {
-            return `/lib/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+            return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
           }
 
           // Інакше використовуємо chapterNumber

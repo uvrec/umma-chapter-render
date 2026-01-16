@@ -102,7 +102,7 @@ export const useSanskritTerms = (opts: Options = {}) => {
       let verseLink = "";
       if (cantoNumber) {
         // Srimad-Bhagavatam structure with cantos
-        verseLink = `/lib/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verse.verse_number}`;
+        verseLink = `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verse.verse_number}`;
       } else if (bookSlug && chapterNumber) {
         // Direct book-chapter structure
         verseLink = `/lib/${bookSlug}/${chapterNumber}/${verse.verse_number}`;

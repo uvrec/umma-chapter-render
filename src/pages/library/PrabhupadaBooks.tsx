@@ -27,7 +27,7 @@ const prabhupadaBooks: Book[] = [
     description: "Перші дев'ять розділів найбільшого шедевра індійської духовної думки, літератури, богослов'я та метафізики.",
     price: "595 грн",
     hasVerse: true,
-    verseLink: "/lib/sb/canto/1",
+    verseLink: "/lib/sb/1",
     coverImage: srimadBhagavatam1Cover,
     purchaseUrl: "https://books.krishna.ua/tproduct/384929173-626906141911-persha-psnya-shrmad-bgaavatam"
   },

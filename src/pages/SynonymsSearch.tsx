@@ -22,8 +22,8 @@ type SynonymSearchResult = Database['public']['Functions']['search_synonyms']['R
 // Helper to build verse link (must match App.tsx routes)
 const buildVerseLink = (result: SynonymSearchResult): string => {
   if (result.canto_number) {
-    // Srimad-Bhagavatam structure: /lib/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber
-    return `/lib/${result.book_slug}/canto/${result.canto_number}/chapter/${result.chapter_number}/${result.verse_number}`;
+    // Srimad-Bhagavatam structure: /lib/:bookId/:cantoNumber/:chapterNumber/:verseNumber
+    return `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
   }
   // Direct book-chapter structure: /lib/:bookId/:chapterNumber/:verseNumber
   return `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;

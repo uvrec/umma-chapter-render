@@ -83,7 +83,7 @@ function VerseRow({ verse }: { verse: TattvaVerse }) {
 
   // Generate link to verse
   const verseLink = verse.canto_number
-    ? `/lib/${verse.book_slug}/canto/${verse.canto_number}/chapter/${verse.chapter_number}/${verse.verse_number}`
+    ? `/lib/${verse.book_slug}/${verse.canto_number}/${verse.chapter_number}/${verse.verse_number}`
     : `/lib/${verse.book_slug}/${verse.chapter_number}/${verse.verse_number}`;
 
   // Generate reference text

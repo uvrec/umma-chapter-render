@@ -286,7 +286,7 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
     if (!verseLocation || !verseNumber) return null;
     const { bookSlug, chapterNumber, cantoNumber } = verseLocation;
     if (cantoNumber) {
-      return `/lib/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+      return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
     }
     return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
   };

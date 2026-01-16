@@ -76,7 +76,7 @@ const buildVerseUrl = (
   verseNumber: string
 ) => {
   if (cantoNumber) {
-    return `/lib/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+    return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
   }
   return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
 };
