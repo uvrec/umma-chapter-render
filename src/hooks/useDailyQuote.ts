@@ -261,7 +261,11 @@ export function useDailyQuote() {
     source: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
           // Для книг з кантами book доступний через canto, інакше напряму
-          const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
+          // Перевіряємо що book має title, бо Supabase може повернути порожній об'єкт
+          const directBook = quote.verse.chapter.book;
+          const cantoBook = quote.verse.chapter.canto?.book;
+          const book = (directBook?.title_ua ? directBook : null) || (cantoBook?.title_ua ? cantoBook : null);
+
           const bookTitle = book?.[language === 'ua' ? 'title_ua' : 'title_en'] || book?.title_ua || '';
           const chapterNumber = quote.verse.chapter.chapter_number;
           const verseNumber = quote.verse.verse_number;
@@ -283,8 +287,19 @@ export function useDailyQuote() {
     link: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
           // Для книг з кантами book доступний через canto, інакше напряму
-          const book = quote.verse.chapter.book || quote.verse.chapter.canto?.book;
-          if (!book) return null;
+          // Перевіряємо що book має slug, бо Supabase може повернути порожній об'єкт
+          const directBook = quote.verse.chapter.book;
+          const cantoBook = quote.verse.chapter.canto?.book;
+          const book = (directBook?.slug ? directBook : null) || (cantoBook?.slug ? cantoBook : null);
+
+          if (!book?.slug) {
+            console.warn('[DailyQuote] Не вдалося знайти книгу для вірша:', {
+              directBook,
+              cantoBook,
+              chapter: quote.verse.chapter
+            });
+            return null;
+          }
 
           const bookSlug = book.slug;
           const verseNumber = quote.verse.verse_number;
