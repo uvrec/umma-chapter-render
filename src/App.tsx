@@ -126,6 +126,7 @@ import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
 import { MobileLayout } from "./components/mobile";
+import { ReadingModeExitButton } from "./components/ReadingModeExitButton";
 import { useEffect } from "react";
 
 // Внутрішній компонент з доступом до hooks
@@ -319,6 +320,7 @@ function AppContent() {
         <ModernGlobalPlayer />
         <GlobalSettingsPanel showFloatingButton={false} />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
+        <ReadingModeExitButton />
       </BrowserRouter>
     </>
   );
