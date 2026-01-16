@@ -479,7 +479,7 @@ export default function ReadingStatsPage() {
               <BookOpen className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p>{language === 'ua' ? 'Почніть читати щоб відслідковувати прогрес' : 'Start reading to track your progress'}</p>
               <Button asChild className="mt-4">
-                <Link to="/veda-reader">
+                <Link to="/library">
                   {language === 'ua' ? 'Перейти до читання' : 'Start Reading'}
                 </Link>
               </Button>
