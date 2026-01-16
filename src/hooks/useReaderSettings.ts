@@ -267,6 +267,11 @@ export function useReaderSettings() {
     // Додаємо/видаляємо data-атрибут для CSS
     document.documentElement.setAttribute('data-fullscreen-reading', String(fullscreenMode));
     dispatchPrefs();
+
+    // Cleanup: reset to false when reader unmounts
+    return () => {
+      document.documentElement.setAttribute('data-fullscreen-reading', 'false');
+    };
   }, [fullscreenMode, dispatchPrefs]);
 
   useEffect(() => {
@@ -278,6 +283,11 @@ export function useReaderSettings() {
       setFullscreenMode(true);
     }
     dispatchPrefs();
+
+    // Cleanup: reset to false when reader unmounts
+    return () => {
+      document.documentElement.setAttribute('data-zen-mode', 'false');
+    };
   }, [zenMode, fullscreenMode, dispatchPrefs]);
 
   useEffect(() => {
@@ -293,6 +303,11 @@ export function useReaderSettings() {
       setZenMode(false);
     }
     dispatchPrefs();
+
+    // Cleanup: reset to false when reader unmounts
+    return () => {
+      document.documentElement.setAttribute('data-presentation-mode', 'false');
+    };
   }, [presentationMode, fullscreenMode, zenMode, dispatchPrefs]);
 
   // синхронізація між вкладками
