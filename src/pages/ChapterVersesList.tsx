@@ -218,15 +218,15 @@ export const ChapterVersesList = () => {
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
-      return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+      return `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
     }
-    return `/veda-reader/${bookId}/${chapterNumber}/${verseNumber}`;
+    return `/lib/${bookId}/${chapterNumber}/${verseNumber}`;
   };
   const handleBack = () => {
     if (isCantoMode) {
-      navigate(`/veda-reader/${bookId}/canto/${cantoNumber}`);
+      navigate(`/lib/${bookId}/${cantoNumber}`);
     } else {
-      navigate(`/veda-reader/${bookId}`);
+      navigate(`/lib/${bookId}`);
     }
   };
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
@@ -294,9 +294,9 @@ export const ChapterVersesList = () => {
   }, [effectiveChapterObj]);
   const handleNavigate = (chapterNum: number) => {
     if (isCantoMode) {
-      navigate(`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`);
+      navigate(`/lib/${bookId}/${cantoNumber}/${chapterNum}`);
     } else {
-      navigate(`/veda-reader/${bookId}/${chapterNum}`);
+      navigate(`/lib/${bookId}/${chapterNum}`);
     }
   };
   const readerTextStyle = {

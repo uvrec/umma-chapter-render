@@ -910,7 +910,7 @@ export const VedaReaderDB = () => {
     if (currentVerseIndex > 0) {
       const prevVerse = verses[currentVerseIndex - 1];
       const urlVerseNumber = String(prevVerse.verse_number).includes('-') ? String(prevVerse.verse_number).split('-')[0] : prevVerse.verse_number;
-      const path = bookId === 'noi' ? `/veda-reader/noi/${urlVerseNumber}` : isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}` : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+      const path = bookId === 'noi' ? `/lib/noi/${urlVerseNumber}` : isCantoMode ? `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${urlVerseNumber}` : `/lib/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({
         top: 0,
@@ -925,7 +925,7 @@ export const VedaReaderDB = () => {
     if (currentVerseIndex < verses.length - 1) {
       const nextVerse = verses[currentVerseIndex + 1];
       const urlVerseNumber = String(nextVerse.verse_number).includes('-') ? String(nextVerse.verse_number).split('-')[0] : nextVerse.verse_number;
-      const path = bookId === 'noi' ? `/veda-reader/noi/${urlVerseNumber}` : isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNumber}/${urlVerseNumber}` : `/veda-reader/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
+      const path = bookId === 'noi' ? `/lib/noi/${urlVerseNumber}` : isCantoMode ? `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${urlVerseNumber}` : `/lib/${bookId}/${effectiveChapterParam}/${urlVerseNumber}`;
       navigate(path);
       window.scrollTo({
         top: 0,
@@ -939,7 +939,7 @@ export const VedaReaderDB = () => {
   const handlePrevChapter = () => {
     if (currentChapterIndex > 0) {
       const prevChapter = allChapters[currentChapterIndex - 1];
-      const path = isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${prevChapter.chapter_number}` : `/veda-reader/${bookId}/${prevChapter.chapter_number}`;
+      const path = isCantoMode ? `/lib/${bookId}/${cantoNumber}/${prevChapter.chapter_number}` : `/lib/${bookId}/${prevChapter.chapter_number}`;
       navigate(path);
       setCurrentVerseIndex(0);
     }
@@ -947,7 +947,7 @@ export const VedaReaderDB = () => {
   const handleNextChapter = () => {
     if (currentChapterIndex < allChapters.length - 1) {
       const nextChapter = allChapters[currentChapterIndex + 1];
-      const path = isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${nextChapter.chapter_number}` : `/veda-reader/${bookId}/${nextChapter.chapter_number}`;
+      const path = isCantoMode ? `/lib/${bookId}/${cantoNumber}/${nextChapter.chapter_number}` : `/lib/${bookId}/${nextChapter.chapter_number}`;
       navigate(path);
       setCurrentVerseIndex(0);
     }
@@ -1187,7 +1187,7 @@ export const VedaReaderDB = () => {
         <Header />
         <div className="container mx-auto px-4 py-8 text-center">
           <p className="mb-4 text-muted-foreground">{t("Немає даних для цієї глави", "No data for this chapter")}</p>
-          <Button variant="outline" onClick={() => navigate(isCantoMode ? `/veda-reader/${bookId}/canto/${cantoNumber}` : `/veda-reader/${bookId}`)}>
+          <Button variant="outline" onClick={() => navigate(isCantoMode ? `/lib/${bookId}/${cantoNumber}` : `/lib/${bookId}`)}>
             <ChevronLeft className="mr-2 h-4 w-4" />
             {t("Назад", "Back")}
           </Button>
@@ -1234,12 +1234,12 @@ export const VedaReaderDB = () => {
                 <span className="hidden sm:inline">{t("Бібліотека", "Library")}</span>
               </a>
               <span className="flex-shrink-0">›</span>
-              <a href={`/veda-reader/${bookId}`} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
+              <a href={`/lib/${bookId}`} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
                 {bookTitle}
               </a>
               {cantoTitle && <>
                   <span className="flex-shrink-0">›</span>
-                  <a href={`/veda-reader/${bookId}/canto/${cantoNumber}`} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
+                  <a href={`/lib/${bookId}/${cantoNumber}`} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
                     {cantoTitle}
                   </a>
                 </>}

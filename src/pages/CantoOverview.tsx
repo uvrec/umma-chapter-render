@@ -104,7 +104,7 @@ export const CantoOverview = () => {
         href: "/library"
       }, {
         label: bookTitle || "",
-        href: `/veda-reader/${bookId}`
+        href: `/lib/${bookId}`
       }, {
         label: `${t("Пісня", "Canto")} ${cantoNumber}: ${cantoTitle}`
       }]} />
@@ -124,7 +124,7 @@ export const CantoOverview = () => {
 
           return dualLanguageMode ?
           // Side-by-side для chapters
-          <Link key={chapter.id} to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={`/lib/${bookId}/${cantoNumber}/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
@@ -137,7 +137,7 @@ export const CantoOverview = () => {
                   </div>
                 </Link> :
           // Одна мова для chapters
-          <Link key={chapter.id} to={`/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={`/lib/${bookId}/${cantoNumber}/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-primary">
                       {t("Глава", "Chapter")} {chapterNum}
