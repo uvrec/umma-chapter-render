@@ -32,6 +32,7 @@ import { cleanHtml, cleanSanskrit } from "@/utils/import/normalizers";
 import { shareVerse, copyVerseWithLink, copyVerseUrl, VerseParams } from "@/utils/verseShare";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { useTrackpadNavigation } from "@/hooks/useTrackpadNavigation";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
 import { useBooks } from "@/contexts/BooksContext";
@@ -960,6 +961,14 @@ export const VedaReaderDB = () => {
     threshold: 80,
     velocityThreshold: 0.3,
     enabled: !continuousReadingSettings.enabled, // Disable in continuous mode to allow scrolling
+  });
+
+  // Trackpad navigation for desktop (especially in presentation mode)
+  useTrackpadNavigation({
+    onSwipeLeft: handleNextVerse,
+    onSwipeRight: handlePrevVerse,
+    threshold: 50,
+    enabled: presentationMode || zenMode, // Enable in presentation/zen modes
   });
 
   // Scroll direction for auto-hide header (mobile)
