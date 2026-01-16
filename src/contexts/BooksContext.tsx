@@ -39,11 +39,12 @@ export function BooksProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function fetchCantoBooks() {
       try {
+        // Не фільтруємо по is_published, бо потрібно знати структуру всіх книг
+        // (включно з прихованими) для коректного роутингу
         const { data, error } = await supabase
           .from("books")
           .select("slug")
-          .eq("has_cantos", true)
-          .eq("is_published", true);
+          .eq("has_cantos", true);
 
         if (error) {
           console.error("Failed to fetch canto books:", error);
