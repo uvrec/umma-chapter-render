@@ -1,7 +1,7 @@
 // src/pages/admin/BookExport.tsx
 // Інструмент для експорту глав/віршів з HTML форматуванням
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -252,6 +252,12 @@ function generateFilename(
 export default function BookExport() {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // URL params for pre-selection (from reader page)
+  const urlBookSlug = searchParams.get('book');
+  const urlCantoId = searchParams.get('canto');
+  const urlChapterId = searchParams.get('chapter');
 
   // Data states
   const [books, setBooks] = useState<Book[]>([]);
@@ -265,6 +271,9 @@ export default function BookExport() {
   const [selectedChapterId, setSelectedChapterId] = useState<string>('');
   const [selectedVerseIds, setSelectedVerseIds] = useState<Set<string>>(new Set());
   const [selectAllVerses, setSelectAllVerses] = useState(true);
+
+  // Track if we've applied URL params
+  const [urlParamsApplied, setUrlParamsApplied] = useState(false);
 
   // Export options
   const [exportOptions, setExportOptions] = useState<ExportOptions>({
@@ -325,6 +334,38 @@ export default function BookExport() {
 
     loadBooks();
   }, []);
+
+  // Auto-select book from URL param (by slug)
+  useEffect(() => {
+    if (urlBookSlug && books.length > 0 && !urlParamsApplied) {
+      const book = books.find(b => b.slug === urlBookSlug);
+      if (book) {
+        setSelectedBookId(book.id);
+      }
+    }
+  }, [urlBookSlug, books, urlParamsApplied]);
+
+  // Auto-select canto from URL param
+  useEffect(() => {
+    if (urlCantoId && cantos.length > 0 && !urlParamsApplied) {
+      const canto = cantos.find(c => c.id === urlCantoId);
+      if (canto) {
+        setSelectedCantoId(canto.id);
+      }
+    }
+  }, [urlCantoId, cantos, urlParamsApplied]);
+
+  // Auto-select chapter from URL param
+  useEffect(() => {
+    if (urlChapterId && chapters.length > 0 && !urlParamsApplied) {
+      const chapter = chapters.find(c => c.id === urlChapterId);
+      if (chapter) {
+        setSelectedChapterId(chapter.id);
+        setUrlParamsApplied(true); // Mark as applied to prevent re-selection
+        setActiveTab('preview'); // Go directly to preview tab
+      }
+    }
+  }, [urlChapterId, chapters, urlParamsApplied]);
 
   // Load cantos when book changes
   useEffect(() => {

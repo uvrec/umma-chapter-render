@@ -691,12 +691,23 @@ export const VedaReaderDB = () => {
     });
   };
 
-  // 🆕 Download функція
+  // 🆕 Download функція - відкриває сторінку експорту з параметрами поточної глави
   const handleDownload = () => {
-    toast({
-      title: t("Завантаження", "Download"),
-      description: t("Функція в розробці", "Feature in development")
-    });
+    if (!effectiveChapter?.id) {
+      toast({
+        title: t("Помилка", "Error"),
+        description: t("Глава не завантажена", "Chapter not loaded")
+      });
+      return;
+    }
+
+    // Формуємо URL з параметрами для експорту
+    const params = new URLSearchParams();
+    if (bookId) params.set('book', bookId);
+    if (canto?.id) params.set('canto', canto.id);
+    if (effectiveChapter.id) params.set('chapter', effectiveChapter.id);
+
+    navigate(`/admin/book-export?${params.toString()}`);
   };
 
   // 🆕 Add verse to learning
@@ -1290,9 +1301,11 @@ export const VedaReaderDB = () => {
               <Button variant="ghost" size="icon" onClick={handleShare} title={t("Поділитися", "Share")}>
                 <Share2 className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleDownload} title={t("Завантажити", "Download")}>
-                <Download className="h-5 w-5" />
-              </Button>
+              {isAdmin && (
+                <Button variant="ghost" size="icon" onClick={handleDownload} title={t("Експорт глави", "Export chapter")} className="text-primary">
+                  <Download className="h-5 w-5" />
+                </Button>
+              )}
               <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
                 <HelpCircle className="h-5 w-5" />
               </Button>
