@@ -301,8 +301,8 @@ export const TIME_NAMES_UA: Record<string, string> = {
 // Основний тип Раги
 // ============================================
 
-export interface Raga {
-  name: string;
+// RagaCore - дані раги без name (як в JSON, де name = ключ)
+export interface RagaCore {
   aaroha: string[];        // Сходження
   avaroha: string[];       // Спадання
   pakad: string[];         // Характерна фраза
@@ -313,8 +313,13 @@ export interface Raga {
   jati: Jati | string;     // Тип за кількістю нот
 }
 
-// Раги з бази даних (ключ = назва)
-export type RagaDatabase = Record<string, Raga>;
+// Raga - повний тип з name (для UI після нормалізації)
+export interface Raga extends RagaCore {
+  name: string;
+}
+
+// Раги з бази даних (ключ = назва, значення = RagaCore без name)
+export type RagaDatabase = Record<string, RagaCore>;
 
 // ============================================
 // Розширена інформація для UI
