@@ -79,9 +79,13 @@ export const useHighlights = (chapterId?: string) => {
       queryClient.invalidateQueries({ queryKey: ["highlights"] });
       toast.success("Виділення збережено");
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Error creating highlight:", error);
-      toast.error("Помилка при збереженні виділення");
+      if (error.message === "Not authenticated") {
+        toast.error("Увійдіть в акаунт, щоб зберігати виділення");
+      } else {
+        toast.error("Помилка при збереженні виділення");
+      }
     },
   });
 
