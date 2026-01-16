@@ -34,15 +34,36 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
+import { useBooks } from "@/contexts/BooksContext";
+
 export const VedaReaderDB = () => {
-  const {
-    bookId,
-    cantoNumber,
-    chapterNumber,
-    verseNumber,
-    verseId
-  } = useParams();
-  const routeVerseNumber = verseNumber ?? verseId;
+  // Support both /veda-reader/ and /lib/ URL patterns
+  const params = useParams<{
+    bookId?: string;
+    cantoNumber?: string;
+    chapterNumber?: string;
+    verseNumber?: string;
+    verseId?: string;
+    // /lib/ params
+    p1?: string;
+    p2?: string;
+    p3?: string;
+  }>();
+
+  const { hasCantoStructure } = useBooks();
+
+  // Normalize params from /lib/ format to standard format
+  const bookId = params.bookId;
+  const isCantoBook = bookId ? hasCantoStructure(bookId) : false;
+
+  // For /lib/ routes: p1/p2/p3 need to be mapped based on book type
+  // /lib/sb/1/3/19 → canto=1, chapter=3, verse=19 (canto book)
+  // /lib/bg/3/19 → chapter=3, verse=19 (non-canto book)
+  const cantoNumber = params.cantoNumber ?? (isCantoBook ? params.p1 : undefined);
+  const chapterNumber = params.chapterNumber ?? (isCantoBook ? params.p2 : params.p1);
+  const verseNumber = params.verseNumber ?? params.verseId ?? (isCantoBook ? params.p3 : params.p2);
+
+  const routeVerseNumber = verseNumber;
   const navigate = useNavigate();
   const {
     language,

@@ -169,7 +169,7 @@ export const IntroChapter = () => {
           <p className="text-muted-foreground mb-4">Глава не знайдена</p>
           <Button
             variant="outline"
-            onClick={() => navigate(`/veda-reader/${bookId}`)}
+            onClick={() => navigate(`/lib/${bookId}`)}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Назад до книги
@@ -187,7 +187,7 @@ export const IntroChapter = () => {
         <Breadcrumb
           items={[
             { label: 'Бібліотека', href: '/library' },
-            { label: bookTitle || '', href: `/veda-reader/${bookId}` },
+            { label: bookTitle || '', href: `/lib/${bookId}` },
             { label: chapterTitle || '' }
           ]}
         />
@@ -314,7 +314,7 @@ export const IntroChapter = () => {
           {prevChapter ? (
             <Button
               variant="secondary"
-              onClick={() => navigate(`/veda-reader/${bookId}/intro/${prevChapter.slug}`)}
+              onClick={() => navigate(`/lib/${bookId}/intro/${prevChapter.slug}`)}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               {language === 'ua' ? prevChapter.title_ua : prevChapter.title_en}
@@ -322,7 +322,7 @@ export const IntroChapter = () => {
           ) : (
             <Button
               variant="secondary"
-              onClick={() => navigate(`/veda-reader/${bookId}`)}
+              onClick={() => navigate(`/lib/${bookId}`)}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Назад до книги
@@ -332,7 +332,7 @@ export const IntroChapter = () => {
           {nextChapter ? (
             <Button
               variant="secondary"
-              onClick={() => navigate(`/veda-reader/${bookId}/intro/${nextChapter.slug}`)}
+              onClick={() => navigate(`/lib/${bookId}/intro/${nextChapter.slug}`)}
             >
               {language === 'ua' ? nextChapter.title_ua : nextChapter.title_en}
               <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
@@ -342,8 +342,8 @@ export const IntroChapter = () => {
               variant="default"
               onClick={() => {
                 const firstChapterPath = book?.has_cantos 
-                  ? `/veda-reader/${bookId}/canto/1/chapter/1`
-                  : `/veda-reader/${bookId}/1`;
+                  ? `/lib/${bookId}/canto/1/chapter/1`
+                  : `/lib/${bookId}/1`;
                 navigate(firstChapterPath);
               }}
             >

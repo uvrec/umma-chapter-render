@@ -54,7 +54,7 @@ export function QuoteCard({
 
   // Генерувати посилання на вірш, якщо є
   const verseLink = quote.book_slug && quote.chapter_number && quote.verse_number
-    ? `/veda-reader/${quote.book_slug}/${quote.chapter_number}/${quote.verse_number}`
+    ? `/lib/${quote.book_slug}/${quote.chapter_number}/${quote.verse_number}`
     : null;
 
   return (

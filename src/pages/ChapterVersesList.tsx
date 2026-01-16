@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useBooks } from "@/contexts/BooksContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -33,11 +34,28 @@ interface Verse {
   deleted_at: string | null;
 }
 export const ChapterVersesList = () => {
-  const {
-    bookId,
-    cantoNumber,
-    chapterNumber
-  } = useParams();
+  // Support both /veda-reader/ and /lib/ URL patterns
+  const params = useParams<{
+    bookId?: string;
+    cantoNumber?: string;
+    chapterNumber?: string;
+    // /lib/ params
+    p1?: string;
+    p2?: string;
+  }>();
+
+  const { hasCantoStructure } = useBooks();
+
+  // Normalize params from /lib/ format to standard format
+  const bookId = params.bookId;
+  const isCantoBook = bookId ? hasCantoStructure(bookId) : false;
+
+  // For /lib/ routes: p1/p2 need to be mapped based on book type
+  // /lib/sb/1/3 → canto=1, chapter=3 (canto book)
+  // /lib/bg/3 → chapter=3 (non-canto book)
+  const cantoNumber = params.cantoNumber ?? (isCantoBook ? params.p1 : undefined);
+  const chapterNumber = params.chapterNumber ?? (isCantoBook ? params.p2 : params.p1);
+
   const {
     language
   } = useLanguage();

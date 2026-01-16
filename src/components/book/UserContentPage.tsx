@@ -76,9 +76,9 @@ const buildVerseUrl = (
   verseNumber: string
 ) => {
   if (cantoNumber) {
-    return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+    return `/lib/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
   }
-  return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
+  return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
 };
 
 export const UserContentPage = ({

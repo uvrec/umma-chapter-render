@@ -24,19 +24,19 @@ export function CitationCard({ citation, className }: CitationCardProps) {
   };
 
   // Build internal link - correct format for veda-reader
-  // For SB with canto: /veda-reader/sb/canto/1/chapter/1/1
-  // For other books: /veda-reader/bg/2/2
+  // For SB with canto: /lib/sb/canto/1/chapter/1/1
+  // For other books: /lib/bg/2/2
   const buildInternalPath = () => {
-    if (!citation.bookSlug) return '/veda-reader/bg';
+    if (!citation.bookSlug) return '/lib/bg';
     if (!citation.chapterNumber || !citation.verseNumber) {
-      return `/veda-reader/${citation.bookSlug}`;
+      return `/lib/${citation.bookSlug}`;
     }
     // Books with canto structure: SB (Srimad-Bhagavatam) and SCC (Sri Caitanya-caritamrta)
     if ((citation.bookSlug === 'sb' || citation.bookSlug === 'scc') && citation.cantoNumber) {
-      return `/veda-reader/${citation.bookSlug}/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
+      return `/lib/${citation.bookSlug}/canto/${citation.cantoNumber}/chapter/${citation.chapterNumber}/${citation.verseNumber}`;
     }
     // Other books use simple structure
-    return `/veda-reader/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`;
+    return `/lib/${citation.bookSlug}/${citation.chapterNumber}/${citation.verseNumber}`;
   };
 
   const internalPath = buildInternalPath();

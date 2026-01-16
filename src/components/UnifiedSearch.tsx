@@ -203,8 +203,8 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         const canto = verse.chapters.cantos;
 
         const href = canto?.canto_number
-          ? `/veda-reader/${book.slug}/canto/${canto.canto_number}/chapter/${chapter.chapter_number}/${verse.verse_number}`
-          : `/veda-reader/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
+          ? `/lib/${book.slug}/${canto.canto_number}/${chapter.chapter_number}/${verse.verse_number}`
+          : `/lib/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
 
         searchResults.push({
           result_type: 'verse',

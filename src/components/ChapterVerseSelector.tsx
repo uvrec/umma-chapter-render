@@ -121,9 +121,9 @@ export function ChapterVerseSelector({
   // Build URL for chapter navigation
   const buildChapterUrl = (chapter: Chapter) => {
     if (isCantoMode) {
-      return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${chapter.chapter_number}`;
+      return `/lib/${bookId}/${cantoNumber}/${chapter.chapter_number}`;
     }
-    return `/veda-reader/${bookId}/${chapter.chapter_number}`;
+    return `/lib/${bookId}/${chapter.chapter_number}`;
   };
 
   // Build URL for verse navigation
@@ -133,14 +133,14 @@ export function ChapterVerseSelector({
       : verse.verse_number;
 
     if (bookId === 'noi') {
-      return `/veda-reader/noi/${verseNum}`;
+      return `/lib/noi/${verseNum}`;
     }
 
     if (isCantoMode) {
-      return `/veda-reader/${bookId}/canto/${cantoNumber}/chapter/${currentChapter?.chapter_number}/${verseNum}`;
+      return `/lib/${bookId}/${cantoNumber}/${currentChapter?.chapter_number}/${verseNum}`;
     }
 
-    return `/veda-reader/${bookId}/${currentChapter?.chapter_number}/${verseNum}`;
+    return `/lib/${bookId}/${currentChapter?.chapter_number}/${verseNum}`;
   };
 
   // Handle chapter selection

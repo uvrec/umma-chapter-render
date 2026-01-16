@@ -286,9 +286,9 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
     if (!verseLocation || !verseNumber) return null;
     const { bookSlug, chapterNumber, cantoNumber } = verseLocation;
     if (cantoNumber) {
-      return `/veda-reader/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
+      return `/lib/${bookSlug}/canto/${cantoNumber}/chapter/${chapterNumber}/${verseNumber}`;
     }
-    return `/veda-reader/${bookSlug}/${chapterNumber}/${verseNumber}`;
+    return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
   };
 
   const publicVerseUrl = getPublicVerseUrl();
