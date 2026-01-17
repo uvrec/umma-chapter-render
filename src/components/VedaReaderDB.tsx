@@ -603,8 +603,8 @@ export const VedaReaderDB = () => {
       },
       onFallbackCopy: () => {
         toast({
-          title: t("Скопійовано з посиланням", "Copied with link"),
-          description: t("Web Share недоступний, текст скопійовано", "Web Share unavailable, text copied"),
+          title: t("Текст скопійовано!", "Text copied!"),
+          description: t("Вставте куди потрібно", "Paste where needed"),
         });
       },
       onError: (error) => {
