@@ -386,27 +386,27 @@ export const GlobalSettingsPanel = ({
                 <RowToggle
                   label={t("Санскрит / Деванагарі", "Sanskrit / Devanagari")}
                   checked={textDisplaySettings.showSanskrit}
-                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSanskrit: v })}
+                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
                 />
                 <RowToggle
                   label={t("Транслітерація", "Transliteration")}
                   checked={textDisplaySettings.showTransliteration}
-                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTransliteration: v })}
+                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
                 />
                 <RowToggle
                   label={language === "ua" ? "Послівний переклад" : "Synonyms"}
                   checked={textDisplaySettings.showSynonyms}
-                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSynonyms: v })}
+                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
                 />
                 <RowToggle
                   label={language === "ua" ? "Літературний переклад" : "Translation"}
                   checked={textDisplaySettings.showTranslation}
-                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTranslation: v })}
+                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
                 />
                 <RowToggle
                   label={language === "ua" ? "Пояснення" : "Purport"}
                   checked={textDisplaySettings.showCommentary}
-                  onChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showCommentary: v })}
+                  onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
                 />
               </div>
             </div>
@@ -422,7 +422,7 @@ export const GlobalSettingsPanel = ({
                   <Switch
                     id="continuous-enabled"
                     checked={continuousReadingSettings.enabled}
-                    onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, enabled: v })}
+                    onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, enabled: v }))}
                   />
                 </div>
 
@@ -433,7 +433,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-sanskrit"
                         checked={continuousReadingSettings.showSanskrit}
-                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showSanskrit: v })}
+                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showSanskrit: v }))}
                       />
                     </div>
 
@@ -442,7 +442,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-transliteration"
                         checked={continuousReadingSettings.showTransliteration}
-                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showTransliteration: v })}
+                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showTransliteration: v }))}
                       />
                     </div>
 
@@ -451,7 +451,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-translation"
                         checked={continuousReadingSettings.showTranslation}
-                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showTranslation: v })}
+                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showTranslation: v }))}
                       />
                     </div>
 
@@ -460,7 +460,7 @@ export const GlobalSettingsPanel = ({
                       <Switch
                         id="cont-commentary"
                         checked={continuousReadingSettings.showCommentary}
-                        onCheckedChange={(v) => setContinuousReadingSettings({ ...continuousReadingSettings, showCommentary: v })}
+                        onCheckedChange={(v) => setContinuousReadingSettings(prev => ({ ...prev, showCommentary: v }))}
                       />
                     </div>
                   </div>
