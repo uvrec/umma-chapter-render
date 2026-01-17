@@ -138,6 +138,57 @@ export default function AddEditVerse() {
     enabled: !!id && !!user && isAdmin,
   });
 
+  // Fetch existing verses for the chapter to calculate next verse number
+  const { data: chapterVerses } = useQuery({
+    queryKey: ["chapter-verses-for-auto-number", chapterId],
+    queryFn: async () => {
+      if (!chapterId) return [];
+      const { data, error } = await supabase
+        .from("verses")
+        .select("verse_number, end_verse")
+        .eq("chapter_id", chapterId)
+        .is("deleted_at", null);
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!chapterId && !id, // Only fetch for new verses
+  });
+
+  // Helper function to calculate the next verse number
+  const calculateNextVerseNumber = useCallback((verses: { verse_number: string; end_verse?: number | null }[]): string => {
+    if (!verses || verses.length === 0) return "1";
+
+    let maxNumber = 0;
+
+    verses.forEach((v) => {
+      // Check end_verse for composite verses like "73-74"
+      if (v.end_verse && v.end_verse > maxNumber) {
+        maxNumber = v.end_verse;
+      }
+
+      // Try to parse verse_number
+      const verseNum = v.verse_number;
+      if (verseNum) {
+        // Handle composite format like "73-74"
+        if (verseNum.includes("-")) {
+          const parts = verseNum.split("-");
+          const endNum = parseInt(parts[parts.length - 1], 10);
+          if (!isNaN(endNum) && endNum > maxNumber) {
+            maxNumber = endNum;
+          }
+        } else {
+          // Simple number format
+          const num = parseInt(verseNum, 10);
+          if (!isNaN(num) && num > maxNumber) {
+            maxNumber = num;
+          }
+        }
+      }
+    });
+
+    return String(maxNumber + 1);
+  }, []);
+
   // Підвантажуємо контекст глави (книгу/пісню) за chapterId з URL
   useEffect(() => {
     const loadChapterContext = async () => {
@@ -216,13 +267,22 @@ export default function AddEditVerse() {
     }
   }, [id]);
 
+  // Auto-set next verse number when chapter is selected (for new verses only)
+  useEffect(() => {
+    if (!id && chapterId && chapterVerses) {
+      const nextNumber = calculateNextVerseNumber(chapterVerses);
+      setVerseNumber(nextNumber);
+    }
+  }, [id, chapterId, chapterVerses, calculateNextVerseNumber]);
+
   // Track if we should add another verse after save
   const [addAnother, setAddAnother] = useState(false);
 
   // Helper to reset form for new verse
-  const resetFormForNewVerse = () => {
+  const resetFormForNewVerse = (nextVerseNum?: string) => {
     // Clear all content fields, but keep the chapter context
-    setVerseNumber("");
+    // Set the next verse number if provided, otherwise empty
+    setVerseNumber(nextVerseNum || "");
     setSanskritUa("");
     setSanskritEn("");
     setTransliterationUa("");
@@ -276,10 +336,11 @@ export default function AddEditVerse() {
         if (error) throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       // Очищуємо кеш для фронтенду і адмінки
       queryClient.invalidateQueries({ queryKey: ["verses"] });
       queryClient.invalidateQueries({ queryKey: ["admin-verses"] });
+      queryClient.invalidateQueries({ queryKey: ["chapter-verses-for-auto-number", chapterId] });
       toast({
         title: id ? "Вірш оновлено" : "Вірш додано",
         description: "Зміни успішно збережено",
@@ -287,8 +348,26 @@ export default function AddEditVerse() {
 
       // Check if we should add another verse or navigate back
       if (addAnother && !id) {
+        // Calculate next verse number based on current verse number
+        // Parse current verse number and increment
+        let nextNum = "1";
+        if (verseNumber) {
+          if (verseNumber.includes("-")) {
+            // Composite like "73-74" - take the end number
+            const parts = verseNumber.split("-");
+            const endNum = parseInt(parts[parts.length - 1], 10);
+            if (!isNaN(endNum)) {
+              nextNum = String(endNum + 1);
+            }
+          } else {
+            const num = parseInt(verseNumber, 10);
+            if (!isNaN(num)) {
+              nextNum = String(num + 1);
+            }
+          }
+        }
         // Reset form to add another verse (only for new verses, not edits)
-        resetFormForNewVerse();
+        resetFormForNewVerse(nextNum);
         setAddAnother(false); // Reset flag
       } else {
         // Clear dirty flag before navigating to prevent beforeunload warning
