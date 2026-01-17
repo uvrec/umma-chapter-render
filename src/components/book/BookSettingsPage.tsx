@@ -416,35 +416,35 @@ export const BookSettingsPage = ({
                 <Label>{t("Санскрит (Деванагарі)", "Sanskrit (Devanagari)")}</Label>
                 <Switch
                   checked={textDisplaySettings.showSanskrit}
-                  onCheckedChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSanskrit: v })}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label>{t("Транслітерація", "Transliteration")}</Label>
                 <Switch
                   checked={textDisplaySettings.showTransliteration}
-                  onCheckedChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTransliteration: v })}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label>{t("Послівний переклад", "Synonyms")}</Label>
                 <Switch
                   checked={textDisplaySettings.showSynonyms}
-                  onCheckedChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showSynonyms: v })}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label>{t("Літературний переклад", "Translation")}</Label>
                 <Switch
                   checked={textDisplaySettings.showTranslation}
-                  onCheckedChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showTranslation: v })}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <Label>{t("Пояснення", "Purport")}</Label>
                 <Switch
                   checked={textDisplaySettings.showCommentary}
-                  onCheckedChange={(v) => setTextDisplaySettings({ ...textDisplaySettings, showCommentary: v })}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
                 />
               </div>
             </AccordionContent>
