@@ -92,7 +92,7 @@
      Значення адаптується до розміру екрану: 15px (XS) → 16px (Mobile) → 18px (Tablet) → 20px (Desktop) */
   --vv-reader-font-size: 18px; /* базове значення, перевизначається useReaderSettings */
   --vv-reader-line-height: 1.75; /* 1.75 для кращої читабельності */
-  --vv-reader-max-width: 48rem;
+  --vv-reader-max-width: 42rem; /* ~65 characters optimal line length */
 
   /* Деванагарі */
   --sanskrit-font-size: 1.125em; /* Mobile: em-text-lg */
@@ -594,7 +594,7 @@ body {
     --commentary-font-size: 1.125rem; /* lg:text-lg = 22.5px */
     --section-header-font-size-lg: 1.5rem; /* 30px для заголовків */
     --vv-reader-line-height: 1.75;
-    --vv-reader-max-width: 48rem;
+    --vv-reader-max-width: 42rem;
   }
 
   .verse-surface {
@@ -673,7 +673,7 @@ body {
   }
 
   /* Послівник - зменшений line-height для мобільних */
-  [data-synced-section="synonyms"] .text-justify {
+  [data-synced-section="synonyms"] {
     line-height: 1.2 !important;
   }
 }
@@ -838,7 +838,7 @@ p[style*="fontSize"] .drop-cap {
 
 /* Параграфи пояснення */
 .purport {
-  text-align: justify;
+  text-align: left;
   margin-bottom: 1em;
   text-indent: 25px;
   font-size: inherit;
@@ -1389,7 +1389,7 @@ body.keyboard-open {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.15);
+    transform: scale(1.05); /* Subtle feedback, not distracting */
   }
 }
 
@@ -1546,4 +1546,33 @@ body.keyboard-open {
 
 .dark .synced-section-active {
   background: hsl(var(--primary) / 0.12);
+}
+
+/* =========================
+   REDUCED MOTION (Accessibility)
+   Вимикає анімації для користувачів з вестибулярними розладами
+   ========================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Залишаємо тільки критичні переходи */
+  .smooth-transition {
+    transition: none !important;
+  }
+
+  /* Вимикаємо всі keyframe анімації */
+  .animate-wave-1,
+  .animate-wave-2,
+  .animate-wave-3,
+  .audio-playing-indicator::before,
+  .verse-now-playing::before {
+    animation: none !important;
+  }
 }
