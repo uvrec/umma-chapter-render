@@ -43,6 +43,7 @@ import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
 import { EkadashiFastingTimes } from "@/components/calendar/EkadashiFastingTimes";
 import { DailyRoutines } from "@/components/calendar/DailyRoutines";
+import { DayView } from "@/components/calendar/DayView";
 import {
   ChevronLeft,
   ChevronRight,
@@ -60,6 +61,8 @@ import {
   Clock,
   Timer,
   UtensilsCrossed,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import { format } from "date-fns";
 import { uk } from "date-fns/locale";
@@ -74,6 +77,9 @@ export default function VaishnavCalendar() {
   const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>(
     settings.location_id || undefined
   );
+
+  // Стан вигляду (місяць/день)
+  const [viewMode, setViewMode] = useState<'month' | 'day'>('month');
 
   // Обробка зміни локації
   const handleLocationChange = (locationId: string) => {
@@ -386,16 +392,20 @@ export default function VaishnavCalendar() {
       {/* Основний календар */}
       <Card>
         <CardHeader className="pb-2">
-          {/* Навігація по місяцях */}
+          {/* Навігація та перемикач виглядів */}
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={goToPreviousMonth}
-              aria-label={language === "ua" ? "Попередній місяць" : "Previous month"}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
+            {viewMode === 'month' ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToPreviousMonth}
+                aria-label={language === "ua" ? "Попередній місяць" : "Previous month"}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            ) : (
+              <div className="w-10" /> // Spacer for day view
+            )}
 
             <div className="flex items-center gap-3">
               <h2 className="text-xl font-semibold capitalize">
@@ -410,47 +420,83 @@ export default function VaishnavCalendar() {
                 <CalendarDays className="h-4 w-4 mr-1" />
                 {language === "ua" ? "Сьогодні" : "Today"}
               </Button>
+
+              {/* View toggle buttons */}
+              <div className="flex items-center gap-1 ml-2">
+                <Button
+                  variant={viewMode === 'month' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('month')}
+                  className="h-8 w-8 p-0"
+                  title={language === "ua" ? "Місяць" : "Month"}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'day' ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('day')}
+                  className="h-8 w-8 p-0"
+                  title={language === "ua" ? "День" : "Day"}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={goToNextMonth}
-              aria-label={language === "ua" ? "Наступний місяць" : "Next month"}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
+            {viewMode === 'month' ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToNextMonth}
+                aria-label={language === "ua" ? "Наступний місяць" : "Next month"}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            ) : (
+              <div className="w-10" /> // Spacer for day view
+            )}
           </div>
         </CardHeader>
 
         <CardContent>
-          {isLoadingMonth ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-7 gap-1">
-                {weekDays.map((day) => (
-                  <div
-                    key={day}
-                    className="text-center text-sm font-medium text-muted-foreground py-2"
-                  >
-                    {day}
-                  </div>
-                ))}
+          {viewMode === 'month' ? (
+            // Month View
+            isLoadingMonth ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-7 gap-1">
+                  {weekDays.map((day) => (
+                    <div
+                      key={day}
+                      className="text-center text-sm font-medium text-muted-foreground py-2"
+                    >
+                      {day}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: 35 }).map((_, i) => (
+                    <Skeleton key={i} className="h-24 rounded-lg" />
+                  ))}
+                </div>
               </div>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: 35 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 rounded-lg" />
-                ))}
-              </div>
-            </div>
-          ) : monthData ? (
-            <CalendarMonthView
-              monthData={monthData}
-              selectedDate={selectedDate}
-              onSelectDate={selectDate}
-              language={language}
-              weekDays={weekDays}
+            ) : monthData ? (
+              <CalendarMonthView
+                monthData={monthData}
+                selectedDate={selectedDate}
+                onSelectDate={selectDate}
+                language={language}
+                weekDays={weekDays}
+              />
+            ) : null
+          ) : (
+            // Day View
+            <DayView
+              initialDate={selectedDate}
+              events={selectedDateEvents}
+              onDateChange={selectDate}
             />
-          ) : null}
+          )}
         </CardContent>
       </Card>
 
