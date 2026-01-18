@@ -42,6 +42,7 @@ import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
 import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
 import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
 import { EkadashiFastingTimes } from "@/components/calendar/EkadashiFastingTimes";
+import { DailyRoutines } from "@/components/calendar/DailyRoutines";
 import {
   ChevronLeft,
   ChevronRight,
@@ -453,9 +454,14 @@ export default function VaishnavCalendar() {
         </CardContent>
       </Card>
 
-      {/* Події вибраної дати */}
-      {selectedDate && (selectedDateEvents.length > 0 || selectedDayPanchang) && (
-        <Card>
+      {/* Routines & Selected Date Events */}
+      <div className="grid lg:grid-cols-3 gap-4">
+        {/* Daily Routines Panel */}
+        <DailyRoutines selectedDate={selectedDate} className="lg:col-span-1" />
+
+        {/* Selected Date Events */}
+        {selectedDate && (selectedDateEvents.length > 0 || selectedDayPanchang) && (
+          <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg">
               {format(selectedDate, "d MMMM yyyy", {
@@ -568,7 +574,8 @@ export default function VaishnavCalendar() {
             )}
           </CardContent>
         </Card>
-      )}
+        )}
+      </div>
 
       {/* Детальна інформація про часи посту наступного екадаші */}
       {nextEkadashi && selectedLocation && (
