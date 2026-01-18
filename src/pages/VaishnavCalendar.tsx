@@ -44,6 +44,7 @@ import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
 import { EkadashiFastingTimes } from "@/components/calendar/EkadashiFastingTimes";
 import { DailyRoutines } from "@/components/calendar/DailyRoutines";
 import { DayView } from "@/components/calendar/DayView";
+import { DailyNotes } from "@/components/calendar/DailyNotes";
 import {
   ChevronLeft,
   ChevronRight,
@@ -500,14 +501,17 @@ export default function VaishnavCalendar() {
         </CardContent>
       </Card>
 
-      {/* Routines & Selected Date Events */}
+      {/* Routines, Notes & Selected Date Events */}
       <div className="grid lg:grid-cols-3 gap-4">
         {/* Daily Routines Panel */}
-        <DailyRoutines selectedDate={selectedDate} className="lg:col-span-1" />
+        <DailyRoutines selectedDate={selectedDate} />
+
+        {/* Daily Notes Panel */}
+        <DailyNotes selectedDate={selectedDate} />
 
         {/* Selected Date Events */}
         {selectedDate && (selectedDateEvents.length > 0 || selectedDayPanchang) && (
-          <Card className="lg:col-span-2">
+          <Card>
           <CardHeader>
             <CardTitle className="text-lg">
               {format(selectedDate, "d MMMM yyyy", {
