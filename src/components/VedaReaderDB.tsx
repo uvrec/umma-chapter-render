@@ -359,7 +359,7 @@ export const VedaReaderDB = () => {
     staleTime: 60_000,
     enabled: isCantoMode ? !!canto?.id : !!book?.id,
     queryFn: async () => {
-      const base = supabase.from("chapters").select("id, chapter_number").order("chapter_number");
+      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en").order("chapter_number");
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book!.id);
       const {
         data,
