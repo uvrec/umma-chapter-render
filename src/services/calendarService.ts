@@ -1,9 +1,17 @@
 /**
  * Vaishnava Calendar Service
  * Provides calendar data, ekadashi info, festivals, and user settings
+ *
+ * Uses static JSON data as primary source (reliable, complete)
+ * Falls back to Supabase for additional data
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import {
+  getEventsForDateRange as getStaticEventsForDateRange,
+  getNextEkadashiFromDate as getStaticNextEkadashi,
+  type CalendarEventData,
+} from "@/data/calendar";
 import type {
   CalendarEventDisplay,
   CalendarFilters,
@@ -35,15 +43,61 @@ import {
 import { uk } from "date-fns/locale";
 
 // ============================================
+// HELPER: Convert static data to CalendarEventDisplay
+// ============================================
+
+function convertStaticEventToDisplay(event: CalendarEventData, index: number): CalendarEventDisplay {
+  const typeColorMap: Record<string, string> = {
+    ekadashi: "#8B5CF6",    // Purple
+    festival: "#EF4444",     // Red
+    appearance: "#F59E0B",   // Amber
+    disappearance: "#6B7280", // Gray
+    parana: "#22C55E",       // Green
+    caturmasya: "#3B82F6",   // Blue
+    info: "#9CA3AF",         // Light gray
+  };
+
+  return {
+    event_id: `static-${event.date}-${index}`,
+    event_date: event.date,
+    event_type: event.type,
+    name_ua: event.name_ua,
+    name_en: event.name_en,
+    description_ua: event.fasting_note_ua,
+    description_en: event.fasting_note_en,
+    category_slug: event.type,
+    category_color: typeColorMap[event.type] || "#8B5CF6",
+    is_ekadashi: event.type === "ekadashi",
+    is_major: event.is_major || event.type === "ekadashi",
+    fasting_level: event.fasting || undefined,
+    parana_start: event.parana_start,
+    parana_end: event.parana_end || undefined,
+  };
+}
+
+// ============================================
 // CALENDAR EVENTS
 // ============================================
 
 /**
  * Get calendar events for a date range
+ * Uses static JSON data as primary source
  */
 export async function getCalendarEvents(
   filters: CalendarFilters
 ): Promise<CalendarEventDisplay[]> {
+  // First, try to get events from static JSON data (reliable source)
+  const staticEvents = getStaticEventsForDateRange(
+    filters.start_date,
+    filters.end_date,
+    "germany" // Default location - can be extended
+  );
+
+  if (staticEvents.length > 0) {
+    return staticEvents.map((event, index) => convertStaticEventToDisplay(event, index));
+  }
+
+  // Fallback to Supabase if no static data available
   try {
     const { data, error } = await (supabase as any).rpc("get_calendar_events", {
       p_start_date: filters.start_date,
@@ -122,11 +176,42 @@ export async function getTodayEvents(
 
 /**
  * Get next upcoming ekadashi
+ * Uses static JSON data as primary source
  */
 export async function getNextEkadashi(
   locationId?: string
 ): Promise<{ event: CalendarEventDisplay; days_until: number } | undefined> {
   const today = new Date();
+  const todayStr = format(today, "yyyy-MM-dd");
+
+  // First try static data
+  const staticNextEkadashi = getStaticNextEkadashi(todayStr, "germany");
+
+  if (staticNextEkadashi) {
+    const eventDate = new Date(staticNextEkadashi.date);
+    const daysUntil = Math.ceil(
+      (eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    return {
+      event: {
+        event_id: `static-ekadashi-${staticNextEkadashi.date}`,
+        event_date: staticNextEkadashi.date,
+        event_type: "ekadashi",
+        name_ua: staticNextEkadashi.name_ua,
+        name_en: staticNextEkadashi.name_en,
+        description_ua: staticNextEkadashi.fasting_note_ua,
+        description_en: staticNextEkadashi.fasting_note_en,
+        category_color: "#8B5CF6",
+        is_ekadashi: true,
+        is_major: true,
+        fasting_level: staticNextEkadashi.fasting || undefined,
+      },
+      days_until: daysUntil,
+    };
+  }
+
+  // Fallback to Supabase
   const endDate = addMonths(today, 1);
 
   try {
