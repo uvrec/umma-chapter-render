@@ -837,77 +837,73 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 className="mb-3"
               />
 
-              <div className="flex items-center justify-between gap-4">
-                {/* Track Info + Cover */}
-                <div 
-                  className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+              <div className="flex items-center gap-2 md:gap-4">
+                {/* Track Info + Cover - shrinks on mobile to give space for controls */}
+                <div
+                  className="flex items-center gap-2 md:gap-3 min-w-0 cursor-pointer flex-shrink md:flex-shrink-0 md:w-auto"
                   onClick={() => setIsExpanded(true)}
                 >
-                  <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
                     {currentTrack.coverImage ? (
-                      <img 
-                        src={currentTrack.coverImage} 
+                      <img
+                        src={currentTrack.coverImage}
                         alt={currentTrack.title}
                         className="w-full h-full object-cover"
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center">
-                        <Music className="w-6 h-6 text-primary-foreground/50" />
+                        <Music className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground/50" />
                       </div>
                     )}
                   </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-card-foreground truncate text-sm">
+
+                  <div className="min-w-0 hidden sm:block md:block">
+                    <p className="font-medium text-card-foreground truncate text-sm max-w-[120px] md:max-w-none">
                       {currentTrack.title_ua || currentTrack.title}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">
+                    <p className="text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">
                       {currentTrack.artist || currentTrack.subtitle || currentTrack.title_en || 'VedaVoice'}
                     </p>
                   </div>
-
-                  <button className="md:hidden text-muted-foreground">
-                    <ChevronUp className="w-5 h-5" />
-                  </button>
                 </div>
 
-                {/* Desktop Controls */}
-                <div className="hidden md:flex items-center gap-2">
-                  <button 
+                {/* Central Controls - visible on all devices */}
+                <div className="flex items-center justify-center gap-1 md:gap-2 flex-1">
+                  <button
                     onClick={prevTrack}
-                    className="p-2 rounded-full hover:bg-muted transition"
+                    className="p-1.5 md:p-2 rounded-full hover:bg-muted transition"
                   >
-                    <SkipBack className="w-5 h-5 text-card-foreground" />
+                    <SkipBack className="w-4 h-4 md:w-5 md:h-5 text-card-foreground" />
                   </button>
 
-                  <button 
+                  <button
                     onClick={togglePlay}
-                    className="p-2.5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
+                    className="p-2 md:p-2.5 rounded-full bg-primary text-primary-foreground hover:scale-105 transition"
                   >
                     {isPlaying ? (
-                      <Pause className="w-5 h-5" />
+                      <Pause className="w-5 h-5 md:w-5 md:h-5" />
                     ) : (
-                      <Play className="w-5 h-5 ml-0.5" />
+                      <Play className="w-5 h-5 md:w-5 md:h-5 ml-0.5" />
                     )}
                   </button>
 
-                  <button 
+                  <button
                     onClick={nextTrack}
-                    className="p-2 rounded-full hover:bg-muted transition"
+                    className="p-1.5 md:p-2 rounded-full hover:bg-muted transition"
                   >
-                    <SkipForward className="w-5 h-5 text-card-foreground" />
+                    <SkipForward className="w-4 h-4 md:w-5 md:h-5 text-card-foreground" />
                   </button>
                 </div>
 
-                {/* Volume (Desktop only) */}
-                <div className="hidden lg:flex items-center gap-2">
+                {/* Volume - visible on all devices but smaller on mobile */}
+                <div className="flex items-center gap-1 md:gap-2">
                   <button
                     onClick={toggleMute}
-                    className="text-muted-foreground hover:text-foreground transition"
+                    className="text-muted-foreground hover:text-foreground transition p-1"
                   >
                     {isMuted || volume === 0 ?
-                      <VolumeX className="w-5 h-5" /> :
-                      <Volume2 className="w-5 h-5" />
+                      <VolumeX className="w-4 h-4 md:w-5 md:h-5" /> :
+                      <Volume2 className="w-4 h-4 md:w-5 md:h-5" />
                     }
                   </button>
                   <input
@@ -916,32 +912,28 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     max="100"
                     value={volume}
                     onChange={(e) => changeVolume(Number(e.target.value))}
-                    className="w-20 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                    className="w-12 md:w-20 h-1 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
                   />
                 </div>
 
-                {/* Sleep Timer (Desktop) */}
-                <div className="hidden md:block">
+                {/* Sleep Timer - visible on all devices */}
+                <div className="flex-shrink-0">
                   <SleepTimerIndicator onClick={() => setShowSleepTimer(true)} />
                 </div>
 
-                {/* Time */}
-                <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
+                {/* Time - hidden on mobile, shown on tablet+ */}
+                <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
                   <span>{formatTime(currentTime)}</span>
                   <span>/</span>
                   <span>{formatTime(duration)}</span>
                 </div>
 
-                {/* Mobile Play Button */}
+                {/* Expand button - mobile only */}
                 <button
-                  onClick={togglePlay}
-                  className="md:hidden p-2 rounded-full bg-primary text-primary-foreground"
+                  onClick={() => setIsExpanded(true)}
+                  className="md:hidden p-1.5 rounded-full hover:bg-muted transition text-muted-foreground"
                 >
-                  {isPlaying ? (
-                    <Pause className="w-6 h-6" />
-                  ) : (
-                    <Play className="w-6 h-6 ml-0.5" />
-                  )}
+                  <ChevronUp className="w-5 h-5" />
                 </button>
               </div>
             </div>
