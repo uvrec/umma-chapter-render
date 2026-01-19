@@ -356,8 +356,8 @@ export interface RagaFilters {
 /**
  * Перетворює час раги на читабельний формат
  */
-export function formatRagaTime(time: string, language: 'ua' | 'en' = 'ua'): string {
-  if (language === 'ua') {
+export function formatRagaTime(time: string, language: 'uk' | 'en' = 'uk'): string {
+  if (language === 'uk') {
     return TIME_NAMES_UA[time] || time;
   }
   return time.replace(/([A-Z])/g, ' $1').replace(/(\d+)-(\d+)/, ' ($1:00-$2:00)').trim();
@@ -366,8 +366,8 @@ export function formatRagaTime(time: string, language: 'ua' | 'en' = 'ua'): stri
 /**
  * Перетворює джаті на читабельний формат
  */
-export function formatJati(jati: string, language: 'ua' | 'en' = 'ua'): string {
-  if (language === 'ua') {
+export function formatJati(jati: string, language: 'uk' | 'en' = 'uk'): string {
+  if (language === 'uk') {
     return JATI_NAMES_UA[jati] || jati;
   }
   return jati;

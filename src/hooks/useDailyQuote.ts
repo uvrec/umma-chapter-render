@@ -252,11 +252,11 @@ export function useDailyQuote() {
   // Форматуємо цитату для відображення
   const formattedQuote = quote ? {
     // Очищаємо текст від HTML тегів (<p>, </p> тощо)
-    text: stripParagraphTags(language === 'ua'
+    text: stripParagraphTags(language === 'uk'
       ? (quote.quote_type === 'verse' ? quote.verse?.translation_ua : quote.quote_ua) || ''
       : (quote.quote_type === 'verse' ? quote.verse?.translation_en : quote.quote_en) || ''),
 
-    author: language === 'ua' ? quote.author_ua : quote.author_en,
+    author: language === 'uk' ? quote.author_ua : quote.author_en,
 
     source: quote.quote_type === 'verse' && quote.verse?.chapter
       ? (() => {
@@ -266,7 +266,7 @@ export function useDailyQuote() {
           const cantoBook = quote.verse.chapter.canto?.book;
           const book = (directBook?.title_ua ? directBook : null) || (cantoBook?.title_ua ? cantoBook : null);
 
-          const bookTitle = book?.[language === 'ua' ? 'title_ua' : 'title_en'] || book?.title_ua || '';
+          const bookTitle = book?.[language === 'uk' ? 'title_ua' : 'title_en'] || book?.title_ua || '';
           const chapterNumber = quote.verse.chapter.chapter_number;
           const verseNumber = quote.verse.verse_number;
 
@@ -278,7 +278,7 @@ export function useDailyQuote() {
 
           return `${bookTitle} ${chapterNumber}.${verseNumber}`;
         })()
-      : (language === 'ua' ? quote.source_ua : quote.source_en),
+      : (language === 'uk' ? quote.source_ua : quote.source_en),
 
     verseNumber: quote.quote_type === 'verse' ? quote.verse?.verse_number : null,
     sanskrit: quote.quote_type === 'verse' ? quote.verse?.sanskrit_ua : null,

@@ -506,7 +506,7 @@ export async function getVedicPortrait(birthData: BirthData): Promise<VedicPortr
   }
 
   // Комбінована інтерпретація
-  const combined_interpretation_ua = generateCombinedInterpretation(jyotish, numerology, 'ua');
+  const combined_interpretation_ua = generateCombinedInterpretation(jyotish, numerology, 'uk');
   const combined_interpretation_en = generateCombinedInterpretation(jyotish, numerology, 'en');
 
   return {
@@ -524,10 +524,10 @@ export async function getVedicPortrait(birthData: BirthData): Promise<VedicPortr
 function generateCombinedInterpretation(
   jyotish: JyotishReading,
   numerology: VedicPortrait['numerology'],
-  lang: 'ua' | 'en'
+  lang: 'uk' | 'en'
 ): string {
   if (!numerology) {
-    return lang === 'ua'
+    return lang === 'uk'
       ? jyotish.personality_ua
       : jyotish.personality_en;
   }
@@ -535,8 +535,8 @@ function generateCombinedInterpretation(
   const nakshatra = jyotish.janma_nakshatra;
   const rashi = jyotish.chandra_rashi;
 
-  if (lang === 'ua') {
-    return `Ваш ведичний портрет: накшатра ${nakshatra.name_ua} у ${rashi.name_ua} (${rashi.western_name_ua}) поєднується з нумерологічним числом підсумку ${numerology.lifeNumber}. Формула ${numerology.notation} вказує на ${getLifeNumberTheme(numerology.lifeNumber, 'ua')}. ${nakshatra.description_ua}`;
+  if (lang === 'uk') {
+    return `Ваш ведичний портрет: накшатра ${nakshatra.name_ua} у ${rashi.name_ua} (${rashi.western_name_ua}) поєднується з нумерологічним числом підсумку ${numerology.lifeNumber}. Формула ${numerology.notation} вказує на ${getLifeNumberTheme(numerology.lifeNumber, 'uk')}. ${nakshatra.description_ua}`;
   }
 
   return `Your Vedic portrait: ${nakshatra.name_en} nakshatra in ${rashi.name_en} (${rashi.western_name_en}) combines with life number ${numerology.lifeNumber}. Formula ${numerology.notation} indicates ${getLifeNumberTheme(numerology.lifeNumber, 'en')}. ${nakshatra.description_en}`;
@@ -545,7 +545,7 @@ function generateCombinedInterpretation(
 /**
  * Отримати тему числа підсумку
  */
-function getLifeNumberTheme(lifeNumber: number, lang: 'ua' | 'en'): string {
+function getLifeNumberTheme(lifeNumber: number, lang: 'uk' | 'en'): string {
   const themes: Record<number, { ua: string; en: string }> = {
     1: { ua: 'шлях лідерства та незалежності', en: 'path of leadership and independence' },
     2: { ua: 'шлях партнерства та дипломатії', en: 'path of partnership and diplomacy' },
@@ -558,7 +558,7 @@ function getLifeNumberTheme(lifeNumber: number, lang: 'ua' | 'en'): string {
     9: { ua: 'шлях мудрості та гуманізму', en: 'path of wisdom and humanitarianism' },
   };
 
-  return themes[lifeNumber]?.[lang] || (lang === 'ua' ? 'унікальний життєвий шлях' : 'unique life path');
+  return themes[lifeNumber]?.[lang] || (lang === 'uk' ? 'унікальний життєвий шлях' : 'unique life path');
 }
 
 // ============================================

@@ -268,7 +268,7 @@ export async function replaceChapterVerses(
   supabase: SupabaseClient,
   chapterId: string,
   verses: ParsedVerse[],
-  _opts?: { language?: "ua" | "en" },
+  _opts?: { language?: "uk" | "en" },
 ) {
   const { error: delErr } = await supabase.from("verses").delete().eq("chapter_id", chapterId);
   if (delErr) {

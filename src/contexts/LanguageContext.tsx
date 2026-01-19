@@ -17,11 +17,6 @@ const NON_LOCALIZED_PREFIXES = ['/admin', '/auth', '/api', '/404'];
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const stored = localStorage.getItem('language');
-    // Migration: convert old 'ua' to 'uk'
-    if (stored === 'ua') {
-      localStorage.setItem('language', 'uk');
-      return 'uk';
-    }
     return (stored === 'uk' || stored === 'en') ? stored : 'uk';
   });
 

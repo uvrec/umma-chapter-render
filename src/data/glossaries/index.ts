@@ -14,14 +14,14 @@ import { type GlossaryTermData } from "@/components/book/BookGlossary";
 /**
  * Get glossary for a specific book by slug
  * @param bookSlug - The book's slug identifier
- * @param language - "ua" or "en"
+ * @param language - "uk" or "en"
  * @returns Array of glossary terms for the book
  */
-export const getGlossaryForBook = (bookSlug: string, language: string = "ua"): GlossaryTermData[] => {
+export const getGlossaryForBook = (bookSlug: string, language: string = "uk"): GlossaryTermData[] => {
   switch (bookSlug) {
     case "iso":
     case "sri-isopanishad":
-      return language === "ua" ? ISO_GLOSSARY_UA : ISO_GLOSSARY_EN;
+      return language === "uk" ? ISO_GLOSSARY_UA : ISO_GLOSSARY_EN;
 
     case "raja-vidya":
       return RAJA_VIDYA_GLOSSARY_UA;

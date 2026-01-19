@@ -16,12 +16,6 @@ export function LanguageWrapper() {
   const { lang } = useParams<{ lang: string }>();
   const { setLanguage, language } = useLanguage();
 
-  // Handle migration from old 'ua' URLs to 'uk'
-  if (lang === 'ua') {
-    const currentPath = window.location.pathname.replace(/^\/ua/, '');
-    return <Navigate to={`/uk${currentPath || '/'}`} replace />;
-  }
-
   // Validate language parameter
   if (!isValidLang(lang)) {
     // Invalid language - redirect to current language

@@ -439,7 +439,7 @@ export function useCalendarEventFasting(
     fasting_level?: string;
   } | null,
   location: GeoLocation | null,
-  language: 'ua' | 'en' = 'ua',
+  language: 'uk' | 'en' = 'uk',
   options: UseEkadashiFastingOptions = {}
 ): {
   fastingTimes: VaishnavEventFastingTimes | null;
@@ -472,7 +472,7 @@ export function useCalendarEventFasting(
     return 'half';
   }, [event?.fasting_level]);
 
-  const eventName = language === 'ua' ? event?.name_ua : event?.name_en;
+  const eventName = language === 'uk' ? event?.name_ua : event?.name_en;
 
   return useVaishnavEventFasting(
     eventDate,

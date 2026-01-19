@@ -114,10 +114,10 @@ function cleanPDFText(text: string): string {
 /**
  * Розпізнає мову тексту (en/ua)
  */
-function detectLanguage(text: string): 'en' | 'ua' {
+function detectLanguage(text: string): 'en' | 'uk' {
   // Українські літери
   const ukrainianRegex = /[а-яіїєґА-ЯІЇЄҐ]/;
-  return ukrainianRegex.test(text) ? 'ua' : 'en';
+  return ukrainianRegex.test(text) ? 'uk' : 'en';
 }
 
 /**
@@ -140,7 +140,7 @@ export function parseStructuredVerses(lines: string[]): StructuredVerse[] {
         currentVerse.sanskrit = blockText;
         break;
       case 'transliteration':
-        if (lang === 'ua') {
+        if (lang === 'uk') {
           currentVerse.transliteration_ua = blockText;
         } else {
           currentVerse.transliteration_en = blockText;
@@ -151,21 +151,21 @@ export function parseStructuredVerses(lines: string[]): StructuredVerse[] {
         }
         break;
       case 'synonyms':
-        if (lang === 'ua') {
+        if (lang === 'uk') {
           currentVerse.synonyms_ua = blockText;
         } else {
           currentVerse.synonyms_en = blockText;
         }
         break;
       case 'translation':
-        if (lang === 'ua') {
+        if (lang === 'uk') {
           currentVerse.translation_ua = blockText;
         } else {
           currentVerse.translation_en = blockText;
         }
         break;
       case 'commentary':
-        if (lang === 'ua') {
+        if (lang === 'uk') {
           currentVerse.commentary_ua = blockText;
         } else {
           currentVerse.commentary_en = blockText;

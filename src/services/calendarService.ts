@@ -796,10 +796,10 @@ export function saveLocalCalendarSettings(
  */
 export function formatCalendarDate(
   date: Date | string,
-  locale: "ua" | "en" = "ua"
+  locale: "uk" | "en" = "uk"
 ): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return format(d, "d MMMM yyyy", { locale: locale === "ua" ? uk : undefined });
+  return format(d, "d MMMM yyyy", { locale: locale === "uk" ? uk : undefined });
 }
 
 /**
@@ -807,10 +807,10 @@ export function formatCalendarDate(
  */
 export function getMonthName(
   month: number,
-  locale: "ua" | "en" = "ua"
+  locale: "uk" | "en" = "uk"
 ): string {
   const date = new Date(2024, month, 1);
-  return format(date, "LLLL", { locale: locale === "ua" ? uk : undefined });
+  return format(date, "LLLL", { locale: locale === "uk" ? uk : undefined });
 }
 
 /**

@@ -72,18 +72,18 @@ export function useMonthEkadashis(
  */
 export function ekadashiToCalendarEvent(
   ekadashi: CalculatedEkadashi,
-  language: 'ua' | 'en'
+  language: 'uk' | 'en'
 ): CalendarEventDisplay {
   const pakshaName = {
     shukla: { ua: 'Шукла', en: 'Shukla' },
     krishna: { ua: 'Крішна', en: 'Krishna' },
   };
 
-  const name = language === 'ua'
+  const name = language === 'uk'
     ? `${pakshaName[ekadashi.paksha].ua} Екадаші`
     : `${pakshaName[ekadashi.paksha].en} Ekadashi`;
 
-  const description = language === 'ua'
+  const description = language === 'uk'
     ? `Екадаші ${pakshaName[ekadashi.paksha].ua} пакші. Піст від зернових.`
     : `Ekadashi of ${pakshaName[ekadashi.paksha].en} paksha. Fast from grains.`;
 
@@ -111,7 +111,7 @@ export function useCalendarWithEkadashis(
   month: number,
   location: GeoLocation | null,
   dbEvents: CalendarEventDisplay[],
-  language: 'ua' | 'en'
+  language: 'uk' | 'en'
 ) {
   const { ekadashis, isLoading } = useMonthEkadashis(year, month, location);
 
