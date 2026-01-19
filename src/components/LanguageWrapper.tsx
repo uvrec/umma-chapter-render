@@ -1,0 +1,58 @@
+import { useEffect } from 'react';
+import { Outlet, useParams, Navigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+type ValidLang = 'ua' | 'en';
+
+const isValidLang = (lang: string | undefined): lang is ValidLang => {
+  return lang === 'ua' || lang === 'en';
+};
+
+/**
+ * Wrapper component that extracts language from URL and syncs with context.
+ * Used as a layout route for all localized pages.
+ */
+export function LanguageWrapper() {
+  const { lang } = useParams<{ lang: string }>();
+  const { setLanguage, language } = useLanguage();
+
+  // Validate language parameter
+  if (!isValidLang(lang)) {
+    // Invalid language - redirect to current language
+    const currentPath = window.location.pathname.replace(/^\/[^/]+/, '');
+    return <Navigate to={`/${language}${currentPath || '/'}`} replace />;
+  }
+
+  // Sync URL language with context
+  useEffect(() => {
+    if (lang && lang !== language) {
+      setLanguage(lang);
+    }
+  }, [lang, language, setLanguage]);
+
+  return <Outlet />;
+}
+
+/**
+ * Redirects from root to language-prefixed path.
+ * Uses current language from context (which reads from localStorage).
+ */
+export function LanguageRedirect() {
+  const { language } = useLanguage();
+  return <Navigate to={`/${language}/`} replace />;
+}
+
+/**
+ * Redirects any path without language prefix to language-prefixed version.
+ */
+export function PathLanguageRedirect() {
+  const { language } = useLanguage();
+  const path = window.location.pathname;
+
+  // Don't redirect admin, auth, api paths
+  if (path.startsWith('/admin') || path.startsWith('/auth') || path.startsWith('/api')) {
+    return null;
+  }
+
+  return <Navigate to={`/${language}${path}`} replace />;
+}
