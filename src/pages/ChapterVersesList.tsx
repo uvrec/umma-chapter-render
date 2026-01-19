@@ -57,7 +57,8 @@ export const ChapterVersesList = () => {
   const chapterNumber = params.chapterNumber ?? (isCantoBook ? params.p2 : params.p1);
 
   const {
-    language
+    language,
+    getLocalizedPath
   } = useLanguage();
   const navigate = useNavigate();
   const {
@@ -218,15 +219,15 @@ export const ChapterVersesList = () => {
   const isLoading = isLoadingChapter || isLoadingVersesMain || isLoadingVersesFallback;
   const getVerseUrl = (verseNumber: string) => {
     if (isCantoMode) {
-      return `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
+      return getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNumber}`);
     }
-    return `/lib/${bookId}/${chapterNumber}/${verseNumber}`;
+    return getLocalizedPath(`/lib/${bookId}/${chapterNumber}/${verseNumber}`);
   };
   const handleBack = () => {
     if (isCantoMode) {
-      navigate(`/lib/${bookId}/${cantoNumber}`);
+      navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}`));
     } else {
-      navigate(`/lib/${bookId}`);
+      navigate(getLocalizedPath(`/lib/${bookId}`));
     }
   };
   const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
@@ -294,9 +295,9 @@ export const ChapterVersesList = () => {
   }, [effectiveChapterObj]);
   const handleNavigate = (chapterNum: number) => {
     if (isCantoMode) {
-      navigate(`/lib/${bookId}/${cantoNumber}/${chapterNum}`);
+      navigate(getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`));
     } else {
-      navigate(`/lib/${bookId}/${chapterNum}`);
+      navigate(getLocalizedPath(`/lib/${bookId}/${chapterNum}`));
     }
   };
   const readerTextStyle = {
