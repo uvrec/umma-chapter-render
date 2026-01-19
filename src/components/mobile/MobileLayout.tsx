@@ -53,8 +53,8 @@ export function MobileLayout({
           onNext={onNext}
         />
       )}
-      {/* Add RIGHT padding for spine navigation (Neu Bible style - spine on right) */}
-      <div className={!hideSpine ? "pr-16" : ""}>
+      {/* Add LEFT padding for spine navigation (spine on left) */}
+      <div className={!hideSpine ? "pl-16" : ""}>
         {children}
       </div>
     </div>

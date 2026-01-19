@@ -18,6 +18,7 @@ import DOMPurify from "dompurify";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { addSanskritLineBreaks } from "@/utils/text/lineBreaks";
 import { parseSynonymPairs } from "@/utils/glossaryParser";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { applyDropCap } from "@/utils/text/dropCap";
 import { useAudioSyncSimple } from "@/hooks/useAudioSync";
 
@@ -125,6 +126,7 @@ export const VerseCard = ({
   nextLabel,
 }: VerseCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Ref для запобігання подвійному спрацюванню на мобільних (touch + click)
   const glossaryNavigationRef = useRef<boolean>(false);
@@ -310,7 +312,7 @@ export const VerseCard = ({
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
-              <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
+              <span className="font-semibold text-2xl md:text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
                 ВІРШ {verseNumber}
               </span>
             )}
@@ -402,8 +404,8 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ */}
-        {onPrevVerse && onNextVerse && (
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {onPrevVerse && onNextVerse && !isMobile && (
           <div className="flex items-center justify-between mb-8">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
