@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { queryClient } from "@/lib/queryClient";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { lazy, Suspense } from "react";
+import { LoadingFallback } from "@/components/LoadingFallback";
 
 import SiteBanners from "@/components/SiteBanners";
 import { ChapterVersesList } from "@/pages/ChapterVersesList";
@@ -19,13 +21,75 @@ import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
 import { AudioProvider as ModernAudioProvider } from "@/contexts/ModernAudioContext";
 import { ModernGlobalPlayer } from "@/components/ModernGlobalPlayer";
 
-import AdminBanners from "@/pages/admin/AdminBanners";
-import AdminAudiobooks from "@/pages/admin/AdminAudiobooks";
-import LectureImport from "@/pages/admin/LectureImport";
-import LetterImport from "@/pages/admin/LetterImport";
-import LecturesManager from "@/pages/admin/LecturesManager";
-import LettersManager from "@/pages/admin/LettersManager";
+// ============================================================
+// LAZY LOADED ADMIN PAGES (завантажуються тільки при потребі)
+// ============================================================
+const AdminBanners = lazy(() => import("@/pages/admin/AdminBanners"));
+const AdminAudiobooks = lazy(() => import("@/pages/admin/AdminAudiobooks"));
+const LectureImport = lazy(() => import("@/pages/admin/LectureImport"));
+const LetterImport = lazy(() => import("@/pages/admin/LetterImport"));
+const LecturesManager = lazy(() => import("@/pages/admin/LecturesManager"));
+const LettersManager = lazy(() => import("@/pages/admin/LettersManager"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const NormalizeTexts = lazy(() => import("./pages/admin/NormalizeTexts"));
+const Books = lazy(() => import("./pages/admin/Books"));
+const ScriptureManager = lazy(() => import("./pages/admin/ScriptureManager"));
+const Chapters = lazy(() => import("./pages/admin/Chapters"));
+const AddEditBook = lazy(() => import("./pages/admin/AddEditBook"));
+const AddEditVerse = lazy(() => import("./pages/admin/AddEditVerse"));
+const Cantos = lazy(() => import("./pages/admin/Cantos"));
+const AddEditCanto = lazy(() => import("./pages/admin/AddEditCanto"));
+const IntroChapters = lazy(() => import("./pages/admin/IntroChapters"));
+const AddEditIntroChapter = lazy(() => import("./pages/admin/AddEditIntroChapter"));
+const BlogPosts = lazy(() => import("./pages/admin/BlogPosts"));
+const AddEditBlogPost = lazy(() => import("./pages/admin/AddEditBlogPost"));
+const BlogCategories = lazy(() => import("./pages/admin/BlogCategories"));
+const BlogTags = lazy(() => import("./pages/admin/BlogTags"));
+const AudioCategories = lazy(() => import("./pages/admin/AudioCategories"));
+const AudioPlaylists = lazy(() => import("./pages/admin/AudioPlaylists"));
+const AudioPlaylistEdit = lazy(() => import("./pages/admin/AudioPlaylistEdit"));
+const UniversalImportFixed = lazy(() => import("./pages/admin/UniversalImportFixed"));
+const BBTImport = lazy(() => import("./pages/admin/BBTImportUniversal"));
+const FixRLSPolicies = lazy(() => import("./pages/admin/FixRLSPoliciesNew"));
+const Pages = lazy(() => import("./pages/admin/Pages"));
+const EditPage = lazy(() => import("./pages/admin/EditPage"));
+const StaticPages = lazy(() => import("./pages/admin/StaticPages"));
+const LRCEditorPage = lazy(() => import("./pages/admin/LRCEditorPage"));
+const BookExport = lazy(() => import("./pages/admin/BookExport"));
+const MergeNoiChapters = lazy(() => import("./pages/admin/MergeNoiChapters"));
+const Highlights = lazy(() => import("./pages/admin/Highlights"));
+const NumCal = lazy(() => import("./pages/admin/NumCal"));
 
+// ============================================================
+// LAZY LOADED HEAVY PAGES (великі сторінки)
+// ============================================================
+const Chat = lazy(() => import("./pages/Chat"));
+const LocalChat = lazy(() => import("./pages/LocalChat"));
+const KnowledgeCompiler = lazy(() => import("./pages/KnowledgeCompiler"));
+const TransliterationTool = lazy(() => import("./pages/TransliterationTool"));
+const JyotishCalculator = lazy(() => import("./pages/tools/JyotishCalculator"));
+const RagaExplorer = lazy(() => import("./pages/tools/RagaExplorer"));
+const VaishnavCalendar = lazy(() => import("./pages/VaishnavCalendar"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const GlossaryDB = lazy(() => import("./pages/GlossaryDB"));
+const SynonymsSearch = lazy(() => import("./pages/SynonymsSearch"));
+const SanskritDictionary = lazy(() => import("./pages/SanskritDictionary"));
+const Numerology = lazy(() => import("./pages/tools/Numerology"));
+const ScriptLearning = lazy(() => import("./pages/tools/ScriptLearning"));
+const TextNormalization = lazy(() => import("./pages/tools/TextNormalization"));
+const TimelinePage = lazy(() => import("./pages/TimelinePage"));
+const GVReferences = lazy(() => import("./pages/GVReferences"));
+const EkadashiList = lazy(() => import("./pages/EkadashiList"));
+const EkadashiDetail = lazy(() => import("./pages/EkadashiDetail"));
+const TattvasIndex = lazy(() => import("./pages/TattvasIndex"));
+const TattvaPage = lazy(() => import("./pages/TattvaPage"));
+const ReadingStatsPage = lazy(() => import("./pages/ReadingStatsPage"));
+const BookSearch = lazy(() => import("./pages/BookSearch"));
+const Quotes = lazy(() => import("./pages/Quotes"));
+
+// ============================================================
+// STATIC IMPORTS (критичні сторінки, завантажуються одразу)
+// ============================================================
 import { NewHome } from "./pages/NewHome";
 import NotFound from "./pages/NotFound";
 import { Library } from "./pages/Library";
@@ -40,55 +104,17 @@ import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
 import { PaymentSuccess } from "./pages/payment/PaymentSuccess";
-// Glossary.tsx removed - using GlossaryDB instead
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
 import { Lectures } from "./pages/audio/Lectures";
 import { Music } from "./pages/audio/Music";
 import { Audiobooks } from "./pages/audio/Audiobooks";
 import { AudiobookView } from "./pages/audio/AudiobookView";
 import Auth from "./pages/Auth";
-import TransliterationTool from "./pages/TransliterationTool";
-import Numerology from "./pages/tools/Numerology";
-import ScriptLearning from "./pages/tools/ScriptLearning";
-import TextNormalization from "./pages/tools/TextNormalization";
-import JyotishCalculator from "./pages/tools/JyotishCalculator";
-import RagaExplorer from "./pages/tools/RagaExplorer";
-import KnowledgeCompiler from "./pages/KnowledgeCompiler";
-import SynonymsSearch from "./pages/SynonymsSearch";
-import SanskritDictionary from "./pages/SanskritDictionary";
-import Dashboard from "./pages/admin/Dashboard";
-import NormalizeTexts from "./pages/admin/NormalizeTexts";
-import Books from "./pages/admin/Books";
-import ScriptureManager from "./pages/admin/ScriptureManager";
-import Chapters from "./pages/admin/Chapters";
-import AddEditBook from "./pages/admin/AddEditBook";
-import AddEditVerse from "./pages/admin/AddEditVerse";
 import { VedaReaderDB } from "./components/VedaReaderDB";
-import GlossaryDB from "./pages/GlossaryDB";
 import { BookOverview } from "./pages/BookOverview";
 import CantoOverview from "./pages/CantoOverview";
 import { IntroChapter } from "./pages/IntroChapter";
-import Cantos from "./pages/admin/Cantos";
-import AddEditCanto from "./pages/admin/AddEditCanto";
-import IntroChapters from "./pages/admin/IntroChapters";
-import AddEditIntroChapter from "./pages/admin/AddEditIntroChapter";
-import BlogPosts from "./pages/admin/BlogPosts";
-import AddEditBlogPost from "./pages/admin/AddEditBlogPost";
-import BlogCategories from "./pages/admin/BlogCategories";
-import BlogTags from "./pages/admin/BlogTags";
-import AudioCategories from "./pages/admin/AudioCategories";
-import AudioPlaylists from "./pages/admin/AudioPlaylists";
-import AudioPlaylistEdit from "./pages/admin/AudioPlaylistEdit";
-import UniversalImportFixed from "./pages/admin/UniversalImportFixed";
-import BBTImport from "./pages/admin/BBTImportUniversal";
-import FixRLSPolicies from "./pages/admin/FixRLSPoliciesNew";
-import Pages from "./pages/admin/Pages";
-import EditPage from "./pages/admin/EditPage";
-import StaticPages from "./pages/admin/StaticPages";
-import LRCEditorPage from "./pages/admin/LRCEditorPage";
-import BookExport from "./pages/admin/BookExport";
 import { NoIRedirect } from "./pages/NoIRedirect";
 import { LibOneParamRouter, LibTwoParamRouter, LibThreeParamRouter } from "./components/LibRouter";
 import { LanguageWrapper, LanguageRedirect } from "./components/LanguageWrapper";
@@ -100,7 +126,6 @@ import {
   VedaReaderCantoChapterRedirect,
   VedaReaderCantoVerseRedirect,
 } from "./components/VedaReaderRedirects";
-import MergeNoiChapters from "./pages/admin/MergeNoiChapters";
 import { PageView } from "./pages/PageView";
 import { BookAuthorPage } from "./pages/book/BookAuthorPage";
 import { BookPronunciationPage } from "./pages/book/BookPronunciationPage";
@@ -111,21 +136,7 @@ import { BookSettingsRoutePage } from "./pages/book/BookSettingsRoutePage";
 import { BookUserContentPage } from "./pages/book/BookUserContentPage";
 import { BookGalleriesPage } from "./pages/book/BookGalleriesPage";
 import { UserContentProvider } from "./contexts/UserContentContext";
-import Highlights from "./pages/admin/Highlights";
-import NumCal from "./pages/admin/NumCal";
 import Install from "./pages/Install";
-import BookSearch from "./pages/BookSearch";
-import Chat from "./pages/Chat";
-import LocalChat from "./pages/LocalChat";
-import Quotes from "./pages/Quotes";
-import TattvasIndex from "./pages/TattvasIndex";
-import TattvaPage from "./pages/TattvaPage";
-import ReadingStatsPage from "./pages/ReadingStatsPage";
-import TimelinePage from "./pages/TimelinePage";
-import GVReferences from "./pages/GVReferences";
-import VaishnavCalendar from "./pages/VaishnavCalendar";
-import EkadashiList from "./pages/EkadashiList";
-import EkadashiDetail from "./pages/EkadashiDetail";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
 import { UnifiedSearch, useUnifiedSearch } from "./components/UnifiedSearch";
@@ -149,6 +160,7 @@ function AppContent() {
     <>
       <BrowserRouter>
         <MobileLayout>
+        <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* ============================================================
               ROOT → LANGUAGE REDIRECT
@@ -417,6 +429,7 @@ function AppContent() {
           <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
         </MobileLayout>
 
         {/* Глобальні компоненти */}
