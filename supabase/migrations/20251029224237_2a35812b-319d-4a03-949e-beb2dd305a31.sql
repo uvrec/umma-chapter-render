@@ -189,7 +189,7 @@ HAVING COUNT(CASE
 END) > 0;
 
 -- Drop and recreate verses_with_structure view
--- Note: display_blocks column may not exist in all environments
+-- Note: Using only core columns that definitely exist in all environments
 DROP VIEW IF EXISTS public.verses_with_structure;
 CREATE VIEW public.verses_with_structure
 WITH (security_invoker = true)
@@ -198,29 +198,22 @@ SELECT
   v.id,
   v.chapter_id,
   v.verse_number,
-  (v.sanskrit IS NOT NULL AND LENGTH(TRIM(v.sanskrit)) > 0)
-    OR (v.sanskrit_ua IS NOT NULL AND LENGTH(TRIM(v.sanskrit_ua)) > 0)
-    OR (v.sanskrit_en IS NOT NULL AND LENGTH(TRIM(v.sanskrit_en)) > 0) as has_sanskrit,
-  (v.transliteration IS NOT NULL AND LENGTH(TRIM(v.transliteration)) > 0)
-    OR (v.transliteration_ua IS NOT NULL AND LENGTH(TRIM(v.transliteration_ua)) > 0)
-    OR (v.transliteration_en IS NOT NULL AND LENGTH(TRIM(v.transliteration_en)) > 0) as has_transliteration,
-  (v.synonyms_ua IS NOT NULL AND LENGTH(TRIM(v.synonyms_ua)) > 0)
-    OR (v.synonyms_en IS NOT NULL AND LENGTH(TRIM(v.synonyms_en)) > 0) as has_synonyms,
-  (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
-    OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0) as has_translation,
-  (v.commentary_ua IS NOT NULL AND LENGTH(TRIM(v.commentary_ua)) > 0)
-    OR (v.commentary_en IS NOT NULL AND LENGTH(TRIM(v.commentary_en)) > 0) as has_commentary,
+  (v.sanskrit IS NOT NULL AND LENGTH(TRIM(v.sanskrit)) > 0) as has_sanskrit,
+  (v.transliteration IS NOT NULL AND LENGTH(TRIM(v.transliteration)) > 0) as has_transliteration,
+  (v.synonyms IS NOT NULL AND LENGTH(TRIM(v.synonyms)) > 0) as has_synonyms,
+  (v.translation IS NOT NULL AND LENGTH(TRIM(v.translation)) > 0) as has_translation,
+  (v.commentary IS NOT NULL AND LENGTH(TRIM(v.commentary)) > 0) as has_commentary,
   CASE
-    WHEN (v.sanskrit IS NOT NULL OR v.sanskrit_ua IS NOT NULL OR v.sanskrit_en IS NOT NULL)
-      AND (v.transliteration IS NOT NULL OR v.transliteration_ua IS NOT NULL OR v.transliteration_en IS NOT NULL)
-      AND (v.synonyms_ua IS NOT NULL OR v.synonyms_en IS NOT NULL)
-      AND (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
-      AND (v.commentary_ua IS NOT NULL OR v.commentary_en IS NOT NULL)
+    WHEN v.sanskrit IS NOT NULL
+      AND v.transliteration IS NOT NULL
+      AND v.synonyms IS NOT NULL
+      AND v.translation IS NOT NULL
+      AND v.commentary IS NOT NULL
     THEN 'full'
-    WHEN (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
-      AND (v.commentary_ua IS NOT NULL OR v.commentary_en IS NOT NULL)
+    WHEN v.translation IS NOT NULL
+      AND v.commentary IS NOT NULL
     THEN 'translation_commentary'
-    WHEN (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
+    WHEN v.translation IS NOT NULL
     THEN 'translation_only'
     ELSE 'incomplete'
   END as detected_structure
