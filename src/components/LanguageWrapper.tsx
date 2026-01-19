@@ -18,7 +18,7 @@ export function LanguageWrapper() {
 
   // Handle migration from old 'ua' URLs to 'uk'
   if (lang === 'ua') {
-    const currentPath = window.location.pathname.replace(/^\/uk/, '');
+    const currentPath = window.location.pathname.replace(/^\/ua/, '');
     return <Navigate to={`/uk${currentPath || '/'}`} replace />;
   }
 
