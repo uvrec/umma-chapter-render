@@ -45,12 +45,12 @@ const CATEGORY_INFO = {
 };
 
 function TattvaRow({ tattva, depth = 0 }: { tattva: Tattva; depth?: number }) {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const name = language === "ua" ? tattva.name_ua : tattva.name_en;
 
   return (
     <Link
-      to={`/tattva/${tattva.slug}`}
+      to={getLocalizedPath(`/tattva/${tattva.slug}`)}
       className={cn(
         "flex items-center justify-between py-3 px-4 -mx-4",
         "hover:bg-muted/50 transition-colors group",
@@ -136,7 +136,7 @@ function SearchResults({ query }: { query: string }) {
 }
 
 export function TattvasIndex() {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const { data: tattvas, isLoading } = useRootTattvas();
 
@@ -157,14 +157,14 @@ export function TattvasIndex() {
         <header className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
-              <Link to="/">
+              <Link to={getLocalizedPath("/")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
                   {t("Головна", "Home")}
                 </Button>
               </Link>
 
-              <Link to="/library">
+              <Link to={getLocalizedPath("/library")}>
                 <Button variant="ghost" size="sm" className="gap-2">
                   <BookOpen className="h-4 w-4" />
                   {t("Бібліотека", "Library")}

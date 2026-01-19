@@ -25,7 +25,8 @@ export const CantoOverview = () => {
 
   const {
     language,
-    t
+    t,
+    getLocalizedPath
   } = useLanguage();
   const {
     dualLanguageMode
@@ -101,10 +102,10 @@ export const CantoOverview = () => {
       <main className="container mx-auto px-4 py-8">
         <Breadcrumb items={[{
         label: t("Бібліотека", "Library"),
-        href: "/library"
+        href: getLocalizedPath("/library")
       }, {
         label: bookTitle || "",
-        href: `/lib/${bookId}`
+        href: getLocalizedPath(`/lib/${bookId}`)
       }, {
         label: `${t("Пісня", "Canto")} ${cantoNumber}: ${cantoTitle}`
       }]} />
@@ -124,7 +125,7 @@ export const CantoOverview = () => {
 
           return dualLanguageMode ?
           // Side-by-side для chapters
-          <Link key={chapter.id} to={`/lib/${bookId}/${cantoNumber}/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
@@ -137,7 +138,7 @@ export const CantoOverview = () => {
                   </div>
                 </Link> :
           // Одна мова для chapters
-          <Link key={chapter.id} to={`/lib/${bookId}/${cantoNumber}/${chapterNum}`} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
+          <Link key={chapter.id} to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNum}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-primary">
                       {t("Глава", "Chapter")} {chapterNum}

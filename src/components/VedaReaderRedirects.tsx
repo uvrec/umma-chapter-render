@@ -7,13 +7,15 @@
  */
 
 import { Navigate, useParams } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 /**
  * Редірект /veda-reader/:bookId → /lib/:bookId
  */
 export function VedaReaderBookRedirect() {
   const { bookId } = useParams<{ bookId: string }>();
-  return <Navigate to={`/lib/${bookId}`} replace />;
+  const { getLocalizedPath } = useLanguage();
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}`)} replace />;
 }
 
 /**
@@ -21,7 +23,8 @@ export function VedaReaderBookRedirect() {
  */
 export function VedaReaderChapterRedirect() {
   const { bookId, chapterNumber } = useParams<{ bookId: string; chapterNumber: string }>();
-  return <Navigate to={`/lib/${bookId}/${chapterNumber}`} replace />;
+  const { getLocalizedPath } = useLanguage();
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}/${chapterNumber}`)} replace />;
 }
 
 /**
@@ -33,7 +36,8 @@ export function VedaReaderVerseRedirect() {
     chapterNumber: string;
     verseNumber: string;
   }>();
-  return <Navigate to={`/lib/${bookId}/${chapterNumber}/${verseNumber}`} replace />;
+  const { getLocalizedPath } = useLanguage();
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}/${chapterNumber}/${verseNumber}`)} replace />;
 }
 
 /**
@@ -41,7 +45,8 @@ export function VedaReaderVerseRedirect() {
  */
 export function VedaReaderCantoRedirect() {
   const { bookId, cantoNumber } = useParams<{ bookId: string; cantoNumber: string }>();
-  return <Navigate to={`/lib/${bookId}/${cantoNumber}`} replace />;
+  const { getLocalizedPath } = useLanguage();
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}`)} replace />;
 }
 
 /**
@@ -53,7 +58,8 @@ export function VedaReaderCantoChapterRedirect() {
     cantoNumber: string;
     chapterNumber: string;
   }>();
-  return <Navigate to={`/lib/${bookId}/${cantoNumber}/${chapterNumber}`} replace />;
+  const { getLocalizedPath } = useLanguage();
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNumber}`)} replace />;
 }
 
 /**
@@ -67,6 +73,7 @@ export function VedaReaderCantoVerseRedirect() {
     verseNumber?: string;
     verseId?: string;
   }>();
+  const { getLocalizedPath } = useLanguage();
   const verse = verseNumber ?? verseId;
-  return <Navigate to={`/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verse}`} replace />;
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verse}`)} replace />;
 }
