@@ -88,7 +88,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   useEffect(() => {
     if (existingChapter?.title_uk || existingChapter?.title_en) {
       setOriginalTitles({
-        ua: existingChapter.title_uk,
+        uk: existingChapter.title_uk,
         en: existingChapter.title_en,
       });
     }

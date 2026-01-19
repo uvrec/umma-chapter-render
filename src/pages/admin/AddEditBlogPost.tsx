@@ -139,9 +139,9 @@ export default function AddEditBlogPost() {
       // Poetry audio URLs
       setAudioSanskritUrl(post.audio_sanskrit_url || "");
       setAudioTransliterationUrl(post.audio_transliteration_url || "");
-      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_uk_url || "");
+      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_ua_url || "");
       setAudioPoetryTranslationEnUrl(post.audio_poetry_translation_en_url || "");
-      setAudioCommentaryUaUrl(post.audio_commentary_uk_url || "");
+      setAudioCommentaryUaUrl(post.audio_commentary_ua_url || "");
       setAudioCommentaryEnUrl(post.audio_commentary_en_url || "");
     }
   }, [post]);
@@ -192,9 +192,9 @@ export default function AddEditBlogPost() {
         // Poetry audio URLs
         audio_sanskrit_url: audioSanskritUrl,
         audio_transliteration_url: audioTransliterationUrl,
-        audio_poetry_translation_uk_url: audioPoetryTranslationUaUrl,
+        audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
         audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-        audio_commentary_uk_url: audioCommentaryUaUrl,
+        audio_commentary_ua_url: audioCommentaryUaUrl,
         audio_commentary_en_url: audioCommentaryEnUrl,
       };
 
@@ -374,9 +374,9 @@ export default function AddEditBlogPost() {
       // Poetry audio URLs
       audio_sanskrit_url: audioSanskritUrl,
       audio_transliteration_url: audioTransliterationUrl,
-      audio_poetry_translation_uk_url: audioPoetryTranslationUaUrl,
+      audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
       audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-      audio_commentary_uk_url: audioCommentaryUaUrl,
+      audio_commentary_ua_url: audioCommentaryUaUrl,
       audio_commentary_en_url: audioCommentaryEnUrl,
     };
 

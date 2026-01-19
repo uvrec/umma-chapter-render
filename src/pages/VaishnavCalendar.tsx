@@ -105,19 +105,19 @@ export default function VaishnavCalendar() {
   const getGeoErrorMessage = (errorCode: string) => {
     const messages: Record<string, { uk: string; en: string }> = {
       PERMISSION_DENIED: {
-        ua: "Доступ до геолокації заборонено. Увімкніть дозвіл у налаштуваннях браузера.",
+        uk: "Доступ до геолокації заборонено. Увімкніть дозвіл у налаштуваннях браузера.",
         en: "Location access denied. Please enable location permissions.",
       },
       POSITION_UNAVAILABLE: {
-        ua: "Інформація про місцезнаходження недоступна.",
+        uk: "Інформація про місцезнаходження недоступна.",
         en: "Location information unavailable.",
       },
       TIMEOUT: {
-        ua: "Час очікування геолокації вичерпано.",
+        uk: "Час очікування геолокації вичерпано.",
         en: "Location request timed out.",
       },
       UNKNOWN: {
-        ua: "Не вдалося визначити місцезнаходження.",
+        uk: "Не вдалося визначити місцезнаходження.",
         en: "Failed to get location.",
       },
     };
