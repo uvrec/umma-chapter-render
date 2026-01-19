@@ -1,19 +1,35 @@
--- Enable RLS on remaining backup tables
-ALTER TABLE public.chapters_backup_20251014 ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.verses_backup_20251014 ENABLE ROW LEVEL SECURITY;
+-- Enable RLS on remaining backup tables (if they exist)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'chapters_backup_20251014') THEN
+    ALTER TABLE public.chapters_backup_20251014 ENABLE ROW LEVEL SECURITY;
+    DROP POLICY IF EXISTS "Only admins can access chapters_backup_20251014" ON public.chapters_backup_20251014;
+    CREATE POLICY "Only admins can access chapters_backup_20251014"
+    ON public.chapters_backup_20251014
+    FOR ALL
+    TO authenticated
+    USING (has_role(auth.uid(), 'admin'::app_role));
+    RAISE NOTICE 'RLS enabled on chapters_backup_20251014';
+  ELSE
+    RAISE NOTICE 'Table chapters_backup_20251014 does not exist, skipping...';
+  END IF;
+END $$;
 
--- Create admin-only policies for backup tables
-CREATE POLICY "Only admins can access chapters_backup_20251014"
-ON public.chapters_backup_20251014
-FOR ALL
-TO authenticated
-USING (has_role(auth.uid(), 'admin'::app_role));
-
-CREATE POLICY "Only admins can access verses_backup_20251014"
-ON public.verses_backup_20251014
-FOR ALL
-TO authenticated
-USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'verses_backup_20251014') THEN
+    ALTER TABLE public.verses_backup_20251014 ENABLE ROW LEVEL SECURITY;
+    DROP POLICY IF EXISTS "Only admins can access verses_backup_20251014" ON public.verses_backup_20251014;
+    CREATE POLICY "Only admins can access verses_backup_20251014"
+    ON public.verses_backup_20251014
+    FOR ALL
+    TO authenticated
+    USING (has_role(auth.uid(), 'admin'::app_role));
+    RAISE NOTICE 'RLS enabled on verses_backup_20251014';
+  ELSE
+    RAISE NOTICE 'Table verses_backup_20251014 does not exist, skipping...';
+  END IF;
+END $$;
 
 -- Fix security definer views - recreate them as SECURITY INVOKER
 -- These views should respect the RLS of the calling user, not bypass it
