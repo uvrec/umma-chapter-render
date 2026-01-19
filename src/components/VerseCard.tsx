@@ -146,7 +146,7 @@ export const VerseCard = ({
 
   // ✅ Назви блоків залежно від мови
   const blockLabels = {
-    ua: {
+    uk: {
       synonyms: "Послівний переклад",
       translation: "Літературний переклад",
       commentary: "Пояснення",
@@ -157,7 +157,7 @@ export const VerseCard = ({
       commentary: "Purport",
     },
   };
-  const labels = blockLabels[language];
+  const labels = blockLabels[language] || blockLabels.uk;
   const { playVerseWithChapterContext, currentTrack, togglePlay, isPlaying } = useAudio();
 
   // Check if this verse is currently playing
