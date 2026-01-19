@@ -202,7 +202,7 @@ COMMIT;
 -- ============================================================================
 --
 -- Пошук українською:
--- SELECT * FROM search_blog_posts('кришна свідомість', 'uk', 10, 0);
+-- SELECT * FROM search_blog_posts('Крішна свідомість', 'uk', 10, 0);
 --
 -- Пошук англійською:
 -- SELECT * FROM search_blog_posts('krishna consciousness', 'en', 10, 0);
@@ -211,4 +211,4 @@ COMMIT;
 -- SELECT * FROM search_blog_posts('mantra', 'all', 10, 0);
 --
 -- Підрахунок результатів для пагінації:
--- SELECT count_blog_search_results('кришна', 'uk');
+-- SELECT count_blog_search_results('Крішна', 'uk');
