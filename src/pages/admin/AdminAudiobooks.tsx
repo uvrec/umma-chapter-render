@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ interface AudiobooksPageSettings {
 export default function AdminAudiobooks() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const { toast } = useToast();
 
   const [settings, setSettings] = useState<AudiobooksPageSettings>({
@@ -61,7 +63,7 @@ export default function AdminAudiobooks() {
         description: "Тільки адміністратори можуть редагувати налаштування",
         variant: "destructive",
       });
-      navigate("/");
+      navigate(getLocalizedPath("/"));
     }
   };
 

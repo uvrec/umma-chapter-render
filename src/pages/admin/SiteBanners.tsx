@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +26,7 @@ type HeroSettings = {
 
 export default function SiteBanners() {
   const { user, isAdmin } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -167,7 +169,7 @@ export default function SiteBanners() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" asChild>
-                <Link to="/" target="_blank">
+                <Link to={getLocalizedPath("/")} target="_blank">
                   <Eye className="w-4 h-4 mr-2" />
                   Переглянути
                 </Link>

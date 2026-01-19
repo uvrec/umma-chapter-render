@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
 
   const [booksList, setBooksList] = useState<QuickBook[]>([]);
@@ -94,7 +96,7 @@ const Dashboard = () => {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate(getLocalizedPath("/"));
   };
 
   if (!user || !isAdmin) return null;
@@ -437,7 +439,7 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/">Головна сторінка</Link>
+                <Link to={getLocalizedPath("/")}>Головна сторінка</Link>
               </Button>
             </CardContent>
           </Card>

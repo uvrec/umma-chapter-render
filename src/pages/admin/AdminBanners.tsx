@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ const BANNER_CONFIGS = [
 export default function AdminBanners() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const { toast } = useToast();
 
   const [banners, setBanners] = useState<Record<string, BannerSetting>>({});
@@ -73,7 +75,7 @@ export default function AdminBanners() {
         description: "Тільки адміністратори можуть керувати баннерами",
         variant: "destructive",
       });
-      navigate("/");
+      navigate(getLocalizedPath("/"));
     }
   };
 
