@@ -347,7 +347,8 @@ function LatestContent() {
 // --- Featured Books Section ---
 function FeaturedBooks() {
   const {
-    language
+    language,
+    getLocalizedPath
   } = useLanguage();
   const {
     data: books = [],
@@ -428,7 +429,7 @@ function FeaturedBooks() {
 
       {/* Responsive grid - 2 колонки на мобільних, 3 на планшетах, 4 на десктопах */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-        {books.map(book => <a key={book.id} href={`/lib/${book.slug}`} className="group cursor-pointer">
+        {books.map(book => <a key={book.id} href={getLocalizedPath(`/lib/${book.slug}`)} className="group cursor-pointer">
             {/* Book Cover */}
             <div className="relative aspect-[2/3] overflow-hidden rounded-lg shadow-md group-hover:shadow-xl transition-all duration-300">
               {book.cover_image_url ? <img src={book.cover_image_url} alt={language === "uk" ? book.title_uk : book.title_en} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
