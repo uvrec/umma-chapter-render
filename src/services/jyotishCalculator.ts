@@ -546,16 +546,16 @@ function generateCombinedInterpretation(
  * Отримати тему числа підсумку
  */
 function getLifeNumberTheme(lifeNumber: number, lang: 'uk' | 'en'): string {
-  const themes: Record<number, { ua: string; en: string }> = {
-    1: { ua: 'шлях лідерства та незалежності', en: 'path of leadership and independence' },
-    2: { ua: 'шлях партнерства та дипломатії', en: 'path of partnership and diplomacy' },
-    3: { ua: 'шлях творчості та самовираження', en: 'path of creativity and self-expression' },
-    4: { ua: 'шлях стабільності та практичності', en: 'path of stability and practicality' },
-    5: { ua: 'шлях свободи та пригод', en: 'path of freedom and adventure' },
-    6: { ua: 'шлях служіння та відповідальності', en: 'path of service and responsibility' },
-    7: { ua: 'шлях духовності та аналізу', en: 'path of spirituality and analysis' },
-    8: { ua: 'шлях влади та матеріального успіху', en: 'path of power and material success' },
-    9: { ua: 'шлях мудрості та гуманізму', en: 'path of wisdom and humanitarianism' },
+  const themes: Record<number, { uk: string; en: string }> = {
+    1: { uk: 'шлях лідерства та незалежності', en: 'path of leadership and independence' },
+    2: { uk: 'шлях партнерства та дипломатії', en: 'path of partnership and diplomacy' },
+    3: { uk: 'шлях творчості та самовираження', en: 'path of creativity and self-expression' },
+    4: { uk: 'шлях стабільності та практичності', en: 'path of stability and practicality' },
+    5: { uk: 'шлях свободи та пригод', en: 'path of freedom and adventure' },
+    6: { uk: 'шлях служіння та відповідальності', en: 'path of service and responsibility' },
+    7: { uk: 'шлях духовності та аналізу', en: 'path of spirituality and analysis' },
+    8: { uk: 'шлях влади та матеріального успіху', en: 'path of power and material success' },
+    9: { uk: 'шлях мудрості та гуманізму', en: 'path of wisdom and humanitarianism' },
   };
 
   return themes[lifeNumber]?.[lang] || (lang === 'uk' ? 'унікальний життєвий шлях' : 'unique life path');

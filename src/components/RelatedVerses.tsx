@@ -32,24 +32,24 @@ interface RelatedVersesProps {
 }
 
 // Book abbreviations for display
-const BOOK_ABBR: Record<string, { ua: string; en: string }> = {
-  bg: { ua: "БГ", en: "BG" },
-  sb: { ua: "ШБ", en: "SB" },
-  cc: { ua: "ЧЧ", en: "CC" },
-  noi: { ua: "НН", en: "NOI" },
-  iso: { ua: "Ішо", en: "ISO" },
-  nod: { ua: "НВ", en: "NOD" },
+const BOOK_ABBR: Record<string, { uk: string; en: string }> = {
+  bg: { uk: "БГ", en: "BG" },
+  sb: { uk: "ШБ", en: "SB" },
+  cc: { uk: "ЧЧ", en: "CC" },
+  noi: { uk: "НН", en: "NOI" },
+  iso: { uk: "Ішо", en: "ISO" },
+  nod: { uk: "НВ", en: "NOD" },
 };
 
 // Reference type labels
-const REFERENCE_LABELS: Record<ReferenceType, { ua: string; en: string }> = {
-  citation: { ua: "Цитата", en: "Citation" },
-  explanation: { ua: "Пояснення", en: "Explanation" },
-  parallel: { ua: "Паралель", en: "Parallel" },
-  contrast: { ua: "Контраст", en: "Contrast" },
-  prerequisite: { ua: "Передумова", en: "Prerequisite" },
-  followup: { ua: "Продовження", en: "Follow-up" },
-  related: { ua: "Пов'язано", en: "Related" },
+const REFERENCE_LABELS: Record<ReferenceType, { uk: string; en: string }> = {
+  citation: { uk: "Цитата", en: "Citation" },
+  explanation: { uk: "Пояснення", en: "Explanation" },
+  parallel: { uk: "Паралель", en: "Parallel" },
+  contrast: { uk: "Контраст", en: "Contrast" },
+  prerequisite: { uk: "Передумова", en: "Prerequisite" },
+  followup: { uk: "Продовження", en: "Follow-up" },
+  related: { uk: "Пов'язано", en: "Related" },
 };
 
 /**

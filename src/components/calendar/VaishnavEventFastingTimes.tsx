@@ -132,10 +132,10 @@ export function VaishnavEventFastingTimes({
     if (fastingTimes.eventName) return fastingTimes.eventName;
 
     const titles = {
-      ekadashi: { ua: "Екадаші", en: "Ekadashi" },
-      appearance: { ua: "День явлення", en: "Appearance Day" },
-      disappearance: { ua: "День відходу", en: "Disappearance Day" },
-      festival: { ua: "Свято", en: "Festival" },
+      ekadashi: { uk: "Екадаші", en: "Ekadashi" },
+      appearance: { uk: "День явлення", en: "Appearance Day" },
+      disappearance: { uk: "День відходу", en: "Disappearance Day" },
+      festival: { uk: "Свято", en: "Festival" },
     };
     return titles[eventType][language];
   };

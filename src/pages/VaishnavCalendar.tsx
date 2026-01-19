@@ -103,7 +103,7 @@ export default function VaishnavCalendar() {
 
   // Переклад помилок геолокації
   const getGeoErrorMessage = (errorCode: string) => {
-    const messages: Record<string, { ua: string; en: string }> = {
+    const messages: Record<string, { uk: string; en: string }> = {
       PERMISSION_DENIED: {
         ua: "Доступ до геолокації заборонено. Увімкніть дозвіл у налаштуваннях браузера.",
         en: "Location access denied. Please enable location permissions.",

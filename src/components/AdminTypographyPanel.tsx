@@ -32,12 +32,12 @@ export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) =>
 
   const t = (ua: string, en: string) => language === 'uk' ? ua : en;
 
-  const blockNames: Record<TypographyBlockType, { ua: string; en: string }> = {
-    sanskrit: { ua: 'Санскрит / Деванагарі', en: 'Sanskrit / Devanagari' },
-    transliteration: { ua: 'Транслітерація', en: 'Transliteration' },
-    synonyms: { ua: 'Послівний переклад', en: 'Synonyms' },
-    translation: { ua: 'Літературний переклад', en: 'Translation' },
-    commentary: { ua: 'Пояснення', en: 'Purport' },
+  const blockNames: Record<TypographyBlockType, { uk: string; en: string }> = {
+    sanskrit: { uk: 'Санскрит / Деванагарі', en: 'Sanskrit / Devanagari' },
+    transliteration: { uk: 'Транслітерація', en: 'Transliteration' },
+    synonyms: { uk: 'Послівний переклад', en: 'Synonyms' },
+    translation: { uk: 'Літературний переклад', en: 'Translation' },
+    commentary: { uk: 'Пояснення', en: 'Purport' },
   };
 
   // Застосувати зміни до CSS при завантаженні

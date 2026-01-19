@@ -28,7 +28,7 @@ import {
 // Fasting level labels and colors
 const fastingLevelInfo: Record<
   FastingLevel,
-  { ua: string; en: string; color: string; bgColor: string }
+  { uk: string; en: string; color: string; bgColor: string }
 > = {
   nirjala: {
     ua: "Ніржала (без води)",

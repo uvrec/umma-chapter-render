@@ -346,7 +346,7 @@ function getFastingLevelDescriptions(level: FastingLevel): {
   ua: string;
   en: string;
 } {
-  const descriptions: Record<FastingLevel, { ua: string; en: string }> = {
+  const descriptions: Record<FastingLevel, { uk: string; en: string }> = {
     nirjala: {
       ua: 'Повний піст без води (ніраджала)',
       en: 'Complete fast without water (nirjala)',
@@ -419,12 +419,12 @@ function generateEventFastingNotes(
   eventType: VaishnavEventType,
   level: FastingLevel,
   eventName?: string
-): { ua: string; en: string } {
+): { uk: string; en: string } {
   const eventTypeNames = {
-    appearance: { ua: 'явлення', en: 'appearance' },
-    disappearance: { ua: 'відходу', en: 'disappearance' },
-    festival: { ua: 'свята', en: 'festival' },
-    ekadashi: { ua: 'екадаші', en: 'ekadashi' },
+    appearance: { uk: 'явлення', en: 'appearance' },
+    disappearance: { uk: 'відходу', en: 'disappearance' },
+    festival: { uk: 'свята', en: 'festival' },
+    ekadashi: { uk: 'екадаші', en: 'ekadashi' },
   };
 
   const typeName = eventTypeNames[eventType];
@@ -468,7 +468,7 @@ function generateEventFastingNotes(
     }
   }
 
-  return { ua: notes_ua, en: notes_en };
+  return { uk: notes_ua, en: notes_en };
 }
 
 /**

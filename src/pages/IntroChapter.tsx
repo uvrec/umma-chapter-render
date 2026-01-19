@@ -114,7 +114,7 @@ export const IntroChapter = () => {
     const paragraphsEn = parseHTMLToParagraphs(introChapter.content_en || '');
 
     const maxLength = Math.max(paragraphsUa.length, paragraphsEn.length);
-    const synced: Array<{ ua: string; en: string }> = [];
+    const synced: Array<{ uk: string; en: string }> = [];
 
     for (let i = 0; i < maxLength; i++) {
       synced.push({

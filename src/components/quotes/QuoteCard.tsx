@@ -26,12 +26,12 @@ const sourceTypeIcons: Record<string, React.ReactNode> = {
   conversation: <Users className="h-3.5 w-3.5" />,
 };
 
-const sourceTypeLabels: Record<string, { ua: string; en: string }> = {
-  book: { ua: "Книга", en: "Book" },
-  lecture: { ua: "Лекція", en: "Lecture" },
-  letter: { ua: "Лист", en: "Letter" },
-  conversation: { ua: "Бесіда", en: "Conversation" },
-  unknown: { ua: "Джерело", en: "Source" },
+const sourceTypeLabels: Record<string, { uk: string; en: string }> = {
+  book: { uk: "Книга", en: "Book" },
+  lecture: { uk: "Лекція", en: "Lecture" },
+  letter: { uk: "Лист", en: "Letter" },
+  conversation: { uk: "Бесіда", en: "Conversation" },
+  unknown: { uk: "Джерело", en: "Source" },
 };
 
 export function QuoteCard({

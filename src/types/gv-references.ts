@@ -289,33 +289,33 @@ export interface GVBookSortOptions {
  * Get display name for author era
  */
 export const eraDisplayNames: Record<AuthorEra, { en: string; ua: string }> = {
-  founders: { en: "Founders & Associates", ua: "Засновники та супутники" },
-  gosvamis: { en: "Six Gosvamis of Vrindavan", ua: "Шість Ґосвамі Вріндавана" },
-  later_acharyas: { en: "Later Acharyas", ua: "Пізніші ачар'ї" },
-  modern: { en: "Modern Acharyas", ua: "Сучасні ачар'ї" },
-  prabhupada_disciples: { en: "Prabhupada's Disciples", ua: "Учні Прабгупади" },
+  founders: { en: "Founders & Associates", uk: "Засновники та супутники" },
+  gosvamis: { en: "Six Gosvamis of Vrindavan", uk: "Шість Ґосвамі Вріндавана" },
+  later_acharyas: { en: "Later Acharyas", uk: "Пізніші ачар'ї" },
+  modern: { en: "Modern Acharyas", uk: "Сучасні ачар'ї" },
+  prabhupada_disciples: { en: "Prabhupada's Disciples", uk: "Учні Прабгупади" },
 };
 
 /**
  * Get display name for book category
  */
 export const categoryDisplayNames: Record<BookCategory, { en: string; ua: string }> = {
-  shruti: { en: "Revealed Scriptures", ua: "Об'явлені писання" },
-  smriti: { en: "Traditional Texts", ua: "Традиційні тексти" },
-  purana: { en: "Puranic Literature", ua: "Пуранічна література" },
-  kavya: { en: "Poetry & Drama", ua: "Поезія та драма" },
-  stotra: { en: "Prayers & Hymns", ua: "Молитви та гімни" },
-  shastra: { en: "Philosophical Treatises", ua: "Філософські трактати" },
-  prabandha: { en: "Essays & Compilations", ua: "Есе та збірки" },
+  shruti: { en: "Revealed Scriptures", uk: "Об'явлені писання" },
+  smriti: { en: "Traditional Texts", uk: "Традиційні тексти" },
+  purana: { en: "Puranic Literature", uk: "Пуранічна література" },
+  kavya: { en: "Poetry & Drama", uk: "Поезія та драма" },
+  stotra: { en: "Prayers & Hymns", uk: "Молитви та гімни" },
+  shastra: { en: "Philosophical Treatises", uk: "Філософські трактати" },
+  prabandha: { en: "Essays & Compilations", uk: "Есе та збірки" },
 };
 
 /**
  * Get display name for importance level
  */
 export const importanceLevelNames: Record<number, { en: string; ua: string }> = {
-  5: { en: "Essential", ua: "Необхідний" },
-  4: { en: "Important", ua: "Важливий" },
-  3: { en: "Recommended", ua: "Рекомендований" },
-  2: { en: "Supplementary", ua: "Додатковий" },
-  1: { en: "Reference", ua: "Довідковий" },
+  5: { en: "Essential", uk: "Необхідний" },
+  4: { en: "Important", uk: "Важливий" },
+  3: { en: "Recommended", uk: "Рекомендований" },
+  2: { en: "Supplementary", uk: "Додатковий" },
+  1: { en: "Reference", uk: "Довідковий" },
 };

@@ -171,11 +171,11 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
         {Object.entries(groupedRoutines).map(([period, routines]) => {
           if (routines.length === 0) return null;
 
-          const periodLabels: Record<string, { ua: string; en: string }> = {
-            morning: { ua: 'Ранок', en: 'Morning' },
-            afternoon: { ua: 'День', en: 'Afternoon' },
-            evening: { ua: 'Вечір', en: 'Evening' },
-            anytime: { ua: 'Будь-коли', en: 'Anytime' },
+          const periodLabels: Record<string, { uk: string; en: string }> = {
+            morning: { uk: 'Ранок', en: 'Morning' },
+            afternoon: { uk: 'День', en: 'Afternoon' },
+            evening: { uk: 'Вечір', en: 'Evening' },
+            anytime: { uk: 'Будь-коли', en: 'Anytime' },
           };
 
           return (

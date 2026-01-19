@@ -75,8 +75,8 @@ export function ekadashiToCalendarEvent(
   language: 'uk' | 'en'
 ): CalendarEventDisplay {
   const pakshaName = {
-    shukla: { ua: 'Шукла', en: 'Shukla' },
-    krishna: { ua: 'Крішна', en: 'Krishna' },
+    shukla: { uk: 'Шукла', en: 'Shukla' },
+    krishna: { uk: 'Крішна', en: 'Krishna' },
   };
 
   const name = language === 'uk'

@@ -443,13 +443,13 @@ export function formatSearchResult(
  * Get book abbreviation based on slug
  */
 function getBookAbbreviation(slug: string, language: 'uk' | 'en'): string {
-  const abbreviations: Record<string, { ua: string; en: string }> = {
-    'bg': { ua: 'БГ', en: 'BG' },
-    'sb': { ua: 'ШБ', en: 'SB' },
-    'cc': { ua: 'ЧЧ', en: 'CC' },
-    'noi': { ua: 'НН', en: 'NOI' },
-    'nod': { ua: 'НВ', en: 'NOD' },
-    'iso': { ua: 'Ішо', en: 'ISO' },
+  const abbreviations: Record<string, { uk: string; en: string }> = {
+    'bg': { uk: 'БГ', en: 'BG' },
+    'sb': { uk: 'ШБ', en: 'SB' },
+    'cc': { uk: 'ЧЧ', en: 'CC' },
+    'noi': { uk: 'НН', en: 'NOI' },
+    'nod': { uk: 'НВ', en: 'NOD' },
+    'iso': { uk: 'Ішо', en: 'ISO' },
   };
 
   return abbreviations[slug]?.[language] || slug.toUpperCase();
