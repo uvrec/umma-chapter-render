@@ -3462,7 +3462,7 @@ export type Database = {
           end_verse: number | null
           event_date: string | null
           explanation_en_audio_url: string | null
-          explanation_ua_audio_url: string | null
+          explanation_uk_audio_url: string | null
           full_verse_audio_url: string | null
           id: string
           is_composite: boolean | null
@@ -3502,7 +3502,7 @@ export type Database = {
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
-          explanation_ua_audio_url?: string | null
+          explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -3542,7 +3542,7 @@ export type Database = {
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
-          explanation_ua_audio_url?: string | null
+          explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
