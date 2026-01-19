@@ -16,6 +16,7 @@
 
 import { useParams, Navigate } from "react-router-dom";
 import { useBooks } from "@/contexts/BooksContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { VedaReaderDB } from "@/components/VedaReaderDB";
 import { ChapterVersesList } from "@/pages/ChapterVersesList";
 import CantoOverview from "@/pages/CantoOverview";
@@ -29,9 +30,10 @@ import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 export function LibOneParamRouter() {
   const { bookId, p1 } = useParams<{ bookId: string; p1: string }>();
   const { hasCantoStructure } = useBooks();
+  const { getLocalizedPath } = useLanguage();
 
   if (!bookId || !p1) {
-    return <Navigate to="/library" replace />;
+    return <Navigate to={getLocalizedPath("/library")} replace />;
   }
 
   if (hasCantoStructure(bookId)) {
@@ -51,9 +53,10 @@ export function LibOneParamRouter() {
 export function LibTwoParamRouter() {
   const { bookId, p1, p2 } = useParams<{ bookId: string; p1: string; p2: string }>();
   const { hasCantoStructure } = useBooks();
+  const { getLocalizedPath } = useLanguage();
 
   if (!bookId || !p1 || !p2) {
-    return <Navigate to="/library" replace />;
+    return <Navigate to={getLocalizedPath("/library")} replace />;
   }
 
   if (hasCantoStructure(bookId)) {
@@ -77,9 +80,10 @@ export function LibTwoParamRouter() {
 export function LibThreeParamRouter() {
   const { bookId, p1, p2, p3 } = useParams<{ bookId: string; p1: string; p2: string; p3: string }>();
   const { hasCantoStructure } = useBooks();
+  const { getLocalizedPath } = useLanguage();
 
   if (!bookId || !p1 || !p2 || !p3) {
-    return <Navigate to="/library" replace />;
+    return <Navigate to={getLocalizedPath("/library")} replace />;
   }
 
   if (hasCantoStructure(bookId)) {
@@ -92,5 +96,5 @@ export function LibThreeParamRouter() {
   }
 
   // Для книг без канто 3 параметри некоректні - редирект на книгу
-  return <Navigate to={`/lib/${bookId}`} replace />;
+  return <Navigate to={getLocalizedPath(`/lib/${bookId}`)} replace />;
 }
