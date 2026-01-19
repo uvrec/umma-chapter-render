@@ -22,7 +22,8 @@ export const PageMeta = ({
   language,
 }: PageMetaProps) => {
   const location = useLocation();
-  const title = language === "uk" ? titleUk : titleEn;
+  // Ensure title is always a string (Helmet requires it)
+  const title = (language === "uk" ? titleUk : titleEn) || SITE_CONFIG.siteName;
   const description = language === "uk" ? metaDescriptionUk : metaDescriptionEn;
 
   // Get path without language prefix
