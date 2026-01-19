@@ -11,6 +11,7 @@ import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Wrapper component - only uses useIsMobile hook
 export const Header = () => {
   const isMobile = useIsMobile();
 
@@ -18,6 +19,12 @@ export const Header = () => {
   if (isMobile) {
     return null;
   }
+
+  return <DesktopHeader />;
+};
+
+// Desktop header component - contains all other hooks
+function DesktopHeader() {
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const {
@@ -229,4 +236,4 @@ export const Header = () => {
         {/* === /БЛОК ДІЙ === */}
       </div>
     </header>;
-};
+}
