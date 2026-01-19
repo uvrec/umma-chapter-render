@@ -33,7 +33,7 @@ const parseHTMLToParagraphs = (html: string): string[] => {
 export const IntroChapter = () => {
   const { bookId, slug } = useParams();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { fontSize, lineHeight, dualLanguageMode } = useReaderSettings();
@@ -169,7 +169,7 @@ export const IntroChapter = () => {
           <p className="text-muted-foreground mb-4">Глава не знайдена</p>
           <Button
             variant="outline"
-            onClick={() => navigate(`/lib/${bookId}`)}
+            onClick={() => navigate(getLocalizedPath(`/lib/${bookId}`))}
           >
             <ChevronLeft className="h-4 w-4 mr-2" />
             Назад до книги
@@ -314,7 +314,7 @@ export const IntroChapter = () => {
           {prevChapter ? (
             <Button
               variant="secondary"
-              onClick={() => navigate(`/lib/${bookId}/intro/${prevChapter.slug}`)}
+              onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${prevChapter.slug}`))}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               {language === 'uk' ? prevChapter.title_uk : prevChapter.title_en}
@@ -322,7 +322,7 @@ export const IntroChapter = () => {
           ) : (
             <Button
               variant="secondary"
-              onClick={() => navigate(`/lib/${bookId}`)}
+              onClick={() => navigate(getLocalizedPath(`/lib/${bookId}`))}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Назад до книги
@@ -332,7 +332,7 @@ export const IntroChapter = () => {
           {nextChapter ? (
             <Button
               variant="secondary"
-              onClick={() => navigate(`/lib/${bookId}/intro/${nextChapter.slug}`)}
+              onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${nextChapter.slug}`))}
             >
               {language === 'uk' ? nextChapter.title_uk : nextChapter.title_en}
               <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />

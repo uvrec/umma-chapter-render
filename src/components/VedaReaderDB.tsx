@@ -36,6 +36,7 @@ import { useTrackpadNavigation } from "@/hooks/useTrackpadNavigation";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import { useReadingSession } from "@/hooks/useReadingSession";
 import { useBooks } from "@/contexts/BooksContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const VedaReaderDB = () => {
   // Support both /veda-reader/ and /lib/ URL patterns
@@ -75,6 +76,7 @@ export const VedaReaderDB = () => {
     isAdmin
   } = useAuth();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [currentVerseIndex, setCurrentVerseIndex] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -1285,47 +1287,49 @@ export const VedaReaderDB = () => {
               <span className="text-foreground font-medium truncate">{chapterTitle}</span>
             </div>
 
-            {/* Icons - responsive */}
-            <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-              <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
-                <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
-                <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
-              </Button>
-              {isAdmin && <Button variant="ghost" size="icon" onClick={() => navigate("/admin/highlights")} title={t("Виділення", "Highlights")}>
-                  <Highlighter className="h-5 w-5" />
-                </Button>}
-              <Button variant="ghost" size="icon" onClick={handleCopyWithLink} disabled={!currentVerse} title={t("Копіювати з посиланням", "Copy with link")}>
-                <Copy className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleCopyUrl} title={t("Копіювати посилання", "Copy link")}>
-                <Link className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleShare} title={t("Поділитися", "Share")}>
-                <Share2 className="h-5 w-5" />
-              </Button>
-              {isAdmin && (
-                <Button variant="ghost" size="icon" onClick={handleDownload} title={t("Експорт глави", "Export chapter")} className="text-primary">
-                  <Download className="h-5 w-5" />
+            {/* Icons - hidden on mobile (use Spine navigation instead) */}
+            {!isMobile && (
+              <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+                <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
+                  <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
                 </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
-                <HelpCircle className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setPresentationMode(!presentationMode)} title={t("Презентація (p)", "Presentation (p)")}>
-                <Presentation className={`h-5 w-5 ${presentationMode ? "text-primary" : ""}`} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setZenMode(!zenMode)} title={t("Zen режим (z)", "Zen mode (z)")}>
-                <Leaf className={`h-5 w-5 ${zenMode ? "text-primary" : ""}`} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setFullscreenMode(!fullscreenMode)} title={t("Повноекранний режим (f)", "Fullscreen mode (f)")}>
-                <Maximize className={`h-5 w-5 ${fullscreenMode ? "text-primary" : ""}`} />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} title={t("Налаштування", "Settings")}>
-                <Settings className="h-5 w-5" />
-              </Button>
-            </div>
+                <Button variant="ghost" size="icon" onClick={toggleBookmark} title={t("Закладка", "Bookmark")}>
+                  <Bookmark className={`h-5 w-5 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
+                </Button>
+                {isAdmin && <Button variant="ghost" size="icon" onClick={() => navigate("/admin/highlights")} title={t("Виділення", "Highlights")}>
+                    <Highlighter className="h-5 w-5" />
+                  </Button>}
+                <Button variant="ghost" size="icon" onClick={handleCopyWithLink} disabled={!currentVerse} title={t("Копіювати з посиланням", "Copy with link")}>
+                  <Copy className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleCopyUrl} title={t("Копіювати посилання", "Copy link")}>
+                  <Link className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleShare} title={t("Поділитися", "Share")}>
+                  <Share2 className="h-5 w-5" />
+                </Button>
+                {isAdmin && (
+                  <Button variant="ghost" size="icon" onClick={handleDownload} title={t("Експорт глави", "Export chapter")} className="text-primary">
+                    <Download className="h-5 w-5" />
+                  </Button>
+                )}
+                <Button variant="ghost" size="icon" onClick={() => setShowKeyboardShortcuts(true)} title={t("Клавіатурні скорочення (?)", "Keyboard shortcuts (?)")}>
+                  <HelpCircle className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setPresentationMode(!presentationMode)} title={t("Презентація (p)", "Presentation (p)")}>
+                  <Presentation className={`h-5 w-5 ${presentationMode ? "text-primary" : ""}`} />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setZenMode(!zenMode)} title={t("Zen режим (z)", "Zen mode (z)")}>
+                  <Leaf className={`h-5 w-5 ${zenMode ? "text-primary" : ""}`} />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setFullscreenMode(!fullscreenMode)} title={t("Повноекранний режим (f)", "Fullscreen mode (f)")}>
+                  <Maximize className={`h-5 w-5 ${fullscreenMode ? "text-primary" : ""}`} />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} title={t("Налаштування", "Settings")}>
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Row 2: Chapter/Verse Selector - окремий рядок по центру */}
@@ -1345,7 +1349,7 @@ export const VedaReaderDB = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8" data-reader-root="true">
+      <div className="container mx-auto px-4 py-4 md:py-8" data-reader-root="true">
         {/* Mobile Chapter/Verse Selector - показується тільки на мобільних */}
         {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
           <ChapterVerseSelector
@@ -1361,8 +1365,8 @@ export const VedaReaderDB = () => {
         )}
 
         {/* Заголовок - тільки для безперервного читання або текстових глав */}
-        {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-8">
-            <h1 className="text-center font-extrabold text-5xl text-primary">{chapterTitle}</h1>
+        {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-4 md:mb-8">
+            <h1 className="text-center font-extrabold text-3xl md:text-5xl text-primary">{chapterTitle}</h1>
           </div>}
 
         {/* Intro/preface block (render above verses if present) */}
@@ -1390,18 +1394,20 @@ export const VedaReaderDB = () => {
               <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />
             </div>
 
-            {/* Навігація знизу */}
-            <div className="mt-8 flex items-center justify-between pt-6">
-              <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                {t("Попередня глава", "Previous Chapter")}
-              </Button>
+            {/* Навігація знизу - ховаємо на мобільних (є свайп) */}
+            {!isMobile && (
+              <div className="mt-8 flex items-center justify-between pt-6">
+                <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередня глава", "Previous Chapter")}
+                </Button>
 
-              <Button variant="outline" onClick={handleNextChapter} disabled={currentChapterIndex === allChapters.length - 1}>
-                {t("Наступна глава", "Next Chapter")}
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+                <Button variant="outline" onClick={handleNextChapter} disabled={currentChapterIndex === allChapters.length - 1}>
+                  {t("Наступна глава", "Next Chapter")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div> : continuousReadingSettings.enabled ? <div className="space-y-8">
             {verses.filter(Boolean).map(verse => {
           const verseIdx = getDisplayVerseNumber(verse.verse_number);
@@ -1462,18 +1468,20 @@ export const VedaReaderDB = () => {
                     />
                   )}
 
-                  {/* Навігація знизу */}
-                  <div className="flex items-center justify-between pt-6">
-                    <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
-                      <ChevronLeft className="mr-2 h-4 w-4" />
-                      {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
-                    </Button>
+                  {/* Навігація знизу - ховаємо на мобільних (є свайп) */}
+                  {!isMobile && (
+                    <div className="flex items-center justify-between pt-6">
+                      <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
+                      </Button>
 
-                    <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}>
-                      {currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
+                      <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}>
+                        {currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>;
         })()}
           </>}

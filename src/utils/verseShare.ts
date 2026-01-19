@@ -45,16 +45,17 @@ export function getVerseReference(
 
 /**
  * Генерує повний URL для вірша
- * Формат: /lib/sb/1/3/19 (для книг з канто) або /lib/bg/3/19 (для інших)
+ * Формат: /uk/lib/sb/1/3/19 (для книг з канто) або /uk/lib/bg/3/19 (для інших)
  */
-export function getVerseUrl(params: VerseParams, baseUrl?: string): string {
+export function getVerseUrl(params: VerseParams, baseUrl?: string, lang: "uk" | "en" = "uk"): string {
   const { bookSlug, cantoNumber, chapterNumber, verseNumber } = params;
   const base = baseUrl || "https://vedavoice.org";
+  const langPrefix = `/${lang}`;
 
   if (cantoNumber) {
-    return `${base}/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
+    return `${base}${langPrefix}/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
   }
-  return `${base}/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
+  return `${base}${langPrefix}/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
 }
 
 /**
@@ -72,7 +73,7 @@ export function formatVerseForShare(
   const { verseText, sanskritText } = params;
 
   const reference = getVerseReference(params, lang);
-  const url = getVerseUrl(params);
+  const url = getVerseUrl(params, undefined, lang);
 
   const parts: string[] = [];
 
@@ -131,14 +132,15 @@ export async function copyVerseWithLink(
 export async function copyVerseUrl(
   params: VerseParams,
   options: {
+    lang?: "uk" | "en";
     onSuccess?: () => void;
     onError?: (error: Error) => void;
   } = {}
 ): Promise<boolean> {
-  const { onSuccess, onError } = options;
+  const { onSuccess, onError, lang = "uk" } = options;
 
   try {
-    const url = getVerseUrl(params);
+    const url = getVerseUrl(params, undefined, lang);
     await navigator.clipboard.writeText(url);
     onSuccess?.();
     return true;
@@ -166,7 +168,7 @@ export async function shareVerse(
   const { onSuccess, onError, onFallbackCopy, ...formatOptions } = options;
 
   const reference = getVerseReference(params, formatOptions.lang);
-  const url = getVerseUrl(params);
+  const url = getVerseUrl(params, undefined, formatOptions.lang);
   const text = formatVerseForShare(params, { ...formatOptions, includeUrl: false });
 
   // Спробуємо Web Share API
