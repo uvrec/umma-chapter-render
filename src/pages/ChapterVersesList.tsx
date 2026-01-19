@@ -24,6 +24,36 @@ import { getChapterOgImage } from "@/utils/og-image";
 import { Helmet } from "react-helmet-async";
 import { SITE_CONFIG } from "@/lib/constants";
 
+/**
+ * Safety check: detect if chapter content looks like incorrectly imported verse text
+ * This prevents showing full verse content as a "chapter introduction"
+ */
+function isLikelyMisimportedVerseContent(content: string | null | undefined): boolean {
+  if (!content) return false;
+  const text = content.toLowerCase();
+
+  // Check for verse number patterns (e.g., "вірш 1", "verse 1", "text 1")
+  const versePatterns = /\b(вірш|verse|text)\s+\d+/i;
+  const hasVerseNumbers = versePatterns.test(text);
+
+  // Check for multiple numbered items (indication of verse list)
+  const multipleNumbers = (text.match(/\b\d+\s*[-–—.):]/g) || []).length > 3;
+
+  // Check for Sanskrit/Devanagari characters (more than 50 chars indicates full text)
+  const devanagariChars = (content.match(/[\u0900-\u097F]/g) || []).length;
+  const hasSignificantSanskrit = devanagariChars > 50;
+
+  // Check if content is suspiciously long for an introduction (>5000 chars)
+  const isTooLong = content.length > 5000;
+
+  // Content from wrong chapter (e.g., "глава перша" in chapter 10)
+  const hasChapterMismatch = /глава\s+(перш|друг|трет|четверт|п'ят)/i.test(text);
+
+  return (hasVerseNumbers && (multipleNumbers || isTooLong)) ||
+         hasSignificantSanskrit ||
+         hasChapterMismatch;
+}
+
 // Type for verse data
 interface Verse {
   id: string;
@@ -463,7 +493,9 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) && (
+          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) &&
+           !isLikelyMisimportedVerseContent(effectiveChapterObj.content_uk) &&
+           !isLikelyMisimportedVerseContent(effectiveChapterObj.content_en) && (
             <div className="mb-8">
               {user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
