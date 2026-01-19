@@ -72,7 +72,7 @@ export function QuoteCard({
             {showSource && quote.source_type && (
               <Badge variant="secondary" className="gap-1.5">
                 {sourceTypeIcons[quote.source_type]}
-                {t(sourceLabel.ua, sourceLabel.en)}
+                {t(sourceLabel.uk, sourceLabel.en)}
               </Badge>
             )}
 

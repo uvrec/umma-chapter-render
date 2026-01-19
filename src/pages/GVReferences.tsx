@@ -269,7 +269,7 @@ export const GVReferences = () => {
                       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <Users className="w-5 h-5 text-primary" />
                         {language === 'uk'
-                          ? eraDisplayNames[era].ua
+                          ? eraDisplayNames[era].uk
                           : eraDisplayNames[era].en}
                         <span className="text-sm font-normal text-muted-foreground">
                           ({eraAuthors.length})

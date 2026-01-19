@@ -89,7 +89,7 @@ function CategorySection({
     <section className="mb-8">
       <div className="mb-4">
         <h2 className="text-lg font-medium text-foreground">
-          {language === "uk" ? info.ua : info.en}
+          {language === "uk" ? info.uk : info.en}
         </h2>
         <p className="text-sm text-muted-foreground">
           {language === "uk" ? info.descUa : info.descEn}

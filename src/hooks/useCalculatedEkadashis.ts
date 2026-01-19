@@ -80,18 +80,18 @@ export function ekadashiToCalendarEvent(
   };
 
   const name = language === 'uk'
-    ? `${pakshaName[ekadashi.paksha].ua} Екадаші`
+    ? `${pakshaName[ekadashi.paksha].uk} Екадаші`
     : `${pakshaName[ekadashi.paksha].en} Ekadashi`;
 
   const description = language === 'uk'
-    ? `Екадаші ${pakshaName[ekadashi.paksha].ua} пакші. Піст від зернових.`
+    ? `Екадаші ${pakshaName[ekadashi.paksha].uk} пакші. Піст від зернових.`
     : `Ekadashi of ${pakshaName[ekadashi.paksha].en} paksha. Fast from grains.`;
 
   return {
     event_id: `calc-ekadashi-${ekadashi.dateStr}`,
     event_date: ekadashi.dateStr,
     event_type: 'ekadashi',
-    name_ua: `${pakshaName[ekadashi.paksha].ua} Екадаші`,
+    name_ua: `${pakshaName[ekadashi.paksha].uk} Екадаші`,
     name_en: `${pakshaName[ekadashi.paksha].en} Ekadashi`,
     description_ua: description,
     description_en: description,

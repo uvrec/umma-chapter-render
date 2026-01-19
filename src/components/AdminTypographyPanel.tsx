@@ -307,7 +307,7 @@ export const AdminTypographyPanel = ({ language }: AdminTypographyPanelProps) =>
         <TabsList className="grid w-full grid-cols-5">
           {(Object.keys(blockNames) as TypographyBlockType[]).map((blockType) => (
             <TabsTrigger key={blockType} value={blockType} className="text-xs">
-              {language === 'uk' ? blockNames[blockType].ua : blockNames[blockType].en}
+              {language === 'uk' ? blockNames[blockType].uk : blockNames[blockType].en}
             </TabsTrigger>
           ))}
         </TabsList>

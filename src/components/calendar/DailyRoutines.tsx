@@ -181,7 +181,7 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
           return (
             <div key={period} className="space-y-2">
               <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {t(periodLabels[period].ua, periodLabels[period].en)}
+                {t(periodLabels[period].uk, periodLabels[period].en)}
               </h4>
 
               {routines.map(routine => {

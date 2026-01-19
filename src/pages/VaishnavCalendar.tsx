@@ -122,7 +122,7 @@ export default function VaishnavCalendar() {
       },
     };
     const msg = messages[errorCode] || messages.UNKNOWN;
-    return language === "uk" ? msg.ua : msg.en;
+    return language === "uk" ? msg.uk : msg.en;
   };
 
   const handleDetectLocation = async () => {

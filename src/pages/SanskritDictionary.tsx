@@ -102,7 +102,7 @@ export const SanskritDictionary = () => {
     if (info) {
       return (
         <Badge variant="secondary" className={info.color}>
-          {language === "uk" ? info.ua : info.en}
+          {language === "uk" ? info.uk : info.en}
         </Badge>
       );
     }

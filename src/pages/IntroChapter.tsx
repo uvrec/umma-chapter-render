@@ -277,7 +277,7 @@ export const IntroChapter = () => {
                       className="prose prose-slate dark:prose-invert max-w-none"
                       style={{ fontSize: `${fontSize}px`, lineHeight }}
                       dangerouslySetInnerHTML={{
-                        __html: sanitizeForRender(pair.ua)
+                        __html: sanitizeForRender(pair.uk)
                       }}
                     />
 

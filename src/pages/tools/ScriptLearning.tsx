@@ -584,8 +584,8 @@ export default function ScriptLearning() {
 
       // Show toast for each new achievement
       newUnlocked.forEach(achievement => {
-        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.ua, achievement.title.en)}`, {
-          description: t(achievement.description.ua, achievement.description.en),
+        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.uk, achievement.title.en)}`, {
+          description: t(achievement.description.uk, achievement.description.en),
           duration: 5000,
         });
       });
@@ -1294,10 +1294,10 @@ export default function ScriptLearning() {
                       key={achievement.id}
                       variant="secondary"
                       className="flex items-center gap-1 whitespace-nowrap"
-                      title={t(achievement.description.ua, achievement.description.en)}
+                      title={t(achievement.description.uk, achievement.description.en)}
                     >
                       <span>{achievement.icon}</span>
-                      <span className="text-xs">{t(achievement.title.ua, achievement.title.en)}</span>
+                      <span className="text-xs">{t(achievement.title.uk, achievement.title.en)}</span>
                     </Badge>
                   ))}
                 </div>

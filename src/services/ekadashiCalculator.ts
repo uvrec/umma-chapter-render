@@ -520,7 +520,7 @@ export function calculateVaishnavEventFastingTimes(
     eventDateFormatted,
 
     fastingLevel,
-    fastingLevelDescription_ua: levelDesc.ua,
+    fastingLevelDescription_ua: levelDesc.uk,
     fastingLevelDescription_en: levelDesc.en,
 
     fastingStart: sunTimes.sunrise,
@@ -528,7 +528,7 @@ export function calculateVaishnavEventFastingTimes(
 
     fastingEnd: breakFastInfo.breakTime,
     fastingEndFormatted: formatTime(breakFastInfo.breakTime, location.timezone),
-    breakFastDescription_ua: breakFastInfo.ua,
+    breakFastDescription_ua: breakFastInfo.uk,
     breakFastDescription_en: breakFastInfo.en,
 
     sunrise: sunTimes.sunrise,
@@ -544,7 +544,7 @@ export function calculateVaishnavEventFastingTimes(
 
     location,
 
-    notes_ua: notes.ua,
+    notes_ua: notes.uk,
     notes_en: notes.en,
   };
 }

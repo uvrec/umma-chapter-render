@@ -181,7 +181,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
     };
 
     // Видалити назви якщо вони не змінені або є fallback
-    if (isFallbackOrUnchanged(safeChapter.title_ua, originalTitles.ua)) {
+    if (isFallbackOrUnchanged(safeChapter.title_ua, originalTitles.uk)) {
       console.log('🔍 PreviewStep: Видаляємо title_ua (fallback/unchanged)');
       delete safeChapter.title_ua;
     }
