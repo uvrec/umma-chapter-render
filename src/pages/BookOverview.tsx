@@ -8,6 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useEffect, useState } from "react";
+import { BookSchema, BreadcrumbSchema } from "@/components/StructuredData";
+import { getBookOgImage } from "@/utils/og-image";
+import { Helmet } from "react-helmet-async";
+import { SITE_CONFIG } from "@/lib/constants";
 export const BookOverview = () => {
   const {
     bookId,
@@ -123,6 +127,13 @@ export const BookOverview = () => {
   const isLoading = cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
   const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
   const bookDescription = language === "uk" ? book?.description_uk : book?.description_en;
+
+  // SEO metadata
+  const ogImage = book ? getBookOgImage(bookSlug || '', book.title_uk || '', book.title_en || '', language) : SITE_CONFIG.socialImage;
+  const canonicalUrl = `${SITE_CONFIG.baseUrl}/${language}/lib/${bookSlug}`;
+  const alternateUkUrl = `${SITE_CONFIG.baseUrl}/uk/lib/${bookSlug}`;
+  const alternateEnUrl = `${SITE_CONFIG.baseUrl}/en/lib/${bookSlug}`;
+
   if (isLoading) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -132,6 +143,48 @@ export const BookOverview = () => {
       </div>;
   }
   return <div className="min-h-screen bg-background">
+      {/* SEO Metadata */}
+      <Helmet>
+        <title>{bookTitle} | {SITE_CONFIG.siteName}</title>
+        <meta name="description" content={bookDescription || `${bookTitle} - ${t('священне писання ведичної традиції', 'sacred scripture of the Vedic tradition')}`} />
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="uk" href={alternateUkUrl} />
+        <link rel="alternate" hrefLang="en" href={alternateEnUrl} />
+        <link rel="alternate" hrefLang="x-default" href={alternateUkUrl} />
+        <meta property="og:type" content="book" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={bookTitle || ''} />
+        <meta property="og:description" content={bookDescription || ''} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:site_name" content={SITE_CONFIG.siteName} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={bookTitle || ''} />
+        <meta name="twitter:description" content={bookDescription || ''} />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
+
+      {/* Structured Data */}
+      {book && (
+        <>
+          <BookSchema
+            slug={bookSlug || ''}
+            titleUk={book.title_uk || ''}
+            titleEn={book.title_en || ''}
+            descriptionUk={book.description_uk}
+            descriptionEn={book.description_en}
+            coverImage={ogImage}
+            language={language}
+          />
+          <BreadcrumbSchema
+            items={[
+              { name: t('Головна', 'Home'), url: `/${language}` },
+              { name: t('Бібліотека', 'Library'), url: `/${language}/library` },
+              { name: bookTitle || '', url: `/${language}/lib/${bookSlug}` },
+            ]}
+          />
+        </>
+      )}
+
       <Header />
 
       <div className="container mx-auto px-4 py-8">

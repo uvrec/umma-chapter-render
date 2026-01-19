@@ -25,6 +25,7 @@ import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { SITE_CONFIG } from "@/lib/constants";
+import { BlogPostSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -329,6 +330,30 @@ export default function BlogPost() {
         <meta name="twitter:description" content={metaDesc || excerpt} />
         <meta name="twitter:image" content={post.featured_image || SITE_CONFIG.socialImage} />
       </Helmet>
+
+      {/* Structured Data */}
+      <BlogPostSchema
+        slug={slug || ''}
+        title={title || ''}
+        excerpt={excerpt || undefined}
+        coverImage={post.featured_image || undefined}
+        authorName={post.author_display_name || undefined}
+        publishedAt={post.published_at || post.created_at}
+        updatedAt={post.updated_at || undefined}
+        tags={post.tags?.map((t: any) => language === 'uk' ? t.tag?.name_uk : t.tag?.name_en).filter(Boolean)}
+        language={language}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: language === 'uk' ? 'Головна' : 'Home', url: `/${language}` },
+          { name: language === 'uk' ? 'Блог' : 'Blog', url: `/${language}/blog` },
+          ...(post.category ? [{
+            name: language === 'uk' ? post.category.name_uk : post.category.name_en,
+            url: `/${language}/blog?category=${post.category_id}`
+          }] : []),
+          { name: title || '', url: `/${language}/blog/${slug}` },
+        ]}
+      />
 
       <Header />
 
