@@ -32,7 +32,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
   const [isImportingBook, setIsImportingBook] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string>("");
   const [selectedCantoId, setSelectedCantoId] = useState<string>("");
-  const [originalTitles, setOriginalTitles] = useState<{ ua?: string; en?: string }>({});
+  const [originalTitles, setOriginalTitles] = useState<{ uk?: string; en?: string }>({});
   
   type ImportStrategy = 'replace' | 'upsert';
   const [importStrategy, setImportStrategy] = useState<ImportStrategy>('upsert');
