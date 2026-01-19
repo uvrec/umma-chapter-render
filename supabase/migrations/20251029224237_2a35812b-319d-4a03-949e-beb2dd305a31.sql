@@ -130,25 +130,56 @@ BEGIN
 END $$;
 
 -- Drop and recreate books_with_mapping view
+-- Note: vedabase_slug and gitabase_slug columns may not exist in all environments
 DROP VIEW IF EXISTS public.books_with_mapping;
-CREATE VIEW public.books_with_mapping
-WITH (security_invoker = true)
-AS
-SELECT 
-  b.id,
-  b.slug as our_slug,
-  b.vedabase_slug,
-  b.gitabase_slug,
-  b.title_ua,
-  b.title_en,
-  b.has_cantos,
-  b.default_structure,
-  (SELECT COUNT(*) FROM public.cantos c WHERE c.book_id = b.id) as cantos_count,
-  (SELECT COUNT(*) FROM public.chapters ch WHERE ch.book_id = b.id) as chapters_count,
-  (SELECT COUNT(*) FROM public.verses v 
-   JOIN public.chapters ch ON v.chapter_id = ch.id 
-   WHERE ch.book_id = b.id) as verses_count
-FROM public.books b;
+DO $$
+BEGIN
+  -- Check if vedabase_slug column exists
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_schema = 'public' AND table_name = 'books' AND column_name = 'vedabase_slug') THEN
+    -- Create view with all columns
+    CREATE VIEW public.books_with_mapping
+    WITH (security_invoker = true)
+    AS
+    SELECT
+      b.id,
+      b.slug as our_slug,
+      b.vedabase_slug,
+      b.gitabase_slug,
+      b.title_ua,
+      b.title_en,
+      b.has_cantos,
+      b.default_structure,
+      (SELECT COUNT(*) FROM public.cantos c WHERE c.book_id = b.id) as cantos_count,
+      (SELECT COUNT(*) FROM public.chapters ch WHERE ch.book_id = b.id) as chapters_count,
+      (SELECT COUNT(*) FROM public.verses v
+       JOIN public.chapters ch ON v.chapter_id = ch.id
+       WHERE ch.book_id = b.id) as verses_count
+    FROM public.books b;
+    RAISE NOTICE 'Created books_with_mapping view with vedabase_slug';
+  ELSE
+    -- Create view without vedabase_slug/gitabase_slug columns
+    CREATE VIEW public.books_with_mapping
+    WITH (security_invoker = true)
+    AS
+    SELECT
+      b.id,
+      b.slug as our_slug,
+      NULL::text as vedabase_slug,
+      NULL::text as gitabase_slug,
+      b.title_ua,
+      b.title_en,
+      b.has_cantos,
+      b.default_structure,
+      (SELECT COUNT(*) FROM public.cantos c WHERE c.book_id = b.id) as cantos_count,
+      (SELECT COUNT(*) FROM public.chapters ch WHERE ch.book_id = b.id) as chapters_count,
+      (SELECT COUNT(*) FROM public.verses v
+       JOIN public.chapters ch ON v.chapter_id = ch.id
+       WHERE ch.book_id = b.id) as verses_count
+    FROM public.books b;
+    RAISE NOTICE 'Created books_with_mapping view without vedabase_slug (column does not exist)';
+  END IF;
+END $$;
 
 -- Drop and recreate readable_chapters view
 DROP VIEW IF EXISTS public.readable_chapters;
