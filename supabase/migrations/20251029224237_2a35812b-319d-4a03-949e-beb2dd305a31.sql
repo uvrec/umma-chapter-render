@@ -74,36 +74,44 @@ SELECT
 FROM public.blog_posts
 WHERE is_published = true;
 
--- Drop and recreate book_pages_with_metadata view
-DROP VIEW IF EXISTS public.book_pages_with_metadata;
-CREATE VIEW public.book_pages_with_metadata
-WITH (security_invoker = true)
-AS
-SELECT 
-  bp.id,
-  bp.book_id,
-  bp.page_type,
-  bp.page_order,
-  bp.slug,
-  bp.title_ua,
-  bp.title_en,
-  bp.content_ua,
-  bp.content_en,
-  bp.is_published,
-  bp.created_at,
-  bp.updated_at,
-  b.slug as book_slug,
-  b.title_ua as book_title_ua,
-  b.title_en as book_title_en,
-  CASE 
-    WHEN bp.page_type = 'preface' THEN 'Передмова'
-    WHEN bp.page_type = 'introduction' THEN 'Вступ'
-    WHEN bp.page_type = 'conclusion' THEN 'Висновок'
-    WHEN bp.page_type = 'appendix' THEN 'Додаток'
-    ELSE bp.page_type
-  END as page_type_display
-FROM public.book_pages bp
-LEFT JOIN public.books b ON bp.book_id = b.id;
+-- Drop and recreate book_pages_with_metadata view (only if book_pages exists)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'book_pages') THEN
+    DROP VIEW IF EXISTS public.book_pages_with_metadata;
+    CREATE VIEW public.book_pages_with_metadata
+    WITH (security_invoker = true)
+    AS
+    SELECT
+      bp.id,
+      bp.book_id,
+      bp.page_type,
+      bp.page_order,
+      bp.slug,
+      bp.title_ua,
+      bp.title_en,
+      bp.content_ua,
+      bp.content_en,
+      bp.is_published,
+      bp.created_at,
+      bp.updated_at,
+      b.slug as book_slug,
+      b.title_ua as book_title_ua,
+      b.title_en as book_title_en,
+      CASE
+        WHEN bp.page_type = 'preface' THEN 'Передмова'
+        WHEN bp.page_type = 'introduction' THEN 'Вступ'
+        WHEN bp.page_type = 'conclusion' THEN 'Висновок'
+        WHEN bp.page_type = 'appendix' THEN 'Додаток'
+        ELSE bp.page_type
+      END as page_type_display
+    FROM public.book_pages bp
+    LEFT JOIN public.books b ON bp.book_id = b.id;
+    RAISE NOTICE 'Created book_pages_with_metadata view';
+  ELSE
+    RAISE NOTICE 'Table book_pages does not exist, skipping book_pages_with_metadata view...';
+  END IF;
+END $$;
 
 -- Drop and recreate books_with_mapping view
 DROP VIEW IF EXISTS public.books_with_mapping;
