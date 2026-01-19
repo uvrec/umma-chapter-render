@@ -21,6 +21,7 @@ import { VedaReaderDB } from "@/components/VedaReaderDB";
 import { ChapterVersesList } from "@/pages/ChapterVersesList";
 import CantoOverview from "@/pages/CantoOverview";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
+import { IntroChapter } from "@/pages/IntroChapter";
 
 /**
  * Роутер для /lib/:bookId/:p1
@@ -47,6 +48,7 @@ export function LibOneParamRouter() {
 
 /**
  * Роутер для /lib/:bookId/:p1/:p2
+ * - Для intro chapters: p1 = "intro", p2 = slug → IntroChapter
  * - Для книг з канто: p1 = canto, p2 = chapter → ChapterVersesList
  * - Для інших: p1 = chapter, p2 = verse → VedaReaderDB
  */
@@ -57,6 +59,11 @@ export function LibTwoParamRouter() {
 
   if (!bookId || !p1 || !p2) {
     return <Navigate to={getLocalizedPath("/library")} replace />;
+  }
+
+  // Handle intro chapters: /lib/sb/intro/preface → IntroChapter
+  if (p1 === "intro") {
+    return <IntroChapter />;
   }
 
   if (hasCantoStructure(bookId)) {

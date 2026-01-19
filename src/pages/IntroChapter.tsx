@@ -31,8 +31,10 @@ const parseHTMLToParagraphs = (html: string): string[] => {
 };
 
 export const IntroChapter = () => {
-  const { bookId, slug } = useParams();
+  const { bookId, slug, p2 } = useParams();
   const navigate = useNavigate();
+  // Support both /veda-reader/:bookId/intro/:slug and /lib/:bookId/intro/:slug (where slug is p2)
+  const introSlug = slug || p2;
   const { language, getLocalizedPath } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -60,19 +62,19 @@ export const IntroChapter = () => {
 
   // Fetch intro chapter
   const { data: introChapter, isLoading } = useQuery({
-    queryKey: ['intro-chapter', book?.id, slug],
+    queryKey: ['intro-chapter', book?.id, introSlug],
     queryFn: async () => {
-      if (!book?.id || !slug) return null;
+      if (!book?.id || !introSlug) return null;
       const { data, error } = await supabase
         .from('intro_chapters')
         .select('*')
         .eq('book_id', book.id)
-        .eq('slug', slug)
+        .eq('slug', introSlug)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
-    enabled: !!book?.id && !!slug
+    enabled: !!book?.id && !!introSlug
   });
 
   // Fetch all intro chapters for navigation
@@ -94,7 +96,7 @@ export const IntroChapter = () => {
   const bookTitle = language === 'uk' ? book?.title_uk : book?.title_en;
   const chapterTitle = language === 'uk' ? introChapter?.title_uk : introChapter?.title_en;
 
-  const currentIndex = allIntroChapters.findIndex(ch => ch.slug === slug);
+  const currentIndex = allIntroChapters.findIndex(ch => ch.slug === introSlug);
   const prevChapter = currentIndex > 0 ? allIntroChapters[currentIndex - 1] : null;
   const nextChapter = currentIndex < allIntroChapters.length - 1 ? allIntroChapters[currentIndex + 1] : null;
 
