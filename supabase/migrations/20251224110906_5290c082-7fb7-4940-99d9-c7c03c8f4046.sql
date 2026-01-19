@@ -6,15 +6,15 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- 1. СТВОРЮЄМО ІНДЕКСИ для повнотекстового пошуку по синонімах
-CREATE INDEX IF NOT EXISTS idx_verses_synonyms_ua_gin
-  ON verses USING gin(to_tsvector('simple', COALESCE(synonyms_ua, '')));
+CREATE INDEX IF NOT EXISTS idx_verses_synonyms_uk_gin
+  ON verses USING gin(to_tsvector('simple', COALESCE(synonyms_uk, '')));
 
 CREATE INDEX IF NOT EXISTS idx_verses_synonyms_en_gin
   ON verses USING gin(to_tsvector('english', COALESCE(synonyms_en, '')));
 
 -- Індекси для швидкого LIKE пошуку (для точних збігів)
-CREATE INDEX IF NOT EXISTS idx_verses_synonyms_ua_pattern
-  ON verses USING gin(synonyms_ua gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_verses_synonyms_uk_pattern
+  ON verses USING gin(synonyms_uk gin_trgm_ops);
 
 CREATE INDEX IF NOT EXISTS idx_verses_synonyms_en_pattern
   ON verses USING gin(synonyms_en gin_trgm_ops);
@@ -49,9 +49,9 @@ DECLARE
   tsconfig TEXT;
 BEGIN
   IF search_language = 'ua' THEN
-    synonyms_column := 'synonyms_ua';
-    translation_column := 'translation_ua';
-    transliteration_column := 'transliteration_ua';
+    synonyms_column := 'synonyms_uk';
+    translation_column := 'translation_uk';
+    transliteration_column := 'transliteration_uk';
     tsconfig := 'simple';
   ELSE
     synonyms_column := 'synonyms_en';
@@ -64,7 +64,7 @@ BEGIN
     SELECT
       v.id AS verse_id,
       b.slug AS book_slug,
-      CASE WHEN $2 = 'ua' THEN b.title_ua ELSE b.title_en END AS book_title,
+      CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END AS book_title,
       c.chapter_number,
       v.verse_number,
       v.sanskrit,
@@ -133,7 +133,7 @@ DECLARE
   synonyms_column TEXT;
 BEGIN
   IF search_language = 'ua' THEN
-    synonyms_column := 'synonyms_ua';
+    synonyms_column := 'synonyms_uk';
   ELSE
     synonyms_column := 'synonyms_en';
   END IF;
@@ -182,25 +182,22 @@ $$ LANGUAGE plpgsql STABLE;
 -- VIEW для зручного доступу до синонімів
 -- ============================================================================
 
-CREATE OR REPLACE VIEW verses_with_synonyms AS
+DROP VIEW IF EXISTS verses_with_synonyms;
+CREATE VIEW verses_with_synonyms AS
 SELECT
   v.id,
   b.slug AS book_slug,
-  b.title_ua,
+  b.title_uk,
   b.title_en,
   c.chapter_number,
   v.verse_number,
   v.sanskrit,
-  v.transliteration_ua,
-  v.transliteration_en,
-  v.synonyms_ua,
+  v.transliteration,
+  v.synonyms_uk,
   v.synonyms_en,
-  v.translation_ua,
+  v.translation_uk,
   v.translation_en
 FROM verses v
 INNER JOIN chapters c ON v.chapter_id = c.id
 INNER JOIN books b ON c.book_id = b.id
-WHERE
-  v.is_published = true
-  AND v.deleted_at IS NULL
-  AND (v.synonyms_ua IS NOT NULL OR v.synonyms_en IS NOT NULL);
+WHERE v.synonyms_uk IS NOT NULL OR v.synonyms_en IS NOT NULL;

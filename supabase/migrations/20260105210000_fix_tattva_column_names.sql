@@ -5,26 +5,26 @@
 -- Part 1: Rename columns if they exist with old names
 DO $$
 BEGIN
-  -- Check and rename name_uk to name_ua
+  -- Check and rename name_uk to name_uk
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public'
     AND table_name = 'tattvas'
     AND column_name = 'name_uk'
   ) THEN
-    ALTER TABLE public.tattvas RENAME COLUMN name_uk TO name_ua;
-    RAISE NOTICE 'Renamed name_uk to name_ua';
+    ALTER TABLE public.tattvas RENAME COLUMN name_uk TO name_uk;
+    RAISE NOTICE 'Renamed name_uk to name_uk';
   END IF;
 
-  -- Check and rename description_uk to description_ua
+  -- Check and rename description_uk to description_uk
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public'
     AND table_name = 'tattvas'
     AND column_name = 'description_uk'
   ) THEN
-    ALTER TABLE public.tattvas RENAME COLUMN description_uk TO description_ua;
-    RAISE NOTICE 'Renamed description_uk to description_ua';
+    ALTER TABLE public.tattvas RENAME COLUMN description_uk TO description_uk;
+    RAISE NOTICE 'Renamed description_uk to description_uk';
   END IF;
 END $$;
 
@@ -66,9 +66,9 @@ RETURNS TABLE (
   id UUID,
   slug TEXT,
   name_en TEXT,
-  name_ua TEXT,
+  name_uk TEXT,
   description_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
   category TEXT,
   parent_id UUID,
   display_order INT,
@@ -93,9 +93,9 @@ BEGIN
     tree.id,
     tree.slug,
     tree.name_en,
-    tree.name_ua,
+    tree.name_uk,
     tree.description_en,
-    tree.description_ua,
+    tree.description_uk,
     tree.category,
     tree.parent_id,
     tree.display_order,
@@ -122,7 +122,7 @@ RETURNS TABLE (
   chapter_number INT,
   verse_number TEXT,
   sanskrit TEXT,
-  translation_ua TEXT,
+  translation_uk TEXT,
   translation_en TEXT,
   relevance_score FLOAT,
   tattva_name TEXT
@@ -139,23 +139,23 @@ BEGIN
 
   RETURN QUERY
   WITH target_tattvas AS (
-    SELECT t.id, t.name_ua FROM public.tattvas t WHERE t.id = v_tattva_id
+    SELECT t.id, t.name_uk FROM public.tattvas t WHERE t.id = v_tattva_id
     UNION ALL
-    SELECT t.id, t.name_ua FROM public.tattvas t
+    SELECT t.id, t.name_uk FROM public.tattvas t
     WHERE p_include_children AND t.parent_id = v_tattva_id
   )
   SELECT
     v.id AS verse_id,
     b.slug AS book_slug,
-    COALESCE(b.title_ua, b.title) AS book_title,
+    COALESCE(b.title_uk, b.title) AS book_title,
     can.canto_number,
     ch.chapter_number,
     v.verse_number,
     v.sanskrit,
-    v.translation_ua,
+    v.translation_uk,
     v.translation_en,
     ct.relevance_score::FLOAT,
-    tt.name_ua AS tattva_name
+    tt.name_uk AS tattva_name
   FROM public.content_tattvas ct
   JOIN target_tattvas tt ON tt.id = ct.tattva_id
   JOIN public.verses v ON v.id = ct.verse_id
@@ -173,7 +173,7 @@ RETURNS TABLE (
   id UUID,
   slug TEXT,
   name_en TEXT,
-  name_ua TEXT,
+  name_uk TEXT,
   category TEXT,
   relevance_score FLOAT
 ) LANGUAGE plpgsql SECURITY DEFINER AS $$
@@ -183,7 +183,7 @@ BEGIN
     t.id,
     t.slug,
     t.name_en,
-    t.name_ua,
+    t.name_uk,
     t.category,
     ct.relevance_score::FLOAT
   FROM public.content_tattvas ct
@@ -199,8 +199,8 @@ RETURNS TABLE (
   id UUID,
   slug TEXT,
   name_en TEXT,
-  name_ua TEXT,
-  description_ua TEXT,
+  name_uk TEXT,
+  description_uk TEXT,
   description_en TEXT,
   category TEXT,
   parent_id UUID,
@@ -213,8 +213,8 @@ BEGIN
     t.id,
     t.slug,
     t.name_en,
-    t.name_ua,
-    t.description_ua,
+    t.name_uk,
+    t.description_uk,
     t.description_en,
     t.category,
     t.parent_id,
@@ -223,12 +223,12 @@ BEGIN
   FROM public.tattvas t
   LEFT JOIN public.tattvas p ON p.id = t.parent_id
   WHERE
-    t.name_ua ILIKE '%' || p_query || '%'
+    t.name_uk ILIKE '%' || p_query || '%'
     OR t.name_en ILIKE '%' || p_query || '%'
-    OR t.description_ua ILIKE '%' || p_query || '%'
+    OR t.description_uk ILIKE '%' || p_query || '%'
     OR t.description_en ILIKE '%' || p_query || '%'
   ORDER BY
-    CASE WHEN t.name_ua ILIKE p_query || '%' THEN 0 ELSE 1 END,
+    CASE WHEN t.name_uk ILIKE p_query || '%' THEN 0 ELSE 1 END,
     t.display_order;
 END;
 $$;
@@ -237,7 +237,7 @@ $$;
 CREATE OR REPLACE FUNCTION get_tattva_breadcrumb(p_tattva_slug TEXT)
 RETURNS TABLE (
   id UUID,
-  name_ua TEXT,
+  name_uk TEXT,
   name_en TEXT,
   slug TEXT,
   depth INT
@@ -245,15 +245,15 @@ RETURNS TABLE (
 BEGIN
   RETURN QUERY
   WITH RECURSIVE path AS (
-    SELECT t.id, t.name_ua, t.name_en, t.slug, t.parent_id, 0 AS depth
+    SELECT t.id, t.name_uk, t.name_en, t.slug, t.parent_id, 0 AS depth
     FROM public.tattvas t
     WHERE t.slug = p_tattva_slug
     UNION ALL
-    SELECT t.id, t.name_ua, t.name_en, t.slug, t.parent_id, path.depth + 1
+    SELECT t.id, t.name_uk, t.name_en, t.slug, t.parent_id, path.depth + 1
     FROM public.tattvas t
     JOIN path ON t.id = path.parent_id
   )
-  SELECT path.id, path.name_ua, path.name_en, path.slug, path.depth
+  SELECT path.id, path.name_uk, path.name_en, path.slug, path.depth
   FROM path
   ORDER BY path.depth DESC;
 END;

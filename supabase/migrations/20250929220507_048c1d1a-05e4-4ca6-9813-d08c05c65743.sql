@@ -10,11 +10,11 @@ $$ LANGUAGE plpgsql SET search_path = public;
 -- Create blog_posts table
 CREATE TABLE public.blog_posts (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
-  content_ua TEXT NOT NULL,
+  content_uk TEXT NOT NULL,
   content_en TEXT NOT NULL,
-  excerpt_ua TEXT,
+  excerpt_uk TEXT,
   excerpt_en TEXT,
   author TEXT NOT NULL,
   published_at TIMESTAMP WITH TIME ZONE DEFAULT now(),

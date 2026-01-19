@@ -16,16 +16,16 @@ RETURNS TABLE (
   sample_text TEXT
 ) AS $$
 BEGIN
-  -- Check sanskrit_ua field
+  -- Check sanskrit_uk field
   RETURN QUERY
   SELECT
-    'sanskrit_ua'::TEXT as column_name,
+    'sanskrit_uk'::TEXT as column_name,
     COUNT(*)::BIGINT as affected_count,
     (ARRAY_AGG(v.id))[1] as sample_id,
     (ARRAY_AGG(v.verse_number))[1]::TEXT as sample_verse_number,
-    LEFT((ARRAY_AGG(v.sanskrit_ua))[1], 200) as sample_text
+    LEFT((ARRAY_AGG(v.sanskrit_uk))[1], 200) as sample_text
   FROM verses v
-  WHERE v.sanskrit_ua LIKE '%&nbsp;%'
+  WHERE v.sanskrit_uk LIKE '%&nbsp;%'
   HAVING COUNT(*) > 0;
 
   -- Check sanskrit_en field
@@ -52,16 +52,16 @@ BEGIN
   WHERE v.transliteration_en LIKE '%&nbsp;%'
   HAVING COUNT(*) > 0;
 
-  -- Check transliteration_ua field
+  -- Check transliteration_uk field
   RETURN QUERY
   SELECT
-    'transliteration_ua'::TEXT,
+    'transliteration_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(v.id))[1],
     (ARRAY_AGG(v.verse_number))[1]::TEXT,
-    LEFT((ARRAY_AGG(v.transliteration_ua))[1], 200)
+    LEFT((ARRAY_AGG(v.transliteration_uk))[1], 200)
   FROM verses v
-  WHERE v.transliteration_ua LIKE '%&nbsp;%'
+  WHERE v.transliteration_uk LIKE '%&nbsp;%'
   HAVING COUNT(*) > 0;
 
 END;
@@ -92,24 +92,24 @@ BEGIN
   );
 
   -- =========================================
-  -- Fix sanskrit_ua field
+  -- Fix sanskrit_uk field
   -- =========================================
 
   -- Backup
   INSERT INTO nbsp_cleanup_backup (id, column_name, original_value)
-  SELECT id, 'sanskrit_ua', sanskrit_ua
+  SELECT id, 'sanskrit_uk', sanskrit_uk
   FROM verses
-  WHERE sanskrit_ua LIKE '%&nbsp;%'
+  WHERE sanskrit_uk LIKE '%&nbsp;%'
   ON CONFLICT DO NOTHING;
 
   -- Fix: replace &nbsp; with regular space
   UPDATE verses
-  SET sanskrit_ua = REPLACE(sanskrit_ua, '&nbsp;', ' ')
-  WHERE sanskrit_ua LIKE '%&nbsp;%';
+  SET sanskrit_uk = REPLACE(sanskrit_uk, '&nbsp;', ' ')
+  WHERE sanskrit_uk LIKE '%&nbsp;%';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'sanskrit_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'sanskrit_uk'::TEXT, fixed_count_var;
   END IF;
 
   -- =========================================
@@ -155,30 +155,30 @@ BEGIN
   END IF;
 
   -- =========================================
-  -- Fix transliteration_ua field
+  -- Fix transliteration_uk field
   -- =========================================
 
   -- Backup
   INSERT INTO nbsp_cleanup_backup (id, column_name, original_value)
-  SELECT id, 'transliteration_ua', transliteration_ua
+  SELECT id, 'transliteration_uk', transliteration_uk
   FROM verses
-  WHERE transliteration_ua LIKE '%&nbsp;%'
+  WHERE transliteration_uk LIKE '%&nbsp;%'
   ON CONFLICT DO NOTHING;
 
   -- Fix: replace &nbsp; with regular space
   UPDATE verses
-  SET transliteration_ua = REPLACE(transliteration_ua, '&nbsp;', ' ')
-  WHERE transliteration_ua LIKE '%&nbsp;%';
+  SET transliteration_uk = REPLACE(transliteration_uk, '&nbsp;', ' ')
+  WHERE transliteration_uk LIKE '%&nbsp;%';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'transliteration_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'transliteration_uk'::TEXT, fixed_count_var;
   END IF;
 
   -- Clean up multiple consecutive spaces
   UPDATE verses
-  SET sanskrit_ua = REGEXP_REPLACE(sanskrit_ua, ' {2,}', ' ', 'g')
-  WHERE sanskrit_ua ~ ' {2,}';
+  SET sanskrit_uk = REGEXP_REPLACE(sanskrit_uk, ' {2,}', ' ', 'g')
+  WHERE sanskrit_uk ~ ' {2,}';
 
   UPDATE verses
   SET sanskrit_en = REGEXP_REPLACE(sanskrit_en, ' {2,}', ' ', 'g')
@@ -189,8 +189,8 @@ BEGIN
   WHERE transliteration_en ~ ' {2,}';
 
   UPDATE verses
-  SET transliteration_ua = REGEXP_REPLACE(transliteration_ua, ' {2,}', ' ', 'g')
-  WHERE transliteration_ua ~ ' {2,}';
+  SET transliteration_uk = REGEXP_REPLACE(transliteration_uk, ' {2,}', ' ', 'g')
+  WHERE transliteration_uk ~ ' {2,}';
 
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

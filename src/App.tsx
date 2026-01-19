@@ -39,6 +39,7 @@ import { Audio } from "./pages/Audio";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
+import { PaymentSuccess } from "./pages/payment/PaymentSuccess";
 // Glossary.tsx removed - using GlossaryDB instead
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
@@ -120,6 +121,7 @@ import Quotes from "./pages/Quotes";
 import TattvasIndex from "./pages/TattvasIndex";
 import TattvaPage from "./pages/TattvaPage";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
+import TimelinePage from "./pages/TimelinePage";
 import GVReferences from "./pages/GVReferences";
 import VaishnavCalendar from "./pages/VaishnavCalendar";
 import EkadashiList from "./pages/EkadashiList";
@@ -246,6 +248,7 @@ function AppContent() {
             <Route path="tattvas" element={<TattvasIndex />} />
             <Route path="tattva/:slug" element={<TattvaPage />} />
             <Route path="stats" element={<ReadingStatsPage />} />
+            <Route path="timeline" element={<TimelinePage />} />
 
             {/* Вайшнавський календар */}
             <Route path="calendar" element={<VaishnavCalendar />} />
@@ -256,6 +259,7 @@ function AppContent() {
             {/* Платежі */}
             <Route path="payment/card" element={<CardPayment />} />
             <Route path="payment/bank" element={<BankTransfer />} />
+            <Route path="payment/success" element={<PaymentSuccess />} />
 
             {/* CMS сторінки - catch-all для невідомих шляхів в межах мови */}
             <Route path=":slug" element={<PageView />} />
@@ -264,6 +268,102 @@ function AppContent() {
           {/* ============================================================
               NON-LOCALIZED ROUTES (без мовного префіксу)
               ============================================================ */}
+          {/* Основні читацькі маршрути → редірект на /lib/ */}
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId" element={<VedaReaderCantoVerseRedirect />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber" element={<VedaReaderCantoVerseRedirect />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderCantoChapterRedirect />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber" element={<VedaReaderCantoRedirect />} />
+          <Route path="/veda-reader/:bookId/:chapterNumber/:verseNumber" element={<VedaReaderVerseRedirect />} />
+          <Route path="/veda-reader/:bookId/:chapterNumber" element={<VedaReaderChapterRedirect />} />
+
+          {/* Special route for NoI: redirect to /lib/ */}
+          <Route path="/veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
+
+          {/* Book resources pages - залишаються під /veda-reader/ (не мають числових параметрів) */}
+          <Route path="/veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+          <Route path="/veda-reader/:bookId/author" element={<BookAuthorPage />} />
+          <Route path="/veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
+          <Route path="/veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
+          <Route path="/veda-reader/:bookId/dedication" element={<BookDedicationPage />} />
+          <Route path="/veda-reader/:bookId/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+          <Route path="/veda-reader/:bookId/settings" element={<BookSettingsRoutePage />} />
+          <Route path="/veda-reader/:bookId/bookmarks" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/notes" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/highlights" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/galleries" element={<BookGalleriesPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/author" element={<BookAuthorPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/pronunciation" element={<BookPronunciationPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/glossary" element={<BookGlossaryPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/dedication" element={<BookDedicationPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/settings" element={<BookSettingsRoutePage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/bookmarks" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
+          <Route path="/veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
+
+          {/* /veda-reader/:bookId → /lib/:bookId (останнє - найменш специфічне) */}
+          <Route path="/veda-reader/:bookId" element={<VedaReaderBookRedirect />} />
+
+          {/* Alias/redirects для довгих назв */}
+          <Route path="/veda-reader/bhagavad-gita/*" element={<Navigate to="/lib/bg/1" replace />} />
+          <Route path="/veda-reader/gita/*" element={<Navigate to="/lib/bg/1" replace />} />
+          <Route path="/veda-reader/sri-isopanishad/*" element={<Navigate to="/lib/iso/1" replace />} />
+          <Route path="/veda-reader/srimad-bhagavatam/*" element={<Navigate to="/lib/sb" replace />} />
+          <Route path="/veda-reader/bhagavatam/*" element={<Navigate to="/lib/sb" replace />} />
+
+          {/* Бібліотека */}
+          <Route path="/library" element={<Library />} />
+          <Route path="/library/references" element={<GVReferences />} />
+          <Route path="/library/lectures" element={<LecturesLibrary />} />
+          <Route path="/library/lectures/:slug" element={<LectureView />} />
+          <Route path="/library/letters" element={<LettersLibrary />} />
+          <Route path="/library/letters/:slug" element={<LetterView />} />
+          <Route path="/library/:slug" element={<BookOverview />} />
+          <Route path="/library/prabhupada" element={<Navigate to="/library" replace />} />
+          <Route path="/library/acharyas" element={<Navigate to="/library" replace />} />
+
+          {/* Аудіо */}
+          <Route path="/audio" element={<Audio />} />
+          <Route path="/audiobooks" element={<Audiobooks />} />
+          <Route path="/audiobooks/:id" element={<AudiobookView />} />
+          <Route path="/audio/lectures" element={<Lectures />} />
+          <Route path="/audio/music" element={<Music />} />
+
+          {/* Блог/інше */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/audio/podcasts" element={<Podcasts />} />
+          <Route path="/glossary" element={<GlossaryDB />} />
+          <Route path="/tools/transliteration" element={<TransliterationTool />} />
+          <Route path="/tools/numerology" element={<Numerology />} />
+          <Route path="/tools/jyotish" element={<JyotishCalculator />} />
+          <Route path="/tools/ragas" element={<RagaExplorer />} />
+          <Route path="/tools/learning" element={<ScriptLearning />} />
+          <Route path="/tools/normalization" element={<TextNormalization />} />
+          <Route path="/tools/compiler" element={<KnowledgeCompiler />} />
+          <Route path="/tools/synonyms" element={<SynonymsSearch />} />
+          <Route path="/tools/dictionary" element={<SanskritDictionary />} />
+          <Route path="/install" element={<Install />} />
+          <Route path="/search" element={<BookSearch />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/local" element={<LocalChat />} />
+          <Route path="/quotes" element={<Quotes />} />
+          <Route path="/tattvas" element={<TattvasIndex />} />
+          <Route path="/tattva/:slug" element={<TattvaPage />} />
+          <Route path="/stats" element={<ReadingStatsPage />} />
+          <Route path="/timeline" element={<TimelinePage />} />
+
+          {/* Вайшнавський календар */}
+          <Route path="/calendar" element={<VaishnavCalendar />} />
+          <Route path="/calendar/ekadashi" element={<EkadashiList />} />
+          <Route path="/calendar/ekadashi/:slug" element={<EkadashiDetail />} />
+          <Route path="/contact" element={<Contact />} />
+
+          {/* Платежі */}
+          <Route path="/payment/card" element={<CardPayment />} />
+          <Route path="/payment/bank" element={<BankTransfer />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
 
           {/* Auth */}
           <Route path="/auth" element={<Auth />} />

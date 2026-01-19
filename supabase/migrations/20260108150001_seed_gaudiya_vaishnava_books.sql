@@ -7,7 +7,7 @@ BEGIN;
 -- BOOK CATALOGUES
 -- ============================================================================
 
-INSERT INTO gv_book_catalogues (slug, name_en, name_ua, description_en, description_ua, display_order, icon)
+INSERT INTO gv_book_catalogues (slug, name_en, name_uk, description_en, description_uk, display_order, icon)
 VALUES
   ('foundational-scriptures', 'Foundational Scriptures', 'Основні писання', 'The primary scriptural sources of Gaudiya Vaishnavism', 'Первинні джерела писань ґаудіа-вайшнавізму', 1, 'book'),
   ('chaitanya-mahaprabhu', 'Works of Sri Chaitanya', 'Твори Шрі Чайтан''ї', 'Teachings and compositions attributed to Chaitanya Mahaprabhu', 'Вчення та твори Чайтан''ї Махапрабгу', 2, 'lotus'),
@@ -25,7 +25,7 @@ ON CONFLICT (slug) DO NOTHING;
 -- FOUNDATIONAL SCRIPTURES
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_ua, internal_book_slug, is_available_in_app, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_uk, internal_book_slug, is_available_in_app, display_order)
 VALUES
   -- Bhagavad-gita
   ('bhagavad-gita', 'भगवद्गीता', 'Bhagavad-gītā', 'Bhagavad-gita (Song of God)', 'Бгаґавад-ґіта (Пісня Бога)', NULL, 'shruti', 'gita', 'sanskrit', 700, 5,
@@ -66,7 +66,7 @@ ON CONFLICT (slug) DO UPDATE SET
 -- SRI CHAITANYA MAHAPRABHU
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('siksastakam', 'शिक्षाष्टकम्', 'Śikṣāṣṭakam', 'Siksastakam (Eight Instructions)', 'Шікшаштакам (Вісім настанов)',
    (SELECT id FROM gv_authors WHERE slug = 'chaitanya-mahaprabhu'),
@@ -80,7 +80,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA RUPA GOSVAMI
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_ua, internal_book_slug, is_available_in_app, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_uk, internal_book_slug, is_available_in_app, display_order)
 VALUES
   ('bhakti-rasamrta-sindhu', 'भक्तिरसामृतसिन्धु', 'Bhakti-rasāmṛta-sindhu', 'Bhakti-rasamrita-sindhu (Ocean of the Nectar of Devotion)', 'Бгакті-расамріта-сіндгу (Океан нектару відданості)',
    (SELECT id FROM gv_authors WHERE slug = 'rupa-gosvami'),
@@ -175,7 +175,7 @@ ON CONFLICT (slug) DO UPDATE SET
 -- SRILA SANATANA GOSVAMI
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('brihad-bhagavatamrta', 'बृहद्भागवतामृतम्', 'Bṛhad-bhāgavatāmṛtam', 'Brihad-bhagavatamrta (Great Nectar of Bhagavata)', 'Бріхад-бгаґаватамріта (Великий нектар Бгаґавати)',
    (SELECT id FROM gv_authors WHERE slug = 'sanatana-gosvami'),
@@ -211,7 +211,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA JIVA GOSVAMI
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('tattva-sandarbha', 'तत्त्वसन्दर्भ', 'Tattva-sandarbha', 'Tattva-sandarbha (Essay on Truth)', 'Таттва-сандарбга (Есе про істину)',
    (SELECT id FROM gv_authors WHERE slug = 'jiva-gosvami'),
@@ -296,7 +296,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA RAGHUNATHA DASA GOSVAMI
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, verse_count, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('vilapa-kusumanjali', 'विलापकुसुमाञ्जलि', 'Vilāpa-kusumāñjali', 'Vilapa-kusumanjali (Flower-Offering of Lamentation)', 'Вілапа-кусуманджалі (Квіткова жертва скорботи)',
    (SELECT id FROM gv_authors WHERE slug = 'raghunatha-dasa-gosvami'),
@@ -346,7 +346,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA GOPALA BHATTA GOSVAMI
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('sat-kriya-sara-dipika', 'सत्क्रियासारदीपिका', 'Sat-kriyā-sāra-dīpikā', 'Sat-kriya-sara-dipika (Lamp Illuminating Essential Rites)', 'Сат-кріа-сара-діпіка (Світильник, що освітлює основні обряди)',
    (SELECT id FROM gv_authors WHERE slug = 'gopala-bhatta-gosvami'),
@@ -361,7 +361,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SACRED BIOGRAPHIES
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, volume_count, importance_level, significance_en, significance_ua, internal_book_slug, is_available_in_app, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, volume_count, importance_level, significance_en, significance_uk, internal_book_slug, is_available_in_app, display_order)
 VALUES
   ('chaitanya-charitamrita', 'চৈতন্যচরিতামৃত', 'Caitanya-caritāmṛta', 'Sri Chaitanya-charitamrita (Nectar of Chaitanya''s Life)', 'Шрі Чайтан''я-чарітамріта (Нектар життя Чайтан''ї)',
    (SELECT id FROM gv_authors WHERE slug = 'krishnadasa-kaviraja'),
@@ -383,7 +383,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA NAROTTAMA DASA THAKURA
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('prarthana', 'প্রার্থনা', 'Prārthanā', 'Prarthana (Prayers)', 'Прартгана (Молитви)',
    (SELECT id FROM gv_authors WHERE slug = 'narottama-dasa-thakura'),
@@ -405,7 +405,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA VISVANATHA CHAKRAVARTI THAKURA
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('madhurya-kadambini', 'माधुर्यकादम्बिनी', 'Mādhurya-kādambinī', 'Madhurya-kadambini (Cloudbank of Sweetness)', 'Мадгур''я-кадамбіні (Хмара солодощів)',
    (SELECT id FROM gv_authors WHERE slug = 'visvanatha-chakravarti'),
@@ -455,7 +455,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA BALADEVA VIDYABHUSHANA
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('govinda-bhashya', 'गोविन्दभाष्य', 'Govinda-bhāṣya', 'Govinda-bhashya (Commentary Named Govinda)', 'Ґовінда-бгаш''я (Коментар на ім''я Ґовінди)',
    (SELECT id FROM gv_authors WHERE slug = 'baladeva-vidyabhushana'),

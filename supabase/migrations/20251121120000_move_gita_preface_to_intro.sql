@@ -20,7 +20,7 @@ BEGIN
 
   -- Обробляємо всі від'ємні глави
   FOR v_chapter IN
-    SELECT id, chapter_number, title_ua, title_en, content_ua, content_en
+    SELECT id, chapter_number, title_uk, title_en, content_uk, content_en
     FROM chapters
     WHERE book_id = v_book_id
       AND chapter_number < 0
@@ -51,25 +51,25 @@ BEGIN
     -- Створюємо intro_chapter з контентом
     INSERT INTO intro_chapters (
       book_id,
-      title_ua,
+      title_uk,
       title_en,
-      content_ua,
+      content_uk,
       content_en,
       display_order,
       slug
     ) VALUES (
       v_book_id,
-      COALESCE(v_chapter.title_ua, 'Глава ' || v_chapter.chapter_number),
+      COALESCE(v_chapter.title_uk, 'Глава ' || v_chapter.chapter_number),
       COALESCE(v_chapter.title_en, 'Chapter ' || v_chapter.chapter_number),
-      v_chapter.content_ua,
+      v_chapter.content_uk,
       v_chapter.content_en,
       v_order,
       v_slug
     )
     ON CONFLICT (book_id, slug) DO UPDATE SET
-      title_ua = EXCLUDED.title_ua,
+      title_uk = EXCLUDED.title_uk,
       title_en = EXCLUDED.title_en,
-      content_ua = EXCLUDED.content_ua,
+      content_uk = EXCLUDED.content_uk,
       content_en = EXCLUDED.content_en,
       display_order = EXCLUDED.display_order,
       updated_at = now();

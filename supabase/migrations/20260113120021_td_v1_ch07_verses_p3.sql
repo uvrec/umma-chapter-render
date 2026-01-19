@@ -16,9 +16,9 @@ BEGIN
   -- January 7th, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'January 7th, 1976',
     '', '', '', '',
@@ -199,9 +199,9 @@ BEGIN
   -- January 8th, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'January 8th, 1976',
     '', '', '', '',

@@ -10,9 +10,9 @@ BEGIN
     -- Insert Preface intro chapter
     INSERT INTO intro_chapters (
       book_id,
-      title_ua,
+      title_uk,
       title_en,
-      content_ua,
+      content_uk,
       content_en,
       slug,
       display_order
@@ -26,7 +26,7 @@ BEGIN
       1
     )
     ON CONFLICT (book_id, slug) DO UPDATE SET
-      title_ua = EXCLUDED.title_ua,
+      title_uk = EXCLUDED.title_uk,
       title_en = EXCLUDED.title_en,
       display_order = EXCLUDED.display_order;
 

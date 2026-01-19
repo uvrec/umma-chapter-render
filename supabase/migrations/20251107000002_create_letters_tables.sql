@@ -3,14 +3,14 @@ CREATE TABLE public.letters (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE, -- 'letter-to-mahatma-gandhi'
   recipient_en TEXT NOT NULL,
-  recipient_ua TEXT,
+  recipient_uk TEXT,
   letter_date DATE NOT NULL,
   location_en TEXT NOT NULL,
-  location_ua TEXT,
+  location_uk TEXT,
   reference TEXT, -- '47-07-12' - vedabase reference
   address_block TEXT, -- Recipient's address
   content_en TEXT NOT NULL,
-  content_ua TEXT,
+  content_uk TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );

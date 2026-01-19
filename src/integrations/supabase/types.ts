@@ -415,12 +415,12 @@ export type Database = {
       blog_posts: {
         Row: {
           audio_commentary_en_url: string | null
-          audio_commentary_uk_url: string | null
+          audio_commentary_ua_url: string | null
           audio_poetry_translation_en_url: string | null
-          audio_poetry_translation_uk_url: string | null
+          audio_poetry_translation_ua_url: string | null
           audio_sanskrit_url: string | null
           audio_synonyms_en_url: string | null
-          audio_synonyms_uk_url: string | null
+          audio_synonyms_ua_url: string | null
           audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
@@ -467,12 +467,12 @@ export type Database = {
         }
         Insert: {
           audio_commentary_en_url?: string | null
-          audio_commentary_uk_url?: string | null
+          audio_commentary_ua_url?: string | null
           audio_poetry_translation_en_url?: string | null
-          audio_poetry_translation_uk_url?: string | null
+          audio_poetry_translation_ua_url?: string | null
           audio_sanskrit_url?: string | null
           audio_synonyms_en_url?: string | null
-          audio_synonyms_uk_url?: string | null
+          audio_synonyms_ua_url?: string | null
           audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
@@ -519,12 +519,12 @@ export type Database = {
         }
         Update: {
           audio_commentary_en_url?: string | null
-          audio_commentary_uk_url?: string | null
+          audio_commentary_ua_url?: string | null
           audio_poetry_translation_en_url?: string | null
-          audio_poetry_translation_uk_url?: string | null
+          audio_poetry_translation_ua_url?: string | null
           audio_sanskrit_url?: string | null
           audio_synonyms_en_url?: string | null
-          audio_synonyms_uk_url?: string | null
+          audio_synonyms_ua_url?: string | null
           audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
@@ -2626,6 +2626,174 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_customers: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: string
+          stripe_customer_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          stripe_customer_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          stripe_customer_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stripe_payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          status: string
+          stripe_checkout_session_id: string | null
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      stripe_products: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          description: string | null
+          id: string
+          interval: string | null
+          interval_count: number | null
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          interval?: string | null
+          interval_count?: number | null
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          stripe_price_id: string
+          stripe_product_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          interval?: string | null
+          interval_count?: number | null
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          stripe_price_id?: string
+          stripe_product_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      stripe_subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          is_effectively_active: boolean | null
+          status: string
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          is_effectively_active?: boolean | null
+          status?: string
+          stripe_customer_id: string
+          stripe_price_id: string
+          stripe_subscription_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          is_effectively_active?: boolean | null
+          status?: string
+          stripe_customer_id?: string
+          stripe_price_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       tattvas: {
         Row: {
           category: string | null
@@ -3462,7 +3630,7 @@ export type Database = {
           end_verse: number | null
           event_date: string | null
           explanation_en_audio_url: string | null
-          explanation_uk_audio_url: string | null
+          explanation_ua_audio_url: string | null
           full_verse_audio_url: string | null
           id: string
           is_composite: boolean | null
@@ -3502,7 +3670,7 @@ export type Database = {
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
-          explanation_uk_audio_url?: string | null
+          explanation_ua_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -3542,7 +3710,7 @@ export type Database = {
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
-          explanation_uk_audio_url?: string | null
+          explanation_ua_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -3761,7 +3929,8 @@ export type Database = {
           published_at: string | null
           read_time: number | null
           scheduled_publish_at: string | null
-          search_vector: unknown
+          search_vector_en: unknown
+          search_vector_uk: unknown
           slug: string | null
           substack_embed_url: string | null
           tags: string[] | null
@@ -3791,7 +3960,8 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
-          search_vector?: unknown
+          search_vector_en?: unknown
+          search_vector_uk?: unknown
           slug?: string | null
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -3821,7 +3991,8 @@ export type Database = {
           published_at?: string | null
           read_time?: number | null
           scheduled_publish_at?: string | null
-          search_vector?: unknown
+          search_vector_en?: unknown
+          search_vector_uk?: unknown
           slug?: string | null
           substack_embed_url?: string | null
           tags?: string[] | null
@@ -3882,40 +4053,28 @@ export type Database = {
         Row: {
           cantos_count: number | null
           chapters_count: number | null
-          default_structure: string | null
-          gitabase_slug: string | null
-          has_cantos: boolean | null
           id: string | null
           our_slug: string | null
           title_en: string | null
           title_uk: string | null
-          vedabase_slug: string | null
           verses_count: number | null
         }
         Insert: {
           cantos_count?: never
           chapters_count?: never
-          default_structure?: string | null
-          gitabase_slug?: string | null
-          has_cantos?: boolean | null
           id?: string | null
           our_slug?: string | null
           title_en?: string | null
           title_uk?: string | null
-          vedabase_slug?: string | null
           verses_count?: never
         }
         Update: {
           cantos_count?: never
           chapters_count?: never
-          default_structure?: string | null
-          gitabase_slug?: string | null
-          has_cantos?: boolean | null
           id?: string | null
           our_slug?: string | null
           title_en?: string | null
           title_uk?: string | null
-          vedabase_slug?: string | null
           verses_count?: never
         }
         Relationships: []
@@ -3928,7 +4087,7 @@ export type Database = {
         }
         Relationships: []
       }
-      glossary_stats_cache_uk: {
+      glossary_stats_cache_ua: {
         Row: {
           book_slug: string | null
           book_title: string | null
@@ -3946,7 +4105,7 @@ export type Database = {
           slug: string | null
           sort_date: string | null
           title_en: string | null
-          title_uk: string | null
+          title_ua: string | null
         }
         Relationships: [
           {
@@ -4015,32 +4174,14 @@ export type Database = {
           commentary_en: string | null
           commentary_uk: string | null
           created_at: string | null
-          deleted_at: string | null
-          display_blocks: Json | null
-          end_verse: number | null
           id: string | null
-          is_composite: boolean | null
-          is_published: boolean | null
           sanskrit: string | null
-          sanskrit_en: string | null
-          sanskrit_uk: string | null
-          search_vector: unknown
-          sort_key: number | null
-          start_verse: number | null
           synonyms_en: string | null
           synonyms_uk: string | null
           translation_en: string | null
           translation_uk: string | null
           transliteration: string | null
-          transliteration_en: string | null
-          transliteration_uk: string | null
-          verse_count: number | null
-          verse_end: number | null
           verse_number: string | null
-          verse_number_sort: number | null
-          verse_start: number | null
-          verse_suffix: string | null
-          verse_type_display: string | null
         }
         Relationships: [
           {
@@ -4063,7 +4204,6 @@ export type Database = {
         Row: {
           chapter_id: string | null
           detected_structure: string | null
-          display_blocks: Json | null
           has_commentary: boolean | null
           has_sanskrit: boolean | null
           has_synonyms: boolean | null
@@ -4075,7 +4215,6 @@ export type Database = {
         Insert: {
           chapter_id?: string | null
           detected_structure?: never
-          display_blocks?: Json | null
           has_commentary?: never
           has_sanskrit?: never
           has_synonyms?: never
@@ -4087,7 +4226,6 @@ export type Database = {
         Update: {
           chapter_id?: string | null
           detected_structure?: never
-          display_blocks?: Json | null
           has_commentary?: never
           has_sanskrit?: never
           has_synonyms?: never
@@ -4125,39 +4263,42 @@ export type Database = {
           title_uk: string | null
           translation_en: string | null
           translation_uk: string | null
-          transliteration_en: string | null
-          transliteration_uk: string | null
+          transliteration: string | null
           verse_number: string | null
         }
         Relationships: []
       }
     }
     Functions: {
+      count_blog_search_results: {
+        Args: { lang?: string; q: string }
+        Returns: number
+      }
       count_visible_blocks: { Args: { verse_id: string }; Returns: number }
       create_blog_post: {
         Args: {
           _audio_url?: string
           _category_id?: string
           _content_en: string
-          _content_uk: string
+          _content_ua: string
           _cover_image_url?: string
           _excerpt_en?: string
-          _excerpt_uk?: string
+          _excerpt_ua?: string
           _is_published?: boolean
           _scheduled_publish_at?: string
           _tags?: string[]
           _title_en: string
-          _title_uk: string
+          _title_ua: string
           _video_url?: string
         }
         Returns: {
           audio_commentary_en_url: string | null
-          audio_commentary_uk_url: string | null
+          audio_commentary_ua_url: string | null
           audio_poetry_translation_en_url: string | null
-          audio_poetry_translation_uk_url: string | null
+          audio_poetry_translation_ua_url: string | null
           audio_sanskrit_url: string | null
           audio_synonyms_en_url: string | null
-          audio_synonyms_uk_url: string | null
+          audio_synonyms_ua_url: string | null
           audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
@@ -4279,7 +4420,7 @@ export type Database = {
           id: string
           slug: string
           title_en: string
-          title_uk: string
+          title_ua: string
           vedabase_slug: string
         }[]
       }
@@ -4320,7 +4461,7 @@ export type Database = {
           category_color: string
           category_slug: string
           description_en: string
-          description_uk: string
+          description_ua: string
           event_date: string
           event_id: string
           event_type: string
@@ -4328,7 +4469,7 @@ export type Database = {
           is_major: boolean
           moon_phase: number
           name_en: string
-          name_uk: string
+          name_ua: string
           sunrise_time: string
           sunset_time: string
         }[]
@@ -4338,16 +4479,16 @@ export type Database = {
         Returns: {
           audio_url: string
           commentary_en: string
-          commentary_uk: string
+          commentary_ua: string
           end_verse: number
           id: string
           is_composite: boolean
           sanskrit: string
           start_verse: number
           synonyms_en: string
-          synonyms_uk: string
+          synonyms_ua: string
           translation_en: string
-          translation_uk: string
+          translation_ua: string
           transliteration: string
           verse_count: number
           verse_number: string
@@ -4360,7 +4501,7 @@ export type Database = {
           quotes_count: number
           slug: string
           title: string
-          title_uk: string
+          title_ua: string
         }[]
       }
       get_glossary_stats: {
@@ -4458,7 +4599,7 @@ export type Database = {
           depth: number
           id: string
           name_en: string
-          name_uk: string
+          name_ua: string
           slug: string
         }[]
       }
@@ -4478,7 +4619,7 @@ export type Database = {
           sanskrit: string
           tattva_name: string
           translation_en: string
-          translation_uk: string
+          translation_ua: string
           verse_id: string
           verse_number: string
         }[]
@@ -4491,11 +4632,11 @@ export type Database = {
           event_type: string
           is_ekadashi: boolean
           name_en: string
-          name_uk: string
+          name_ua: string
           parana_end_time: string
           parana_start_time: string
           short_description_en: string
-          short_description_uk: string
+          short_description_ua: string
         }[]
       }
       get_topic_statistics: {
@@ -4589,7 +4730,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_uk: string
+          text_ua: string
         }[]
       }
       get_verse_tattvas: {
@@ -4599,7 +4740,7 @@ export type Database = {
           id: string
           name_en: string
           name_sanskrit: string
-          name_uk: string
+          name_ua: string
           relevance_score: number
           slug: string
         }[]
@@ -4676,6 +4817,7 @@ export type Database = {
           ts_query: unknown
         }[]
       }
+      refresh_glossary_cache: { Args: never; Returns: undefined }
       remove_adjacent_duplicate_paragraphs: {
         Args: { input_text: string }
         Returns: string
@@ -4688,6 +4830,30 @@ export type Database = {
       safe_websearch_to_tsquery: {
         Args: { config: unknown; query_text: string }
         Returns: unknown
+      }
+      search_blog_posts: {
+        Args: {
+          lang?: string
+          limit_count?: number
+          offset_count?: number
+          q: string
+        }
+        Returns: {
+          author_display_name: string
+          category_id: string
+          cover_image_url: string
+          created_at: string
+          excerpt: string
+          featured_image: string
+          id: string
+          published_at: string
+          rank: number
+          read_time: number
+          slug: string
+          tags: string[]
+          title: string
+          view_count: number
+        }[]
       }
       search_glossary_terms: {
         Args: {
@@ -4752,7 +4918,7 @@ export type Database = {
           source_reference: string
           source_type: string
           text_en: string
-          text_uk: string
+          text_ua: string
           verse_number: string
         }[]
       }
@@ -4840,11 +5006,11 @@ export type Database = {
         Returns: {
           category: string
           description_en: string
-          description_uk: string
+          description_ua: string
           id: string
           name_en: string
           name_sanskrit: string
-          name_uk: string
+          name_ua: string
           parent_id: string
           parent_slug: string
           slug: string
@@ -4895,11 +5061,11 @@ export type Database = {
           book_slug: string
           chapter_id: string
           commentary_en: string
-          commentary_uk: string
+          commentary_ua: string
           id: string
           similarity: number
           translation_en: string
-          translation_uk: string
+          translation_ua: string
           verse_number: string
         }[]
       }

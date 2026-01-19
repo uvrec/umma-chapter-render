@@ -37,7 +37,7 @@ DECLARE
 BEGIN
   -- Вибираємо колонку синонімів залежно від мови
   IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
+    synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
   END IF;
@@ -64,7 +64,7 @@ BEGIN
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN $5 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN $5 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         -- Розбиваємо по крапці з комою (;) - правильний розділювач
         TRIM(part) as synonym_part
@@ -191,7 +191,7 @@ DECLARE
   offset_val integer;
 BEGIN
   IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
+    synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
   END IF;
@@ -212,7 +212,7 @@ BEGIN
   RETURN QUERY EXECUTE format($query$
     WITH parsed_terms AS (
       SELECT
-        CASE WHEN $5 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN $5 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -309,7 +309,7 @@ DECLARE
   synonyms_col text;
 BEGIN
   IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
+    synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
   END IF;
@@ -318,7 +318,7 @@ BEGIN
     WITH parsed_terms AS (
       SELECT
         b.slug as book_slug,
-        CASE WHEN $1 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN $1 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -412,8 +412,8 @@ DECLARE
   translit_col text;
 BEGIN
   IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
-    translit_col := 'transliteration_ua';
+    synonyms_col := 'synonyms_uk';
+    translit_col := 'transliteration_uk';
   ELSE
     synonyms_col := 'synonyms_en';
     translit_col := 'transliteration_en';
@@ -428,7 +428,7 @@ BEGIN
         COALESCE(v.%I, v.transliteration) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN $2 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v

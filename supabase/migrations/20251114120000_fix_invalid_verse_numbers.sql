@@ -43,7 +43,7 @@ BEGIN
   DELETE FROM verses v
   WHERE
     -- Only delete verses without any translation
-    (v.translation_ua IS NULL OR v.translation_ua = '')
+    (v.translation_uk IS NULL OR v.translation_uk = '')
     AND (v.translation_en IS NULL OR v.translation_en = '')
     -- Only simple verses (single number)
     AND v.verse_number ~ '^\d+$'

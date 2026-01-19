@@ -7,7 +7,7 @@ BEGIN;
 -- 1. CREATE BOOK ENTRY
 -- ============================================
 
-INSERT INTO books (slug, title_ua, title_en, description_ua, description_en)
+INSERT INTO books (slug, title_uk, title_en, description_uk, description_en)
 VALUES (
   'pp',
   'Падма Пурана',
@@ -16,9 +16,9 @@ VALUES (
   E'Padma Purana is one of the eighteen Mahapuranas, consisting of five khandas (sections): Srishti-khanda, Bhumi-khanda, Svarga-khanda, Patala-khanda, and Uttara-khanda.\n\nThe name derives from the lotus (padma) that grew from Lord Vishnu''s navel. This Purana is especially known for descriptions of the glories of each of the 26 Ekadashis, which are found mainly in the Uttara-khanda.\n\nPadma Purana is considered a Sattvic Purana, meaning it promotes virtues and spiritual progress. It contains over 55,000 shlokas and covers topics of cosmology, geography, genealogies of kings, as well as numerous spiritual instructions.'
 )
 ON CONFLICT (slug) DO UPDATE SET
-  title_ua = EXCLUDED.title_ua,
+  title_uk = EXCLUDED.title_uk,
   title_en = EXCLUDED.title_en,
-  description_ua = EXCLUDED.description_ua,
+  description_uk = EXCLUDED.description_uk,
   description_en = EXCLUDED.description_en;
 
 -- ============================================
@@ -33,7 +33,7 @@ BEGIN
       title_sanskrit,
       title_transliteration,
       title_en,
-      title_ua,
+      title_uk,
       author_id,
       category,
       subcategory,
@@ -41,7 +41,7 @@ BEGIN
       verse_count,
       importance_level,
       significance_en,
-      significance_ua,
+      significance_uk,
       internal_book_slug,
       is_available_in_app,
       display_order

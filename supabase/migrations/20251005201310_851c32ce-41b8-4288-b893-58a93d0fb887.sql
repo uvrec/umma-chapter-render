@@ -2,11 +2,11 @@
 CREATE TABLE public.pages (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug text NOT NULL UNIQUE,
-  title_ua text NOT NULL,
+  title_uk text NOT NULL,
   title_en text NOT NULL,
-  meta_description_ua text,
+  meta_description_uk text,
   meta_description_en text,
-  content_ua text,
+  content_uk text,
   content_en text,
   hero_image_url text,
   banner_image_url text,
@@ -74,18 +74,18 @@ USING (
 );
 
 -- Seed data with existing pages
-INSERT INTO public.pages (slug, title_ua, title_en, content_ua, content_en, hero_image_url, is_published, sections) VALUES
+INSERT INTO public.pages (slug, title_uk, title_en, content_uk, content_en, hero_image_url, is_published, sections) VALUES
 ('home', 'Головна', 'Home', 
  '<h1>Прабгупада солов''їною</h1><p>Ласкаво просимо до ведичної бібліотеки</p>',
  '<h1>Prabhupada by Nightingale</h1><p>Welcome to the Vedic Library</p>',
  NULL,
  true,
  '[
-   {"type": "hero", "title_ua": "Прабгупада солов''їною", "title_en": "Prabhupada by Nightingale", "subtitle_ua": "Ведична бібліотека з аудіокнигами", "subtitle_en": "Vedic library with audiobooks"},
+   {"type": "hero", "title_uk": "Прабгупада солов''їною", "title_en": "Prabhupada by Nightingale", "subtitle_uk": "Ведична бібліотека з аудіокнигами", "subtitle_en": "Vedic library with audiobooks"},
    {"type": "features", "items": [
-     {"icon": "Library", "title_ua": "Бібліотека", "title_en": "Library", "description_ua": "Велика колекція ведичної літератури", "description_en": "Large collection of Vedic literature", "link": "/library"},
-     {"icon": "Headphones", "title_ua": "Аудіокниги", "title_en": "Audiobooks", "description_ua": "Слухайте священні тексти", "description_en": "Listen to sacred texts", "link": "/audio"},
-     {"icon": "BookOpen", "title_ua": "Глосарій", "title_en": "Glossary", "description_ua": "Санскритські терміни та визначення", "description_en": "Sanskrit terms and definitions", "link": "/glossary"}
+     {"icon": "Library", "title_uk": "Бібліотека", "title_en": "Library", "description_uk": "Велика колекція ведичної літератури", "description_en": "Large collection of Vedic literature", "link": "/library"},
+     {"icon": "Headphones", "title_uk": "Аудіокниги", "title_en": "Audiobooks", "description_uk": "Слухайте священні тексти", "description_en": "Listen to sacred texts", "link": "/audio"},
+     {"icon": "BookOpen", "title_uk": "Глосарій", "title_en": "Glossary", "description_uk": "Санскритські терміни та визначення", "description_en": "Sanskrit terms and definitions", "link": "/glossary"}
    ]}
  ]'::jsonb),
 

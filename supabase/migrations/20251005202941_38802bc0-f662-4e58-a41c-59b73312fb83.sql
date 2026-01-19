@@ -98,11 +98,11 @@ WITH CHECK (((SELECT auth.uid())::text = author_id));
 
 -- Update create_blog_post function to handle new schema
 CREATE OR REPLACE FUNCTION public.create_blog_post(
-  _title_ua text,
+  _title_uk text,
   _title_en text,
-  _content_ua text,
+  _content_uk text,
   _content_en text,
-  _excerpt_ua text DEFAULT NULL,
+  _excerpt_uk text DEFAULT NULL,
   _excerpt_en text DEFAULT NULL,
   _category_id uuid DEFAULT NULL,
   _tags text[] DEFAULT NULL,
@@ -127,11 +127,11 @@ DECLARE
   tmp_slug text;
   user_display_name text;
 BEGIN
-  -- generate slug from title_en if provided, else title_ua
+  -- generate slug from title_en if provided, else title_uk
   IF coalesce(_title_en, '') <> '' THEN
     _slug := slugify(_title_en);
   ELSE
-    _slug := slugify(_title_ua);
+    _slug := slugify(_title_uk);
   END IF;
 
   -- ensure unique slug by appending counter if needed
@@ -156,11 +156,11 @@ BEGIN
 
   -- insert post
   INSERT INTO public.blog_posts(
-    title_ua, title_en, content_ua, content_en, excerpt_ua, excerpt_en,
+    title_uk, title_en, content_uk, content_en, excerpt_uk, excerpt_en,
     category_id, is_published, scheduled_publish_at, cover_image_url,
     video_url, audio_url, slug, published_at, author_id, author_display_name
   ) VALUES (
-    _title_ua, _title_en, _content_ua, _content_en, _excerpt_ua, _excerpt_en,
+    _title_uk, _title_en, _content_uk, _content_en, _excerpt_uk, _excerpt_en,
     _category_id, _is_published, _scheduled_publish_at, _cover_image_url,
     _video_url, _audio_url, _slug, 
     CASE WHEN _is_published THEN now() ELSE NULL END,

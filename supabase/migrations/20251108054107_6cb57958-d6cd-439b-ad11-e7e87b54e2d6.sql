@@ -25,10 +25,10 @@ CREATE TABLE public.lectures (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
   title_en TEXT NOT NULL,
-  title_ua TEXT,
+  title_uk TEXT,
   lecture_date DATE NOT NULL,
   location_en TEXT NOT NULL,
-  location_ua TEXT,
+  location_uk TEXT,
   lecture_type lecture_type NOT NULL DEFAULT 'Other',
   audio_url TEXT,
   book_slug TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE public.lectures (
   chapter_number INTEGER,
   verse_number TEXT,
   description_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -54,7 +54,7 @@ CREATE TABLE public.lecture_paragraphs (
   lecture_id UUID NOT NULL REFERENCES public.lectures(id) ON DELETE CASCADE,
   paragraph_number INTEGER NOT NULL,
   content_en TEXT NOT NULL,
-  content_ua TEXT,
+  content_uk TEXT,
   audio_timecode INTEGER,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   UNIQUE(lecture_id, paragraph_number)
@@ -68,14 +68,14 @@ CREATE TABLE public.letters (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
   recipient_en TEXT NOT NULL,
-  recipient_ua TEXT,
+  recipient_uk TEXT,
   letter_date DATE NOT NULL,
   location_en TEXT NOT NULL,
-  location_ua TEXT,
+  location_uk TEXT,
   reference TEXT,
   address_block TEXT,
   content_en TEXT NOT NULL,
-  content_ua TEXT,
+  content_uk TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
