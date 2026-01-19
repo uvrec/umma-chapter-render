@@ -182,7 +182,8 @@ $$ LANGUAGE plpgsql STABLE;
 -- VIEW для зручного доступу до синонімів
 -- ============================================================================
 
-CREATE OR REPLACE VIEW verses_with_synonyms AS
+DROP VIEW IF EXISTS verses_with_synonyms;
+CREATE VIEW verses_with_synonyms AS
 SELECT
   v.id,
   b.slug AS book_slug,
@@ -191,8 +192,7 @@ SELECT
   c.chapter_number,
   v.verse_number,
   v.sanskrit,
-  v.transliteration_uk,
-  v.transliteration_en,
+  v.transliteration,
   v.synonyms_uk,
   v.synonyms_en,
   v.translation_uk,
@@ -200,7 +200,4 @@ SELECT
 FROM verses v
 INNER JOIN chapters c ON v.chapter_id = c.id
 INNER JOIN books b ON c.book_id = b.id
-WHERE
-  v.is_published = true
-  AND v.deleted_at IS NULL
-  AND (v.synonyms_uk IS NOT NULL OR v.synonyms_en IS NOT NULL);
+WHERE v.synonyms_uk IS NOT NULL OR v.synonyms_en IS NOT NULL;

@@ -1,7 +1,8 @@
 -- Create a public view of blog posts that excludes author_id for security
 -- This prevents correlation of blog posts with user account IDs
 -- Note: search_vector columns are added later in migration 20251228120000
-CREATE OR REPLACE VIEW public.blog_posts_public AS
+DROP VIEW IF EXISTS public.blog_posts_public;
+CREATE VIEW public.blog_posts_public AS
 SELECT
   id,
   title_uk,
