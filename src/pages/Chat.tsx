@@ -13,9 +13,9 @@ export function Chat() {
   return (
     <>
       <PageMeta
-        titleUa="VedaVOICE Чат | Запитай Прабгупаду"
+        titleUk="VedaVOICE Чат | Запитай Прабгупаду"
         titleEn="VedaVOICE Chat | Ask Prabhupada"
-        metaDescriptionUa="AI-асистент для вивчення вчень Шріли Прабгупади. Задавайте запитання та отримуйте відповіді з його книг, лекцій та листів."
+        metaDescriptionUk="AI-асистент для вивчення вчень Шріли Прабгупади. Задавайте запитання та отримуйте відповіді з його книг, лекцій та листів."
         metaDescriptionEn="AI assistant for studying Srila Prabhupada's teachings. Ask questions and get answers from his books, lectures, and letters."
         language={language}
       />

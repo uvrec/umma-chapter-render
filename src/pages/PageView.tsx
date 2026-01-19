@@ -190,9 +190,9 @@ export const PageView = () => {
   return (
     <div className="min-h-screen bg-background">
       <PageMeta
-        titleUa={page.title_uk}
+        titleUk={page.title_uk}
         titleEn={page.title_en}
-        metaDescriptionUa={page.meta_description_uk || ""}
+        metaDescriptionUk={page.meta_description_uk || ""}
         metaDescriptionEn={page.meta_description_en || ""}
         ogImage={page.og_image || ""}
         seoKeywords={page.seo_keywords || ""}

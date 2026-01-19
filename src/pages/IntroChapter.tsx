@@ -118,7 +118,7 @@ export const IntroChapter = () => {
 
     for (let i = 0; i < maxLength; i++) {
       synced.push({
-        ua: paragraphsUa[i] || '',
+        uk: paragraphsUa[i] || '',
         en: paragraphsEn[i] || '',
       });
     }

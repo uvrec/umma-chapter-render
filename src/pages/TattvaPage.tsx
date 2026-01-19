@@ -195,9 +195,9 @@ export function TattvaPage() {
   return (
     <>
       <PageMeta
-        titleUa={`${name || "Таттва"} | Vedavoice`}
+        titleUk={`${name || "Таттва"} | Vedavoice`}
         titleEn={`${name || "Tattva"} | Vedavoice`}
-        metaDescriptionUa={description || "Філософська категорія"}
+        metaDescriptionUk={description || "Філософська категорія"}
         metaDescriptionEn={description || "Philosophical category"}
         language={language}
       />

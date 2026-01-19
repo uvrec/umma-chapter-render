@@ -636,10 +636,6 @@ export default function BlogPost() {
                       synonyms={post.synonyms_en}
                       poetryTranslation={post.poetry_translation_en}
                       commentary={contentEn}
-                      audioSanskritUrl={post.audio_sanskrit_url}
-                      audioTransliterationUrl={post.audio_transliteration_url}
-                      audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
-                      audioCommentaryUrl={post.audio_commentary_en_url}
                       displayBlocks={displayBlocks}
                       language="en"
                     />

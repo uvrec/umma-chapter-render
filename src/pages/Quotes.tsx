@@ -49,9 +49,9 @@ export function Quotes() {
   return (
     <>
       <PageMeta
-        titleUa="Цитати Прабгупади | Vedavoice"
+        titleUk="Цитати Прабгупади | Vedavoice"
         titleEn="Prabhupada Quotes | Vedavoice"
-        metaDescriptionUa="Тематичні цитати Шріли Прабгупади з книг, лекцій та листів"
+        metaDescriptionUk="Тематичні цитати Шріли Прабгупади з книг, лекцій та листів"
         metaDescriptionEn="Thematic quotes from Srila Prabhupada's books, lectures, and letters"
         language={language}
       />
