@@ -130,6 +130,9 @@ export const VedaReaderDB = () => {
 
   // ✅ НОВЕ: Helper для fallback на іншу мову якщо переклад відсутній
   const getTranslationWithFallback = (verse: any, field: 'translation' | 'synonyms' | 'commentary'): string => {
+    // Захист від undefined verse
+    if (!verse) return '';
+
     const primaryField = language === 'uk' ? `${field}_uk` : `${field}_en`;
     const fallbackField = language === 'uk' ? `${field}_en` : `${field}_uk`;
 
