@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 
 const Books = () => {
   const { user, isAdmin } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [deleteBookId, setDeleteBookId] = useState<string | null>(null);
@@ -119,7 +121,7 @@ const Books = () => {
                 <CardHeader>
                   <CardTitle>
                     <Link
-                      to={`/lib/${book.slug}`}
+                      to={getLocalizedPath(`/lib/${book.slug}`)}
                       className="hover:text-primary hover:underline inline-flex items-center gap-2 transition-colors"
                     >
                       {book.title_ua}
