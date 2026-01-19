@@ -180,8 +180,8 @@ export function SpineNavigation({
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className="fixed right-0 top-1/2 -translate-y-1/2 z-50
-          w-2 h-20 bg-brand-500 rounded-l-full
+        className="fixed left-0 top-1/2 -translate-y-1/2 z-50
+          w-2 h-20 bg-brand-500 rounded-r-full
           hover:w-3 transition-all duration-200
           active:bg-brand-600"
         aria-label={t("Відкрити навігацію", "Open navigation")}
@@ -191,14 +191,14 @@ export function SpineNavigation({
 
   return (
     <>
-      {/* Main Spine Bar - on the RIGHT side like Neu Bible */}
+      {/* Main Spine Bar - on the LEFT side */}
       <nav
         className={cn(
-          "spine-navigation fixed right-0 top-0 bottom-0 z-50",
+          "spine-navigation fixed left-0 top-0 bottom-0 z-50",
           "w-16 flex flex-col items-center justify-between py-6",
           "bg-gradient-to-b",
           spineTheme.gradient,
-          "shadow-lg safe-right transition-all duration-500"
+          "shadow-lg safe-left transition-all duration-500"
         )}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
