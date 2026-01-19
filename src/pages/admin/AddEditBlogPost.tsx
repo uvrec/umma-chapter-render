@@ -70,9 +70,9 @@ export default function AddEditBlogPost() {
   // ——— аудіо URL для кожної секції в режимі поезії
   const [audioSanskritUrl, setAudioSanskritUrl] = useState("");
   const [audioTransliterationUrl, setAudioTransliterationUrl] = useState("");
-  const [audioPoetryTranslationUaUrl, setAudioPoetryTranslationUaUrl] = useState("");
+  const [audioPoetryTranslationUkUrl, setAudioPoetryTranslationUkUrl] = useState("");
   const [audioPoetryTranslationEnUrl, setAudioPoetryTranslationEnUrl] = useState("");
-  const [audioCommentaryUaUrl, setAudioCommentaryUaUrl] = useState("");
+  const [audioCommentaryUkUrl, setAudioCommentaryUkUrl] = useState("");
   const [audioCommentaryEnUrl, setAudioCommentaryEnUrl] = useState("");
 
   // ——— автор
@@ -139,9 +139,9 @@ export default function AddEditBlogPost() {
       // Poetry audio URLs
       setAudioSanskritUrl(post.audio_sanskrit_url || "");
       setAudioTransliterationUrl(post.audio_transliteration_url || "");
-      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_ua_url || "");
+      setAudioPoetryTranslationUkUrl(post.audio_poetry_translation_ua_url || "");
       setAudioPoetryTranslationEnUrl(post.audio_poetry_translation_en_url || "");
-      setAudioCommentaryUaUrl(post.audio_commentary_ua_url || "");
+      setAudioCommentaryUkUrl(post.audio_commentary_ua_url || "");
       setAudioCommentaryEnUrl(post.audio_commentary_en_url || "");
     }
   }, [post]);
@@ -192,9 +192,9 @@ export default function AddEditBlogPost() {
         // Poetry audio URLs
         audio_sanskrit_url: audioSanskritUrl,
         audio_transliteration_url: audioTransliterationUrl,
-        audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+        audio_poetry_translation_ua_url: audioPoetryTranslationUkUrl,
         audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-        audio_commentary_ua_url: audioCommentaryUaUrl,
+        audio_commentary_ua_url: audioCommentaryUkUrl,
         audio_commentary_en_url: audioCommentaryEnUrl,
       };
 
@@ -236,9 +236,9 @@ export default function AddEditBlogPost() {
     poetryTranslationEn,
     audioSanskritUrl,
     audioTransliterationUrl,
-    audioPoetryTranslationUaUrl,
+    audioPoetryTranslationUkUrl,
     audioPoetryTranslationEnUrl,
-    audioCommentaryUaUrl,
+    audioCommentaryUkUrl,
     audioCommentaryEnUrl,
   ]);
 
@@ -374,9 +374,9 @@ export default function AddEditBlogPost() {
       // Poetry audio URLs
       audio_sanskrit_url: audioSanskritUrl,
       audio_transliteration_url: audioTransliterationUrl,
-      audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+      audio_poetry_translation_ua_url: audioPoetryTranslationUkUrl,
       audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-      audio_commentary_ua_url: audioCommentaryUaUrl,
+      audio_commentary_ua_url: audioCommentaryUkUrl,
       audio_commentary_en_url: audioCommentaryEnUrl,
     };
 
@@ -528,8 +528,8 @@ export default function AddEditBlogPost() {
                     <Label htmlFor="audio-poetry-translation-ua">Аудіо URL для літературного перекладу</Label>
                     <Input
                       id="audio-poetry-translation-ua"
-                      value={audioPoetryTranslationUaUrl}
-                      onChange={(e) => setAudioPoetryTranslationUaUrl(e.target.value)}
+                      value={audioPoetryTranslationUkUrl}
+                      onChange={(e) => setAudioPoetryTranslationUkUrl(e.target.value)}
                       placeholder="https://..."
                     />
                   </div>
@@ -538,8 +538,8 @@ export default function AddEditBlogPost() {
                     <Label htmlFor="audio-commentary-ua">Аудіо URL для пояснення</Label>
                     <Input
                       id="audio-commentary-ua"
-                      value={audioCommentaryUaUrl}
-                      onChange={(e) => setAudioCommentaryUaUrl(e.target.value)}
+                      value={audioCommentaryUkUrl}
+                      onChange={(e) => setAudioCommentaryUkUrl(e.target.value)}
                       placeholder="https://..."
                     />
                   </div>
