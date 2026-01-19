@@ -257,6 +257,7 @@ function AppContent() {
             {/* Платежі */}
             <Route path="payment/card" element={<CardPayment />} />
             <Route path="payment/bank" element={<BankTransfer />} />
+            <Route path="payment/success" element={<PaymentSuccess />} />
 
             {/* CMS сторінки - catch-all для невідомих шляхів в межах мови */}
             <Route path=":slug" element={<PageView />} />
@@ -265,7 +266,7 @@ function AppContent() {
           {/* ============================================================
               NON-LOCALIZED ROUTES (без мовного префіксу)
               ============================================================ */}
-{/* Основні читацькі маршрути → редірект на /lib/ */}
+          {/* Основні читацькі маршрути → редірект на /lib/ */}
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId" element={<VedaReaderCantoVerseRedirect />} />
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber" element={<VedaReaderCantoVerseRedirect />} />
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderCantoChapterRedirect />} />

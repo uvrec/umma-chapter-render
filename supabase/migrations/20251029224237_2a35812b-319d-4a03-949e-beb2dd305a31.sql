@@ -38,11 +38,12 @@ FROM public.audio_events
 GROUP BY track_id, DATE(created_at AT TIME ZONE 'UTC');
 
 -- Drop and recreate blog_posts_public view
+-- Note: search_vector columns are added later in migration 20251228120000
 DROP VIEW IF EXISTS public.blog_posts_public;
 CREATE VIEW public.blog_posts_public
 WITH (security_invoker = true)
 AS
-SELECT 
+SELECT
   id,
   slug,
   title_ua,
@@ -69,9 +70,7 @@ SELECT
   telegram_embed_url,
   author_display_name,
   substack_embed_url,
-  instagram_embed_url,
-  search_vector_ua,
-  search_vector_en
+  instagram_embed_url
 FROM public.blog_posts
 WHERE is_published = true;
 
