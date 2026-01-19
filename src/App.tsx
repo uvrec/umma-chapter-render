@@ -145,13 +145,8 @@ function AppContent() {
   return (
     <>
       <BrowserRouter>
-        <LanguageProvider>
         <MobileLayout>
         <Routes>
-          {/* ============================================================
-              LANGUAGE PREFIX ROUTES
-              Optional :lang parameter (uk or en) for all public routes
-              ============================================================ */}
           <Route path="/" element={<NewHome />} />
 
           {/* ============================================================
@@ -328,7 +323,6 @@ function AppContent() {
         <GlobalSettingsPanel showFloatingButton={false} />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
         <ReadingModeExitButton />
-        </LanguageProvider>
       </BrowserRouter>
     </>
   );
@@ -339,8 +333,8 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       {/* craft — дефолт; storageKey узгоджений із ThemeProvider/ThemeToggle */}
       <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
-        {/* LanguageProvider moved inside BrowserRouter in AppContent for URL sync */}
-        <AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
           <BooksProvider>
             <TooltipProvider>
               <ModernAudioProvider>
@@ -352,7 +346,8 @@ const App = () => (
               </ModernAudioProvider>
             </TooltipProvider>
           </BooksProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
