@@ -2,6 +2,7 @@
 // Settings panel for Spine Navigation (Neu Bible-style)
 // Панель налаштувань: мова, блоки тексту, про застосунок
 
+import { useState, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +22,8 @@ import {
   HelpCircle,
   ChevronRight,
   Leaf,
+  Check,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +32,83 @@ interface SpineSettingsPanelProps {
   onClose: () => void;
 }
 
+// Translation source definitions for VedaVoice
+const TRANSLATION_SOURCES = [
+  {
+    id: "uk",
+    code: "UK",
+    title_uk: "Український переклад",
+    title_en: "Ukrainian Translation",
+    description_uk: "Переклад українською мовою творів Шріли Прабгупади для україномовних читачів.",
+    description_en: "Ukrainian translation of Srila Prabhupada's works for Ukrainian-speaking readers.",
+    bgColor: "bg-gradient-to-br from-blue-500 to-yellow-400",
+    textColor: "text-white",
+    abbr: "УКР",
+  },
+  {
+    id: "en",
+    code: "EN",
+    title_uk: "Англійський оригінал",
+    title_en: "English Original",
+    description_uk: "Оригінальні твори Шріли Прабгупади англійською мовою - класичні переклади Vedabase.",
+    description_en: "Original works by Srila Prabhupada in English - classic Vedabase translations.",
+    bgColor: "bg-gradient-to-br from-slate-800 to-slate-900",
+    textColor: "text-white",
+    abbr: "ENG",
+  },
+  {
+    id: "dual",
+    code: "DUAL",
+    title_uk: "Двомовний режим",
+    title_en: "Dual Language",
+    description_uk: "Український та англійський переклади поруч для порівняння та вивчення.",
+    description_en: "Ukrainian and English translations side by side for comparison and study.",
+    bgColor: "bg-gradient-to-br from-emerald-500 to-teal-600",
+    textColor: "text-white",
+    abbr: "UK/EN",
+  },
+] as const;
+
+// Reading reminders localStorage key
+const REMINDERS_STORAGE_KEY = "vv_reading_reminders";
+
+type ReminderSettings = {
+  enabled: boolean;
+  days: boolean[]; // [Sun, Mon, Tue, Wed, Thu, Fri, Sat]
+  time: string; // "HH:MM" format
+};
+
+const DEFAULT_REMINDERS: ReminderSettings = {
+  enabled: false,
+  days: [false, true, true, true, true, true, false], // Mon-Fri by default
+  time: "07:00",
+};
+
+function loadReminders(): ReminderSettings {
+  try {
+    const saved = localStorage.getItem(REMINDERS_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : DEFAULT_REMINDERS;
+  } catch {
+    return DEFAULT_REMINDERS;
+  }
+}
+
+function saveReminders(settings: ReminderSettings) {
+  try {
+    localStorage.setItem(REMINDERS_STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // Ignore
+  }
+}
+
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const { language, setLanguage, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
+  const [showTranslationsModal, setShowTranslationsModal] = useState(false);
+  const [selectedTranslationIndex, setSelectedTranslationIndex] = useState(0);
+  const [showRemindersSheet, setShowRemindersSheet] = useState(false);
+  const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
     textDisplaySettings,
@@ -51,6 +128,42 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const handleNavigate = (path: string) => {
     navigate(getLocalizedPath(path));
     onClose();
+  };
+
+  // Get current active translation based on settings
+  const getActiveTranslationId = () => {
+    if (dualLanguageMode) return "dual";
+    return language;
+  };
+
+  const handleSelectTranslation = (id: string) => {
+    if (id === "dual") {
+      setDualLanguageMode(true);
+    } else {
+      setDualLanguageMode(false);
+      setLanguage(id as "uk" | "en");
+    }
+  };
+
+  const handleTranslationCardClick = (index: number) => {
+    setSelectedTranslationIndex(index);
+    setShowTranslationsModal(true);
+  };
+
+  const handleRemindersToggle = (enabled: boolean) => {
+    if (enabled) {
+      setShowRemindersSheet(true);
+    } else {
+      const newSettings = { ...reminders, enabled: false };
+      setReminders(newSettings);
+      saveReminders(newSettings);
+    }
+  };
+
+  const handleSaveReminders = (settings: ReminderSettings) => {
+    setReminders(settings);
+    saveReminders(settings);
+    setShowRemindersSheet(false);
   };
 
   // About section links
@@ -92,6 +205,35 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         </SheetHeader>
 
         <div className="px-4 py-4 space-y-6">
+          {/* GENERAL Section */}
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
+              {t("Загальне", "General")}
+            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="reading-reminders" className="cursor-pointer">
+                {t("Нагадування про читання", "Reading Reminders")}
+              </Label>
+              <Switch
+                id="reading-reminders"
+                checked={reminders.enabled}
+                onCheckedChange={handleRemindersToggle}
+              />
+            </div>
+            {reminders.enabled && (
+              <button
+                onClick={() => setShowRemindersSheet(true)}
+                className="text-sm text-muted-foreground mt-2 hover:text-foreground"
+              >
+                {reminders.days.filter(Boolean).length > 0
+                  ? `${reminders.time} • ${reminders.days.filter(Boolean).length} ${t("днів", "days")}`
+                  : t("Налаштувати", "Configure")}
+              </button>
+            )}
+          </div>
+
+          <Separator />
+
           {/* Language Selection */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
@@ -120,6 +262,69 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 <Globe className="w-4 h-4 mr-2" />
                 English
               </Button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Translations Section */}
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
+              {t("Переклади", "Translations")}
+            </Label>
+
+            {/* See All Translations link */}
+            <button
+              onClick={() => setShowTranslationsModal(true)}
+              className="text-brand-500 font-medium mb-4 hover:underline"
+            >
+              {t("Всі переклади", "See All Translations")}
+            </button>
+
+            {/* Horizontal carousel of translation cards */}
+            <div
+              ref={carouselRef}
+              className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
+              style={{ scrollSnapType: "x mandatory" }}
+            >
+              {TRANSLATION_SOURCES.map((source, index) => {
+                const isActive = getActiveTranslationId() === source.id;
+                return (
+                  <button
+                    key={source.id}
+                    onClick={() => handleTranslationCardClick(index)}
+                    className={cn(
+                      "flex-shrink-0 w-32 h-44 rounded-lg overflow-hidden relative",
+                      "transition-transform active:scale-95",
+                      source.bgColor,
+                      "shadow-md"
+                    )}
+                    style={{ scrollSnapAlign: "start" }}
+                  >
+                    {/* Abbreviation/Logo */}
+                    <div className={cn(
+                      "absolute inset-0 flex flex-col items-center justify-center",
+                      source.textColor
+                    )}>
+                      <span className="text-3xl font-bold tracking-tight opacity-30">
+                        {source.abbr}
+                      </span>
+                      <span className="text-xs font-medium mt-2 px-2 text-center">
+                        {language === "uk" ? source.title_uk : source.title_en}
+                      </span>
+                    </div>
+
+                    {/* Active indicator */}
+                    {isActive && (
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -285,6 +490,30 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           </div>
         </div>
       </SheetContent>
+
+      {/* Full-screen Translations Modal */}
+      {showTranslationsModal && (
+        <TranslationsCarouselModal
+          open={showTranslationsModal}
+          onClose={() => setShowTranslationsModal(false)}
+          translations={TRANSLATION_SOURCES}
+          initialIndex={selectedTranslationIndex}
+          activeId={getActiveTranslationId()}
+          onSelect={handleSelectTranslation}
+          language={language}
+        />
+      )}
+
+      {/* Reading Reminders Sheet */}
+      {showRemindersSheet && (
+        <ReadingRemindersSheet
+          open={showRemindersSheet}
+          onClose={() => setShowRemindersSheet(false)}
+          initialSettings={reminders}
+          onSave={handleSaveReminders}
+          language={language}
+        />
+      )}
     </Sheet>
   );
 }
@@ -302,6 +531,257 @@ function RowToggle({
     <div className="flex items-center justify-between">
       <Label className="cursor-pointer">{label}</Label>
       <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  );
+}
+
+// Full-screen translations carousel modal (like Neu Bible)
+interface TranslationsCarouselModalProps {
+  open: boolean;
+  onClose: () => void;
+  translations: typeof TRANSLATION_SOURCES;
+  initialIndex: number;
+  activeId: string;
+  onSelect: (id: string) => void;
+  language: "uk" | "en";
+}
+
+function TranslationsCarouselModal({
+  open,
+  onClose,
+  translations,
+  initialIndex,
+  activeId,
+  onSelect,
+  language,
+}: TranslationsCarouselModalProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number | null>(null);
+
+  const currentTranslation = translations[currentIndex];
+  const isActive = activeId === currentTranslation.id;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartX.current - touchEndX;
+    const threshold = 50;
+
+    if (Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && currentIndex < translations.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else if (deltaX < 0 && currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+      }
+    }
+
+    touchStartX.current = null;
+  };
+
+  const handleSelect = () => {
+    onSelect(currentTranslation.id);
+    onClose();
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col">
+      {/* Carousel area */}
+      <div
+        ref={containerRef}
+        className="flex-1 flex items-center justify-center px-8"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Previous card preview */}
+        {currentIndex > 0 && (
+          <div
+            className={cn(
+              "absolute left-2 w-20 h-32 rounded-lg opacity-30",
+              translations[currentIndex - 1].bgColor
+            )}
+          />
+        )}
+
+        {/* Current card */}
+        <div className="flex flex-col items-center max-w-xs">
+          <div
+            className={cn(
+              "w-48 h-72 rounded-xl shadow-2xl flex items-center justify-center",
+              currentTranslation.bgColor,
+              currentTranslation.textColor
+            )}
+          >
+            <span className="text-5xl font-bold opacity-40">
+              {currentTranslation.abbr}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-white text-xl font-semibold mt-6 text-center italic">
+            {language === "uk" ? currentTranslation.title_uk : currentTranslation.title_en}
+          </h2>
+
+          {/* Description */}
+          <p className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed">
+            {language === "uk" ? currentTranslation.description_uk : currentTranslation.description_en}
+          </p>
+
+          {/* Select button or active indicator */}
+          <div className="mt-6">
+            {isActive ? (
+              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                <Check className="w-6 h-6 text-white" />
+              </div>
+            ) : (
+              <button
+                onClick={handleSelect}
+                className="px-6 py-2 border border-white/30 rounded-full text-white/80
+                  hover:bg-white/10 transition-colors"
+              >
+                {language === "uk" ? "Обрати" : "Select"}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Next card preview */}
+        {currentIndex < translations.length - 1 && (
+          <div
+            className={cn(
+              "absolute right-2 w-20 h-32 rounded-lg opacity-30",
+              translations[currentIndex + 1].bgColor
+            )}
+          />
+        )}
+      </div>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 pb-4">
+        {translations.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex(index)}
+            className={cn(
+              "w-2 h-2 rounded-full transition-colors",
+              index === currentIndex ? "bg-white" : "bg-white/30"
+            )}
+          />
+        ))}
+      </div>
+
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/60 hover:text-white"
+      >
+        <X className="w-8 h-8" />
+      </button>
+    </div>
+  );
+}
+
+// Reading Reminders Sheet (swipe up from bottom)
+interface ReadingRemindersSheetProps {
+  open: boolean;
+  onClose: () => void;
+  initialSettings: ReminderSettings;
+  onSave: (settings: ReminderSettings) => void;
+  language: "uk" | "en";
+}
+
+const DAYS_SHORT = {
+  uk: ["Нд", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+  en: ["S", "M", "T", "W", "T", "F", "S"],
+};
+
+function ReadingRemindersSheet({
+  open,
+  onClose,
+  initialSettings,
+  onSave,
+  language,
+}: ReadingRemindersSheetProps) {
+  const [days, setDays] = useState<boolean[]>(initialSettings.days);
+  const [time, setTime] = useState(initialSettings.time);
+
+  const handleDayToggle = (index: number) => {
+    const newDays = [...days];
+    newDays[index] = !newDays[index];
+    setDays(newDays);
+  };
+
+  const handleSave = () => {
+    onSave({ enabled: true, days, time });
+  };
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60"
+        onClick={onClose}
+      />
+
+      {/* Sheet content */}
+      <div className="relative bg-background rounded-t-2xl animate-in slide-in-from-bottom duration-300">
+        {/* Days selector */}
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex justify-between">
+            {DAYS_SHORT[language].map((day, index) => (
+              <button
+                key={index}
+                onClick={() => handleDayToggle(index)}
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center",
+                  "font-medium transition-colors",
+                  days[index]
+                    ? "bg-brand-500 text-white"
+                    : "text-muted-foreground hover:bg-muted"
+                )}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Time picker */}
+        <div className="px-6 py-8 flex justify-center">
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className={cn(
+              "text-5xl font-light text-center bg-transparent",
+              "border-0 focus:outline-none focus:ring-0",
+              "appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+            )}
+            style={{ colorScheme: "dark" }}
+          />
+        </div>
+
+        {/* Save button */}
+        <button
+          onClick={handleSave}
+          className={cn(
+            "w-full py-5 bg-brand-500 text-white font-medium text-lg",
+            "hover:bg-brand-600 transition-colors",
+            "safe-bottom"
+          )}
+        >
+          {language === "uk" ? "Зберегти" : "Save"}
+        </button>
+      </div>
     </div>
   );
 }
