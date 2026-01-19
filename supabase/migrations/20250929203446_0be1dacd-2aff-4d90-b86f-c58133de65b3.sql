@@ -2,9 +2,9 @@
 CREATE TABLE public.books (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -14,7 +14,7 @@ CREATE TABLE public.chapters (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   book_id UUID NOT NULL REFERENCES public.books(id) ON DELETE CASCADE,
   chapter_number INTEGER NOT NULL,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   UNIQUE(book_id, chapter_number)
@@ -27,11 +27,11 @@ CREATE TABLE public.verses (
   verse_number TEXT NOT NULL,
   sanskrit TEXT,
   transliteration TEXT,
-  synonyms_ua TEXT,
+  synonyms_uk TEXT,
   synonyms_en TEXT,
-  translation_ua TEXT,
+  translation_uk TEXT,
   translation_en TEXT,
-  commentary_ua TEXT,
+  commentary_uk TEXT,
   commentary_en TEXT,
   audio_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
@@ -152,7 +152,7 @@ CREATE POLICY "Admins can delete roles"
   USING (public.has_role(auth.uid(), 'admin'));
 
 -- Insert default book: Srimad-Bhagavatam
-INSERT INTO public.books (slug, title_ua, title_en, description_ua, description_en)
+INSERT INTO public.books (slug, title_uk, title_en, description_uk, description_en)
 VALUES (
   'srimad-bhagavatam',
   'Шрімад-Бгаґаватам',
@@ -162,7 +162,7 @@ VALUES (
 );
 
 -- Insert Chapter 1 for Srimad-Bhagavatam
-INSERT INTO public.chapters (book_id, chapter_number, title_ua, title_en)
+INSERT INTO public.chapters (book_id, chapter_number, title_uk, title_en)
 SELECT id, 1, 'Розділ 1', 'Chapter 1'
 FROM public.books
 WHERE slug = 'srimad-bhagavatam';

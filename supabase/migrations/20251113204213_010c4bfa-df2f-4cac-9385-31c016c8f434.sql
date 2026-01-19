@@ -81,7 +81,7 @@ BEGIN
   UPDATE chapters
   SET 
     title_en = 'The Nectar of Instruction',
-    title_ua = 'Нектар настанов'
+    title_uk = 'Нектар настанов'
   WHERE id = chapter_1_id;
   
   RAISE NOTICE 'Updated chapter 1 title';

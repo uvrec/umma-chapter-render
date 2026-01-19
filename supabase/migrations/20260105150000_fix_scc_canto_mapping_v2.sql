@@ -43,7 +43,7 @@ BEGIN
   -- ==========================================================================
 
   -- Adi-lila (Canto 1)
-  INSERT INTO cantos (book_id, canto_number, title_ua, title_en, description_ua, description_en)
+  INSERT INTO cantos (book_id, canto_number, title_uk, title_en, description_uk, description_en)
   VALUES (
     v_book_id,
     1,
@@ -53,13 +53,13 @@ BEGIN
     'The Early Pastimes of Lord Caitanya'
   )
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     title_en = EXCLUDED.title_en
   RETURNING id INTO v_adi_canto_id;
   RAISE NOTICE 'Adi-lila canto ID: %', v_adi_canto_id;
 
   -- Madhya-lila (Canto 2)
-  INSERT INTO cantos (book_id, canto_number, title_ua, title_en, description_ua, description_en)
+  INSERT INTO cantos (book_id, canto_number, title_uk, title_en, description_uk, description_en)
   VALUES (
     v_book_id,
     2,
@@ -69,13 +69,13 @@ BEGIN
     'The Middle Pastimes of Lord Caitanya'
   )
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     title_en = EXCLUDED.title_en
   RETURNING id INTO v_madhya_canto_id;
   RAISE NOTICE 'Madhya-lila canto ID: %', v_madhya_canto_id;
 
   -- Antya-lila (Canto 3)
-  INSERT INTO cantos (book_id, canto_number, title_ua, title_en, description_ua, description_en)
+  INSERT INTO cantos (book_id, canto_number, title_uk, title_en, description_uk, description_en)
   VALUES (
     v_book_id,
     3,
@@ -85,7 +85,7 @@ BEGIN
     'The Final Pastimes of Lord Caitanya'
   )
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     title_en = EXCLUDED.title_en
   RETURNING id INTO v_antya_canto_id;
   RAISE NOTICE 'Antya-lila canto ID: %', v_antya_canto_id;
@@ -96,7 +96,7 @@ BEGIN
 
   -- First pass: Identify lila from title (most reliable method)
   FOR v_chapter IN
-    SELECT id, chapter_number, title_ua, title_en, canto_id
+    SELECT id, chapter_number, title_uk, title_en, canto_id
     FROM chapters
     WHERE book_id = v_book_id
   LOOP
@@ -105,21 +105,21 @@ BEGIN
       title_combined text;
     BEGIN
       -- Combine titles for search (lowercase)
-      title_combined := LOWER(COALESCE(v_chapter.title_ua, '') || ' ' || COALESCE(v_chapter.title_en, ''));
+      title_combined := LOWER(COALESCE(v_chapter.title_uk, '') || ' ' || COALESCE(v_chapter.title_en, ''));
 
       -- Detect lila from title
       -- Adi-lila patterns: adi, ādi, аді (Ukrainian)
       IF title_combined ~ '(^|\s)(adi|ādi|аді)[\s\-]' OR title_combined ~ '(adi|ādi|аді)[_\-]?l[iі]la' THEN
         detected_canto_id := v_adi_canto_id;
-        RAISE NOTICE 'Chapter % (%) detected as Adi-lila from title', v_chapter.chapter_number, v_chapter.title_ua;
+        RAISE NOTICE 'Chapter % (%) detected as Adi-lila from title', v_chapter.chapter_number, v_chapter.title_uk;
       -- Madhya-lila patterns: madhya, мадг'я, мадхья (Ukrainian)
       ELSIF title_combined ~ '(^|\s)(madhya|мадг|мадхья)[\s\-''`]' OR title_combined ~ '(madhya|мадг|мадхья)[_\-]?l[iі]la' THEN
         detected_canto_id := v_madhya_canto_id;
-        RAISE NOTICE 'Chapter % (%) detected as Madhya-lila from title', v_chapter.chapter_number, v_chapter.title_ua;
+        RAISE NOTICE 'Chapter % (%) detected as Madhya-lila from title', v_chapter.chapter_number, v_chapter.title_uk;
       -- Antya-lila patterns: antya, антья, антя (Ukrainian)
       ELSIF title_combined ~ '(^|\s)(antya|антья|антя)[\s\-]' OR title_combined ~ '(antya|антья|антя)[_\-]?l[iі]la' THEN
         detected_canto_id := v_antya_canto_id;
-        RAISE NOTICE 'Chapter % (%) detected as Antya-lila from title', v_chapter.chapter_number, v_chapter.title_ua;
+        RAISE NOTICE 'Chapter % (%) detected as Antya-lila from title', v_chapter.chapter_number, v_chapter.title_uk;
       END IF;
 
       -- Update if detected
@@ -185,13 +185,13 @@ BEGIN
     RAISE WARNING 'There are still % SCC chapters without canto_id', v_orphan_count;
     -- List orphan chapters for debugging
     FOR v_chapter IN
-      SELECT chapter_number, title_ua, title_en
+      SELECT chapter_number, title_uk, title_en
       FROM chapters
       WHERE book_id = v_book_id AND canto_id IS NULL
       ORDER BY chapter_number
       LIMIT 10
     LOOP
-      RAISE WARNING '  - Chapter %: % / %', v_chapter.chapter_number, v_chapter.title_ua, v_chapter.title_en;
+      RAISE WARNING '  - Chapter %: % / %', v_chapter.chapter_number, v_chapter.title_uk, v_chapter.title_en;
     END LOOP;
   ELSE
     RAISE NOTICE 'All SCC chapters now have canto_id assigned!';

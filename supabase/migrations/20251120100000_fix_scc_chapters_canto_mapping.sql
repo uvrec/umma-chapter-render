@@ -31,7 +31,7 @@ BEGIN
   UPDATE books SET has_cantos = true WHERE id = v_book_id;
 
   -- Create or get Adi-lila canto (Canto 1)
-  INSERT INTO cantos (book_id, canto_number, title_ua, title_en, description_ua, description_en)
+  INSERT INTO cantos (book_id, canto_number, title_uk, title_en, description_uk, description_en)
   VALUES (
     v_book_id,
     1,
@@ -41,12 +41,12 @@ BEGIN
     'The Early Pastimes of Lord Caitanya'
   )
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     title_en = EXCLUDED.title_en
   RETURNING id INTO v_adi_canto_id;
 
   -- Create or get Madhya-lila canto (Canto 2)
-  INSERT INTO cantos (book_id, canto_number, title_ua, title_en, description_ua, description_en)
+  INSERT INTO cantos (book_id, canto_number, title_uk, title_en, description_uk, description_en)
   VALUES (
     v_book_id,
     2,
@@ -56,12 +56,12 @@ BEGIN
     'The Middle Pastimes of Lord Caitanya'
   )
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     title_en = EXCLUDED.title_en
   RETURNING id INTO v_madhya_canto_id;
 
   -- Create or get Antya-lila canto (Canto 3)
-  INSERT INTO cantos (book_id, canto_number, title_ua, title_en, description_ua, description_en)
+  INSERT INTO cantos (book_id, canto_number, title_uk, title_en, description_uk, description_en)
   VALUES (
     v_book_id,
     3,
@@ -71,7 +71,7 @@ BEGIN
     'The Final Pastimes of Lord Caitanya'
   )
   ON CONFLICT (book_id, canto_number) DO UPDATE SET
-    title_ua = EXCLUDED.title_ua,
+    title_uk = EXCLUDED.title_uk,
     title_en = EXCLUDED.title_en
   RETURNING id INTO v_antya_canto_id;
 

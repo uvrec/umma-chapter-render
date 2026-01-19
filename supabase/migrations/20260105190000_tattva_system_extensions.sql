@@ -83,7 +83,7 @@ RETURNS TABLE (
   chapter_number INTEGER,
   verse_number TEXT,
   sanskrit TEXT,
-  translation_ua TEXT,
+  translation_uk TEXT,
   translation_en TEXT,
   relevance_score REAL,
   tattva_name TEXT
@@ -109,7 +109,7 @@ BEGIN
     vm.chapter_number,
     v.verse_number,
     v.sanskrit,
-    v.translation_ua,
+    v.translation_uk,
     v.translation_en,
     ct.relevance_score::REAL,
     tt.name_en AS tattva_name

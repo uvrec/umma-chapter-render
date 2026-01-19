@@ -6,7 +6,7 @@
 -- MAJOR FESTIVALS
 -- ============================================
 
-INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name_en, description_ua, description_en, significance_ua, significance_en, fasting_level, is_major, sort_order) VALUES
+INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_uk, name_en, description_uk, description_en, significance_uk, significance_en, fasting_level, is_major, sort_order) VALUES
 
 -- Gaura Purnima - Appearance of Chaitanya Mahaprabhu
 ('gaura-purnima', 4, 'Gaura Pūrṇimā', 'Ґаура Пурніма', 'Gaura Purnima',
@@ -105,16 +105,16 @@ INSERT INTO vaishnava_festivals (slug, category_id, name_sanskrit, name_ua, name
  'half', true, 12)
 
 ON CONFLICT (slug) DO UPDATE SET
-  name_ua = EXCLUDED.name_ua,
+  name_uk = EXCLUDED.name_uk,
   name_en = EXCLUDED.name_en,
-  description_ua = EXCLUDED.description_ua,
+  description_uk = EXCLUDED.description_uk,
   description_en = EXCLUDED.description_en;
 
 -- ============================================
 -- APPEARANCE/DISAPPEARANCE DAYS - ACHARYAS
 -- ============================================
 
-INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_ua, person_name_en, person_title_ua, person_title_en, description_ua, description_en, fasting_level, is_major, sort_order) VALUES
+INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit, person_name_uk, person_name_en, person_title_uk, person_title_en, description_uk, description_en, fasting_level, is_major, sort_order) VALUES
 
 -- Prabhupada
 ('prabhupada-appearance', 2, 'appearance', 'Śrīla Prabhupāda', 'Шріла Прабгупада', 'Srila Prabhupada',
@@ -266,9 +266,9 @@ INSERT INTO appearance_days (slug, category_id, event_type, person_name_sanskrit
  'half', true, 23)
 
 ON CONFLICT (slug) DO UPDATE SET
-  person_name_ua = EXCLUDED.person_name_ua,
+  person_name_uk = EXCLUDED.person_name_uk,
   person_name_en = EXCLUDED.person_name_en,
-  description_ua = EXCLUDED.description_ua,
+  description_uk = EXCLUDED.description_uk,
   description_en = EXCLUDED.description_en;
 
 -- ============================================

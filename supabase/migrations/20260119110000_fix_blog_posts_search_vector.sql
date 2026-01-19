@@ -3,12 +3,12 @@
 
 -- Add columns if they don't exist
 ALTER TABLE public.blog_posts
-  ADD COLUMN IF NOT EXISTS search_vector_ua tsvector,
+  ADD COLUMN IF NOT EXISTS search_vector_uk tsvector,
   ADD COLUMN IF NOT EXISTS search_vector_en tsvector;
 
 -- Create indexes if they don't exist
-CREATE INDEX IF NOT EXISTS idx_blog_posts_search_vector_ua
-  ON public.blog_posts USING gin(search_vector_ua);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_search_vector_uk
+  ON public.blog_posts USING gin(search_vector_uk);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_search_vector_en
   ON public.blog_posts USING gin(search_vector_en);
 
@@ -20,11 +20,11 @@ AS
 SELECT
   id,
   slug,
-  title_ua,
+  title_uk,
   title_en,
-  content_ua,
+  content_uk,
   content_en,
-  excerpt_ua,
+  excerpt_uk,
   excerpt_en,
   cover_image_url,
   video_url,
@@ -38,11 +38,11 @@ SELECT
   updated_at,
   view_count,
   read_time,
-  search_vector_ua,
+  search_vector_uk,
   search_vector_en,
   featured_image,
   meta_description_en,
-  meta_description_ua,
+  meta_description_uk,
   telegram_embed_url,
   author_display_name,
   substack_embed_url,

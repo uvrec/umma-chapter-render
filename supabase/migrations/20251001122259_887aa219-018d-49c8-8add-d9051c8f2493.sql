@@ -3,10 +3,10 @@
 -- Категорії аудіо (Аудіокниги, Лекції, Музика, Подкасти)
 CREATE TABLE IF NOT EXISTS public.audio_categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   icon TEXT,
   display_order INTEGER DEFAULT 0,
@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS public.audio_categories (
 CREATE TABLE IF NOT EXISTS public.audio_playlists (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   category_id UUID NOT NULL REFERENCES public.audio_categories(id) ON DELETE CASCADE,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   cover_image_url TEXT,
   author TEXT,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.audio_playlists (
 CREATE TABLE IF NOT EXISTS public.audio_tracks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   playlist_id UUID NOT NULL REFERENCES public.audio_playlists(id) ON DELETE CASCADE,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
   audio_url TEXT NOT NULL,
   duration INTEGER,
@@ -95,7 +95,7 @@ CREATE POLICY "Admins can manage tracks" ON public.audio_tracks
 FOR ALL USING (public.has_role(auth.uid(), 'admin'));
 
 -- Фаза 4: Початкові дані
-INSERT INTO public.audio_categories (name_ua, name_en, slug, icon, display_order) VALUES
+INSERT INTO public.audio_categories (name_uk, name_en, slug, icon, display_order) VALUES
   ('Аудіокниги', 'Audiobooks', 'audiobooks', 'BookAudio', 1),
   ('Лекції', 'Lectures', 'lectures', 'Mic', 2),
   ('Музика', 'Music', 'music', 'Music', 3),

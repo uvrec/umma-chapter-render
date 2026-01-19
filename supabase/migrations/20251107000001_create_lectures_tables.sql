@@ -3,10 +3,10 @@ CREATE TABLE public.lectures (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE, -- vedabase ID (e.g., '720218levis')
   title_en TEXT NOT NULL,
-  title_ua TEXT,
+  title_uk TEXT,
   lecture_date DATE NOT NULL,
   location_en TEXT NOT NULL,
-  location_ua TEXT,
+  location_uk TEXT,
   lecture_type TEXT NOT NULL, -- 'Conversation', 'Walk', 'Lecture', 'Bhagavad-gita', 'Srimad-Bhagavatam', etc.
   audio_url TEXT,
   book_slug TEXT, -- Reference to book (e.g., 'bg', 'sb') if lecture is about a specific text
@@ -14,7 +14,7 @@ CREATE TABLE public.lectures (
   chapter_number INTEGER, -- Chapter reference if applicable
   verse_number TEXT, -- Verse reference if applicable
   description_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
@@ -25,7 +25,7 @@ CREATE TABLE public.lecture_paragraphs (
   lecture_id UUID NOT NULL REFERENCES public.lectures(id) ON DELETE CASCADE,
   paragraph_number INTEGER NOT NULL,
   content_en TEXT NOT NULL,
-  content_ua TEXT,
+  content_uk TEXT,
   audio_timecode INTEGER, -- Time in seconds for audio synchronization
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   UNIQUE(lecture_id, paragraph_number)

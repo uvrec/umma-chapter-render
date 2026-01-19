@@ -4,12 +4,12 @@
 CREATE OR REPLACE VIEW public.blog_posts_public AS
 SELECT
   id,
-  title_ua,
+  title_uk,
   title_en,
   slug,
-  content_ua,
+  content_uk,
   content_en,
-  excerpt_ua,
+  excerpt_uk,
   excerpt_en,
   cover_image_url,
   featured_image,
@@ -18,7 +18,7 @@ SELECT
   instagram_embed_url,
   telegram_embed_url,
   substack_embed_url,
-  meta_description_ua,
+  meta_description_uk,
   meta_description_en,
   author_display_name,  -- Safe to expose: display name only, not the actual user ID
   category_id,

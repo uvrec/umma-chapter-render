@@ -12,173 +12,173 @@ BEGIN;
 
 -- Founders (Pancha-tattva)
 UPDATE gv_authors SET
-  name_ua = 'Шрі Чаітанья Махапрабгу',
-  title_ua = 'Махапрабгу'
+  name_uk = 'Шрі Чаітанья Махапрабгу',
+  title_uk = 'Махапрабгу'
 WHERE slug = 'chaitanya-mahaprabhu';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрі Нітьянанда Прабгу',
-  title_ua = 'Прабгу'
+  name_uk = 'Шрі Нітьянанда Прабгу',
+  title_uk = 'Прабгу'
 WHERE slug = 'nityananda-prabhu';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрі Адваіта Ачар''я',
-  title_ua = 'Ачар''я'
+  name_uk = 'Шрі Адваіта Ачар''я',
+  title_uk = 'Ачар''я'
 WHERE slug = 'advaita-acharya';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрі Ґададгар Пандіт',
-  title_ua = 'Пандіт'
+  name_uk = 'Шрі Ґададгар Пандіт',
+  title_uk = 'Пандіт'
 WHERE slug = 'gadadhara-pandita';
 
 UPDATE gv_authors SET
-  name_ua = 'Шрівас Тхакур',
-  title_ua = 'Тхакур'
+  name_uk = 'Шрівас Тхакур',
+  title_uk = 'Тхакур'
 WHERE slug = 'srivasa-thakura';
 
 -- Six Gosvamis
 UPDATE gv_authors SET
-  name_ua = 'Шріла Рупа Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Шріла Рупа Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'rupa-gosvami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Санатана Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Шріла Санатана Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'sanatana-gosvami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Джіва Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Шріла Джіва Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'jiva-gosvami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Раґгунатх Дас Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Шріла Раґгунатх Дас Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'raghunatha-dasa-gosvami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Раґгунатх Бгатта Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Шріла Раґгунатх Бгатта Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'raghunatha-bhatta-gosvami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Ґопал Бгатта Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Шріла Ґопал Бгатта Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'gopala-bhatta-gosvami';
 
 -- Later Acharyas
 UPDATE gv_authors SET
-  name_ua = 'Шріла Крішнадас Кавірадж',
-  title_ua = 'Кавірадж'
+  name_uk = 'Шріла Крішнадас Кавірадж',
+  title_uk = 'Кавірадж'
 WHERE slug = 'krishnadasa-kaviraja';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Вріндаван Дас Тхакур',
-  title_ua = 'Тхакур'
+  name_uk = 'Шріла Вріндаван Дас Тхакур',
+  title_uk = 'Тхакур'
 WHERE slug = 'vrindavana-dasa-thakura';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Нароттам Дас Тхакур',
-  title_ua = 'Тхакур'
+  name_uk = 'Шріла Нароттам Дас Тхакур',
+  title_uk = 'Тхакур'
 WHERE slug = 'narottama-dasa-thakura';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Вішванатх Чакраварті Тхакур',
-  title_ua = 'Тхакур'
+  name_uk = 'Шріла Вішванатх Чакраварті Тхакур',
+  title_uk = 'Тхакур'
 WHERE slug = 'visvanatha-chakravarti';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Баладева Відьябгушана',
-  title_ua = 'Відьябгушана'
+  name_uk = 'Шріла Баладева Відьябгушана',
+  title_uk = 'Відьябгушана'
 WHERE slug = 'baladeva-vidyabhushana';
 
 -- Modern Acharyas
 UPDATE gv_authors SET
-  name_ua = 'Шріла Бгактівінод Тхакур',
-  title_ua = 'Тхакур'
+  name_uk = 'Шріла Бгактівінод Тхакур',
+  title_uk = 'Тхакур'
 WHERE slug = 'bhaktivinoda-thakura';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Ґауракішора Дас Бабаджі',
-  title_ua = 'Бабаджі'
+  name_uk = 'Шріла Ґауракішора Дас Бабаджі',
+  title_uk = 'Бабаджі'
 WHERE slug = 'gaurakisora-dasa-babaji';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла Бгактісіддганта Сарасваті Тхакур',
-  title_ua = 'Тхакур'
+  name_uk = 'Шріла Бгактісіддганта Сарасваті Тхакур',
+  title_uk = 'Тхакур'
 WHERE slug = 'bhaktisiddhanta-sarasvati';
 
 UPDATE gv_authors SET
-  name_ua = 'Шріла А.Ч. Бгактіведанта Свамі Прабгупада',
-  title_ua = 'Прабгупада'
+  name_uk = 'Шріла А.Ч. Бгактіведанта Свамі Прабгупада',
+  title_uk = 'Прабгупада'
 WHERE slug = 'bhaktivedanta-swami-prabhupada';
 
 -- Prabhupada's disciples
 UPDATE gv_authors SET
-  name_ua = 'Сатсварупа Дас Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Сатсварупа Дас Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'satsvarupa-dasa-goswami';
 
 UPDATE gv_authors SET
-  name_ua = 'Ґопіпаранадгана Дас'
+  name_uk = 'Ґопіпаранадгана Дас'
 WHERE slug = 'gopiparanadhana-dasa';
 
 UPDATE gv_authors SET
-  name_ua = 'Хрідаянанда Дас Ґосвамі',
-  title_ua = 'Ґосвамі'
+  name_uk = 'Хрідаянанда Дас Ґосвамі',
+  title_uk = 'Ґосвамі'
 WHERE slug = 'hridayananda-dasa-goswami';
 
 UPDATE gv_authors SET
-  name_ua = 'Шіварама Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Шіварама Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'sivarama-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Бгакті Тіртха Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Бгакті Тіртха Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'bhakti-tirtha-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Радганатх Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Радганатх Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'radhanatha-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Бгакті Вікаша Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Бгакті Вікаша Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'bhakti-vikasa-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Сачінандана Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Сачінандана Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'sacinandana-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Бгану Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Бгану Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'bhanu-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Джаядвайта Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Джаядвайта Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'jayadvaita-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Дганурдгара Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Дганурдгара Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'dhanurdhara-swami';
 
 UPDATE gv_authors SET
-  name_ua = 'Девамріта Свамі',
-  title_ua = 'Свамі'
+  name_uk = 'Девамріта Свамі',
+  title_uk = 'Свамі'
 WHERE slug = 'devamrita-swami';
 
 -- ============================================================================
 -- ADD MORE FOLLOWERS OF CHAITANYA MAHAPRABHU (Panca-tattva associates, disciples)
 -- ============================================================================
 
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_uk, display_order)
 VALUES
   -- Haridasa Thakura
   ('haridasa-thakura', 'শ্রীল হরিদাস ঠাকুর', 'Śrīla Haridāsa Ṭhākura', 'Srila Haridasa Thakura', 'Шріла Харідаса Тгакура', 'ঠাকুর', 'Ṭhākura', 'Revered One', 'Шанований', 1451, 1527, 'Buron, Bengal', 'Puri, Odisha', 'founders',
@@ -241,10 +241,10 @@ VALUES
    28)
 
 ON CONFLICT (slug) DO UPDATE SET
-  name_ua = EXCLUDED.name_ua,
-  title_ua = EXCLUDED.title_ua,
+  name_uk = EXCLUDED.name_uk,
+  title_uk = EXCLUDED.title_uk,
   significance_en = EXCLUDED.significance_en,
-  significance_ua = EXCLUDED.significance_ua,
+  significance_uk = EXCLUDED.significance_uk,
   updated_at = now();
 
 -- Set guru relationships
@@ -256,7 +256,7 @@ UPDATE gv_authors SET guru_id = (SELECT id FROM gv_authors WHERE slug = 'lokanat
 -- ADD MORE PRABHUPADA DISCIPLES
 -- ============================================================================
 
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, era, significance_en, significance_uk, display_order)
 VALUES
   ('tamal-krishna-goswami', NULL, 'Tamāla Kṛṣṇa Gosvāmī', 'Tamal Krishna Goswami', 'Тамала Крішна Ґосвамі', 'গোস্বামী', 'Gosvāmī', 'Master of the Senses', 'Ґосвамі', 1946, 2002, 'New York, USA', 'prabhupada_disciples',
    'Personal secretary of Prabhupada, GBC, author of Servant of the Servant.',
@@ -304,7 +304,7 @@ VALUES
    60)
 
 ON CONFLICT (slug) DO UPDATE SET
-  name_ua = EXCLUDED.name_ua,
+  name_uk = EXCLUDED.name_uk,
   updated_at = now();
 
 -- Set guru relationships
@@ -315,7 +315,7 @@ WHERE slug IN ('tamal-krishna-goswami', 'giriraj-swami', 'indradyumna-swami', 'j
 -- ADD MORE BOOKS BY NEW AUTHORS
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   -- Kavi Karnapura
   ('gaura-ganoddesa-dipika', 'গৌরগণোদ্দেশদীপিকা', 'Gaura-gaṇoddeśa-dīpikā', 'Gaura-ganoddesa-dipika', 'Ґаура-ґаноддеша-діпіка',
@@ -387,105 +387,105 @@ VALUES
    414)
 
 ON CONFLICT (slug) DO UPDATE SET
-  title_ua = EXCLUDED.title_ua,
+  title_uk = EXCLUDED.title_uk,
   updated_at = now();
 
 -- ============================================================================
 -- FIX UKRAINIAN TITLES FOR BOOKS
 -- ============================================================================
 
-UPDATE gv_book_references SET title_ua = 'Бгаґавад-ґіта (Пісня Бога)' WHERE slug = 'bhagavad-gita';
-UPDATE gv_book_references SET title_ua = 'Шрімад-Бгаґаватам (Прекрасна оповідь про Бога)' WHERE slug = 'srimad-bhagavatam';
-UPDATE gv_book_references SET title_ua = 'Шрі Ішопанішад' WHERE slug = 'sri-isopanishad';
-UPDATE gv_book_references SET title_ua = 'Брагма-самхіта' WHERE slug = 'brahma-samhita';
-UPDATE gv_book_references SET title_ua = 'Веданта-сутра' WHERE slug = 'vedanta-sutra';
-UPDATE gv_book_references SET title_ua = 'Шікшаштакам (Вісім настанов)' WHERE slug = 'siksastakam';
+UPDATE gv_book_references SET title_uk = 'Бгаґавад-ґіта (Пісня Бога)' WHERE slug = 'bhagavad-gita';
+UPDATE gv_book_references SET title_uk = 'Шрімад-Бгаґаватам (Прекрасна оповідь про Бога)' WHERE slug = 'srimad-bhagavatam';
+UPDATE gv_book_references SET title_uk = 'Шрі Ішопанішад' WHERE slug = 'sri-isopanishad';
+UPDATE gv_book_references SET title_uk = 'Брагма-самхіта' WHERE slug = 'brahma-samhita';
+UPDATE gv_book_references SET title_uk = 'Веданта-сутра' WHERE slug = 'vedanta-sutra';
+UPDATE gv_book_references SET title_uk = 'Шікшаштакам (Вісім настанов)' WHERE slug = 'siksastakam';
 
-UPDATE gv_book_references SET title_ua = 'Бгакті-расамріта-сіндгу (Океан нектару відданості)' WHERE slug = 'bhakti-rasamrta-sindhu';
-UPDATE gv_book_references SET title_ua = 'Удджвала-ніламані (Сяючий сапфір)' WHERE slug = 'ujjvala-nilamani';
-UPDATE gv_book_references SET title_ua = 'Упадешамрітам (Нектар настанов)' WHERE slug = 'upadesamrta';
+UPDATE gv_book_references SET title_uk = 'Бгакті-расамріта-сіндгу (Океан нектару відданості)' WHERE slug = 'bhakti-rasamrta-sindhu';
+UPDATE gv_book_references SET title_uk = 'Удджвала-ніламані (Сяючий сапфір)' WHERE slug = 'ujjvala-nilamani';
+UPDATE gv_book_references SET title_uk = 'Упадешамрітам (Нектар настанов)' WHERE slug = 'upadesamrta';
 
-UPDATE gv_book_references SET title_ua = 'Шрі Чаітанья-чарітамріта (Нектар життя Чаітаньї)' WHERE slug = 'chaitanya-charitamrita';
-UPDATE gv_book_references SET title_ua = 'Шрі Чаітанья Бгаґавата' WHERE slug = 'chaitanya-bhagavata';
+UPDATE gv_book_references SET title_uk = 'Шрі Чаітанья-чарітамріта (Нектар життя Чаітаньї)' WHERE slug = 'chaitanya-charitamrita';
+UPDATE gv_book_references SET title_uk = 'Шрі Чаітанья Бгаґавата' WHERE slug = 'chaitanya-bhagavata';
 
-UPDATE gv_book_references SET title_ua = 'Прартгана (Молитви)' WHERE slug = 'prarthana';
-UPDATE gv_book_references SET title_ua = 'Према-бгакті-чандріка (Місячні промені любовної відданості)' WHERE slug = 'prema-bhakti-chandrika';
+UPDATE gv_book_references SET title_uk = 'Прартгана (Молитви)' WHERE slug = 'prarthana';
+UPDATE gv_book_references SET title_uk = 'Према-бгакті-чандріка (Місячні промені любовної відданості)' WHERE slug = 'prema-bhakti-chandrika';
 
-UPDATE gv_book_references SET title_ua = 'Мадгурья-кадамбіні (Хмара солодощів)' WHERE slug = 'madhurya-kadambini';
-UPDATE gv_book_references SET title_ua = 'Раґа-вартма-чандріка (Місячне світло на шляху раґи)' WHERE slug = 'raga-vartma-chandrika';
-UPDATE gv_book_references SET title_ua = 'Сарартга-даршіні (Відкривач суттєвого значення)' WHERE slug = 'sarartha-darshini';
+UPDATE gv_book_references SET title_uk = 'Мадгурья-кадамбіні (Хмара солодощів)' WHERE slug = 'madhurya-kadambini';
+UPDATE gv_book_references SET title_uk = 'Раґа-вартма-чандріка (Місячне світло на шляху раґи)' WHERE slug = 'raga-vartma-chandrika';
+UPDATE gv_book_references SET title_uk = 'Сарартга-даршіні (Відкривач суттєвого значення)' WHERE slug = 'sarartha-darshini';
 
-UPDATE gv_book_references SET title_ua = 'Ґовінда-бгаш''я (Коментар на ім''я Ґовінди)' WHERE slug = 'govinda-bhashya';
-UPDATE gv_book_references SET title_ua = 'Прамея-ратнавалі (Гірлянда філософських коштовностей)' WHERE slug = 'prameya-ratnavali';
-UPDATE gv_book_references SET title_ua = 'Сіддганта-ратна (Коштовність висновків)' WHERE slug = 'siddhanta-ratna';
+UPDATE gv_book_references SET title_uk = 'Ґовінда-бгаш''я (Коментар на ім''я Ґовінди)' WHERE slug = 'govinda-bhashya';
+UPDATE gv_book_references SET title_uk = 'Прамея-ратнавалі (Гірлянда філософських коштовностей)' WHERE slug = 'prameya-ratnavali';
+UPDATE gv_book_references SET title_uk = 'Сіддганта-ратна (Коштовність висновків)' WHERE slug = 'siddhanta-ratna';
 
-UPDATE gv_book_references SET title_ua = 'Джайва-дгарма (Релігія душі)' WHERE slug = 'jaiva-dharma';
-UPDATE gv_book_references SET title_ua = 'Харінама-чінтамані (Філософський камінь святого імені)' WHERE slug = 'harinama-cintamani';
-UPDATE gv_book_references SET title_ua = 'Бгаджана-рахасья (Таємниці девоційної практики)' WHERE slug = 'bhajana-rahasya';
-UPDATE gv_book_references SET title_ua = 'Шрі Чаітанья-шікшамріта (Нектар вчень Чаітаньї)' WHERE slug = 'sri-chaitanya-siksamrta';
-UPDATE gv_book_references SET title_ua = 'Шаранаґаті (Віддання)' WHERE slug = 'saranagati';
+UPDATE gv_book_references SET title_uk = 'Джайва-дгарма (Релігія душі)' WHERE slug = 'jaiva-dharma';
+UPDATE gv_book_references SET title_uk = 'Харінама-чінтамані (Філософський камінь святого імені)' WHERE slug = 'harinama-cintamani';
+UPDATE gv_book_references SET title_uk = 'Бгаджана-рахасья (Таємниці девоційної практики)' WHERE slug = 'bhajana-rahasya';
+UPDATE gv_book_references SET title_uk = 'Шрі Чаітанья-шікшамріта (Нектар вчень Чаітаньї)' WHERE slug = 'sri-chaitanya-siksamrta';
+UPDATE gv_book_references SET title_uk = 'Шаранаґаті (Віддання)' WHERE slug = 'saranagati';
 
-UPDATE gv_book_references SET title_ua = 'Бгаґавад-ґіта як вона є' WHERE slug = 'bhagavad-gita-as-it-is';
-UPDATE gv_book_references SET title_ua = 'Шрімад-Бгаґаватам' WHERE slug = 'srimad-bhagavatam-prabhupada';
-UPDATE gv_book_references SET title_ua = 'Шрі Чаітанья-чарітамріта' WHERE slug = 'chaitanya-charitamrita-prabhupada';
-UPDATE gv_book_references SET title_ua = 'Нектар відданості' WHERE slug = 'nectar-of-devotion';
-UPDATE gv_book_references SET title_ua = 'Нектар настанов' WHERE slug = 'nectar-of-instruction';
-UPDATE gv_book_references SET title_ua = 'Шрі Ішопанішад' WHERE slug = 'sri-isopanisad-prabhupada';
-UPDATE gv_book_references SET title_ua = 'Вчення Господа Чаітаньї' WHERE slug = 'teachings-of-lord-chaitanya';
-UPDATE gv_book_references SET title_ua = 'Крішна, Верховна Особистість Бога' WHERE slug = 'krishna-book';
-UPDATE gv_book_references SET title_ua = 'Вчення Господа Капіли, сина Девахуті' WHERE slug = 'teachings-of-lord-kapila';
-UPDATE gv_book_references SET title_ua = 'Вчення цариці Кунті' WHERE slug = 'teachings-of-queen-kunti';
-UPDATE gv_book_references SET title_ua = 'Брагма-самхіта' WHERE slug = 'brahma-samhita-prabhupada';
+UPDATE gv_book_references SET title_uk = 'Бгаґавад-ґіта як вона є' WHERE slug = 'bhagavad-gita-as-it-is';
+UPDATE gv_book_references SET title_uk = 'Шрімад-Бгаґаватам' WHERE slug = 'srimad-bhagavatam-prabhupada';
+UPDATE gv_book_references SET title_uk = 'Шрі Чаітанья-чарітамріта' WHERE slug = 'chaitanya-charitamrita-prabhupada';
+UPDATE gv_book_references SET title_uk = 'Нектар відданості' WHERE slug = 'nectar-of-devotion';
+UPDATE gv_book_references SET title_uk = 'Нектар настанов' WHERE slug = 'nectar-of-instruction';
+UPDATE gv_book_references SET title_uk = 'Шрі Ішопанішад' WHERE slug = 'sri-isopanisad-prabhupada';
+UPDATE gv_book_references SET title_uk = 'Вчення Господа Чаітаньї' WHERE slug = 'teachings-of-lord-chaitanya';
+UPDATE gv_book_references SET title_uk = 'Крішна, Верховна Особистість Бога' WHERE slug = 'krishna-book';
+UPDATE gv_book_references SET title_uk = 'Вчення Господа Капіли, сина Девахуті' WHERE slug = 'teachings-of-lord-kapila';
+UPDATE gv_book_references SET title_uk = 'Вчення цариці Кунті' WHERE slug = 'teachings-of-queen-kunti';
+UPDATE gv_book_references SET title_uk = 'Брагма-самхіта' WHERE slug = 'brahma-samhita-prabhupada';
 
-UPDATE gv_book_references SET title_ua = 'Легка подорож на інші планети' WHERE slug = 'easy-journey-to-other-planets';
-UPDATE gv_book_references SET title_ua = 'Наука самоусвідомлення' WHERE slug = 'science-of-self-realization';
-UPDATE gv_book_references SET title_ua = 'За межами народження і смерті' WHERE slug = 'beyond-birth-and-death';
-UPDATE gv_book_references SET title_ua = 'Досконалі питання, досконалі відповіді' WHERE slug = 'perfect-questions-perfect-answers';
-UPDATE gv_book_references SET title_ua = 'Раджа-відья: Цар знання' WHERE slug = 'raja-vidya';
-UPDATE gv_book_references SET title_ua = 'Шлях досконалості' WHERE slug = 'path-of-perfection';
-UPDATE gv_book_references SET title_ua = 'Життя походить від життя' WHERE slug = 'life-comes-from-life';
-UPDATE gv_book_references SET title_ua = 'Світло Бгаґавати' WHERE slug = 'light-of-bhagavata';
-UPDATE gv_book_references SET title_ua = 'Крішна, резервуар насолоди' WHERE slug = 'krsna-the-reservoir-of-pleasure';
-UPDATE gv_book_references SET title_ua = 'Досконалість йоґи' WHERE slug = 'perfection-of-yoga';
-UPDATE gv_book_references SET title_ua = 'Нарада-бгакті-сутра' WHERE slug = 'narada-bhakti-sutra-prabhupada';
-UPDATE gv_book_references SET title_ua = 'Мукунда-мала-стотра' WHERE slug = 'mukunda-mala-stotra-prabhupada';
+UPDATE gv_book_references SET title_uk = 'Легка подорож на інші планети' WHERE slug = 'easy-journey-to-other-planets';
+UPDATE gv_book_references SET title_uk = 'Наука самоусвідомлення' WHERE slug = 'science-of-self-realization';
+UPDATE gv_book_references SET title_uk = 'За межами народження і смерті' WHERE slug = 'beyond-birth-and-death';
+UPDATE gv_book_references SET title_uk = 'Досконалі питання, досконалі відповіді' WHERE slug = 'perfect-questions-perfect-answers';
+UPDATE gv_book_references SET title_uk = 'Раджа-відья: Цар знання' WHERE slug = 'raja-vidya';
+UPDATE gv_book_references SET title_uk = 'Шлях досконалості' WHERE slug = 'path-of-perfection';
+UPDATE gv_book_references SET title_uk = 'Життя походить від життя' WHERE slug = 'life-comes-from-life';
+UPDATE gv_book_references SET title_uk = 'Світло Бгаґавати' WHERE slug = 'light-of-bhagavata';
+UPDATE gv_book_references SET title_uk = 'Крішна, резервуар насолоди' WHERE slug = 'krsna-the-reservoir-of-pleasure';
+UPDATE gv_book_references SET title_uk = 'Досконалість йоґи' WHERE slug = 'perfection-of-yoga';
+UPDATE gv_book_references SET title_uk = 'Нарада-бгакті-сутра' WHERE slug = 'narada-bhakti-sutra-prabhupada';
+UPDATE gv_book_references SET title_uk = 'Мукунда-мала-стотра' WHERE slug = 'mukunda-mala-stotra-prabhupada';
 
-UPDATE gv_book_references SET title_ua = 'Шріла Прабгупада-ліламріта' WHERE slug = 'srila-prabhupada-lilamrta';
-UPDATE gv_book_references SET title_ua = 'Нектар Прабгупади' WHERE slug = 'prabhupada-nectar';
-UPDATE gv_book_references SET title_ua = 'Бріхад-бгаґаватамріта (Переклад)' WHERE slug = 'brihad-bhagavatamrta-translation';
-UPDATE gv_book_references SET title_ua = 'Шуддга-бгакті-чінтамані' WHERE slug = 'suddha-bhakti-cintamani';
-UPDATE gv_book_references SET title_ua = 'Вену-ґіта' WHERE slug = 'venu-gita';
-UPDATE gv_book_references SET title_ua = 'Шікша поза ІСККОН?' WHERE slug = 'siksa-outside-iskcon';
-UPDATE gv_book_references SET title_ua = 'Подорож додому' WHERE slug = 'journey-home';
-UPDATE gv_book_references SET title_ua = 'Подорож усередину' WHERE slug = 'journey-within';
-UPDATE gv_book_references SET title_ua = 'Шрі Бгактісіддганта Вайбгава' WHERE slug = 'sri-bhaktisiddhanta-vaibhava';
-UPDATE gv_book_references SET title_ua = 'Нектарний океан святого імені' WHERE slug = 'nectarean-ocean-holy-name';
-UPDATE gv_book_references SET title_ua = 'Живе ім''я' WHERE slug = 'living-name';
-UPDATE gv_book_references SET title_ua = 'Чудовий світ святого імені' WHERE slug = 'wonderful-world-of-the-holy-name';
-UPDATE gv_book_references SET title_ua = 'Шат-сандарбга (Повний переклад)' WHERE slug = 'sat-sandarbha-translation';
-UPDATE gv_book_references SET title_ua = 'Мадгурья-кадамбіні (Переклад)' WHERE slug = 'madhurya-kadambini-translation';
-UPDATE gv_book_references SET title_ua = 'Хвилі відданості' WHERE slug = 'waves-of-devotion';
-UPDATE gv_book_references SET title_ua = 'У пошуках ведичної Індії' WHERE slug = 'searching-for-vedic-india';
+UPDATE gv_book_references SET title_uk = 'Шріла Прабгупада-ліламріта' WHERE slug = 'srila-prabhupada-lilamrta';
+UPDATE gv_book_references SET title_uk = 'Нектар Прабгупади' WHERE slug = 'prabhupada-nectar';
+UPDATE gv_book_references SET title_uk = 'Бріхад-бгаґаватамріта (Переклад)' WHERE slug = 'brihad-bhagavatamrta-translation';
+UPDATE gv_book_references SET title_uk = 'Шуддга-бгакті-чінтамані' WHERE slug = 'suddha-bhakti-cintamani';
+UPDATE gv_book_references SET title_uk = 'Вену-ґіта' WHERE slug = 'venu-gita';
+UPDATE gv_book_references SET title_uk = 'Шікша поза ІСККОН?' WHERE slug = 'siksa-outside-iskcon';
+UPDATE gv_book_references SET title_uk = 'Подорож додому' WHERE slug = 'journey-home';
+UPDATE gv_book_references SET title_uk = 'Подорож усередину' WHERE slug = 'journey-within';
+UPDATE gv_book_references SET title_uk = 'Шрі Бгактісіддганта Вайбгава' WHERE slug = 'sri-bhaktisiddhanta-vaibhava';
+UPDATE gv_book_references SET title_uk = 'Нектарний океан святого імені' WHERE slug = 'nectarean-ocean-holy-name';
+UPDATE gv_book_references SET title_uk = 'Живе ім''я' WHERE slug = 'living-name';
+UPDATE gv_book_references SET title_uk = 'Чудовий світ святого імені' WHERE slug = 'wonderful-world-of-the-holy-name';
+UPDATE gv_book_references SET title_uk = 'Шат-сандарбга (Повний переклад)' WHERE slug = 'sat-sandarbha-translation';
+UPDATE gv_book_references SET title_uk = 'Мадгурья-кадамбіні (Переклад)' WHERE slug = 'madhurya-kadambini-translation';
+UPDATE gv_book_references SET title_uk = 'Хвилі відданості' WHERE slug = 'waves-of-devotion';
+UPDATE gv_book_references SET title_uk = 'У пошуках ведичної Індії' WHERE slug = 'searching-for-vedic-india';
 
 -- Sandarbhas
-UPDATE gv_book_references SET title_ua = 'Таттва-сандарбга (Есе про істину)' WHERE slug = 'tattva-sandarbha';
-UPDATE gv_book_references SET title_ua = 'Бгаґават-сандарбга (Есе про Верховну Особу)' WHERE slug = 'bhagavat-sandarbha';
-UPDATE gv_book_references SET title_ua = 'Параматма-сандарбга (Есе про Наддушу)' WHERE slug = 'paramatma-sandarbha';
-UPDATE gv_book_references SET title_ua = 'Крішна-сандарбга (Есе про Крішну)' WHERE slug = 'krishna-sandarbha';
-UPDATE gv_book_references SET title_ua = 'Бгакті-сандарбга (Есе про відданість)' WHERE slug = 'bhakti-sandarbha';
-UPDATE gv_book_references SET title_ua = 'Пріті-сандарбга (Есе про божественну любов)' WHERE slug = 'priti-sandarbha';
-UPDATE gv_book_references SET title_ua = 'Ґопала-чампу' WHERE slug = 'gopala-champu';
+UPDATE gv_book_references SET title_uk = 'Таттва-сандарбга (Есе про істину)' WHERE slug = 'tattva-sandarbha';
+UPDATE gv_book_references SET title_uk = 'Бгаґават-сандарбга (Есе про Верховну Особу)' WHERE slug = 'bhagavat-sandarbha';
+UPDATE gv_book_references SET title_uk = 'Параматма-сандарбга (Есе про Наддушу)' WHERE slug = 'paramatma-sandarbha';
+UPDATE gv_book_references SET title_uk = 'Крішна-сандарбга (Есе про Крішну)' WHERE slug = 'krishna-sandarbha';
+UPDATE gv_book_references SET title_uk = 'Бгакті-сандарбга (Есе про відданість)' WHERE slug = 'bhakti-sandarbha';
+UPDATE gv_book_references SET title_uk = 'Пріті-сандарбга (Есе про божественну любов)' WHERE slug = 'priti-sandarbha';
+UPDATE gv_book_references SET title_uk = 'Ґопала-чампу' WHERE slug = 'gopala-champu';
 
 -- Raghunatha Dasa Gosvami
-UPDATE gv_book_references SET title_ua = 'Вілапа-кусуманджалі (Квіткова жертва скорботи)' WHERE slug = 'vilapa-kusumanjali';
-UPDATE gv_book_references SET title_ua = 'Стававалі (Збірка молитов)' WHERE slug = 'stavavali';
-UPDATE gv_book_references SET title_ua = 'Манах-шікша (Настанови розуму)' WHERE slug = 'manah-siksa';
+UPDATE gv_book_references SET title_uk = 'Вілапа-кусуманджалі (Квіткова жертва скорботи)' WHERE slug = 'vilapa-kusumanjali';
+UPDATE gv_book_references SET title_uk = 'Стававалі (Збірка молитов)' WHERE slug = 'stavavali';
+UPDATE gv_book_references SET title_uk = 'Манах-шікша (Настанови розуму)' WHERE slug = 'manah-siksa';
 
 -- Sanatana Gosvami
-UPDATE gv_book_references SET title_ua = 'Бріхад-бгаґаватамріта (Великий нектар Бгаґавати)' WHERE slug = 'brihad-bhagavatamrta';
-UPDATE gv_book_references SET title_ua = 'Харі-бгакті-віласа (Ігри відданості Харі)' WHERE slug = 'hari-bhakti-vilasa';
-UPDATE gv_book_references SET title_ua = 'Дашама-тіппані (Нотатки до Десятої пісні)' WHERE slug = 'dasama-tippani';
-UPDATE gv_book_references SET title_ua = 'Крішна-ліла-става (Молитви, що прославляють ігри Крішни)' WHERE slug = 'krishna-lila-stava';
+UPDATE gv_book_references SET title_uk = 'Бріхад-бгаґаватамріта (Великий нектар Бгаґавати)' WHERE slug = 'brihad-bhagavatamrta';
+UPDATE gv_book_references SET title_uk = 'Харі-бгакті-віласа (Ігри відданості Харі)' WHERE slug = 'hari-bhakti-vilasa';
+UPDATE gv_book_references SET title_uk = 'Дашама-тіппані (Нотатки до Десятої пісні)' WHERE slug = 'dasama-tippani';
+UPDATE gv_book_references SET title_uk = 'Крішна-ліла-става (Молитви, що прославляють ігри Крішни)' WHERE slug = 'krishna-lila-stava';
 
 COMMIT;
 

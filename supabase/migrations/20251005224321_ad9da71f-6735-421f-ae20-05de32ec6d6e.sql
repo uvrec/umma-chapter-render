@@ -2,9 +2,9 @@
 CREATE TABLE public.static_page_metadata (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
-  meta_description_ua TEXT,
+  meta_description_uk TEXT,
   meta_description_en TEXT,
   hero_image_url TEXT,
   og_image TEXT,
@@ -36,9 +36,9 @@ CREATE TRIGGER update_static_page_metadata_updated_at
 -- Insert initial data for contact page
 INSERT INTO public.static_page_metadata (
   slug, 
-  title_ua, 
+  title_uk, 
   title_en, 
-  meta_description_ua, 
+  meta_description_uk, 
   meta_description_en,
   seo_keywords
 ) VALUES (

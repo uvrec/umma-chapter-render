@@ -16,9 +16,9 @@ BEGIN
   -- February 26th, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'February 26th, 1976',
     '', '', '', '',
@@ -145,9 +145,9 @@ BEGIN
   -- February 27th, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'February 27th, 1976',
     '', '', '', '',
@@ -198,9 +198,9 @@ BEGIN
   -- February 28th, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'February 28th, 1976',
     '', '', '', '',
@@ -295,9 +295,9 @@ BEGIN
   -- February 29th, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'February 29th, 1976',
     '', '', '', '',
@@ -336,9 +336,9 @@ BEGIN
   -- March 1st, 1976
   INSERT INTO public.verses (
     chapter_id, verse_number,
-    sanskrit_en, sanskrit_ua, transliteration_en, transliteration_ua,
-    synonyms_en, synonyms_ua, translation_en, translation_ua,
-    commentary_en, commentary_ua, event_date, is_published
+    sanskrit_en, sanskrit_uk, transliteration_en, transliteration_uk,
+    synonyms_en, synonyms_uk, translation_en, translation_uk,
+    commentary_en, commentary_uk, event_date, is_published
   ) VALUES (
     v_chapter_id, E'March 1st, 1976',
     '', '', '', '',

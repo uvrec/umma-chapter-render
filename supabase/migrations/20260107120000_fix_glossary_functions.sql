@@ -10,7 +10,7 @@
 -- ============================================================================
 
 -- 1. Функція для отримання статистики глосарію
--- ВИПРАВЛЕНО: Тепер підраховує терміни з ОБОХ колонок (synonyms_ua та synonyms_en)
+-- ВИПРАВЛЕНО: Тепер підраховує терміни з ОБОХ колонок (synonyms_uk та synonyms_en)
 CREATE OR REPLACE FUNCTION public.get_glossary_stats(
   search_language text DEFAULT 'ua'
 )
@@ -28,30 +28,30 @@ AS $$
 BEGIN
   RETURN QUERY
     WITH parsed_terms AS (
-      -- Parse terms from synonyms_ua
+      -- Parse terms from synonyms_uk
       SELECT
         b.slug as book_slug,
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
       JOIN public.books b ON b.id = ch.book_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_uk, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.synonyms_ua IS NOT NULL
+        AND v.synonyms_uk IS NOT NULL
 
       UNION ALL
 
       -- Parse terms from synonyms_en
       SELECT
         b.slug as book_slug,
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -126,7 +126,7 @@ END;
 $$;
 
 -- 2. Функція для отримання унікальних термінів (згрупованих) з підрахунком
--- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_ua та synonyms_en) за допомогою UNION ALL
+-- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_uk та synonyms_en) за допомогою UNION ALL
 -- щоб латинські терміни (IAST) знаходились незалежно від мовних налаштувань
 CREATE OR REPLACE FUNCTION public.get_glossary_terms_grouped(
   search_term text DEFAULT NULL,
@@ -169,29 +169,29 @@ BEGIN
 
   RETURN QUERY
     WITH parsed_terms AS (
-      -- Search in synonyms_ua column
+      -- Search in synonyms_uk column
       SELECT
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
       JOIN public.books b ON b.id = ch.book_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_uk, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.synonyms_ua IS NOT NULL
+        AND v.synonyms_uk IS NOT NULL
         AND (book_filter IS NULL OR b.slug = book_filter)
 
       UNION ALL
 
       -- Search in synonyms_en column
       SELECT
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         TRIM(part) as synonym_part
       FROM public.verses v
       JOIN public.chapters ch ON ch.id = v.chapter_id
@@ -281,7 +281,7 @@ END;
 $$;
 
 -- 3. Функція для отримання деталей конкретного терміну
--- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_ua та synonyms_en)
+-- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_uk та synonyms_en)
 CREATE OR REPLACE FUNCTION public.get_glossary_term_details(
   term_text text,
   search_language text DEFAULT 'ua'
@@ -307,18 +307,18 @@ AS $$
 BEGIN
   RETURN QUERY
     WITH parsed_terms AS (
-      -- Parse from synonyms_ua
+      -- Parse from synonyms_uk
       SELECT
         v.id as verse_id,
         v.verse_number,
         v.sanskrit,
         COALESCE(
-          CASE WHEN search_language = 'ua' THEN v.transliteration_ua ELSE v.transliteration_en END,
+          CASE WHEN search_language = 'ua' THEN v.transliteration_uk ELSE v.transliteration_en END,
           v.transliteration
         ) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -327,13 +327,13 @@ BEGIN
       LEFT JOIN public.cantos ca ON ca.id = ch.canto_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_uk, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.synonyms_ua IS NOT NULL
+        AND v.synonyms_uk IS NOT NULL
 
       UNION ALL
 
@@ -343,12 +343,12 @@ BEGIN
         v.verse_number,
         v.sanskrit,
         COALESCE(
-          CASE WHEN search_language = 'ua' THEN v.transliteration_ua ELSE v.transliteration_en END,
+          CASE WHEN search_language = 'ua' THEN v.transliteration_uk ELSE v.transliteration_en END,
           v.transliteration
         ) as transliteration,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -429,7 +429,7 @@ END;
 $$;
 
 -- 4. Функція для server-side пошуку термінів глосарію з пагінацією
--- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_ua та synonyms_en)
+-- ВИПРАВЛЕНО: Тепер шукає в ОБОХ колонках (synonyms_uk та synonyms_en)
 CREATE OR REPLACE FUNCTION public.search_glossary_terms_v2(
   search_term text DEFAULT NULL,
   search_translation text DEFAULT NULL,
@@ -476,13 +476,13 @@ BEGIN
 
   RETURN QUERY
     WITH parsed_terms AS (
-      -- Parse from synonyms_ua
+      -- Parse from synonyms_uk
       SELECT
         v.id as verse_id,
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v
@@ -491,14 +491,14 @@ BEGIN
       LEFT JOIN public.cantos ca ON ca.id = ch.canto_id
       CROSS JOIN LATERAL unnest(
         string_to_array(
-          regexp_replace(COALESCE(v.synonyms_ua, ''), '<[^>]*>', '', 'g'),
+          regexp_replace(COALESCE(v.synonyms_uk, ''), '<[^>]*>', '', 'g'),
           ';'
         )
       ) AS part
       WHERE COALESCE(ch.is_published, true) = true
         AND v.deleted_at IS NULL
-        AND v.synonyms_ua IS NOT NULL
-        AND v.synonyms_ua != ''
+        AND v.synonyms_uk IS NOT NULL
+        AND v.synonyms_uk != ''
         AND (book_filter IS NULL OR b.slug = book_filter)
 
       UNION ALL
@@ -509,7 +509,7 @@ BEGIN
         v.verse_number,
         ch.chapter_number,
         ca.canto_number,
-        CASE WHEN search_language = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN search_language = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         TRIM(part) as synonym_part
       FROM public.verses v

@@ -9,14 +9,14 @@ BEGIN;
 
 INSERT INTO ekadashi_info (
   slug, vaishnava_month_id, paksha,
-  name_sanskrit, name_ua, name_en,
-  glory_title_ua, glory_title_en,
-  glory_text_ua, glory_text_en,
+  name_sanskrit, name_uk, name_en,
+  glory_title_uk, glory_title_en,
+  glory_text_uk, glory_text_en,
   glory_source,
-  presiding_deity_ua, presiding_deity_en,
-  fasting_rules_ua, fasting_rules_en,
+  presiding_deity_uk, presiding_deity_en,
+  fasting_rules_uk, fasting_rules_en,
   breaking_fast_time,
-  benefits_ua, benefits_en,
+  benefits_uk, benefits_en,
   is_major, sort_order
 ) VALUES
 
@@ -405,17 +405,17 @@ INSERT INTO ekadashi_info (
 )
 
 ON CONFLICT (slug) DO UPDATE SET
-  name_ua = EXCLUDED.name_ua,
+  name_uk = EXCLUDED.name_uk,
   name_en = EXCLUDED.name_en,
-  glory_title_ua = EXCLUDED.glory_title_ua,
+  glory_title_uk = EXCLUDED.glory_title_uk,
   glory_title_en = EXCLUDED.glory_title_en,
-  glory_text_ua = EXCLUDED.glory_text_ua,
+  glory_text_uk = EXCLUDED.glory_text_uk,
   glory_text_en = EXCLUDED.glory_text_en,
-  presiding_deity_ua = EXCLUDED.presiding_deity_ua,
+  presiding_deity_uk = EXCLUDED.presiding_deity_uk,
   presiding_deity_en = EXCLUDED.presiding_deity_en,
-  fasting_rules_ua = EXCLUDED.fasting_rules_ua,
+  fasting_rules_uk = EXCLUDED.fasting_rules_uk,
   fasting_rules_en = EXCLUDED.fasting_rules_en,
-  benefits_ua = EXCLUDED.benefits_ua,
+  benefits_uk = EXCLUDED.benefits_uk,
   benefits_en = EXCLUDED.benefits_en,
   updated_at = now();
 

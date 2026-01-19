@@ -7,7 +7,7 @@ BEGIN;
 -- SRILA BHAKTIVINODA THAKURA
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, internal_book_slug, is_available_in_app, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, internal_book_slug, is_available_in_app, display_order)
 VALUES
   -- Major Works
   ('jaiva-dharma', 'জৈবধর্ম', 'Jaiva-dharma', 'Jaiva-dharma (The Religion of the Soul)', 'Джайва-дгарма (Релігія душі)',
@@ -158,7 +158,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA BHAKTISIDDHANTA SARASVATI THAKURA
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('brahmana-o-vaishnava', 'ব্রাহ্মণ ও বৈষ্ণব', 'Brāhmaṇa o Vaiṣṇava', 'Brahmana and Vaishnava', 'Брагмана і Вайшнав',
    (SELECT id FROM gv_authors WHERE slug = 'bhaktisiddhanta-sarasvati'),
@@ -215,7 +215,7 @@ ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 -- SRILA A.C. BHAKTIVEDANTA SWAMI PRABHUPADA - Major Works
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, volume_count, verse_count, importance_level, significance_en, significance_ua, internal_book_slug, is_available_in_app, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, volume_count, verse_count, importance_level, significance_en, significance_uk, internal_book_slug, is_available_in_app, display_order)
 VALUES
   -- Major Translations and Commentaries
   ('bhagavad-gita-as-it-is', 'भगवद्गीता यथारूप', 'Bhagavad-gītā Yathārūpa', 'Bhagavad-gita As It Is', 'Бгаґавад-ґіта як вона є',
@@ -298,7 +298,7 @@ VALUES
 ON CONFLICT (slug) DO UPDATE SET updated_at = now();
 
 -- Small Books by Prabhupada
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, importance_level, significance_en, significance_uk, display_order)
 VALUES
   ('easy-journey-to-other-planets', NULL, 'Easy Journey to Other Planets', 'Easy Journey to Other Planets', 'Легка подорож на інші планети',
    (SELECT id FROM gv_authors WHERE slug = 'bhaktivedanta-swami-prabhupada'),

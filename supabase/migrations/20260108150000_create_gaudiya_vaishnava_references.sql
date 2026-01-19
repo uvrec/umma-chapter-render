@@ -16,13 +16,13 @@ CREATE TABLE IF NOT EXISTS public.gv_authors (
   name_sanskrit TEXT,                    -- Original script (Devanagari/Bengali)
   name_transliteration TEXT NOT NULL,    -- IAST transliteration
   name_en TEXT NOT NULL,                 -- English
-  name_ua TEXT NOT NULL,                 -- Ukrainian
+  name_uk TEXT NOT NULL,                 -- Ukrainian
 
   -- Titles and honorifics
   title_sanskrit TEXT,                   -- e.g., ঠাকুর, গোস্বামী
   title_transliteration TEXT,            -- e.g., Ṭhākura, Gosvāmī
   title_en TEXT,
-  title_ua TEXT,
+  title_uk TEXT,
 
   -- Life details
   birth_year INTEGER,
@@ -35,11 +35,11 @@ CREATE TABLE IF NOT EXISTS public.gv_authors (
 
   -- Biography
   biography_en TEXT,
-  biography_ua TEXT,
+  biography_uk TEXT,
 
   -- Significance
   significance_en TEXT,
-  significance_ua TEXT,
+  significance_uk TEXT,
 
   -- Media
   image_url TEXT,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS public.gv_book_references (
   title_sanskrit TEXT,                   -- Original script (Devanagari/Bengali)
   title_transliteration TEXT NOT NULL,   -- IAST transliteration
   title_en TEXT NOT NULL,                -- English translation/title
-  title_ua TEXT NOT NULL,                -- Ukrainian translation/title
+  title_uk TEXT NOT NULL,                -- Ukrainian translation/title
 
   -- Alternative titles
   alt_titles TEXT[],                     -- Other known names
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS public.gv_book_references (
 
   -- Description
   description_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
 
   -- Classification
   category TEXT NOT NULL,                -- 'shruti', 'smriti', 'purana', 'kavya', 'stotra', 'shastra', 'prabandha'
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS public.gv_book_references (
   -- Significance
   importance_level INTEGER DEFAULT 3,    -- 1-5 (5 = most important)
   significance_en TEXT,
-  significance_ua TEXT,
+  significance_uk TEXT,
 
   -- Topics/themes
   topics TEXT[],
@@ -130,10 +130,10 @@ CREATE TABLE IF NOT EXISTS public.gv_book_catalogues (
   slug TEXT UNIQUE NOT NULL,
 
   name_en TEXT NOT NULL,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
 
   description_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
 
   -- Ordering and display
   display_order INTEGER DEFAULT 0,
@@ -228,7 +228,7 @@ END$$;
 -- Insert authors in chronological/lineage order
 
 -- Era: Founders
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_uk, display_order)
 VALUES
   ('chaitanya-mahaprabhu', 'শ্রীচৈতন্য মহাপ্রভু', 'Śrī Caitanya Mahāprabhu', 'Sri Chaitanya Mahaprabhu', 'Шрі Чайтан''я Махапрабгу', 'মহাপ্রভু', 'Mahāprabhu', 'The Great Master', 'Великий Вчитель', 1486, 1534, 'Navadvipa, Bengal', 'Puri, Odisha', 'founders', 'The founder of Gaudiya Vaishnavism, considered the combined incarnation of Radha and Krishna', 'Засновник ґаудіа-вайшнавізму, вважається об''єднаним втіленням Радги і Крішни', 1),
 
@@ -246,7 +246,7 @@ ON CONFLICT (slug) DO UPDATE SET
   updated_at = now();
 
 -- Era: Six Gosvamis of Vrindavan
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_uk, display_order)
 VALUES
   ('rupa-gosvami', 'শ্রীল রূপ গোস্বামী', 'Śrīla Rūpa Gosvāmī', 'Srila Rupa Gosvami', 'Шріла Рупа Ґосвамі', 'গোস্বামী', 'Gosvāmī', 'Master of the Senses', 'Володар почуттів', 1489, 1564, 'Ramakeli, Bengal', 'Vrindavan', 'gosvamis', 'The leader of the Six Gosvamis, established the philosophical and devotional framework of Gaudiya Vaishnavism', 'Лідер шести Ґосвамі, заклав філософську та девоційну основу ґаудіа-вайшнавізму', 10),
 
@@ -266,7 +266,7 @@ ON CONFLICT (slug) DO UPDATE SET
   updated_at = now();
 
 -- Era: Later Acharyas
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_uk, display_order)
 VALUES
   ('krishnadasa-kaviraja', 'শ্রীল কৃষ্ণদাস কবিরাজ', 'Śrīla Kṛṣṇadāsa Kavirāja', 'Srila Krishnadasa Kaviraja', 'Шріла Крішнадаса Кавіраджа', 'কবিরাজ', 'Kavirāja', 'King of Poets', 'Цар поетів', 1496, 1588, 'Jhamatpur, Bengal', 'Vrindavan', 'later_acharyas', 'Author of Sri Chaitanya-charitamrita, the authoritative biography of Chaitanya Mahaprabhu', 'Автор Шрі Чайтан''я-чарітамріти, авторитетної біографії Чайтан''ї Махапрабгу', 20),
 
@@ -284,7 +284,7 @@ ON CONFLICT (slug) DO UPDATE SET
   updated_at = now();
 
 -- Era: Modern Acharyas
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, samadhi_place, era, significance_en, significance_uk, display_order)
 VALUES
   ('bhaktivinoda-thakura', 'শ্রীল ভক্তিবিনোদ ঠাকুর', 'Śrīla Bhaktivinoda Ṭhākura', 'Srila Bhaktivinoda Thakura', 'Шріла Бгактівінода Тгакур', 'ঠাকুর', 'Ṭhākura', 'Revered One', 'Шанований', 1838, 1914, 'Birnagar, Bengal', 'Puri, Odisha', 'modern', 'The pioneer of the modern Gaudiya Vaishnava renaissance, prolific writer and visionary', 'Піонер сучасного відродження ґаудіа-вайшнавізму, плідний письменник і провидець', 30),
 
