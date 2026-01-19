@@ -189,16 +189,16 @@ HAVING COUNT(CASE
 END) > 0;
 
 -- Drop and recreate verses_with_structure view
+-- Note: display_blocks column may not exist in all environments
 DROP VIEW IF EXISTS public.verses_with_structure;
 CREATE VIEW public.verses_with_structure
 WITH (security_invoker = true)
 AS
-SELECT 
+SELECT
   v.id,
   v.chapter_id,
   v.verse_number,
-  v.display_blocks,
-  (v.sanskrit IS NOT NULL AND LENGTH(TRIM(v.sanskrit)) > 0) 
+  (v.sanskrit IS NOT NULL AND LENGTH(TRIM(v.sanskrit)) > 0)
     OR (v.sanskrit_ua IS NOT NULL AND LENGTH(TRIM(v.sanskrit_ua)) > 0)
     OR (v.sanskrit_en IS NOT NULL AND LENGTH(TRIM(v.sanskrit_en)) > 0) as has_sanskrit,
   (v.transliteration IS NOT NULL AND LENGTH(TRIM(v.transliteration)) > 0)
