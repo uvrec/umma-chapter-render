@@ -8,7 +8,7 @@ import { format, isToday, isYesterday, isThisWeek, parseISO } from "date-fns";
 import { uk, enUS } from "date-fns/locale";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useUserContent, Bookmark, Highlight, Note, HIGHLIGHT_COLORS } from "@/contexts/UserContentContext";
-import { useBooksContext } from "@/contexts/BooksContext";
+import { useBooks } from "@/contexts/BooksContext";
 import { cn } from "@/lib/utils";
 import {
   Bookmark as BookmarkIcon,
@@ -41,7 +41,7 @@ type TimelineItem = {
 export default function TimelinePage() {
   const { t, language, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
-  const { books } = useBooksContext();
+  // Books context not needed - we use bookSlug directly from user content
   const {
     bookmarks,
     highlights,
@@ -102,11 +102,10 @@ export default function TimelinePage() {
     return groups;
   }, [timelineItems, t, dateLocale]);
 
-  // Get book name by slug
+  // Get book name by slug - just return the slug as a display name
   const getBookName = (bookSlug: string) => {
-    const book = books?.find((b) => b.id === bookSlug);
-    if (!book) return bookSlug;
-    return language === "uk" ? (book.name_uk || book.name_en || bookSlug) : (book.name_en || book.name_uk || bookSlug);
+    // For now, return formatted slug
+    return bookSlug.toUpperCase();
   };
 
   // Handle item click - navigate to verse
