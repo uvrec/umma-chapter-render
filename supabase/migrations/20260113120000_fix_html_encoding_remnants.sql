@@ -21,13 +21,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'verses'::TEXT as table_name,
-    'synonyms_ua'::TEXT as column_name,
+    'synonyms_uk'::TEXT as column_name,
     COUNT(*)::BIGINT as affected_count,
     (ARRAY_AGG(v.id))[1] as sample_id,
     (ARRAY_AGG(v.verse_number))[1]::TEXT as sample_verse_number,
-    LEFT((ARRAY_AGG(v.synonyms_ua))[1], 200) as sample_text
+    LEFT((ARRAY_AGG(v.synonyms_uk))[1], 200) as sample_text
   FROM verses v
-  WHERE v.synonyms_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE v.synonyms_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -45,13 +45,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'verses'::TEXT,
-    'translation_ua'::TEXT,
+    'translation_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(v.id))[1],
     (ARRAY_AGG(v.verse_number))[1]::TEXT,
-    LEFT((ARRAY_AGG(v.translation_ua))[1], 200)
+    LEFT((ARRAY_AGG(v.translation_uk))[1], 200)
   FROM verses v
-  WHERE v.translation_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE v.translation_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -69,13 +69,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'verses'::TEXT,
-    'commentary_ua'::TEXT,
+    'commentary_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(v.id))[1],
     (ARRAY_AGG(v.verse_number))[1]::TEXT,
-    LEFT((ARRAY_AGG(v.commentary_ua))[1], 200)
+    LEFT((ARRAY_AGG(v.commentary_uk))[1], 200)
   FROM verses v
-  WHERE v.commentary_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE v.commentary_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -94,13 +94,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'chapters'::TEXT,
-    'content_ua'::TEXT,
+    'content_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(c.id))[1],
     (ARRAY_AGG(c.chapter_number::TEXT))[1],
-    LEFT((ARRAY_AGG(c.content_ua))[1], 200)
+    LEFT((ARRAY_AGG(c.content_uk))[1], 200)
   FROM chapters c
-  WHERE c.content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE c.content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -119,13 +119,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'intro_chapters'::TEXT,
-    'content_ua'::TEXT,
+    'content_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(ic.id))[1],
-    (ARRAY_AGG(ic.title_ua))[1],
-    LEFT((ARRAY_AGG(ic.content_ua))[1], 200)
+    (ARRAY_AGG(ic.title_uk))[1],
+    LEFT((ARRAY_AGG(ic.content_uk))[1], 200)
   FROM intro_chapters ic
-  WHERE ic.content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE ic.content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -144,13 +144,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'blog_posts'::TEXT,
-    'content_ua'::TEXT,
+    'content_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(bp.id))[1],
-    (ARRAY_AGG(bp.title_ua))[1],
-    LEFT((ARRAY_AGG(bp.content_ua))[1], 200)
+    (ARRAY_AGG(bp.title_uk))[1],
+    LEFT((ARRAY_AGG(bp.content_uk))[1], 200)
   FROM blog_posts bp
-  WHERE bp.content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE bp.content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -169,13 +169,13 @@ BEGIN
   RETURN QUERY
   SELECT
     'pages'::TEXT,
-    'content_ua'::TEXT,
+    'content_uk'::TEXT,
     COUNT(*)::BIGINT,
     (ARRAY_AGG(p.id))[1],
-    (ARRAY_AGG(p.title_ua))[1],
-    LEFT((ARRAY_AGG(p.content_ua))[1], 200)
+    (ARRAY_AGG(p.title_uk))[1],
+    LEFT((ARRAY_AGG(p.content_uk))[1], 200)
   FROM pages p
-  WHERE p.content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE p.content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   HAVING COUNT(*) > 0;
 
   RETURN QUERY
@@ -258,20 +258,20 @@ BEGIN
   -- VERSES TABLE
   -- =========================================
 
-  -- Backup and fix synonyms_ua
+  -- Backup and fix synonyms_uk
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'verses', 'synonyms_ua', synonyms_ua
+  SELECT id, 'verses', 'synonyms_uk', synonyms_uk
   FROM verses
-  WHERE synonyms_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE synonyms_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE verses
-  SET synonyms_ua = decode_html_entities(synonyms_ua)
-  WHERE synonyms_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET synonyms_uk = decode_html_entities(synonyms_uk)
+  WHERE synonyms_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'verses'::TEXT, 'synonyms_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'verses'::TEXT, 'synonyms_uk'::TEXT, fixed_count_var;
   END IF;
 
   -- Backup and fix synonyms_en
@@ -290,20 +290,20 @@ BEGIN
     RETURN QUERY SELECT 'verses'::TEXT, 'synonyms_en'::TEXT, fixed_count_var;
   END IF;
 
-  -- Backup and fix translation_ua
+  -- Backup and fix translation_uk
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'verses', 'translation_ua', translation_ua
+  SELECT id, 'verses', 'translation_uk', translation_uk
   FROM verses
-  WHERE translation_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE translation_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE verses
-  SET translation_ua = decode_html_entities(translation_ua)
-  WHERE translation_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET translation_uk = decode_html_entities(translation_uk)
+  WHERE translation_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'verses'::TEXT, 'translation_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'verses'::TEXT, 'translation_uk'::TEXT, fixed_count_var;
   END IF;
 
   -- Backup and fix translation_en
@@ -322,20 +322,20 @@ BEGIN
     RETURN QUERY SELECT 'verses'::TEXT, 'translation_en'::TEXT, fixed_count_var;
   END IF;
 
-  -- Backup and fix commentary_ua
+  -- Backup and fix commentary_uk
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'verses', 'commentary_ua', commentary_ua
+  SELECT id, 'verses', 'commentary_uk', commentary_uk
   FROM verses
-  WHERE commentary_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE commentary_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE verses
-  SET commentary_ua = decode_html_entities(commentary_ua)
-  WHERE commentary_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET commentary_uk = decode_html_entities(commentary_uk)
+  WHERE commentary_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'verses'::TEXT, 'commentary_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'verses'::TEXT, 'commentary_uk'::TEXT, fixed_count_var;
   END IF;
 
   -- Backup and fix commentary_en
@@ -359,18 +359,18 @@ BEGIN
   -- =========================================
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'chapters', 'content_ua', content_ua
+  SELECT id, 'chapters', 'content_uk', content_uk
   FROM chapters
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE chapters
-  SET content_ua = decode_html_entities(content_ua)
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET content_uk = decode_html_entities(content_uk)
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'chapters'::TEXT, 'content_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'chapters'::TEXT, 'content_uk'::TEXT, fixed_count_var;
   END IF;
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
@@ -393,18 +393,18 @@ BEGIN
   -- =========================================
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'intro_chapters', 'content_ua', content_ua
+  SELECT id, 'intro_chapters', 'content_uk', content_uk
   FROM intro_chapters
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE intro_chapters
-  SET content_ua = decode_html_entities(content_ua)
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET content_uk = decode_html_entities(content_uk)
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'intro_chapters'::TEXT, 'content_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'intro_chapters'::TEXT, 'content_uk'::TEXT, fixed_count_var;
   END IF;
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
@@ -427,18 +427,18 @@ BEGIN
   -- =========================================
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'blog_posts', 'content_ua', content_ua
+  SELECT id, 'blog_posts', 'content_uk', content_uk
   FROM blog_posts
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE blog_posts
-  SET content_ua = decode_html_entities(content_ua)
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET content_uk = decode_html_entities(content_uk)
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'blog_posts'::TEXT, 'content_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'blog_posts'::TEXT, 'content_uk'::TEXT, fixed_count_var;
   END IF;
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
@@ -461,18 +461,18 @@ BEGIN
   -- =========================================
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)
-  SELECT id, 'pages', 'content_ua', content_ua
+  SELECT id, 'pages', 'content_uk', content_uk
   FROM pages
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;'
   ON CONFLICT DO NOTHING;
 
   UPDATE pages
-  SET content_ua = decode_html_entities(content_ua)
-  WHERE content_ua ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
+  SET content_uk = decode_html_entities(content_uk)
+  WHERE content_uk ~ '&lt;|&gt;|&amp;lt;|&amp;gt;|&amp;nbsp;';
 
   GET DIAGNOSTICS fixed_count_var = ROW_COUNT;
   IF fixed_count_var > 0 THEN
-    RETURN QUERY SELECT 'pages'::TEXT, 'content_ua'::TEXT, fixed_count_var;
+    RETURN QUERY SELECT 'pages'::TEXT, 'content_uk'::TEXT, fixed_count_var;
   END IF;
 
   INSERT INTO html_encoding_cleanup_backup (id, table_name, column_name, original_value)

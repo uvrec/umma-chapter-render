@@ -127,7 +127,7 @@ SELECT link_verse_to_tattva('sb', 3, '28', 'krishna-tattva', 1.0);
 CREATE OR REPLACE VIEW public.tattva_stats AS
 SELECT
   t.id,
-  t.name_ua,
+  t.name_uk,
   t.name_en,
   t.slug,
   t.category,
@@ -138,7 +138,7 @@ SELECT
   COUNT(CASE WHEN ct.tagged_by = 'seed' THEN 1 END) AS seed_tagged
 FROM public.tattvas t
 LEFT JOIN public.content_tattvas ct ON t.id = ct.tattva_id
-GROUP BY t.id, t.name_ua, t.name_en, t.slug, t.category
+GROUP BY t.id, t.name_uk, t.name_en, t.slug, t.category
 ORDER BY t.category, t.display_order;
 
 COMMENT ON VIEW public.tattva_stats IS 'Statistics for tattva tagging coverage';

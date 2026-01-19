@@ -32,11 +32,11 @@ BEGIN
     -- Додаємо дефолтну цитату
     INSERT INTO daily_quotes (
       quote_type,
-      quote_ua,
+      quote_uk,
       quote_en,
-      author_ua,
+      author_uk,
       author_en,
-      source_ua,
+      source_uk,
       source_en,
       priority,
       is_active

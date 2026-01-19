@@ -189,14 +189,14 @@ BEGIN
     b.slug AS book_slug,
     c.chapter_number,
     v.sanskrit,
-    COALESCE(v.transliteration, v.transliteration_ua) AS transliteration,
+    COALESCE(v.transliteration, v.transliteration_uk) AS transliteration,
     CASE WHEN language_code = 'uk'
-      THEN COALESCE(v.translation_ua, v.translation_en)
-      ELSE COALESCE(v.translation_en, v.translation_ua)
+      THEN COALESCE(v.translation_uk, v.translation_en)
+      ELSE COALESCE(v.translation_en, v.translation_uk)
     END AS translation,
     CASE WHEN language_code = 'uk'
-      THEN COALESCE(v.commentary_ua, v.commentary_en)
-      ELSE COALESCE(v.commentary_en, v.commentary_ua)
+      THEN COALESCE(v.commentary_uk, v.commentary_en)
+      ELSE COALESCE(v.commentary_en, v.commentary_uk)
     END AS commentary,
     1 - (v.embedding <=> query_embedding) AS similarity
   FROM public.verses v
@@ -287,14 +287,14 @@ BEGIN
     b.slug AS book_slug,
     c.chapter_number,
     v.sanskrit,
-    COALESCE(v.transliteration, v.transliteration_ua) AS transliteration,
+    COALESCE(v.transliteration, v.transliteration_uk) AS transliteration,
     CASE WHEN language_code = 'uk'
-      THEN COALESCE(v.translation_ua, v.translation_en)
-      ELSE COALESCE(v.translation_en, v.translation_ua)
+      THEN COALESCE(v.translation_uk, v.translation_en)
+      ELSE COALESCE(v.translation_en, v.translation_uk)
     END AS translation,
     CASE WHEN language_code = 'uk'
-      THEN COALESCE(v.commentary_ua, v.commentary_en)
-      ELSE COALESCE(v.commentary_en, v.commentary_ua)
+      THEN COALESCE(v.commentary_uk, v.commentary_en)
+      ELSE COALESCE(v.commentary_en, v.commentary_uk)
     END AS commentary,
     combined.semantic_score,
     combined.fulltext_score,

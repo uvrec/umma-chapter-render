@@ -7,7 +7,7 @@ ADD COLUMN IF NOT EXISTS read_time integer DEFAULT 0,
 ADD COLUMN IF NOT EXISTS view_count integer DEFAULT 0,
 ADD COLUMN IF NOT EXISTS is_published boolean DEFAULT false,
 ADD COLUMN IF NOT EXISTS scheduled_publish_at timestamp with time zone,
-ADD COLUMN IF NOT EXISTS meta_description_ua text,
+ADD COLUMN IF NOT EXISTS meta_description_uk text,
 ADD COLUMN IF NOT EXISTS meta_description_en text,
 ADD COLUMN IF NOT EXISTS instagram_embed_url text,
 ADD COLUMN IF NOT EXISTS telegram_embed_url text,
@@ -17,10 +17,10 @@ ADD COLUMN IF NOT EXISTS tags text[];
 -- Create blog_categories table
 CREATE TABLE IF NOT EXISTS blog_categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name_ua text NOT NULL,
+  name_uk text NOT NULL,
   name_en text NOT NULL,
   slug text UNIQUE NOT NULL,
-  description_ua text,
+  description_uk text,
   description_en text,
   post_count integer DEFAULT 0,
   created_at timestamp with time zone DEFAULT now()
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS blog_categories (
 -- Create blog_tags table
 CREATE TABLE IF NOT EXISTS blog_tags (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name_ua text NOT NULL,
+  name_uk text NOT NULL,
   name_en text NOT NULL,
   slug text UNIQUE NOT NULL,
   post_count integer DEFAULT 0,

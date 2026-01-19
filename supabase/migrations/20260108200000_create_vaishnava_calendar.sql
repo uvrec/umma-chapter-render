@@ -11,16 +11,16 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS public.vaishnava_months (
   id SERIAL PRIMARY KEY,
   name_sanskrit TEXT NOT NULL UNIQUE,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
   month_number INTEGER NOT NULL CHECK (month_number BETWEEN 1 AND 12),
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
 -- Insert 12 Vedic months
-INSERT INTO vaishnava_months (name_sanskrit, name_ua, name_en, month_number) VALUES
+INSERT INTO vaishnava_months (name_sanskrit, name_uk, name_en, month_number) VALUES
   ('Mādhava', 'Мадгава', 'Madhava', 1),
   ('Mādhusūdana', 'Мадгусудана', 'Madhusudana', 2),
   ('Trivikrama', 'Трівікрама', 'Trivikrama', 3),
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS public.tithi_types (
   tithi_number INTEGER NOT NULL CHECK (tithi_number BETWEEN 1 AND 15),
   paksha TEXT NOT NULL CHECK (paksha IN ('shukla', 'krishna')),
   name_sanskrit TEXT NOT NULL,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
   is_ekadashi BOOLEAN DEFAULT false,
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.tithi_types (
 );
 
 -- Insert tithi types (1-15 for each paksha)
-INSERT INTO tithi_types (tithi_number, paksha, name_sanskrit, name_ua, name_en, is_ekadashi) VALUES
+INSERT INTO tithi_types (tithi_number, paksha, name_sanskrit, name_uk, name_en, is_ekadashi) VALUES
   -- Shukla paksha (waxing moon)
   (1, 'shukla', 'Pratipadā', 'Пратіпада', 'Pratipada', false),
   (2, 'shukla', 'Dvitīyā', 'Двітія', 'Dvitiya', false),
@@ -99,33 +99,33 @@ CREATE TABLE IF NOT EXISTS public.ekadashi_info (
 
   -- Names
   name_sanskrit TEXT NOT NULL,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
 
   -- Glory from Padma Purana
-  glory_title_ua TEXT,
+  glory_title_uk TEXT,
   glory_title_en TEXT,
-  glory_text_ua TEXT,
+  glory_text_uk TEXT,
   glory_text_en TEXT,
   glory_source TEXT, -- e.g., "Padma Purana, Uttara-khanda"
 
   -- Deity and recommendations
-  presiding_deity_ua TEXT,
+  presiding_deity_uk TEXT,
   presiding_deity_en TEXT,
-  recommended_activities_ua TEXT,
+  recommended_activities_uk TEXT,
   recommended_activities_en TEXT,
 
   -- Fasting rules
-  fasting_rules_ua TEXT,
+  fasting_rules_uk TEXT,
   fasting_rules_en TEXT,
   breaking_fast_time TEXT, -- e.g., "After sunrise on Dvadashi"
 
   -- Benefits
-  benefits_ua TEXT,
+  benefits_uk TEXT,
   benefits_en TEXT,
 
   -- Additional content
-  story_ua TEXT,
+  story_uk TEXT,
   story_en TEXT,
   mantras TEXT[],
 
@@ -147,9 +147,9 @@ CREATE TABLE IF NOT EXISTS public.ekadashi_info (
 CREATE TABLE IF NOT EXISTS public.festival_categories (
   id SERIAL PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   icon TEXT, -- Lucide icon name
   color TEXT NOT NULL DEFAULT '#d97706', -- For calendar display (vedavoice brand amber)
@@ -157,7 +157,7 @@ CREATE TABLE IF NOT EXISTS public.festival_categories (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
-INSERT INTO festival_categories (slug, name_ua, name_en, icon, color, sort_order) VALUES
+INSERT INTO festival_categories (slug, name_uk, name_en, icon, color, sort_order) VALUES
   ('ekadashi', 'Екадаші', 'Ekadashi', 'Moon', '#8B5CF6', 1),
   ('appearance', 'Явлення', 'Appearance', 'Sunrise', '#F59E0B', 2),
   ('disappearance', 'Відхід', 'Disappearance', 'Sunset', '#6B7280', 3),
@@ -177,9 +177,9 @@ CREATE TABLE IF NOT EXISTS public.appearance_days (
 
   -- Person/Deity info
   person_name_sanskrit TEXT,
-  person_name_ua TEXT NOT NULL,
+  person_name_uk TEXT NOT NULL,
   person_name_en TEXT NOT NULL,
-  person_title_ua TEXT, -- e.g., "Верховний Господь", "Ачар'я"
+  person_title_uk TEXT, -- e.g., "Верховний Господь", "Ачар'я"
   person_title_en TEXT,
 
   -- Lunar calendar position (for recurring calculation)
@@ -188,13 +188,13 @@ CREATE TABLE IF NOT EXISTS public.appearance_days (
   paksha TEXT CHECK (paksha IN ('shukla', 'krishna')),
 
   -- Description
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
-  short_description_ua TEXT,
+  short_description_uk TEXT,
   short_description_en TEXT,
 
   -- Observances
-  observances_ua TEXT,
+  observances_uk TEXT,
   observances_en TEXT,
   fasting_level TEXT CHECK (fasting_level IN ('nirjala', 'full', 'half', 'none')),
 
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS public.vaishnava_festivals (
 
   -- Names
   name_sanskrit TEXT,
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
 
   -- Lunar calendar position
@@ -227,17 +227,17 @@ CREATE TABLE IF NOT EXISTS public.vaishnava_festivals (
   paksha TEXT CHECK (paksha IN ('shukla', 'krishna')),
 
   -- Description
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
-  short_description_ua TEXT,
+  short_description_uk TEXT,
   short_description_en TEXT,
 
   -- Significance
-  significance_ua TEXT,
+  significance_uk TEXT,
   significance_en TEXT,
 
   -- Observances
-  observances_ua TEXT,
+  observances_uk TEXT,
   observances_en TEXT,
   fasting_level TEXT CHECK (fasting_level IN ('nirjala', 'full', 'half', 'none')),
 
@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS public.calendar_locations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Location info
-  name_ua TEXT NOT NULL,
+  name_uk TEXT NOT NULL,
   name_en TEXT NOT NULL,
 
   -- Coordinates
@@ -278,7 +278,7 @@ CREATE TABLE IF NOT EXISTS public.calendar_locations (
 
   -- Geographic info
   country_code TEXT,
-  city_ua TEXT,
+  city_uk TEXT,
   city_en TEXT,
 
   -- Presets
@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS public.calendar_locations (
 );
 
 -- Insert preset locations
-INSERT INTO calendar_locations (name_ua, name_en, latitude, longitude, timezone, country_code, city_ua, city_en, is_preset) VALUES
+INSERT INTO calendar_locations (name_uk, name_en, latitude, longitude, timezone, country_code, city_uk, city_en, is_preset) VALUES
   ('Київ', 'Kyiv', 50.4501, 30.5234, 'Europe/Kyiv', 'UA', 'Київ', 'Kyiv', true),
   ('Львів', 'Lviv', 49.8397, 24.0297, 'Europe/Kyiv', 'UA', 'Львів', 'Lviv', true),
   ('Одеса', 'Odesa', 46.4825, 30.7233, 'Europe/Kyiv', 'UA', 'Одеса', 'Odesa', true),
@@ -321,9 +321,9 @@ CREATE TABLE IF NOT EXISTS public.calendar_events (
   appearance_day_id UUID REFERENCES appearance_days(id) ON DELETE SET NULL,
 
   -- Override values (for location-specific adjustments)
-  custom_name_ua TEXT,
+  custom_name_uk TEXT,
   custom_name_en TEXT,
-  custom_description_ua TEXT,
+  custom_description_uk TEXT,
   custom_description_en TEXT,
 
   -- Lunar data for this specific date
@@ -548,9 +548,9 @@ RETURNS TABLE (
   event_id UUID,
   event_date DATE,
   event_type TEXT,
-  name_ua TEXT,
+  name_uk TEXT,
   name_en TEXT,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   category_slug TEXT,
   category_color TEXT,
@@ -575,9 +575,9 @@ BEGIN
       WHEN ce.appearance_day_id IS NOT NULL THEN ad.event_type
       ELSE 'other'::TEXT
     END as event_type,
-    COALESCE(ce.custom_name_ua, ei.name_ua, vf.name_ua, ad.person_name_ua) as name_ua,
+    COALESCE(ce.custom_name_uk, ei.name_uk, vf.name_uk, ad.person_name_uk) as name_uk,
     COALESCE(ce.custom_name_en, ei.name_en, vf.name_en, ad.person_name_en) as name_en,
-    COALESCE(ce.custom_description_ua, ei.glory_text_ua, vf.short_description_ua, ad.short_description_ua) as description_ua,
+    COALESCE(ce.custom_description_uk, ei.glory_text_uk, vf.short_description_uk, ad.short_description_uk) as description_uk,
     COALESCE(ce.custom_description_en, ei.glory_text_en, vf.short_description_en, ad.short_description_en) as description_en,
     CASE
       WHEN ce.ekadashi_id IS NOT NULL THEN 'ekadashi'
@@ -657,9 +657,9 @@ CREATE OR REPLACE FUNCTION get_today_events(
 RETURNS TABLE (
   event_id UUID,
   event_type TEXT,
-  name_ua TEXT,
+  name_uk TEXT,
   name_en TEXT,
-  short_description_ua TEXT,
+  short_description_uk TEXT,
   short_description_en TEXT,
   category_color TEXT,
   is_ekadashi BOOLEAN,
@@ -680,9 +680,9 @@ BEGIN
       WHEN ce.appearance_day_id IS NOT NULL THEN ad.event_type
       ELSE 'other'::TEXT
     END,
-    COALESCE(ce.custom_name_ua, ei.name_ua, vf.name_ua, ad.person_name_ua),
+    COALESCE(ce.custom_name_uk, ei.name_uk, vf.name_uk, ad.person_name_uk),
     COALESCE(ce.custom_name_en, ei.name_en, vf.name_en, ad.person_name_en),
-    COALESCE(ei.glory_title_ua, vf.short_description_ua, ad.short_description_ua),
+    COALESCE(ei.glory_title_uk, vf.short_description_uk, ad.short_description_uk),
     COALESCE(ei.glory_title_en, vf.short_description_en, ad.short_description_en),
     CASE
       WHEN ce.ekadashi_id IS NOT NULL THEN '#8B5CF6'

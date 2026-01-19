@@ -2,9 +2,9 @@
 CREATE TABLE IF NOT EXISTS public.intro_chapters (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   book_id UUID NOT NULL REFERENCES public.books(id) ON DELETE CASCADE,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
-  content_ua TEXT,
+  content_uk TEXT,
   content_en TEXT,
   display_order INTEGER NOT NULL DEFAULT 0,
   slug TEXT NOT NULL,

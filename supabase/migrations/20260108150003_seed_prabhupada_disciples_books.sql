@@ -7,7 +7,7 @@ BEGIN;
 -- ADD MORE AUTHORS - PRABHUPADA'S DISCIPLES
 -- ============================================================================
 
-INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_ua, title_sanskrit, title_transliteration, title_en, title_ua, birth_year, death_year, birth_place, era, significance_en, significance_ua, display_order)
+INSERT INTO gv_authors (slug, name_sanskrit, name_transliteration, name_en, name_uk, title_sanskrit, title_transliteration, title_en, title_uk, birth_year, death_year, birth_place, era, significance_en, significance_uk, display_order)
 VALUES
   ('satsvarupa-dasa-goswami', NULL, 'Satsvarūpa Dāsa Gosvāmī', 'Satsvarupa Dasa Goswami', 'Сатсварупа Даса Ґосвамі', 'গোস্বামী', 'Gosvāmī', 'Master of the Senses', 'Володар почуттів', 1939, NULL, 'New York, USA', 'prabhupada_disciples',
    'Author of Srila Prabhupada-lilamrta, the authorized biography of Prabhupada.',
@@ -71,7 +71,7 @@ VALUES
 
 ON CONFLICT (slug) DO UPDATE SET
   significance_en = EXCLUDED.significance_en,
-  significance_ua = EXCLUDED.significance_ua,
+  significance_uk = EXCLUDED.significance_uk,
   updated_at = now();
 
 -- Set guru relationships for disciples
@@ -82,7 +82,7 @@ WHERE slug IN ('satsvarupa-dasa-goswami', 'gopiparanadhana-dasa', 'hridayananda-
 -- BOOKS BY PRABHUPADA'S DISCIPLES
 -- ============================================================================
 
-INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_ua, author_id, category, subcategory, original_language, volume_count, importance_level, significance_en, significance_ua, display_order)
+INSERT INTO gv_book_references (slug, title_sanskrit, title_transliteration, title_en, title_uk, author_id, category, subcategory, original_language, volume_count, importance_level, significance_en, significance_uk, display_order)
 VALUES
   -- Satsvarupa Dasa Goswami
   ('srila-prabhupada-lilamrta', 'শ্রীলপ্রভুপাদলীলামৃত', 'Śrīla-prabhupāda-līlāmṛta', 'Srila Prabhupada-lilamrta', 'Шріла Прабгупада-лілямріта',

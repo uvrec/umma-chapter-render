@@ -33,9 +33,9 @@ DECLARE
 BEGIN
   -- Визначаємо мову та колонки
   IF search_language = 'ua' THEN
-    synonyms_column := 'synonyms_ua';
-    translation_column := 'translation_ua';
-    transliteration_column := 'transliteration_ua';
+    synonyms_column := 'synonyms_uk';
+    translation_column := 'translation_uk';
+    transliteration_column := 'transliteration_uk';
     tsconfig := 'simple';
   ELSE
     synonyms_column := 'synonyms_en';
@@ -49,7 +49,7 @@ BEGIN
     SELECT
       v.id AS verse_id,
       b.slug AS book_slug,
-      CASE WHEN $2 = 'ua' THEN b.title_ua ELSE b.title_en END AS book_title,
+      CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END AS book_title,
       c.chapter_number,
       v.verse_number,
       ca.canto_number,  -- Додано для Шрімад-Бгаватам

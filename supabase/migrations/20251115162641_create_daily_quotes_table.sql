@@ -12,11 +12,11 @@ CREATE TABLE IF NOT EXISTS daily_quotes (
   verse_id UUID REFERENCES verses(id) ON DELETE CASCADE,
 
   -- For custom type: bilingual quote content
-  quote_ua TEXT,
+  quote_uk TEXT,
   quote_en TEXT,
-  author_ua TEXT,
+  author_uk TEXT,
   author_en TEXT,
-  source_ua TEXT,
+  source_uk TEXT,
   source_en TEXT,
 
   -- Display settings
@@ -80,11 +80,11 @@ CREATE POLICY "Allow authenticated users to manage quotes"
 -- Insert default quote from Srila Prabhupada
 INSERT INTO daily_quotes (
   quote_type,
-  quote_ua,
+  quote_uk,
   quote_en,
-  author_ua,
+  author_uk,
   author_en,
-  source_ua,
+  source_uk,
   source_en,
   priority,
   is_active

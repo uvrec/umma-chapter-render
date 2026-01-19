@@ -3,9 +3,9 @@ CREATE TABLE public.cantos (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   book_id UUID NOT NULL REFERENCES public.books(id) ON DELETE CASCADE,
   canto_number INTEGER NOT NULL,
-  title_ua TEXT NOT NULL,
+  title_uk TEXT NOT NULL,
   title_en TEXT NOT NULL,
-  description_ua TEXT,
+  description_uk TEXT,
   description_en TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(book_id, canto_number)

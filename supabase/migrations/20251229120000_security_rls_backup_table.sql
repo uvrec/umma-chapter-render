@@ -125,20 +125,20 @@ AS
 SELECT
   v.id,
   b.slug AS book_slug,
-  b.title_ua,
+  b.title_uk,
   b.title_en,
   c.chapter_number,
   v.verse_number,
   v.sanskrit,
   v.transliteration,
-  v.synonyms_ua,
+  v.synonyms_uk,
   v.synonyms_en,
-  v.translation_ua,
+  v.translation_uk,
   v.translation_en
 FROM verses v
 INNER JOIN chapters c ON v.chapter_id = c.id
 INNER JOIN books b ON c.book_id = b.id
-WHERE v.synonyms_ua IS NOT NULL OR v.synonyms_en IS NOT NULL;
+WHERE v.synonyms_uk IS NOT NULL OR v.synonyms_en IS NOT NULL;
 
 COMMENT ON VIEW public.verses_with_synonyms IS 'Published verses with synonyms - uses SECURITY INVOKER for RLS';
 
@@ -153,23 +153,23 @@ SELECT
   v.verse_number,
   (v.sanskrit IS NOT NULL AND LENGTH(TRIM(v.sanskrit)) > 0) AS has_sanskrit,
   (v.transliteration IS NOT NULL AND LENGTH(TRIM(v.transliteration)) > 0) AS has_transliteration,
-  (v.synonyms_ua IS NOT NULL AND LENGTH(TRIM(v.synonyms_ua)) > 0)
+  (v.synonyms_uk IS NOT NULL AND LENGTH(TRIM(v.synonyms_uk)) > 0)
     OR (v.synonyms_en IS NOT NULL AND LENGTH(TRIM(v.synonyms_en)) > 0) AS has_synonyms,
-  (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+  (v.translation_uk IS NOT NULL AND LENGTH(TRIM(v.translation_uk)) > 0)
     OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0) AS has_translation,
-  (v.commentary_ua IS NOT NULL AND LENGTH(TRIM(v.commentary_ua)) > 0)
+  (v.commentary_uk IS NOT NULL AND LENGTH(TRIM(v.commentary_uk)) > 0)
     OR (v.commentary_en IS NOT NULL AND LENGTH(TRIM(v.commentary_en)) > 0) AS has_commentary,
   CASE
     WHEN v.sanskrit IS NOT NULL
       AND v.transliteration IS NOT NULL
-      AND (v.synonyms_ua IS NOT NULL OR v.synonyms_en IS NOT NULL)
-      AND (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
-      AND (v.commentary_ua IS NOT NULL OR v.commentary_en IS NOT NULL)
+      AND (v.synonyms_uk IS NOT NULL OR v.synonyms_en IS NOT NULL)
+      AND (v.translation_uk IS NOT NULL OR v.translation_en IS NOT NULL)
+      AND (v.commentary_uk IS NOT NULL OR v.commentary_en IS NOT NULL)
     THEN 'full'
-    WHEN (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
-      AND (v.commentary_ua IS NOT NULL OR v.commentary_en IS NOT NULL)
+    WHEN (v.translation_uk IS NOT NULL OR v.translation_en IS NOT NULL)
+      AND (v.commentary_uk IS NOT NULL OR v.commentary_en IS NOT NULL)
     THEN 'translation_commentary'
-    WHEN (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
+    WHEN (v.translation_uk IS NOT NULL OR v.translation_en IS NOT NULL)
     THEN 'translation_only'
     ELSE 'incomplete'
   END AS detected_structure
@@ -188,16 +188,16 @@ SELECT
   v.verse_number,
   v.sanskrit,
   v.transliteration,
-  v.synonyms_ua,
+  v.synonyms_uk,
   v.synonyms_en,
-  v.translation_ua,
+  v.translation_uk,
   v.translation_en,
-  v.commentary_ua,
+  v.commentary_uk,
   v.commentary_en,
   v.audio_url,
   v.created_at,
   c.chapter_number,
-  c.title_ua AS chapter_title_ua,
+  c.title_uk AS chapter_title_uk,
   c.title_en AS chapter_title_en,
   b.slug AS book_slug
 FROM verses v
@@ -214,7 +214,7 @@ AS
 SELECT
   b.id,
   b.slug AS our_slug,
-  b.title_ua,
+  b.title_uk,
   b.title_en,
   (SELECT COUNT(*) FROM public.cantos c WHERE c.book_id = b.id) AS cantos_count,
   (SELECT COUNT(*) FROM public.chapters ch WHERE ch.book_id = b.id) AS chapters_count,
@@ -233,23 +233,23 @@ AS
 SELECT
   c.id AS chapter_id,
   c.chapter_number,
-  c.title_ua AS chapter_title_ua,
+  c.title_uk AS chapter_title_uk,
   c.title_en AS chapter_title_en,
   c.chapter_type,
   c.book_id,
   b.slug AS book_slug,
-  b.title_ua AS book_title_ua,
+  b.title_uk AS book_title_uk,
   b.title_en AS book_title_en,
   COUNT(v.id) AS total_verses,
   COUNT(CASE
-    WHEN (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+    WHEN (v.translation_uk IS NOT NULL AND LENGTH(TRIM(v.translation_uk)) > 0)
       OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0)
     THEN 1
   END) AS filled_verses,
   CASE
     WHEN COUNT(v.id) > 0 THEN
       ROUND((COUNT(CASE
-        WHEN (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+        WHEN (v.translation_uk IS NOT NULL AND LENGTH(TRIM(v.translation_uk)) > 0)
           OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0)
         THEN 1
       END)::numeric / COUNT(v.id)::numeric) * 100, 2)
@@ -259,9 +259,9 @@ FROM public.chapters c
 LEFT JOIN public.books b ON c.book_id = b.id
 LEFT JOIN public.verses v ON v.chapter_id = c.id
 WHERE c.chapter_type = 'verses'
-GROUP BY c.id, c.chapter_number, c.title_ua, c.title_en, c.chapter_type, c.book_id, b.slug, b.title_ua, b.title_en
+GROUP BY c.id, c.chapter_number, c.title_uk, c.title_en, c.chapter_type, c.book_id, b.slug, b.title_uk, b.title_en
 HAVING COUNT(CASE
-  WHEN (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+  WHEN (v.translation_uk IS NOT NULL AND LENGTH(TRIM(v.translation_uk)) > 0)
     OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0)
   THEN 1
 END) > 0;
@@ -297,11 +297,11 @@ AS
 SELECT
   id,
   slug,
-  title_ua,
+  title_uk,
   title_en,
-  content_ua,
+  content_uk,
   content_en,
-  excerpt_ua,
+  excerpt_uk,
   excerpt_en,
   cover_image_url,
   video_url,
@@ -317,7 +317,7 @@ SELECT
   read_time,
   featured_image,
   meta_description_en,
-  meta_description_ua,
+  meta_description_uk,
   telegram_embed_url,
   author_display_name,
   substack_embed_url,
@@ -341,15 +341,15 @@ BEGIN
       bp.page_type,
       bp.page_order,
       bp.slug,
-      bp.title_ua,
+      bp.title_uk,
       bp.title_en,
-      bp.content_ua,
+      bp.content_uk,
       bp.content_en,
       bp.is_published,
       bp.created_at,
       bp.updated_at,
       b.slug AS book_slug,
-      b.title_ua AS book_title_ua,
+      b.title_uk AS book_title_uk,
       b.title_en AS book_title_en,
       CASE
         WHEN bp.page_type = 'preface' THEN 'Передмова'

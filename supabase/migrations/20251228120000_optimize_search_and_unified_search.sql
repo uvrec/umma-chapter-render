@@ -33,12 +33,12 @@ END $$;
 
 -- Для verses - об'єднаний вектор для UA та EN
 ALTER TABLE public.verses
-  ADD COLUMN IF NOT EXISTS search_vector_ua tsvector,
+  ADD COLUMN IF NOT EXISTS search_vector_uk tsvector,
   ADD COLUMN IF NOT EXISTS search_vector_en tsvector;
 
 -- Для blog_posts
 ALTER TABLE public.blog_posts
-  ADD COLUMN IF NOT EXISTS search_vector_ua tsvector,
+  ADD COLUMN IF NOT EXISTS search_vector_uk tsvector,
   ADD COLUMN IF NOT EXISTS search_vector_en tsvector;
 
 -- Для lectures (якщо існує)
@@ -46,7 +46,7 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'lectures') THEN
     ALTER TABLE public.lectures
-      ADD COLUMN IF NOT EXISTS search_vector_ua tsvector,
+      ADD COLUMN IF NOT EXISTS search_vector_uk tsvector,
       ADD COLUMN IF NOT EXISTS search_vector_en tsvector;
   END IF;
 END $$;
@@ -56,7 +56,7 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'letters') THEN
     ALTER TABLE public.letters
-      ADD COLUMN IF NOT EXISTS search_vector_ua tsvector,
+      ADD COLUMN IF NOT EXISTS search_vector_uk tsvector,
       ADD COLUMN IF NOT EXISTS search_vector_en tsvector;
   END IF;
 END $$;
@@ -70,11 +70,11 @@ CREATE OR REPLACE FUNCTION update_verse_search_vector()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Український вектор (simple_unaccent для accent-insensitive пошуку кирилицею)
-  NEW.search_vector_ua :=
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.translation_ua, '')), 'A') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.commentary_ua, '')), 'B') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.synonyms_ua, '')), 'C') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.transliteration_ua, COALESCE(NEW.transliteration, ''))), 'D');
+  NEW.search_vector_uk :=
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.translation_uk, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.commentary_uk, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.synonyms_uk, '')), 'C') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.transliteration_uk, COALESCE(NEW.transliteration, ''))), 'D');
 
   -- Англійський вектор
   NEW.search_vector_en :=
@@ -92,10 +92,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_blog_post_search_vector()
 RETURNS TRIGGER AS $$
 BEGIN
-  NEW.search_vector_ua :=
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.title_ua, '')), 'A') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.excerpt_ua, '')), 'B') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.content_ua, '')), 'C');
+  NEW.search_vector_uk :=
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.title_uk, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.excerpt_uk, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(NEW.content_uk, '')), 'C');
 
   NEW.search_vector_en :=
     setweight(to_tsvector('english', COALESCE(NEW.title_en, '')), 'A') ||
@@ -113,8 +113,8 @@ $$ LANGUAGE plpgsql;
 -- Тригер для verses
 DROP TRIGGER IF EXISTS trg_verses_search_vector ON public.verses;
 CREATE TRIGGER trg_verses_search_vector
-  BEFORE INSERT OR UPDATE OF translation_ua, translation_en, commentary_ua, commentary_en,
-                            synonyms_ua, synonyms_en, transliteration, transliteration_ua,
+  BEFORE INSERT OR UPDATE OF translation_uk, translation_en, commentary_uk, commentary_en,
+                            synonyms_uk, synonyms_en, transliteration, transliteration_uk,
                             transliteration_en, sanskrit
   ON public.verses
   FOR EACH ROW
@@ -123,7 +123,7 @@ CREATE TRIGGER trg_verses_search_vector
 -- Тригер для blog_posts
 DROP TRIGGER IF EXISTS trg_blog_posts_search_vector ON public.blog_posts;
 CREATE TRIGGER trg_blog_posts_search_vector
-  BEFORE INSERT OR UPDATE OF title_ua, title_en, excerpt_ua, excerpt_en, content_ua, content_en
+  BEFORE INSERT OR UPDATE OF title_uk, title_en, excerpt_uk, excerpt_en, content_uk, content_en
   ON public.blog_posts
   FOR EACH ROW
   EXECUTE FUNCTION update_blog_post_search_vector();
@@ -135,11 +135,11 @@ CREATE TRIGGER trg_blog_posts_search_vector
 -- Оновити всі verses (force refresh для всіх записів)
 -- Для ~15k записів це безпечно виконується за кілька секунд
 UPDATE public.verses SET
-  search_vector_ua =
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(translation_ua, '')), 'A') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(commentary_ua, '')), 'B') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(synonyms_ua, '')), 'C') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(transliteration_ua, COALESCE(transliteration, ''))), 'D'),
+  search_vector_uk =
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(translation_uk, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(commentary_uk, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(synonyms_uk, '')), 'C') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(transliteration_uk, COALESCE(transliteration, ''))), 'D'),
   search_vector_en =
     setweight(to_tsvector('english', COALESCE(translation_en, '')), 'A') ||
     setweight(to_tsvector('english', COALESCE(commentary_en, '')), 'B') ||
@@ -149,10 +149,10 @@ UPDATE public.verses SET
 
 -- Оновити всі blog_posts (force refresh)
 UPDATE public.blog_posts SET
-  search_vector_ua =
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(title_ua, '')), 'A') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(excerpt_ua, '')), 'B') ||
-    setweight(to_tsvector('public.simple_unaccent', COALESCE(content_ua, '')), 'C'),
+  search_vector_uk =
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(title_uk, '')), 'A') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(excerpt_uk, '')), 'B') ||
+    setweight(to_tsvector('public.simple_unaccent', COALESCE(content_uk, '')), 'C'),
   search_vector_en =
     setweight(to_tsvector('english', COALESCE(title_en, '')), 'A') ||
     setweight(to_tsvector('english', COALESCE(excerpt_en, '')), 'B') ||
@@ -162,9 +162,9 @@ UPDATE public.blog_posts SET
 -- 5. GIN ІНДЕКСИ ДЛЯ ШВИДКОГО ПОШУКУ
 -- ============================================================================
 
-CREATE INDEX IF NOT EXISTS idx_verses_search_vector_ua ON public.verses USING gin(search_vector_ua);
+CREATE INDEX IF NOT EXISTS idx_verses_search_vector_uk ON public.verses USING gin(search_vector_uk);
 CREATE INDEX IF NOT EXISTS idx_verses_search_vector_en ON public.verses USING gin(search_vector_en);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_search_vector_ua ON public.blog_posts USING gin(search_vector_ua);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_search_vector_uk ON public.blog_posts USING gin(search_vector_uk);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_search_vector_en ON public.blog_posts USING gin(search_vector_en);
 
 -- ============================================================================
@@ -232,31 +232,31 @@ BEGIN
     v.verse_number::text,
     v.chapter_id,
     ch.chapter_number,
-    CASE WHEN language_code = 'ua' THEN ch.title_ua ELSE ch.title_en END as chapter_title,
+    CASE WHEN language_code = 'ua' THEN ch.title_uk ELSE ch.title_en END as chapter_title,
     b.id as book_id,
-    CASE WHEN language_code = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+    CASE WHEN language_code = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
     b.slug as book_slug,
     ch.canto_id as canto_id,
     ca.canto_number::integer as canto_number,
-    CASE WHEN language_code = 'ua' THEN ca.title_ua ELSE ca.title_en END as canto_title,
+    CASE WHEN language_code = 'ua' THEN ca.title_uk ELSE ca.title_en END as canto_title,
     (CASE WHEN include_sanskrit THEN v.sanskrit ELSE NULL END) as sanskrit,
     (CASE WHEN include_transliteration THEN COALESCE(
-      CASE WHEN language_code = 'ua' THEN v.transliteration_ua ELSE v.transliteration_en END,
+      CASE WHEN language_code = 'ua' THEN v.transliteration_uk ELSE v.transliteration_en END,
       v.transliteration
     ) ELSE NULL END) as transliteration,
     (CASE WHEN include_synonyms
-          THEN (CASE WHEN language_code = 'ua' THEN v.synonyms_ua ELSE v.synonyms_en END)
+          THEN (CASE WHEN language_code = 'ua' THEN v.synonyms_uk ELSE v.synonyms_en END)
           ELSE NULL END) as synonyms,
     (CASE WHEN include_translation
-          THEN (CASE WHEN language_code = 'ua' THEN v.translation_ua ELSE v.translation_en END)
+          THEN (CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END)
           ELSE NULL END) as translation,
     (CASE WHEN include_commentary
-          THEN (CASE WHEN language_code = 'ua' THEN v.commentary_ua ELSE v.commentary_en END)
+          THEN (CASE WHEN language_code = 'ua' THEN v.commentary_uk ELSE v.commentary_en END)
           ELSE NULL END) as commentary,
     -- Обчислюємо релевантність на основі FTS рангу
     CASE
-      WHEN language_code = 'ua' AND v.search_vector_ua IS NOT NULL THEN
-        ts_rank_cd(v.search_vector_ua, ts_query, 32)::numeric
+      WHEN language_code = 'ua' AND v.search_vector_uk IS NOT NULL THEN
+        ts_rank_cd(v.search_vector_uk, ts_query, 32)::numeric
       WHEN language_code != 'ua' AND v.search_vector_en IS NOT NULL THEN
         ts_rank_cd(v.search_vector_en, ts_query, 32)::numeric
       ELSE 1::numeric
@@ -264,20 +264,20 @@ BEGIN
     -- Визначаємо де знайдено
     ARRAY_REMOVE(ARRAY[
       CASE WHEN include_translation AND (
-        (language_code = 'ua' AND v.translation_ua ILIKE pattern) OR
+        (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
         (language_code <> 'ua' AND v.translation_en ILIKE pattern)
       ) THEN 'translation' ELSE NULL END,
       CASE WHEN include_commentary AND (
-        (language_code = 'ua' AND v.commentary_ua ILIKE pattern) OR
+        (language_code = 'ua' AND v.commentary_uk ILIKE pattern) OR
         (language_code <> 'ua' AND v.commentary_en ILIKE pattern)
       ) THEN 'commentary' ELSE NULL END,
       CASE WHEN include_synonyms AND (
-        (language_code = 'ua' AND v.synonyms_ua ILIKE pattern) OR
+        (language_code = 'ua' AND v.synonyms_uk ILIKE pattern) OR
         (language_code <> 'ua' AND v.synonyms_en ILIKE pattern)
       ) THEN 'synonyms' ELSE NULL END,
       CASE WHEN include_transliteration AND (
         v.transliteration ILIKE pattern OR
-        v.transliteration_ua ILIKE pattern OR
+        v.transliteration_uk ILIKE pattern OR
         v.transliteration_en ILIKE pattern
       ) THEN 'transliteration' ELSE NULL END,
       CASE WHEN include_sanskrit AND v.sanskrit ILIKE pattern THEN 'sanskrit' ELSE NULL END
@@ -286,8 +286,8 @@ BEGIN
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN v.translation_ua ELSE v.translation_en END,
-        CASE WHEN language_code = 'ua' THEN v.commentary_ua ELSE v.commentary_en END,
+        CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END,
+        CASE WHEN language_code = 'ua' THEN v.commentary_uk ELSE v.commentary_en END,
         ''
       ),
       ts_query,
@@ -301,25 +301,25 @@ BEGIN
     AND v.deleted_at IS NULL
     AND (
       -- Спочатку пробуємо FTS пошук
-      (language_code = 'ua' AND v.search_vector_ua @@ ts_query)
+      (language_code = 'ua' AND v.search_vector_uk @@ ts_query)
       OR (language_code != 'ua' AND v.search_vector_en @@ ts_query)
       -- Fallback на ILIKE для коротких запитів
       OR (length(search_query) <= 3 AND (
         (include_translation AND (
-          (language_code = 'ua' AND v.translation_ua ILIKE pattern) OR
+          (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
           (language_code <> 'ua' AND v.translation_en ILIKE pattern)
         ))
         OR (include_commentary AND (
-          (language_code = 'ua' AND v.commentary_ua ILIKE pattern) OR
+          (language_code = 'ua' AND v.commentary_uk ILIKE pattern) OR
           (language_code <> 'ua' AND v.commentary_en ILIKE pattern)
         ))
         OR (include_synonyms AND (
-          (language_code = 'ua' AND v.synonyms_ua ILIKE pattern) OR
+          (language_code = 'ua' AND v.synonyms_uk ILIKE pattern) OR
           (language_code <> 'ua' AND v.synonyms_en ILIKE pattern)
         ))
         OR (include_transliteration AND (
           v.transliteration ILIKE pattern OR
-          v.transliteration_ua ILIKE pattern OR
+          v.transliteration_uk ILIKE pattern OR
           v.transliteration_en ILIKE pattern
         ))
         OR (include_sanskrit AND v.sanskrit ILIKE pattern)
@@ -365,7 +365,7 @@ DECLARE
 BEGIN
   -- Вибираємо колонку синонімів залежно від мови
   IF search_language = 'ua' THEN
-    synonyms_col := 'synonyms_ua';
+    synonyms_col := 'synonyms_uk';
   ELSE
     synonyms_col := 'synonyms_en';
   END IF;
@@ -387,7 +387,7 @@ BEGIN
         ch.chapter_number,
         ca.canto_number,
         b.id as book_id,
-        CASE WHEN $2 = 'ua' THEN b.title_ua ELSE b.title_en END as book_title,
+        CASE WHEN $2 = 'ua' THEN b.title_uk ELSE b.title_en END as book_title,
         b.slug as book_slug,
         -- Парсимо кожен рядок синонімів
         line as synonym_line
@@ -511,11 +511,11 @@ BEGIN
         THEN ca.canto_number || '.' || ch.chapter_number || '.' || v.verse_number
         ELSE ch.chapter_number || '.' || v.verse_number
       END as title,
-    CASE WHEN language_code = 'ua' THEN ch.title_ua ELSE ch.title_en END as subtitle,
+    CASE WHEN language_code = 'ua' THEN ch.title_uk ELSE ch.title_en END as subtitle,
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN v.translation_ua ELSE v.translation_en END,
+        CASE WHEN language_code = 'ua' THEN v.translation_uk ELSE v.translation_en END,
         ''
       ),
       ts_query,
@@ -528,8 +528,8 @@ BEGIN
         '/veda-reader/' || b.slug || '/' || ch.chapter_number || '/' || v.verse_number
     END as href,
     CASE
-      WHEN language_code = 'ua' AND v.search_vector_ua IS NOT NULL THEN
-        ts_rank_cd(v.search_vector_ua, ts_query)::numeric
+      WHEN language_code = 'ua' AND v.search_vector_uk IS NOT NULL THEN
+        ts_rank_cd(v.search_vector_uk, ts_query)::numeric
       WHEN language_code != 'ua' AND v.search_vector_en IS NOT NULL THEN
         ts_rank_cd(v.search_vector_en, ts_query)::numeric
       ELSE 0.5::numeric
@@ -543,10 +543,10 @@ BEGIN
     AND v.deleted_at IS NULL
     AND 'verses' = ANY(search_types)
     AND (
-      (language_code = 'ua' AND v.search_vector_ua @@ ts_query)
+      (language_code = 'ua' AND v.search_vector_uk @@ ts_query)
       OR (language_code != 'ua' AND v.search_vector_en @@ ts_query)
       OR (length(search_query) <= 3 AND (
-        (language_code = 'ua' AND v.translation_ua ILIKE pattern) OR
+        (language_code = 'ua' AND v.translation_uk ILIKE pattern) OR
         (language_code != 'ua' AND v.translation_en ILIKE pattern)
       ))
     )
@@ -559,12 +559,12 @@ BEGIN
   (SELECT
     'blog'::text as result_type,
     bp.id as result_id,
-    CASE WHEN language_code = 'ua' THEN bp.title_ua ELSE bp.title_en END as title,
-    CASE WHEN language_code = 'ua' THEN bp.excerpt_ua ELSE bp.excerpt_en END as subtitle,
+    CASE WHEN language_code = 'ua' THEN bp.title_uk ELSE bp.title_en END as title,
+    CASE WHEN language_code = 'ua' THEN bp.excerpt_uk ELSE bp.excerpt_en END as subtitle,
     ts_headline(
       search_config,
       COALESCE(
-        CASE WHEN language_code = 'ua' THEN bp.content_ua ELSE bp.content_en END,
+        CASE WHEN language_code = 'ua' THEN bp.content_uk ELSE bp.content_en END,
         ''
       ),
       ts_query,
@@ -572,8 +572,8 @@ BEGIN
     ) as snippet,
     '/blog/' || bp.slug as href,
     CASE
-      WHEN language_code = 'ua' AND bp.search_vector_ua IS NOT NULL THEN
-        ts_rank_cd(bp.search_vector_ua, ts_query)::numeric
+      WHEN language_code = 'ua' AND bp.search_vector_uk IS NOT NULL THEN
+        ts_rank_cd(bp.search_vector_uk, ts_query)::numeric
       WHEN language_code != 'ua' AND bp.search_vector_en IS NOT NULL THEN
         ts_rank_cd(bp.search_vector_en, ts_query)::numeric
       ELSE 0.5::numeric
@@ -583,10 +583,10 @@ BEGIN
   WHERE bp.is_published = true
     AND 'blog' = ANY(search_types)
     AND (
-      (language_code = 'ua' AND bp.search_vector_ua @@ ts_query)
+      (language_code = 'ua' AND bp.search_vector_uk @@ ts_query)
       OR (language_code != 'ua' AND bp.search_vector_en @@ ts_query)
       OR (length(search_query) <= 3 AND (
-        (language_code = 'ua' AND (bp.title_ua ILIKE pattern OR bp.content_ua ILIKE pattern)) OR
+        (language_code = 'ua' AND (bp.title_uk ILIKE pattern OR bp.content_uk ILIKE pattern)) OR
         (language_code != 'ua' AND (bp.title_en ILIKE pattern OR bp.content_en ILIKE pattern))
       ))
     )
@@ -629,13 +629,13 @@ BEGIN
     FROM public.verses v
     CROSS JOIN LATERAL unnest(
       string_to_array(
-        CASE WHEN language_code = 'ua' THEN v.synonyms_ua ELSE v.synonyms_en END,
+        CASE WHEN language_code = 'ua' THEN v.synonyms_uk ELSE v.synonyms_en END,
         E'\n'
       )
     ) AS line
     WHERE v.deleted_at IS NULL
       AND (
-        (language_code = 'ua' AND v.synonyms_ua IS NOT NULL) OR
+        (language_code = 'ua' AND v.synonyms_uk IS NOT NULL) OR
         (language_code != 'ua' AND v.synonyms_en IS NOT NULL)
       )
       AND LOWER(line) LIKE LOWER(search_prefix) || '%'

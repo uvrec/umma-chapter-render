@@ -13,7 +13,7 @@ BEGIN
   END IF;
 
 
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (v_book_id, 'dedication', E'Dedication', '', E'<p class="verse">Celebrating the 100th Anniversary of</p>
 
 <p class="verse"><strong>His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda</strong></p>
@@ -35,7 +35,7 @@ BEGIN
     display_order = EXCLUDED.display_order;
 
 
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (v_book_id, 'acknowledgments', E'Acknowledgments', '', E'<p>I wish to sincerely thank Śrīman Kṛṣṇa Candra dāsa and Śrīman Mathureśa dāsa and his wife Gaṅgāgatī dāsī for their selfless support for the reprinting of this volume. May Śrīla Prabhupāda bless them with his eternal devotional service.</p>
 
 <p>I gladly recognize once again all those who supported the original production of this book:</p>
@@ -65,7 +65,7 @@ BEGIN
     display_order = EXCLUDED.display_order;
 
 
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (v_book_id, 'introduction', E'Introduction', '', E'<p>For a period of sixteen months, from late November, 1975 to the end of March, 1977, I had the great fortune to travel with His Divine Grace A.C. Bhaktivedanta Swami Prabhupāda as his personal servant.</p>
 
 <p>Although the initial period of my tenure was to be only two or three days, by the grace of Lord Kṛṣṇa I immediately recognized the unique opportunity in my being able to personally associate with Śrīla Prabhupāda. Thus, on the first night, I purchased a blank notebook in which to keep a diary of my experience. I was thinking that ten or twenty years hence I would be able to read those notes and relish the brief time spent in his association. When my position in his entourage was more firmly fixed, I continued to update the diary on a daily basis.</p>
@@ -107,7 +107,7 @@ BEGIN
     display_order = EXCLUDED.display_order;
 
 
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (v_book_id, 'foreword', E'Foreword', '', E'<p>Dr. E. Burke Rochford, Jr.</p>
 
 <p>Middlebury College, Vermont.</p>
@@ -133,7 +133,7 @@ BEGIN
     display_order = EXCLUDED.display_order;
 
 
-  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_ua, content_en, content_ua, display_order)
+  INSERT INTO public.intro_chapters (book_id, slug, title_en, title_uk, content_en, content_uk, display_order)
   VALUES (v_book_id, 'preface', E'Preface', '', E'<p>In late November of 1975 Śrīla Prabhupāda returned to Delhi after completing a tour of South and East Africa and Mauritius. He arrived via Bombay accompanied by only one personal servant, Harikeśa dāsa, and Ambarīṣa dāsa, great grandson of Henry Ford, the founder of Ford Motor Company. He was joined by Hansadūta dāsa, his Governing Body Commissioner (GBC) for northern Europe, who flew in from Germany to be his personal secretary for the month of December.</p>
 
 <p>Prabhupāda’s intention was to spend a day or two at his ISKCON center in Bengali Market, while arrangements could be made to go to Kurukṣetra and then to spend some time at our temple in Vṛndāvana.</p>
