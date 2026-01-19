@@ -131,7 +131,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
         searchResults.push({
           type: "playlist",
           id: playlist.id,
-          title: language === 'ua' ? playlist.title_ua : playlist.title_en,
+          title: language === 'uk' ? playlist.title_ua : playlist.title_en,
           subtitle: "Аудіо плейліст",
           href: `/admin/audio-playlists/${playlist.id}`,
         });

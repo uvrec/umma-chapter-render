@@ -42,7 +42,7 @@ export function ResponseLevelBadge({ level, className }: ResponseLevelBadgeProps
       )}
     >
       <span className="mr-1">{config.icon}</span>
-      {language === 'ua' ? config.labelUa : config.labelEn}
+      {language === 'uk' ? config.labelUa : config.labelEn}
     </Badge>
   );
 }

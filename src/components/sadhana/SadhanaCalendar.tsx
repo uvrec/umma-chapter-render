@@ -91,7 +91,7 @@ export function SadhanaCalendar({ onSelectDate, selectedDate }: SadhanaCalendarP
     for (let d = lastDay; d >= 1; d--) {
       const date = new Date(year, month, d);
       const dateStr = date.toISOString().split('T')[0];
-      const weekDays = language === 'ua'
+      const weekDays = language === 'uk'
         ? ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
         : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
@@ -120,7 +120,7 @@ export function SadhanaCalendar({ onSelectDate, selectedDate }: SadhanaCalendarP
 
   // Format month name
   const monthName = currentMonth.toLocaleDateString(
-    language === 'ua' ? 'uk-UA' : 'en-US',
+    language === 'uk' ? 'uk-UA' : 'en-US',
     { month: 'long', year: 'numeric' }
   );
 

@@ -96,7 +96,7 @@ export function ReadingGoal({ className }: ReadingGoalProps) {
     try {
       await addReadingGoal({
         bookSlug: selectedBook,
-        bookTitle: language === 'ua' ? selectedBookDetails.title : selectedBookDetails.titleEn,
+        bookTitle: language === 'uk' ? selectedBookDetails.title : selectedBookDetails.titleEn,
         timeUnit,
         duration,
         trackBy,
@@ -199,7 +199,7 @@ export function ReadingGoal({ className }: ReadingGoalProps) {
                     }`}
                   >
                     <div className="font-medium text-sm">
-                      {language === 'ua' ? book.title : book.titleEn}
+                      {language === 'uk' ? book.title : book.titleEn}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {book.pages} {t('стор.', 'pages')}
@@ -228,7 +228,7 @@ export function ReadingGoal({ className }: ReadingGoalProps) {
                             : 'border-border hover:border-brand-300'
                         }`}
                       >
-                        {language === 'ua' ? unit.label : unit.labelEn}
+                        {language === 'uk' ? unit.label : unit.labelEn}
                       </button>
                     ))}
                   </div>
@@ -249,8 +249,8 @@ export function ReadingGoal({ className }: ReadingGoalProps) {
                       className="w-24"
                     />
                     <span className="text-sm text-muted-foreground">
-                      {TIME_UNITS.find(u => u.value === timeUnit)?.[language === 'ua' ? 'label' : 'labelEn']}
-                      {duration > 1 && (language === 'ua' ? 'ів' : 's')}
+                      {TIME_UNITS.find(u => u.value === timeUnit)?.[language === 'uk' ? 'label' : 'labelEn']}
+                      {duration > 1 && (language === 'uk' ? 'ів' : 's')}
                     </span>
                   </div>
                 </div>

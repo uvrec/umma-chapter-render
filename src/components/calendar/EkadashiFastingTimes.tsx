@@ -36,7 +36,7 @@ interface EkadashiFastingTimesProps {
   fastingTimes: FastingTimesType | null;
   ekadashiName?: string;
   location?: CalendarLocation | null;
-  language: "ua" | "en";
+  language: "uk" | "en";
   isLoading?: boolean;
   error?: Error | null;
   onRecalculate?: () => void;
@@ -64,7 +64,7 @@ export function EkadashiFastingTimes({
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {language === "ua"
+          {language === "uk"
             ? "Помилка розрахунку часів посту. Перевірте геолокацію."
             : "Failed to calculate fasting times. Check your location."}
           {onRecalculate && (
@@ -75,7 +75,7 @@ export function EkadashiFastingTimes({
               className="ml-2 h-auto p-0"
             >
               <RefreshCw className="h-3 w-3 mr-1" />
-              {language === "ua" ? "Спробувати знову" : "Try again"}
+              {language === "uk" ? "Спробувати знову" : "Try again"}
             </Button>
           )}
         </AlertDescription>
@@ -89,7 +89,7 @@ export function EkadashiFastingTimes({
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          {language === "ua"
+          {language === "uk"
             ? "Виберіть локацію для розрахунку часів посту"
             : "Select a location to calculate fasting times"}
         </AlertDescription>
@@ -112,12 +112,12 @@ export function EkadashiFastingTimes({
   const ekadashiDateFormatted = format(
     fastingTimes.fastingStart,
     "d MMMM yyyy",
-    { locale: language === "ua" ? uk : undefined }
+    { locale: language === "uk" ? uk : undefined }
   );
   const dvadashiDateFormatted = format(
     fastingTimes.paranaDate,
     "d MMMM yyyy",
-    { locale: language === "ua" ? uk : undefined }
+    { locale: language === "uk" ? uk : undefined }
   );
 
   return (
@@ -125,13 +125,13 @@ export function EkadashiFastingTimes({
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Moon className="h-5 w-5 text-purple-600" />
-          {ekadashiName || (language === "ua" ? "Часи посту" : "Fasting Times")}
+          {ekadashiName || (language === "uk" ? "Часи посту" : "Fasting Times")}
         </CardTitle>
         {location && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
             <span>
-              {language === "ua" ? location.name_ua : location.name_en}
+              {language === "uk" ? location.name_ua : location.name_en}
             </span>
           </div>
         )}
@@ -142,18 +142,18 @@ export function EkadashiFastingTimes({
         <div className="space-y-2">
           <h4 className="text-sm font-medium flex items-center gap-2 text-purple-700 dark:text-purple-300">
             <Timer className="h-4 w-4" />
-            {language === "ua" ? "Початок посту" : "Fasting Start"}
+            {language === "uk" ? "Початок посту" : "Fasting Start"}
           </h4>
           <div className="bg-white dark:bg-slate-900 rounded-lg p-3 space-y-2">
             <div className="text-sm text-muted-foreground">
-              {language === "ua" ? "Екадаші" : "Ekadashi"}: {ekadashiDateFormatted}
+              {language === "uk" ? "Екадаші" : "Ekadashi"}: {ekadashiDateFormatted}
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Sunrise className="h-5 w-5 text-amber-500" />
                 <div>
                   <div className="text-xs text-muted-foreground">
-                    {language === "ua" ? "Схід сонця" : "Sunrise"}
+                    {language === "uk" ? "Схід сонця" : "Sunrise"}
                   </div>
                   <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                     {fastingTimes.ekadashiSunriseFormatted}
@@ -164,7 +164,7 @@ export function EkadashiFastingTimes({
                 <Sunset className="h-5 w-5 text-orange-500" />
                 <div>
                   <div className="text-xs text-muted-foreground">
-                    {language === "ua" ? "Захід сонця" : "Sunset"}
+                    {language === "uk" ? "Захід сонця" : "Sunset"}
                   </div>
                   <div className="text-lg font-medium text-orange-600 dark:text-orange-400">
                     {fastingTimes.ekadashiSunsetFormatted}
@@ -173,7 +173,7 @@ export function EkadashiFastingTimes({
               </div>
             </div>
             <p className="text-xs text-muted-foreground">
-              {language === "ua"
+              {language === "uk"
                 ? "Піст починається зі сходом сонця в день Екадаші"
                 : "Fasting begins at sunrise on Ekadashi day"}
             </p>
@@ -186,11 +186,11 @@ export function EkadashiFastingTimes({
         <div className="space-y-2">
           <h4 className="text-sm font-medium flex items-center gap-2 text-green-700 dark:text-green-300">
             <UtensilsCrossed className="h-4 w-4" />
-            {language === "ua" ? "Парана (переривання посту)" : "Parana (Breaking Fast)"}
+            {language === "uk" ? "Парана (переривання посту)" : "Parana (Breaking Fast)"}
           </h4>
           <div className="bg-white dark:bg-slate-900 rounded-lg p-3 space-y-3">
             <div className="text-sm text-muted-foreground">
-              {language === "ua" ? "Двадаші" : "Dvadashi"}: {dvadashiDateFormatted}
+              {language === "uk" ? "Двадаші" : "Dvadashi"}: {dvadashiDateFormatted}
             </div>
 
             {/* Parana window */}
@@ -198,7 +198,7 @@ export function EkadashiFastingTimes({
               <Clock className="h-5 w-5 text-green-600" />
               <div className="flex-1">
                 <div className="text-xs text-green-700 dark:text-green-300 font-medium">
-                  {language === "ua" ? "Рекомендований час парани" : "Recommended Parana Time"}
+                  {language === "uk" ? "Рекомендований час парани" : "Recommended Parana Time"}
                 </div>
                 <div className="text-lg font-bold text-green-700 dark:text-green-300">
                   {fastingTimes.paranaStartFormatted} — {fastingTimes.paranaEndFormatted}
@@ -212,10 +212,10 @@ export function EkadashiFastingTimes({
                 <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5" />
                 <div className="text-xs">
                   <div className="font-medium text-amber-700 dark:text-amber-300">
-                    {language === "ua" ? "Hari Vasara" : "Hari Vasara"}
+                    {language === "uk" ? "Hari Vasara" : "Hari Vasara"}
                   </div>
                   <div className="text-amber-600 dark:text-amber-400">
-                    {language === "ua"
+                    {language === "uk"
                       ? `Уникайте парани до ${fastingTimes.hariVasaraEndFormatted} (перша чверть Двадаші)`
                       : `Avoid breaking fast before ${fastingTimes.hariVasaraEndFormatted} (first quarter of Dvadashi)`}
                   </div>
@@ -227,7 +227,7 @@ export function EkadashiFastingTimes({
             <div className="flex items-center gap-2 text-sm">
               <Sunrise className="h-4 w-4 text-amber-500" />
               <span className="text-muted-foreground">
-                {language === "ua" ? "Схід на Двадаші:" : "Dvadashi sunrise:"}
+                {language === "uk" ? "Схід на Двадаші:" : "Dvadashi sunrise:"}
               </span>
               <span className="font-medium">{fastingTimes.dvadashiSunriseFormatted}</span>
             </div>
@@ -241,10 +241,10 @@ export function EkadashiFastingTimes({
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <Info className="h-4 w-4 text-muted-foreground" />
-                {language === "ua" ? "Примітки" : "Notes"}
+                {language === "uk" ? "Примітки" : "Notes"}
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {language === "ua" ? fastingTimes.notes_ua : fastingTimes.notes_en}
+                {language === "uk" ? fastingTimes.notes_ua : fastingTimes.notes_en}
               </p>
             </div>
           </>
@@ -260,7 +260,7 @@ export function EkadashiFastingTimes({
               className="w-full"
             >
               <RefreshCw className="h-3.5 w-3.5 mr-2" />
-              {language === "ua" ? "Перерахувати" : "Recalculate"}
+              {language === "uk" ? "Перерахувати" : "Recalculate"}
             </Button>
           </div>
         )}
@@ -275,7 +275,7 @@ export function EkadashiFastingTimes({
 interface EkadashiFastingTimesCompactProps {
   fastingTimes: FastingTimesType;
   ekadashiName?: string;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 function EkadashiFastingTimesCompact({
@@ -297,7 +297,7 @@ function EkadashiFastingTimesCompact({
         <div className="space-y-1">
           <div className="text-xs text-muted-foreground flex items-center gap-1">
             <Timer className="h-3 w-3" />
-            {language === "ua" ? "Початок посту" : "Fast starts"}
+            {language === "uk" ? "Початок посту" : "Fast starts"}
           </div>
           <div className="font-medium text-amber-600 dark:text-amber-400">
             {fastingTimes.ekadashiSunriseFormatted}
@@ -308,7 +308,7 @@ function EkadashiFastingTimesCompact({
         <div className="space-y-1">
           <div className="text-xs text-muted-foreground flex items-center gap-1">
             <UtensilsCrossed className="h-3 w-3" />
-            {language === "ua" ? "Парана" : "Parana"}
+            {language === "uk" ? "Парана" : "Parana"}
           </div>
           <div className="font-medium text-green-600 dark:text-green-400">
             {fastingTimes.paranaStartFormatted}–{fastingTimes.paranaEndFormatted}
@@ -362,7 +362,7 @@ function EkadashiFastingTimesSkeleton({ compact }: { compact?: boolean }) {
 interface ParanaBadgeProps {
   paranaStart: string;
   paranaEnd: string;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 export function ParanaBadge({ paranaStart, paranaEnd, language }: ParanaBadgeProps) {
@@ -372,7 +372,7 @@ export function ParanaBadge({ paranaStart, paranaEnd, language }: ParanaBadgePro
       className="bg-green-50 dark:bg-green-950/50 border-green-300 dark:border-green-800 text-green-700 dark:text-green-300"
     >
       <UtensilsCrossed className="h-3 w-3 mr-1" />
-      {language === "ua" ? "Парана:" : "Parana:"} {paranaStart}–{paranaEnd}
+      {language === "uk" ? "Парана:" : "Parana:"} {paranaStart}–{paranaEnd}
     </Badge>
   );
 }
@@ -383,7 +383,7 @@ export function ParanaBadge({ paranaStart, paranaEnd, language }: ParanaBadgePro
 interface SunTimesBadgeProps {
   sunrise: string;
   sunset: string;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 export function SunTimesBadge({ sunrise, sunset, language }: SunTimesBadgeProps) {

@@ -172,7 +172,7 @@ export const GVReferences = () => {
                         <BookOpen className="w-5 h-5 text-primary" />
                         <div className="text-left">
                           <div className="font-medium">
-                            {language === 'ua' ? catalogue.name_ua : catalogue.name_en}
+                            {language === 'uk' ? catalogue.name_ua : catalogue.name_en}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {catalogue.books?.length || 0} {t('книг', 'books')}
@@ -200,7 +200,7 @@ export const GVReferences = () => {
                               </div>
                               {/* Translation */}
                               <div className="text-sm text-foreground">
-                                {language === 'ua' ? book.title_ua : book.title_en}
+                                {language === 'uk' ? book.title_ua : book.title_en}
                               </div>
                               {/* Badges */}
                               <div className="flex flex-wrap gap-1 mt-1">
@@ -268,7 +268,7 @@ export const GVReferences = () => {
                     <div key={era}>
                       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <Users className="w-5 h-5 text-primary" />
-                        {language === 'ua'
+                        {language === 'uk'
                           ? eraDisplayNames[era].ua
                           : eraDisplayNames[era].en}
                         <span className="text-sm font-normal text-muted-foreground">
@@ -296,7 +296,7 @@ export const GVReferences = () => {
                             </div>
                             {/* Translation */}
                             <div className="text-sm text-foreground">
-                              {language === 'ua'
+                              {language === 'uk'
                                 ? `${author.title_ua || ''} ${author.name_ua}`.trim()
                                 : `${author.title_en || ''} ${author.name_en}`.trim()}
                             </div>
@@ -309,7 +309,7 @@ export const GVReferences = () => {
                             {/* Significance */}
                             {(author.significance_ua || author.significance_en) && (
                               <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                                {language === 'ua' ? author.significance_ua : author.significance_en}
+                                {language === 'uk' ? author.significance_ua : author.significance_en}
                               </p>
                             )}
                           </div>

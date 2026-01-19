@@ -301,7 +301,7 @@ export default function JyotishCalculator() {
                           </div>
                           <div>
                             <div className="text-xl font-semibold">
-                              {language === 'ua'
+                              {language === 'uk'
                                 ? portrait.jyotish.janma_nakshatra.name_ua
                                 : portrait.jyotish.janma_nakshatra.name_en}
                             </div>
@@ -316,7 +316,7 @@ export default function JyotishCalculator() {
                             <span className="text-muted-foreground">
                               {t('Божество:', 'Deity:')}
                             </span>{' '}
-                            {language === 'ua'
+                            {language === 'uk'
                               ? portrait.jyotish.janma_nakshatra.deity_ua
                               : portrait.jyotish.janma_nakshatra.deity_en}
                           </div>
@@ -325,13 +325,13 @@ export default function JyotishCalculator() {
                               {t('Планета:', 'Planet:')}
                             </span>{' '}
                             {GRAHAS.find(g => g.id === portrait.jyotish.janma_nakshatra.ruler_planet)
-                              ?.[language === 'ua' ? 'name_ua' : 'name_en']}
+                              ?.[language === 'uk' ? 'name_ua' : 'name_en']}
                           </div>
                           <div>
                             <span className="text-muted-foreground">
                               {t('Символ:', 'Symbol:')}
                             </span>{' '}
-                            {language === 'ua'
+                            {language === 'uk'
                               ? portrait.jyotish.janma_nakshatra.symbol_ua
                               : portrait.jyotish.janma_nakshatra.symbol_en}
                           </div>
@@ -362,12 +362,12 @@ export default function JyotishCalculator() {
                               {t('Чандра раші (Місяць)', 'Chandra Rashi (Moon)')}
                             </div>
                             <div className="font-semibold">
-                              {language === 'ua'
+                              {language === 'uk'
                                 ? portrait.jyotish.chandra_rashi.name_ua
                                 : portrait.jyotish.chandra_rashi.name_en}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {language === 'ua'
+                              {language === 'uk'
                                 ? portrait.jyotish.chandra_rashi.western_name_ua
                                 : portrait.jyotish.chandra_rashi.western_name_en}
                             </div>
@@ -377,12 +377,12 @@ export default function JyotishCalculator() {
                               {t('Сур\'я раші (Сонце)', 'Surya Rashi (Sun)')}
                             </div>
                             <div className="font-semibold">
-                              {language === 'ua'
+                              {language === 'uk'
                                 ? portrait.jyotish.surya_rashi.name_ua
                                 : portrait.jyotish.surya_rashi.name_en}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              {language === 'ua'
+                              {language === 'uk'
                                 ? portrait.jyotish.surya_rashi.western_name_ua
                                 : portrait.jyotish.surya_rashi.western_name_en}
                             </div>
@@ -432,7 +432,7 @@ export default function JyotishCalculator() {
                       </CardHeader>
                       <CardContent className="space-y-4">
                         <p className="text-sm">
-                          {language === 'ua'
+                          {language === 'uk'
                             ? portrait.jyotish.personality_ua
                             : portrait.jyotish.personality_en}
                         </p>
@@ -444,7 +444,7 @@ export default function JyotishCalculator() {
                               {t('Сильні сторони', 'Strengths')}
                             </h4>
                             <div className="flex flex-wrap gap-1">
-                              {(language === 'ua'
+                              {(language === 'uk'
                                 ? portrait.jyotish.strengths_ua
                                 : portrait.jyotish.strengths_en
                               ).slice(0, 5).map((trait, i) => (
@@ -460,7 +460,7 @@ export default function JyotishCalculator() {
                               {t('Виклики', 'Challenges')}
                             </h4>
                             <div className="flex flex-wrap gap-1">
-                              {(language === 'ua'
+                              {(language === 'uk'
                                 ? portrait.jyotish.challenges_ua
                                 : portrait.jyotish.challenges_en
                               ).slice(0, 4).map((trait, i) => (
@@ -478,7 +478,7 @@ export default function JyotishCalculator() {
                             {t('Сприятливі сфери', 'Favorable careers')}
                           </h4>
                           <div className="flex flex-wrap gap-1">
-                            {(language === 'ua'
+                            {(language === 'uk'
                               ? portrait.jyotish.career_ua
                               : portrait.jyotish.career_en
                             ).map((career, i) => (
@@ -517,7 +517,7 @@ export default function JyotishCalculator() {
                   {t('Панчанга на сьогодні', 'Today\'s Panchanga')}
                 </CardTitle>
                 <CardDescription>
-                  {new Date().toLocaleDateString(language === 'ua' ? 'uk-UA' : 'en-US', {
+                  {new Date().toLocaleDateString(language === 'uk' ? 'uk-UA' : 'en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -538,7 +538,7 @@ export default function JyotishCalculator() {
                         {t('Тітхі', 'Tithi')}
                       </div>
                       <div className="font-semibold">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.tithi.current.name_ua
                           : todayPanchanga.tithi.current.name_en}
                       </div>
@@ -555,7 +555,7 @@ export default function JyotishCalculator() {
                         {t('Накшатра', 'Nakshatra')}
                       </div>
                       <div className="font-semibold">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.nakshatra.current.name_ua
                           : todayPanchanga.nakshatra.current.name_en}
                       </div>
@@ -570,7 +570,7 @@ export default function JyotishCalculator() {
                         {t('Йога', 'Yoga')}
                       </div>
                       <div className="font-semibold">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.yoga.current.name_ua
                           : todayPanchanga.yoga.current.name_en}
                       </div>
@@ -592,7 +592,7 @@ export default function JyotishCalculator() {
                         {t('Карана', 'Karana')}
                       </div>
                       <div className="font-semibold">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.karana.current.name_ua
                           : todayPanchanga.karana.current.name_en}
                       </div>
@@ -604,14 +604,14 @@ export default function JyotishCalculator() {
                         {t('Вара (день)', 'Vara (day)')}
                       </div>
                       <div className="font-semibold">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.vara.name_ua
                           : todayPanchanga.vara.name_en}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {t('Володар:', 'Ruler:')}{' '}
                         {GRAHAS.find(g => g.id === todayPanchanga.vara.ruler)
-                          ?.[language === 'ua' ? 'name_ua' : 'name_en']}
+                          ?.[language === 'uk' ? 'name_ua' : 'name_en']}
                       </div>
                     </div>
 
@@ -621,12 +621,12 @@ export default function JyotishCalculator() {
                         {t('Місяць у', 'Moon in')}
                       </div>
                       <div className="font-semibold">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.rashi.moon.name_ua
                           : todayPanchanga.rashi.moon.name_en}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {language === 'ua'
+                        {language === 'uk'
                           ? todayPanchanga.rashi.moon.western_name_ua
                           : todayPanchanga.rashi.moon.western_name_en}
                       </div>
@@ -664,7 +664,7 @@ export default function JyotishCalculator() {
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground w-5">{n.id}.</span>
                         <span className="font-medium">
-                          {language === 'ua' ? n.name_ua : n.name_en}
+                          {language === 'uk' ? n.name_ua : n.name_en}
                         </span>
                       </div>
                       <div className="text-xs text-muted-foreground ml-7">
@@ -695,15 +695,15 @@ export default function JyotishCalculator() {
                       className="p-3 border rounded hover:bg-muted/50 transition-colors"
                     >
                       <div className="font-medium">
-                        {language === 'ua' ? r.name_ua : r.name_en}
+                        {language === 'uk' ? r.name_ua : r.name_en}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {language === 'ua' ? r.western_name_ua : r.western_name_en}
+                        {language === 'uk' ? r.western_name_ua : r.western_name_en}
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {t('Володар:', 'Ruler:')}{' '}
                         {GRAHAS.find(g => g.id === r.ruler_planet)
-                          ?.[language === 'ua' ? 'name_ua' : 'name_en']}
+                          ?.[language === 'uk' ? 'name_ua' : 'name_en']}
                       </div>
                     </div>
                   ))}
@@ -727,10 +727,10 @@ export default function JyotishCalculator() {
                       className="p-3 border rounded hover:bg-muted/50 transition-colors"
                     >
                       <div className="font-medium">
-                        {language === 'ua' ? g.name_ua : g.name_en}
+                        {language === 'uk' ? g.name_ua : g.name_en}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {language === 'ua' ? g.western_name_ua : g.western_name_en}
+                        {language === 'uk' ? g.western_name_ua : g.western_name_en}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge
@@ -746,7 +746,7 @@ export default function JyotishCalculator() {
                           {g.nature}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          {language === 'ua' ? g.day_of_week_ua : g.day_of_week_en}
+                          {language === 'uk' ? g.day_of_week_ua : g.day_of_week_en}
                         </span>
                       </div>
                     </div>

@@ -314,7 +314,7 @@ function RagaDetails({
           </CardHeader>
           <CardContent className="space-y-2">
             <p className="text-sm text-muted-foreground">
-              {language === 'ua' ? thaatInfo.description_ua : thaatInfo.description_en}
+              {language === 'uk' ? thaatInfo.description_ua : thaatInfo.description_en}
             </p>
             <div className="flex flex-wrap gap-1">
               {thaatInfo.svaras.map((svara, i) => (
@@ -325,7 +325,7 @@ function RagaDetails({
             </div>
             <div className="text-sm">
               <span className="text-muted-foreground">{t('Настрій:', 'Mood:')}</span>{' '}
-              {language === 'ua' ? thaatInfo.mood_ua : thaatInfo.mood_en}
+              {language === 'uk' ? thaatInfo.mood_ua : thaatInfo.mood_en}
             </div>
           </CardContent>
         </Card>
@@ -622,7 +622,7 @@ export default function RagaExplorer() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <p className="text-sm text-muted-foreground">
-                      {language === 'ua' ? thaat.description_ua : thaat.description_en}
+                      {language === 'uk' ? thaat.description_ua : thaat.description_en}
                     </p>
                     <div className="flex flex-wrap gap-1">
                       {thaat.svaras.map((svara, i) => (
@@ -633,7 +633,7 @@ export default function RagaExplorer() {
                     </div>
                     <div className="text-sm">
                       <span className="text-muted-foreground">{t('Настрій:', 'Mood:')}</span>{' '}
-                      {language === 'ua' ? thaat.mood_ua : thaat.mood_en}
+                      {language === 'uk' ? thaat.mood_ua : thaat.mood_en}
                     </div>
                     <Button
                       variant="outline"

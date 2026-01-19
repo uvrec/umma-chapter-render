@@ -87,7 +87,7 @@ export const LectureView = () => {
 
   // Scroll sync state for bilingual editors
   const [scrollSyncState, setScrollSyncState] = useState<{
-    [paragraphId: string]: { ratio: number; source: "ua" | "en"; counter: number };
+    [paragraphId: string]: { ratio: number; source: "uk" | "en"; counter: number };
   }>({});
 
   // Завантаження лекції
@@ -201,7 +201,7 @@ export const LectureView = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return language === "ua"
+    return language === "uk"
       ? date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "long",
@@ -550,7 +550,7 @@ export const LectureView = () => {
             <h1 className="text-2xl font-bold mb-4">Лекцію не знайдено</h1>
             <Button onClick={() => navigate(getLocalizedPath("/library/lectures"))}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              {language === "ua" ? "Назад до бібліотеки" : "Back to library"}
+              {language === "uk" ? "Назад до бібліотеки" : "Back to library"}
             </Button>
           </div>
         </main>
@@ -559,9 +559,9 @@ export const LectureView = () => {
     );
   }
 
-  const title = language === "ua" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
+  const title = language === "uk" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
   const location =
-    language === "ua" && lecture.location_ua ? lecture.location_ua : lecture.location_en;
+    language === "uk" && lecture.location_ua ? lecture.location_ua : lecture.location_en;
 
   return (
     <div className="min-h-screen bg-background">
@@ -574,7 +574,7 @@ export const LectureView = () => {
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {language === "ua" ? "Назад до бібліотеки" : "Back to library"}
+          {language === "uk" ? "Назад до бібліотеки" : "Back to library"}
         </Button>
 
         {/* Admin Edit Header */}
@@ -744,7 +744,7 @@ export const LectureView = () => {
                 </Button>
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Volume2 className="w-4 h-4 mr-2" />
-                  {language === "ua" ? "Аудіо лекція" : "Audio lecture"}
+                  {language === "uk" ? "Аудіо лекція" : "Audio lecture"}
                 </div>
               </div>
               <audio ref={audioRef} src={lecture.audio_url} preload="metadata" />
@@ -812,7 +812,7 @@ export const LectureView = () => {
                             ...prev,
                             [paragraph.id]: {
                               ratio,
-                              source: "ua",
+                              source: "uk",
                               counter: (prev[paragraph.id]?.counter || 0) + 1,
                             },
                           }))
@@ -850,7 +850,7 @@ export const LectureView = () => {
                           }))
                         }
                         syncScrollRatio={
-                          scrollSyncState[paragraph.id]?.source === "ua"
+                          scrollSyncState[paragraph.id]?.source === "uk"
                             ? scrollSyncState[paragraph.id]?.ratio
                             : undefined
                         }
@@ -865,7 +865,7 @@ export const LectureView = () => {
             <div className="prose prose-lg dark:prose-invert max-w-none text-foreground">
               {paragraphs.map((paragraph) => {
                 const content =
-                  language === "ua" && paragraph.content_ua
+                  language === "uk" && paragraph.content_ua
                     ? paragraph.content_ua
                     : paragraph.content_en;
 
@@ -894,7 +894,7 @@ export const LectureView = () => {
           {/* Якщо немає параграфів */}
           {paragraphs.length === 0 && (
             <div className="text-center text-muted-foreground py-12">
-              {language === "ua"
+              {language === "uk"
                 ? "Текст лекції ще не додано"
                 : "Lecture text not yet added"}
             </div>
@@ -905,10 +905,10 @@ export const LectureView = () => {
         <div className="flex justify-between mt-8">
           <Button variant="outline" disabled>
             <ChevronLeft className="w-4 h-4 mr-2" />
-            {language === "ua" ? "Попередня" : "Previous"}
+            {language === "uk" ? "Попередня" : "Previous"}
           </Button>
           <Button variant="outline" disabled>
-            {language === "ua" ? "Наступна" : "Next"}
+            {language === "uk" ? "Наступна" : "Next"}
             <ChevronRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

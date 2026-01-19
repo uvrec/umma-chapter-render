@@ -21,15 +21,15 @@ export default function EkadashiList() {
   const getMonthName = (monthId: number): string => {
     const month = months.find((m) => m.id === monthId);
     if (!month) return "";
-    return language === "ua" ? month.name_ua : month.name_en;
+    return language === "uk" ? month.name_ua : month.name_en;
   };
 
   // Отримати назву пакші
   const getPakshaName = (paksha: string): string => {
     if (paksha === "shukla") {
-      return language === "ua" ? "Шукла (зростаючий місяць)" : "Shukla (waxing moon)";
+      return language === "uk" ? "Шукла (зростаючий місяць)" : "Shukla (waxing moon)";
     }
-    return language === "ua" ? "Крішна (спадний місяць)" : "Krishna (waning moon)";
+    return language === "uk" ? "Крішна (спадний місяць)" : "Krishna (waning moon)";
   };
 
   if (isLoading) {
@@ -49,7 +49,7 @@ export default function EkadashiList() {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-6">
         <p className="text-destructive">
-          {language === "ua" ? "Помилка завантаження" : "Failed to load"}
+          {language === "uk" ? "Помилка завантаження" : "Failed to load"}
         </p>
       </div>
     );
@@ -64,14 +64,14 @@ export default function EkadashiList() {
           className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
-          {language === "ua" ? "Назад до календаря" : "Back to calendar"}
+          {language === "uk" ? "Назад до календаря" : "Back to calendar"}
         </Link>
         <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
           <Moon className="h-8 w-8 text-purple-600" />
-          {language === "ua" ? "Екадаші" : "Ekadashi"}
+          {language === "uk" ? "Екадаші" : "Ekadashi"}
         </h1>
         <p className="text-muted-foreground">
-          {language === "ua"
+          {language === "uk"
             ? "Усі 26 екадаші року з описами слави з Падма Пурани"
             : "All 26 Ekadashis of the year with glory descriptions from Padma Purana"}
         </p>
@@ -84,10 +84,10 @@ export default function EkadashiList() {
             <BookOpen className="h-8 w-8 text-purple-600 flex-shrink-0" />
             <div className="space-y-2">
               <h2 className="font-semibold">
-                {language === "ua" ? "Що таке Екадаші?" : "What is Ekadashi?"}
+                {language === "uk" ? "Що таке Екадаші?" : "What is Ekadashi?"}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? "Екадаші — це одинадцятий день місячного циклу, як під час зростаючого (Шукла), так і спадного (Крішна) Місяця. Відповідно до ведичних писань, піст на екадаші — це одна з найважливіших духовних практик для відданих Господа Вішну."
                   : "Ekadashi is the eleventh day of the lunar cycle, both during the waxing (Shukla) and waning (Krishna) moon. According to Vedic scriptures, fasting on Ekadashi is one of the most important spiritual practices for devotees of Lord Vishnu."}
               </p>
@@ -128,7 +128,7 @@ export default function EkadashiList() {
           <CardContent className="py-12 text-center">
             <Moon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">
-              {language === "ua"
+              {language === "uk"
                 ? "Дані про екадаші незабаром будуть додані"
                 : "Ekadashi data will be added soon"}
             </p>
@@ -142,24 +142,24 @@ export default function EkadashiList() {
 // Компонент картки екадаші
 interface EkadashiCardProps {
   ekadashi: EkadashiInfo;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 function EkadashiCard({ ekadashi, language }: EkadashiCardProps) {
-  const name = language === "ua" ? ekadashi.name_ua : ekadashi.name_en;
+  const name = language === "uk" ? ekadashi.name_ua : ekadashi.name_en;
   const gloryTitle =
-    language === "ua" ? ekadashi.glory_title_ua : ekadashi.glory_title_en;
+    language === "uk" ? ekadashi.glory_title_ua : ekadashi.glory_title_en;
   const presidingDeity =
-    language === "ua"
+    language === "uk"
       ? ekadashi.presiding_deity_ua
       : ekadashi.presiding_deity_en;
 
   const pakshaLabel =
     ekadashi.paksha === "shukla"
-      ? language === "ua"
+      ? language === "uk"
         ? "Шукла-пакша"
         : "Shukla Paksha"
-      : language === "ua"
+      : language === "uk"
       ? "Крішна-пакша"
       : "Krishna Paksha";
 
@@ -194,7 +194,7 @@ function EkadashiCard({ ekadashi, language }: EkadashiCardProps) {
                   </h3>
                   {ekadashi.is_major && (
                     <Badge variant="secondary" className="text-xs">
-                      {language === "ua" ? "Головний" : "Major"}
+                      {language === "uk" ? "Головний" : "Major"}
                     </Badge>
                   )}
                 </div>
@@ -209,7 +209,7 @@ function EkadashiCard({ ekadashi, language }: EkadashiCardProps) {
 
                 {presidingDeity && (
                   <p className="text-xs text-purple-600 dark:text-purple-400">
-                    {language === "ua" ? "Божество: " : "Deity: "}
+                    {language === "uk" ? "Божество: " : "Deity: "}
                     {presidingDeity}
                   </p>
                 )}

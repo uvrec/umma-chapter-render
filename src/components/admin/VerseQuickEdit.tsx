@@ -354,14 +354,14 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
           </div>
 
           {/* Language Tabs */}
-          <Tabs defaultValue="ua" className="w-full">
+          <Tabs defaultValue="uk" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="ua">Українська</TabsTrigger>
+              <TabsTrigger value="uk">Українська</TabsTrigger>
               <TabsTrigger value="en">English</TabsTrigger>
             </TabsList>
 
             {/* Ukrainian Tab */}
-            <TabsContent value="ua" className="space-y-4 mt-4">
+            <TabsContent value="uk" className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="quick-sanskrit-ua">Санскрит</Label>
                 <Textarea

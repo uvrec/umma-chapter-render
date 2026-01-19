@@ -59,7 +59,7 @@ export const AuthorPage = ({
 }: AuthorPageProps) => {
   const { language, t } = useLanguage();
 
-  const content = language === "ua" ? AUTHOR_CONTENT_UA : AUTHOR_CONTENT_EN;
+  const content = language === "uk" ? AUTHOR_CONTENT_UA : AUTHOR_CONTENT_EN;
   const paragraphs = content.split("\n\n").filter((p) => p.trim());
 
   return (

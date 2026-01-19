@@ -128,10 +128,10 @@ export function DayView({ initialDate, events = [], onDateChange, className }: D
 
   // Get day name
   const dayName = format(selectedDate, 'EEEE', {
-    locale: language === 'ua' ? uk : undefined,
+    locale: language === 'uk' ? uk : undefined,
   });
   const dateFormatted = format(selectedDate, 'd MMMM yyyy', {
-    locale: language === 'ua' ? uk : undefined,
+    locale: language === 'uk' ? uk : undefined,
   });
 
   // Events for this day (filter and position)
@@ -269,7 +269,7 @@ export function DayView({ initialDate, events = [], onDateChange, className }: D
                         )}
                         style={{ color: categoryInfo.color }}
                       >
-                        {language === 'ua' && routine.title_ua
+                        {language === 'uk' && routine.title_ua
                           ? routine.title_ua
                           : routine.title}
                       </p>
@@ -304,7 +304,7 @@ export function DayView({ initialDate, events = [], onDateChange, className }: D
                     className="text-sm font-medium truncate"
                     style={{ color: event.category_color }}
                   >
-                    {language === 'ua' ? event.name_ua : event.name_en}
+                    {language === 'uk' ? event.name_ua : event.name_en}
                   </p>
                 </div>
               );
@@ -334,7 +334,7 @@ export function DayView({ initialDate, events = [], onDateChange, className }: D
                     className="text-sm font-medium"
                     style={{ color: event.category_color }}
                   >
-                    {language === 'ua' ? event.name_ua : event.name_en}
+                    {language === 'uk' ? event.name_ua : event.name_en}
                   </span>
                 </div>
               ))}

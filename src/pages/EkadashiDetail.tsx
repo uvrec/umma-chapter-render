@@ -49,12 +49,12 @@ export default function EkadashiDetail() {
           className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1 mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          {language === "ua" ? "Назад до списку" : "Back to list"}
+          {language === "uk" ? "Назад до списку" : "Back to list"}
         </Link>
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-destructive">
-              {language === "ua"
+              {language === "uk"
                 ? "Екадаші не знайдено"
                 : "Ekadashi not found"}
             </p>
@@ -67,10 +67,10 @@ export default function EkadashiDetail() {
   // Пакша
   const pakshaLabel =
     ekadashi.paksha === "shukla"
-      ? language === "ua"
+      ? language === "uk"
         ? "Шукла-пакша (зростаючий місяць)"
         : "Shukla Paksha (waxing moon)"
-      : language === "ua"
+      : language === "uk"
       ? "Крішна-пакша (спадний місяць)"
       : "Krishna Paksha (waning moon)";
 
@@ -82,7 +82,7 @@ export default function EkadashiDetail() {
         className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1"
       >
         <ArrowLeft className="h-4 w-4" />
-        {language === "ua" ? "Усі екадаші" : "All Ekadashis"}
+        {language === "uk" ? "Усі екадаші" : "All Ekadashis"}
       </Link>
 
       {/* Заголовок */}
@@ -116,12 +116,12 @@ export default function EkadashiDetail() {
           {ekadashi.is_major && (
             <Badge className="bg-purple-600">
               <Star className="h-3 w-3 mr-1" />
-              {language === "ua" ? "Головний екадаші" : "Major Ekadashi"}
+              {language === "uk" ? "Головний екадаші" : "Major Ekadashi"}
             </Badge>
           )}
           {formattedEkadashi.presidingDeity && (
             <Badge variant="outline">
-              {language === "ua" ? "Божество: " : "Deity: "}
+              {language === "uk" ? "Божество: " : "Deity: "}
               {formattedEkadashi.presidingDeity}
             </Badge>
           )}
@@ -135,7 +135,7 @@ export default function EkadashiDetail() {
             <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
               <ScrollText className="h-5 w-5" />
               {formattedEkadashi.gloryTitle ||
-                (language === "ua"
+                (language === "uk"
                   ? "Слава екадаші"
                   : "Glory of Ekadashi")}
             </CardTitle>
@@ -163,7 +163,7 @@ export default function EkadashiDetail() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
-              {language === "ua" ? "Історія" : "Story"}
+              {language === "uk" ? "Історія" : "Story"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -182,7 +182,7 @@ export default function EkadashiDetail() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Utensils className="h-5 w-5" />
-              {language === "ua" ? "Правила посту" : "Fasting Rules"}
+              {language === "uk" ? "Правила посту" : "Fasting Rules"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -197,7 +197,7 @@ export default function EkadashiDetail() {
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
                   <strong>
-                    {language === "ua" ? "Парана: " : "Breaking fast: "}
+                    {language === "uk" ? "Парана: " : "Breaking fast: "}
                   </strong>
                   {ekadashi.breaking_fast_time}
                 </span>
@@ -213,7 +213,7 @@ export default function EkadashiDetail() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Star className="h-5 w-5" />
-              {language === "ua"
+              {language === "uk"
                 ? "Рекомендовані активності"
                 : "Recommended Activities"}
             </CardTitle>
@@ -234,7 +234,7 @@ export default function EkadashiDetail() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-green-700 dark:text-green-300">
               <Gift className="h-5 w-5" />
-              {language === "ua" ? "Благословення" : "Benefits"}
+              {language === "uk" ? "Благословення" : "Benefits"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -252,7 +252,7 @@ export default function EkadashiDetail() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {language === "ua" ? "Мантри" : "Mantras"}
+              {language === "uk" ? "Мантри" : "Mantras"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -276,7 +276,7 @@ export default function EkadashiDetail() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              {language === "ua" ? "Наступні дати" : "Upcoming Dates"}
+              {language === "uk" ? "Наступні дати" : "Upcoming Dates"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -284,7 +284,7 @@ export default function EkadashiDetail() {
               {upcomingDates.map((date) => (
                 <Badge key={date} variant="secondary" className="text-sm">
                   {format(new Date(date), "d MMMM yyyy", {
-                    locale: language === "ua" ? uk : undefined,
+                    locale: language === "uk" ? uk : undefined,
                   })}
                 </Badge>
               ))}
@@ -298,13 +298,13 @@ export default function EkadashiDetail() {
         <Button variant="outline" asChild>
           <Link to="/calendar/ekadashi">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {language === "ua" ? "Усі екадаші" : "All Ekadashis"}
+            {language === "uk" ? "Усі екадаші" : "All Ekadashis"}
           </Link>
         </Button>
         <Button asChild>
           <Link to="/calendar">
             <Calendar className="h-4 w-4 mr-2" />
-            {language === "ua" ? "До календаря" : "To Calendar"}
+            {language === "uk" ? "До календаря" : "To Calendar"}
           </Link>
         </Button>
       </div>

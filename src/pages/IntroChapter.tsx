@@ -91,8 +91,8 @@ export const IntroChapter = () => {
     enabled: !!book?.id
   });
 
-  const bookTitle = language === 'ua' ? book?.title_ua : book?.title_en;
-  const chapterTitle = language === 'ua' ? introChapter?.title_ua : introChapter?.title_en;
+  const bookTitle = language === 'uk' ? book?.title_ua : book?.title_en;
+  const chapterTitle = language === 'uk' ? introChapter?.title_ua : introChapter?.title_en;
 
   const currentIndex = allIntroChapters.findIndex(ch => ch.slug === slug);
   const prevChapter = currentIndex > 0 ? allIntroChapters[currentIndex - 1] : null;
@@ -214,7 +214,7 @@ export const IntroChapter = () => {
                         className="gap-2"
                       >
                         <Save className="h-4 w-4" />
-                        {language === 'ua' ? 'Зберегти' : 'Save'}
+                        {language === 'uk' ? 'Зберегти' : 'Save'}
                       </Button>
                       <Button
                         variant="outline"
@@ -227,7 +227,7 @@ export const IntroChapter = () => {
                         className="gap-2"
                       >
                         <X className="h-4 w-4" />
-                        {language === 'ua' ? 'Скасувати' : 'Cancel'}
+                        {language === 'uk' ? 'Скасувати' : 'Cancel'}
                       </Button>
                     </>
                   ) : (
@@ -238,7 +238,7 @@ export const IntroChapter = () => {
                       className="gap-2"
                     >
                       <Edit className="h-4 w-4" />
-                      {language === 'ua' ? 'Редагувати' : 'Edit'}
+                      {language === 'uk' ? 'Редагувати' : 'Edit'}
                     </Button>
                   )}
                 </div>
@@ -299,7 +299,7 @@ export const IntroChapter = () => {
                 style={{ fontSize: `${fontSize}px`, lineHeight }}
                 dangerouslySetInnerHTML={{
                   __html: sanitizeForRender(
-                    language === 'ua'
+                    language === 'uk'
                       ? (introChapter?.content_ua || introChapter?.content_en || "")
                       : (introChapter?.content_en || introChapter?.content_ua || "")
                   )
@@ -317,7 +317,7 @@ export const IntroChapter = () => {
               onClick={() => navigate(`/lib/${bookId}/intro/${prevChapter.slug}`)}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
-              {language === 'ua' ? prevChapter.title_ua : prevChapter.title_en}
+              {language === 'uk' ? prevChapter.title_ua : prevChapter.title_en}
             </Button>
           ) : (
             <Button
@@ -334,7 +334,7 @@ export const IntroChapter = () => {
               variant="secondary"
               onClick={() => navigate(`/lib/${bookId}/intro/${nextChapter.slug}`)}
             >
-              {language === 'ua' ? nextChapter.title_ua : nextChapter.title_en}
+              {language === 'uk' ? nextChapter.title_ua : nextChapter.title_en}
               <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
             </Button>
           ) : (

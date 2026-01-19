@@ -77,9 +77,9 @@ export const CantoOverview = () => {
     },
     enabled: !!canto?.id
   });
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const cantoTitle = language === "ua" ? canto?.title_ua : canto?.title_en;
-  const cantoDescription = language === "ua" ? canto?.description_ua : canto?.description_en;
+  const bookTitle = language === "uk" ? book?.title_ua : book?.title_en;
+  const cantoTitle = language === "uk" ? canto?.title_ua : canto?.title_en;
+  const cantoDescription = language === "uk" ? canto?.description_ua : canto?.description_en;
   if (cantoLoading || chaptersLoading) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -144,7 +144,7 @@ export const CantoOverview = () => {
                       {t("Глава", "Chapter")} {chapterNum}
                     </span>
                     <span className="text-lg text-foreground">
-                      {language === "ua" ? chapterTitleUa : chapterTitleEn}
+                      {language === "uk" ? chapterTitleUa : chapterTitleEn}
                     </span>
                   </div>
                 </Link>;

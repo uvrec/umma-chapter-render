@@ -63,9 +63,9 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
   const handleSave = async () => {
     if (!isAuthenticated) {
       toast({
-        title: language === "ua" ? "Потрібна авторизація" : "Authentication required",
+        title: language === "uk" ? "Потрібна авторизація" : "Authentication required",
         description:
-          language === "ua"
+          language === "uk"
             ? "Увійдіть, щоб зберегти налаштування сповіщень"
             : "Please log in to save notification settings",
         variant: "destructive",
@@ -76,18 +76,18 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
     try {
       await updateSettings(localSettings);
       toast({
-        title: language === "ua" ? "Збережено" : "Saved",
+        title: language === "uk" ? "Збережено" : "Saved",
         description:
-          language === "ua"
+          language === "uk"
             ? "Налаштування сповіщень оновлено"
             : "Notification settings updated",
       });
       setOpen(false);
     } catch (error) {
       toast({
-        title: language === "ua" ? "Помилка" : "Error",
+        title: language === "uk" ? "Помилка" : "Error",
         description:
-          language === "ua"
+          language === "uk"
             ? "Не вдалося зберегти налаштування"
             : "Failed to save settings",
         variant: "destructive",
@@ -115,18 +115,18 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
               <LogIn className="h-5 w-5 text-amber-500 mt-0.5" />
               <div>
                 <p className="text-sm font-medium">
-                  {language === "ua"
+                  {language === "uk"
                     ? "Увійдіть для отримання сповіщень"
                     : "Log in to receive notifications"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {language === "ua"
+                  {language === "uk"
                     ? "Сповіщення надсилаються на електронну пошту"
                     : "Notifications are sent to your email"}
                 </p>
                 <Link to="/auth">
                   <Button size="sm" variant="outline" className="mt-2">
-                    {language === "ua" ? "Увійти" : "Log in"}
+                    {language === "uk" ? "Увійти" : "Log in"}
                   </Button>
                 </Link>
               </div>
@@ -141,10 +141,10 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
             <Moon className="h-5 w-5 text-blue-500" />
             <div>
               <Label htmlFor="notify-ekadashi" className="font-medium">
-                {language === "ua" ? "Екадаші" : "Ekadashi"}
+                {language === "uk" ? "Екадаші" : "Ekadashi"}
               </Label>
               <p className="text-xs text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? "Нагадування про день посту"
                   : "Fasting day reminders"}
               </p>
@@ -165,10 +165,10 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
             <Star className="h-5 w-5 text-yellow-500" />
             <div>
               <Label htmlFor="notify-festivals" className="font-medium">
-                {language === "ua" ? "Свята та явлення" : "Festivals & Appearances"}
+                {language === "uk" ? "Свята та явлення" : "Festivals & Appearances"}
               </Label>
               <p className="text-xs text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? "Вайшнавські свята і дні явлення"
                   : "Vaishnava festivals and appearance days"}
               </p>
@@ -189,10 +189,10 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
             <BellRing className="h-5 w-5 text-orange-500" />
             <div>
               <Label htmlFor="notify-day-before" className="font-medium">
-                {language === "ua" ? "За день до події" : "Day before event"}
+                {language === "uk" ? "За день до події" : "Day before event"}
               </Label>
               <p className="text-xs text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? "Сповіщення надійде напередодні"
                   : "Receive notification the day before"}
               </p>
@@ -213,7 +213,7 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
         <div className="flex items-center gap-3">
           <Clock className="h-5 w-5 text-muted-foreground" />
           <Label htmlFor="notification-time" className="font-medium">
-            {language === "ua" ? "Час сповіщення" : "Notification time"}
+            {language === "uk" ? "Час сповіщення" : "Notification time"}
           </Label>
         </div>
         <Select
@@ -235,7 +235,7 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">
-          {language === "ua"
+          {language === "uk"
             ? "Сповіщення надійде у вибраний час за вашим часовим поясом"
             : "Notification will be sent at the selected time in your timezone"}
         </p>
@@ -245,7 +245,7 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
         <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
         <div>
           <p className="text-sm">
-            {language === "ua"
+            {language === "uk"
               ? "Сповіщення надсилаються на електронну пошту"
               : "Notifications are sent via email"}
           </p>
@@ -260,7 +260,7 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
   const defaultTrigger = (
     <Button variant="outline" size="sm" className="gap-2">
       <Bell className="h-4 w-4" />
-      {language === "ua" ? "Сповіщення" : "Notifications"}
+      {language === "uk" ? "Сповіщення" : "Notifications"}
     </Button>
   );
 
@@ -271,10 +271,10 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Bell className="h-5 w-5" />
-            {language === "ua" ? "Сповіщення календаря" : "Calendar Notifications"}
+            {language === "uk" ? "Сповіщення календаря" : "Calendar Notifications"}
           </SheetTitle>
           <SheetDescription>
-            {language === "ua"
+            {language === "uk"
               ? "Отримуйте нагадування про екадаші та свята"
               : "Receive reminders about Ekadashi and festivals"}
           </SheetDescription>
@@ -284,10 +284,10 @@ export function NotificationSettings({ trigger }: NotificationSettingsProps) {
           <SheetFooter>
             <Button onClick={handleSave} disabled={isSaving} className="w-full">
               {isSaving
-                ? language === "ua"
+                ? language === "uk"
                   ? "Збереження..."
                   : "Saving..."
-                : language === "ua"
+                : language === "uk"
                 ? "Зберегти"
                 : "Save"}
             </Button>

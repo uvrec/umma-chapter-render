@@ -94,7 +94,7 @@ export const BookReaderHeader = ({
   }, [chapters, chapterNumber]);
 
   const currentChapterTitle = currentChapter
-    ? language === "ua"
+    ? language === "uk"
       ? currentChapter.title_ua
       : currentChapter.title_en
     : null;
@@ -194,7 +194,7 @@ export const BookReaderHeader = ({
                   <div className="py-2">
                     {chapters.map((chapter) => {
                       const title =
-                        language === "ua" ? chapter.title_ua : chapter.title_en;
+                        language === "uk" ? chapter.title_ua : chapter.title_en;
                       const isActive = chapter.chapter_number === chapterNumber;
 
                       return (
@@ -246,7 +246,7 @@ export const BookReaderHeader = ({
                   <div className="py-2">
                     {verses.map((verse) => {
                       const translit =
-                        language === "ua"
+                        language === "uk"
                           ? verse.transliteration_ua
                           : verse.transliteration_en;
                       const isActive = verse.verse_number === verseNumber;

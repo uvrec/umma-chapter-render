@@ -46,7 +46,7 @@ const CATEGORY_INFO = {
 
 function TattvaRow({ tattva, depth = 0 }: { tattva: Tattva; depth?: number }) {
   const { language, t, getLocalizedPath } = useLanguage();
-  const name = language === "ua" ? tattva.name_ua : tattva.name_en;
+  const name = language === "uk" ? tattva.name_ua : tattva.name_en;
 
   return (
     <Link
@@ -89,10 +89,10 @@ function CategorySection({
     <section className="mb-8">
       <div className="mb-4">
         <h2 className="text-lg font-medium text-foreground">
-          {language === "ua" ? info.ua : info.en}
+          {language === "uk" ? info.ua : info.en}
         </h2>
         <p className="text-sm text-muted-foreground">
-          {language === "ua" ? info.descUa : info.descEn}
+          {language === "uk" ? info.descUa : info.descEn}
         </p>
       </div>
       <div className="divide-y divide-border/50">

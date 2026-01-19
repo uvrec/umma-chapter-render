@@ -105,7 +105,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
       .from('verses')
       .select('translation_ua, translation_en')
       .or(
-        language === 'ua'
+        language === 'uk'
           ? `translation_ua.ilike.%${prefix}%`
           : `translation_en.ilike.%${prefix}%`
       )
@@ -113,7 +113,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
 
     const words = new Set<string>();
     data?.forEach((verse) => {
-      const text = language === 'ua' ? verse.translation_ua : verse.translation_en;
+      const text = language === 'uk' ? verse.translation_ua : verse.translation_en;
       if (text) {
         const matches = text.toLowerCase().match(new RegExp(`\\b\\w*${prefix.toLowerCase()}\\w*\\b`, 'g'));
         matches?.forEach((w: string) => w.length > 2 && words.add(w));
@@ -191,7 +191,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           )
         `)
         .or(
-          language === 'ua'
+          language === 'uk'
             ? `translation_ua.ilike.${pattern},synonyms_ua.ilike.${pattern}`
             : `translation_en.ilike.${pattern},synonyms_en.ilike.${pattern}`
         )
@@ -212,9 +212,9 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           title: canto?.canto_number
             ? `${book.slug.toUpperCase()} ${canto.canto_number}.${chapter.chapter_number}.${verse.verse_number}`
             : `${book.slug.toUpperCase()} ${chapter.chapter_number}.${verse.verse_number}`,
-          subtitle: language === 'ua' ? chapter.title_ua : chapter.title_en,
+          subtitle: language === 'uk' ? chapter.title_ua : chapter.title_en,
           snippet:
-            (language === 'ua' ? verse.translation_ua : verse.translation_en)?.substring(0, 100) +
+            (language === 'uk' ? verse.translation_ua : verse.translation_en)?.substring(0, 100) +
             '...',
           href,
           relevance: 1,
@@ -228,7 +228,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         .select('id, slug, title_ua, title_en, excerpt_ua, excerpt_en')
         .eq('is_published', true)
         .or(
-          language === 'ua'
+          language === 'uk'
             ? `title_ua.ilike.${pattern},content_ua.ilike.${pattern}`
             : `title_en.ilike.${pattern},content_en.ilike.${pattern}`
         )
@@ -238,9 +238,9 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         searchResults.push({
           result_type: 'blog',
           result_id: post.id,
-          title: language === 'ua' ? post.title_ua : post.title_en,
+          title: language === 'uk' ? post.title_ua : post.title_en,
           subtitle: t('Блог', 'Blog'),
-          snippet: (language === 'ua' ? post.excerpt_ua : post.excerpt_en)?.substring(0, 100),
+          snippet: (language === 'uk' ? post.excerpt_ua : post.excerpt_en)?.substring(0, 100),
           href: `/blog/${post.slug}`,
           relevance: 0.8,
           matched_in: ['blog'],

@@ -32,7 +32,7 @@ export function VerseTattvas({ verseId, className }: VerseTattvasProps) {
           to={`/tattva/${tattva.slug}`}
           className="text-xs text-muted-foreground hover:text-primary transition-colors"
         >
-          {language === "ua" ? tattva.name_ua : tattva.name_en}
+          {language === "uk" ? tattva.name_ua : tattva.name_en}
         </Link>
       ))}
     </div>

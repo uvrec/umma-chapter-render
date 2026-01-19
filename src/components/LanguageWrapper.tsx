@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { Outlet, useParams, Navigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-type ValidLang = 'ua' | 'en';
+type ValidLang = 'uk' | 'en';
 
 const isValidLang = (lang: string | undefined): lang is ValidLang => {
-  return lang === 'ua' || lang === 'en';
+  return lang === 'uk' || lang === 'en';
 };
 
 /**
@@ -15,6 +15,12 @@ const isValidLang = (lang: string | undefined): lang is ValidLang => {
 export function LanguageWrapper() {
   const { lang } = useParams<{ lang: string }>();
   const { setLanguage, language } = useLanguage();
+
+  // Handle migration from old 'ua' URLs to 'uk'
+  if (lang === 'ua') {
+    const currentPath = window.location.pathname.replace(/^\/uk/, '');
+    return <Navigate to={`/uk${currentPath || '/'}`} replace />;
+  }
 
   // Validate language parameter
   if (!isValidLang(lang)) {

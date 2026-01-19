@@ -799,7 +799,7 @@ export default function AddEditVerse() {
                                 await supabase.from('verse_lyrics').upsert({
                                   verse_id: id,
                                   audio_type: 'full',
-                                  language: 'ua',
+                                  language: 'uk',
                                   lrc_content: lrcContent,
                                   sync_type: 'line',
                                 }, {

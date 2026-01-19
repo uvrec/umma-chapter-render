@@ -168,7 +168,7 @@ export const ImageGalleries = ({
                   <div className="aspect-[4/3] overflow-hidden">
                     <img
                       src={gallery.coverImage}
-                      alt={language === "ua" ? gallery.title : gallery.titleEn}
+                      alt={language === "uk" ? gallery.title : gallery.titleEn}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
@@ -176,7 +176,7 @@ export const ImageGalleries = ({
                   {/* Gallery info */}
                   <div className="p-4">
                     <h3 className="font-semibold text-lg mb-1">
-                      {language === "ua" ? gallery.title : gallery.titleEn}
+                      {language === "uk" ? gallery.title : gallery.titleEn}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {gallery.images.length}{" "}
@@ -184,7 +184,7 @@ export const ImageGalleries = ({
                     </p>
                     {(gallery.description || gallery.descriptionEn) && (
                       <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                        {language === "ua" ? gallery.description : gallery.descriptionEn}
+                        {language === "uk" ? gallery.description : gallery.descriptionEn}
                       </p>
                     )}
                   </div>
@@ -197,7 +197,7 @@ export const ImageGalleries = ({
               <div className="mt-8">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">
-                    {language === "ua" ? selectedGallery.title : selectedGallery.titleEn}
+                    {language === "uk" ? selectedGallery.title : selectedGallery.titleEn}
                   </h2>
                   <Button
                     variant="ghost"
@@ -244,7 +244,7 @@ export const ImageGalleries = ({
               <div className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
                 <div className="text-white">
                   <h3 className="font-medium">
-                    {language === "ua" ? selectedGallery.title : selectedGallery.titleEn}
+                    {language === "uk" ? selectedGallery.title : selectedGallery.titleEn}
                   </h3>
                   <p className="text-sm opacity-80">
                     {selectedImageIndex + 1} / {selectedGallery.images.length}
@@ -286,7 +286,7 @@ export const ImageGalleries = ({
                 selectedGallery.images[selectedImageIndex].captionEn) && (
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 to-transparent">
                   <p className="text-white text-center">
-                    {language === "ua"
+                    {language === "uk"
                       ? selectedGallery.images[selectedImageIndex].caption
                       : selectedGallery.images[selectedImageIndex].captionEn}
                   </p>

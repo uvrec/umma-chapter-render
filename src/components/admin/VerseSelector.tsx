@@ -158,12 +158,12 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
               <div className="space-y-1">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
-                  {selectedVerse.chapter?.book?.[language === 'ua' ? 'title_ua' : 'title_en']}
+                  {selectedVerse.chapter?.book?.[language === 'uk' ? 'title_ua' : 'title_en']}
                   {' '}
                   {selectedVerse.chapter?.chapter_number}.{selectedVerse.verse_number}
                 </CardTitle>
                 <CardDescription>
-                  {selectedVerse.chapter?.[language === 'ua' ? 'title_ua' : 'title_en']}
+                  {selectedVerse.chapter?.[language === 'uk' ? 'title_ua' : 'title_en']}
                 </CardDescription>
               </div>
               <Button
@@ -182,7 +182,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
               </p>
             )}
             <blockquote className="border-l-4 border-primary pl-4">
-              {selectedVerse[language === 'ua' ? 'translation_ua' : 'translation_en']}
+              {selectedVerse[language === 'uk' ? 'translation_ua' : 'translation_en']}
             </blockquote>
           </CardContent>
         </Card>
@@ -213,7 +213,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                 ) : (
                   books?.map((book) => (
                     <SelectItem key={book.id} value={book.id}>
-                      {book[language === 'ua' ? 'title_ua' : 'title_en']}
+                      {book[language === 'uk' ? 'title_ua' : 'title_en']}
                     </SelectItem>
                   ))
                 )}
@@ -244,7 +244,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                     chapters?.map((chapter) => (
                       <SelectItem key={chapter.id} value={chapter.id}>
                         Розділ {chapter.chapter_number}
-                        {chapter.title_ua && `: ${chapter[language === 'ua' ? 'title_ua' : 'title_en']}`}
+                        {chapter.title_ua && `: ${chapter[language === 'uk' ? 'title_ua' : 'title_en']}`}
                       </SelectItem>
                     ))
                   )}
@@ -299,7 +299,7 @@ export function VerseSelector({ selectedVerseId, onVerseSelect }: VerseSelectorP
                           </p>
                         )}
                         <p className="text-sm line-clamp-2">
-                          {verse[language === 'ua' ? 'translation_ua' : 'translation_en']}
+                          {verse[language === 'uk' ? 'translation_ua' : 'translation_en']}
                         </p>
                       </CardContent>
                     </Card>

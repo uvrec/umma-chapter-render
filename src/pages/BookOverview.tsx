@@ -121,8 +121,8 @@ export const BookOverview = () => {
     enabled: !!book?.id
   });
   const isLoading = cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const bookDescription = language === "ua" ? book?.description_ua : book?.description_en;
+  const bookTitle = language === "uk" ? book?.title_ua : book?.title_en;
+  const bookDescription = language === "uk" ? book?.description_ua : book?.description_en;
   if (isLoading) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -157,7 +157,7 @@ export const BookOverview = () => {
                   <ul className="space-y-2">
                     {introChapters.map(intro => <li key={intro.id}>
                         <Link to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="text-primary hover:underline">
-                          {language === "ua" ? intro.title_ua : intro.title_en}
+                          {language === "uk" ? intro.title_ua : intro.title_en}
                         </Link>
                       </li>)}
                   </ul>
@@ -203,7 +203,7 @@ export const BookOverview = () => {
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
                         <span className="text-lg text-foreground">
-                          {language === "ua" ? cantoTitleUa : cantoTitleEn}
+                          {language === "uk" ? cantoTitleUa : cantoTitleEn}
                         </span>
                       </div>
                     </Link>;
@@ -230,10 +230,10 @@ export const BookOverview = () => {
                       </Link> : <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="flex items-center gap-3">
                           <span className="text-lg font-bold text-primary">
-                            {language === "ua" ? `Текст ${verse.verse_number}` : `Text ${verse.verse_number}`}
+                            {language === "uk" ? `Текст ${verse.verse_number}` : `Text ${verse.verse_number}`}
                           </span>
                           <span className="text-lg text-foreground">
-                            {language === "ua" ? titleUa : titleEn}
+                            {language === "uk" ? titleUa : titleEn}
                           </span>
                         </div>
                       </Link>;
@@ -267,7 +267,7 @@ export const BookOverview = () => {
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
                         <span className="text-lg text-foreground">
-                          {language === "ua" ? chapterTitleUa : chapterTitleEn}
+                          {language === "uk" ? chapterTitleUa : chapterTitleEn}
                         </span>
                       </div>
                     </Link>;

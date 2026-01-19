@@ -23,16 +23,15 @@ export const HreflangTags = () => {
   }
 
   // Get path without language prefix
-  const pathWithoutLang = location.pathname.replace(/^\/(ua|en)/, '') || '/';
+  const pathWithoutLang = location.pathname.replace(/^\/(uk|en)/, '') || '/';
 
   // Build URLs for each language
-  const uaUrl = `${SITE_CONFIG.baseUrl}/ua${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
+  const ukUrl = `${SITE_CONFIG.baseUrl}/uk${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
   const enUrl = `${SITE_CONFIG.baseUrl}/en${pathWithoutLang === '/' ? '' : pathWithoutLang}`;
-  const currentUrl = language === "ua" ? uaUrl : enUrl;
+  const currentUrl = language === "uk" ? ukUrl : enUrl;
 
-  // IMPORTANT: hreflang uses ISO 639-1 codes ('uk' for Ukrainian)
-  // URL paths use 'ua' but hreflang MUST be 'uk' for Google SEO
-  const htmlLang = language === "ua" ? "uk" : "en";
+  // ISO 639-1: 'uk' for Ukrainian
+  const htmlLang = language === "uk" ? "uk" : "en";
 
   return (
     <Helmet>
@@ -42,9 +41,9 @@ export const HreflangTags = () => {
       <link rel="canonical" href={currentUrl} />
 
       {/* Hreflang for multilingual SEO */}
-      <link rel="alternate" hrefLang="uk" href={uaUrl} />
+      <link rel="alternate" hrefLang="uk" href={ukUrl} />
       <link rel="alternate" hrefLang="en" href={enUrl} />
-      <link rel="alternate" hrefLang="x-default" href={uaUrl} />
+      <link rel="alternate" hrefLang="x-default" href={ukUrl} />
     </Helmet>
   );
 };

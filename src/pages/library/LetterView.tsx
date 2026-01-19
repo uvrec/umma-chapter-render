@@ -147,7 +147,7 @@ export const LetterView = () => {
             <h2 className="text-2xl font-bold mb-4">Лист не знайдено</h2>
             <Button onClick={() => navigate(getLocalizedPath("/library/letters"))}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              {language === "ua" ? "Повернутися до списку" : "Back to list"}
+              {language === "uk" ? "Повернутися до списку" : "Back to list"}
             </Button>
           </div>
         </main>
@@ -156,11 +156,11 @@ export const LetterView = () => {
     );
   }
 
-  const recipient = language === "ua" && letter.recipient_ua
+  const recipient = language === "uk" && letter.recipient_ua
     ? letter.recipient_ua
     : letter.recipient_en;
 
-  const location = language === "ua" && letter.location_ua
+  const location = language === "uk" && letter.location_ua
     ? letter.location_ua
     : letter.location_en;
 
@@ -175,7 +175,7 @@ export const LetterView = () => {
             onClick={() => navigate(getLocalizedPath("/library/letters"))}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            {language === "ua" ? "До списку листів" : "Back to letters"}
+            {language === "uk" ? "До списку листів" : "Back to letters"}
           </Button>
         </div>
 
@@ -339,7 +339,7 @@ export const LetterView = () => {
           <div
             className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: language === "ua" && letter.content_ua
+              __html: language === "uk" && letter.content_ua
                 ? letter.content_ua
                 : letter.content_en
             }}

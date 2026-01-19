@@ -62,7 +62,7 @@ export const DisciplicSuccessionPage = ({
   const { language, t } = useLanguage();
 
   // Get disciplic succession based on language
-  const succession = language === "ua"
+  const succession = language === "uk"
     ? GITA_DISCIPLIC_SUCCESSION_UA
     : GITA_DISCIPLIC_SUCCESSION_EN;
 

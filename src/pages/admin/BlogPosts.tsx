@@ -182,10 +182,10 @@ export default function BlogPostsInfinite() {
                     <img src={post.featured_image} alt="" className="w-16 h-16 object-cover rounded" />
                   )}
                 </TableCell>
-                <TableCell className="font-medium">{language === "ua" ? post.title_ua : post.title_en}</TableCell>
+                <TableCell className="font-medium">{language === "uk" ? post.title_ua : post.title_en}</TableCell>
                 <TableCell>{post.author_name || "Аніруддга дас"}</TableCell>
                 <TableCell>
-                  {post.category ? (language === "ua" ? post.category.name_ua : post.category.name_en) : "-"}
+                  {post.category ? (language === "uk" ? post.category.name_ua : post.category.name_en) : "-"}
                 </TableCell>
                 <TableCell>
                   {post.is_published ? (

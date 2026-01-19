@@ -200,7 +200,7 @@ export function LocalLLMChat({ className }: LocalLLMChatProps) {
         {
           id: 'welcome',
           role: 'assistant',
-          content: language === 'ua' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
+          content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
         },
       ]);
     }
@@ -303,7 +303,7 @@ export function LocalLLMChat({ className }: LocalLLMChatProps) {
                   ...msg,
                   id: `error-${Date.now()}`,
                   content:
-                    language === 'ua'
+                    language === 'uk'
                       ? 'Вибачте, сталася помилка. Перевірте, чи працює локальний сервер.'
                       : 'Sorry, an error occurred. Please check if the local server is running.',
                   isLoading: false,
@@ -325,7 +325,7 @@ export function LocalLLMChat({ className }: LocalLLMChatProps) {
       {
         id: 'welcome',
         role: 'assistant',
-        content: language === 'ua' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
+        content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
       },
     ]);
   }, [language]);

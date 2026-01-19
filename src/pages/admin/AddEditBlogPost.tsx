@@ -472,13 +472,13 @@ export default function AddEditBlogPost() {
             </div>
           )}
 
-          <Tabs defaultValue="ua" className="w-full">
+          <Tabs defaultValue="uk" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="ua">Українська</TabsTrigger>
+              <TabsTrigger value="uk">Українська</TabsTrigger>
               <TabsTrigger value="en">English</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="ua" className="space-y-4">
+            <TabsContent value="uk" className="space-y-4">
               <div>
                 <Label htmlFor="title-ua">Заголовок *</Label>
                 <Input id="title-ua" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />

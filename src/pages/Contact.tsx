@@ -94,7 +94,7 @@ export const Contact = () => {
     setFormData({ name: "", email: "", message: "" });
   };
 
-  const title = pageMeta ? (language === "ua" ? pageMeta.title_ua : pageMeta.title_en) : "Контакти";
+  const title = pageMeta ? (language === "uk" ? pageMeta.title_ua : pageMeta.title_en) : "Контакти";
   
   return (
     <div className="min-h-screen bg-background">

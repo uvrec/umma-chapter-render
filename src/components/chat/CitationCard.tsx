@@ -57,7 +57,7 @@ export function CitationCard({ citation, className }: CitationCardProps) {
             size="icon"
             className="h-6 w-6 opacity-60 hover:opacity-100"
             onClick={handleCopy}
-            title={language === 'ua' ? 'Копіювати' : 'Copy'}
+            title={language === 'uk' ? 'Копіювати' : 'Copy'}
           >
             {copied ? (
               <Check className="h-3 w-3 text-emerald-500" />
@@ -70,7 +70,7 @@ export function CitationCard({ citation, className }: CitationCardProps) {
               variant="ghost"
               size="icon"
               className="h-6 w-6 opacity-60 hover:opacity-100"
-              title={language === 'ua' ? 'Відкрити' : 'Open'}
+              title={language === 'uk' ? 'Відкрити' : 'Open'}
             >
               <ExternalLink className="h-3 w-3" />
             </Button>
@@ -95,12 +95,12 @@ export function CitationCard({ citation, className }: CitationCardProps) {
             {isExpanded ? (
               <>
                 <ChevronUp className="h-3 w-3" />
-                {language === 'ua' ? 'Згорнути' : 'Show less'}
+                {language === 'uk' ? 'Згорнути' : 'Show less'}
               </>
             ) : (
               <>
                 <ChevronDown className="h-3 w-3" />
-                {language === 'ua' ? 'Показати більше' : 'Show more'}
+                {language === 'uk' ? 'Показати більше' : 'Show more'}
               </>
             )}
           </button>
@@ -125,7 +125,7 @@ export function CitationsList({ citations, className }: CitationsListProps) {
   return (
     <div className={cn("pt-2", className)}>
       <p className="text-xs text-muted-foreground mb-1">
-        {language === 'ua' ? 'Джерела' : 'Sources'}
+        {language === 'uk' ? 'Джерела' : 'Sources'}
       </p>
       <div className="divide-y divide-border/30">
         {citations.map((citation, index) => (

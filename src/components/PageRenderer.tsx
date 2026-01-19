@@ -17,12 +17,12 @@ interface PageRendererProps {
 const BlockRenderer = ({ block, language }: { block: PageBlock; language: string }) => {
   switch (block.type) {
     case "text":
-      const textContent = language === "ua" ? block.content.text_ua : block.content.text_en;
+      const textContent = language === "uk" ? block.content.text_ua : block.content.text_en;
       return textContent ? <TiptapRenderer content={textContent} /> : null;
 
     case "heading": {
       const HeadingTag = `h${block.content.level || 2}` as keyof JSX.IntrinsicElements;
-      const headingText = language === "ua" ? block.content.text_ua : block.content.text_en;
+      const headingText = language === "uk" ? block.content.text_ua : block.content.text_en;
       return headingText ? <HeadingTag className="font-bold mb-4">{headingText}</HeadingTag> : null;
     }
 
@@ -47,13 +47,13 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
           )}
           {display_blocks.translation && (
             <div className="translation font-bold">
-              {language === "ua" && block.content.translation_ua && <TiptapRenderer content={block.content.translation_ua} />}
+              {language === "uk" && block.content.translation_ua && <TiptapRenderer content={block.content.translation_ua} />}
               {language === "en" && block.content.translation_en && <TiptapRenderer content={block.content.translation_en} />}
             </div>
           )}
           {display_blocks.commentary && (
             <div className="commentary">
-              {language === "ua" && block.content.commentary_ua && <TiptapRenderer content={block.content.commentary_ua} />}
+              {language === "uk" && block.content.commentary_ua && <TiptapRenderer content={block.content.commentary_ua} />}
               {language === "en" && block.content.commentary_en && <TiptapRenderer content={block.content.commentary_en} />}
             </div>
           )}
@@ -62,7 +62,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
     }
 
     case "image":
-      const imageCaption = language === "ua" ? block.content.caption_ua : block.content.caption_en;
+      const imageCaption = language === "uk" ? block.content.caption_ua : block.content.caption_en;
       return block.content.url ? (
         <figure className="my-6">
           <img src={block.content.url} alt={imageCaption || ""} className="w-full rounded-lg" loading="lazy" />
@@ -71,7 +71,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
       ) : null;
 
     case "audio":
-      const audioCaption = language === "ua" ? block.content.caption_ua : block.content.caption_en;
+      const audioCaption = language === "uk" ? block.content.caption_ua : block.content.caption_en;
       return block.content.url ? (
         <div className="my-6">
           <audio controls className="w-full">
@@ -82,7 +82,7 @@ const BlockRenderer = ({ block, language }: { block: PageBlock; language: string
       ) : null;
 
     case "video":
-      const videoCaption = language === "ua" ? block.content.caption_ua : block.content.caption_en;
+      const videoCaption = language === "uk" ? block.content.caption_ua : block.content.caption_en;
       return block.content.url ? (
         <div className="my-6">
           <video controls className="w-full rounded-lg">
@@ -113,7 +113,7 @@ export const PageRenderer = ({ page, language }: PageRendererProps) => {
   }
 
   // Старий формат (fallback)
-  const content = language === "ua" ? page.content_ua : page.content_en;
+  const content = language === "uk" ? page.content_ua : page.content_en;
 
   return (
     <div className="space-y-8">

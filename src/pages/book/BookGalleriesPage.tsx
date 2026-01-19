@@ -52,7 +52,7 @@ export const BookGalleriesPage = () => {
     );
   }
 
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
+  const bookTitle = language === "uk" ? book?.title_ua : book?.title_en;
 
   return (
     <ImageGalleries

@@ -140,7 +140,7 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
   }
 
   const dateFormatted = format(date, 'd MMMM', {
-    locale: language === 'ua' ? uk : undefined,
+    locale: language === 'uk' ? uk : undefined,
   });
 
   return (
@@ -231,7 +231,7 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
                             isCompleted && 'line-through text-muted-foreground'
                           )}
                         >
-                          {language === 'ua' && routine.title_ua
+                          {language === 'uk' && routine.title_ua
                             ? routine.title_ua
                             : routine.title}
                         </span>

@@ -55,7 +55,7 @@ const eventTypeColors = {
 interface VaishnavEventFastingTimesProps {
   fastingTimes: EventFastingTimesType | null;
   location?: CalendarLocation | null;
-  language: "ua" | "en";
+  language: "uk" | "en";
   isLoading?: boolean;
   error?: Error | null;
   onRecalculate?: () => void;
@@ -90,7 +90,7 @@ export function VaishnavEventFastingTimes({
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          {language === "ua"
+          {language === "uk"
             ? "Помилка розрахунку часів посту. Перевірте геолокацію."
             : "Failed to calculate fasting times. Check your location."}
           {onRecalculate && (
@@ -101,7 +101,7 @@ export function VaishnavEventFastingTimes({
               className="ml-2 h-auto p-0"
             >
               <RefreshCw className="h-3 w-3 mr-1" />
-              {language === "ua" ? "Спробувати знову" : "Try again"}
+              {language === "uk" ? "Спробувати знову" : "Try again"}
             </Button>
           )}
         </AlertDescription>
@@ -115,7 +115,7 @@ export function VaishnavEventFastingTimes({
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          {language === "ua"
+          {language === "uk"
             ? "Виберіть локацію для розрахунку часів посту"
             : "Select a location to calculate fasting times"}
         </AlertDescription>
@@ -142,24 +142,24 @@ export function VaishnavEventFastingTimes({
 
   // Get glory text for ekadashi
   const gloryText = ekadashiInfo
-    ? language === "ua"
+    ? language === "uk"
       ? ekadashiInfo.glory_text_ua
       : ekadashiInfo.glory_text_en
     : null;
 
   const gloryTitle = ekadashiInfo
-    ? language === "ua"
+    ? language === "uk"
       ? ekadashiInfo.glory_title_ua
       : ekadashiInfo.glory_title_en
     : null;
 
   // Get description for appearance/disappearance
   const eventDescription = appearanceDay
-    ? language === "ua"
+    ? language === "uk"
       ? appearanceDay.description_ua
       : appearanceDay.description_en
     : festival
-    ? language === "ua"
+    ? language === "uk"
       ? festival.description_ua
       : festival.description_en
     : null;
@@ -216,7 +216,7 @@ export function VaishnavEventFastingTimes({
           <CardDescription className="flex items-center gap-1 text-sm">
             <MapPin className="h-3.5 w-3.5" />
             <span>
-              {language === "ua" ? location.name_ua : location.name_en}
+              {language === "uk" ? location.name_ua : location.name_en}
             </span>
           </CardDescription>
         )}
@@ -231,7 +231,7 @@ export function VaishnavEventFastingTimes({
         {/* Fasting Level Badge */}
         <div className="flex items-center gap-2">
           <Badge variant="outline" className={getBorderColor()}>
-            {language === "ua"
+            {language === "uk"
               ? fastingTimes.fastingLevelDescription_ua
               : fastingTimes.fastingLevelDescription_en}
           </Badge>
@@ -242,7 +242,7 @@ export function VaishnavEventFastingTimes({
           <div className="space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Timer className="h-4 w-4 text-amber-500" />
-              {language === "ua" ? "Початок посту" : "Fasting Start"}
+              {language === "uk" ? "Початок посту" : "Fasting Start"}
             </h4>
             <div className="bg-white dark:bg-slate-900 rounded-lg p-3 space-y-2">
               <div className="flex items-center gap-3">
@@ -250,7 +250,7 @@ export function VaishnavEventFastingTimes({
                   <Sunrise className="h-5 w-5 text-amber-500" />
                   <div>
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Схід сонця" : "Sunrise"}
+                      {language === "uk" ? "Схід сонця" : "Sunrise"}
                     </div>
                     <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
                       {fastingTimes.sunriseFormatted}
@@ -261,7 +261,7 @@ export function VaishnavEventFastingTimes({
                   <Sunset className="h-5 w-5 text-orange-500" />
                   <div>
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Захід сонця" : "Sunset"}
+                      {language === "uk" ? "Захід сонця" : "Sunset"}
                     </div>
                     <div className="text-lg font-medium text-orange-600 dark:text-orange-400">
                       {fastingTimes.sunsetFormatted}
@@ -280,13 +280,13 @@ export function VaishnavEventFastingTimes({
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2 text-green-700 dark:text-green-300">
                 <Sun className="h-4 w-4" />
-                {language === "ua" ? "Полудень (переривання посту)" : "Noon (Breaking Fast)"}
+                {language === "uk" ? "Полудень (переривання посту)" : "Noon (Breaking Fast)"}
               </h4>
               <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/50 rounded-lg border border-green-200 dark:border-green-900">
                 <Clock className="h-5 w-5 text-green-600" />
                 <div className="flex-1">
                   <div className="text-xs text-green-700 dark:text-green-300 font-medium">
-                    {language === "ua" ? "Сонячний полудень" : "Solar Noon"}
+                    {language === "uk" ? "Сонячний полудень" : "Solar Noon"}
                   </div>
                   <div className="text-lg font-bold text-green-700 dark:text-green-300">
                     {fastingTimes.solarNoonFormatted}
@@ -294,7 +294,7 @@ export function VaishnavEventFastingTimes({
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? fastingTimes.breakFastDescription_ua
                   : fastingTimes.breakFastDescription_en}
               </p>
@@ -309,13 +309,13 @@ export function VaishnavEventFastingTimes({
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2 text-green-700 dark:text-green-300">
                 <UtensilsCrossed className="h-4 w-4" />
-                {language === "ua" ? "Переривання посту" : "Breaking Fast"}
+                {language === "uk" ? "Переривання посту" : "Breaking Fast"}
               </h4>
               <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/50 rounded-lg border border-green-200 dark:border-green-900">
                 <Sunrise className="h-5 w-5 text-green-600" />
                 <div className="flex-1">
                   <div className="text-xs text-green-700 dark:text-green-300 font-medium">
-                    {language === "ua" ? "Схід сонця наступного дня" : "Next Day Sunrise"}
+                    {language === "uk" ? "Схід сонця наступного дня" : "Next Day Sunrise"}
                   </div>
                   <div className="text-lg font-bold text-green-700 dark:text-green-300">
                     {fastingTimes.nextDaySunriseFormatted}
@@ -323,7 +323,7 @@ export function VaishnavEventFastingTimes({
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? fastingTimes.breakFastDescription_ua
                   : fastingTimes.breakFastDescription_en}
               </p>
@@ -338,7 +338,7 @@ export function VaishnavEventFastingTimes({
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <BookOpen className="h-4 w-4 text-purple-500" />
-                {language === "ua" ? "Слава Екадаші" : "Glory of Ekadashi"}
+                {language === "uk" ? "Слава Екадаші" : "Glory of Ekadashi"}
               </h4>
               <div className="bg-white dark:bg-slate-900 rounded-lg p-3">
                 <h5 className="font-medium text-purple-700 dark:text-purple-300 mb-2">
@@ -366,7 +366,7 @@ export function VaishnavEventFastingTimes({
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <Info className="h-4 w-4 text-muted-foreground" />
-                {language === "ua" ? "Опис" : "Description"}
+                {language === "uk" ? "Опис" : "Description"}
               </h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {eventDescription}
@@ -382,10 +382,10 @@ export function VaishnavEventFastingTimes({
             <div className="space-y-2">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <Info className="h-4 w-4 text-muted-foreground" />
-                {language === "ua" ? "Примітки" : "Notes"}
+                {language === "uk" ? "Примітки" : "Notes"}
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {language === "ua" ? fastingTimes.notes_ua : fastingTimes.notes_en}
+                {language === "uk" ? fastingTimes.notes_ua : fastingTimes.notes_en}
               </p>
             </div>
           </>
@@ -401,7 +401,7 @@ export function VaishnavEventFastingTimes({
               className="w-full"
             >
               <RefreshCw className="h-3.5 w-3.5 mr-2" />
-              {language === "ua" ? "Перерахувати" : "Recalculate"}
+              {language === "uk" ? "Перерахувати" : "Recalculate"}
             </Button>
           </div>
         )}
@@ -415,7 +415,7 @@ export function VaishnavEventFastingTimes({
  */
 interface VaishnavEventFastingTimesCompactProps {
   fastingTimes: EventFastingTimesType;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 function VaishnavEventFastingTimesCompact({
@@ -461,7 +461,7 @@ function VaishnavEventFastingTimesCompact({
           <div className="space-y-1">
             <div className="text-xs text-muted-foreground flex items-center gap-1">
               <Sunrise className="h-3 w-3" />
-              {language === "ua" ? "Схід" : "Sunrise"}
+              {language === "uk" ? "Схід" : "Sunrise"}
             </div>
             <div className="font-medium text-amber-600 dark:text-amber-400">
               {fastingTimes.sunriseFormatted}
@@ -477,7 +477,7 @@ function VaishnavEventFastingTimesCompact({
             ) : (
               <UtensilsCrossed className="h-3 w-3" />
             )}
-            {language === "ua"
+            {language === "uk"
               ? fastingTimes.fastingLevel === 'half' ? "Полудень" : "Парана"
               : fastingTimes.fastingLevel === 'half' ? "Noon" : "Break fast"}
           </div>
@@ -489,7 +489,7 @@ function VaishnavEventFastingTimesCompact({
 
       {/* Fasting level */}
       <div className="text-xs text-muted-foreground">
-        {language === "ua"
+        {language === "uk"
           ? fastingTimes.fastingLevelDescription_ua
           : fastingTimes.fastingLevelDescription_en}
       </div>

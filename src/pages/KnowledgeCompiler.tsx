@@ -199,7 +199,7 @@ export default function KnowledgeCompiler() {
   // Search function
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      toast.error(language === 'ua' ? "Введіть тему для пошуку" : "Enter a search topic");
+      toast.error(language === 'uk' ? "Введіть тему для пошуку" : "Enter a search topic");
       return;
     }
 
@@ -225,7 +225,7 @@ export default function KnowledgeCompiler() {
       if (error && (error.code === '42883' || error.message?.includes('function') || error.message?.includes('does not exist'))) {
         console.warn('Advanced search function not found, using fallback search');
         toast.info(
-          language === 'ua'
+          language === 'uk'
             ? 'Використовується простий пошук (функції бази даних ще не застосовані)'
             : 'Using simple search (database functions not yet applied)'
         );
@@ -264,7 +264,7 @@ export default function KnowledgeCompiler() {
           .limit(limitCount);
 
         // Add search conditions
-        if (language === 'ua') {
+        if (language === 'uk') {
           query.or(`translation_ua.ilike.${searchPattern},commentary_ua.ilike.${searchPattern},synonyms_ua.ilike.${searchPattern}`);
         } else {
           query.or(`translation_en.ilike.${searchPattern},commentary_en.ilike.${searchPattern},synonyms_en.ilike.${searchPattern}`);
@@ -274,15 +274,15 @@ export default function KnowledgeCompiler() {
 
         if (fallbackError) {
           console.error('Fallback search error:', fallbackError);
-          toast.error(language === 'ua' ? "Помилка пошуку" : "Search error");
+          toast.error(language === 'uk' ? "Помилка пошуку" : "Search error");
           return;
         }
 
         // Transform fallback data to match expected format
         const transformedData = fallbackData?.map((verse: any) => {
-          const translation = language === 'ua' ? verse.translation_ua : verse.translation_en;
-          const commentary = language === 'ua' ? verse.commentary_ua : verse.commentary_en;
-          const synonyms = language === 'ua' ? verse.synonyms_ua : verse.synonyms_en;
+          const translation = language === 'uk' ? verse.translation_ua : verse.translation_en;
+          const commentary = language === 'uk' ? verse.commentary_ua : verse.commentary_en;
+          const synonyms = language === 'uk' ? verse.synonyms_ua : verse.synonyms_en;
 
           // Find which field has the match and create snippet from it
           const matchedFields = findMatchedFields(verse, searchQuery);
@@ -302,9 +302,9 @@ export default function KnowledgeCompiler() {
             verse_number: verse.verse_number,
             chapter_id: verse.chapter_id,
             chapter_number: verse.chapters?.chapter_number || 0,
-            chapter_title: language === 'ua' ? verse.chapters?.title_ua : verse.chapters?.title_en,
+            chapter_title: language === 'uk' ? verse.chapters?.title_ua : verse.chapters?.title_en,
             book_id: verse.chapters?.books?.id,
-            book_title: language === 'ua' ? verse.chapters?.books?.title_ua : verse.chapters?.books?.title_en,
+            book_title: language === 'uk' ? verse.chapters?.books?.title_ua : verse.chapters?.books?.title_en,
             book_slug: verse.chapters?.books?.slug,
             canto_id: null,
             canto_number: null,
@@ -324,13 +324,13 @@ export default function KnowledgeCompiler() {
 
         if (transformedData.length > 0) {
           toast.success(
-            language === 'ua'
+            language === 'uk'
               ? `Знайдено ${transformedData.length} віршів`
               : `Found ${transformedData.length} verses`
           );
         } else {
           toast.info(
-            language === 'ua'
+            language === 'uk'
               ? "Нічого не знайдено. Спробуйте інший запит."
               : "No results found. Try a different query."
           );
@@ -346,7 +346,7 @@ export default function KnowledgeCompiler() {
           code: error.code
         });
         toast.error(
-          language === 'ua'
+          language === 'uk'
             ? `Помилка пошуку: ${error.message}`
             : `Search error: ${error.message}`
         );
@@ -357,8 +357,8 @@ export default function KnowledgeCompiler() {
 
       // Add highlighting to snippets from database results
       const enhancedResults = data?.map((verse: any) => {
-        const translation = language === 'ua' ? verse.translation : verse.translation;
-        const commentary = language === 'ua' ? verse.commentary : verse.commentary;
+        const translation = language === 'uk' ? verse.translation : verse.translation;
+        const commentary = language === 'uk' ? verse.commentary : verse.commentary;
 
         // Create highlighted snippet from the field that contains the match
         let snippetSource = '';
@@ -396,20 +396,20 @@ export default function KnowledgeCompiler() {
 
       if (data && data.length > 0) {
         toast.success(
-          language === 'ua'
+          language === 'uk'
             ? `Знайдено ${data.length} віршів`
             : `Found ${data.length} verses`
         );
       } else {
         toast.info(
-          language === 'ua'
+          language === 'uk'
             ? "Нічого не знайдено. Спробуйте інший запит."
             : "No results found. Try a different query."
         );
       }
     } catch (error) {
       console.error('Search error:', error);
-      toast.error(language === 'ua' ? "Помилка пошуку" : "Search error");
+      toast.error(language === 'uk' ? "Помилка пошуку" : "Search error");
     } finally {
       setIsSearching(false);
     }
@@ -418,18 +418,18 @@ export default function KnowledgeCompiler() {
   // Add verse to compilation
   const addToCompilation = (verse: SearchResult) => {
     if (compilation.find(v => v.verse_id === verse.verse_id)) {
-      toast.info(language === 'ua' ? "Вірш вже в збірці" : "Verse already in compilation");
+      toast.info(language === 'uk' ? "Вірш вже в збірці" : "Verse already in compilation");
       return;
     }
 
     setCompilation(prev => [...prev, { ...verse, isSelected: true }]);
-    toast.success(language === 'ua' ? "Додано до збірки" : "Added to compilation");
+    toast.success(language === 'uk' ? "Додано до збірки" : "Added to compilation");
   };
 
   // Remove verse from compilation
   const removeFromCompilation = (verseId: string) => {
     setCompilation(prev => prev.filter(v => v.verse_id !== verseId));
-    toast.success(language === 'ua' ? "Видалено зі збірки" : "Removed from compilation");
+    toast.success(language === 'uk' ? "Видалено зі збірки" : "Removed from compilation");
   };
 
   // Toggle verse expansion
@@ -448,7 +448,7 @@ export default function KnowledgeCompiler() {
   // Export compilation as PDF
   const exportAsPDF = () => {
     if (compilation.length === 0) {
-      toast.error(language === 'ua' ? "Збірка порожня" : "Compilation is empty");
+      toast.error(language === 'uk' ? "Збірка порожня" : "Compilation is empty");
       return;
     }
 
@@ -494,7 +494,7 @@ export default function KnowledgeCompiler() {
       doc.setFontSize(24);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(40, 40, 40);
-      const title = compilationTitle || (language === 'ua' ? 'Тематична Збірка' : 'Thematic Compilation');
+      const title = compilationTitle || (language === 'uk' ? 'Тематична Збірка' : 'Thematic Compilation');
       doc.text(title, pageWidth / 2, 40, { align: 'center' });
 
       yPosition = 60;
@@ -503,11 +503,11 @@ export default function KnowledgeCompiler() {
       doc.setFontSize(11);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(80, 80, 80);
-      doc.text(`${language === 'ua' ? 'Тема' : 'Topic'}: ${searchQuery}`, margin, yPosition);
+      doc.text(`${language === 'uk' ? 'Тема' : 'Topic'}: ${searchQuery}`, margin, yPosition);
       yPosition += 7;
-      doc.text(`${language === 'ua' ? 'Дата створення' : 'Created'}: ${new Date().toLocaleDateString()}`, margin, yPosition);
+      doc.text(`${language === 'uk' ? 'Дата створення' : 'Created'}: ${new Date().toLocaleDateString()}`, margin, yPosition);
       yPosition += 7;
-      doc.text(`${language === 'ua' ? 'Кількість віршів' : 'Number of verses'}: ${compilation.length}`, margin, yPosition);
+      doc.text(`${language === 'uk' ? 'Кількість віршів' : 'Number of verses'}: ${compilation.length}`, margin, yPosition);
       yPosition += 15;
 
       // Separator line
@@ -521,8 +521,8 @@ export default function KnowledgeCompiler() {
 
         // Verse number and reference
         const reference = verse.canto_number
-          ? `${verse.book_title}, ${language === 'ua' ? 'Пісня' : 'Canto'} ${verse.canto_number}, ${language === 'ua' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${verse.verse_number}`
-          : `${verse.book_title}, ${language === 'ua' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${verse.verse_number}`;
+          ? `${verse.book_title}, ${language === 'uk' ? 'Пісня' : 'Canto'} ${verse.canto_number}, ${language === 'uk' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'uk' ? 'Вірш' : 'Verse'} ${verse.verse_number}`
+          : `${verse.book_title}, ${language === 'uk' ? 'Розділ' : 'Chapter'} ${verse.chapter_number}, ${language === 'uk' ? 'Вірш' : 'Verse'} ${verse.verse_number}`;
 
         // Verse header with background
         doc.setFillColor(245, 245, 245);
@@ -568,7 +568,7 @@ export default function KnowledgeCompiler() {
           doc.setFontSize(9);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(60, 60, 60);
-          doc.text(language === 'ua' ? 'Синоніми:' : 'Synonyms:', margin, yPosition);
+          doc.text(language === 'uk' ? 'Синоніми:' : 'Synonyms:', margin, yPosition);
           yPosition += 5;
 
           doc.setFont('helvetica', 'normal');
@@ -588,7 +588,7 @@ export default function KnowledgeCompiler() {
           doc.setFontSize(9);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(60, 60, 60);
-          doc.text(language === 'ua' ? 'Переклад:' : 'Translation:', margin, yPosition);
+          doc.text(language === 'uk' ? 'Переклад:' : 'Translation:', margin, yPosition);
           yPosition += 5;
 
           doc.setFontSize(10);
@@ -609,7 +609,7 @@ export default function KnowledgeCompiler() {
           doc.setFontSize(9);
           doc.setFont('helvetica', 'bold');
           doc.setTextColor(60, 60, 60);
-          doc.text(language === 'ua' ? 'Коментар:' : 'Commentary:', margin, yPosition);
+          doc.text(language === 'uk' ? 'Коментар:' : 'Commentary:', margin, yPosition);
           yPosition += 5;
 
           doc.setFontSize(9);
@@ -641,7 +641,7 @@ export default function KnowledgeCompiler() {
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(150, 150, 150);
         doc.text(
-          `${language === 'ua' ? 'Сторінка' : 'Page'} ${i} ${language === 'ua' ? 'з' : 'of'} ${totalPages}`,
+          `${language === 'uk' ? 'Сторінка' : 'Page'} ${i} ${language === 'uk' ? 'з' : 'of'} ${totalPages}`,
           pageWidth / 2,
           pageHeight - 10,
           { align: 'center' }
@@ -652,10 +652,10 @@ export default function KnowledgeCompiler() {
       const fileName = `${compilationTitle || 'збірка'}_${searchQuery.substring(0, 20)}.pdf`;
       doc.save(fileName);
 
-      toast.success(language === 'ua' ? "PDF експортовано успішно" : "PDF exported successfully");
+      toast.success(language === 'uk' ? "PDF експортовано успішно" : "PDF exported successfully");
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error(language === 'ua' ? "Помилка при експорті PDF" : "Error exporting PDF");
+      toast.error(language === 'uk' ? "Помилка при експорті PDF" : "Error exporting PDF");
     }
   };
 
@@ -669,14 +669,14 @@ export default function KnowledgeCompiler() {
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 mb-4">
             <BookMarked className="w-5 h-5 text-primary" />
             <span className="text-sm font-medium text-primary">
-              {language === 'ua' ? 'Новий інструмент' : 'New Tool'}
+              {language === 'uk' ? 'Новий інструмент' : 'New Tool'}
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            {language === 'ua' ? 'Ведична Тематична Збірка' : 'Spiritual Knowledge Compiler'}
+            {language === 'uk' ? 'Ведична Тематична Збірка' : 'Spiritual Knowledge Compiler'}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            {language === 'ua'
+            {language === 'uk'
               ? 'Створюйте персоналізовані тематичні збірки з священних писань'
               : 'Create personalized thematic compilations from sacred scriptures'}
           </p>
@@ -686,18 +686,18 @@ export default function KnowledgeCompiler() {
           <TabsList className="grid w-full grid-cols-3 mb-8">
             <TabsTrigger value="search" className="flex items-center gap-2">
               <Search className="w-4 h-4" />
-              {language === 'ua' ? 'Пошук' : 'Search'}
+              {language === 'uk' ? 'Пошук' : 'Search'}
             </TabsTrigger>
             <TabsTrigger value="compilation" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
-              {language === 'ua' ? 'Збірка' : 'Compilation'}
+              {language === 'uk' ? 'Збірка' : 'Compilation'}
               {compilation.length > 0 && (
                 <Badge variant="secondary" className="ml-1">{compilation.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="statistics" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
-              {language === 'ua' ? 'Статистика' : 'Statistics'}
+              {language === 'uk' ? 'Статистика' : 'Statistics'}
             </TabsTrigger>
           </TabsList>
 
@@ -707,10 +707,10 @@ export default function KnowledgeCompiler() {
               <div className="mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Search className="w-5 h-5" />
-                  {language === 'ua' ? 'Пошук по темі' : 'Search by Topic'}
+                  {language === 'uk' ? 'Пошук по темі' : 'Search by Topic'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'ua'
+                  {language === 'uk'
                     ? 'Введіть тему або ключові слова для пошуку віршів'
                     : 'Enter a topic or keywords to search for verses'}
                 </p>
@@ -719,12 +719,12 @@ export default function KnowledgeCompiler() {
                 {/* Search Input */}
                 <div className="space-y-2">
                   <Label htmlFor="search-query">
-                    {language === 'ua' ? 'Про що ви хочете дізнатися?' : 'What would you like to learn about?'}
+                    {language === 'uk' ? 'Про що ви хочете дізнатися?' : 'What would you like to learn about?'}
                   </Label>
                   <div className="flex gap-2">
                     <Input
                       id="search-query"
-                      placeholder={language === 'ua' ? 'Наприклад: три гуни, Параматма, Святе Ім\'я...' : 'e.g., three modes, Supersoul, Holy Name...'}
+                      placeholder={language === 'uk' ? 'Наприклад: три гуни, Параматма, Святе Ім\'я...' : 'e.g., three modes, Supersoul, Holy Name...'}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -739,12 +739,12 @@ export default function KnowledgeCompiler() {
                       {isSearching ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          {language === 'ua' ? 'Пошук...' : 'Searching...'}
+                          {language === 'uk' ? 'Пошук...' : 'Searching...'}
                         </>
                       ) : (
                         <>
                           <Search className="w-4 h-4 mr-2" />
-                          {language === 'ua' ? 'Шукати' : 'Search'}
+                          {language === 'uk' ? 'Шукати' : 'Search'}
                         </>
                       )}
                     </Button>
@@ -755,7 +755,7 @@ export default function KnowledgeCompiler() {
                 <Collapsible>
                   <CollapsibleTrigger asChild>
                     <Button variant="outline" className="w-full justify-between">
-                      {language === 'ua' ? 'Налаштування пошуку' : 'Search Settings'}
+                      {language === 'uk' ? 'Налаштування пошуку' : 'Search Settings'}
                       <ChevronDown className="w-4 h-4" />
                     </Button>
                   </CollapsibleTrigger>
@@ -763,7 +763,7 @@ export default function KnowledgeCompiler() {
                     {/* Content filters */}
                     <div className="space-y-3">
                       <Label className="text-base font-semibold">
-                        {language === 'ua' ? 'Шукати в:' : 'Search in:'}
+                        {language === 'uk' ? 'Шукати в:' : 'Search in:'}
                       </Label>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex items-center space-x-2">
@@ -773,7 +773,7 @@ export default function KnowledgeCompiler() {
                             onCheckedChange={(checked) => setIncludeTranslation(checked as boolean)}
                           />
                           <Label htmlFor="filter-translation" className="cursor-pointer">
-                            {language === 'ua' ? 'Переклад' : 'Translation'}
+                            {language === 'uk' ? 'Переклад' : 'Translation'}
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -783,7 +783,7 @@ export default function KnowledgeCompiler() {
                             onCheckedChange={(checked) => setIncludeCommentary(checked as boolean)}
                           />
                           <Label htmlFor="filter-commentary" className="cursor-pointer">
-                            {language === 'ua' ? 'Коментар' : 'Commentary'}
+                            {language === 'uk' ? 'Коментар' : 'Commentary'}
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -793,7 +793,7 @@ export default function KnowledgeCompiler() {
                             onCheckedChange={(checked) => setIncludeSynonyms(checked as boolean)}
                           />
                           <Label htmlFor="filter-synonyms" className="cursor-pointer">
-                            {language === 'ua' ? 'Синоніми' : 'Synonyms'}
+                            {language === 'uk' ? 'Синоніми' : 'Synonyms'}
                           </Label>
                         </div>
                         <div className="flex items-center space-x-2">
@@ -803,7 +803,7 @@ export default function KnowledgeCompiler() {
                             onCheckedChange={(checked) => setIncludeTransliteration(checked as boolean)}
                           />
                           <Label htmlFor="filter-transliteration" className="cursor-pointer">
-                            {language === 'ua' ? 'Транслітерація' : 'Transliteration'}
+                            {language === 'uk' ? 'Транслітерація' : 'Transliteration'}
                           </Label>
                         </div>
                       </div>
@@ -812,17 +812,17 @@ export default function KnowledgeCompiler() {
                     {/* Book filter */}
                     <div className="space-y-2">
                       <Label htmlFor="book-filter">
-                        {language === 'ua' ? 'Книги (залиште порожнім для всіх)' : 'Books (leave empty for all)'}
+                        {language === 'uk' ? 'Книги (залиште порожнім для всіх)' : 'Books (leave empty for all)'}
                       </Label>
                       <Select>
                         <SelectTrigger id="book-filter">
-                          <SelectValue placeholder={language === 'ua' ? 'Всі книги' : 'All books'} />
+                          <SelectValue placeholder={language === 'uk' ? 'Всі книги' : 'All books'} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">{language === 'ua' ? 'Всі книги' : 'All books'}</SelectItem>
+                          <SelectItem value="all">{language === 'uk' ? 'Всі книги' : 'All books'}</SelectItem>
                           {books.map(book => (
                             <SelectItem key={book.id} value={book.id}>
-                              {language === 'ua' ? book.title_ua : book.title_en}
+                              {language === 'uk' ? book.title_ua : book.title_en}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -832,7 +832,7 @@ export default function KnowledgeCompiler() {
                     {/* Result limit */}
                     <div className="space-y-2">
                       <Label htmlFor="limit-count">
-                        {language === 'ua' ? 'Кількість результатів' : 'Number of results'}
+                        {language === 'uk' ? 'Кількість результатів' : 'Number of results'}
                       </Label>
                       <Select
                         value={limitCount.toString()}
@@ -859,10 +859,10 @@ export default function KnowledgeCompiler() {
               <div>
                 <div className="mb-4">
                   <h3 className="text-lg font-semibold">
-                    {language === 'ua' ? 'Результати пошуку' : 'Search Results'} ({searchResults.length})
+                    {language === 'uk' ? 'Результати пошуку' : 'Search Results'} ({searchResults.length})
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    {language === 'ua'
+                    {language === 'uk'
                       ? 'Натисніть на вірш щоб додати його до збірки'
                       : 'Click on a verse to add it to your compilation'}
                   </p>
@@ -929,7 +929,7 @@ export default function KnowledgeCompiler() {
                             {verse.sanskrit && (
                               <div>
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
-                                  {language === 'ua' ? 'Санскрит:' : 'Sanskrit:'}
+                                  {language === 'uk' ? 'Санскрит:' : 'Sanskrit:'}
                                 </p>
                                 <p className="font-sanskrit text-lg">{verse.sanskrit}</p>
                               </div>
@@ -938,7 +938,7 @@ export default function KnowledgeCompiler() {
                             {verse.transliteration && (
                               <div>
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
-                                  {language === 'ua' ? 'Транслітерація:' : 'Transliteration:'}
+                                  {language === 'uk' ? 'Транслітерація:' : 'Transliteration:'}
                                 </p>
                                 <p className="italic">{stripParagraphTags(verse.transliteration)}</p>
                               </div>
@@ -947,7 +947,7 @@ export default function KnowledgeCompiler() {
                             {verse.translation && (
                               <div>
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
-                                  {language === 'ua' ? 'Переклад:' : 'Translation:'}
+                                  {language === 'uk' ? 'Переклад:' : 'Translation:'}
                                 </p>
                                 <p>{stripParagraphTags(verse.translation)}</p>
                               </div>
@@ -956,7 +956,7 @@ export default function KnowledgeCompiler() {
                             {verse.commentary && (
                               <div>
                                 <p className="text-sm font-semibold text-muted-foreground mb-1">
-                                  {language === 'ua' ? 'Коментар:' : 'Commentary:'}
+                                  {language === 'uk' ? 'Коментар:' : 'Commentary:'}
                                 </p>
                                 <p className="text-sm text-muted-foreground line-clamp-3">
                                   {verse.commentary.substring(0, 300)}...
@@ -971,7 +971,7 @@ export default function KnowledgeCompiler() {
                             {verse.search_snippet && (
                               <div className="bg-muted/50 p-3 rounded-md border border-border">
                                 <p className="text-xs text-muted-foreground mb-1 font-semibold">
-                                  {language === 'ua' ? 'Знайдено:' : 'Found:'}
+                                  {language === 'uk' ? 'Знайдено:' : 'Found:'}
                                 </p>
                                 <p className="text-sm"
                                    dangerouslySetInnerHTML={{ __html: verse.search_snippet }}
@@ -994,10 +994,10 @@ export default function KnowledgeCompiler() {
               <div className="mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
-                  {language === 'ua' ? 'Моя збірка' : 'My Compilation'}
+                  {language === 'uk' ? 'Моя збірка' : 'My Compilation'}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {language === 'ua'
+                  {language === 'uk'
                     ? `${compilation.length} віршів у збірці`
                     : `${compilation.length} verses in compilation`}
                 </p>
@@ -1006,11 +1006,11 @@ export default function KnowledgeCompiler() {
                 {/* Compilation Title */}
                 <div className="space-y-2">
                   <Label htmlFor="compilation-title">
-                    {language === 'ua' ? 'Назва збірки' : 'Compilation Title'}
+                    {language === 'uk' ? 'Назва збірки' : 'Compilation Title'}
                   </Label>
                   <Input
                     id="compilation-title"
-                    placeholder={language === 'ua' ? 'Наприклад: Про три гуни' : 'e.g., About the three modes'}
+                    placeholder={language === 'uk' ? 'Наприклад: Про три гуни' : 'e.g., About the three modes'}
                     value={compilationTitle}
                     onChange={(e) => setCompilationTitle(e.target.value)}
                   />
@@ -1020,7 +1020,7 @@ export default function KnowledgeCompiler() {
                 {compilation.length > 0 && (
                   <Button onClick={exportAsPDF} className="w-full" size="lg">
                     <Download className="w-4 h-4 mr-2" />
-                    {language === 'ua' ? 'Експортувати як PDF' : 'Export as PDF'}
+                    {language === 'uk' ? 'Експортувати як PDF' : 'Export as PDF'}
                   </Button>
                 )}
 
@@ -1028,9 +1028,9 @@ export default function KnowledgeCompiler() {
                 {compilation.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
                     <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                    <p>{language === 'ua' ? 'Збірка порожня' : 'Compilation is empty'}</p>
+                    <p>{language === 'uk' ? 'Збірка порожня' : 'Compilation is empty'}</p>
                     <p className="text-sm">
-                      {language === 'ua'
+                      {language === 'uk'
                         ? 'Додайте вірші з результатів пошуку'
                         : 'Add verses from search results'}
                     </p>
@@ -1084,11 +1084,11 @@ export default function KnowledgeCompiler() {
               <div className="mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <BarChart3 className="w-5 h-5" />
-                  {language === 'ua' ? 'Статистика по темі' : 'Topic Statistics'}
+                  {language === 'uk' ? 'Статистика по темі' : 'Topic Statistics'}
                 </h3>
                 {searchQuery && (
                   <p className="text-sm text-muted-foreground">
-                    {language === 'ua' ? 'Тема:' : 'Topic:'} <strong>{searchQuery}</strong>
+                    {language === 'uk' ? 'Тема:' : 'Topic:'} <strong>{searchQuery}</strong>
                   </p>
                 )}
               </div>
@@ -1097,7 +1097,7 @@ export default function KnowledgeCompiler() {
                   <div className="text-center py-12 text-muted-foreground">
                     <BarChart3 className="w-12 h-12 mx-auto mb-4 opacity-20" />
                     <p>
-                      {language === 'ua'
+                      {language === 'uk'
                         ? 'Виконайте пошук щоб побачити статистику'
                         : 'Perform a search to see statistics'}
                     </p>
@@ -1111,7 +1111,7 @@ export default function KnowledgeCompiler() {
                             <div>
                               <h4 className="text-lg font-semibold">{stat.book_title}</h4>
                               <p className="text-sm text-muted-foreground">
-                                {language === 'ua'
+                                {language === 'uk'
                                   ? `${stat.verse_count} віршів знайдено`
                                   : `${stat.verse_count} verses found`}
                               </p>
@@ -1123,7 +1123,7 @@ export default function KnowledgeCompiler() {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">
-                            {language === 'ua' ? 'Приклади віршів:' : 'Sample verses:'}{' '}
+                            {language === 'uk' ? 'Приклади віршів:' : 'Sample verses:'}{' '}
                             {stat.sample_verses.slice(0, 10).join(', ')}
                             {stat.sample_verses.length > 10 && '...'}
                           </p>

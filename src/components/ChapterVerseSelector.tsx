@@ -122,13 +122,13 @@ export function ChapterVerseSelector({
 
   // Get chapter title
   const getChapterTitle = (chapter: Chapter) => {
-    const title = language === "ua" ? chapter.title_ua : chapter.title_en;
+    const title = language === "uk" ? chapter.title_ua : chapter.title_en;
     return title || `${t("Глава", "Chapter")} ${chapter.chapter_number}`;
   };
 
   // Get verse preview text (first 30 chars of translation)
   const getVersePreview = (verse: Verse) => {
-    const text = language === "ua"
+    const text = language === "uk"
       ? (verse.translation_ua || verse.sanskrit_ua)
       : (verse.translation_en || verse.sanskrit_en);
     if (!text) return "";

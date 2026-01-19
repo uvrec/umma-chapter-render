@@ -98,12 +98,12 @@ export function ThemeToggle() {
           <DropdownMenuSubContent className="z-[100]">
             <DropdownMenuItem
               role="menuitemradio"
-              aria-checked={language === "ua"}
-              onClick={() => setLanguage("ua")}
+              aria-checked={language === "uk"}
+              onClick={() => setLanguage("uk")}
               className="flex items-center justify-between"
             >
               <span>Українська</span>
-              {language === "ua" && <Check className="h-4 w-4" />}
+              {language === "uk" && <Check className="h-4 w-4" />}
             </DropdownMenuItem>
             <DropdownMenuItem
               role="menuitemradio"

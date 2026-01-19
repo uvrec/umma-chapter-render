@@ -179,7 +179,7 @@ export function Quotes() {
                         onClick={() => setSelectedCategory(cat.slug)}
                         className="gap-1"
                       >
-                        {language === "ua" && cat.title_ua ? cat.title_ua : cat.title}
+                        {language === "uk" && cat.title_ua ? cat.title_ua : cat.title}
                         <Badge variant="secondary" className="ml-1 text-xs">
                           {cat.quotes_count}
                         </Badge>

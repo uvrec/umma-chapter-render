@@ -113,7 +113,7 @@ export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
   };
 
   const dateFormatted = format(date, 'd MMMM yyyy', {
-    locale: language === 'ua' ? uk : undefined,
+    locale: language === 'uk' ? uk : undefined,
   });
 
   const hasContent = noteContent.trim().length > 0 || verseNotesForDate.length > 0 || highlightsForDate.length > 0;
@@ -150,7 +150,7 @@ export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
                     ? `${data.color} bg-muted scale-110`
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
-                title={language === 'ua' ? data.label_ua : data.label_en}
+                title={language === 'uk' ? data.label_ua : data.label_en}
               >
                 {data.icon}
               </button>

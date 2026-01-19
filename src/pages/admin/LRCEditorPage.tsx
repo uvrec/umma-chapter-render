@@ -185,7 +185,7 @@ export default function LRCEditorPage() {
     if (!existingLRC) return undefined;
     const record = existingLRC.find((l) =>
       l.audio_type === "full" &&
-      (l.language === "ua" || l.language === "sa")
+      (l.language === "uk" || l.language === "sa")
     );
     return record?.lrc_content || undefined;
   };
@@ -199,7 +199,7 @@ export default function LRCEditorPage() {
         {
           verse_id: selectedVerseId,
           audio_type: "full",
-          language: activeSection === "sanskrit" ? "sa" : "ua",
+          language: activeSection === "sanskrit" ? "sa" : "uk",
           lrc_content: lrcContent,
           sync_type: "line",
         },

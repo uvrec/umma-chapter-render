@@ -122,22 +122,22 @@ export default function VaishnavCalendar() {
       },
     };
     const msg = messages[errorCode] || messages.UNKNOWN;
-    return language === "ua" ? msg.ua : msg.en;
+    return language === "uk" ? msg.ua : msg.en;
   };
 
   const handleDetectLocation = async () => {
     const nearest = await detectLocation();
     if (nearest) {
-      const locationName = language === "ua" ? nearest.name_ua : nearest.name_en;
+      const locationName = language === "uk" ? nearest.name_ua : nearest.name_en;
       toast({
-        title: language === "ua" ? "Місце визначено" : "Location detected",
-        description: language === "ua"
+        title: language === "uk" ? "Місце визначено" : "Location detected",
+        description: language === "uk"
           ? `Найближче місто: ${locationName}`
           : `Nearest city: ${locationName}`,
       });
     } else if (geoError) {
       toast({
-        title: language === "ua" ? "Помилка" : "Error",
+        title: language === "uk" ? "Помилка" : "Error",
         description: getGeoErrorMessage(geoError),
         variant: "destructive",
       });
@@ -224,14 +224,14 @@ export default function VaishnavCalendar() {
     geoLocation,
     selectedEventWithFasting?.type || 'festival',
     selectedEventFastingLevel,
-    language === 'ua'
+    language === 'uk'
       ? selectedEventWithFasting?.event.name_ua
       : selectedEventWithFasting?.event.name_en,
     { enabled: !!selectedEventWithFasting && selectedEventWithFasting.type !== 'ekadashi' }
   );
 
   // Локалізовані назви днів тижня
-  const weekDays = language === "ua"
+  const weekDays = language === "uk"
     ? ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"]
     : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -241,10 +241,10 @@ export default function VaishnavCalendar() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">
-            {language === "ua" ? "Вайшнавський календар" : "Vaishnava Calendar"}
+            {language === "uk" ? "Вайшнавський календар" : "Vaishnava Calendar"}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {language === "ua"
+            {language === "uk"
               ? "Екадаші, свята та особливі дні"
               : "Ekadashi, festivals and special days"}
           </p>
@@ -256,7 +256,7 @@ export default function VaishnavCalendar() {
           <Select value={selectedLocationId} onValueChange={handleLocationChange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue
-                placeholder={language === "ua" ? "Оберіть місто" : "Select city"}
+                placeholder={language === "uk" ? "Оберіть місто" : "Select city"}
               />
             </SelectTrigger>
             <SelectContent>
@@ -273,7 +273,7 @@ export default function VaishnavCalendar() {
               size="icon"
               onClick={handleDetectLocation}
               disabled={isDetectingLocation}
-              title={language === "ua" ? "Визначити місце автоматично" : "Detect location automatically"}
+              title={language === "uk" ? "Визначити місце автоматично" : "Detect location automatically"}
             >
               {isDetectingLocation ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -299,7 +299,7 @@ export default function VaishnavCalendar() {
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Moon className="h-4 w-4 text-purple-600" />
-                {language === "ua" ? "Наступний екадаші" : "Next Ekadashi"}
+                {language === "uk" ? "Наступний екадаші" : "Next Ekadashi"}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -313,14 +313,14 @@ export default function VaishnavCalendar() {
                 {daysUntil !== undefined && (
                   <Badge variant="secondary">
                     {daysUntil === 0
-                      ? language === "ua"
+                      ? language === "uk"
                         ? "Сьогодні"
                         : "Today"
                       : daysUntil === 1
-                      ? language === "ua"
+                      ? language === "uk"
                         ? "Завтра"
                         : "Tomorrow"
-                      : language === "ua"
+                      : language === "uk"
                       ? `Через ${daysUntil} днів`
                       : `In ${daysUntil} days`}
                   </Badge>
@@ -332,7 +332,7 @@ export default function VaishnavCalendar() {
                     <div className="flex items-center gap-2 text-xs">
                       <Sunrise className="h-3.5 w-3.5 text-amber-500" />
                       <span className="text-muted-foreground">
-                        {language === "ua" ? "Початок посту:" : "Fast starts:"}
+                        {language === "uk" ? "Початок посту:" : "Fast starts:"}
                       </span>
                       <span className="font-medium text-amber-600 dark:text-amber-400">
                         {nextEkadashiFastingTimes.ekadashiSunriseFormatted}
@@ -341,7 +341,7 @@ export default function VaishnavCalendar() {
                     <div className="flex items-center gap-2 text-xs">
                       <Clock className="h-3.5 w-3.5 text-green-500" />
                       <span className="text-muted-foreground">
-                        {language === "ua" ? "Парана:" : "Parana:"}
+                        {language === "uk" ? "Парана:" : "Parana:"}
                       </span>
                       <span className="font-medium text-green-600 dark:text-green-400">
                         {nextEkadashiFastingTimes.paranaStartFormatted}—{nextEkadashiFastingTimes.paranaEndFormatted}
@@ -364,7 +364,7 @@ export default function VaishnavCalendar() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              {language === "ua" ? "Дізнатись більше" : "Learn More"}
+              {language === "uk" ? "Дізнатись більше" : "Learn More"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -372,19 +372,19 @@ export default function VaishnavCalendar() {
               to="/calendar/ekadashi"
               className="block text-sm text-primary hover:underline"
             >
-              {language === "ua" ? "Усі екадаші та їх слава" : "All Ekadashis and Their Glory"}
+              {language === "uk" ? "Усі екадаші та їх слава" : "All Ekadashis and Their Glory"}
             </Link>
             <Link
               to="/calendar/festivals"
               className="block text-sm text-primary hover:underline"
             >
-              {language === "ua" ? "Вайшнавські свята" : "Vaishnava Festivals"}
+              {language === "uk" ? "Вайшнавські свята" : "Vaishnava Festivals"}
             </Link>
             <Link
               to="/calendar/appearances"
               className="block text-sm text-primary hover:underline"
             >
-              {language === "ua" ? "Явлення та відходи" : "Appearances & Disappearances"}
+              {language === "uk" ? "Явлення та відходи" : "Appearances & Disappearances"}
             </Link>
           </CardContent>
         </Card>
@@ -400,7 +400,7 @@ export default function VaishnavCalendar() {
                 variant="ghost"
                 size="icon"
                 onClick={goToPreviousMonth}
-                aria-label={language === "ua" ? "Попередній місяць" : "Previous month"}
+                aria-label={language === "uk" ? "Попередній місяць" : "Previous month"}
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -419,7 +419,7 @@ export default function VaishnavCalendar() {
                 className="hidden md:flex"
               >
                 <CalendarDays className="h-4 w-4 mr-1" />
-                {language === "ua" ? "Сьогодні" : "Today"}
+                {language === "uk" ? "Сьогодні" : "Today"}
               </Button>
 
               {/* View toggle buttons */}
@@ -429,7 +429,7 @@ export default function VaishnavCalendar() {
                   size="sm"
                   onClick={() => setViewMode('month')}
                   className="h-8 w-8 p-0"
-                  title={language === "ua" ? "Місяць" : "Month"}
+                  title={language === "uk" ? "Місяць" : "Month"}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </Button>
@@ -438,7 +438,7 @@ export default function VaishnavCalendar() {
                   size="sm"
                   onClick={() => setViewMode('day')}
                   className="h-8 w-8 p-0"
-                  title={language === "ua" ? "День" : "Day"}
+                  title={language === "uk" ? "День" : "Day"}
                 >
                   <List className="h-4 w-4" />
                 </Button>
@@ -450,7 +450,7 @@ export default function VaishnavCalendar() {
                 variant="ghost"
                 size="icon"
                 onClick={goToNextMonth}
-                aria-label={language === "ua" ? "Наступний місяць" : "Next month"}
+                aria-label={language === "uk" ? "Наступний місяць" : "Next month"}
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -515,7 +515,7 @@ export default function VaishnavCalendar() {
           <CardHeader>
             <CardTitle className="text-lg">
               {format(selectedDate, "d MMMM yyyy", {
-                locale: language === "ua" ? uk : undefined,
+                locale: language === "uk" ? uk : undefined,
               })}
             </CardTitle>
           </CardHeader>
@@ -526,14 +526,14 @@ export default function VaishnavCalendar() {
                 <div className="flex items-center gap-2">
                   <Sunrise className="h-4 w-4 text-amber-500" />
                   <span className="text-muted-foreground">
-                    {language === "ua" ? "Схід:" : "Sunrise:"}
+                    {language === "uk" ? "Схід:" : "Sunrise:"}
                   </span>
                   <span className="font-medium">{selectedDayPanchang.sunriseFormatted}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Sunset className="h-4 w-4 text-orange-500" />
                   <span className="text-muted-foreground">
-                    {language === "ua" ? "Захід:" : "Sunset:"}
+                    {language === "uk" ? "Захід:" : "Sunset:"}
                   </span>
                   <span className="font-medium">{selectedDayPanchang.sunsetFormatted}</span>
                 </div>
@@ -541,7 +541,7 @@ export default function VaishnavCalendar() {
                   <div className="flex items-center gap-2">
                     <Moon className="h-4 w-4 text-slate-400" />
                     <span className="text-muted-foreground">
-                      {language === "ua" ? "Місяць:" : "Moon:"}
+                      {language === "uk" ? "Місяць:" : "Moon:"}
                     </span>
                     <span className="font-medium">{selectedDayMoon}%</span>
                   </div>
@@ -570,13 +570,13 @@ export default function VaishnavCalendar() {
                 <div className="mt-3 pt-3 border-t space-y-2">
                   <div className="text-sm font-medium flex items-center gap-2">
                     <Timer className="h-4 w-4 text-muted-foreground" />
-                    {language === "ua" ? "Часи посту" : "Fasting Times"}
+                    {language === "uk" ? "Часи посту" : "Fasting Times"}
                   </div>
                   <div className="flex flex-wrap items-center gap-3 text-sm p-2 bg-muted/20 rounded-lg">
                     <div className="flex items-center gap-1.5">
                       <Sunrise className="h-3.5 w-3.5 text-amber-500" />
                       <span className="text-muted-foreground text-xs">
-                        {language === "ua" ? "Схід:" : "Start:"}
+                        {language === "uk" ? "Схід:" : "Start:"}
                       </span>
                       <span className="font-medium">
                         {selectedEventFastingTimes.sunriseFormatted}
@@ -586,7 +586,7 @@ export default function VaishnavCalendar() {
                       <div className="flex items-center gap-1.5">
                         <Sun className="h-3.5 w-3.5 text-green-500" />
                         <span className="text-muted-foreground text-xs">
-                          {language === "ua" ? "До:" : "Until:"}
+                          {language === "uk" ? "До:" : "Until:"}
                         </span>
                         <span className="font-medium text-green-600 dark:text-green-400">
                           {selectedEventFastingTimes.solarNoonFormatted}
@@ -599,7 +599,7 @@ export default function VaishnavCalendar() {
                         <div className="flex items-center gap-1.5">
                           <UtensilsCrossed className="h-3.5 w-3.5 text-green-500" />
                           <span className="text-muted-foreground text-xs">
-                            {language === "ua" ? "Парана:" : "Break:"}
+                            {language === "uk" ? "Парана:" : "Break:"}
                           </span>
                           <span className="font-medium text-green-600 dark:text-green-400">
                             {selectedEventFastingTimes.nextDaySunriseFormatted}
@@ -608,7 +608,7 @@ export default function VaishnavCalendar() {
                       )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {language === "ua"
+                    {language === "uk"
                       ? selectedEventFastingTimes.fastingLevelDescription_ua
                       : selectedEventFastingTimes.fastingLevelDescription_en}
                   </p>
@@ -617,7 +617,7 @@ export default function VaishnavCalendar() {
 
             {selectedDateEvents.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-2">
-                {language === "ua"
+                {language === "uk"
                   ? "Немає особливих подій цього дня"
                   : "No special events on this day"}
               </p>
@@ -644,27 +644,27 @@ export default function VaishnavCalendar() {
         <CardContent className="py-4">
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <span className="text-muted-foreground">
-              {language === "ua" ? "Легенда:" : "Legend:"}
+              {language === "uk" ? "Легенда:" : "Legend:"}
             </span>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-purple-500" />
-              <span>{language === "ua" ? "Екадаші" : "Ekadashi"}</span>
+              <span>{language === "uk" ? "Екадаші" : "Ekadashi"}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <span>{language === "ua" ? "Явлення" : "Appearance"}</span>
+              <span>{language === "uk" ? "Явлення" : "Appearance"}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-gray-500" />
-              <span>{language === "ua" ? "Відхід" : "Disappearance"}</span>
+              <span>{language === "uk" ? "Відхід" : "Disappearance"}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span>{language === "ua" ? "Головне свято" : "Major Festival"}</span>
+              <span>{language === "uk" ? "Головне свято" : "Major Festival"}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span>{language === "ua" ? "Піст" : "Fasting"}</span>
+              <span>{language === "uk" ? "Піст" : "Fasting"}</span>
             </div>
           </div>
         </CardContent>

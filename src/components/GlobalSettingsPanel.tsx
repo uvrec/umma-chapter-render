@@ -255,8 +255,8 @@ export const GlobalSettingsPanel = ({
               <Label className="text-base font-semibold mb-3 block">{t("Мова інтерфейсу", "Interface Language")}</Label>
               <div className="flex gap-2">
                 <Button
-                  variant={language === "ua" ? "default" : "outline"}
-                  onClick={() => setLanguage("ua")}
+                  variant={language === "uk" ? "default" : "outline"}
+                  onClick={() => setLanguage("uk")}
                   className="flex-1"
                 >
                   <Globe className="w-4 h-4 mr-2" />
@@ -394,17 +394,17 @@ export const GlobalSettingsPanel = ({
                   onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
                 />
                 <RowToggle
-                  label={language === "ua" ? "Послівний переклад" : "Synonyms"}
+                  label={language === "uk" ? "Послівний переклад" : "Synonyms"}
                   checked={textDisplaySettings.showSynonyms}
                   onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
                 />
                 <RowToggle
-                  label={language === "ua" ? "Літературний переклад" : "Translation"}
+                  label={language === "uk" ? "Літературний переклад" : "Translation"}
                   checked={textDisplaySettings.showTranslation}
                   onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
                 />
                 <RowToggle
-                  label={language === "ua" ? "Пояснення" : "Purport"}
+                  label={language === "uk" ? "Пояснення" : "Purport"}
                   checked={textDisplaySettings.showCommentary}
                   onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
                 />

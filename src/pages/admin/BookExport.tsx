@@ -85,7 +85,7 @@ interface ExportOptions {
   includeSynonyms: boolean;
   includeTranslation: boolean;
   includeCommentary: boolean;
-  language: 'ua' | 'en' | 'both';
+  language: 'uk' | 'en' | 'both';
   useMarkers: boolean;
 }
 
@@ -162,7 +162,7 @@ function formatVerseForExport(
   // Synonyms
   if (options.includeSynonyms) {
     let synonyms = '';
-    if (lang === 'ua' || lang === 'both') {
+    if (lang === 'uk' || lang === 'both') {
       synonyms = verse.synonyms_ua || '';
     }
     if (lang === 'en' || (lang === 'both' && verse.synonyms_en)) {
@@ -185,7 +185,7 @@ function formatVerseForExport(
   // Translation
   if (options.includeTranslation) {
     let translation = '';
-    if (lang === 'ua' || lang === 'both') {
+    if (lang === 'uk' || lang === 'both') {
       translation = verse.translation_ua || '';
     }
     if (lang === 'en' || (lang === 'both' && verse.translation_en)) {
@@ -208,7 +208,7 @@ function formatVerseForExport(
   // Commentary (with @@@ marker)
   if (options.includeCommentary) {
     let commentary = '';
-    if (lang === 'ua' || lang === 'both') {
+    if (lang === 'uk' || lang === 'both') {
       commentary = verse.commentary_ua || '';
     }
     if (lang === 'en' || (lang === 'both' && verse.commentary_en)) {
@@ -289,7 +289,7 @@ export default function BookExport() {
     includeSynonyms: true,
     includeTranslation: true,
     includeCommentary: true,
-    language: 'ua',
+    language: 'uk',
     useMarkers: true,
   });
 
@@ -963,7 +963,7 @@ ${exportPreview.split('\n').map(line => {
                   <Label>Мова</Label>
                   <Select
                     value={exportOptions.language}
-                    onValueChange={(value: 'ua' | 'en' | 'both') =>
+                    onValueChange={(value: 'uk' | 'en' | 'both') =>
                       setExportOptions(prev => ({ ...prev, language: value }))
                     }
                   >
@@ -971,7 +971,7 @@ ${exportPreview.split('\n').map(line => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ua">Українська</SelectItem>
+                      <SelectItem value="uk">Українська</SelectItem>
                       <SelectItem value="en">English</SelectItem>
                       <SelectItem value="both">Обидві мови</SelectItem>
                     </SelectContent>

@@ -37,7 +37,7 @@ const prabhupadaBooks: Book[] = [
     description: "Ця пісня \"Шрімад-Бгаґаватам\" являє собою стислий виклад усієї книги.",
     price: "438 грн",
     coverImage: srimadBhagavatam2Cover,
-    purchaseUrl: "https://books.krishna.ua/ua/srimad-bhagavatam-2-pisnja/"
+    purchaseUrl: "https://books.krishna.ua/uk/srimad-bhagavatam-2-pisnja/"
   },
   {
     id: "bg",
@@ -47,7 +47,7 @@ const prabhupadaBooks: Book[] = [
     hasVerse: true,
     verseLink: "/lib/bg/1",
     coverImage: bhagavadGitaCover,
-    purchaseUrl: "https://books.krishna.ua/ua/bhagavad-gita-jak-vona-je/"
+    purchaseUrl: "https://books.krishna.ua/uk/bhagavad-gita-jak-vona-je/"
   },
   {
     id: "iso",
@@ -57,7 +57,7 @@ const prabhupadaBooks: Book[] = [
     hasVerse: true,
     verseLink: "/lib/iso/1",
     coverImage: "https://optim.tildacdn.com/stor3130-6531-4561-b838-633461363163/-/format/webp/26491780.png.webp",
-    purchaseUrl: "https://books.krishna.ua/ua/sri-ishopanishada/"
+    purchaseUrl: "https://books.krishna.ua/uk/sri-ishopanishada/"
   },
   {
     id: "krishna",
@@ -66,7 +66,7 @@ const prabhupadaBooks: Book[] = [
     price: "94 грн",
     hasVerse: false,
     coverImage: krishnaSupremePersonCover,
-    purchaseUrl: "https://books.krishna.ua/ua/krishna-verhovnyj-bog-osoba/"
+    purchaseUrl: "https://books.krishna.ua/uk/krishna-verhovnyj-bog-osoba/"
   },
   {
     id: "nectar-devotion",
@@ -75,7 +75,7 @@ const prabhupadaBooks: Book[] = [
     price: "350 грн",
     hasVerse: false,
     coverImage: "/lovable-uploads/3b875002-99ad-4bb7-9e0c-aa933b5780fa.png",
-    purchaseUrl: "https://books.krishna.ua/ua/nektar-viddanosti/"
+    purchaseUrl: "https://books.krishna.ua/uk/nektar-viddanosti/"
   }
 ];
 
