@@ -256,7 +256,7 @@ export default function AdminAudiobooks() {
 
           <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="title-ua">Заголовок (UA)</Label>
+              <Label htmlFor="title-ua">Заголовок (UK)</Label>
               <Input
                 id="title-ua"
                 value={settings.title_uk}
@@ -276,7 +276,7 @@ export default function AdminAudiobooks() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="subtitle-ua">Підзаголовок (UA)</Label>
+              <Label htmlFor="subtitle-ua">Підзаголовок (UK)</Label>
               <Input
                 id="subtitle-ua"
                 value={settings.subtitle_uk}
@@ -303,7 +303,7 @@ export default function AdminAudiobooks() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="desc-ua">Опис (UA)</Label>
+              <Label htmlFor="desc-ua">Опис (UK)</Label>
               <Textarea
                 id="desc-ua"
                 value={settings.description_uk}

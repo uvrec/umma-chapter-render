@@ -128,7 +128,7 @@ export default function AddEditBook() {
         throw new Error("Slug має бути у форматі kebab-case: латиниця/цифри та дефіси, наприклад: srimad-bhagavatam");
       }
       if (!titleUa.trim()) {
-        throw new Error("Заповніть обов'язкове поле: Назва (UA)");
+        throw new Error("Заповніть обов'язкове поле: Назва (UK)");
       }
       if (!isValidHttpsOrEmpty(coverImageUrl)) {
         throw new Error("URL обкладинки має бути https:// або залиште поле порожнім.");

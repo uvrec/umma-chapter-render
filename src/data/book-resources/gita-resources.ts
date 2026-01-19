@@ -219,7 +219,7 @@ export const PRABHUPADA_BOOKS = {
   },
 };
 
-export const GITA_DEDICATION_UA: DedicationData = {
+export const GITA_DEDICATION_UK: DedicationData = {
   title: "Посвята",
   content: `«Бгаґавад-ґіта як вона є» присвячується Шрілі Баладеві Відьябгушані, авторові «Ґовінда-бгашʼї», прекрасних коментарів до «Веданта-сутри»`,
 };
@@ -229,7 +229,7 @@ export const GITA_DEDICATION_EN: DedicationData = {
   content: `Bhagavad-gītā As It Is is dedicated to Śrīla Baladeva Vidyābhūṣaṇa, the author of the Govinda-bhāṣya, beautiful commentaries on Vedānta-sūtra`,
 };
 
-export const GITA_DISCIPLIC_SUCCESSION_UA: DisciplicSuccessionData = {
+export const GITA_DISCIPLIC_SUCCESSION_UK: DisciplicSuccessionData = {
   title: "Ланки ланцюга учнівської послідовності",
   verse: "Евам̇ парампара̄-пра̄птам імам̇ ра̄джаршайо відух̣",
   verseReference: "Б.-ґ., 4.2",

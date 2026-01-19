@@ -2,7 +2,7 @@
  * Парсер для українського PDF Шрімад-Бхаґаватам (Пісня 3)
  * Структура: ВІРШ N → Sanskrit → IAST (skip) → UA translit (skip) → synonyms (skip) → translation → ПОЯСНЕННЯ
  *
- * ВАЖЛИВО: Цей парсер витягує тільки Sanskrit, Translation_UA та Commentary_UA з PDF
+ * ВАЖЛИВО: Цей парсер витягує тільки Sanskrit, Translation_UK та Commentary_UK з PDF
  * Всі інші поля (transliteration_en, synonyms_en, etc.) повинні бути з Vedabase
  */
 
@@ -32,7 +32,7 @@ export interface ParsedChapter {
 /**
  * Витягує номер глави з заголовка типу "ГЛАВА ВІСІМНАДЦЯТА"
  */
-const CHAPTER_NAMES_UA: Record<string, number> = {
+const CHAPTER_NAMES_UK: Record<string, number> = {
   'перша': 1,
   'друга': 2,
   'третя': 3,
@@ -73,7 +73,7 @@ function extractChapterNumber(title: string): number {
 
   // Sort by length DESC to match longer names first
   // Це важливо бо "вісімнадцята" містить "сімнадцята" як підрядок
-  const sortedEntries = Object.entries(CHAPTER_NAMES_UA).sort(
+  const sortedEntries = Object.entries(CHAPTER_NAMES_UK).sort(
     (a, b) => b[0].length - a[0].length
   );
 
@@ -140,7 +140,7 @@ function splitIntoVerses(
 
 /**
  * Парсить один вірш з українського PDF
- * ВАЖЛИВО: Тільки Sanskrit, Translation_UA та Commentary_UA з PDF
+ * ВАЖЛИВО: Тільки Sanskrit, Translation_UK та Commentary_UK з PDF
  * Все інше (IAST, synonyms_en, translation_en, commentary_en) буде з Vedabase
  *
  * Структура PDF:

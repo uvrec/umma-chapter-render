@@ -144,7 +144,7 @@ export const VedaReaderDB = () => {
     if (fallbackValue && fallbackValue.trim()) {
       // Додаємо маркер що це fallback (тільки для адміна і тільки для перекладу)
       if (isAdmin && field === 'translation') {
-        const fallbackLang = language === 'uk' ? 'EN' : 'UA';
+        const fallbackLang = language === 'uk' ? 'EN' : 'UK';
         return `⚠️ [${fallbackLang} fallback] ${fallbackValue}`;
       }
       return fallbackValue;

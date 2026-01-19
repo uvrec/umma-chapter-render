@@ -4,7 +4,7 @@
  */
 
 // Table of Contents structure
-export const ISO_TOC_UA = {
+export const ISO_TOC_UK = {
   frontMatter: [
     { slug: "title", title: "Титульна сторінка" },
     { slug: "books", title: "Книги Шріли Прабгупади" },
@@ -43,7 +43,7 @@ export const ISO_TOC_UA = {
 };
 
 // Introduction content - "Вчення Вед"
-export const ISO_INTRODUCTION_UA = {
+export const ISO_INTRODUCTION_UK = {
   title: "Вчення Вед",
   subtitle: "Лекція, прочитана 6 жовтня 1969 року у Бостонському храмі в Корнуей-стріт",
   content: `Пані та панове, на сьогоднішній вечір було заплановано мою промову на тему «Вчення Вед». Як ви знаєте, сама назва Веди походить від санскритського кореня веда. Він означає «знання». Будь-яке знання, яке ви маєте, є частиною Вед. Вчення Вед відоме як апаурушея, тобто воно не походить від жодної матеріально зумовленої людини. Зумовлена людина має чотири вади: вона неодмінно робить помилки, може перебувати в ілюзії, має схильність обманювати інших і має недосконалі чуття. Хто має ці чотири вади, той не здатний повідомити досконале знання.
@@ -56,7 +56,7 @@ export const ISO_INTRODUCTION_UA = {
 };
 
 // Invocation content
-export const ISO_INVOCATION_UA = {
+export const ISO_INVOCATION_UK = {
   title: "Звернення",
   sanskrit: "ॐ पूर्णमदः पूर्णमिदं पूर्णात्पूर्णमुदच्यते ।\nपूर्णस्य पूर्णमादाय पूर्णमेवावशिष्यते ॥",
   transliteration: "ом̇ пӯрн̣ам адах̣ пӯрн̣ам ідам̇\nпӯрн̣а̄т пӯрн̣ам удачйате\nпӯрн̣асйа пӯрн̣ам а̄да̄йа\nпӯрн̣ам ева̄вашішйате",
@@ -94,7 +94,7 @@ export interface MantraContent {
 }
 
 // First three mantras (as provided in context)
-export const ISO_MANTRAS_UA: MantraContent[] = [
+export const ISO_MANTRAS_UK: MantraContent[] = [
   {
     number: 1,
     title: "Мантра перша",
@@ -193,7 +193,7 @@ export const ISO_MANTRAS_UA: MantraContent[] = [
 ];
 
 // Books list (Ukrainian version specific to Īśopaniṣad)
-export const ISO_BOOKS_LIST_UA = {
+export const ISO_BOOKS_LIST_UK = {
   title: "Книги Шріли Прабгупади",
   books: [
     "Бгаґавад-ґіта як вона є",
@@ -220,7 +220,7 @@ export const ISO_BOOKS_LIST_UA = {
 };
 
 // Cited literature
-export const ISO_BIBLIOGRAPHY_UA = {
+export const ISO_BIBLIOGRAPHY_UK = {
   title: "Цитована література",
   introduction: "У цьому покажчику подано назви ведичних писань, на які автор посилається у своїх поясненнях.",
   sources: [
@@ -248,7 +248,7 @@ export const ISO_BIBLIOGRAPHY_UA = {
 };
 
 // Sanskrit pronunciation guide (Ukrainian)
-export const ISO_SANSKRIT_PRONUNCIATION_UA = {
+export const ISO_SANSKRIT_PRONUNCIATION_UK = {
   title: "Як читати санскрит",
   introduction: "Для правильного читання санскриту важливо знати основні правила вимови букв та їх сполучень.",
   vowels: {

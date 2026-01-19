@@ -52,7 +52,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
       return;
     }
     if (!titleUa.trim()) {
-      toast({ title: "Помилка", description: "Вкажіть назву треку (UA)", variant: "destructive" });
+      toast({ title: "Помилка", description: "Вкажіть назву треку (UK)", variant: "destructive" });
       return;
     }
 
@@ -113,7 +113,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="titleUa">Назва треку (UA)</Label>
+            <Label htmlFor="titleUa">Назва треку (UK)</Label>
             <Input id="titleUa" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} />
           </div>
 

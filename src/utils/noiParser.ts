@@ -195,7 +195,7 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
 }
 
 /**
- * Парсить NoI вірш з Gitabase (UA)
+ * Парсить NoI вірш з Gitabase (UK)
  */
 export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | null {
   try {

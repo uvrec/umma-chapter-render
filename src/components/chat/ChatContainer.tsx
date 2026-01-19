@@ -14,7 +14,7 @@ interface ChatContainerProps {
   className?: string;
 }
 
-const WELCOME_MESSAGE_UA = `Харе Крішна! Я VedaVOICE — ваш помічник у вивченні вчень Шріли Прабгупади.
+const WELCOME_MESSAGE_UK = `Харе Крішна! Я VedaVOICE — ваш помічник у вивченні вчень Шріли Прабгупади.
 
 Я можу відповісти на ваші запитання, спираючись ВИКЛЮЧНО на праці Шріли Прабгупади:
 • Книги (Бгаґавад-ґіта, Шрімад-Бгаґаватам, Чайтанья-чарітамріта)
@@ -50,7 +50,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
       setMessages([{
         id: 'welcome',
         role: 'assistant',
-        content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
+        content: language === 'uk' ? WELCOME_MESSAGE_UK : WELCOME_MESSAGE_EN,
         createdAt: new Date(),
       }]);
     }
@@ -154,7 +154,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
     setMessages([{
       id: 'welcome',
       role: 'assistant',
-      content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
+      content: language === 'uk' ? WELCOME_MESSAGE_UK : WELCOME_MESSAGE_EN,
       createdAt: new Date(),
     }]);
     setSessionId(null);

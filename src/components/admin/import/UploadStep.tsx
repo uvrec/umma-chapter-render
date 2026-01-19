@@ -238,7 +238,7 @@ export function UploadStep({ onNext, onProgress, onError, statusText, errorText 
               className="h-4 w-4"
             />
             <Label htmlFor="source-gitabase" className="font-normal cursor-pointer">
-              Gitabase (UA) (скоро)
+              Gitabase (UK) (скоро)
             </Label>
           </div>
         </div>

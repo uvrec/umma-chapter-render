@@ -303,7 +303,7 @@ export default function UniversalImportFixed() {
       let result: any = null;
 
       // 🐍 Використовуємо локальний Python parser (обхід обмежень Puppeteer в Supabase)
-      if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUA) {
+      if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUK) {
         try {
           console.log("🐍 Using local Python parser (parse_server.py)");
           toast({ title: "🐍 Python парсер", description: "Звернення до локального parse_server.py..." });
@@ -419,7 +419,7 @@ export default function UniversalImportFixed() {
                   supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
                 ];
 
-                if (bookInfo.hasGitabaseUA) {
+                if (bookInfo.hasGitabaseUK) {
                   // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   // ⚠️ Для NoI (hasSpecialStructure): /NoI/{verseNumber} замість /NoI/{chapter}/{verseNumber}
                   // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
@@ -435,7 +435,7 @@ export default function UniversalImportFixed() {
 
                 const results = await Promise.allSettled(requests);
                 const vedabaseRes = results[0];
-                const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
+                const gitabaseRes = bookInfo.hasGitabaseUK ? results[1] : null;
 
                 console.log(`📊 Fetch results for verse ${t.lastPart}:`, {
                   vedabaseStatus: vedabaseRes.status,
@@ -445,7 +445,7 @@ export default function UniversalImportFixed() {
                 });
 
                 let parsedEN: any = null;
-                let parsedUA: any = null;
+                let parsedUK: any = null;
 
                 // ✅ NoI має спеціалізований парсер через іншу HTML структуру
                 const useNoIParser = (bookInfo as any).hasSpecialStructure;
@@ -464,7 +464,7 @@ export default function UniversalImportFixed() {
                 }
 
                 // ✅ Парсимо UA тільки якщо робили запит
-                if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+                if (bookInfo.hasGitabaseUK && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                   // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                   // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                   const gitabaseBookSlug = bookInfo.gitabaseSlug || vedabaseBook.toUpperCase();
@@ -476,19 +476,19 @@ export default function UniversalImportFixed() {
                   console.log(`🇺🇦 Parsing Gitabase for ${t.lastPart}:`, gitabaseUrl);
 
                   if (useNoIParser) {
-                    parsedUA = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
+                    parsedUK = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
                     console.log(`✅ [NoI] Gitabase parsed for ${t.lastPart}`);
                   } else {
-                    parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                    parsedUK = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                     console.log(`✅ Gitabase parsed for ${t.lastPart}:`, {
-                      hasSynonyms: !!parsedUA?.synonyms_uk,
-                      hasTranslation: !!parsedUA?.translation_uk,
-                      synonymsPreview: parsedUA?.synonyms_uk?.substring(0, 50),
+                      hasSynonyms: !!parsedUK?.synonyms_uk,
+                      hasTranslation: !!parsedUK?.translation_uk,
+                      synonymsPreview: parsedUK?.synonyms_uk?.substring(0, 50),
                     });
                   }
                 } else {
                   console.warn(`⚠️ Gitabase skipped for ${t.lastPart}:`, {
-                    hasGitabaseUA: bookInfo.hasGitabaseUA,
+                    hasGitabaseUK: bookInfo.hasGitabaseUK,
                     gitabaseResFulfilled: gitabaseRes?.status === "fulfilled",
                     gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                   });
@@ -497,12 +497,12 @@ export default function UniversalImportFixed() {
                 // ✅ Використовуємо новий merger для об'єднання EN + UA
                 const merged = mergeVedabaseAndGitabase(
                   parsedEN,
-                  parsedUA,
+                  parsedUK,
                   vedabaseCanto, // lila
                   chapterNum,
                   t.lastPart, // verse number
                   vedabaseUrl,
-                  bookInfo.hasGitabaseUA
+                  bookInfo.hasGitabaseUK
                     ? // ✅ ВИПРАВЛЕНО: використовуємо t.lastPart для підтримки складених віршів (263-264)
                       // ⚠️ Для NoI (hasSpecialStructure): /NoI/{verseNumber} замість /NoI/{chapter}/{verseNumber}
                       // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
@@ -559,7 +559,7 @@ export default function UniversalImportFixed() {
                 supabase.functions.invoke("fetch-html", { body: { url: vedabaseUrl } }),
               ];
 
-              if (bookInfo.hasGitabaseUA) {
+              if (bookInfo.hasGitabaseUK) {
                 // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                 const gitabaseBookSlug = bookInfo.gitabaseSlug || vedabaseBook.toUpperCase();
                 const gitabaseUrl = bookInfo.isMultiVolume
@@ -573,7 +573,7 @@ export default function UniversalImportFixed() {
 
               const results = await Promise.allSettled(requests);
               const vedabaseRes = results[0];
-              const gitabaseRes = bookInfo.hasGitabaseUA ? results[1] : null;
+              const gitabaseRes = bookInfo.hasGitabaseUK ? results[1] : null;
 
               console.log(`📊 [Fallback] Fetch results for verse ${v}:`, {
                 vedabaseStatus: vedabaseRes.status,
@@ -583,7 +583,7 @@ export default function UniversalImportFixed() {
               });
 
               let parsedEN: any = null;
-              let parsedUA: any = null;
+              let parsedUK: any = null;
 
               // ✅ NoI має спеціалізований парсер
               const useNoIParser = (bookInfo as any).hasSpecialStructure;
@@ -597,7 +597,7 @@ export default function UniversalImportFixed() {
               }
 
               // ✅ Парсимо UA тільки якщо робили запит
-              if (bookInfo.hasGitabaseUA && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
+              if (bookInfo.hasGitabaseUK && gitabaseRes?.status === "fulfilled" && gitabaseRes.value.data) {
                 // ⚠️ Для NoI (hasSpecialStructure): /NoI/{v} замість /NoI/{chapter}/{v}
                 // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                 const gitabaseBookSlug = bookInfo.gitabaseSlug || vedabaseBook.toUpperCase();
@@ -609,13 +609,13 @@ export default function UniversalImportFixed() {
                 console.log(`🇺🇦 [Fallback] Parsing Gitabase for ${v}:`, gitabaseUrl);
 
                 if (useNoIParser) {
-                  parsedUA = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
+                  parsedUK = parseNoIGitabase(gitabaseRes.value.data.html, gitabaseUrl);
                 } else {
-                  parsedUA = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
+                  parsedUK = parseGitabaseCC(gitabaseRes.value.data.html, gitabaseUrl);
                 }
               } else {
                 console.warn(`⚠️ [Fallback] Gitabase skipped for ${v}:`, {
-                  hasGitabaseUA: bookInfo.hasGitabaseUA,
+                  hasGitabaseUK: bookInfo.hasGitabaseUK,
                   gitabaseResFulfilled: gitabaseRes?.status === "fulfilled",
                   gitabaseHasData: gitabaseRes?.status === "fulfilled" && !!gitabaseRes?.value?.data,
                 });
@@ -624,12 +624,12 @@ export default function UniversalImportFixed() {
               // ✅ Використовуємо новий merger для об'єднання EN + UA
               const merged = mergeVedabaseAndGitabase(
                 parsedEN,
-                parsedUA,
+                parsedUK,
                 vedabaseCanto, // lila
                 chapterNum,
                 String(v), // verse number
                 vedabaseUrl,
-                bookInfo.hasGitabaseUA
+                bookInfo.hasGitabaseUK
                   ? // ⚠️ Для NoI (hasSpecialStructure): /NoI/{v} замість /NoI/{chapter}/{v}
                     // ✅ FIX: Використовуємо bookInfo.gitabaseSlug для правильного регістру (NoI, не NOI)
                     bookInfo.isMultiVolume
@@ -858,7 +858,7 @@ export default function UniversalImportFixed() {
           let result: any = null;
 
           // Спробуємо Python parser якщо доступний
-          if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUA) {
+          if (USE_LOCAL_PARSER && bookInfo.hasGitabaseUK) {
             try {
               result = await parseChapterWithPythonServer({
                 lila: lilaNum,
@@ -2217,7 +2217,7 @@ export default function UniversalImportFixed() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Назва глави (UA)</Label>
+                  <Label>Назва глави (UK)</Label>
                   <Input
                     value={importData.metadata.title_uk}
                     onChange={(e) =>
@@ -2586,7 +2586,7 @@ export default function UniversalImportFixed() {
                               <strong>Номер:</strong> {parsedChapters[selectedChapterIndex].chapter_number}
                             </p>
                             <p>
-                              <strong>Назва (UA):</strong>{" "}
+                              <strong>Назва (UK):</strong>{" "}
                               {parsedChapters[selectedChapterIndex].title_uk || "Не вказано"}
                             </p>
                             <p>
@@ -2622,7 +2622,7 @@ export default function UniversalImportFixed() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label>Назва розділу (UA) - необов'язково</Label>
+                          <Label>Назва розділу (UK) - необов'язково</Label>
                           <Input
                             value={importData.metadata.title_uk}
                             onChange={(e) =>
@@ -2741,7 +2741,7 @@ export default function UniversalImportFixed() {
                     Завантажити Intro EN
                   </Button>
                 </div>
-                <Label>Intro (UA)</Label>
+                <Label>Intro (UK)</Label>
                 <Textarea
                   value={importData.chapters[0]?.intro_uk || ""}
                   onChange={(e) =>
@@ -2783,7 +2783,7 @@ export default function UniversalImportFixed() {
             <TabsContent value="normalize" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Нормалізація послівних термінів (UA)</CardTitle>
+                  <CardTitle>Нормалізація послівних термінів (UK)</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3">

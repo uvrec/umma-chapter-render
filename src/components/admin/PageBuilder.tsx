@@ -239,7 +239,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       </Select>
                     </div>
                     <div>
-                      <Label>Текст (UA)</Label>
+                      <Label>Текст (UK)</Label>
                       <Input
                         value={block.content.text_uk || ""}
                         onChange={(e) => updateBlock(block.id, { content: { ...block.content, text_uk: e.target.value } })}
@@ -284,7 +284,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Переклад (UA)</Label>
+                      <Label>Переклад (UK)</Label>
                       <TiptapEditor
                         content={block.content.translation_uk || ""}
                         onChange={(val) => updateBlock(block.id, { content: { ...block.content, translation_uk: val } })}
@@ -298,7 +298,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Коментар (UA)</Label>
+                      <Label>Коментар (UK)</Label>
                       <TiptapEditor
                         content={block.content.commentary_uk || ""}
                         onChange={(val) => updateBlock(block.id, { content: { ...block.content, commentary_uk: val } })}
@@ -349,7 +349,7 @@ export function PageBuilder({ sections, onChange }: PageBuilderProps) {
                       />
                     </div>
                     <div>
-                      <Label>Підпис (UA)</Label>
+                      <Label>Підпис (UK)</Label>
                       <Input
                         value={block.content.caption_uk || ""}
                         onChange={(e) => updateBlock(block.id, { content: { ...block.content, caption_uk: e.target.value } })}

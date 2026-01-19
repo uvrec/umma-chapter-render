@@ -297,7 +297,7 @@ export default function BlogPost() {
   const enUrl = `${SITE_CONFIG.baseUrl}/en/blog/${slug}`;
   const currentUrl = language === "uk" ? uaUrl : enUrl;
   const htmlLang = language === "uk" ? "uk" : "en";
-  const ogLocale = language === "uk" ? "uk_UA" : "en_US";
+  const ogLocale = language === "uk" ? "uk_UK" : "en_US";
 
   return (
     <div className="min-h-screen bg-background">
@@ -462,7 +462,7 @@ export default function BlogPost() {
                       <EnhancedInlineEditor
                         content={contentUa}
                         onChange={(value) => handleContentUpdate("content_uk", value)}
-                        label="Контент (UA)"
+                        label="Контент (UK)"
                       />
                     ) : (
                       <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
@@ -610,7 +610,7 @@ export default function BlogPost() {
                       <EnhancedInlineEditor
                         content={contentUa}
                         onChange={(value) => handleContentUpdate("content_uk", value)}
-                        label="Контент (UA)"
+                        label="Контент (UK)"
                       />
                     ) : (
                       <TiptapRenderer content={contentUa} displayBlocks={displayBlocks} className="!max-w-none" />
