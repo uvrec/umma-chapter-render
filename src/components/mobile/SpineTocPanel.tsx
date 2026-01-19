@@ -2,14 +2,16 @@
 // Table of Contents panel for Spine Navigation
 // Список книг та глав у стилі Neu Bible
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useBooksContext } from "@/contexts/BooksContext";
+import { useBooks } from "@/contexts/BooksContext";
 import { cn } from "@/lib/utils";
 import { Book, ChevronRight, BookOpen } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SpineTocPanelProps {
   open: boolean;
@@ -21,7 +23,21 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
   const { t, language, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const { books, getChaptersCount, hasCantoStructure } = useBooksContext();
+  const { hasCantoStructure } = useBooks();
+
+  // Fetch books from database
+  const { data: books } = useQuery({
+    queryKey: ["books-toc"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("books")
+        .select("id, slug, title_uk, title_en, has_cantos, display_category, display_order")
+        .eq("is_published", true)
+        .order("display_order");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const handleBookClick = (bookId: string) => {
     navigate(getLocalizedPath(`/lib/${bookId}`));
@@ -36,7 +52,7 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
 
     books.forEach((book) => {
       // Use category or default to "Книги" / "Books"
-      const category = book.category || t("Книги", "Books");
+      const category = book.display_category || t("Книги", "Books");
       if (!groups[category]) {
         groups[category] = [];
       }
@@ -74,16 +90,15 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
                 <div className="space-y-0.5">
                   {categoryBooks.map((book) => {
                     const bookName = language === "uk"
-                      ? (book.name_uk || book.name_en || book.id)
-                      : (book.name_en || book.name_uk || book.id);
-                    const chaptersCount = getChaptersCount?.(book.id) || book.total_chapters;
-                    const hasCanto = hasCantoStructure?.(book.id);
-                    const isCurrentBook = currentBookId === book.id;
+                      ? (book.title_uk || book.title_en || book.slug)
+                      : (book.title_en || book.title_uk || book.slug);
+                    const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
+                    const isCurrentBook = currentBookId === book.slug;
 
                     return (
                       <button
                         key={book.id}
-                        onClick={() => handleBookClick(book.id)}
+                        onClick={() => handleBookClick(book.slug)}
                         className={cn(
                           "w-full flex items-start gap-3 px-4 py-3 text-left",
                           "hover:bg-muted/50 active:bg-muted transition-colors",
@@ -108,12 +123,9 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
                           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                             <BookOpen className="h-3 w-3" />
                             <span>
-                              {chaptersCount
-                                ? `${chaptersCount} ${hasCanto
-                                    ? t("пісень", "cantos")
-                                    : t("глав", "chapters")
-                                  }`
-                                : t("...", "...")}
+                              {hasCanto
+                                ? t("Пісні", "Cantos")
+                                : t("Глави", "Chapters")}
                             </span>
                           </div>
                         </div>

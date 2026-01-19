@@ -1403,7 +1403,7 @@ export const VedaReaderDB = () => {
               </Button>
             </div>
           </div> : continuousReadingSettings.enabled ? <div className="space-y-8">
-            {verses.map(verse => {
+            {verses.filter(Boolean).map(verse => {
           const verseIdx = getDisplayVerseNumber(verse.verse_number);
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
 

@@ -15,7 +15,10 @@
     "ios": "npx cap open ios",
     "android:run": "npx cap run android",
     "ios:run": "npx cap run ios",
-    "assets:generate": "npx capacitor-assets generate --assetPath assets"
+    "assets:generate": "npx capacitor-assets generate --assetPath assets",
+    "sitemap": "npx tsx scripts/generate-sitemap.ts",
+    "prebuild": "bash scripts/prebuild.sh || true",
+    "build:sitemap": "npm run sitemap && npm run build"
   },
   "dependencies": {
     "@bidyashish/panchang": "^1.0.10",

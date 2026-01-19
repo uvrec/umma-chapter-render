@@ -31,25 +31,25 @@ const fastingLevelInfo: Record<
   { uk: string; en: string; color: string; bgColor: string }
 > = {
   nirjala: {
-    ua: "Ніржала (без води)",
+    uk: "Ніржала (без води)",
     en: "Nirjala (no water)",
     color: "text-red-700 dark:text-red-300",
     bgColor: "bg-red-100 dark:bg-red-900/50",
   },
   full: {
-    ua: "Повний піст",
+    uk: "Повний піст",
     en: "Full fast",
     color: "text-orange-700 dark:text-orange-300",
     bgColor: "bg-orange-100 dark:bg-orange-900/50",
   },
   half: {
-    ua: "Половинний піст",
+    uk: "Половинний піст",
     en: "Half fast",
     color: "text-yellow-700 dark:text-yellow-300",
     bgColor: "bg-yellow-100 dark:bg-yellow-900/50",
   },
   none: {
-    ua: "Без посту",
+    uk: "Без посту",
     en: "No fasting",
     color: "text-green-700 dark:text-green-300",
     bgColor: "bg-green-100 dark:bg-green-900/50",

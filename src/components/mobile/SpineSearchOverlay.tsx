@@ -4,11 +4,11 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { X, Search, Book, Hash, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
-import { useBooksContext } from "@/contexts/BooksContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchResult {
@@ -31,7 +31,20 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { t, getLocalizedPath, language } = useLanguage();
-  const { books } = useBooksContext();
+
+  // Fetch books for search
+  const { data: books } = useQuery({
+    queryKey: ["books-search"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("books")
+        .select("id, slug, title_uk, title_en")
+        .eq("is_published", true)
+        .order("display_order");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   // Focus input when overlay opens
   useEffect(() => {
@@ -54,18 +67,17 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
     // 1. Search books by name
     if (books) {
       const matchingBooks = books.filter(book =>
-        book.name_uk?.toLowerCase().includes(searchLower) ||
-        book.name_en?.toLowerCase().includes(searchLower) ||
-        book.id.toLowerCase().includes(searchLower)
+        book.title_uk?.toLowerCase().includes(searchLower) ||
+        book.title_en?.toLowerCase().includes(searchLower) ||
+        book.slug.toLowerCase().includes(searchLower)
       ).slice(0, 5);
 
       matchingBooks.forEach(book => {
         newResults.push({
           type: "book",
           id: book.id,
-          title: language === "uk" ? (book.name_uk || book.name_en || book.id) : (book.name_en || book.name_uk || book.id),
-          subtitle: book.author_uk || book.author_en,
-          path: getLocalizedPath(`/lib/${book.id}`),
+          title: language === "uk" ? (book.title_uk || book.title_en || book.slug) : (book.title_en || book.title_uk || book.slug),
+          path: getLocalizedPath(`/lib/${book.slug}`),
         });
       });
     }
@@ -78,17 +90,17 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
 
       // Try to find matching book
       const matchedBook = books?.find(b =>
-        b.id.toLowerCase().includes(bookId) ||
-        b.name_en?.toLowerCase().includes(bookRef.toLowerCase())
+        b.slug.toLowerCase().includes(bookId) ||
+        b.title_en?.toLowerCase().includes(bookRef.toLowerCase())
       );
 
       if (matchedBook) {
         newResults.unshift({
           type: "verse",
-          id: `${matchedBook.id}-${chapter}-${verse}`,
-          title: `${language === "uk" ? matchedBook.name_uk : matchedBook.name_en} ${chapter}.${verse}`,
+          id: `${matchedBook.slug}-${chapter}-${verse}`,
+          title: `${language === "uk" ? matchedBook.title_uk : matchedBook.title_en} ${chapter}.${verse}`,
           subtitle: t("Перейти до вірша", "Go to verse"),
-          path: getLocalizedPath(`/lib/${matchedBook.id}/${chapter}/${verse}`),
+          path: getLocalizedPath(`/lib/${matchedBook.slug}/${chapter}/${verse}`),
         });
       }
     }
@@ -115,13 +127,22 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
               const translation = language === "uk" ? verse.translation_uk : verse.translation_en;
               const preview = translation?.substring(0, 60) + (translation && translation.length > 60 ? "..." : "");
 
-              newResults.push({
-                type: "keyword",
-                id: verse.id,
-                title: `${chapterData.book_id} ${chapterData.chapter_number}.${verse.verse_number}`,
-                subtitle: preview,
-                path: getLocalizedPath(`/lib/${chapterData.book_id}/${chapterData.chapter_number}/${verse.verse_number}`),
-              });
+              // Get book slug
+              const { data: bookData } = await supabase
+                .from("books")
+                .select("slug")
+                .eq("id", chapterData.book_id)
+                .single();
+
+              if (bookData) {
+                newResults.push({
+                  type: "keyword",
+                  id: verse.id,
+                  title: `${bookData.slug.toUpperCase()} ${chapterData.chapter_number}.${verse.verse_number}`,
+                  subtitle: preview,
+                  path: getLocalizedPath(`/lib/${bookData.slug}/${chapterData.chapter_number}/${verse.verse_number}`),
+                });
+              }
             }
           }
         }

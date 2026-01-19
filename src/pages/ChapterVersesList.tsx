@@ -19,6 +19,10 @@ import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
+import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
+import { getChapterOgImage } from "@/utils/og-image";
+import { Helmet } from "react-helmet-async";
+import { SITE_CONFIG } from "@/lib/constants";
 
 // Type for verse data
 interface Verse {
@@ -234,6 +238,32 @@ export const ChapterVersesList = () => {
   const cantoTitle = canto ? language === "uk" ? canto.title_uk : canto.title_en : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
   const chapterTitle = effectiveChapterObj && "title_uk" in effectiveChapterObj ? language === "uk" ? effectiveChapterObj.title_uk : effectiveChapterObj.title_en : null;
+
+  // SEO metadata
+  const chapterPath = isCantoMode
+    ? `/${language}/lib/${bookId}/${cantoNumber}/${chapterNumber}`
+    : `/${language}/lib/${bookId}/${chapterNumber}`;
+  const canonicalUrl = `${SITE_CONFIG.baseUrl}${chapterPath}`;
+  const alternateUkUrl = isCantoMode
+    ? `${SITE_CONFIG.baseUrl}/uk/lib/${bookId}/${cantoNumber}/${chapterNumber}`
+    : `${SITE_CONFIG.baseUrl}/uk/lib/${bookId}/${chapterNumber}`;
+  const alternateEnUrl = isCantoMode
+    ? `${SITE_CONFIG.baseUrl}/en/lib/${bookId}/${cantoNumber}/${chapterNumber}`
+    : `${SITE_CONFIG.baseUrl}/en/lib/${bookId}/${chapterNumber}`;
+  const ogImage = getChapterOgImage(
+    bookId || '',
+    bookTitle || '',
+    parseInt(chapterNumber || '1'),
+    chapterTitle || '',
+    cantoNumber ? parseInt(cantoNumber) : undefined,
+    language
+  );
+  const pageTitle = cantoTitle
+    ? `${bookTitle} - ${cantoTitle} - ${chapterTitle}`
+    : `${bookTitle} - ${chapterTitle}`;
+  const pageDescription = language === "uk"
+    ? `${chapterTitle || `Глава ${chapterNumber}`} з ${bookTitle}${cantoTitle ? ` (${cantoTitle})` : ''}`
+    : `${chapterTitle || `Chapter ${chapterNumber}`} from ${bookTitle}${cantoTitle ? ` (${cantoTitle})` : ''}`;
   const saveContentMutation = useMutation({
     mutationFn: async () => {
       if (!effectiveChapterObj || !("id" in effectiveChapterObj)) return;
@@ -329,7 +359,55 @@ export const ChapterVersesList = () => {
         <Footer />
       </div>;
   }
+  // Build breadcrumb items
+  const breadcrumbItems = [
+    { name: language === "uk" ? "Головна" : "Home", url: `/${language}` },
+    { name: language === "uk" ? "Бібліотека" : "Library", url: `/${language}/library` },
+    { name: bookTitle || '', url: `/${language}/lib/${bookId}` },
+  ];
+  if (isCantoMode && cantoTitle) {
+    breadcrumbItems.push({ name: cantoTitle, url: `/${language}/lib/${bookId}/${cantoNumber}` });
+  }
+  breadcrumbItems.push({ name: chapterTitle || `${language === "uk" ? "Глава" : "Chapter"} ${chapterNumber}`, url: chapterPath });
+
   return <div className="flex min-h-screen flex-col">
+      {/* SEO Metadata */}
+      <Helmet>
+        <title>{pageTitle} | {SITE_CONFIG.siteName}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="uk" href={alternateUkUrl} />
+        <link rel="alternate" hrefLang="en" href={alternateEnUrl} />
+        <link rel="alternate" hrefLang="x-default" href={alternateUkUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:site_name" content={SITE_CONFIG.siteName} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta name="twitter:image" content={ogImage} />
+      </Helmet>
+
+      {/* Structured Data */}
+      {book && effectiveChapterObj && (
+        <>
+          <ChapterSchema
+            bookSlug={bookId || ''}
+            bookTitle={bookTitle || ''}
+            chapterNumber={parseInt(chapterNumber || '1')}
+            chapterTitle={chapterTitle || ''}
+            cantoNumber={cantoNumber ? parseInt(cantoNumber) : undefined}
+            cantoTitle={cantoTitle || undefined}
+            description={pageDescription}
+            language={language}
+          />
+          <BreadcrumbSchema items={breadcrumbItems} />
+        </>
+      )}
+
       <Header />
       <main className="flex-1 bg-background py-4 sm:py-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">

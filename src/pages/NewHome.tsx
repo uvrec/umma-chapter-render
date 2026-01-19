@@ -11,6 +11,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { WebsiteSchema, OrganizationSchema } from "@/components/StructuredData";
+import { Helmet } from "react-helmet-async";
+import { SITE_CONFIG } from "@/lib/constants";
 import { InlineBannerEditor } from "@/components/InlineBannerEditor";
 import { Button } from "@/components/ui/button";
 import { DailyQuoteBanner } from "@/components/DailyQuoteBanner";
@@ -472,7 +475,41 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
+  const { language } = useLanguage();
+
+  const title = language === 'uk'
+    ? "Прабгупада солов'їною — Ведичні писання українською"
+    : "Vedavoice — Vedic scriptures in Ukrainian";
+  const description = language === 'uk'
+    ? "Бгаґавад-ґіта, Шрімад-Бгаґаватам та інші священні тексти ведичної традиції українською мовою з коментарями Шріли Прабгупади."
+    : "Bhagavad-gita, Srimad-Bhagavatam and other sacred texts of the Vedic tradition in Ukrainian with Srila Prabhupada's commentaries.";
+  const canonicalUrl = `${SITE_CONFIG.baseUrl}/${language}`;
+
   return <div className="min-h-screen bg-background">
+      {/* SEO Metadata */}
+      <Helmet>
+        <title>{title}</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hrefLang="uk" href={`${SITE_CONFIG.baseUrl}/uk`} />
+        <link rel="alternate" hrefLang="en" href={`${SITE_CONFIG.baseUrl}/en`} />
+        <link rel="alternate" hrefLang="x-default" href={`${SITE_CONFIG.baseUrl}/uk`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={SITE_CONFIG.socialImage} />
+        <meta property="og:site_name" content={SITE_CONFIG.siteName} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={SITE_CONFIG.socialImage} />
+      </Helmet>
+
+      {/* Structured Data */}
+      <WebsiteSchema />
+      <OrganizationSchema language={language} />
+
       <Header />
       <main>
         <Hero />

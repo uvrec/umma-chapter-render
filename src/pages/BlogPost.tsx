@@ -25,6 +25,7 @@ import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { SITE_CONFIG } from "@/lib/constants";
+import { BlogPostSchema, BreadcrumbSchema } from "@/components/StructuredData";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -87,12 +88,6 @@ export default function BlogPost() {
           synonyms_en,
           poetry_translation_uk,
           poetry_translation_en,
-          audio_sanskrit_url,
-          audio_transliteration_url,
-          audio_poetry_translation_uk_url,
-          audio_poetry_translation_en_url,
-          audio_commentary_uk_url,
-          audio_commentary_en_url,
           category:blog_categories(name_uk, name_en),
           tags:blog_post_tags(tag:blog_tags(name_uk, name_en, slug))
         `,
@@ -330,6 +325,30 @@ export default function BlogPost() {
         <meta name="twitter:image" content={post.featured_image || SITE_CONFIG.socialImage} />
       </Helmet>
 
+      {/* Structured Data */}
+      <BlogPostSchema
+        slug={slug || ''}
+        title={title || ''}
+        excerpt={excerpt || undefined}
+        coverImage={post.featured_image || undefined}
+        authorName={post.author_display_name || undefined}
+        publishedAt={post.published_at || post.created_at}
+        updatedAt={post.updated_at || undefined}
+        tags={post.tags?.map((t: any) => language === 'uk' ? t.tag?.name_uk : t.tag?.name_en).filter(Boolean)}
+        language={language}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: language === 'uk' ? 'Головна' : 'Home', url: `/${language}` },
+          { name: language === 'uk' ? 'Блог' : 'Blog', url: `/${language}/blog` },
+          ...(post.category ? [{
+            name: language === 'uk' ? post.category.name_uk : post.category.name_en,
+            url: `/${language}/blog?category=${post.category_id}`
+          }] : []),
+          { name: title || '', url: `/${language}/blog/${slug}` },
+        ]}
+      />
+
       <Header />
 
       <article className="container mx-auto py-8">
@@ -451,10 +470,6 @@ export default function BlogPost() {
                         synonyms={post.synonyms_uk}
                         poetryTranslation={post.poetry_translation_uk}
                         commentary={contentUa}
-                        audioSanskritUrl={post.audio_sanskrit_url}
-                        audioTransliterationUrl={post.audio_transliteration_url}
-                        audioPoetryTranslationUrl={post.audio_poetry_translation_uk_url}
-                        audioCommentaryUrl={post.audio_commentary_uk_url}
                         displayBlocks={displayBlocks}
                         language="uk"
                       />
@@ -517,10 +532,6 @@ export default function BlogPost() {
                         synonyms={post.synonyms_en}
                         poetryTranslation={post.poetry_translation_en}
                         commentary={contentEn}
-                        audioSanskritUrl={post.audio_sanskrit_url}
-                        audioTransliterationUrl={post.audio_transliteration_url}
-                        audioPoetryTranslationUrl={post.audio_poetry_translation_en_url}
-                        audioCommentaryUrl={post.audio_commentary_en_url}
                         displayBlocks={displayBlocks}
                         language="en"
                       />
@@ -599,10 +610,6 @@ export default function BlogPost() {
                         synonyms={post.synonyms_uk}
                         poetryTranslation={post.poetry_translation_uk}
                         commentary={contentUa}
-                        audioSanskritUrl={post.audio_sanskrit_url}
-                        audioTransliterationUrl={post.audio_transliteration_url}
-                        audioPoetryTranslationUrl={post.audio_poetry_translation_uk_url}
-                        audioCommentaryUrl={post.audio_commentary_uk_url}
                         displayBlocks={displayBlocks}
                         language="uk"
                       />
