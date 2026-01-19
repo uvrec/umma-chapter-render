@@ -281,6 +281,10 @@ mark {
   padding-left: env(safe-area-inset-left, 0);
 }
 
+.safe-right {
+  padding-right: env(safe-area-inset-right, 0);
+}
+
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
@@ -295,7 +299,7 @@ mark {
 }
 
 [data-fullscreen-reading="true"] .mobile-layout > div {
-  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* Zen mode - hide spine too */
@@ -304,7 +308,7 @@ mark {
 }
 
 [data-zen-mode="true"] .mobile-layout > div {
-  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* Animation for spine panels */

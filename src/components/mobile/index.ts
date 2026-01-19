@@ -10,3 +10,4 @@ export { SpineTypographyPanel } from "./SpineTypographyPanel";
 export { SpineSearchOverlay } from "./SpineSearchOverlay";
 export { SpineSettingsPanel } from "./SpineSettingsPanel";
 export { SpineTocPanel } from "./SpineTocPanel";
+export { VerseNavigator } from "./VerseNavigator";
