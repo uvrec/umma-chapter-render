@@ -13,7 +13,7 @@ interface GitabaseVerseData {
   transliteration_uk: string; // Транслітерація ПІСЛЯ normalizeText + convertIASTtoUkrainian
   synonyms_uk: string;         // Послівний переклад ПІСЛЯ normalizeText
   translation_uk: string;      // Переклад ПІСЛЯ normalizeText
-  purport_uk: string;          // Пояснення ПІСЛЯ normalizeText
+  commentary_uk: string;          // Пояснення ПІСЛЯ normalizeText
   lila: string;                // '1'=Adi, '2'=Madhya, '3'=Antya
   chapter: number;
   verse: number | string;      // ✅ може бути "263-264" для складених віршів
@@ -176,7 +176,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
       : '';
 
     // Пояснення: українська нормалізація
-    const purport_uk = purport_raw 
+    const commentary_uk = purport_raw 
       ? normalizeVerseField(purport_raw, 'commentary')
       : '';
 
@@ -190,7 +190,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
       transliteration_uk,
       synonyms_uk,
       translation_uk,
-      purport_uk,
+      commentary_uk,
       lila,
       chapter,
       verse,

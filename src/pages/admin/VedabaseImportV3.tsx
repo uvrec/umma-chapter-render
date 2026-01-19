@@ -657,7 +657,7 @@ export default function VedabaseImportV3() {
             // Замість цього конвертуємо IAST з Vedabase нижче
             synonymsUA = data?.synonyms_uk || "";
             translationUA = data?.translation_uk || "";
-            purportUA = data?.purport_uk || "";
+            purportUA = data?.commentary_uk || "";
 
             await new Promise((r) => setTimeout(r, 500));
           } catch (e: any) {

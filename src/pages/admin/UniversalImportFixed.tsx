@@ -525,8 +525,8 @@ export default function UniversalImportFixed() {
                     synonyms_uk: merged.synonyms_uk || "",
                     translation_en: merged.translation_en || "",
                     translation_uk: merged.translation_uk || "",
-                    commentary_en: merged.purport_en || "",
-                    commentary_uk: merged.purport_uk || "",
+                    commentary_en: merged.commentary_en || "",
+                    commentary_uk: merged.commentary_uk || "",
                   });
                 } else {
                   console.log(`⏭️ Пропускаю сегмент ${t.lastPart} (немає контенту)`);
@@ -650,8 +650,8 @@ export default function UniversalImportFixed() {
                   synonyms_uk: merged.synonyms_uk || "",
                   translation_en: merged.translation_en || "",
                   translation_uk: merged.translation_uk || "",
-                  commentary_en: merged.purport_en || "",
-                  commentary_uk: merged.purport_uk || "",
+                  commentary_en: merged.commentary_en || "",
+                  commentary_uk: merged.commentary_uk || "",
                 });
               }
             } catch (e: any) {
@@ -684,7 +684,7 @@ export default function UniversalImportFixed() {
                 v.transliteration_en = v.transliteration_en || parsed.transliteration_en || "";
                 v.synonyms_en = v.synonyms_en || parsed.synonyms_en || "";
                 v.translation_en = v.translation_en || parsed.translation_en || "";
-                v.commentary_en = v.commentary_en || parsed.purport_en || "";
+                v.commentary_en = v.commentary_en || parsed.commentary_en || "";
               }
             } catch (e) {
               console.warn("EN fill fail for verse", v?.verse_number, e);

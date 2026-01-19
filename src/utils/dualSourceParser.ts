@@ -14,14 +14,14 @@ interface VedabaseData {
   transliteration_en: string; // IAST
   synonyms_en: string;
   translation_en: string;
-  purport_en: string;
+  commentary_en: string;
 }
 
 interface GitabaseData {
   transliteration_uk: string; // може бути зіпсована
   synonyms_uk: string; // може бути зіпсована
   translation_uk: string;
-  purport_uk: string;
+  commentary_uk: string;
 }
 
 interface MergedVerseData {
@@ -32,8 +32,8 @@ interface MergedVerseData {
   synonyms_uk: string; // конвертовані терміни + українські переклади
   translation_en: string;
   translation_uk: string;
-  purport_en: string;
-  purport_uk: string;
+  commentary_en: string;
+  commentary_uk: string;
   lila: string;
   chapter: number;
   verse: number | string;
@@ -255,7 +255,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
     }
 
     // Purport (English)
-    let purport_en = '';
+    let commentary_en = '';
     const purportContainer = doc.querySelector('.av-purport');
     if (purportContainer) {
       // ✅ FIX: Беремо тільки прямі дочірні <p> щоб уникнути дублювання
@@ -278,7 +278,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
         }
       });
 
-      purport_en = parts.join('\n\n');
+      commentary_en = parts.join('\n\n');
     }
 
     if (!transliteration_en && !translation_en) {
@@ -296,7 +296,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
       transliteration_en,
       synonyms_en,
       translation_en,
-      purport_en
+      commentary_en
     };
 
   } catch (error) {
@@ -336,7 +336,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
 
     let synonyms_uk = '';
     let translation_uk = '';
-    let purport_uk = '';
+    let commentary_uk = '';
 
     // ТОЧНІ СЕЛЕКТОРИ З GITABASE (підтверджені користувачем):
     // 1. Синоніми: div.dia_text
@@ -408,8 +408,8 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
         }
       });
 
-      purport_uk = parts.join('\n\n');
-      if (DEBUG) console.log(`[Gitabase] Found purport_uk from EXACT selector (${purport_uk.length} chars total, ${parts.length} unique paragraphs)`);
+      commentary_uk = parts.join('\n\n');
+      if (DEBUG) console.log(`[Gitabase] Found commentary_uk from EXACT selector (${commentary_uk.length} chars total, ${parts.length} unique paragraphs)`);
     } else {
       if (DEBUG) console.warn('[Gitabase] EXACT commentary selector NOT FOUND, trying fallback div.row');
 
@@ -432,8 +432,8 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       }
 
       if (commentaryParts.length > 0) {
-        purport_uk = commentaryParts.join('\n\n');
-        if (DEBUG) console.log(`[Gitabase] Found purport_uk via fallback (${purport_uk.length} chars, ${commentaryParts.length} unique paragraphs)`);
+        commentary_uk = commentaryParts.join('\n\n');
+        if (DEBUG) console.log(`[Gitabase] Found commentary_uk via fallback (${commentary_uk.length} chars, ${commentaryParts.length} unique paragraphs)`);
       }
     }
 
@@ -441,10 +441,10 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       console.log(`[Gitabase] FINAL RESULTS:`, {
         hasSynonyms: !!synonyms_uk,
         hasTranslation: !!translation_uk,
-        hasCommentary: !!purport_uk,
+        hasCommentary: !!commentary_uk,
         synonymsLength: synonyms_uk.length,
         translationLength: translation_uk.length,
-        commentaryLength: purport_uk.length,
+        commentaryLength: commentary_uk.length,
       });
     }
 
@@ -452,7 +452,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       transliteration_uk: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього
       synonyms_uk,
       translation_uk,
-      purport_uk
+      commentary_uk
     };
 
   } catch (error) {
@@ -581,8 +581,8 @@ export function mergeVedabaseAndGitabase(
     synonyms_uk: normalizedSynonymsUa, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
     translation_en: normalizeVerseField(vedabase.translation_en, 'translation'),
     translation_uk: normalizeVerseField(gitabase?.translation_uk || '', 'translation'),
-    purport_en: normalizeVerseField(vedabase.purport_en, 'commentary'),
-    purport_uk: normalizeVerseField(gitabase?.purport_uk || '', 'commentary'),
+    commentary_en: normalizeVerseField(vedabase.commentary_en, 'commentary'),
+    commentary_uk: normalizeVerseField(gitabase?.commentary_uk || '', 'commentary'),
     lila,
     chapter,
     verse,

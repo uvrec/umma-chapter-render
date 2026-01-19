@@ -10,13 +10,13 @@ export interface NoIVerseData {
   transliteration_en: string;
   synonyms_en: string;
   translation_en: string;
-  purport_en: string;
+  commentary_en: string;
 }
 
 export interface NoIVerseDataUA {
   synonyms_uk: string;
   translation_uk: string;
-  purport_uk: string;
+  commentary_uk: string;
 }
 
 /**
@@ -74,7 +74,7 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
     let transliteration_en = '';
     let synonyms_en = '';
     let translation_en = '';
-    let purport_en = '';
+    let commentary_en = '';
 
     // 1. SANSKRIT/BENGALI - NoI використовує просто .av-bengali (без вкладеного div)
     const bengaliEl = doc.querySelector('.av-bengali');
@@ -160,8 +160,8 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
         }
       });
 
-      purport_en = parts.join('\n\n');
-      console.log(`✅ [NoI] Found purport (${purport_en.length} chars, ${parts.length} paragraphs)`);
+      commentary_en = parts.join('\n\n');
+      console.log(`✅ [NoI] Found purport (${commentary_en.length} chars, ${parts.length} paragraphs)`);
     } else {
       console.warn('⚠️ [NoI] Purport not found');
     }
@@ -185,7 +185,7 @@ export function parseNoIVedabase(html: string, url: string): NoIVerseData | null
       transliteration_en,
       synonyms_en,
       translation_en,
-      purport_en
+      commentary_en
     };
 
   } catch (error) {
@@ -204,7 +204,7 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
 
     let synonyms_uk = '';
     let translation_uk = '';
-    let purport_uk = '';
+    let commentary_uk = '';
 
     console.log(`[NoI Gitabase] Parsing ${url}`);
     console.log(`[NoI Gitabase] HTML length: ${html?.length || 0} chars`);
@@ -311,11 +311,11 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
       }
     });
 
-    purport_uk = parts.join('\n\n');
-    console.log(`✅ [NoI UA] Found purport (${purport_uk.length} chars, ${parts.length} unique paragraphs)`);
+    commentary_uk = parts.join('\n\n');
+    console.log(`✅ [NoI UA] Found purport (${commentary_uk.length} chars, ${parts.length} unique paragraphs)`);
 
     // Перевірка
-    if (!synonyms_uk && !translation_uk && !purport_uk) {
+    if (!synonyms_uk && !translation_uk && !commentary_uk) {
       console.error(`❌ [NoI UA] No content found for ${url}`);
       return null;
     }
@@ -323,7 +323,7 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
     return {
       synonyms_uk,
       translation_uk,
-      purport_uk
+      commentary_uk
     };
 
   } catch (error) {
