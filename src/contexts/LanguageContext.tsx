@@ -1,15 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-// 'uk' for Ukrainian (ISO 639-1), 'en' for English
-// Note: we use 'uk' in URLs but 'ua' internally for backwards compatibility
+// 'ua' for Ukrainian, 'en' for English
 export type Language = 'ua' | 'en';
-export type UrlLanguage = 'uk' | 'en';
+export type UrlLanguage = 'ua' | 'en';
 
-// Map between internal language code and URL language code
-const toUrlLang = (lang: Language): UrlLanguage => lang === 'ua' ? 'uk' : 'en';
+// URL language codes match internal codes
+const toUrlLang = (lang: Language): UrlLanguage => lang;
 const fromUrlLang = (urlLang: string): Language | null => {
-  if (urlLang === 'uk') return 'ua';
+  if (urlLang === 'ua') return 'ua';
   if (urlLang === 'en') return 'en';
   return null;
 };
@@ -39,10 +38,10 @@ const isLocalizedPath = (path: string): boolean => {
 
 // Extract language from URL path
 const extractLangFromPath = (path: string): { lang: Language | null; pathWithoutLang: string } => {
-  const match = path.match(/^\/(uk|en)(\/|$)/);
+  const match = path.match(/^\/(ua|en)(\/|$)/);
   if (match) {
     const lang = fromUrlLang(match[1]);
-    const pathWithoutLang = path.replace(/^\/(uk|en)/, '') || '/';
+    const pathWithoutLang = path.replace(/^\/(ua|en)/, '') || '/';
     return { lang, pathWithoutLang };
   }
   return { lang: null, pathWithoutLang: path };
