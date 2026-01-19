@@ -1,71 +1,92 @@
 // src/components/mobile/SpineSettingsPanel.tsx
 // Settings panel for Spine Navigation (Neu Bible-style)
-// Панель налаштувань: мова, блоки тексту, про застосунок
+// Панель налаштувань: нагадування, читання, книги, про нас, контакти
 
 import { useState, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { useNavigate } from "react-router-dom";
 import {
-  Globe,
-  Maximize,
-  Smartphone,
-  Square,
   Info,
-  FileText,
-  Shield,
-  HelpCircle,
   ChevronRight,
-  Leaf,
   Check,
   X,
+  MessageCircle,
+  ExternalLink,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FaTelegram, FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 
 interface SpineSettingsPanelProps {
   open: boolean;
   onClose: () => void;
 }
 
-// Translation source definitions for VedaVoice
-const TRANSLATION_SOURCES = [
+// Book/Translation source definitions for VedaVoice
+// Books can be: available (free/owned) or purchasable (with price)
+const BOOK_SOURCES = [
   {
-    id: "uk",
-    code: "UK",
-    title_uk: "Український переклад",
-    title_en: "Ukrainian Translation",
-    description_uk: "Переклад українською мовою творів Шріли Прабгупади для україномовних читачів.",
-    description_en: "Ukrainian translation of Srila Prabhupada's works for Ukrainian-speaking readers.",
-    bgColor: "bg-gradient-to-br from-blue-500 to-yellow-400",
-    textColor: "text-white",
-    abbr: "УКР",
+    id: "prabhupada-uk",
+    title_uk: "Прабгупада солов'їною",
+    title_en: "Prabhupada in Ukrainian",
+    description_uk: "Офіційний український переклад творів Шріли Прабгупади. Безкоштовно для всіх читачів.",
+    description_en: "Official Ukrainian translation of Srila Prabhupada's works. Free for all readers.",
+    coverImage: "/images/books/prabhupada-uk-cover.jpg",
+    bgColor: "bg-gradient-to-br from-amber-600 to-orange-700",
+    available: true,
+    price: null,
   },
   {
-    id: "en",
-    code: "EN",
-    title_uk: "Англійський оригінал",
-    title_en: "English Original",
-    description_uk: "Оригінальні твори Шріли Прабгупади англійською мовою - класичні переклади Vedabase.",
-    description_en: "Original works by Srila Prabhupada in English - classic Vedabase translations.",
-    bgColor: "bg-gradient-to-br from-slate-800 to-slate-900",
-    textColor: "text-white",
-    abbr: "ENG",
+    id: "prabhupada-en",
+    title_uk: "Оригінал (English)",
+    title_en: "Original (English)",
+    description_uk: "Оригінальні твори Шріли Прабгупади англійською мовою - класичні переклади BBT.",
+    description_en: "Original works by Srila Prabhupada in English - classic BBT translations.",
+    coverImage: "/images/books/prabhupada-en-cover.jpg",
+    bgColor: "bg-gradient-to-br from-slate-700 to-slate-900",
+    available: true,
+    price: null,
   },
   {
-    id: "dual",
-    code: "DUAL",
-    title_uk: "Двомовний режим",
-    title_en: "Dual Language",
-    description_uk: "Український та англійський переклади поруч для порівняння та вивчення.",
-    description_en: "Ukrainian and English translations side by side for comparison and study.",
-    bgColor: "bg-gradient-to-br from-emerald-500 to-teal-600",
-    textColor: "text-white",
-    abbr: "UK/EN",
+    id: "original-1972",
+    title_uk: "Оригінал 1972",
+    title_en: "Original 1972 Edition",
+    description_uk: "Оригінальне видання Бгаґавад-ґіти 1972 року, надруковане за життя Шріли Прабгупади.",
+    description_en: "Original 1972 Bhagavad-gita edition, printed during Srila Prabhupada's lifetime.",
+    coverImage: "/images/books/bg-1972-cover.jpg",
+    bgColor: "bg-gradient-to-br from-red-800 to-red-950",
+    available: false,
+    price: "4.99 €",
+    purchaseUrl: "https://store.krishna.org.ua/bg-1972",
+  },
+  {
+    id: "visvanatha",
+    title_uk: "Вішванатха Чакраварті",
+    title_en: "Visvanatha Chakravarti",
+    description_uk: "Коментарі Шріли Вішванатхи Чакраварті Тгакура до Бгаґавад-ґіти та Шрімад-Бгаґаватам.",
+    description_en: "Commentaries by Srila Visvanatha Chakravarti Thakura on Bhagavad-gita and Srimad-Bhagavatam.",
+    coverImage: "/images/books/visvanatha-cover.jpg",
+    bgColor: "bg-gradient-to-br from-purple-700 to-indigo-900",
+    available: false,
+    price: "6.99 €",
+    purchaseUrl: "https://store.krishna.org.ua/visvanatha",
+  },
+  {
+    id: "baladeva",
+    title_uk: "Баладева Відьябгушана",
+    title_en: "Baladeva Vidyabhusana",
+    description_uk: "Ґовінда-бгаш'я - коментар Шріли Баладеви Відьябгушани до Веданта-сутри.",
+    description_en: "Govinda-bhashya - Srila Baladeva Vidyabhusana's commentary on Vedanta-sutra.",
+    coverImage: "/images/books/baladeva-cover.jpg",
+    bgColor: "bg-gradient-to-br from-teal-700 to-cyan-900",
+    available: false,
+    price: "5.99 €",
+    purchaseUrl: "https://store.krishna.org.ua/baladeva",
   },
 ] as const;
 
@@ -101,28 +122,51 @@ function saveReminders(settings: ReminderSettings) {
   }
 }
 
+// Social links for contact section
+const SOCIAL_LINKS = [
+  {
+    id: "telegram",
+    label: "Telegram",
+    icon: FaTelegram,
+    url: "https://t.me/prabhupada_ua",
+    color: "text-[#0088cc]",
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    icon: FaFacebook,
+    url: "https://facebook.com/prabhupada.ua",
+    color: "text-[#1877f2]",
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    icon: FaInstagram,
+    url: "https://instagram.com/prabhupada_ua",
+    color: "text-[#e4405f]",
+  },
+  {
+    id: "youtube",
+    label: "YouTube",
+    icon: FaYoutube,
+    url: "https://youtube.com/@prabhupada_ua",
+    color: "text-[#ff0000]",
+  },
+];
+
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
-  const { language, setLanguage, t, getLocalizedPath } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
-  const [showTranslationsModal, setShowTranslationsModal] = useState(false);
-  const [selectedTranslationIndex, setSelectedTranslationIndex] = useState(0);
+  const [showBooksModal, setShowBooksModal] = useState(false);
+  const [selectedBookIndex, setSelectedBookIndex] = useState(0);
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
+  const [activeBookId, setActiveBookId] = useState("prabhupada-uk");
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
-    textDisplaySettings,
-    setTextDisplaySettings,
-    dualLanguageMode,
-    setDualLanguageMode,
-    mobileSafeMode,
-    setMobileSafeMode,
-    showVerseContour,
-    setShowVerseContour,
-    fullscreenMode,
-    setFullscreenMode,
-    zenMode,
-    setZenMode,
+    showNumbers,
+    setShowNumbers,
   } = useReaderSettings();
 
   const handleNavigate = (path: string) => {
@@ -130,24 +174,16 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     onClose();
   };
 
-  // Get current active translation based on settings
-  const getActiveTranslationId = () => {
-    if (dualLanguageMode) return "dual";
-    return language;
-  };
-
-  const handleSelectTranslation = (id: string) => {
-    if (id === "dual") {
-      setDualLanguageMode(true);
-    } else {
-      setDualLanguageMode(false);
-      setLanguage(id as "uk" | "en");
+  const handleSelectBook = (id: string) => {
+    const book = BOOK_SOURCES.find(b => b.id === id);
+    if (book?.available) {
+      setActiveBookId(id);
     }
   };
 
-  const handleTranslationCardClick = (index: number) => {
-    setSelectedTranslationIndex(index);
-    setShowTranslationsModal(true);
+  const handleBookCardClick = (index: number) => {
+    setSelectedBookIndex(index);
+    setShowBooksModal(true);
   };
 
   const handleRemindersToggle = (enabled: boolean) => {
@@ -166,33 +202,9 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     setShowRemindersSheet(false);
   };
 
-  // About section links
-  const aboutLinks = [
-    {
-      id: "about",
-      label: t("Про застосунок", "About"),
-      icon: Info,
-      path: "/about",
-    },
-    {
-      id: "terms",
-      label: t("Умови використання", "Terms of Service"),
-      icon: FileText,
-      path: "/terms",
-    },
-    {
-      id: "privacy",
-      label: t("Політика конфіденційності", "Privacy Policy"),
-      icon: Shield,
-      path: "/privacy",
-    },
-    {
-      id: "help",
-      label: t("Допомога", "Help"),
-      icon: HelpCircle,
-      path: "/help",
-    },
-  ];
+  const handlePurchase = (url: string) => {
+    window.open(url, "_blank");
+  };
 
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -205,14 +217,14 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         </SheetHeader>
 
         <div className="px-4 py-4 space-y-6">
-          {/* GENERAL Section */}
+          {/* 0. GENERAL Section - Reading Reminders */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
               {t("Загальне", "General")}
             </Label>
             <div className="flex items-center justify-between">
               <Label htmlFor="reading-reminders" className="cursor-pointer">
-                {t("Нагадування про читання", "Reading Reminders")}
+                {t("Час читати", "Reading Time")}
               </Label>
               <Switch
                 id="reading-reminders"
@@ -234,94 +246,78 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
 
           <Separator />
 
-          {/* Language Selection */}
+          {/* 2. READING Section - Verse Numbers */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Мова", "Language")}
+              {t("Читання", "Reading")}
             </Label>
-            <div className="flex gap-2">
-              <Button
-                variant={language === "uk" ? "default" : "outline"}
-                onClick={() => setLanguage("uk")}
-                className={cn(
-                  "flex-1 h-12",
-                  language === "uk" && "bg-brand-500 hover:bg-brand-600"
-                )}
-              >
-                <Globe className="w-4 h-4 mr-2" />
-                Українська
-              </Button>
-              <Button
-                variant={language === "en" ? "default" : "outline"}
-                onClick={() => setLanguage("en")}
-                className={cn(
-                  "flex-1 h-12",
-                  language === "en" && "bg-brand-500 hover:bg-brand-600"
-                )}
-              >
-                <Globe className="w-4 h-4 mr-2" />
-                English
-              </Button>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="verse-numbers" className="cursor-pointer">
+                {t("Номери віршів", "Verse Numbers")}
+              </Label>
+              <Switch
+                id="verse-numbers"
+                checked={showNumbers}
+                onCheckedChange={(v) => setShowNumbers(v)}
+              />
             </div>
           </div>
 
           <Separator />
 
-          {/* Translations Section */}
+          {/* 3. BOOKS Section - Translations/Books Carousel */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Переклади", "Translations")}
+              {t("Книги", "Books")}
             </Label>
 
-            {/* See All Translations link */}
+            {/* See All Books link */}
             <button
-              onClick={() => setShowTranslationsModal(true)}
+              onClick={() => setShowBooksModal(true)}
               className="text-brand-500 font-medium mb-4 hover:underline"
             >
-              {t("Всі переклади", "See All Translations")}
+              {t("Всі книги", "See All Books")}
             </button>
 
-            {/* Horizontal carousel of translation cards */}
+            {/* Horizontal carousel of book covers */}
             <div
               ref={carouselRef}
               className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
               style={{ scrollSnapType: "x mandatory" }}
             >
-              {TRANSLATION_SOURCES.map((source, index) => {
-                const isActive = getActiveTranslationId() === source.id;
+              {BOOK_SOURCES.map((book, index) => {
+                const isActive = activeBookId === book.id;
                 return (
                   <button
-                    key={source.id}
-                    onClick={() => handleTranslationCardClick(index)}
+                    key={book.id}
+                    onClick={() => handleBookCardClick(index)}
                     className={cn(
-                      "flex-shrink-0 w-32 h-44 rounded-lg overflow-hidden relative",
+                      "flex-shrink-0 w-28 h-40 rounded-lg overflow-hidden relative",
                       "transition-transform active:scale-95",
-                      source.bgColor,
+                      book.bgColor,
                       "shadow-md"
                     )}
                     style={{ scrollSnapAlign: "start" }}
                   >
-                    {/* Abbreviation/Logo */}
-                    <div className={cn(
-                      "absolute inset-0 flex flex-col items-center justify-center",
-                      source.textColor
-                    )}>
-                      <span className="text-3xl font-bold tracking-tight opacity-30">
-                        {source.abbr}
-                      </span>
-                      <span className="text-xs font-medium mt-2 px-2 text-center">
-                        {language === "uk" ? source.title_uk : source.title_en}
+                    {/* Book cover or placeholder */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-2">
+                      <span className="text-[10px] font-medium text-center leading-tight">
+                        {language === "uk" ? book.title_uk : book.title_en}
                       </span>
                     </div>
 
-                    {/* Active indicator */}
-                    {isActive && (
-                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                          <Check className="w-4 h-4 text-white" />
+                    {/* Active indicator or Lock icon */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                      {isActive ? (
+                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white" />
                         </div>
-                      </div>
-                    )}
+                      ) : !book.available ? (
+                        <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                          <Lock className="w-3 h-3 text-white/70" />
+                        </div>
+                      ) : null}
+                    </div>
                   </button>
                 );
               })}
@@ -330,157 +326,66 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
 
           <Separator />
 
-          {/* Reading Options */}
+          {/* 4. ABOUT Section */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Читання", "Reading")}
-            </Label>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="dual-lang" className="cursor-pointer">
-                  {t("Двомовний режим", "Dual Language")}
-                </Label>
-                <Switch
-                  id="dual-lang"
-                  checked={dualLanguageMode}
-                  onCheckedChange={(v) => setDualLanguageMode(v)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Square className="h-4 w-4 text-muted-foreground" />
-                  <Label htmlFor="verse-contour" className="cursor-pointer">
-                    {t("Контур тексту", "Text Contour")}
-                  </Label>
-                </div>
-                <Switch
-                  id="verse-contour"
-                  checked={showVerseContour}
-                  onCheckedChange={(v) => setShowVerseContour(v)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between bg-primary/5 p-3 rounded-lg -mx-3">
-                <div className="flex items-center gap-2">
-                  <Maximize className="h-4 w-4 text-brand-500" />
-                  <div>
-                    <Label htmlFor="fullscreen" className="cursor-pointer">
-                      {t("Повний екран", "Fullscreen")}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {t("Ховає меню", "Hides menus")}
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  id="fullscreen"
-                  checked={fullscreenMode}
-                  onCheckedChange={(v) => setFullscreenMode(v)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between bg-muted/30 p-3 rounded-lg -mx-3">
-                <div className="flex items-center gap-2">
-                  <Leaf className="h-4 w-4 text-green-600" />
-                  <div>
-                    <Label htmlFor="zen" className="cursor-pointer">
-                      {t("Zen режим", "Zen Mode")}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {t("Мінімум відволікань", "Minimal distractions")}
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  id="zen"
-                  checked={zenMode}
-                  onCheckedChange={(v) => setZenMode(v)}
-                />
-              </div>
-
-              <div className="flex items-center justify-between bg-muted/30 p-3 rounded-lg -mx-3">
-                <div className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <Label htmlFor="mobile-safe" className="cursor-pointer">
-                      {t("Safe режим", "Safe Mode")}
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      {t("Вимикає blur ефекти", "Disables blur effects")}
-                    </p>
-                  </div>
-                </div>
-                <Switch
-                  id="mobile-safe"
-                  checked={mobileSafeMode}
-                  onCheckedChange={(v) => setMobileSafeMode(v)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Text Blocks */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Блоки тексту", "Text Blocks")}
-            </Label>
-            <div className="space-y-3">
-              <RowToggle
-                label={t("Санскрит", "Sanskrit")}
-                checked={textDisplaySettings.showSanskrit}
-                onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
-              />
-              <RowToggle
-                label={t("Транслітерація", "Transliteration")}
-                checked={textDisplaySettings.showTransliteration}
-                onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
-              />
-              <RowToggle
-                label={t("Послівний переклад", "Synonyms")}
-                checked={textDisplaySettings.showSynonyms}
-                onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
-              />
-              <RowToggle
-                label={t("Переклад", "Translation")}
-                checked={textDisplaySettings.showTranslation}
-                onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
-              />
-              <RowToggle
-                label={t("Пояснення", "Commentary")}
-                checked={textDisplaySettings.showCommentary}
-                onChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
-              />
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* About Section */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Про застосунок", "About")}
+              {t("Про нас", "About")}
             </Label>
             <div className="space-y-1">
-              {aboutLinks.map((link) => {
+              <button
+                onClick={() => handleNavigate("/about")}
+                className="w-full flex items-center justify-between px-2 py-3
+                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+              >
+                <span className="flex items-center gap-3">
+                  <Info className="h-5 w-5 text-muted-foreground" />
+                  <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* 5. CONTACT Section - Social Links */}
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
+              {t("Зв'язатися з нами", "Contact Us")}
+            </Label>
+            <div className="space-y-1">
+              {SOCIAL_LINKS.map((link) => {
                 const Icon = link.icon;
                 return (
-                  <button
+                  <a
                     key={link.id}
-                    onClick={() => handleNavigate(link.path)}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full flex items-center justify-between px-2 py-3
                       hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
                   >
                     <span className="flex items-center gap-3">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      <Icon className={cn("h-5 w-5", link.color)} />
                       <span>{link.label}</span>
                     </span>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                  </button>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                  </a>
                 );
               })}
+
+              {/* Direct message option */}
+              <button
+                onClick={() => handleNavigate("/contact")}
+                className="w-full flex items-center justify-between px-2 py-3
+                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+              >
+                <span className="flex items-center gap-3">
+                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                  <span>{t("Написати нам", "Write to Us")}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
             </div>
           </div>
 
@@ -491,15 +396,16 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
         </div>
       </SheetContent>
 
-      {/* Full-screen Translations Modal */}
-      {showTranslationsModal && (
-        <TranslationsCarouselModal
-          open={showTranslationsModal}
-          onClose={() => setShowTranslationsModal(false)}
-          translations={TRANSLATION_SOURCES}
-          initialIndex={selectedTranslationIndex}
-          activeId={getActiveTranslationId()}
-          onSelect={handleSelectTranslation}
+      {/* Full-screen Books Carousel Modal */}
+      {showBooksModal && (
+        <BooksCarouselModal
+          open={showBooksModal}
+          onClose={() => setShowBooksModal(false)}
+          books={BOOK_SOURCES}
+          initialIndex={selectedBookIndex}
+          activeId={activeBookId}
+          onSelect={handleSelectBook}
+          onPurchase={handlePurchase}
           language={language}
         />
       )}
@@ -518,49 +424,35 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   );
 }
 
-function RowToggle({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <Label className="cursor-pointer">{label}</Label>
-      <Switch checked={checked} onCheckedChange={onChange} />
-    </div>
-  );
-}
-
-// Full-screen translations carousel modal (like Neu Bible)
-interface TranslationsCarouselModalProps {
+// Full-screen Books carousel modal (like Neu Bible)
+interface BooksCarouselModalProps {
   open: boolean;
   onClose: () => void;
-  translations: typeof TRANSLATION_SOURCES;
+  books: typeof BOOK_SOURCES;
   initialIndex: number;
   activeId: string;
   onSelect: (id: string) => void;
+  onPurchase: (url: string) => void;
   language: "uk" | "en";
 }
 
-function TranslationsCarouselModal({
+function BooksCarouselModal({
   open,
   onClose,
-  translations,
+  books,
   initialIndex,
   activeId,
   onSelect,
+  onPurchase,
   language,
-}: TranslationsCarouselModalProps) {
+}: BooksCarouselModalProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
-  const currentTranslation = translations[currentIndex];
-  const isActive = activeId === currentTranslation.id;
+  const currentBook = books[currentIndex];
+  const isActive = activeId === currentBook.id;
+  const isAvailable = currentBook.available;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -574,7 +466,7 @@ function TranslationsCarouselModal({
     const threshold = 50;
 
     if (Math.abs(deltaX) > threshold) {
-      if (deltaX > 0 && currentIndex < translations.length - 1) {
+      if (deltaX > 0 && currentIndex < books.length - 1) {
         setCurrentIndex(currentIndex + 1);
       } else if (deltaX < 0 && currentIndex > 0) {
         setCurrentIndex(currentIndex - 1);
@@ -585,8 +477,12 @@ function TranslationsCarouselModal({
   };
 
   const handleSelect = () => {
-    onSelect(currentTranslation.id);
-    onClose();
+    if (isAvailable) {
+      onSelect(currentBook.id);
+      onClose();
+    } else if (currentBook.purchaseUrl) {
+      onPurchase(currentBook.purchaseUrl);
+    }
   };
 
   if (!open) return null;
@@ -604,8 +500,8 @@ function TranslationsCarouselModal({
         {currentIndex > 0 && (
           <div
             className={cn(
-              "absolute left-2 w-20 h-32 rounded-lg opacity-30",
-              translations[currentIndex - 1].bgColor
+              "absolute left-2 w-16 h-24 rounded-lg opacity-40",
+              books[currentIndex - 1].bgColor
             )}
           />
         )}
@@ -614,33 +510,32 @@ function TranslationsCarouselModal({
         <div className="flex flex-col items-center max-w-xs">
           <div
             className={cn(
-              "w-48 h-72 rounded-xl shadow-2xl flex items-center justify-center",
-              currentTranslation.bgColor,
-              currentTranslation.textColor
+              "w-44 h-64 rounded-xl shadow-2xl flex items-center justify-center text-white p-4",
+              currentBook.bgColor
             )}
           >
-            <span className="text-5xl font-bold opacity-40">
-              {currentTranslation.abbr}
+            <span className="text-sm font-medium text-center leading-tight opacity-80">
+              {language === "uk" ? currentBook.title_uk : currentBook.title_en}
             </span>
           </div>
 
           {/* Title */}
           <h2 className="text-white text-xl font-semibold mt-6 text-center italic">
-            {language === "uk" ? currentTranslation.title_uk : currentTranslation.title_en}
+            {language === "uk" ? currentBook.title_uk : currentBook.title_en}
           </h2>
 
           {/* Description */}
           <p className="text-white/70 text-sm text-center mt-3 px-4 leading-relaxed">
-            {language === "uk" ? currentTranslation.description_uk : currentTranslation.description_en}
+            {language === "uk" ? currentBook.description_uk : currentBook.description_en}
           </p>
 
-          {/* Select button or active indicator */}
+          {/* Action button: Select (if available/active) or Buy (if not available) */}
           <div className="mt-6">
             {isActive ? (
               <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
                 <Check className="w-6 h-6 text-white" />
               </div>
-            ) : (
+            ) : isAvailable ? (
               <button
                 onClick={handleSelect}
                 className="px-6 py-2 border border-white/30 rounded-full text-white/80
@@ -648,16 +543,24 @@ function TranslationsCarouselModal({
               >
                 {language === "uk" ? "Обрати" : "Select"}
               </button>
+            ) : (
+              <button
+                onClick={handleSelect}
+                className="px-6 py-2 border border-white/30 rounded-full text-white/80
+                  hover:bg-white/10 transition-colors"
+              >
+                {currentBook.price}
+              </button>
             )}
           </div>
         </div>
 
         {/* Next card preview */}
-        {currentIndex < translations.length - 1 && (
+        {currentIndex < books.length - 1 && (
           <div
             className={cn(
-              "absolute right-2 w-20 h-32 rounded-lg opacity-30",
-              translations[currentIndex + 1].bgColor
+              "absolute right-2 w-16 h-24 rounded-lg opacity-40",
+              books[currentIndex + 1].bgColor
             )}
           />
         )}
@@ -665,7 +568,7 @@ function TranslationsCarouselModal({
 
       {/* Dot indicators */}
       <div className="flex justify-center gap-2 pb-4">
-        {translations.map((_, index) => (
+        {books.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
