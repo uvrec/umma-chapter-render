@@ -1349,7 +1349,7 @@ export const VedaReaderDB = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8" data-reader-root="true">
+      <div className="container mx-auto px-4 py-4 md:py-8" data-reader-root="true">
         {/* Mobile Chapter/Verse Selector - показується тільки на мобільних */}
         {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
           <ChapterVerseSelector
@@ -1365,8 +1365,8 @@ export const VedaReaderDB = () => {
         )}
 
         {/* Заголовок - тільки для безперервного читання або текстових глав */}
-        {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-8">
-            <h1 className="text-center font-extrabold text-5xl text-primary">{chapterTitle}</h1>
+        {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-4 md:mb-8">
+            <h1 className="text-center font-extrabold text-3xl md:text-5xl text-primary">{chapterTitle}</h1>
           </div>}
 
         {/* Intro/preface block (render above verses if present) */}
