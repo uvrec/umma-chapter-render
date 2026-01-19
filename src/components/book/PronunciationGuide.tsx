@@ -116,7 +116,7 @@ export const PronunciationGuide = ({
   const { language, t } = useLanguage();
 
   const consonantLabels = {
-    ua: {
+    uk: {
       gutturals: "Гортанні",
       palatals: "Палатальні",
       cerebrals: "Церебральні",

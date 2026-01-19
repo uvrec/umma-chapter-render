@@ -38,13 +38,13 @@ interface DayDetailPanelProps {
 // Paksha display info
 const pakshaInfo: Record<Paksha, { uk: string; en: string; description_uk: string; description_en: string }> = {
   shukla: {
-    ua: "Шукла пакша",
+    uk: "Шукла пакша",
     en: "Shukla Paksha",
     description_uk: "Світла половина місяця (зростаючий)",
     description_en: "Bright fortnight (waxing moon)",
   },
   krishna: {
-    ua: "Крішна пакша",
+    uk: "Крішна пакша",
     en: "Krishna Paksha",
     description_uk: "Темна половина місяця (спадаючий)",
     description_en: "Dark fortnight (waning moon)",
