@@ -230,7 +230,7 @@ export const BookOverview = () => {
             {book?.has_cantos ?
           // Cantos як список
           cantos.map(canto => {
-            const cantoTitleUa = canto.title_uk;
+            const cantoTitleUk = canto.title_uk;
             const cantoTitleEn = canto.title_en;
             return dualLanguageMode ?
             // Side-by-side для cantos
@@ -240,7 +240,7 @@ export const BookOverview = () => {
                           <span className="text-lg font-bold text-primary whitespace-nowrap">
                             Пісня {canto.canto_number}
                           </span>
-                          <span className="text-lg text-foreground">{cantoTitleUa}</span>
+                          <span className="text-lg text-foreground">{cantoTitleUk}</span>
                         </div>
                         <div className="flex items-start gap-3">
                           <span className="text-lg font-bold text-primary whitespace-nowrap">
@@ -257,7 +257,7 @@ export const BookOverview = () => {
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
                         <span className="text-lg text-foreground">
-                          {language === "uk" ? cantoTitleUa : cantoTitleEn}
+                          {language === "uk" ? cantoTitleUk : cantoTitleEn}
                         </span>
                       </div>
                     </Link>;
@@ -294,7 +294,7 @@ export const BookOverview = () => {
           }) :
           // Regular chapters
           chapters.map(chapter => {
-            const chapterTitleUa = chapter.title_uk;
+            const chapterTitleUk = chapter.title_uk;
             const chapterTitleEn = chapter.title_en;
             return dualLanguageMode ?
             // Side-by-side для chapters
@@ -304,7 +304,7 @@ export const BookOverview = () => {
                           <span className="text-lg font-bold text-primary whitespace-nowrap">
                             Глава {chapter.chapter_number}
                           </span>
-                          <span className="text-lg text-foreground">{chapterTitleUa}</span>
+                          <span className="text-lg text-foreground">{chapterTitleUk}</span>
                         </div>
                         <div className="flex items-start gap-3">
                           <span className="text-lg font-bold text-primary whitespace-nowrap">
@@ -321,7 +321,7 @@ export const BookOverview = () => {
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
                         <span className="text-lg text-foreground">
-                          {language === "uk" ? chapterTitleUa : chapterTitleEn}
+                          {language === "uk" ? chapterTitleUk : chapterTitleEn}
                         </span>
                       </div>
                     </Link>;
