@@ -145,7 +145,7 @@ export const BookOverview = () => {
   return <div className="min-h-screen bg-background">
       {/* SEO Metadata */}
       <Helmet>
-        <title>{bookTitle} | {SITE_CONFIG.siteName}</title>
+        <title>{`${bookTitle || t('Книга', 'Book')} | ${SITE_CONFIG.siteName}`}</title>
         <meta name="description" content={bookDescription || `${bookTitle} - ${t('священне писання ведичної традиції', 'sacred scripture of the Vedic tradition')}`} />
         <link rel="canonical" href={canonicalUrl} />
         <link rel="alternate" hrefLang="uk" href={alternateUkUrl} />
