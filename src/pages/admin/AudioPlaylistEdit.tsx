@@ -124,7 +124,7 @@ export default function AudioPlaylistEdit() {
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       // валідація
-      if (!data.title_uk.trim()) throw new Error("Введіть назву (UA).");
+      if (!data.title_uk.trim()) throw new Error("Введіть назву (UK).");
       if (!data.category_id) throw new Error("Оберіть категорію.");
       const safeYear = Number.isFinite(Number(data.year)) ? Number(data.year) : new Date().getFullYear();
 
@@ -158,7 +158,7 @@ export default function AudioPlaylistEdit() {
   const saveTrackMutation = useMutation({
     mutationFn: async (trackData: typeof trackForm) => {
       if (!id || id === "new") throw new Error("Спочатку збережіть плейліст.");
-      if (!trackData.title_uk.trim()) throw new Error("Введіть назву треку (UA).");
+      if (!trackData.title_uk.trim()) throw new Error("Введіть назву треку (UK).");
       if (!trackData.audio_url.trim()) throw new Error("Додайте посилання на аудіо.");
 
       const safeDuration = Number.isFinite(Number(trackData.duration)) ? Number(trackData.duration) : 0;
@@ -296,7 +296,7 @@ export default function AudioPlaylistEdit() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="title_uk">Назва (UA) *</Label>
+                  <Label htmlFor="title_uk">Назва (UK) *</Label>
                   <Input
                     id="title_uk"
                     value={formData.title_uk}
@@ -315,7 +315,7 @@ export default function AudioPlaylistEdit() {
               </div>
 
               <div>
-                <Label htmlFor="description_uk">Опис (UA)</Label>
+                <Label htmlFor="description_uk">Опис (UK)</Label>
                 <Textarea
                   id="description_uk"
                   value={formData.description_uk}
@@ -441,7 +441,7 @@ export default function AudioPlaylistEdit() {
                     </DialogHeader>
                     <form onSubmit={handleTrackSubmit} className="space-y-4">
                       <div>
-                        <Label htmlFor="track_title_uk">Назва треку (UA) *</Label>
+                        <Label htmlFor="track_title_uk">Назва треку (UK) *</Label>
                         <Input
                           id="track_title_uk"
                           value={trackForm.title_uk}

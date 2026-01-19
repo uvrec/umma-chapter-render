@@ -18,7 +18,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "bhagavad-gita",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -44,7 +44,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "srimad-bhagavatam",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело - iskconpress (канти 1-10, 11-12 немає)
@@ -66,7 +66,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: true, // ✅ Є UA версія на Gitabase
+    hasGitabaseUK: true, // ✅ Є UK версія на Gitabase
     gitabase_available: true,
     gitabaseSlug: "CC",
     // Джерело (опціонально)
@@ -90,7 +90,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -114,7 +114,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: true, // ✅ Є UA версія на Gitabase
+    hasGitabaseUK: true, // ✅ Є UK версія на Gitabase
     gitabase_available: true,
     gitabaseSlug: "NoI",
     // Джерело (опціонально)
@@ -142,7 +142,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -166,7 +166,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -190,7 +190,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -214,7 +214,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -238,7 +238,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -262,7 +262,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело (опціонально)
@@ -303,7 +303,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "kksongs-songs", // ✅ Bengali, transliteration, synonyms, translation, commentary
     // Gitabase
-    hasGitabaseUA: false, // ❌ Імпортується з kksongs.org (Bengali + EN)
+    hasGitabaseUK: false, // ❌ Імпортується з kksongs.org (Bengali + EN)
     gitabase_available: false,
     gitabaseSlug: null,
   },
@@ -326,7 +326,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "raja-vidya",
     // Gitabase
-    hasGitabaseUA: false, // ❌ UA версії НЕМАЄ на Gitabase (українську беремо з файлу)
+    hasGitabaseUK: false, // ❌ UK версії НЕМАЄ на Gitabase (українську беремо з файлу)
     gitabase_available: false,
     gitabaseSlug: null,
     // Джерело
@@ -355,7 +355,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "transcendental-diary",
     // Gitabase
-    hasGitabaseUA: false, // ❌ Імпортується з prabhupadavani.org (EN only for now)
+    hasGitabaseUK: false, // ❌ Імпортується з prabhupadavani.org (EN only for now)
     gitabase_available: false,
     gitabaseSlug: null,
     // Metadata
@@ -389,7 +389,7 @@ export const VEDABASE_BOOKS = [
     // Парсинг
     templateId: "default",
     // Gitabase
-    hasGitabaseUA: false, // ❌ Імпортується з wisdomlib.org (Bengali + EN)
+    hasGitabaseUK: false, // ❌ Імпортується з wisdomlib.org (Bengali + EN)
     gitabase_available: false,
     gitabaseSlug: null,
     // Specific URLs for each khaṇḍa
@@ -417,7 +417,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -437,7 +437,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -457,7 +457,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Бесіда",
     cantos: undefined,
     templateId: "conversations",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -477,7 +477,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Текст",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -497,7 +497,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -517,7 +517,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Сутра",
     cantos: undefined,
     templateId: "verses",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -537,7 +537,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -557,7 +557,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Сутра",
     cantos: undefined,
     templateId: "verses",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -577,7 +577,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -597,7 +597,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -617,7 +617,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -637,7 +637,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -657,7 +657,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",
@@ -677,7 +677,7 @@ export const VEDABASE_BOOKS = [
     volumeLabel: "Глава",
     cantos: undefined,
     templateId: "prose",
-    hasGitabaseUA: false,
+    hasGitabaseUK: false,
     gitabase_available: false,
     gitabaseSlug: null,
     source: "iskconpress",

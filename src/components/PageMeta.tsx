@@ -35,8 +35,8 @@ export const PageMeta = ({
 
   // ISO 639-1: 'uk' for Ukrainian
   const htmlLang = language === "uk" ? "uk" : "en";
-  const ogLocale = language === "uk" ? "uk_UA" : "en_US";
-  const ogLocaleAlternate = language === "uk" ? "en_US" : "uk_UA";
+  const ogLocale = language === "uk" ? "uk_UK" : "en_US";
+  const ogLocaleAlternate = language === "uk" ? "en_US" : "uk_UK";
 
   return (
     <Helmet>

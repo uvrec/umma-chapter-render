@@ -348,7 +348,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
         </div>
 
         <div>
-          <Label>Назва глави (UA)</Label>
+          <Label>Назва глави (UK)</Label>
           <Input
             value={editedChapter.title_uk || ""}
             onChange={(e) => setEditedChapter({ ...editedChapter, title_uk: e.target.value })}
@@ -406,7 +406,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Синоніми (UA)</Label>
+                      <Label className="text-xs">Синоніми (UK)</Label>
                       <Textarea
                         value={verse.synonyms_uk || ""}
                         onChange={(e) => updateVerse(index, "synonyms_uk", e.target.value)}
@@ -414,7 +414,7 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Переклад (UA)</Label>
+                      <Label className="text-xs">Переклад (UK)</Label>
                       <Textarea
                         value={verse.translation_uk || ""}
                         onChange={(e) => updateVerse(index, "translation_uk", e.target.value)}
@@ -422,11 +422,11 @@ export function PreviewStep({ chapter, allChapters, onBack, onComplete }: Previe
                       />
                     </div>
                     <div>
-                      <Label className="text-xs">Пояснення (UA)</Label>
+                      <Label className="text-xs">Пояснення (UK)</Label>
                       <EnhancedInlineEditor
                         content={verse.commentary_uk || ""}
                         onChange={(html) => updateVerse(index, "commentary_uk", html)}
-                        label="Пояснення (UA) — форматування зберігається"
+                        label="Пояснення (UK) — форматування зберігається"
                       />
                     </div>
                   </div>

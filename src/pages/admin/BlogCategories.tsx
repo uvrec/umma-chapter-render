@@ -224,7 +224,7 @@ export default function BlogCategories() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name-ua">Назва (UA)</Label>
+                  <Label htmlFor="name-ua">Назва (UK)</Label>
                   <Input
                     id="name-ua"
                     value={nameUa}
@@ -255,7 +255,7 @@ export default function BlogCategories() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="desc-ua">Опис (UA)</Label>
+                  <Label htmlFor="desc-ua">Опис (UK)</Label>
                   <Textarea id="desc-ua" value={descUa} onChange={(e) => setDescUa(e.target.value)} rows={3} />
                 </div>
                 <div>
@@ -276,7 +276,7 @@ export default function BlogCategories() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Назва (UA)</TableHead>
+              <TableHead>Назва (UK)</TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Постів</TableHead>

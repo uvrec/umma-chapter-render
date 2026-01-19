@@ -66,7 +66,7 @@ export const SVARA_TO_MIDI: Record<string, number> = {
 };
 
 // Маппінг свар на українські назви
-export const SVARA_NAMES_UA: Record<string, string> = {
+export const SVARA_NAMES_UK: Record<string, string> = {
   'S': 'Са (Шадджа)',
   'r': 'комал Ре (Рішабха)',
   'R': 'шуддха Ре (Рішабха)',
@@ -245,7 +245,7 @@ export type Jati =
   | 'Sampurna-Shadav'
   | 'Sampurna-Sampurna';
 
-export const JATI_NAMES_UA: Record<string, string> = {
+export const JATI_NAMES_UK: Record<string, string> = {
   'Audav': 'Аудав (5 нот)',
   'Shadav': 'Шадав (6 нот)',
   'Sampurna': 'Сампурна (7 нот)',
@@ -280,7 +280,7 @@ export type RagaTime =
   | 'AllDay'            // Будь-який час
   | string;             // Інші варіанти
 
-export const TIME_NAMES_UA: Record<string, string> = {
+export const TIME_NAMES_UK: Record<string, string> = {
   'EarlyMorning4-7': 'Ранній ранок (4-7)',
   'EarlyMorning3-6': 'Ранній ранок (3-6)',
   'Morning6-9': 'Ранок (6-9)',
@@ -358,7 +358,7 @@ export interface RagaFilters {
  */
 export function formatRagaTime(time: string, language: 'uk' | 'en' = 'uk'): string {
   if (language === 'uk') {
-    return TIME_NAMES_UA[time] || time;
+    return TIME_NAMES_UK[time] || time;
   }
   return time.replace(/([A-Z])/g, ' $1').replace(/(\d+)-(\d+)/, ' ($1:00-$2:00)').trim();
 }
@@ -368,7 +368,7 @@ export function formatRagaTime(time: string, language: 'uk' | 'en' = 'uk'): stri
  */
 export function formatJati(jati: string, language: 'uk' | 'en' = 'uk'): string {
   if (language === 'uk') {
-    return JATI_NAMES_UA[jati] || jati;
+    return JATI_NAMES_UK[jati] || jati;
   }
   return jati;
 }

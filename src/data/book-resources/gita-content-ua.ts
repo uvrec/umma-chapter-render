@@ -4,7 +4,7 @@
  */
 
 // Ukrainian book metadata
-export const GITA_BOOK_INFO_UA = {
+export const GITA_BOOK_INFO_UK = {
   slug: "gita",
   title: "Бгаґавад-ґіта як вона є",
   subtitle: "з оригінальними санскритськими текстами, транслітерацією кирилицею, послівним і літературним перекладом та поясненнями",
@@ -19,7 +19,7 @@ export const GITA_BOOK_INFO_UA = {
 };
 
 // Scholarly reviews
-export const GITA_SCHOLARLY_REVIEWS_UA = {
+export const GITA_SCHOLARLY_REVIEWS_UK = {
   title: "Учені про «Бгаґавад-ґіту як вона є»",
   introduction: `Видана загальним накладом понад п'ять мільйонів екземплярів, десятками мов світу, «Бгаґавад-ґіта» в перекладі та з коментарями Його Божественної Милості А.Ч. Бгактіведанти Свамі Прабгупади стала справжнім бестселером. «Бгаґавад-ґіта як вона є» по праву вважається найбільш авторитетним перекладом цього класичного твору світової літератури. Далі наводяться декілька відгуків про «Бгаґавад-ґіту як вона є» провідних учених світу.`,
   reviews: [
@@ -62,7 +62,7 @@ export const GITA_SCHOLARLY_REVIEWS_UA = {
 };
 
 // Table of Contents in Ukrainian
-export const GITA_TOC_UA = {
+export const GITA_TOC_UK = {
   title: "Зміст",
   frontMatter: [
     { slug: "cover", title: "Обкладинка" },
@@ -108,7 +108,7 @@ export const GITA_TOC_UA = {
 };
 
 // The Setting of Bhagavad-gītā (Background story)
-export const GITA_SETTING_UA = {
+export const GITA_SETTING_UK = {
   title: "Передісторія «Бгаґавад-ґіти»",
   content: `Хоча «Бгаґавад-ґіту» широко публікують і читають як закінчений твір, вона, насправді, є лише епізод епічного твору на санскриті, «Махабгарати», що описує історію з прадавніх часів і до самої Калі-юґи. Саме на початку цієї епохи, близько п'яти тисяч років тому, Господь Крішна повідав «Бгаґавад-ґіту» Своєму відданому другові Арджуні.
 
@@ -142,7 +142,7 @@ export const GITA_SETTING_UA = {
 };
 
 // Second Edition Note
-export const GITA_SECOND_EDITION_NOTE_UA = {
+export const GITA_SECOND_EDITION_NOTE_UK = {
   title: "Коментар до другого англійського видання",
   content: `Для задоволення читачів, які знайомі з першою редакцією «Бгаґавад-ґіти як вона є», доцільно сказати кілька слів про друге видання.
 
@@ -164,7 +164,7 @@ export const GITA_SECOND_EDITION_NOTE_UA = {
 };
 
 // Bibliography / References
-export const GITA_BIBLIOGRAPHY_UA = {
+export const GITA_BIBLIOGRAPHY_UK = {
   title: "Список цитованої літератури",
   introduction: "Усе, що сказано у «Бгаґавад-ґіті як вона є», підтверджують визнані ведичні авторитети. Далі наведено список автентичних священних писань, цитатами з яких послуговувалися:",
   sources: [

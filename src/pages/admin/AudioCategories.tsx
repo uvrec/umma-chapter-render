@@ -232,7 +232,7 @@ export default function AudioCategories() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name_uk">Назва (UA) *</Label>
+                  <Label htmlFor="name_uk">Назва (UK) *</Label>
                   <Input
                     id="name_uk"
                     value={formData.name_uk}
@@ -309,7 +309,7 @@ export default function AudioCategories() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="description_uk">Опис (UA)</Label>
+                  <Label htmlFor="description_uk">Опис (UK)</Label>
                   <Textarea
                     id="description_uk"
                     value={formData.description_uk}

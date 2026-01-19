@@ -97,7 +97,7 @@ export const ISO_APPENDICES = {
 };
 
 // List of books by Śrīla Prabhupāda (Ukrainian version for Īśopaniṣad)
-export const ISO_PRABHUPADA_BOOKS_UA = {
+export const ISO_PRABHUPADA_BOOKS_UK = {
   title: "Книги Шріли Прабгупади",
   books: [
     "Бгаґавад-ґіта як вона є",
@@ -123,7 +123,7 @@ export const ISO_PRABHUPADA_BOOKS_UA = {
   ],
 };
 
-export const ISO_DEDICATION_UA: DedicationData = {
+export const ISO_DEDICATION_UK: DedicationData = {
   title: "Посвята",
   content: `Шрі Ішопанішад присвячується Його Божественній Милості Ом Вішнупаді Парамахамсі Шрі Шрімад Бгактісіддганті Сарасваті Ґосвамі Махараджі, який так милостиво зʼявився у цьому світі, щоб передати вчення Господа Чайтаньї.`,
 };
@@ -133,7 +133,7 @@ export const ISO_DEDICATION_EN: DedicationData = {
   content: `Śrī Īśopaniṣad is dedicated to His Divine Grace Oṁ Viṣṇupāda Paramahaṁsa Śrī Śrīmad Bhaktisiddhānta Sarasvatī Gosvāmī Mahārāja, who so kindly appeared in this world to deliver the teachings of Lord Caitanya.`,
 };
 
-export const ISO_DISCIPLIC_SUCCESSION_UA: DisciplicSuccessionData = {
+export const ISO_DISCIPLIC_SUCCESSION_UK: DisciplicSuccessionData = {
   title: "Ланки ланцюга учнівської послідовності",
   verse: "Евам̇ парампара̄-пра̄птам імам̇ ра̄джаршайо відух̣",
   verseReference: "Б.-ґ., 4.2",
@@ -216,7 +216,7 @@ export const ISO_DISCIPLIC_SUCCESSION_EN: DisciplicSuccessionData = {
 };
 
 // Cited literature
-export const ISO_CITED_LITERATURE_UA = {
+export const ISO_CITED_LITERATURE_UK = {
   title: "Цитована література",
   introduction: "У цьому покажчику подано назви ведичних писань, на які автор посилається у своїх поясненнях.",
   sources: [

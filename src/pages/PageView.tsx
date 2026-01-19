@@ -217,7 +217,7 @@ export const PageView = () => {
                 value={language === "uk" ? editedTitleUa : editedTitleEn}
                 onChange={language === "uk" ? setEditedTitleUa : setEditedTitleEn}
                 type="text"
-                label={`Заголовок (${language === "uk" ? "UA" : "EN"})`}
+                label={`Заголовок (${language === "uk" ? "UK" : "EN"})`}
                 isEditing={isEditMode}
                 placeholder="Заголовок сторінки"
               />
@@ -231,7 +231,7 @@ export const PageView = () => {
               value={language === "uk" ? editedMetaDescriptionUa : editedMetaDescriptionEn}
               onChange={language === "uk" ? setEditedMetaDescriptionUa : setEditedMetaDescriptionEn}
               type="textarea"
-              label={`Опис (${language === "uk" ? "UA" : "EN"})`}
+              label={`Опис (${language === "uk" ? "UK" : "EN"})`}
               isEditing={isEditMode}
               placeholder="Короткий опис сторінки"
               className="mb-8"
@@ -287,7 +287,7 @@ export const PageView = () => {
               <EnhancedInlineEditor
                 content={language === "uk" ? editedContentUa : editedContentEn}
                 onChange={language === "uk" ? setEditedContentUa : setEditedContentEn}
-                label={`Контент (${language === "uk" ? "UA" : "EN"})`}
+                label={`Контент (${language === "uk" ? "UK" : "EN"})`}
               />
             ) : (
               content && <PageRenderer page={{ content_uk: editedContentUa, content_en: editedContentEn }} language={language} />

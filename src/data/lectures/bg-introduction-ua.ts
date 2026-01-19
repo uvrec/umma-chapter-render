@@ -4,7 +4,7 @@
  * Найраніший запис Шріли Прабгупади в Архіві Бгактіведанти
  */
 
-export const BG_INTRODUCTION_METADATA_UA = {
+export const BG_INTRODUCTION_METADATA_UK = {
   slug: "660219bg-new-york",
   title: "Вступ до «Ґітопанішад»",
   subtitle: "Найраніший запис Шріли Прабгупади в Архіві Бгактіведанти",
@@ -15,7 +15,7 @@ export const BG_INTRODUCTION_METADATA_UA = {
   bookSlug: "bg",
 };
 
-export const BG_INTRODUCTION_PRAYERS_UA = [
+export const BG_INTRODUCTION_PRAYERS_UK = [
   {
     sanskrit: `ом̇ аджн̃а̄на-тіміра̄ндгасйа
 джн̃а̄на̄нджана-ш́ала̄кайа̄
@@ -80,7 +80,7 @@ export const BG_INTRODUCTION_PRAYERS_UA = [
   },
 ];
 
-export const BG_INTRODUCTION_CONTENT_UA = [
+export const BG_INTRODUCTION_CONTENT_UK = [
   `Вступ до «Ґітопанішад» А. Ч. Бгактіведанти Свамі, автора «Шрімад-Бгаґаватам», «Легкої подорожі на інші планети», редактора «Назад до Бога» та ін.`,
 
   `«Бгаґавад-ґіта» також відома як «Ґітопанішад», сутність ведичного знання та одна з найважливіших серед різних Упанішад у ведичній літературі. Існує багато коментарів до «Бгаґавад-ґіти» англійською мовою, і необхідність ще одного англійського коментаря до «Бгаґавад-ґіти» можна пояснити так. Одна… [перерва] Одна американка, місіс Шарлотта Леблан, попросила мене порекомендувати англійське видання «Бгаґавад-ґіти», яке вона могла б прочитати.`,
@@ -176,8 +176,8 @@ export const BG_INTRODUCTION_CONTENT_UA = [
 ];
 
 // Export all content
-export const BG_INTRODUCTION_UA = {
-  metadata: BG_INTRODUCTION_METADATA_UA,
-  prayers: BG_INTRODUCTION_PRAYERS_UA,
-  content: BG_INTRODUCTION_CONTENT_UA,
+export const BG_INTRODUCTION_UK = {
+  metadata: BG_INTRODUCTION_METADATA_UK,
+  prayers: BG_INTRODUCTION_PRAYERS_UK,
+  content: BG_INTRODUCTION_CONTENT_UK,
 };

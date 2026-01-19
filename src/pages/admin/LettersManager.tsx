@@ -336,7 +336,7 @@ export default function LettersManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Отримувач (UA)</label>
+                    <label className="text-sm font-medium">Отримувач (UK)</label>
                     <Input
                       value={editingLetter.recipient_uk || ""}
                       onChange={(e) =>
@@ -360,7 +360,7 @@ export default function LettersManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Локація (UA)</label>
+                    <label className="text-sm font-medium">Локація (UK)</label>
                     <Input
                       value={editingLetter.location_uk || ""}
                       onChange={(e) =>

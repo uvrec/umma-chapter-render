@@ -22,7 +22,7 @@ interface EncodingRemnant {
 export default function NormalizeTexts() {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
-  const [isNormalizingUA, setIsNormalizingUA] = useState(false);
+  const [isNormalizingUK, setIsNormalizingUA] = useState(false);
   const [isNormalizingEN, setIsNormalizingEN] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isFixing, setIsFixing] = useState(false);
@@ -188,12 +188,12 @@ export default function NormalizeTexts() {
             </div>
             <Button 
               onClick={handleNormalizeUA} 
-              disabled={isNormalizingUA}
+              disabled={isNormalizingUK}
               size="lg"
               className="w-full"
             >
-              {isNormalizingUA && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isNormalizingUA ? 'Нормалізація...' : 'Нормалізувати українські тексти'}
+              {isNormalizingUK && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isNormalizingUK ? 'Нормалізація...' : 'Нормалізувати українські тексти'}
             </Button>
           </CardContent>
         </Card>

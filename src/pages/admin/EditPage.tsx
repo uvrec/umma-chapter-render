@@ -295,7 +295,7 @@ export default function EditPage() {
 
                 <TabsContent value="basic" className="space-y-4">
                   <div>
-                    <Label htmlFor="titleUa">Заголовок (UA) *</Label>
+                    <Label htmlFor="titleUa">Заголовок (UK) *</Label>
                     <Input id="titleUa" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
                   </div>
                   <div>
@@ -303,7 +303,7 @@ export default function EditPage() {
                     <Input id="titleEn" value={titleEn} onChange={(e) => setTitleEn(e.target.value)} required />
                   </div>
                   <div>
-                    <Label htmlFor="metaDescriptionUa">Meta опис (UA)</Label>
+                    <Label htmlFor="metaDescriptionUa">Meta опис (UK)</Label>
                     <Textarea
                       id="metaDescriptionUa"
                       value={metaDescriptionUa}
@@ -331,7 +331,7 @@ export default function EditPage() {
                     Використовується для сторінок без блокової структури (застарілий формат)
                   </p>
                   <div>
-                    <Label htmlFor="contentUa">Контент (UA)</Label>
+                    <Label htmlFor="contentUa">Контент (UK)</Label>
                     <TiptapEditor content={contentUa} onChange={setContentUa} />
                   </div>
                   <div>

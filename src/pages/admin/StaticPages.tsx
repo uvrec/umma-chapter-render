@@ -249,7 +249,7 @@ const StaticPages = () => {
     if (!prepared.slug.trim() || !prepared.title_uk.trim() || !prepared.title_en.trim()) {
       toast({
         title: "Помилка",
-        description: "Slug, Назва (UA) та Назва (EN) — обовʼязкові",
+        description: "Slug, Назва (UK) та Назва (EN) — обовʼязкові",
         variant: "destructive",
       });
       return;
@@ -326,7 +326,7 @@ const StaticPages = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="title_uk">Назва (UA)</Label>
+                    <Label htmlFor="title_uk">Назва (UK)</Label>
                     <Input
                       id="title_uk"
                       value={formData.title_uk}
@@ -346,7 +346,7 @@ const StaticPages = () => {
                   </div>
 
                   <div>
-                    <Label htmlFor="meta_description_uk">Мета-опис (UA)</Label>
+                    <Label htmlFor="meta_description_uk">Мета-опис (UK)</Label>
                     <Textarea
                       id="meta_description_uk"
                       value={formData.meta_description_uk}

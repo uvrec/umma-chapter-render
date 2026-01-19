@@ -257,13 +257,13 @@ export default function VedabaseImportV3() {
 
   // Для вступних глав
   const [introTitleEN, setIntroTitleEN] = useState("");
-  const [introTitleUA, setIntroTitleUA] = useState("");
+  const [introTitleUK, setIntroTitleUA] = useState("");
   const [introUrlEN, setIntroUrlEN] = useState("");
-  const [introUrlUA, setIntroUrlUA] = useState("");
+  const [introUrlUK, setIntroUrlUA] = useState("");
 
   // Налаштування
   const [importEN, setImportEN] = useState(true);
-  const [importUA, setImportUA] = useState(true);
+  const [importUK, setImportUA] = useState(true);
   const [useGitabase, setUseGitabase] = useState(true);
 
   const [stats, setStats] = useState<ImportStats | null>(null);
@@ -368,7 +368,7 @@ export default function VedabaseImportV3() {
         return;
       }
 
-      if (!introTitleEN && !introTitleUA) {
+      if (!introTitleEN && !introTitleUK) {
         toast.error("Вкажіть назву хоча б однією мовою");
         return;
       }
@@ -418,10 +418,10 @@ export default function VedabaseImportV3() {
         }
       }
 
-      if (importUA && introUrlUA) {
+      if (importUK && introUrlUK) {
         setCurrentStep("Завантаження української версії...");
         try {
-          const html = await fetchHTML(introUrlUA);
+          const html = await fetchHTML(introUrlUK);
           const parsed = useGitabase ? extractGitabaseContent(html) : extractVedabaseContent(html);
           contentUA = parsed.purport || parsed.translation || "";
         } catch (e) {
@@ -434,10 +434,10 @@ export default function VedabaseImportV3() {
       const { error } = await supabase.from("intro_chapters").insert({
         book_id: book.id,
         title_en: introTitleEN || null,
-        title_uk: introTitleUA || null,
+        title_uk: introTitleUK || null,
         content_en: contentEN || null,
         content_uk: contentUA || null,
-        slug: (introTitleEN || introTitleUA).toLowerCase().replace(/\s+/g, "-"),
+        slug: (introTitleEN || introTitleUK).toLowerCase().replace(/\s+/g, "-"),
         order_index: 0,
         is_published: true,
       });
@@ -595,13 +595,13 @@ export default function VedabaseImportV3() {
 
         let sanskrit = "";
         let transliterationEN = "";
-        let transliterationUA = "";
+        let transliterationUK = "";
         let synonymsEN = "";
         let translationEN = "";
         let purportEN = "";
-        let synonymsUA = "";
-        let translationUA = "";
-        let purportUA = "";
+        let synonymsUK = "";
+        let translationUK = "";
+        let purportUK = "";
 
         // VEDABASE (англійська)
         if (importEN && bookConfig) {
@@ -644,7 +644,7 @@ export default function VedabaseImportV3() {
         }
 
         // GITABASE (українська)
-        if (importUA && useGitabase && bookConfig?.gitabase_available) {
+        if (importUK && useGitabase && bookConfig?.gitabase_available) {
           try {
             const gitabaseUrl = buildGitabaseUrl(bookConfig.gitabaseSlug!, {
               chapter: parseInt(chapterNumber),
@@ -655,9 +655,9 @@ export default function VedabaseImportV3() {
 
             // ⚠️ transliteration_uk НЕ береться з Gitabase (там він зіпсований)
             // Замість цього конвертуємо IAST з Vedabase нижче
-            synonymsUA = data?.synonyms_uk || "";
-            translationUA = data?.translation_uk || "";
-            purportUA = data?.commentary_uk || "";
+            synonymsUK = data?.synonyms_uk || "";
+            translationUK = data?.translation_uk || "";
+            purportUK = data?.commentary_uk || "";
 
             await new Promise((r) => setTimeout(r, 500));
           } catch (e: any) {
@@ -677,34 +677,34 @@ export default function VedabaseImportV3() {
 
         // ✅ КОНВЕРТАЦІЯ IAST → Українська транслітерація
         // Беремо IAST з Vedabase і конвертуємо в українську кирилицю з діакритикою
-        if (importUA && transliterationEN) {
-          transliterationUA = convertIASTtoUkrainian(transliterationEN);
+        if (importUK && transliterationEN) {
+          transliterationUK = convertIASTtoUkrainian(transliterationEN);
         }
 
         // ✅ НОРМАЛІЗАЦІЯ українських полів (тільки якщо імпортується UA)
-        if (importUA) {
-          if (transliterationUA) {
-            transliterationUA = normalizeVerseField(transliterationUA, "transliteration");
+        if (importUK) {
+          if (transliterationUK) {
+            transliterationUK = normalizeVerseField(transliterationUK, "transliteration");
           }
-          if (synonymsUA) {
-            synonymsUA = normalizeVerseField(synonymsUA, "synonyms");
+          if (synonymsUK) {
+            synonymsUK = normalizeVerseField(synonymsUK, "synonyms");
           }
-          if (translationUA) {
-            translationUA = normalizeVerseField(translationUA, "translation");
+          if (translationUK) {
+            translationUK = normalizeVerseField(translationUK, "translation");
           }
-          if (purportUA) {
-            purportUA = normalizeVerseField(purportUA, "commentary");
+          if (purportUK) {
+            purportUK = normalizeVerseField(purportUK, "commentary");
           }
         }
 
         // Перевірка контенту
         const hasContent =
-          sanskrit || synonymsEN || translationEN || purportEN || synonymsUA || translationUA || purportUA;
+          sanskrit || synonymsEN || translationEN || purportEN || synonymsUK || translationUK || purportUK;
 
         if (!hasContent) {
           const sources = [];
           if (importEN) sources.push('EN');
-          if (importUA) sources.push('UA');
+          if (importUK) sources.push('UK');
           setStats((prev) => ({
             ...prev!,
             errors: [...prev!.errors, `Вірш ${verseNum}: порожній вміст (джерела: ${sources.join(', ')})`],
@@ -715,10 +715,10 @@ export default function VedabaseImportV3() {
         // Збереження
         const displayBlocks = {
           sanskrit: !!sanskrit,
-          transliteration: !!(transliterationEN || transliterationUA),
-          synonyms: !!(synonymsEN || synonymsUA),
-          translation: !!(translationEN || translationUA),
-          commentary: !!(purportEN || purportUA),
+          transliteration: !!(transliterationEN || transliterationUK),
+          synonyms: !!(synonymsEN || synonymsUK),
+          translation: !!(translationEN || translationUK),
+          commentary: !!(purportEN || purportUK),
         };
 
         const { error } = await supabase.from("verses").upsert(
@@ -727,13 +727,13 @@ export default function VedabaseImportV3() {
             verse_number: verseNum,
             sanskrit,
             transliteration: transliterationEN || null,
-            transliteration_uk: transliterationUA || null,
+            transliteration_uk: transliterationUK || null,
             synonyms_en: synonymsEN || null,
             translation_en: translationEN || null,
             commentary_en: purportEN || null,
-            synonyms_uk: synonymsUA || null,
-            translation_uk: translationUA || null,
-            commentary_uk: purportUA || null,
+            synonyms_uk: synonymsUK || null,
+            translation_uk: translationUK || null,
+            commentary_uk: purportUK || null,
             is_published: true,
           },
           { onConflict: "chapter_id,verse_number" },
@@ -853,13 +853,13 @@ export default function VedabaseImportV3() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="importUA"
-                      checked={importUA}
+                      id="importUK"
+                      checked={importUK}
                       onCheckedChange={(checked) => setImportUA(checked as boolean)}
                     />
-                    <Label htmlFor="importUA">Імпортувати українською</Label>
+                    <Label htmlFor="importUK">Імпортувати українською</Label>
                   </div>
-                  {importUA && (
+                  {importUK && (
                     <div className="flex items-center space-x-2 ml-6">
                       <Checkbox
                         id="useGitabase"
@@ -922,7 +922,7 @@ export default function VedabaseImportV3() {
                   </div>
                   <div>
                     <Label>Назва українською (необов'язково)</Label>
-                    <Input value={introTitleUA} onChange={(e) => setIntroTitleUA(e.target.value)} placeholder="Вступ" />
+                    <Input value={introTitleUK} onChange={(e) => setIntroTitleUA(e.target.value)} placeholder="Вступ" />
                   </div>
                 </div>
 
@@ -951,16 +951,16 @@ export default function VedabaseImportV3() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="importIntroUA"
-                      checked={importUA}
+                      checked={importUK}
                       onCheckedChange={(checked) => setImportUA(checked as boolean)}
                     />
                     <Label htmlFor="importIntroUA">Імпортувати українською</Label>
                   </div>
-                  {importUA && (
+                  {importUK && (
                     <div className="ml-6">
                       <Label>URL української версії</Label>
                       <Input
-                        value={introUrlUA}
+                        value={introUrlUK}
                         onChange={(e) => setIntroUrlUA(e.target.value)}
                         placeholder="https://gitabase.com/ukr/BG/introduction"
                       />

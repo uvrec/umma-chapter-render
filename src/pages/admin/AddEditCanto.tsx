@@ -66,7 +66,7 @@ const AddEditCanto = () => {
       const _titleUa = titleUa.trim();
       const _titleEn = titleEn.trim();
       if (!_titleUa || !_titleEn) {
-        throw new Error("Заповніть обов'язкові поля: Назва (UA) та Title (EN).");
+        throw new Error("Заповніть обов'язкові поля: Назва (UK) та Title (EN).");
       }
 
       const payload = {

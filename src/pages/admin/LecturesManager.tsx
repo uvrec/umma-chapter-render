@@ -479,7 +479,7 @@ export default function LecturesManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Назва (UA)</label>
+                    <label className="text-sm font-medium">Назва (UK)</label>
                     <Input
                       value={editingLecture.title_uk || ""}
                       onChange={(e) =>
@@ -503,7 +503,7 @@ export default function LecturesManager() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Локація (UA)</label>
+                    <label className="text-sm font-medium">Локація (UK)</label>
                     <Input
                       value={editingLecture.location_uk || ""}
                       onChange={(e) =>

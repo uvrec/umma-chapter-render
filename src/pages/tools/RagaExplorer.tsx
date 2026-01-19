@@ -39,11 +39,11 @@ import {
   Raga,
   formatRagaTime,
   formatJati,
-  SVARA_NAMES_UA,
+  SVARA_NAMES_UK,
   SVARA_TO_WESTERN,
   getRagaNotes,
-  TIME_NAMES_UA,
-  JATI_NAMES_UA,
+  TIME_NAMES_UK,
+  JATI_NAMES_UK,
 } from '@/types/raga';
 import {
   Music,
@@ -277,7 +277,7 @@ function RagaDetails({
           </div>
           <div className="font-semibold font-mono text-lg">{raga.vadi}</div>
           <div className="text-xs text-muted-foreground">
-            {SVARA_NAMES_UA[raga.vadi] || raga.vadi}
+            {SVARA_NAMES_UK[raga.vadi] || raga.vadi}
           </div>
         </div>
         <div className="p-3 bg-muted/50 rounded-lg">
@@ -286,7 +286,7 @@ function RagaDetails({
           </div>
           <div className="font-semibold font-mono text-lg">{raga.samvadi}</div>
           <div className="text-xs text-muted-foreground">
-            {SVARA_NAMES_UA[raga.samvadi] || raga.samvadi}
+            {SVARA_NAMES_UK[raga.samvadi] || raga.samvadi}
           </div>
         </div>
         <div className="p-3 bg-muted/50 rounded-lg">
@@ -470,7 +470,7 @@ export default function RagaExplorer() {
                         <SelectItem value="">{t('Будь-який час', 'Any time')}</SelectItem>
                         {filterOptions.times.map(time => (
                           <SelectItem key={time} value={time}>
-                            {TIME_NAMES_UA[time] || time}
+                            {TIME_NAMES_UK[time] || time}
                           </SelectItem>
                         ))}
                       </SelectContent>

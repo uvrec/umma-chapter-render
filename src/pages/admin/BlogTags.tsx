@@ -184,7 +184,7 @@ export default function BlogTags() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="name-ua">Назва (UA)</Label>
+                  <Label htmlFor="name-ua">Назва (UK)</Label>
                   <Input id="name-ua" value={nameUa} onChange={(e) => setNameUa(e.target.value)} required />
                 </div>
                 <div>
@@ -202,7 +202,7 @@ export default function BlogTags() {
                   placeholder="Згенерується автоматично"
                 />
                 {autoSlug ? (
-                  <p className="mt-1 text-xs text-muted-foreground">Slug генерується автоматично з назви (UA)</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Slug генерується автоматично з назви (UK)</p>
                 ) : (
                   <p className="mt-1 text-xs text-muted-foreground">Автогенерацію вимкнено (вручну відредаговано)</p>
                 )}
@@ -232,7 +232,7 @@ export default function BlogTags() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Назва (UA)</TableHead>
+              <TableHead>Назва (UK)</TableHead>
               <TableHead>Name (EN)</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Постів</TableHead>
