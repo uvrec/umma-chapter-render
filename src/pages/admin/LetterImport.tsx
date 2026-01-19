@@ -8,6 +8,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function LetterImport() {
   const { user, isAdmin } = useAuth();
+  const { getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function LetterImport() {
 
           <Button
             variant="outline"
-            onClick={() => navigate("/library/letters")}
+            onClick={() => navigate(getLocalizedPath("/library/letters"))}
           >
             <Mail className="w-4 h-4 mr-2" />
             Переглянути листи

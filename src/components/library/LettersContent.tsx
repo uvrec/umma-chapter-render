@@ -28,10 +28,7 @@ import type {
 
 export const LettersContent = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
-
-  // Мовні налаштування для контенту
-  const [contentLanguage, setContentLanguage] = useState<"ua" | "en">("ua");
+  const { language, t, getLocalizedPath } = useLanguage();
 
   // Пошук та фільтрація
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,8 +43,6 @@ export const LettersContent = () => {
 
   // Групування
   const [groupBy, setGroupBy] = useState<"none" | "year" | "recipient">("year");
-
-  const t = (ua: string, en: string) => contentLanguage === "ua" ? ua : en;
 
   // Завантажити листи з БД
   const { data: letters = [], isLoading } = useQuery({
@@ -82,13 +77,13 @@ export const LettersContent = () => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter((letter) => {
-        const recipient = contentLanguage === "ua" && letter.recipient_ua
+        const recipient = language === "ua" && letter.recipient_ua
           ? letter.recipient_ua
           : letter.recipient_en;
-        const location = contentLanguage === "ua" && letter.location_ua
+        const location = language === "ua" && letter.location_ua
           ? letter.location_ua
           : letter.location_en;
-        const content = contentLanguage === "ua" && letter.content_ua
+        const content = language === "ua" && letter.content_ua
           ? letter.content_ua
           : letter.content_en;
 
@@ -138,7 +133,7 @@ export const LettersContent = () => {
     });
 
     return result;
-  }, [letters, searchQuery, filters, sortBy, sortOrder, contentLanguage]);
+  }, [letters, searchQuery, filters, sortBy, sortOrder, language]);
 
   // Групувати листи
   const groupedLetters = useMemo(() => {
@@ -186,39 +181,19 @@ export const LettersContent = () => {
 
   return (
     <div className="space-y-6">
-      {/* Заголовок з лічильником та мовним переключачем */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Mail className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              {t("Листи Шріли Прабгупади", "Letters of Srila Prabhupada")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                `${letters.length} листів (1947-1977)`,
-                `${letters.length} letters (1947-1977)`
-              )}
-            </p>
-          </div>
-        </div>
-
-        {/* Мовний переключач */}
-        <div className="flex gap-2">
-          <Button
-            variant={contentLanguage === "ua" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setContentLanguage("ua")}
-          >
-            Українська
-          </Button>
-          <Button
-            variant={contentLanguage === "en" ? "default" : "outline"}
-            size="sm"
-            onClick={() => setContentLanguage("en")}
-          >
-            English
-          </Button>
+      {/* Заголовок з лічильником */}
+      <div className="flex items-center gap-3">
+        <Mail className="w-8 h-8 text-primary" />
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">
+            {t("Листи Шріли Прабгупади", "Letters of Srila Prabhupada")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              `${letters.length} листів (1947-1977)`,
+              `${letters.length} letters (1947-1977)`
+            )}
+          </p>
         </div>
       </div>
 
@@ -389,13 +364,13 @@ export const LettersContent = () => {
                 <div
                   key={letter.id}
                   className="cursor-pointer hover:bg-muted/30 transition-colors py-3"
-                  onClick={() => navigate(`/library/letters/${letter.slug}`)}
+                  onClick={() => navigate(getLocalizedPath(`/library/letters/${letter.slug}`))}
                 >
                   <div className="flex items-start gap-3">
                     <Mail className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-lg font-semibold line-clamp-2">
-                        {contentLanguage === "ua" && letter.recipient_ua
+                        {language === "ua" && letter.recipient_ua
                           ? letter.recipient_ua
                           : letter.recipient_en}
                       </h4>
@@ -403,7 +378,7 @@ export const LettersContent = () => {
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {new Date(letter.letter_date).toLocaleDateString(
-                            contentLanguage === "ua" ? "uk-UA" : "en-US",
+                            language === "ua" ? "uk-UA" : "en-US",
                             {
                               year: "numeric",
                               month: "long",
@@ -414,7 +389,7 @@ export const LettersContent = () => {
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
                           <span className="truncate">
-                            {contentLanguage === "ua" && letter.location_ua
+                            {language === "ua" && letter.location_ua
                               ? letter.location_ua
                               : letter.location_en}
                           </span>
@@ -426,7 +401,7 @@ export const LettersContent = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-                        {contentLanguage === "ua" && letter.content_ua
+                        {language === "ua" && letter.content_ua
                           ? letter.content_ua.substring(0, 150) + "..."
                           : letter.content_en.substring(0, 150) + "..."}
                       </p>

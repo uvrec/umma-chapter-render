@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import type { Lecture, LectureFilters, LectureSortOptions } from "@/types/lecture";
@@ -33,8 +32,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export const LecturesContent = () => {
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const [contentLanguage, setContentLanguage] = useState<"ua" | "en">("ua");
+  const { language, t, getLocalizedPath } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<LectureFilters>({
     type: "all",
@@ -173,7 +171,7 @@ export const LecturesContent = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return contentLanguage === "ua"
+    return language === "ua"
       ? date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "long",
@@ -187,16 +185,14 @@ export const LecturesContent = () => {
   };
 
   const getLectureTitle = (lecture: Lecture) => {
-    return contentLanguage === "ua" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
+    return language === "ua" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
   };
 
   const getLectureLocation = (lecture: Lecture) => {
-    return contentLanguage === "ua" && lecture.location_ua
+    return language === "ua" && lecture.location_ua
       ? lecture.location_ua
       : lecture.location_en;
   };
-
-  const t = (ua: string, en: string) => contentLanguage === "ua" ? ua : en;
 
   if (isLoading) {
     return (
@@ -210,30 +206,20 @@ export const LecturesContent = () => {
 
   return (
     <div className="space-y-6">
-      {/* Заголовок з лічильником та мовним переключачем */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Mic className="w-8 h-8 text-primary" />
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              {t("Бібліотека лекцій", "Lecture Library")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t(
-                `${lectures.length} лекцій доступно`,
-                `${lectures.length} lectures available`
-              )}
-            </p>
-          </div>
+      {/* Заголовок з лічильником */}
+      <div className="flex items-center gap-3">
+        <Mic className="w-8 h-8 text-primary" />
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">
+            {t("Бібліотека лекцій", "Lecture Library")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {t(
+              `${lectures.length} лекцій доступно`,
+              `${lectures.length} lectures available`
+            )}
+          </p>
         </div>
-
-        {/* Мовний переключач */}
-        <Tabs value={contentLanguage} onValueChange={(v) => setContentLanguage(v as "ua" | "en")}>
-          <TabsList>
-            <TabsTrigger value="ua">Українська</TabsTrigger>
-            <TabsTrigger value="en">English</TabsTrigger>
-          </TabsList>
-        </Tabs>
       </div>
 
       {/* Пошук та фільтри */}
@@ -371,7 +357,7 @@ export const LecturesContent = () => {
                   <div
                     key={lecture.id}
                     className="py-3 cursor-pointer hover:bg-muted/30 transition-colors"
-                    onClick={() => navigate(`/library/lectures/${lecture.slug}`)}
+                    onClick={() => navigate(getLocalizedPath(`/library/lectures/${lecture.slug}`))}
                   >
                     <div className="flex items-start gap-3">
                       <Mic className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
