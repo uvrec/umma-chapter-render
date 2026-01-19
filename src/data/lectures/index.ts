@@ -34,7 +34,7 @@ export const AVAILABLE_LECTURES = [
   {
     slug: "660219bg-new-york",
     titleEn: "Introduction to Gītopaniṣad",
-    titleUa: "Вступ до «Ґітопанішад»",
+    titleUk: "Вступ до «Ґітопанішад»",
     date: "1966-02-19",
     location: "New York",
     type: "Bhagavad-gita",

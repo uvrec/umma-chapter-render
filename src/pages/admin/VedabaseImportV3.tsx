@@ -257,13 +257,13 @@ export default function VedabaseImportV3() {
 
   // Для вступних глав
   const [introTitleEN, setIntroTitleEN] = useState("");
-  const [introTitleUK, setIntroTitleUA] = useState("");
+  const [introTitleUK, setIntroTitleUK] = useState("");
   const [introUrlEN, setIntroUrlEN] = useState("");
-  const [introUrlUK, setIntroUrlUA] = useState("");
+  const [introUrlUK, setIntroUrlUK] = useState("");
 
   // Налаштування
   const [importEN, setImportEN] = useState(true);
-  const [importUK, setImportUA] = useState(true);
+  const [importUK, setImportUK] = useState(true);
   const [useGitabase, setUseGitabase] = useState(true);
 
   const [stats, setStats] = useState<ImportStats | null>(null);
@@ -855,7 +855,7 @@ export default function VedabaseImportV3() {
                     <Checkbox
                       id="importUK"
                       checked={importUK}
-                      onCheckedChange={(checked) => setImportUA(checked as boolean)}
+                      onCheckedChange={(checked) => setImportUK(checked as boolean)}
                     />
                     <Label htmlFor="importUK">Імпортувати українською</Label>
                   </div>
@@ -922,7 +922,7 @@ export default function VedabaseImportV3() {
                   </div>
                   <div>
                     <Label>Назва українською (необов'язково)</Label>
-                    <Input value={introTitleUK} onChange={(e) => setIntroTitleUA(e.target.value)} placeholder="Вступ" />
+                    <Input value={introTitleUK} onChange={(e) => setIntroTitleUK(e.target.value)} placeholder="Вступ" />
                   </div>
                 </div>
 
@@ -952,7 +952,7 @@ export default function VedabaseImportV3() {
                     <Checkbox
                       id="importIntroUA"
                       checked={importUK}
-                      onCheckedChange={(checked) => setImportUA(checked as boolean)}
+                      onCheckedChange={(checked) => setImportUK(checked as boolean)}
                     />
                     <Label htmlFor="importIntroUA">Імпортувати українською</Label>
                   </div>
@@ -961,7 +961,7 @@ export default function VedabaseImportV3() {
                       <Label>URL української версії</Label>
                       <Input
                         value={introUrlUK}
-                        onChange={(e) => setIntroUrlUA(e.target.value)}
+                        onChange={(e) => setIntroUrlUK(e.target.value)}
                         placeholder="https://gitabase.com/ukr/BG/introduction"
                       />
                     </div>

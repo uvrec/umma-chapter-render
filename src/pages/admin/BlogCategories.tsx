@@ -38,10 +38,10 @@ export default function BlogCategories() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [editId, setEditId] = useState<string | null>(null);
-  const [nameUa, setNameUa] = useState("");
+  const [nameUk, setNameUk] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [slug, setSlug] = useState("");
-  const [descUa, setDescUa] = useState("");
+  const [descUk, setDescUk] = useState("");
   const [descEn, setDescEn] = useState("");
 
   const {
@@ -74,19 +74,19 @@ export default function BlogCategories() {
 
   const resetForm = () => {
     setEditId(null);
-    setNameUa("");
+    setNameUk("");
     setNameEn("");
     setSlug("");
-    setDescUa("");
+    setDescUk("");
     setDescEn("");
   };
 
   const handleEdit = (category: CategoryRow & { post_count?: number }) => {
     setEditId(category.id);
-    setNameUa(category.name_uk);
+    setNameUk(category.name_uk);
     setNameEn(category.name_en);
     setSlug(category.slug);
-    setDescUa(category.description_uk || "");
+    setDescUk(category.description_uk || "");
     setDescEn(category.description_en || "");
     setOpen(true);
   };
@@ -134,20 +134,20 @@ export default function BlogCategories() {
     e.preventDefault();
 
     // Мін-валідатор
-    if (!nameUa.trim() || !nameEn.trim()) {
+    if (!nameUk.trim() || !nameEn.trim()) {
       toast({ title: "Заповніть назви українською та англійською", variant: "destructive" });
       return;
     }
 
     setSaving(true);
     try {
-      const finalSlug = await ensureSlug(nameUa, editId);
+      const finalSlug = await ensureSlug(nameUk, editId);
 
       const categoryData = {
-        name_uk: nameUa.trim(),
+        name_uk: nameUk.trim(),
         name_en: nameEn.trim(),
         slug: finalSlug,
-        description_uk: descUa.trim() || null,
+        description_uk: descUk.trim() || null,
         description_en: descEn.trim() || null,
       };
 
@@ -197,8 +197,8 @@ export default function BlogCategories() {
   };
 
   const fillSlugIfEmpty = () => {
-    if (!slug.trim() && nameUa.trim()) {
-      setSlug(generateSlug(nameUa.trim()));
+    if (!slug.trim() && nameUk.trim()) {
+      setSlug(generateSlug(nameUk.trim()));
     }
   };
 
@@ -227,8 +227,8 @@ export default function BlogCategories() {
                   <Label htmlFor="name-ua">Назва (UK)</Label>
                   <Input
                     id="name-ua"
-                    value={nameUa}
-                    onChange={(e) => setNameUa(e.target.value)}
+                    value={nameUk}
+                    onChange={(e) => setNameUk(e.target.value)}
                     onBlur={fillSlugIfEmpty}
                     required
                   />
@@ -246,7 +246,7 @@ export default function BlogCategories() {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value.toLowerCase())}
                   placeholder="Згенерується автоматично"
-                  onBlur={() => setSlug((s) => generateSlug(s || nameUa))}
+                  onBlur={() => setSlug((s) => generateSlug(s || nameUk))}
                 />
                 {slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && (
                   <p className="text-xs text-destructive mt-1">Лише латиниця/цифри та тире (lowercase).</p>
@@ -256,7 +256,7 @@ export default function BlogCategories() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="desc-ua">Опис (UK)</Label>
-                  <Textarea id="desc-ua" value={descUa} onChange={(e) => setDescUa(e.target.value)} rows={3} />
+                  <Textarea id="desc-ua" value={descUk} onChange={(e) => setDescUk(e.target.value)} rows={3} />
                 </div>
                 <div>
                   <Label htmlFor="desc-en">Description (EN)</Label>
