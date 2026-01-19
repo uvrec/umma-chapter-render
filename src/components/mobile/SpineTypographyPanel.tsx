@@ -69,74 +69,78 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
 
   const isDayTheme = theme === "light" || theme === "craft" || theme === "sepia" || theme === "solarized-light";
 
+  // Font family options (like Neu Bible: Breve, Graphik, Sentinel, Texta)
+  const fontFamilies = [
+    { id: "serif", label: "Breve" },
+    { id: "sans", label: "Graphik" },
+    { id: "georgia", label: "Sentinel" },
+    { id: "system", label: "Texta" },
+  ];
+
+  // Line spacing options
+  const lineSpacingOptions = [
+    { id: "compact", value: 1.3, icon: "compact" },
+    { id: "normal", value: 1.6, icon: "normal" },
+    { id: "spacious", value: 2.0, icon: "spacious" },
+  ];
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent
-        side="left"
-        className="w-[calc(100%-4rem)] sm:w-80 ml-16 p-0 overflow-y-auto"
+        side="bottom"
+        className="rounded-t-2xl max-h-[70vh] overflow-y-auto"
       >
-        <SheetHeader className="px-4 py-4 border-b">
-          <SheetTitle className="text-lg">{t("Типографіка", "Typography")}</SheetTitle>
-        </SheetHeader>
+        {/* Handle indicator */}
+        <div className="flex justify-center pt-2 pb-4">
+          <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+        </div>
 
-        <div className="px-4 py-4 space-y-6">
-          {/* Day / Night Toggle */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Режим", "Mode")}
-            </Label>
-            <div className="flex gap-2">
-              {dayNightThemes.map((t) => {
-                const Icon = t.icon;
-                const isActive = t.group === "day" ? isDayTheme : !isDayTheme;
-                return (
-                  <Button
-                    key={t.id}
-                    variant={isActive ? "default" : "outline"}
-                    onClick={() => setTheme(t.id)}
-                    className={cn(
-                      "flex-1 flex items-center justify-center gap-2 h-12",
-                      isActive && "bg-brand-500 hover:bg-brand-600"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{t.label}</span>
-                  </Button>
-                );
-              })}
-            </div>
+        <div className="px-4 pb-8 space-y-6">
+          {/* Day / Night Toggle - Neu Bible style tabs */}
+          <div className="flex border-b border-border">
+            {dayNightThemes.map((themeOption) => {
+              const Icon = themeOption.icon;
+              const isActive = themeOption.group === "day" ? isDayTheme : !isDayTheme;
+              return (
+                <button
+                  key={themeOption.id}
+                  onClick={() => setTheme(themeOption.id)}
+                  className={cn(
+                    "flex-1 flex items-center justify-center gap-2 py-3 transition-colors",
+                    "border-b-2 -mb-[1px]",
+                    isActive
+                      ? "border-brand-500 text-brand-500"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="font-medium">{themeOption.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Additional Themes Grid */}
-          <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Теми", "Themes")}
-            </Label>
-            <div className="grid grid-cols-4 gap-2">
-              {additionalThemes.map((t) => {
-                const Icon = t.icon;
-                return (
-                  <Button
-                    key={t.id}
-                    variant={theme === t.id ? "default" : "outline"}
-                    onClick={() => setTheme(t.id)}
-                    className={cn(
-                      "flex flex-col items-center gap-1 h-auto py-2 px-1 text-xs",
-                      theme === t.id && "bg-brand-500 hover:bg-brand-600"
-                    )}
-                    title={t.label}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span className="truncate w-full text-center">{t.label}</span>
-                  </Button>
-                );
-              })}
-            </div>
+          {/* Font Family Selection - horizontal scroll */}
+          <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4">
+            {fontFamilies.map((font, index) => (
+              <button
+                key={font.id}
+                onClick={() => {
+                  // TODO: implement font family change
+                }}
+                className={cn(
+                  "font-serif text-base whitespace-nowrap transition-colors",
+                  index === 0 ? "text-brand-500 font-medium" : "text-muted-foreground"
+                )}
+              >
+                {font.label}
+              </button>
+            ))}
           </div>
 
           <Separator />
 
-          {/* Font Size Slider */}
+          {/* Font Size Slider - Neu Bible style with Aa indicators */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
               {t("Розмір шрифта", "Font Size")}
@@ -157,77 +161,54 @@ export function SpineTypographyPanel({ open, onClose }: SpineTypographyPanelProp
             <div className="text-center text-xs text-muted-foreground">{fontSize}px</div>
           </div>
 
-          {/* Line Height Slider */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              {t("Міжряддя", "Line Spacing")}
-            </Label>
-            <div className="flex items-center gap-3">
-              <svg className="w-4 h-4 text-muted-foreground opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="4" y1="6" x2="20" y2="6" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="18" x2="20" y2="18" />
-              </svg>
-              <Slider
-                value={[lineHeight]}
-                min={MIN_LH}
-                max={MAX_LH}
-                step={0.05}
-                onValueChange={handleLineHeightChange}
-                className="flex-1"
-                aria-label={t("Міжряддя", "Line Height")}
-              />
-              <svg className="w-5 h-5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="4" y1="4" x2="20" y2="4" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="20" x2="20" y2="20" />
-              </svg>
-            </div>
-            <div className="text-center text-xs text-muted-foreground">{lineHeight.toFixed(2)}</div>
+          {/* Line Spacing - Neu Bible style icons */}
+          <div className="flex justify-center gap-8">
+            {lineSpacingOptions.map((option) => {
+              const isActive = Math.abs(lineHeight - option.value) < 0.2;
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => setLineHeight(option.value)}
+                  className={cn(
+                    "p-3 rounded-lg transition-colors",
+                    isActive ? "text-brand-500" : "text-muted-foreground hover:text-foreground"
+                  )}
+                  aria-label={option.id}
+                >
+                  {/* Line spacing icons */}
+                  <svg
+                    className="w-8 h-6"
+                    viewBox="0 0 32 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    {option.id === "compact" && (
+                      <>
+                        <line x1="4" y1="6" x2="28" y2="6" />
+                        <line x1="4" y1="12" x2="28" y2="12" />
+                        <line x1="4" y1="18" x2="28" y2="18" />
+                      </>
+                    )}
+                    {option.id === "normal" && (
+                      <>
+                        <line x1="4" y1="4" x2="28" y2="4" />
+                        <line x1="4" y1="12" x2="28" y2="12" />
+                        <line x1="4" y1="20" x2="28" y2="20" />
+                      </>
+                    )}
+                    {option.id === "spacious" && (
+                      <>
+                        <line x1="4" y1="2" x2="28" y2="2" />
+                        <line x1="4" y1="12" x2="28" y2="12" />
+                        <line x1="4" y1="22" x2="28" y2="22" />
+                      </>
+                    )}
+                  </svg>
+                </button>
+              );
+            })}
           </div>
-
-          <Separator />
-
-          {/* Text Options */}
-          <div className="space-y-4">
-            <Label className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-              {t("Налаштування тексту", "Text Options")}
-            </Label>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="show-numbers" className="cursor-pointer">
-                {t("Номери віршів", "Verse Numbers")}
-              </Label>
-              <Switch
-                id="show-numbers"
-                checked={showNumbers}
-                onCheckedChange={(v) => setShowNumbers(v)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="flow-mode" className="cursor-pointer">
-                {t("Суцільний текст", "Continuous Text")}
-              </Label>
-              <Switch
-                id="flow-mode"
-                checked={flowMode}
-                onCheckedChange={(v) => setFlowMode(v)}
-              />
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Reset Button */}
-          <Button
-            variant="outline"
-            onClick={resetTypography}
-            className="w-full gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            {t("Скинути", "Reset")}
-          </Button>
         </div>
       </SheetContent>
     </Sheet>

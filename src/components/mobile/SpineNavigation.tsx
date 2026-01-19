@@ -2,7 +2,7 @@
 // Neu Bible-style spine (sidebar) navigation for mobile
 // Бокова навігаційна панель з іконками для доступу до ключових функцій
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   List,
@@ -22,6 +22,37 @@ import { SpineSettingsPanel } from "./SpineSettingsPanel";
 import { SpineTocPanel } from "./SpineTocPanel";
 
 type SpinePanel = "none" | "toc" | "typography" | "search" | "settings";
+
+// Spine color themes (like Neu Bible)
+const SPINE_THEMES = [
+  {
+    id: "amber",
+    gradient: "from-amber-400 via-orange-500 to-red-500",
+    accent: "amber",
+  },
+  {
+    id: "coral",
+    gradient: "from-pink-400 via-rose-500 to-red-500",
+    accent: "rose",
+  },
+  {
+    id: "teal",
+    gradient: "from-teal-400 via-emerald-500 to-green-600",
+    accent: "teal",
+  },
+  {
+    id: "purple",
+    gradient: "from-violet-400 via-purple-500 to-indigo-600",
+    accent: "purple",
+  },
+  {
+    id: "ocean",
+    gradient: "from-cyan-400 via-blue-500 to-indigo-600",
+    accent: "blue",
+  },
+] as const;
+
+const SPINE_THEME_STORAGE_KEY = "vv_spine_theme";
 
 interface SpineNavigationProps {
   /** Current book ID for TOC navigation */
@@ -51,6 +82,50 @@ export function SpineNavigation({
   const navigate = useNavigate();
   const location = useLocation();
   const { language, getLocalizedPath, t } = useLanguage();
+
+  // Spine theme state
+  const [spineThemeIndex, setSpineThemeIndex] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    const saved = localStorage.getItem(SPINE_THEME_STORAGE_KEY);
+    const idx = saved ? parseInt(saved, 10) : 0;
+    return isNaN(idx) ? 0 : idx % SPINE_THEMES.length;
+  });
+
+  // Swipe tracking
+  const touchStartY = useRef<number | null>(null);
+  const spineTheme = SPINE_THEMES[spineThemeIndex];
+
+  // Save theme preference
+  useEffect(() => {
+    localStorage.setItem(SPINE_THEME_STORAGE_KEY, String(spineThemeIndex));
+  }, [spineThemeIndex]);
+
+  // Handle swipe on spine to change theme
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartY.current - touchEndY;
+    const threshold = 50; // minimum swipe distance
+
+    if (Math.abs(deltaY) > threshold) {
+      if (deltaY > 0) {
+        // Swipe up - next theme
+        setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length);
+      } else {
+        // Swipe down - previous theme
+        setSpineThemeIndex((prev) =>
+          prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
+        );
+      }
+    }
+
+    touchStartY.current = null;
+  };
 
   const togglePanel = useCallback((panel: SpinePanel) => {
     setActivePanel((current) => (current === panel ? "none" : panel));
@@ -121,24 +196,27 @@ export function SpineNavigation({
         className={cn(
           "spine-navigation fixed left-0 top-0 bottom-0 z-50",
           "w-16 flex flex-col items-center justify-between py-6",
-          "bg-gradient-to-b from-brand-500 via-brand-500 to-brand-600",
-          "shadow-lg safe-left"
+          "bg-gradient-to-b",
+          spineTheme.gradient,
+          "shadow-lg safe-left transition-all duration-500"
         )}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         aria-label={t("Бокова навігація", "Spine navigation")}
       >
-        {/* Top section - Navigation buttons */}
+        {/* Top section - Theme change arrows */}
         <div className="flex flex-col items-center gap-4">
-          {showNavArrows && onPrevious && (
-            <button
-              onClick={onPrevious}
-              className="spine-btn w-10 h-10 flex items-center justify-center
-                text-white/80 hover:text-white hover:bg-white/10
-                rounded-full transition-colors"
-              aria-label={t("Попередній", "Previous")}
-            >
-              <ChevronUp className="h-6 w-6" />
-            </button>
-          )}
+          <button
+            onClick={() => setSpineThemeIndex((prev) =>
+              prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
+            )}
+            className="spine-btn w-10 h-10 flex items-center justify-center
+              text-white/60 hover:text-white hover:bg-white/10
+              rounded-full transition-colors"
+            aria-label={t("Попередня тема", "Previous theme")}
+          >
+            <ChevronUp className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Middle section - Main action buttons */}
@@ -165,7 +243,7 @@ export function SpineNavigation({
           })}
         </div>
 
-        {/* Bottom section - Timeline and close */}
+        {/* Bottom section - Timeline, theme down arrow, and close */}
         <div className="flex flex-col items-center gap-3">
           {showTimeline && (
             <button
@@ -182,17 +260,15 @@ export function SpineNavigation({
             </button>
           )}
 
-          {showNavArrows && onNext && (
-            <button
-              onClick={onNext}
-              className="spine-btn w-10 h-10 flex items-center justify-center
-                text-white/80 hover:text-white hover:bg-white/10
-                rounded-full transition-colors"
-              aria-label={t("Наступний", "Next")}
-            >
-              <ChevronDown className="h-6 w-6" />
-            </button>
-          )}
+          <button
+            onClick={() => setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length)}
+            className="spine-btn w-10 h-10 flex items-center justify-center
+              text-white/60 hover:text-white hover:bg-white/10
+              rounded-full transition-colors"
+            aria-label={t("Наступна тема", "Next theme")}
+          >
+            <ChevronDown className="h-5 w-5" />
+          </button>
 
           <button
             onClick={() => setIsExpanded(false)}
