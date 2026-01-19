@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 interface TabItem {
   id: string;
   icon: React.ElementType;
-  labelUa: string;
+  labelUk: string;
   labelEn: string;
   basePath: string; // Base path without language prefix
   matchPaths?: string[]; // Paths to match (without language prefix)
@@ -21,7 +21,7 @@ const tabs: TabItem[] = [
   {
     id: "home",
     icon: Home,
-    labelUa: "Головна",
+    labelUk: "Головна",
     labelEn: "Home",
     basePath: "/",
     exactMatch: true,
@@ -29,7 +29,7 @@ const tabs: TabItem[] = [
   {
     id: "library",
     icon: Book,
-    labelUa: "Бібліотека",
+    labelUk: "Бібліотека",
     labelEn: "Library",
     basePath: "/library",
     matchPaths: ["/library", "/lib", "/veda-reader"],
@@ -37,7 +37,7 @@ const tabs: TabItem[] = [
   {
     id: "audio",
     icon: Headphones,
-    labelUa: "Аудіо",
+    labelUk: "Аудіо",
     labelEn: "Audio",
     basePath: "/audio",
     matchPaths: ["/audio", "/audiobooks"],
@@ -45,7 +45,7 @@ const tabs: TabItem[] = [
   {
     id: "calendar",
     icon: Calendar,
-    labelUa: "Календар",
+    labelUk: "Календар",
     labelEn: "Calendar",
     basePath: "/calendar",
     matchPaths: ["/calendar"],
@@ -53,7 +53,7 @@ const tabs: TabItem[] = [
   {
     id: "profile",
     icon: User,
-    labelUa: "Профіль",
+    labelUk: "Профіль",
     labelEn: "Profile",
     basePath: "/auth",
     matchPaths: ["/auth", "/stats", "/admin", "/search"],
@@ -68,7 +68,7 @@ export function MobileTabBar() {
 
   // Remove language prefix from pathname for matching
   const getPathWithoutLang = (pathname: string) => {
-    const match = pathname.match(/^\/(ua|en)(\/.*)?$/);
+    const match = pathname.match(/^\/(uk|en)(\/.*)?$/);
     return match ? (match[2] || '/') : pathname;
   };
 
@@ -106,7 +106,7 @@ export function MobileTabBar() {
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = isActive(tab);
-          const label = language === "uk" ? tab.labelUa : tab.labelEn;
+          const label = language === "uk" ? tab.labelUk : tab.labelEn;
 
           return (
             <button

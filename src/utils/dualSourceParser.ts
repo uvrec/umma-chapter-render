@@ -562,7 +562,7 @@ export function mergeVedabaseAndGitabase(
   );
   
   // ✅ Нормалізуємо ТІЛЬКИ праву частину synonyms_uk (переклади), НЕ ліву (транслітерацію)
-  const normalizedSynonymsUa = synonyms_uk.split(';').map(pair => {
+  const normalizedSynonymsUk = synonyms_uk.split(';').map(pair => {
     const parts = pair.split('—').map(p => p.trim());
     if (parts.length === 2) {
       const term = parts[0]; // транслітерація - БЕЗ нормалізації
@@ -578,7 +578,7 @@ export function mergeVedabaseAndGitabase(
     transliteration_en: vedabase.transliteration_en, // IAST без змін
     transliteration_uk: transliteration_uk, // ✅ БЕЗ нормалізації слів! (тільки діакритика)
     synonyms_en: vedabase.synonyms_en, // IAST без змін
-    synonyms_uk: normalizedSynonymsUa, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
+    synonyms_uk: normalizedSynonymsUk, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
     translation_en: normalizeVerseField(vedabase.translation_en, 'translation'),
     translation_uk: normalizeVerseField(gitabase?.translation_uk || '', 'translation'),
     commentary_en: normalizeVerseField(vedabase.commentary_en, 'commentary'),

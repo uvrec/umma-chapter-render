@@ -80,7 +80,7 @@ export const ChapterVersesList = () => {
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
-  const [editedContentUa, setEditedContentUa] = useState("");
+  const [editedContentUk, setEditedContentUk] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
   const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -270,7 +270,7 @@ export const ChapterVersesList = () => {
       const {
         error
       } = await supabase.from("chapters").update({
-        content_uk: editedContentUa,
+        content_uk: editedContentUk,
         content_en: editedContentEn
       }).eq("id", effectiveChapterObj.id);
       if (error) throw error;
@@ -319,7 +319,7 @@ export const ChapterVersesList = () => {
 
   useEffect(() => {
     if (effectiveChapterObj) {
-      setEditedContentUa(effectiveChapterObj.content_uk || "");
+      setEditedContentUk(effectiveChapterObj.content_uk || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
     }
   }, [effectiveChapterObj]);
@@ -477,7 +477,7 @@ export const ChapterVersesList = () => {
               {isEditingContent ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <EnhancedInlineEditor content={editedContentUa} onChange={setEditedContentUa} label="Українська" />
+                    <EnhancedInlineEditor content={editedContentUk} onChange={setEditedContentUk} label="Українська" />
                     <EnhancedInlineEditor content={editedContentEn} onChange={setEditedContentEn} label="English" />
                   </div>
                   <div className="flex gap-2">
@@ -487,7 +487,7 @@ export const ChapterVersesList = () => {
                     </Button>
                     <Button variant="outline" onClick={() => {
                 setIsEditingContent(false);
-                setEditedContentUa(effectiveChapterObj.content_uk || "");
+                setEditedContentUk(effectiveChapterObj.content_uk || "");
                 setEditedContentEn(effectiveChapterObj.content_en || "");
               }} className="gap-2">
                       <X className="h-4 w-4" />

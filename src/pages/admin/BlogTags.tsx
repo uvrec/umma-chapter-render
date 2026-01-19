@@ -35,7 +35,7 @@ export default function BlogTags() {
   const [editId, setEditId] = useState<string | null>(null);
 
   // форма
-  const [nameUa, setNameUa] = useState("");
+  const [nameUk, setNameUk] = useState("");
   const [nameEn, setNameEn] = useState("");
   const [slug, setSlug] = useState("");
   const [autoSlug, setAutoSlug] = useState(true); // якщо користувач сам змінить slug — вимикаємо автогенерацію
@@ -65,7 +65,7 @@ export default function BlogTags() {
 
   const handleEdit = (tag: BlogTag) => {
     setEditId(tag.id);
-    setNameUa(tag.name_uk);
+    setNameUk(tag.name_uk);
     setNameEn(tag.name_en);
     setSlug(tag.slug);
     setAutoSlug(false); // при редагуванні існуючого — не чіпаємо slug автоматично
@@ -74,7 +74,7 @@ export default function BlogTags() {
 
   const handleReset = () => {
     setEditId(null);
-    setNameUa("");
+    setNameUk("");
     setNameEn("");
     setSlug("");
     setAutoSlug(true);
@@ -83,13 +83,13 @@ export default function BlogTags() {
   // автогенерація slug з української назви (лише якщо користувач сам не правив slug)
   useEffect(() => {
     if (autoSlug) {
-      setSlug(generateSlug(nameUa));
+      setSlug(generateSlug(nameUk));
     }
-  }, [nameUa, autoSlug]);
+  }, [nameUk, autoSlug]);
 
   const handleSlugManualChange = (v: string) => {
     setSlug(v);
-    if (v !== generateSlug(nameUa)) {
+    if (v !== generateSlug(nameUk)) {
       setAutoSlug(false);
     } else if (!editId) {
       setAutoSlug(true);
@@ -99,15 +99,15 @@ export default function BlogTags() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!nameUa || !nameEn) {
+    if (!nameUk || !nameEn) {
       toast({ title: "Заповніть назви українською та англійською", variant: "destructive" });
       return;
     }
 
     const tagData = {
-      name_uk: nameUa,
+      name_uk: nameUk,
       name_en: nameEn,
-      slug: slug || generateSlug(nameUa),
+      slug: slug || generateSlug(nameUk),
     };
 
     try {
@@ -185,7 +185,7 @@ export default function BlogTags() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name-ua">Назва (UK)</Label>
-                  <Input id="name-ua" value={nameUa} onChange={(e) => setNameUa(e.target.value)} required />
+                  <Input id="name-ua" value={nameUk} onChange={(e) => setNameUk(e.target.value)} required />
                 </div>
                 <div>
                   <Label htmlFor="name-en">Name (EN)</Label>

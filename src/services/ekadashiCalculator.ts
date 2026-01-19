@@ -304,7 +304,7 @@ export function calculateEkadashiFastingTimes(
   }
 
   // Generate notes
-  const notes_uk = generateNotesUa(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
+  const notes_uk = generateNotesUk(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
   const notes_en = generateNotesEn(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
 
   return {
@@ -846,7 +846,7 @@ function formatDateKey(date: Date): string {
 /**
  * Generate Ukrainian notes for parana
  */
-function generateNotesUa(
+function generateNotesUk(
   paranaStart: Date,
   paranaEnd: Date,
   hariVasaraEnd: Date,

@@ -28,15 +28,15 @@ export default function AddEditVerse() {
   const [selectedCantoId, setSelectedCantoId] = useState(searchParams.get("cantoId") || "");
   const [chapterId, setChapterId] = useState(searchParams.get("chapterId") || "");
   const [verseNumber, setVerseNumber] = useState("");
-  const [sanskritUa, setSanskritUa] = useState("");
+  const [sanskritUk, setSanskritUk] = useState("");
   const [sanskritEn, setSanskritEn] = useState("");
-  const [transliterationUa, setTransliterationUa] = useState("");
+  const [transliterationUk, setTransliterationUk] = useState("");
   const [transliterationEn, setTransliterationEn] = useState("");
-  const [synonymsUa, setSynonymsUa] = useState("");
+  const [synonymsUk, setSynonymsUk] = useState("");
   const [synonymsEn, setSynonymsEn] = useState("");
-  const [translationUa, setTranslationUa] = useState("");
+  const [translationUk, setTranslationUk] = useState("");
   const [translationEn, setTranslationEn] = useState("");
-  const [commentaryUa, setCommentaryUa] = useState("");
+  const [commentaryUk, setCommentaryUk] = useState("");
   const [commentaryEn, setCommentaryEn] = useState("");
 
   // Audio URLs - simplified structure (4 fields)
@@ -224,15 +224,15 @@ export default function AddEditVerse() {
     if (verse) {
       setChapterId(verse.chapter_id);
       setVerseNumber(verse.verse_number);
-      setSanskritUa(verse.sanskrit_uk || (verse as any).sanskrit || "");
+      setSanskritUk(verse.sanskrit_uk || (verse as any).sanskrit || "");
       setSanskritEn(verse.sanskrit_en || (verse as any).sanskrit || "");
-      setTransliterationUa(verse.transliteration_uk || "");
+      setTransliterationUk(verse.transliteration_uk || "");
       setTransliterationEn(verse.transliteration_en || "");
-      setSynonymsUa(verse.synonyms_uk || "");
+      setSynonymsUk(verse.synonyms_uk || "");
       setSynonymsEn(verse.synonyms_en || "");
-      setTranslationUa(verse.translation_uk || "");
+      setTranslationUk(verse.translation_uk || "");
       setTranslationEn(verse.translation_en || "");
-      setCommentaryUa(verse.commentary_uk || "");
+      setCommentaryUk(verse.commentary_uk || "");
       setCommentaryEn(verse.commentary_en || "");
 
       // Legacy audio field
@@ -283,15 +283,15 @@ export default function AddEditVerse() {
     // Clear all content fields, but keep the chapter context
     // Set the next verse number if provided, otherwise empty
     setVerseNumber(nextVerseNum || "");
-    setSanskritUa("");
+    setSanskritUk("");
     setSanskritEn("");
-    setTransliterationUa("");
+    setTransliterationUk("");
     setTransliterationEn("");
-    setSynonymsUa("");
+    setSynonymsUk("");
     setSynonymsEn("");
-    setTranslationUa("");
+    setTranslationUk("");
     setTranslationEn("");
-    setCommentaryUa("");
+    setCommentaryUk("");
     setCommentaryEn("");
     setAudioUrl("");
     setFullVerseAudioUrl("");
@@ -307,15 +307,15 @@ export default function AddEditVerse() {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
-        sanskrit_uk: sanskritUa || null,
+        sanskrit_uk: sanskritUk || null,
         sanskrit_en: sanskritEn || null,
-        transliteration_uk: transliterationUa || null,
+        transliteration_uk: transliterationUk || null,
         transliteration_en: transliterationEn || null,
-        synonyms_uk: synonymsUa || null,
+        synonyms_uk: synonymsUk || null,
         synonyms_en: synonymsEn || null,
-        translation_uk: translationUa || null,
+        translation_uk: translationUk || null,
         translation_en: translationEn || null,
-        commentary_uk: commentaryUa || null,
+        commentary_uk: commentaryUk || null,
         commentary_en: commentaryEn || null,
 
         // Audio URLs - simplified structure
@@ -534,54 +534,54 @@ export default function AddEditVerse() {
                 <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
 
                 <div>
-                  <Label htmlFor="sanskritUa">Санскрит</Label>
+                  <Label htmlFor="sanskritUk">Санскрит</Label>
                   <Textarea
-                    id="sanskritUa"
-                    value={sanskritUa}
-                    onChange={(e) => { setSanskritUa(e.target.value); markDirty(); }}
+                    id="sanskritUk"
+                    value={sanskritUk}
+                    onChange={(e) => { setSanskritUk(e.target.value); markDirty(); }}
                     placeholder="ॐ नमो भगवते वासुदेवाय..."
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="transliterationUa">Транслітерація</Label>
+                  <Label htmlFor="transliterationUk">Транслітерація</Label>
                   <Textarea
-                    id="transliterationUa"
-                    value={transliterationUa}
-                    onChange={(e) => { setTransliterationUa(e.target.value); markDirty(); }}
+                    id="transliterationUk"
+                    value={transliterationUk}
+                    onChange={(e) => { setTransliterationUk(e.target.value); markDirty(); }}
                     placeholder="ом̇ намо бгаґавате ва̄судева̄йа..."
                     rows={3}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="synonymsUa">Синоніми</Label>
+                  <Label htmlFor="synonymsUk">Синоніми</Label>
                   <Textarea
-                    id="synonymsUa"
-                    value={synonymsUa}
-                    onChange={(e) => { setSynonymsUa(e.target.value); markDirty(); }}
+                    id="synonymsUk"
+                    value={synonymsUk}
+                    onChange={(e) => { setSynonymsUk(e.target.value); markDirty(); }}
                     placeholder="ом̇ – мій Господи; намах̣ – у шанобі схиляюсь..."
                     rows={4}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="translationUa">Переклад</Label>
+                  <Label htmlFor="translationUk">Переклад</Label>
                   <Textarea
-                    id="translationUa"
-                    value={translationUa}
-                    onChange={(e) => { setTranslationUa(e.target.value); markDirty(); }}
+                    id="translationUk"
+                    value={translationUk}
+                    onChange={(e) => { setTranslationUk(e.target.value); markDirty(); }}
                     placeholder="Український переклад вірша..."
                     rows={4}
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="commentaryUa">Коментар</Label>
+                  <Label htmlFor="commentaryUk">Коментар</Label>
                   <EnhancedInlineEditor
-                    content={commentaryUa}
-                    onChange={(val) => { setCommentaryUa(val); markDirty(); }}
+                    content={commentaryUk}
+                    onChange={(val) => { setCommentaryUk(val); markDirty(); }}
                     label="Коментар українською..."
                   />
                 </div>
@@ -787,10 +787,10 @@ export default function AddEditVerse() {
                             audioUrl={fullVerseAudioUrl}
                             initialText={
                               lrcSection === 'sanskrit'
-                                ? sanskritUa || sanskritEn
+                                ? sanskritUk || sanskritEn
                                 : lrcSection === 'translation'
-                                  ? translationUa || translationEn
-                                  : commentaryUa || commentaryEn
+                                  ? translationUk || translationEn
+                                  : commentaryUk || commentaryEn
                             }
                             section={lrcSection}
                             onSave={async (lrcContent) => {

@@ -119,7 +119,7 @@ export const CantoOverview = () => {
 
         <div className="space-y-1">
           {chapters && chapters.length > 0 ? chapters.map(chapter => {
-          const chapterTitleUa = chapter.title_uk;
+          const chapterTitleUk = chapter.title_uk;
           const chapterTitleEn = chapter.title_en;
           const chapterNum = chapter.chapter_number; // Це вже просто номер глави (1, 2, 3...)
 
@@ -129,7 +129,7 @@ export const CantoOverview = () => {
                   <div className="grid gap-8 md:grid-cols-2">
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Глава {chapterNum}</span>
-                      <span className="text-lg text-foreground">{chapterTitleUa}</span>
+                      <span className="text-lg text-foreground">{chapterTitleUk}</span>
                     </div>
                     <div className="flex items-start gap-3">
                       <span className="text-lg font-bold text-primary whitespace-nowrap">Chapter {chapterNum}</span>
@@ -144,7 +144,7 @@ export const CantoOverview = () => {
                       {t("Глава", "Chapter")} {chapterNum}
                     </span>
                     <span className="text-lg text-foreground">
-                      {language === "uk" ? chapterTitleUa : chapterTitleEn}
+                      {language === "uk" ? chapterTitleUk : chapterTitleEn}
                     </span>
                   </div>
                 </Link>;

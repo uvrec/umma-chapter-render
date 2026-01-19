@@ -56,11 +56,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
 
   // Form fields - Ukrainian
   const [verseNumber, setVerseNumber] = useState("");
-  const [sanskritUa, setSanskritUa] = useState("");
-  const [transliterationUa, setTransliterationUa] = useState("");
-  const [synonymsUa, setSynonymsUa] = useState("");
-  const [translationUa, setTranslationUa] = useState("");
-  const [commentaryUa, setCommentaryUa] = useState("");
+  const [sanskritUk, setSanskritUk] = useState("");
+  const [transliterationUk, setTransliterationUk] = useState("");
+  const [synonymsUk, setSynonymsUk] = useState("");
+  const [translationUk, setTranslationUk] = useState("");
+  const [commentaryUk, setCommentaryUk] = useState("");
 
   // Form fields - English
   const [sanskritEn, setSanskritEn] = useState("");
@@ -83,11 +83,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       setVerse(null);
       setVerseLocation(null);
       setVerseNumber("");
-      setSanskritUa("");
-      setTransliterationUa("");
-      setSynonymsUa("");
-      setTranslationUa("");
-      setCommentaryUa("");
+      setSanskritUk("");
+      setTransliterationUk("");
+      setSynonymsUk("");
+      setTranslationUk("");
+      setCommentaryUk("");
       setSanskritEn("");
       setTransliterationEn("");
       setSynonymsEn("");
@@ -128,11 +128,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         setVerse(data);
         setVerseNumber(data.verse_number || "");
         // Ukrainian fields
-        setSanskritUa(data.sanskrit_uk || (data as any).sanskrit || "");
-        setTransliterationUa(data.transliteration_uk || "");
-        setSynonymsUa(data.synonyms_uk || "");
-        setTranslationUa(data.translation_uk || "");
-        setCommentaryUa(data.commentary_uk || "");
+        setSanskritUk(data.sanskrit_uk || (data as any).sanskrit || "");
+        setTransliterationUk(data.transliteration_uk || "");
+        setSynonymsUk(data.synonyms_uk || "");
+        setTranslationUk(data.translation_uk || "");
+        setCommentaryUk(data.commentary_uk || "");
         // English fields
         setSanskritEn(data.sanskrit_en || (data as any).sanskrit || "");
         setTransliterationEn(data.transliteration_en || "");
@@ -211,11 +211,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       const verseData = {
         verse_number: verseNumber,
         // Ukrainian fields
-        sanskrit_uk: sanskritUa || null,
-        transliteration_uk: transliterationUa || null,
-        synonyms_uk: synonymsUa || null,
-        translation_uk: translationUa || null,
-        commentary_uk: commentaryUa || null,
+        sanskrit_uk: sanskritUk || null,
+        transliteration_uk: transliterationUk || null,
+        synonyms_uk: synonymsUk || null,
+        translation_uk: translationUk || null,
+        commentary_uk: commentaryUk || null,
         // English fields
         sanskrit_en: sanskritEn || null,
         transliteration_en: transliterationEn || null,
@@ -366,8 +366,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-sanskrit-ua">Санскрит</Label>
                 <Textarea
                   id="quick-sanskrit-ua"
-                  value={sanskritUa}
-                  onChange={(e) => setSanskritUa(e.target.value)}
+                  value={sanskritUk}
+                  onChange={(e) => setSanskritUk(e.target.value)}
                   placeholder="देहिनोऽस्मिन्..."
                   rows={3}
                   className="font-sanskrit"
@@ -378,8 +378,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-transliteration-ua">Транслітерація</Label>
                 <Textarea
                   id="quick-transliteration-ua"
-                  value={transliterationUa}
-                  onChange={(e) => setTransliterationUa(e.target.value)}
+                  value={transliterationUk}
+                  onChange={(e) => setTransliterationUk(e.target.value)}
                   placeholder="dehino 'smin..."
                   rows={2}
                 />
@@ -389,8 +389,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-synonyms-ua">Синоніми</Label>
                 <Textarea
                   id="quick-synonyms-ua"
-                  value={synonymsUa}
-                  onChange={(e) => setSynonymsUa(e.target.value)}
+                  value={synonymsUk}
+                  onChange={(e) => setSynonymsUk(e.target.value)}
                   placeholder="деха – тіло; асмін – в цьому..."
                   rows={3}
                 />
@@ -400,8 +400,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-translation-ua">Переклад</Label>
                 <Textarea
                   id="quick-translation-ua"
-                  value={translationUa}
-                  onChange={(e) => setTranslationUa(e.target.value)}
+                  value={translationUk}
+                  onChange={(e) => setTranslationUk(e.target.value)}
                   placeholder="Як душа..."
                   rows={4}
                 />
@@ -411,8 +411,8 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
                 <Label htmlFor="quick-commentary-ua">Коментар</Label>
                 <Textarea
                   id="quick-commentary-ua"
-                  value={commentaryUa}
-                  onChange={(e) => setCommentaryUa(e.target.value)}
+                  value={commentaryUk}
+                  onChange={(e) => setCommentaryUk(e.target.value)}
                   placeholder="В цьому вірші..."
                   rows={6}
                 />

@@ -40,7 +40,7 @@ export const IntroChapter = () => {
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
-  const [editedContentUa, setEditedContentUa] = useState("");
+  const [editedContentUk, setEditedContentUk] = useState("");
   const [editedContentEn, setEditedContentEn] = useState("");
 
   // Fetch book
@@ -101,7 +101,7 @@ export const IntroChapter = () => {
   // Initialize edited content when intro chapter loads
   useEffect(() => {
     if (introChapter) {
-      setEditedContentUa(introChapter.content_uk || "");
+      setEditedContentUk(introChapter.content_uk || "");
       setEditedContentEn(introChapter.content_en || "");
     }
   }, [introChapter]);
@@ -133,7 +133,7 @@ export const IntroChapter = () => {
       const { error } = await supabase
         .from("intro_chapters")
         .update({
-          content_uk: editedContentUa,
+          content_uk: editedContentUk,
           content_en: editedContentEn
         })
         .eq("id", introChapter.id);
@@ -221,7 +221,7 @@ export const IntroChapter = () => {
                         size="sm"
                         onClick={() => {
                           setIsEditingContent(false);
-                          setEditedContentUa(introChapter?.content_uk || "");
+                          setEditedContentUk(introChapter?.content_uk || "");
                           setEditedContentEn(introChapter?.content_en || "");
                         }}
                         className="gap-2"
@@ -253,8 +253,8 @@ export const IntroChapter = () => {
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">Українська</h3>
                 <EnhancedInlineEditor
-                  content={editedContentUa}
-                  onChange={setEditedContentUa}
+                  content={editedContentUk}
+                  onChange={setEditedContentUk}
                 />
               </div>
               <div>

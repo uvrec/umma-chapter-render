@@ -69,9 +69,9 @@ export default function AddEditBook() {
   const isEdit = !!id;
 
   const [slug, setSlug] = useState("");
-  const [titleUa, setTitleUa] = useState("");
+  const [titleUk, setTitleUk] = useState("");
   const [titleEn, setTitleEn] = useState("");
-  const [descriptionUa, setDescriptionUa] = useState("");
+  const [descriptionUk, setDescriptionUk] = useState("");
   const [descriptionEn, setDescriptionEn] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState("");
   const [coverImagePath, setCoverImagePath] = useState<string | null>(null); // шлях у бакеті, якщо відомий
@@ -102,9 +102,9 @@ export default function AddEditBook() {
   useEffect(() => {
     if (!book) return;
     setSlug(book.slug ?? "");
-    setTitleUa(book.title_uk ?? "");
+    setTitleUk(book.title_uk ?? "");
     setTitleEn(book.title_en ?? "");
-    setDescriptionUa(book.description_uk ?? "");
+    setDescriptionUk(book.description_uk ?? "");
     setDescriptionEn(book.description_en ?? "");
     setCoverImageUrl(book.cover_image_url ?? "");
     setCoverImagePath(
@@ -115,19 +115,19 @@ export default function AddEditBook() {
   }, [book]);
 
   // Автогенерація slug з назви, якщо slug порожній або не редагувався вручну
-  const autoSlug = useMemo(() => generateSlug(titleUa || ""), [titleUa]);
+  const autoSlug = useMemo(() => generateSlug(titleUk || ""), [titleUk]);
   useEffect(() => {
-    if (!isEdit && !slug && titleUa.trim()) {
+    if (!isEdit && !slug && titleUk.trim()) {
       setSlug(autoSlug);
     }
-  }, [autoSlug, isEdit, slug, titleUa]);
+  }, [autoSlug, isEdit, slug, titleUk]);
 
   const mutation = useMutation({
     mutationFn: async () => {
       if (!slug || !SLUG_REGEX.test(slug)) {
         throw new Error("Slug має бути у форматі kebab-case: латиниця/цифри та дефіси, наприклад: srimad-bhagavatam");
       }
-      if (!titleUa.trim()) {
+      if (!titleUk.trim()) {
         throw new Error("Заповніть обов'язкове поле: Назва (UK)");
       }
       if (!isValidHttpsOrEmpty(coverImageUrl)) {
@@ -136,9 +136,9 @@ export default function AddEditBook() {
 
       const bookData = {
         slug,
-        title_uk: titleUa.trim(),
+        title_uk: titleUk.trim(),
         title_en: titleEn.trim() || null,
-        description_uk: descriptionUa.trim() || null,
+        description_uk: descriptionUk.trim() || null,
         description_en: descriptionEn.trim() || null,
         cover_image_url: coverImageUrl.trim() || null,
         // якщо у вас є колонка для шляху у сховищі — збережемо (і надалі зможемо коректно видаляти файл)
@@ -188,7 +188,7 @@ export default function AddEditBook() {
     setUploading(true);
     try {
       const fileExt = file.name.split(".").pop() || "jpg";
-      const safeSlug = slug || generateSlug(titleUa) || "book";
+      const safeSlug = slug || generateSlug(titleUk) || "book";
       const fileName = `${safeSlug}-cover-${Date.now()}.${fileExt}`;
       const filePath = `book-covers/${fileName}`;
 
@@ -376,21 +376,21 @@ export default function AddEditBook() {
               <div className="space-y-4">
                 <h3 className="font-semibold text-lg border-b pb-2">Українська</h3>
                 <div>
-                  <Label htmlFor="titleUa">Назва *</Label>
+                  <Label htmlFor="titleUk">Назва *</Label>
                   <Input
-                    id="titleUa"
-                    value={titleUa}
-                    onChange={(e) => setTitleUa(e.target.value)}
+                    id="titleUk"
+                    value={titleUk}
+                    onChange={(e) => setTitleUk(e.target.value)}
                     placeholder="Шрімад-Бгаґаватам"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="descriptionUa">Опис</Label>
+                  <Label htmlFor="descriptionUk">Опис</Label>
                   <Textarea
-                    id="descriptionUa"
-                    value={descriptionUa}
-                    onChange={(e) => setDescriptionUa(e.target.value)}
+                    id="descriptionUk"
+                    value={descriptionUk}
+                    onChange={(e) => setDescriptionUk(e.target.value)}
                     placeholder="Опис книги українською..."
                     rows={6}
                   />
