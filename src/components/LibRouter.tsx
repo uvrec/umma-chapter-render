@@ -25,14 +25,14 @@ import { ChapterVersesList } from "@/pages/ChapterVersesList";
 import CantoOverview from "@/pages/CantoOverview";
 import { RouteErrorBoundary } from "@/components/RouteErrorBoundary";
 import { IntroChapter } from "@/pages/IntroChapter";
-import { BookAuthorPage } from "@/components/book/BookAuthorPage";
-import { BookPronunciationPage } from "@/components/book/BookPronunciationPage";
-import { BookGlossaryPage } from "@/components/book/BookGlossaryPage";
-import { BookDedicationPage } from "@/components/book/BookDedicationPage";
-import { BookDisciplicSuccessionPage } from "@/components/book/BookDisciplicSuccessionPage";
-import { BookSettingsRoutePage } from "@/components/book/BookSettingsPage";
-import { BookUserContentPage } from "@/components/book/BookUserContentPage";
-import { BookGalleriesPage } from "@/components/book/BookGalleriesPage";
+import { BookAuthorPage } from "@/pages/book/BookAuthorPage";
+import { BookPronunciationPage } from "@/pages/book/BookPronunciationPage";
+import { BookGlossaryPage } from "@/pages/book/BookGlossaryPage";
+import { BookDedicationPage } from "@/pages/book/BookDedicationPage";
+import { BookDisciplicSuccessionPage } from "@/pages/book/BookDisciplicSuccessionPage";
+import { BookSettingsRoutePage } from "@/pages/book/BookSettingsRoutePage";
+import { BookUserContentPage } from "@/pages/book/BookUserContentPage";
+import { BookGalleriesPage } from "@/pages/book/BookGalleriesPage";
 
 // Auxiliary page routes that should not be treated as chapter/canto numbers
 const AUXILIARY_PAGES = [
