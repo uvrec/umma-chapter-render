@@ -12,11 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, BookOpen, Edit, Save, X, ChevronLeft, ChevronRight, Plus, Trash2, Settings } from "lucide-react";
 import { GlobalSettingsPanel } from "@/components/GlobalSettingsPanel";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import DOMPurify from "dompurify";
+import { VerseSlider } from "@/components/mobile/VerseSlider";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
@@ -77,6 +79,7 @@ export const ChapterVersesList = () => {
     showNumbers,
     flowMode
   } = useReaderSettings();
+  const isMobile = useIsMobile();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -84,6 +87,13 @@ export const ChapterVersesList = () => {
   const [editedContentEn, setEditedContentEn] = useState("");
   const [verseToDelete, setVerseToDelete] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Mobile Bible-style navigation
+  const [verseSliderOpen, setVerseSliderOpen] = useState(false);
+  const [currentVisibleVerse, setCurrentVisibleVerse] = useState<string | null>(null);
+  const verseRefs = useRef<Map<string, HTMLElement>>(new Map());
+  const swipeStartX = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -344,6 +354,55 @@ export const ChapterVersesList = () => {
     chapterTitle: chapterTitle || '',
     cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined
   });
+
+  // Mobile Bible-style: свайп для відкриття слайдера віршів
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (swipeStartX.current === null) return;
+
+    const swipeEndX = e.changedTouches[0].clientX;
+    const deltaX = swipeStartX.current - swipeEndX;
+
+    // Свайп справа наліво (> 50px) - відкрити слайдер віршів
+    if (deltaX > 50 && isMobile) {
+      setVerseSliderOpen(true);
+    }
+
+    swipeStartX.current = null;
+  }, [isMobile]);
+
+  // Прокрутка до вірша при виборі зі слайдера
+  const handleVerseSelect = useCallback((verseNumber: string) => {
+    const element = verseRefs.current.get(verseNumber);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setCurrentVisibleVerse(verseNumber);
+    }
+  }, []);
+
+  // Відстеження видимого вірша при скролі (для мобільних)
+  useEffect(() => {
+    if (!isMobile || verses.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const verseNum = entry.target.getAttribute('data-verse');
+            if (verseNum) setCurrentVisibleVerse(verseNum);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    verseRefs.current.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [isMobile, verses]);
+
   if (isLoading) {
     return <div className="flex min-h-screen flex-col">
         <Header />
@@ -370,7 +429,12 @@ export const ChapterVersesList = () => {
   }
   breadcrumbItems.push({ name: chapterTitle || `${language === "uk" ? "Глава" : "Chapter"} ${chapterNumber}`, url: chapterPath });
 
-  return <div className="flex min-h-screen flex-col">
+  return <div
+      className="flex min-h-screen flex-col"
+      ref={containerRef}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* SEO Metadata */}
       <Helmet>
         <title>{`${pageTitle} | ${SITE_CONFIG.siteName}`}</title>
@@ -418,11 +482,12 @@ export const ChapterVersesList = () => {
             </Button>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              {adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {/* Навігація по главах - ховаємо на мобільних */}
+              {!isMobile && adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <ChevronLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">{language === "uk" ? "Попередня" : "Previous"}</span>
                 </Button>}
-              {adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {!isMobile && adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <span className="hidden sm:inline">{language === "uk" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
@@ -572,7 +637,36 @@ export const ChapterVersesList = () => {
             </div>
           )}
 
-          {flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
+          {/* Mobile Bible-style: суцільний текст з маленькими номерами */}
+          {isMobile ? (
+            <div className="prose prose-lg max-w-none" style={readerTextStyle}>
+              <p className="text-foreground text-justify leading-relaxed">
+                {verses.map((verse: Verse) => {
+                  const text = language === "uk" ? verse.translation_uk : verse.translation_en;
+                  return (
+                    <span
+                      key={verse.id}
+                      ref={(el) => {
+                        if (el) verseRefs.current.set(verse.verse_number, el);
+                      }}
+                      data-verse={verse.verse_number}
+                      className="inline"
+                    >
+                      <sup
+                        className="text-primary font-bold text-xs mr-0.5 cursor-pointer hover:text-primary/80"
+                        onClick={() => navigate(getVerseUrl(verse.verse_number))}
+                      >
+                        {verse.verse_number}
+                      </sup>
+                      {stripParagraphTags(text || "") || (
+                        <span className="italic text-muted-foreground">—</span>
+                      )}{" "}
+                    </span>
+                  );
+                })}
+              </p>
+            </div>
+          ) : flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
             const text = language === "uk" ? verse.translation_uk : verse.translation_en;
             return <p key={verse.id} className="text-foreground mb-6">
@@ -684,7 +778,8 @@ export const ChapterVersesList = () => {
 
           {verses.length === 0}
 
-          {(adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
+          {/* Навігація по главах - ховаємо на мобільних (мінімалістичний дизайн) */}
+          {!isMobile && (adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
               {adjacentChapters?.prev ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-2">
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">
@@ -718,5 +813,16 @@ export const ChapterVersesList = () => {
         onOpenChange={setSettingsOpen}
         showFloatingButton={false}
       />
+
+      {/* Mobile Verse Slider - бокова стрічка навігації */}
+      {isMobile && verses.length > 0 && (
+        <VerseSlider
+          verses={verses.map(v => ({ id: v.id, verse_number: v.verse_number }))}
+          currentVerseNumber={currentVisibleVerse || verses[0]?.verse_number}
+          onVerseSelect={handleVerseSelect}
+          isOpen={verseSliderOpen}
+          onClose={() => setVerseSliderOpen(false)}
+        />
+      )}
     </div>;
 };

@@ -1,4 +1,13 @@
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export const Footer = () => {
+  const isMobile = useIsMobile();
+
+  // На мобільних не показуємо футер - мінімалістичний дизайн
+  if (isMobile) {
+    return null;
+  }
+
   const socialLinks = [{
     name: "Telegram",
     url: "https://t.me/prabhupada_ua",
