@@ -91,6 +91,7 @@ import LRCEditorPage from "./pages/admin/LRCEditorPage";
 import BookExport from "./pages/admin/BookExport";
 import { NoIRedirect } from "./pages/NoIRedirect";
 import { LibOneParamRouter, LibTwoParamRouter, LibThreeParamRouter } from "./components/LibRouter";
+import { LanguageWrapper, LanguageRedirect } from "./components/LanguageWrapper";
 import {
   VedaReaderBookRedirect,
   VedaReaderChapterRedirect,
@@ -146,28 +147,125 @@ function AppContent() {
   return (
     <>
       <BrowserRouter>
-        <LanguageProvider>
         <MobileLayout>
         <Routes>
           {/* ============================================================
-              LANGUAGE PREFIX ROUTES
-              Optional :lang parameter (uk or en) for all public routes
+              ROOT → LANGUAGE REDIRECT
+              Redirects / to /ua/ or /en/ based on saved preference
               ============================================================ */}
-          <Route path="/" element={<NewHome />} />
+          <Route path="/" element={<LanguageRedirect />} />
 
           {/* ============================================================
-              /lib/ - ОСНОВНІ МАРШРУТИ (короткі URL)
+              LANGUAGE-PREFIXED ROUTES (/:lang/...)
+              All public routes wrapped with language prefix
               ============================================================ */}
-          <Route path="/lib/:bookId/:p1/:p2/:p3" element={<LibThreeParamRouter />} />
-          <Route path="/lib/:bookId/:p1/:p2" element={<LibTwoParamRouter />} />
-          <Route path="/lib/:bookId/:p1" element={<LibOneParamRouter />} />
-          <Route path="/lib/:bookId" element={<BookOverview />} />
-          <Route path="/lib" element={<Navigate to="/library" replace />} />
+          <Route path="/:lang" element={<LanguageWrapper />}>
+            <Route index element={<NewHome />} />
+
+            {/* /lib/ - ОСНОВНІ МАРШРУТИ (короткі URL) */}
+            <Route path="lib/:bookId/:p1/:p2/:p3" element={<LibThreeParamRouter />} />
+            <Route path="lib/:bookId/:p1/:p2" element={<LibTwoParamRouter />} />
+            <Route path="lib/:bookId/:p1" element={<LibOneParamRouter />} />
+            <Route path="lib/:bookId" element={<BookOverview />} />
+            <Route path="lib" element={<Navigate to="library" replace />} />
+
+            {/* /veda-reader/ - РЕДІРЕКТИ на /lib/ (для зворотної сумісності) */}
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId" element={<VedaReaderCantoVerseRedirect />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber" element={<VedaReaderCantoVerseRedirect />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderCantoChapterRedirect />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber" element={<VedaReaderCantoRedirect />} />
+            <Route path="veda-reader/:bookId/:chapterNumber/:verseNumber" element={<VedaReaderVerseRedirect />} />
+            <Route path="veda-reader/:bookId/:chapterNumber" element={<VedaReaderChapterRedirect />} />
+            <Route path="veda-reader/noi/:verseNumber" element={<NoIRedirect />} />
+
+            {/* Book resources pages */}
+            <Route path="veda-reader/:bookId/intro/:slug" element={<IntroChapter />} />
+            <Route path="veda-reader/:bookId/author" element={<BookAuthorPage />} />
+            <Route path="veda-reader/:bookId/pronunciation" element={<BookPronunciationPage />} />
+            <Route path="veda-reader/:bookId/glossary" element={<BookGlossaryPage />} />
+            <Route path="veda-reader/:bookId/dedication" element={<BookDedicationPage />} />
+            <Route path="veda-reader/:bookId/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+            <Route path="veda-reader/:bookId/settings" element={<BookSettingsRoutePage />} />
+            <Route path="veda-reader/:bookId/bookmarks" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/notes" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/highlights" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/galleries" element={<BookGalleriesPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/author" element={<BookAuthorPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/pronunciation" element={<BookPronunciationPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/glossary" element={<BookGlossaryPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/dedication" element={<BookDedicationPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/disciplic-succession" element={<BookDisciplicSuccessionPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/settings" element={<BookSettingsRoutePage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/bookmarks" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/notes" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/highlights" element={<BookUserContentPage />} />
+            <Route path="veda-reader/:bookId/canto/:cantoNumber/galleries" element={<BookGalleriesPage />} />
+            <Route path="veda-reader/:bookId" element={<VedaReaderBookRedirect />} />
+            <Route path="veda-reader/bhagavad-gita/*" element={<Navigate to="lib/bg/1" replace />} />
+            <Route path="veda-reader/gita/*" element={<Navigate to="lib/bg/1" replace />} />
+            <Route path="veda-reader/sri-isopanishad/*" element={<Navigate to="lib/iso/1" replace />} />
+            <Route path="veda-reader/srimad-bhagavatam/*" element={<Navigate to="lib/sb" replace />} />
+            <Route path="veda-reader/bhagavatam/*" element={<Navigate to="lib/sb" replace />} />
+
+            {/* Бібліотека */}
+            <Route path="library" element={<Library />} />
+            <Route path="library/references" element={<GVReferences />} />
+            <Route path="library/lectures" element={<LecturesLibrary />} />
+            <Route path="library/lectures/:slug" element={<LectureView />} />
+            <Route path="library/letters" element={<LettersLibrary />} />
+            <Route path="library/letters/:slug" element={<LetterView />} />
+            <Route path="library/:slug" element={<BookOverview />} />
+            <Route path="library/prabhupada" element={<Navigate to="library" replace />} />
+            <Route path="library/acharyas" element={<Navigate to="library" replace />} />
+
+            {/* Аудіо */}
+            <Route path="audio" element={<Audio />} />
+            <Route path="audiobooks" element={<Audiobooks />} />
+            <Route path="audiobooks/:id" element={<AudiobookView />} />
+            <Route path="audio/lectures" element={<Lectures />} />
+            <Route path="audio/music" element={<Music />} />
+
+            {/* Блог/інше */}
+            <Route path="blog" element={<Blog />} />
+            <Route path="blog/:slug" element={<BlogPost />} />
+            <Route path="audio/podcasts" element={<Podcasts />} />
+            <Route path="glossary" element={<GlossaryDB />} />
+            <Route path="tools/transliteration" element={<TransliterationTool />} />
+            <Route path="tools/numerology" element={<Numerology />} />
+            <Route path="tools/jyotish" element={<JyotishCalculator />} />
+            <Route path="tools/ragas" element={<RagaExplorer />} />
+            <Route path="tools/learning" element={<ScriptLearning />} />
+            <Route path="tools/normalization" element={<TextNormalization />} />
+            <Route path="tools/compiler" element={<KnowledgeCompiler />} />
+            <Route path="tools/synonyms" element={<SynonymsSearch />} />
+            <Route path="tools/dictionary" element={<SanskritDictionary />} />
+            <Route path="install" element={<Install />} />
+            <Route path="search" element={<BookSearch />} />
+            <Route path="chat" element={<Chat />} />
+            <Route path="chat/local" element={<LocalChat />} />
+            <Route path="quotes" element={<Quotes />} />
+            <Route path="tattvas" element={<TattvasIndex />} />
+            <Route path="tattva/:slug" element={<TattvaPage />} />
+            <Route path="stats" element={<ReadingStatsPage />} />
+
+            {/* Вайшнавський календар */}
+            <Route path="calendar" element={<VaishnavCalendar />} />
+            <Route path="calendar/ekadashi" element={<EkadashiList />} />
+            <Route path="calendar/ekadashi/:slug" element={<EkadashiDetail />} />
+            <Route path="contact" element={<Contact />} />
+
+            {/* Платежі */}
+            <Route path="payment/card" element={<CardPayment />} />
+            <Route path="payment/bank" element={<BankTransfer />} />
+
+            {/* CMS сторінки - catch-all для невідомих шляхів в межах мови */}
+            <Route path=":slug" element={<PageView />} />
+          </Route>
 
           {/* ============================================================
-              /veda-reader/ - РЕДІРЕКТИ на /lib/ (для зворотної сумісності)
+              NON-LOCALIZED ROUTES (без мовного префіксу)
               ============================================================ */}
-          {/* Основні читацькі маршрути → редірект на /lib/ */}
+{/* Основні читацькі маршрути → редірект на /lib/ */}
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseId" element={<VedaReaderCantoVerseRedirect />} />
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber/:verseNumber" element={<VedaReaderCantoVerseRedirect />} />
           <Route path="/veda-reader/:bookId/canto/:cantoNumber/chapter/:chapterNumber" element={<VedaReaderCantoChapterRedirect />} />
@@ -309,16 +407,10 @@ function AppContent() {
           <Route path="/admin/numcal" element={<NumCal />} />
           <Route path="/admin/lrc-editor" element={<LRCEditorPage />} />
           <Route path="/admin/book-export" element={<BookExport />} />
-          {/* Redirect /admin to dashboard */}
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
 
-          {/* Explicit /404 route to prevent CMS catch-all loop */}
-          <Route path="/404" element={<NotFound />} />
-
-          {/* Сторінки з CMS */}
-          <Route path="/:slug" element={<PageView />} />
-
           {/* 404 */}
+          <Route path="/404" element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         </MobileLayout>
@@ -330,7 +422,6 @@ function AppContent() {
         <GlobalSettingsPanel showFloatingButton={false} />
         <UnifiedSearch open={searchOpen} onOpenChange={setSearchOpen} />
         <ReadingModeExitButton />
-        </LanguageProvider>
       </BrowserRouter>
     </>
   );
@@ -341,8 +432,8 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       {/* craft — дефолт; storageKey узгоджений із ThemeProvider/ThemeToggle */}
       <ThemeProvider defaultTheme="craft" storageKey="veda-ui-theme">
-        {/* LanguageProvider moved inside BrowserRouter in AppContent for URL sync */}
-        <AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
           <BooksProvider>
             <TooltipProvider>
               <ModernAudioProvider>
@@ -354,7 +445,8 @@ const App = () => (
               </ModernAudioProvider>
             </TooltipProvider>
           </BooksProvider>
-        </AuthProvider>
+          </AuthProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </ErrorBoundary>
