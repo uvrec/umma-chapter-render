@@ -373,7 +373,7 @@ export const ChapterVersesList = () => {
   return <div className="flex min-h-screen flex-col">
       {/* SEO Metadata */}
       <Helmet>
-        <title>{pageTitle} | {SITE_CONFIG.siteName}</title>
+        <title>{`${pageTitle} | ${SITE_CONFIG.siteName}`}</title>
         <meta name="description" content={pageDescription} />
         <link rel="canonical" href={canonicalUrl} />
         <link rel="alternate" hrefLang="uk" href={alternateUkUrl} />

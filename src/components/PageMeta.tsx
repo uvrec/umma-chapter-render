@@ -42,7 +42,7 @@ export const PageMeta = ({
   return (
     <Helmet>
       <html lang={htmlLang} />
-      <title>{title} | {SITE_CONFIG.siteName}</title>
+      <title>{`${title} | ${SITE_CONFIG.siteName}`}</title>
       {description && <meta name="description" content={description} />}
       {seoKeywords && <meta name="keywords" content={seoKeywords} />}
 

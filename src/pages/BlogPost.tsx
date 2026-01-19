@@ -298,7 +298,7 @@ export default function BlogPost() {
     <div className="min-h-screen bg-background">
       <Helmet>
         <html lang={htmlLang} />
-        <title>{title} | {SITE_CONFIG.siteName}</title>
+        <title>{`${title || ''} | ${SITE_CONFIG.siteName}`}</title>
         <meta name="description" content={metaDesc || excerpt} />
 
         {/* Canonical and hreflang */}

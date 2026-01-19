@@ -30,7 +30,8 @@ export const BookOverview = () => {
 
   // Fetch book
   const {
-    data: book
+    data: book,
+    isLoading: bookLoading
   } = useQuery({
     queryKey: ["book", bookSlug],
     queryFn: async () => {
@@ -124,7 +125,7 @@ export const BookOverview = () => {
     },
     enabled: !!book?.id
   });
-  const isLoading = cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
+  const isLoading = bookLoading || cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
   const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
   const bookDescription = language === "uk" ? book?.description_uk : book?.description_en;
 
