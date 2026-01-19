@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
 type Language = 'ua' | 'en';
 
@@ -6,9 +6,13 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (ua: string, en: string) => string;
+  getLocalizedPath: (path: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+// Paths that should NOT have language prefix
+const NON_LOCALIZED_PREFIXES = ['/admin', '/auth', '/api', '/404'];
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
@@ -24,12 +28,34 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLanguageState(lang);
   };
 
-  const t = (ua: string, en: string) => {
+  const t = useCallback((ua: string, en: string) => {
     return language === 'ua' ? ua : en;
-  };
+  }, [language]);
+
+  const getLocalizedPath = useCallback((path: string): string => {
+    // Non-localized paths stay as-is
+    if (NON_LOCALIZED_PREFIXES.some(prefix => path.startsWith(prefix))) {
+      return path;
+    }
+
+    // Already has language prefix - return as-is
+    if (path.startsWith('/ua/') || path.startsWith('/en/') || path === '/ua' || path === '/en') {
+      return path;
+    }
+
+    // Normalize path
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+
+    // Handle root path
+    if (normalizedPath === '/') {
+      return `/${language}/`;
+    }
+
+    return `/${language}${normalizedPath}`;
+  }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, getLocalizedPath }}>
       {children}
     </LanguageContext.Provider>
   );

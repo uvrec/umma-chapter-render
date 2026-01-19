@@ -11,9 +11,10 @@ interface TabItem {
   icon: React.ElementType;
   labelUa: string;
   labelEn: string;
-  path: string;
-  matchPaths?: string[];
+  basePath: string; // Base path without language prefix
+  matchPaths?: string[]; // Paths to match (without language prefix)
   exactMatch?: boolean;
+  nonLocalized?: boolean; // For paths like /auth that don't have language prefix
 }
 
 const tabs: TabItem[] = [
@@ -22,7 +23,7 @@ const tabs: TabItem[] = [
     icon: Home,
     labelUa: "Головна",
     labelEn: "Home",
-    path: "/",
+    basePath: "/",
     exactMatch: true,
   },
   {
@@ -30,7 +31,7 @@ const tabs: TabItem[] = [
     icon: Book,
     labelUa: "Бібліотека",
     labelEn: "Library",
-    path: "/library",
+    basePath: "/library",
     matchPaths: ["/library", "/lib", "/veda-reader"],
   },
   {
@@ -38,7 +39,7 @@ const tabs: TabItem[] = [
     icon: Headphones,
     labelUa: "Аудіо",
     labelEn: "Audio",
-    path: "/audio",
+    basePath: "/audio",
     matchPaths: ["/audio", "/audiobooks"],
   },
   {
@@ -46,7 +47,7 @@ const tabs: TabItem[] = [
     icon: Calendar,
     labelUa: "Календар",
     labelEn: "Calendar",
-    path: "/calendar",
+    basePath: "/calendar",
     matchPaths: ["/calendar"],
   },
   {
@@ -54,25 +55,49 @@ const tabs: TabItem[] = [
     icon: User,
     labelUa: "Профіль",
     labelEn: "Profile",
-    path: "/auth",
+    basePath: "/auth",
     matchPaths: ["/auth", "/stats", "/admin", "/search"],
+    nonLocalized: true, // /auth doesn't have language prefix
   },
 ];
 
 export function MobileTabBar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
+
+  // Remove language prefix from pathname for matching
+  const getPathWithoutLang = (pathname: string) => {
+    const match = pathname.match(/^\/(ua|en)(\/.*)?$/);
+    return match ? (match[2] || '/') : pathname;
+  };
+
+  const pathWithoutLang = getPathWithoutLang(location.pathname);
 
   const isActive = (tab: TabItem) => {
-    // Exact match for home tab
+    // For non-localized paths, check original pathname
+    if (tab.nonLocalized) {
+      if (tab.matchPaths) {
+        return tab.matchPaths.some((p) => location.pathname.startsWith(p));
+      }
+      return location.pathname === tab.basePath;
+    }
+
+    // For localized paths, check path without language prefix
     if (tab.exactMatch) {
-      return location.pathname === tab.path;
+      return pathWithoutLang === '/' || pathWithoutLang === '';
     }
     if (tab.matchPaths) {
-      return tab.matchPaths.some((p) => location.pathname.startsWith(p));
+      return tab.matchPaths.some((p) => pathWithoutLang.startsWith(p));
     }
-    return location.pathname === tab.path;
+    return pathWithoutLang === tab.basePath;
+  };
+
+  const getTabPath = (tab: TabItem) => {
+    if (tab.nonLocalized) {
+      return tab.basePath;
+    }
+    return getLocalizedPath(tab.basePath);
   };
 
   return (
@@ -86,7 +111,7 @@ export function MobileTabBar() {
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(tab.path)}
+              onClick={() => navigate(getTabPath(tab))}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
