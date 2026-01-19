@@ -288,7 +288,7 @@ export interface GVBookSortOptions {
 /**
  * Get display name for author era
  */
-export const eraDisplayNames: Record<AuthorEra, { en: string; ua: string }> = {
+export const eraDisplayNames: Record<AuthorEra, { en: string; uk: string }> = {
   founders: { en: "Founders & Associates", uk: "Засновники та супутники" },
   gosvamis: { en: "Six Gosvamis of Vrindavan", uk: "Шість Ґосвамі Вріндавана" },
   later_acharyas: { en: "Later Acharyas", uk: "Пізніші ачар'ї" },
@@ -299,7 +299,7 @@ export const eraDisplayNames: Record<AuthorEra, { en: string; ua: string }> = {
 /**
  * Get display name for book category
  */
-export const categoryDisplayNames: Record<BookCategory, { en: string; ua: string }> = {
+export const categoryDisplayNames: Record<BookCategory, { en: string; uk: string }> = {
   shruti: { en: "Revealed Scriptures", uk: "Об'явлені писання" },
   smriti: { en: "Traditional Texts", uk: "Традиційні тексти" },
   purana: { en: "Puranic Literature", uk: "Пуранічна література" },
@@ -312,7 +312,7 @@ export const categoryDisplayNames: Record<BookCategory, { en: string; ua: string
 /**
  * Get display name for importance level
  */
-export const importanceLevelNames: Record<number, { en: string; ua: string }> = {
+export const importanceLevelNames: Record<number, { en: string; uk: string }> = {
   5: { en: "Essential", uk: "Необхідний" },
   4: { en: "Important", uk: "Важливий" },
   3: { en: "Recommended", uk: "Рекомендований" },
