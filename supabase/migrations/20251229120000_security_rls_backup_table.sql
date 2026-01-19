@@ -117,7 +117,7 @@ COMMENT ON INDEX idx_user_roles_user_role IS 'Index for RLS policy performance (
 -- ============================================================================
 
 -- 3.1 verses_with_synonyms (додаємо security_invoker)
--- Note: Using only core columns that exist in all environments
+-- Note: Using actual column names from verses table schema
 DROP VIEW IF EXISTS public.verses_with_synonyms;
 CREATE VIEW public.verses_with_synonyms
 WITH (security_invoker = true)
@@ -131,16 +131,18 @@ SELECT
   v.verse_number,
   v.sanskrit,
   v.transliteration,
-  v.synonyms,
-  v.translation
+  v.synonyms_ua,
+  v.synonyms_en,
+  v.translation_ua,
+  v.translation_en
 FROM verses v
 INNER JOIN chapters c ON v.chapter_id = c.id
 INNER JOIN books b ON c.book_id = b.id
-WHERE v.synonyms IS NOT NULL;
+WHERE v.synonyms_ua IS NOT NULL OR v.synonyms_en IS NOT NULL;
 
 COMMENT ON VIEW public.verses_with_synonyms IS 'Published verses with synonyms - uses SECURITY INVOKER for RLS';
 
--- 3.2 verses_with_structure (спрощена версія - тільки базові колонки)
+-- 3.2 verses_with_structure (використовуємо фактичні колонки)
 DROP VIEW IF EXISTS public.verses_with_structure;
 CREATE VIEW public.verses_with_structure
 WITH (security_invoker = true)
@@ -151,20 +153,23 @@ SELECT
   v.verse_number,
   (v.sanskrit IS NOT NULL AND LENGTH(TRIM(v.sanskrit)) > 0) AS has_sanskrit,
   (v.transliteration IS NOT NULL AND LENGTH(TRIM(v.transliteration)) > 0) AS has_transliteration,
-  (v.synonyms IS NOT NULL AND LENGTH(TRIM(v.synonyms)) > 0) AS has_synonyms,
-  (v.translation IS NOT NULL AND LENGTH(TRIM(v.translation)) > 0) AS has_translation,
-  (v.commentary IS NOT NULL AND LENGTH(TRIM(v.commentary)) > 0) AS has_commentary,
+  (v.synonyms_ua IS NOT NULL AND LENGTH(TRIM(v.synonyms_ua)) > 0)
+    OR (v.synonyms_en IS NOT NULL AND LENGTH(TRIM(v.synonyms_en)) > 0) AS has_synonyms,
+  (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+    OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0) AS has_translation,
+  (v.commentary_ua IS NOT NULL AND LENGTH(TRIM(v.commentary_ua)) > 0)
+    OR (v.commentary_en IS NOT NULL AND LENGTH(TRIM(v.commentary_en)) > 0) AS has_commentary,
   CASE
     WHEN v.sanskrit IS NOT NULL
       AND v.transliteration IS NOT NULL
-      AND v.synonyms IS NOT NULL
-      AND v.translation IS NOT NULL
-      AND v.commentary IS NOT NULL
+      AND (v.synonyms_ua IS NOT NULL OR v.synonyms_en IS NOT NULL)
+      AND (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
+      AND (v.commentary_ua IS NOT NULL OR v.commentary_en IS NOT NULL)
     THEN 'full'
-    WHEN v.translation IS NOT NULL
-      AND v.commentary IS NOT NULL
+    WHEN (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
+      AND (v.commentary_ua IS NOT NULL OR v.commentary_en IS NOT NULL)
     THEN 'translation_commentary'
-    WHEN v.translation IS NOT NULL
+    WHEN (v.translation_ua IS NOT NULL OR v.translation_en IS NOT NULL)
     THEN 'translation_only'
     ELSE 'incomplete'
   END AS detected_structure
@@ -172,7 +177,7 @@ FROM public.verses v;
 
 COMMENT ON VIEW public.verses_with_structure IS 'Verse structure analysis - uses SECURITY INVOKER for RLS';
 
--- 3.3 verses_with_metadata (спрощена версія - тільки базові колонки)
+-- 3.3 verses_with_metadata (використовуємо фактичні колонки)
 DROP VIEW IF EXISTS public.verses_with_metadata;
 CREATE VIEW public.verses_with_metadata
 WITH (security_invoker = true)
@@ -183,9 +188,12 @@ SELECT
   v.verse_number,
   v.sanskrit,
   v.transliteration,
-  v.synonyms,
-  v.translation,
-  v.commentary,
+  v.synonyms_ua,
+  v.synonyms_en,
+  v.translation_ua,
+  v.translation_en,
+  v.commentary_ua,
+  v.commentary_en,
   v.audio_url,
   v.created_at,
   c.chapter_number,
@@ -217,7 +225,7 @@ FROM public.books b;
 
 COMMENT ON VIEW public.books_with_mapping IS 'Books with chapter/verse counts - uses SECURITY INVOKER for RLS';
 
--- 3.5 readable_chapters (спрощена версія - тільки базові колонки)
+-- 3.5 readable_chapters (використовуємо фактичні колонки)
 DROP VIEW IF EXISTS public.readable_chapters;
 CREATE VIEW public.readable_chapters
 WITH (security_invoker = true)
@@ -234,13 +242,15 @@ SELECT
   b.title_en AS book_title_en,
   COUNT(v.id) AS total_verses,
   COUNT(CASE
-    WHEN v.translation IS NOT NULL AND LENGTH(TRIM(v.translation)) > 0
+    WHEN (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+      OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0)
     THEN 1
   END) AS filled_verses,
   CASE
     WHEN COUNT(v.id) > 0 THEN
       ROUND((COUNT(CASE
-        WHEN v.translation IS NOT NULL AND LENGTH(TRIM(v.translation)) > 0
+        WHEN (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+          OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0)
         THEN 1
       END)::numeric / COUNT(v.id)::numeric) * 100, 2)
     ELSE 0
@@ -251,7 +261,8 @@ LEFT JOIN public.verses v ON v.chapter_id = c.id
 WHERE c.chapter_type = 'verses'
 GROUP BY c.id, c.chapter_number, c.title_ua, c.title_en, c.chapter_type, c.book_id, b.slug, b.title_ua, b.title_en
 HAVING COUNT(CASE
-  WHEN v.translation IS NOT NULL AND LENGTH(TRIM(v.translation)) > 0
+  WHEN (v.translation_ua IS NOT NULL AND LENGTH(TRIM(v.translation_ua)) > 0)
+    OR (v.translation_en IS NOT NULL AND LENGTH(TRIM(v.translation_en)) > 0)
   THEN 1
 END) > 0;
 
