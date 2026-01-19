@@ -113,13 +113,13 @@ export function VerseSlider({
         onClick={onClose}
       />
 
-      {/* Слайдер справа (темний як у Neu Bible) */}
+      {/* Слайдер справа - використовує кольори теми сайту */}
       <div
         ref={sliderRef}
         className={cn(
           "fixed right-0 top-0 bottom-0 z-50",
           "w-12 py-8",
-          "bg-neutral-900/95 backdrop-blur-sm",
+          "bg-background/95 backdrop-blur-sm border-l border-border",
           "flex flex-col items-center justify-between",
           "animate-in slide-in-from-right duration-200"
         )}
@@ -146,9 +146,9 @@ export function VerseSlider({
                 <span
                   className={cn(
                     "text-[11px] font-medium italic",
-                    isActive && "text-white font-bold",
-                    isHovered && "text-amber-400 font-bold",
-                    !isActive && !isHovered && "text-neutral-400"
+                    isActive && "text-primary font-bold",
+                    isHovered && "text-primary font-bold",
+                    !isActive && !isHovered && "text-muted-foreground"
                   )}
                 >
                   {verse.verse_number}
@@ -157,9 +157,9 @@ export function VerseSlider({
                 <span
                   className={cn(
                     "w-1 h-1 rounded-full",
-                    isActive && "bg-white",
-                    isHovered && "bg-amber-400",
-                    !isActive && !isHovered && "bg-neutral-600"
+                    isActive && "bg-primary",
+                    isHovered && "bg-primary",
+                    !isActive && !isHovered && "bg-muted-foreground/50"
                   )}
                 />
               )}
@@ -168,7 +168,7 @@ export function VerseSlider({
         })}
       </div>
 
-      {/* Жовтий індикатор при ковзанні (як у Neu Bible) */}
+      {/* Індикатор при ковзанні - використовує brand колір */}
       {isDragging && hoveredVerse && (
         <div
           className={cn(
@@ -180,11 +180,10 @@ export function VerseSlider({
             top: magnifierY - 30,
           }}
         >
-          {/* Жовта бульбашка */}
           <div className="relative">
             <div
               className={cn(
-                "bg-amber-400 text-neutral-900",
+                "bg-primary text-primary-foreground",
                 "px-4 py-2 rounded-full",
                 "shadow-xl",
                 "flex items-center justify-center"
@@ -194,13 +193,14 @@ export function VerseSlider({
             </div>
             {/* Стрілка вправо */}
             <div
-              className="absolute top-1/2 -translate-y-1/2 -right-2"
+              className="absolute top-1/2 -translate-y-1/2 -right-2 border-l-primary"
               style={{
                 width: 0,
                 height: 0,
                 borderTop: "10px solid transparent",
                 borderBottom: "10px solid transparent",
-                borderLeft: "10px solid rgb(251 191 36)", // amber-400
+                borderLeftWidth: "10px",
+                borderLeftStyle: "solid",
               }}
             />
           </div>
