@@ -31,7 +31,7 @@ export interface DownloadProgress {
 export interface BookDownloadInfo {
   bookId: string;
   bookSlug: string;
-  titleUa: string;
+  titleUk: string;
   totalChapters: number;
   downloadedChapters: number;
   isFullyDownloaded: boolean;
@@ -275,7 +275,7 @@ export function useOfflineDownload() {
         bookMap.set(chapter.bookId, {
           bookId: chapter.bookId,
           bookSlug: chapter.bookSlug,
-          titleUa: '', // Потрібно отримати окремо
+          titleUk: '', // Потрібно отримати окремо
           totalChapters: 0, // Потрібно отримати окремо
           downloadedChapters: 0,
           isFullyDownloaded: false,
