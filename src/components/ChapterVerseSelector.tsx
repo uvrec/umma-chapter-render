@@ -21,16 +21,16 @@ import { ChevronDown } from "lucide-react";
 interface Chapter {
   id: string;
   chapter_number: number;
-  title_ua?: string;
+  title_uk?: string;
   title_en?: string;
 }
 
 interface Verse {
   id: string;
   verse_number: string;
-  translation_ua?: string;
+  translation_uk?: string;
   translation_en?: string;
-  sanskrit_ua?: string;
+  sanskrit_uk?: string;
   sanskrit_en?: string;
 }
 
@@ -122,14 +122,14 @@ export function ChapterVerseSelector({
 
   // Get chapter title
   const getChapterTitle = (chapter: Chapter) => {
-    const title = language === "uk" ? chapter.title_ua : chapter.title_en;
+    const title = language === "uk" ? chapter.title_uk : chapter.title_en;
     return title || `${t("Глава", "Chapter")} ${chapter.chapter_number}`;
   };
 
   // Get verse preview text (first 30 chars of translation)
   const getVersePreview = (verse: Verse) => {
     const text = language === "uk"
-      ? (verse.translation_ua || verse.sanskrit_ua)
+      ? (verse.translation_uk || verse.sanskrit_uk)
       : (verse.translation_en || verse.sanskrit_en);
     if (!text) return "";
     // Strip HTML and truncate

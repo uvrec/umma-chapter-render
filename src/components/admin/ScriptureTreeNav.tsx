@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface Book {
   id: string;
-  title_ua: string;
+  title_uk: string;
   has_cantos: boolean;
 }
 
@@ -14,7 +14,7 @@ interface Canto {
   id: string;
   book_id: string;
   canto_number: number;
-  title_ua: string;
+  title_uk: string;
 }
 
 interface Chapter {
@@ -22,7 +22,7 @@ interface Chapter {
   book_id?: string;
   canto_id?: string;
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verse_count?: number;
 }
 
@@ -67,7 +67,7 @@ export function ScriptureTreeNav({
 
   // Filter by search query
   const filteredBooks = books.filter((book) =>
-    book.title_ua.toLowerCase().includes(searchQuery.toLowerCase())
+    book.title_uk.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -107,7 +107,7 @@ export function ScriptureTreeNav({
                     <ChevronRight className="h-4 w-4 flex-shrink-0" />
                   )}
                   <BookOpen className="h-4 w-4 flex-shrink-0 text-primary" />
-                  <span className="flex-1 truncate font-medium">{book.title_ua}</span>
+                  <span className="flex-1 truncate font-medium">{book.title_uk}</span>
                   <span className="text-xs text-muted-foreground">
                     {book.has_cantos ? bookCantos.length : bookChapters.length}
                   </span>
@@ -162,7 +162,7 @@ export function ScriptureTreeNav({
                                   >
                                     <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                                     <span className="flex-1 truncate text-xs">
-                                      {chapter.chapter_number}. {chapter.title_ua}
+                                      {chapter.chapter_number}. {chapter.title_uk}
                                     </span>
                                     {chapter.verse_count !== undefined && (
                                       <span className="text-xs opacity-70">
@@ -190,7 +190,7 @@ export function ScriptureTreeNav({
                         >
                           <FileText className="h-3.5 w-3.5 flex-shrink-0" />
                           <span className="flex-1 truncate text-xs">
-                            {chapter.chapter_number}. {chapter.title_ua}
+                            {chapter.chapter_number}. {chapter.title_uk}
                           </span>
                           {chapter.verse_count !== undefined && (
                             <span className="text-xs opacity-70">

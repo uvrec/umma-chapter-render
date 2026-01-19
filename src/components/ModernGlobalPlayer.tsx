@@ -19,9 +19,9 @@ import { toast } from 'sonner';
 interface VerseData {
   sanskrit: string | null;
   transliteration: string | null;
-  translation_ua: string | null;
+  translation_uk: string | null;
   translation_en: string | null;
-  synonyms_ua: string | null;
+  synonyms_uk: string | null;
   synonyms_en: string | null;
 }
 
@@ -124,7 +124,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
       try {
         const { data, error } = await supabase
           .from('verses')
-          .select('sanskrit, transliteration, transliteration_ua, transliteration_en, translation_ua, translation_en, synonyms_ua, synonyms_en')
+          .select('sanskrit, transliteration, transliteration_uk, transliteration_en, translation_uk, translation_en, synonyms_uk, synonyms_en')
           .eq('id', currentTrack.verseId)
           .maybeSingle();
 
@@ -132,10 +132,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
         if (data) {
           setVerseData({
             sanskrit: data.sanskrit,
-            transliteration: data.transliteration || data.transliteration_ua || data.transliteration_en,
-            translation_ua: data.translation_ua,
+            transliteration: data.transliteration || data.transliteration_uk || data.transliteration_en,
+            translation_uk: data.translation_uk,
             translation_en: data.translation_en,
-            synonyms_ua: data.synonyms_ua,
+            synonyms_uk: data.synonyms_uk,
             synonyms_en: data.synonyms_en,
           });
         }
@@ -207,7 +207,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground line-clamp-1">
-                    {currentTrack.title_ua || currentTrack.title}
+                    {currentTrack.title_uk || currentTrack.title}
                   </h3>
                   <p className="text-sm text-muted-foreground line-clamp-1">
                     {currentTrack.artist || currentTrack.subtitle || 'VedaVoice'}
@@ -244,7 +244,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                   {/* Track Title & Metadata */}
                   <h2 className="text-3xl xl:text-4xl font-bold text-foreground text-center mb-2">
-                    {currentTrack.title_ua || currentTrack.title}
+                    {currentTrack.title_uk || currentTrack.title}
                   </h2>
                   {currentTrack.artist && (
                     <p className="text-xl text-muted-foreground text-center mb-1">
@@ -295,10 +295,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     <div className="w-24 h-px bg-border/60 mx-auto" />
 
                     {/* Translation - Large readable text */}
-                    {(verseData.translation_ua || verseData.translation_en) && (
+                    {(verseData.translation_uk || verseData.translation_en) && (
                       <div className="text-center max-w-3xl mx-auto">
                         <p className="text-xl xl:text-2xl text-foreground/90 leading-relaxed">
-                          {stripParagraphTags(language === 'uk' ? verseData.translation_ua || '' : verseData.translation_en || '')}
+                          {stripParagraphTags(language === 'uk' ? verseData.translation_uk || '' : verseData.translation_en || '')}
                         </p>
                       </div>
                     )}
@@ -538,7 +538,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-foreground text-sm line-clamp-1">
-                    {currentTrack.title_ua || currentTrack.title}
+                    {currentTrack.title_uk || currentTrack.title}
                   </h3>
                   <p className="text-xs text-muted-foreground line-clamp-1">
                     {currentTrack.artist || currentTrack.subtitle || 'VedaVoice'}
@@ -575,7 +575,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                   {/* Track Title & Metadata */}
                   <h2 className="text-2xl font-bold text-foreground text-center mb-1 line-clamp-2">
-                    {currentTrack.title_ua || currentTrack.title}
+                    {currentTrack.title_uk || currentTrack.title}
                   </h2>
                   {currentTrack.artist && (
                     <p className="text-lg text-muted-foreground text-center">
@@ -626,10 +626,10 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
                     <div className="w-16 h-px bg-border/60 mx-auto" />
 
                     {/* Translation - Large readable text */}
-                    {(verseData.translation_ua || verseData.translation_en) && (
+                    {(verseData.translation_uk || verseData.translation_en) && (
                       <div className="text-center">
                         <p className="text-lg text-foreground/90 leading-relaxed">
-                          {stripParagraphTags(language === 'uk' ? verseData.translation_ua || '' : verseData.translation_en || '')}
+                          {stripParagraphTags(language === 'uk' ? verseData.translation_uk || '' : verseData.translation_en || '')}
                         </p>
                       </div>
                     )}
@@ -859,7 +859,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
 
                   <div className="min-w-0 hidden sm:block md:block">
                     <p className="font-medium text-card-foreground truncate text-sm max-w-[120px] md:max-w-none">
-                      {currentTrack.title_ua || currentTrack.title}
+                      {currentTrack.title_uk || currentTrack.title}
                     </p>
                     <p className="text-xs text-muted-foreground truncate max-w-[120px] md:max-w-none">
                       {currentTrack.artist || currentTrack.subtitle || currentTrack.title_en || 'VedaVoice'}

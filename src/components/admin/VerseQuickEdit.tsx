@@ -17,15 +17,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 interface Verse {
   id: string;
   verse_number: string;
-  sanskrit_ua?: string;
+  sanskrit_uk?: string;
   sanskrit_en?: string;
-  transliteration_ua?: string;
+  transliteration_uk?: string;
   transliteration_en?: string;
-  synonyms_ua?: string;
+  synonyms_uk?: string;
   synonyms_en?: string;
-  translation_ua?: string;
+  translation_uk?: string;
   translation_en?: string;
-  commentary_ua?: string;
+  commentary_uk?: string;
   commentary_en?: string;
   full_verse_audio_url?: string;
   recitation_audio_url?: string;
@@ -128,11 +128,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
         setVerse(data);
         setVerseNumber(data.verse_number || "");
         // Ukrainian fields
-        setSanskritUa(data.sanskrit_ua || (data as any).sanskrit || "");
-        setTransliterationUa(data.transliteration_ua || "");
-        setSynonymsUa(data.synonyms_ua || "");
-        setTranslationUa(data.translation_ua || "");
-        setCommentaryUa(data.commentary_ua || "");
+        setSanskritUa(data.sanskrit_uk || (data as any).sanskrit || "");
+        setTransliterationUa(data.transliteration_uk || "");
+        setSynonymsUa(data.synonyms_uk || "");
+        setTranslationUa(data.translation_uk || "");
+        setCommentaryUa(data.commentary_uk || "");
         // English fields
         setSanskritEn(data.sanskrit_en || (data as any).sanskrit || "");
         setTransliterationEn(data.transliteration_en || "");
@@ -211,11 +211,11 @@ export function VerseQuickEdit({ verseId, chapterId, mode = "edit", onClose, onS
       const verseData = {
         verse_number: verseNumber,
         // Ukrainian fields
-        sanskrit_ua: sanskritUa || null,
-        transliteration_ua: transliterationUa || null,
-        synonyms_ua: synonymsUa || null,
-        translation_ua: translationUa || null,
-        commentary_ua: commentaryUa || null,
+        sanskrit_uk: sanskritUa || null,
+        transliteration_uk: transliterationUa || null,
+        synonyms_uk: synonymsUa || null,
+        translation_uk: translationUa || null,
+        commentary_uk: commentaryUa || null,
         // English fields
         sanskrit_en: sanskritEn || null,
         transliteration_en: transliterationEn || null,

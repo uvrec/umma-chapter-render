@@ -427,14 +427,14 @@ export default function ScriptLearning() {
             book_id,
             canto_id,
             books(
-              title_ua,
+              title_uk,
               title_en,
               slug
             ),
             cantos(
               canto_number,
               books(
-                title_ua,
+                title_uk,
                 title_en,
                 slug
               )
@@ -447,9 +447,9 @@ export default function ScriptLearning() {
       return data.map(verse => ({
         ...verse,
         book: language === 'uk'
-          ? (verse.chapters.cantos?.books?.title_ua || verse.chapters.books?.title_ua)
+          ? (verse.chapters.cantos?.books?.title_uk || verse.chapters.books?.title_uk)
           : (verse.chapters.cantos?.books?.title_en || verse.chapters.books?.title_en),
-        synonyms: language === 'uk' ? verse.synonyms_ua : verse.synonyms_en,
+        synonyms: language === 'uk' ? verse.synonyms_uk : verse.synonyms_en,
         verse_number: verse.verse_number
       }));
     }

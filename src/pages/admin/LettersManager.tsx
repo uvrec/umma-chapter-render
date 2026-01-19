@@ -78,11 +78,11 @@ export default function LettersManager() {
         .from("letters")
         .update({
           recipient_en: letter.recipient_en,
-          recipient_ua: letter.recipient_ua,
+          recipient_uk: letter.recipient_uk,
           location_en: letter.location_en,
-          location_ua: letter.location_ua,
+          location_uk: letter.location_uk,
           content_en: letter.content_en,
-          content_ua: letter.content_ua,
+          content_uk: letter.content_uk,
         })
         .eq("id", letter.id);
 
@@ -121,7 +121,7 @@ export default function LettersManager() {
     const transliterated = transliterateIAST(editingLetter.content_en);
     setEditingLetter({
       ...editingLetter,
-      content_ua: transliterated,
+      content_uk: transliterated,
     });
     toast.success("Транслітерацію застосовано");
   };
@@ -164,7 +164,7 @@ export default function LettersManager() {
 
       setEditingLetter({
         ...editingLetter,
-        content_ua: data.translated,
+        content_uk: data.translated,
       });
 
       toast.success(
@@ -261,7 +261,7 @@ export default function LettersManager() {
                         <Badge variant="outline">{letter.reference}</Badge>
                       </TableCell>
                       <TableCell>
-                        {letter.content_ua ? (
+                        {letter.content_uk ? (
                           <Badge variant="secondary">Так</Badge>
                         ) : (
                           <Badge variant="destructive">Ні</Badge>
@@ -338,11 +338,11 @@ export default function LettersManager() {
                   <div>
                     <label className="text-sm font-medium">Отримувач (UA)</label>
                     <Input
-                      value={editingLetter.recipient_ua || ""}
+                      value={editingLetter.recipient_uk || ""}
                       onChange={(e) =>
                         setEditingLetter({
                           ...editingLetter,
-                          recipient_ua: e.target.value,
+                          recipient_uk: e.target.value,
                         })
                       }
                     />
@@ -362,11 +362,11 @@ export default function LettersManager() {
                   <div>
                     <label className="text-sm font-medium">Локація (UA)</label>
                     <Input
-                      value={editingLetter.location_ua || ""}
+                      value={editingLetter.location_uk || ""}
                       onChange={(e) =>
                         setEditingLetter({
                           ...editingLetter,
-                          location_ua: e.target.value,
+                          location_uk: e.target.value,
                         })
                       }
                     />
@@ -420,11 +420,11 @@ export default function LettersManager() {
                         Українська
                       </label>
                       <Textarea
-                        value={editingLetter.content_ua || ""}
+                        value={editingLetter.content_uk || ""}
                         onChange={(e) =>
                           setEditingLetter({
                             ...editingLetter,
-                            content_ua: e.target.value,
+                            content_uk: e.target.value,
                           })
                         }
                         rows={15}

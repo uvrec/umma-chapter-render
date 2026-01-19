@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 export interface StaticPageMeta {
   id: string;
   slug: string;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
-  meta_description_ua?: string | null;
+  meta_description_uk?: string | null;
   meta_description_en?: string | null;
   hero_image_url?: string | null;
   og_image?: string | null;

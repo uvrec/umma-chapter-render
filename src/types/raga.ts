@@ -115,114 +115,114 @@ export type Thaat =
 
 export interface ThaatInfo {
   name: Thaat;
-  name_ua: string;
+  name_uk: string;
   name_devanagari: string;
   svaras: string[]; // 7 нот тхаата
-  description_ua: string;
+  description_uk: string;
   description_en: string;
-  mood_ua: string;
+  mood_uk: string;
   mood_en: string;
 }
 
 export const THAATS: ThaatInfo[] = [
   {
     name: 'Bilaval',
-    name_ua: 'Білавал',
+    name_uk: 'Білавал',
     name_devanagari: 'बिलावल',
     svaras: ['S', 'R', 'G', 'm', 'P', 'D', 'N'],
-    description_ua: 'Базовий тхаат, еквівалент мажорної гами',
+    description_uk: 'Базовий тхаат, еквівалент мажорної гами',
     description_en: 'Basic thaat, equivalent to major scale',
-    mood_ua: 'Радість, світло, ясність',
+    mood_uk: 'Радість, світло, ясність',
     mood_en: 'Joy, light, clarity',
   },
   {
     name: 'Khamaj',
-    name_ua: 'Кхамадж',
+    name_uk: 'Кхамадж',
     name_devanagari: 'खमाज',
     svaras: ['S', 'R', 'G', 'm', 'P', 'D', 'n'],
-    description_ua: 'Комал Нішада, романтичний настрій',
+    description_uk: 'Комал Нішада, романтичний настрій',
     description_en: 'Flat Ni, romantic mood',
-    mood_ua: 'Кохання, романтика, ніжність',
+    mood_uk: 'Кохання, романтика, ніжність',
     mood_en: 'Love, romance, tenderness',
   },
   {
     name: 'Kafi',
-    name_ua: 'Кафі',
+    name_uk: 'Кафі',
     name_devanagari: 'काफी',
     svaras: ['S', 'R', 'g', 'm', 'P', 'D', 'n'],
-    description_ua: 'Комал Ґандхара та Нішада',
+    description_uk: 'Комал Ґандхара та Нішада',
     description_en: 'Flat Ga and Ni',
-    mood_ua: 'Відданість, духовність',
+    mood_uk: 'Відданість, духовність',
     mood_en: 'Devotion, spirituality',
   },
   {
     name: 'Asavari',
-    name_ua: 'Асаварі',
+    name_uk: 'Асаварі',
     name_devanagari: 'आसावरी',
     svaras: ['S', 'R', 'g', 'm', 'P', 'd', 'n'],
-    description_ua: 'Комал Ґа, Дха, Ні - мінорний характер',
+    description_uk: 'Комал Ґа, Дха, Ні - мінорний характер',
     description_en: 'Flat Ga, Dha, Ni - minor character',
-    mood_ua: 'Сум, меланхолія, роздуми',
+    mood_uk: 'Сум, меланхолія, роздуми',
     mood_en: 'Sadness, melancholy, contemplation',
   },
   {
     name: 'Bhairavi',
-    name_ua: 'Бгайраві',
+    name_uk: 'Бгайраві',
     name_devanagari: 'भैरवी',
     svaras: ['S', 'r', 'g', 'm', 'P', 'd', 'n'],
-    description_ua: 'Всі комал свари, глибока духовність',
+    description_uk: 'Всі комал свари, глибока духовність',
     description_en: 'All flat notes, deep spirituality',
-    mood_ua: 'Смирення, духовність, завершення',
+    mood_uk: 'Смирення, духовність, завершення',
     mood_en: 'Humility, spirituality, conclusion',
   },
   {
     name: 'Bhairav',
-    name_ua: 'Бгайрав',
+    name_uk: 'Бгайрав',
     name_devanagari: 'भैरव',
     svaras: ['S', 'r', 'G', 'm', 'P', 'd', 'N'],
-    description_ua: 'Комал Ре та Дха, ранкова раґа',
+    description_uk: 'Комал Ре та Дха, ранкова раґа',
     description_en: 'Flat Re and Dha, morning raga',
-    mood_ua: 'Серйозність, відданість, ранковий настрій',
+    mood_uk: 'Серйозність, відданість, ранковий настрій',
     mood_en: 'Seriousness, devotion, morning mood',
   },
   {
     name: 'Kalyan',
-    name_ua: 'Кальян',
+    name_uk: 'Кальян',
     name_devanagari: 'कल्याण',
     svaras: ['S', 'R', 'G', 'M', 'P', 'D', 'N'],
-    description_ua: 'Тівра Мадхьяма, вечірня раґа',
+    description_uk: 'Тівра Мадхьяма, вечірня раґа',
     description_en: 'Sharp Ma, evening raga',
-    mood_ua: 'Спокій, благословення, вечірній настрій',
+    mood_uk: 'Спокій, благословення, вечірній настрій',
     mood_en: 'Peace, blessing, evening mood',
   },
   {
     name: 'Marva',
-    name_ua: 'Марва',
+    name_uk: 'Марва',
     name_devanagari: 'मारवा',
     svaras: ['S', 'r', 'G', 'M', 'P', 'D', 'N'],
-    description_ua: 'Комал Ре + Тівра Ма, присмерк',
+    description_uk: 'Комал Ре + Тівра Ма, присмерк',
     description_en: 'Flat Re + Sharp Ma, twilight',
-    mood_ua: 'Присмерк, роздуми, очікування',
+    mood_uk: 'Присмерк, роздуми, очікування',
     mood_en: 'Twilight, contemplation, anticipation',
   },
   {
     name: 'Purvi',
-    name_ua: 'Пурві',
+    name_uk: 'Пурві',
     name_devanagari: 'पूर्वी',
     svaras: ['S', 'r', 'G', 'M', 'P', 'd', 'N'],
-    description_ua: 'Комал Ре та Дха + Тівра Ма',
+    description_uk: 'Комал Ре та Дха + Тівра Ма',
     description_en: 'Flat Re and Dha + Sharp Ma',
-    mood_ua: 'Захід сонця, містичність',
+    mood_uk: 'Захід сонця, містичність',
     mood_en: 'Sunset, mysticism',
   },
   {
     name: 'Todi',
-    name_ua: 'Тоді',
+    name_uk: 'Тоді',
     name_devanagari: 'तोड़ी',
     svaras: ['S', 'r', 'g', 'M', 'P', 'd', 'N'],
-    description_ua: 'Комал Ре, Ґа, Дха + Тівра Ма',
+    description_uk: 'Комал Ре, Ґа, Дха + Тівра Ма',
     description_en: 'Flat Re, Ga, Dha + Sharp Ma',
-    mood_ua: 'Глибина, серйозність, медитація',
+    mood_uk: 'Глибина, серйозність, медитація',
     mood_en: 'Depth, seriousness, meditation',
   },
 ];
@@ -327,10 +327,10 @@ export type RagaDatabase = Record<string, RagaCore>;
 
 export interface RagaWithMetadata extends Raga {
   name_devanagari?: string;
-  name_ua?: string;
-  description_ua?: string;
+  name_uk?: string;
+  description_uk?: string;
   description_en?: string;
-  mood_ua?: string;
+  mood_uk?: string;
   mood_en?: string;
   related_ragas?: string[];
   famous_compositions?: string[];

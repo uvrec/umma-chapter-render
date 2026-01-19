@@ -130,8 +130,8 @@ export const VedaReaderDB = () => {
 
   // ✅ НОВЕ: Helper для fallback на іншу мову якщо переклад відсутній
   const getTranslationWithFallback = (verse: any, field: 'translation' | 'synonyms' | 'commentary'): string => {
-    const primaryField = language === 'uk' ? `${field}_ua` : `${field}_en`;
-    const fallbackField = language === 'uk' ? `${field}_en` : `${field}_ua`;
+    const primaryField = language === 'uk' ? `${field}_uk` : `${field}_en`;
+    const fallbackField = language === 'uk' ? `${field}_en` : `${field}_uk`;
 
     // Спочатку намагаємося взяти основну мову
     const primaryValue = verse[primaryField];
@@ -171,7 +171,7 @@ export const VedaReaderDB = () => {
       const {
         data,
         error
-      } = await supabase.from("books").select("id, slug, title_ua, title_en, has_cantos").eq("slug", bookId).maybeSingle();
+      } = await supabase.from("books").select("id, slug, title_uk, title_en, has_cantos").eq("slug", bookId).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -189,7 +189,7 @@ export const VedaReaderDB = () => {
       const {
         data,
         error
-      } = await supabase.from("cantos").select("id, canto_number, title_ua, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      } = await supabase.from("cantos").select("id, canto_number, title_uk, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -302,10 +302,10 @@ export const VedaReaderDB = () => {
   // Reading session tracking
   const { trackVerseView } = useReadingSession({
     bookSlug: bookId || '',
-    bookTitle: language === 'uk' ? book?.title_ua : book?.title_en,
+    bookTitle: language === 'uk' ? book?.title_uk : book?.title_en,
     cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
     chapterNumber: parseInt(effectiveChapterParam || '1'),
-    chapterTitle: language === 'uk' ? effectiveChapter?.title_ua : effectiveChapter?.title_en,
+    chapterTitle: language === 'uk' ? effectiveChapter?.title_uk : effectiveChapter?.title_en,
     totalVerses: verses.length,
     enabled: !!bookId && !!effectiveChapter,
   });
@@ -360,7 +360,7 @@ export const VedaReaderDB = () => {
     staleTime: 60_000,
     enabled: isCantoMode ? !!canto?.id : !!book?.id,
     queryFn: async () => {
-      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en").order("chapter_number");
+      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en").order("chapter_number");
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book!.id);
       const {
         data,
@@ -387,80 +387,80 @@ export const VedaReaderDB = () => {
       const payload: any = {};
 
       // Sanskrit - зберігати у відповідні поля
-      if (updates.sanskrit_ua !== undefined) {
-        payload.sanskrit_ua = updates.sanskrit_ua;
+      if (updates.sanskrit_uk !== undefined) {
+        payload.sanskrit_uk = updates.sanskrit_uk;
       }
       if (updates.sanskrit_en !== undefined) {
         payload.sanskrit_en = updates.sanskrit_en;
       }
       // Fallback для single mode
-      if (updates.sanskrit !== undefined && updates.sanskrit_ua === undefined && updates.sanskrit_en === undefined) {
+      if (updates.sanskrit !== undefined && updates.sanskrit_uk === undefined && updates.sanskrit_en === undefined) {
         if (language === "uk") {
-          payload.sanskrit_ua = updates.sanskrit;
+          payload.sanskrit_uk = updates.sanskrit;
         } else {
           payload.sanskrit_en = updates.sanskrit;
         }
       }
 
       // Transliteration - зберігати в правильне поле
-      if (updates.transliteration_ua !== undefined) {
-        payload.transliteration_ua = updates.transliteration_ua;
+      if (updates.transliteration_uk !== undefined) {
+        payload.transliteration_uk = updates.transliteration_uk;
       }
       if (updates.transliteration_en !== undefined) {
         payload.transliteration_en = updates.transliteration_en;
       }
       // Fallback для single mode
-      if (updates.transliteration !== undefined && updates.transliteration_ua === undefined && updates.transliteration_en === undefined) {
+      if (updates.transliteration !== undefined && updates.transliteration_uk === undefined && updates.transliteration_en === undefined) {
         if (language === "uk") {
-          payload.transliteration_ua = updates.transliteration;
+          payload.transliteration_uk = updates.transliteration;
         } else {
           payload.transliteration_en = updates.transliteration;
         }
       }
 
       // Synonyms - зберігати в правильне поле
-      if (updates.synonyms_ua !== undefined) {
-        payload.synonyms_ua = updates.synonyms_ua;
+      if (updates.synonyms_uk !== undefined) {
+        payload.synonyms_uk = updates.synonyms_uk;
       }
       if (updates.synonyms_en !== undefined) {
         payload.synonyms_en = updates.synonyms_en;
       }
       // Fallback для single mode
-      if (updates.synonyms !== undefined && updates.synonyms_ua === undefined && updates.synonyms_en === undefined) {
+      if (updates.synonyms !== undefined && updates.synonyms_uk === undefined && updates.synonyms_en === undefined) {
         if (language === "uk") {
-          payload.synonyms_ua = updates.synonyms;
+          payload.synonyms_uk = updates.synonyms;
         } else {
           payload.synonyms_en = updates.synonyms;
         }
       }
 
       // Translation - зберігати в правильне поле
-      if (updates.translation_ua !== undefined) {
-        payload.translation_ua = updates.translation_ua;
+      if (updates.translation_uk !== undefined) {
+        payload.translation_uk = updates.translation_uk;
       }
       if (updates.translation_en !== undefined) {
         payload.translation_en = updates.translation_en;
       }
       // Fallback для single mode
-      if (updates.translation !== undefined && updates.translation_ua === undefined && updates.translation_en === undefined) {
+      if (updates.translation !== undefined && updates.translation_uk === undefined && updates.translation_en === undefined) {
         if (language === "uk") {
-          payload.translation_ua = updates.translation;
+          payload.translation_uk = updates.translation;
         } else {
           payload.translation_en = updates.translation;
         }
       }
 
       // Commentary - зберігати в правильне поле
-      if (updates.commentary_ua !== undefined) {
-        payload.commentary_ua = updates.commentary_ua;
+      if (updates.commentary_uk !== undefined) {
+        payload.commentary_uk = updates.commentary_uk;
       }
       if (updates.commentary_en !== undefined) {
         payload.commentary_en = updates.commentary_en;
       }
       // Fallback для single mode
-      if (updates.commentary !== undefined && updates.commentary_ua === undefined && updates.commentary_en === undefined) {
+      if (updates.commentary !== undefined && updates.commentary_uk === undefined && updates.commentary_en === undefined) {
         if (language === "uk") {
-          payload.commentary_ua = updates.commentary;
+          payload.commentary_uk = updates.commentary;
         } else {
           payload.commentary_en = updates.commentary;
         }
@@ -544,11 +544,11 @@ export const VedaReaderDB = () => {
     }
   });
 
-  const bookTitle = language === "uk" ? book?.title_ua : book?.title_en;
-  const cantoTitle = canto ? language === "uk" ? canto.title_ua : canto.title_en : null;
+  const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
+  const cantoTitle = canto ? language === "uk" ? canto.title_uk : canto.title_en : null;
 
   // Special handling for NOI: display "Text X" instead of chapter title
-  let chapterTitle = effectiveChapter ? language === "uk" ? effectiveChapter.title_ua : effectiveChapter.title_en : null;
+  let chapterTitle = effectiveChapter ? language === "uk" ? effectiveChapter.title_uk : effectiveChapter.title_en : null;
   if (bookId === 'noi' && routeVerseNumber) {
     chapterTitle = language === 'uk' ? `Текст ${routeVerseNumber}` : `Text ${routeVerseNumber}`;
   }
@@ -591,7 +591,7 @@ export const VedaReaderDB = () => {
       cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
       chapterNumber: parseInt(effectiveChapterParam || "1"),
       verseNumber: verseIdx,
-      verseText: language === 'uk' ? currentVerse.translation_ua : currentVerse.translation_en,
+      verseText: language === 'uk' ? currentVerse.translation_uk : currentVerse.translation_en,
       sanskritText: currentVerse.text,
     };
 
@@ -635,7 +635,7 @@ export const VedaReaderDB = () => {
       cantoNumber: cantoNumber ? parseInt(cantoNumber) : undefined,
       chapterNumber: parseInt(effectiveChapterParam || "1"),
       verseNumber: verseIdx,
-      verseText: language === 'uk' ? currentVerse.translation_ua : currentVerse.translation_en,
+      verseText: language === 'uk' ? currentVerse.translation_uk : currentVerse.translation_en,
       sanskritText: currentVerse.text,
     };
 
@@ -738,8 +738,8 @@ export const VedaReaderDB = () => {
       chapterNumber: isCantoMode ? chapterNumber : effectiveChapter?.chapter_number?.toString(),
       sanskritText: currentVerse.text || "",
       transliteration: currentVerse.transliteration || undefined,
-      translation: language === 'uk' ? currentVerse.translation_ua || "" : currentVerse.translation_en || "",
-      commentary: language === 'uk' ? currentVerse.commentary_ua || undefined : currentVerse.commentary_en || undefined,
+      translation: language === 'uk' ? currentVerse.translation_uk || "" : currentVerse.translation_en || "",
+      commentary: language === 'uk' ? currentVerse.commentary_uk || undefined : currentVerse.commentary_en || undefined,
       audioUrl: (currentVerse as any).full_verse_audio_url || currentVerse.audio_url || undefined,
       audioSanskrit: (currentVerse as any).recitation_audio_url || undefined,
       audioTranslation: language === 'uk'
@@ -1363,9 +1363,9 @@ export const VedaReaderDB = () => {
           </div>}
 
         {/* Intro/preface block (render above verses if present) */}
-        {(language === "uk" ? effectiveChapter.content_ua : effectiveChapter.content_en) && !isTextChapter && <div className="verse-surface mb-8">
+        {(language === "uk" ? effectiveChapter.content_uk : effectiveChapter.content_en) && !isTextChapter && <div className="verse-surface mb-8">
             <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_ua || "" : effectiveChapter.content_en || ""} />
+              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || ""} />
             </div>
           </div>}
 
@@ -1384,7 +1384,7 @@ export const VedaReaderDB = () => {
             </div>
 
             <div className="prose prose-lg max-w-none dark:prose-invert">
-              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_ua || "" : effectiveChapter.content_en || effectiveChapter.content_ua || ""} />
+              <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />
             </div>
 
             {/* Навігація знизу */}
@@ -1412,12 +1412,12 @@ export const VedaReaderDB = () => {
             showTranslation: continuousReadingSettings.showTranslation,
             showCommentary: continuousReadingSettings.showCommentary
           };
-          return dualLanguageMode ? <DualLanguageVerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((verse as any).sanskrit_ua || (verse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliterationUa={(verse as any).transliteration_ua || ""} synonymsUa={(verse as any).synonyms_ua || ""} translationUa={(verse as any).translation_ua || ""} commentaryUa={(verse as any).commentary_ua || ""} transliterationEn={(verse as any).transliteration_en || ""} synonymsEn={(verse as any).synonyms_en || ""} translationEn={(verse as any).translation_en || ""} commentaryEn={(verse as any).commentary_en || ""} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslationUa={(verse as any).explanation_ua_audio_url || ""} audioTranslationEn={(verse as any).explanation_en_audio_url || ""} audioCommentaryUa={(verse as any).explanation_ua_audio_url || ""} audioCommentaryEn={(verse as any).explanation_en_audio_url || ""} textDisplaySettings={contSettings} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+          return dualLanguageMode ? <DualLanguageVerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((verse as any).sanskrit_uk || (verse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliterationUa={(verse as any).transliteration_uk || ""} synonymsUa={(verse as any).synonyms_uk || ""} translationUa={(verse as any).translation_uk || ""} commentaryUa={(verse as any).commentary_uk || ""} transliterationEn={(verse as any).transliteration_en || ""} synonymsEn={(verse as any).synonyms_en || ""} translationEn={(verse as any).translation_en || ""} commentaryEn={(verse as any).commentary_en || ""} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslationUa={(verse as any).explanation_ua_audio_url || ""} audioTranslationEn={(verse as any).explanation_en_audio_url || ""} audioCommentaryUa={(verse as any).explanation_ua_audio_url || ""} audioCommentaryEn={(verse as any).explanation_en_audio_url || ""} textDisplaySettings={contSettings} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
             verseId,
             updates,
             chapterId: effectiveChapter?.id,
             verseNumber: verse.verse_number
-          })} onVerseDelete={(verseId) => deleteVerseMutation.mutate(verseId)} /> : <VerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "uk" ? (verse as any).sanskrit_ua || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliteration={language === "uk" ? (verse as any).transliteration_ua || "" : (verse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(verse, 'synonyms')} translation={getTranslationWithFallback(verse, 'translation')} commentary={getTranslationWithFallback(verse, 'commentary')} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslation={language === "uk" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} audioCommentary={language === "uk" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} is_composite={(verse as any).is_composite} start_verse={(verse as any).start_verse} end_verse={(verse as any).end_verse} verse_count={(verse as any).verse_count} textDisplaySettings={contSettings} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={true} showVerseContour={showVerseContour} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+          })} onVerseDelete={(verseId) => deleteVerseMutation.mutate(verseId)} /> : <VerseCard key={verse.id} verseId={verse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "uk" ? (verse as any).sanskrit_uk || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")} transliteration={language === "uk" ? (verse as any).transliteration_uk || "" : (verse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(verse, 'synonyms')} translation={getTranslationWithFallback(verse, 'translation')} commentary={getTranslationWithFallback(verse, 'commentary')} audioUrl={(verse as any).full_verse_audio_url || (verse as any).audio_url || ""} audioSanskrit={(verse as any).recitation_audio_url || ""} audioTranslation={language === "uk" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} audioCommentary={language === "uk" ? (verse as any).explanation_ua_audio_url || "" : (verse as any).explanation_en_audio_url || ""} is_composite={(verse as any).is_composite} start_verse={(verse as any).start_verse} end_verse={(verse as any).end_verse} verse_count={(verse as any).verse_count} textDisplaySettings={contSettings} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={true} showVerseContour={showVerseContour} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
             verseId,
             updates,
             chapterId: effectiveChapter?.id,
@@ -1429,12 +1429,12 @@ export const VedaReaderDB = () => {
           const verseIdx = getDisplayVerseNumber(currentVerse.verse_number);
           const fullVerseNumber = isCantoMode ? `${cantoNumber}.${chapterNumber}.${verseIdx}` : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${verseIdx}`;
           return <div className="space-y-6">
-                  {dualLanguageMode ? <DualLanguageVerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliterationUa={(currentVerse as any).transliteration_ua || ""} synonymsUa={(currentVerse as any).synonyms_ua || ""} translationUa={(currentVerse as any).translation_ua || ""} commentaryUa={(currentVerse as any).commentary_ua || ""} transliterationEn={(currentVerse as any).transliteration_en || ""} synonymsEn={(currentVerse as any).synonyms_en || ""} translationEn={(currentVerse as any).translation_en || ""} commentaryEn={(currentVerse as any).commentary_en || ""} audioUrl={(currentVerse as any).full_verse_audio_url || (currentVerse as any).audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslationUa={(currentVerse as any).explanation_ua_audio_url || ""} audioTranslationEn={(currentVerse as any).explanation_en_audio_url || ""} audioCommentaryUa={(currentVerse as any).explanation_ua_audio_url || ""} audioCommentaryEn={(currentVerse as any).explanation_en_audio_url || ""} textDisplaySettings={textDisplaySettings} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+                  {dualLanguageMode ? <DualLanguageVerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle || undefined} sanskritTextUa={cleanSanskrit((currentVerse as any).sanskrit_uk || (currentVerse as any).sanskrit || "")} sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliterationUa={(currentVerse as any).transliteration_uk || ""} synonymsUa={(currentVerse as any).synonyms_uk || ""} translationUa={(currentVerse as any).translation_uk || ""} commentaryUa={(currentVerse as any).commentary_uk || ""} transliterationEn={(currentVerse as any).transliteration_en || ""} synonymsEn={(currentVerse as any).synonyms_en || ""} translationEn={(currentVerse as any).translation_en || ""} commentaryEn={(currentVerse as any).commentary_en || ""} audioUrl={(currentVerse as any).full_verse_audio_url || (currentVerse as any).audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslationUa={(currentVerse as any).explanation_ua_audio_url || ""} audioTranslationEn={(currentVerse as any).explanation_en_audio_url || ""} audioCommentaryUa={(currentVerse as any).explanation_ua_audio_url || ""} audioCommentaryEn={(currentVerse as any).explanation_en_audio_url || ""} textDisplaySettings={textDisplaySettings} isAdmin={isAdmin} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
               verseId,
               updates,
               chapterId: effectiveChapter?.id,
               verseNumber: currentVerse.verse_number
-            })} onVerseDelete={(verseId) => deleteVerseMutation.mutate(verseId)} onPrevVerse={handlePrevVerse} onNextVerse={handleNextVerse} isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0} isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1} prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")} nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")} /> : <VerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "uk" ? (currentVerse as any).sanskrit_ua || (currentVerse as any).sanskrit || "" : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliteration={language === "uk" ? (currentVerse as any).transliteration_ua || "" : (currentVerse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(currentVerse, 'synonyms')} translation={getTranslationWithFallback(currentVerse, 'translation')} commentary={getTranslationWithFallback(currentVerse, 'commentary')} audioUrl={(currentVerse as any).full_verse_audio_url || currentVerse.audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslation={language === "uk" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} audioCommentary={language === "uk" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} is_composite={(currentVerse as any).is_composite} start_verse={(currentVerse as any).start_verse} end_verse={(currentVerse as any).end_verse} verse_count={(currentVerse as any).verse_count} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={flowMode} showVerseContour={showVerseContour} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
+            })} onVerseDelete={(verseId) => deleteVerseMutation.mutate(verseId)} onPrevVerse={handlePrevVerse} onNextVerse={handleNextVerse} isPrevDisabled={currentVerseIndex === 0 && currentChapterIndex === 0} isNextDisabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1} prevLabel={currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")} nextLabel={currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")} /> : <VerseCard key={currentVerse.id} verseId={currentVerse.id} verseNumber={fullVerseNumber} bookName={chapterTitle} sanskritText={cleanSanskrit(language === "uk" ? (currentVerse as any).sanskrit_uk || (currentVerse as any).sanskrit || "" : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")} transliteration={language === "uk" ? (currentVerse as any).transliteration_uk || "" : (currentVerse as any).transliteration_en || ""} synonyms={getTranslationWithFallback(currentVerse, 'synonyms')} translation={getTranslationWithFallback(currentVerse, 'translation')} commentary={getTranslationWithFallback(currentVerse, 'commentary')} audioUrl={(currentVerse as any).full_verse_audio_url || currentVerse.audio_url || ""} audioSanskrit={(currentVerse as any).recitation_audio_url || ""} audioTranslation={language === "uk" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} audioCommentary={language === "uk" ? (currentVerse as any).explanation_ua_audio_url || "" : (currentVerse as any).explanation_en_audio_url || ""} is_composite={(currentVerse as any).is_composite} start_verse={(currentVerse as any).start_verse} end_verse={(currentVerse as any).end_verse} verse_count={(currentVerse as any).verse_count} showNumbers={showNumbers} fontSize={fontSize} lineHeight={lineHeight} flowMode={flowMode} showVerseContour={showVerseContour} isAdmin={isAdmin} language={language} onVerseUpdate={(verseId, updates) => updateVerseMutation.mutate({
               verseId,
               updates,
               chapterId: effectiveChapter?.id,

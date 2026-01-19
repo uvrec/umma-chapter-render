@@ -96,7 +96,7 @@ export function useOfflineDownload() {
           book_id,
           canto_id,
           chapter_number,
-          title_ua,
+          title_uk,
           title_en
         `)
         .eq('id', chapterId)
@@ -113,15 +113,15 @@ export function useOfflineDownload() {
         .select(`
           id,
           verse_number,
-          sanskrit_ua,
+          sanskrit_uk,
           sanskrit_en,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
-          synonyms_ua,
+          synonyms_uk,
           synonyms_en,
-          translation_ua,
+          translation_uk,
           translation_en,
-          commentary_ua,
+          commentary_uk,
           commentary_en,
           full_verse_audio_url
         `)
@@ -140,7 +140,7 @@ export function useOfflineDownload() {
         bookSlug,
         cantoId: chapter.canto_id || undefined,
         chapterNumber: chapter.chapter_number,
-        titleUa: chapter.title_ua || '',
+        titleUa: chapter.title_uk || '',
         titleEn: chapter.title_en || '',
         versesJson: JSON.stringify(verses || []),
         cachedAt: Date.now(),
@@ -173,7 +173,7 @@ export function useOfflineDownload() {
       // Отримуємо список глав
       let query = supabase
         .from('chapters')
-        .select('id, chapter_number, title_ua')
+        .select('id, chapter_number, title_uk')
         .order('chapter_number');
 
       if (cantoId) {
@@ -207,7 +207,7 @@ export function useOfflineDownload() {
         setProgress({
           current: i,
           total: chapters.length,
-          currentItem: `Глава ${chapter.chapter_number}: ${chapter.title_ua}`,
+          currentItem: `Глава ${chapter.chapter_number}: ${chapter.title_uk}`,
           status: 'downloading',
         });
 

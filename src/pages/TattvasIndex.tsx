@@ -46,7 +46,7 @@ const CATEGORY_INFO = {
 
 function TattvaRow({ tattva, depth = 0 }: { tattva: Tattva; depth?: number }) {
   const { language, t, getLocalizedPath } = useLanguage();
-  const name = language === "uk" ? tattva.name_ua : tattva.name_en;
+  const name = language === "uk" ? tattva.name_uk : tattva.name_en;
 
   return (
     <Link

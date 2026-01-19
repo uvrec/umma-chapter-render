@@ -88,9 +88,9 @@ export default function LecturesManager() {
         .from("lectures")
         .update({
           title_en: lecture.title_en,
-          title_ua: lecture.title_ua,
+          title_uk: lecture.title_uk,
           location_en: lecture.location_en,
-          location_ua: lecture.location_ua,
+          location_uk: lecture.location_uk,
           lecture_type: lecture.lecture_type,
         })
         .eq("id", lecture.id);
@@ -114,7 +114,7 @@ export default function LecturesManager() {
           .from("lecture_paragraphs")
           .update({
             content_en: p.content_en,
-            content_ua: p.content_ua,
+            content_uk: p.content_uk,
           })
           .eq("id", p.id);
 
@@ -163,7 +163,7 @@ export default function LecturesManager() {
 
     setEditingParagraphs((prev) => {
       const updated = [...prev];
-      updated[index] = { ...updated[index], content_ua: transliterated };
+      updated[index] = { ...updated[index], content_uk: transliterated };
       return updated;
     });
   };
@@ -173,7 +173,7 @@ export default function LecturesManager() {
     setEditingParagraphs((prev) =>
       prev.map((p) => ({
         ...p,
-        content_ua: p.content_en ? transliterateIAST(p.content_en) : p.content_ua,
+        content_uk: p.content_en ? transliterateIAST(p.content_en) : p.content_uk,
       }))
     );
     toast.success("Транслітерацію застосовано до всіх параграфів");
@@ -219,7 +219,7 @@ export default function LecturesManager() {
 
       setEditingParagraphs((prev) => {
         const updated = [...prev];
-        updated[index] = { ...updated[index], content_ua: data.translated };
+        updated[index] = { ...updated[index], content_uk: data.translated };
         return updated;
       });
 
@@ -234,7 +234,7 @@ export default function LecturesManager() {
 
   const translateAllWithAI = async () => {
     const untranslated = editingParagraphs.filter(
-      (p) => p.content_en && !p.content_ua
+      (p) => p.content_en && !p.content_uk
     );
 
     if (untranslated.length === 0) {
@@ -254,7 +254,7 @@ export default function LecturesManager() {
 
       for (let i = 0; i < editingParagraphs.length; i++) {
         const p = editingParagraphs[i];
-        if (!p.content_en || p.content_ua) continue;
+        if (!p.content_en || p.content_uk) continue;
 
         setTranslatingIndex(i);
 
@@ -282,7 +282,7 @@ export default function LecturesManager() {
 
         setEditingParagraphs((prev) => {
           const updated = [...prev];
-          updated[i] = { ...updated[i], content_ua: data.translated };
+          updated[i] = { ...updated[i], content_uk: data.translated };
           return updated;
         });
 
@@ -404,7 +404,7 @@ export default function LecturesManager() {
                       </TableCell>
                       <TableCell>{lecture.location_en}</TableCell>
                       <TableCell>
-                        {lecture.title_ua ? (
+                        {lecture.title_uk ? (
                           <Badge variant="secondary">Так</Badge>
                         ) : (
                           <Badge variant="destructive">Ні</Badge>
@@ -481,11 +481,11 @@ export default function LecturesManager() {
                   <div>
                     <label className="text-sm font-medium">Назва (UA)</label>
                     <Input
-                      value={editingLecture.title_ua || ""}
+                      value={editingLecture.title_uk || ""}
                       onChange={(e) =>
                         setEditingLecture({
                           ...editingLecture,
-                          title_ua: e.target.value,
+                          title_uk: e.target.value,
                         })
                       }
                     />
@@ -505,11 +505,11 @@ export default function LecturesManager() {
                   <div>
                     <label className="text-sm font-medium">Локація (UA)</label>
                     <Input
-                      value={editingLecture.location_ua || ""}
+                      value={editingLecture.location_uk || ""}
                       onChange={(e) =>
                         setEditingLecture({
                           ...editingLecture,
-                          location_ua: e.target.value,
+                          location_uk: e.target.value,
                         })
                       }
                     />
@@ -607,13 +607,13 @@ export default function LecturesManager() {
                               UA
                             </label>
                             <EnhancedInlineEditor
-                              content={p.content_ua || ""}
+                              content={p.content_uk || ""}
                               onChange={(html) => {
                                 setEditingParagraphs((prev) => {
                                   const updated = [...prev];
                                   updated[idx] = {
                                     ...updated[idx],
-                                    content_ua: html,
+                                    content_uk: html,
                                   };
                                   return updated;
                                 });

@@ -94,15 +94,15 @@ export const Contact = () => {
     setFormData({ name: "", email: "", message: "" });
   };
 
-  const title = pageMeta ? (language === "uk" ? pageMeta.title_ua : pageMeta.title_en) : "Контакти";
+  const title = pageMeta ? (language === "uk" ? pageMeta.title_uk : pageMeta.title_en) : "Контакти";
   
   return (
     <div className="min-h-screen bg-background">
       {pageMeta && (
         <PageMeta
-          titleUa={pageMeta.title_ua}
+          titleUa={pageMeta.title_uk}
           titleEn={pageMeta.title_en}
-          metaDescriptionUa={pageMeta.meta_description_ua}
+          metaDescriptionUa={pageMeta.meta_description_uk}
           metaDescriptionEn={pageMeta.meta_description_en}
           ogImage={pageMeta.og_image}
           seoKeywords={pageMeta.seo_keywords}

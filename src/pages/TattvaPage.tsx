@@ -46,7 +46,7 @@ function Breadcrumb({ slug }: { slug: string }) {
             to={getLocalizedPath(`/tattva/${item.slug}`)}
             className="hover:text-foreground transition-colors"
           >
-            {language === "uk" ? item.name_ua : item.name_en}
+            {language === "uk" ? item.name_uk : item.name_en}
           </Link>
         </span>
       ))}
@@ -56,7 +56,7 @@ function Breadcrumb({ slug }: { slug: string }) {
 
 function SubcategoryRow({ tattva }: { tattva: Tattva }) {
   const { language, getLocalizedPath } = useLanguage();
-  const name = language === "uk" ? tattva.name_ua : tattva.name_en;
+  const name = language === "uk" ? tattva.name_uk : tattva.name_en;
 
   return (
     <Link
@@ -92,7 +92,7 @@ function VerseRow({ verse }: { verse: TattvaVerse }) {
     : `${verse.chapter_number}.${verse.verse_number}`;
 
   const translation =
-    language === "uk" ? verse.translation_ua : verse.translation_en;
+    language === "uk" ? verse.translation_uk : verse.translation_en;
 
   return (
     <Link
@@ -183,12 +183,12 @@ export function TattvaPage() {
   const hasChildren = children && children.length > 0;
   const name = tattva
     ? language === "uk"
-      ? tattva.name_ua
+      ? tattva.name_uk
       : tattva.name_en
     : "";
   const description = tattva
     ? language === "uk"
-      ? tattva.description_ua
+      ? tattva.description_uk
       : tattva.description_en
     : "";
 

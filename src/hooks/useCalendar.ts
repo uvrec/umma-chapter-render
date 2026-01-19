@@ -201,9 +201,9 @@ export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | 
     const dbEvents = data?.events || [];
     const formattedEvents = dbEvents.map((event) => ({
       ...event,
-      name: language === "uk" ? event.name_ua : event.name_en,
+      name: language === "uk" ? event.name_uk : event.name_en,
       description:
-        language === "uk" ? event.description_ua : event.description_en,
+        language === "uk" ? event.description_uk : event.description_en,
     }));
 
     // Якщо в БД немає екадаші, але астрономічний розрахунок каже що сьогодні екадаші
@@ -219,8 +219,8 @@ export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | 
       return [
         {
           ...ekadashiEvent,
-          name: language === "uk" ? ekadashiEvent.name_ua : ekadashiEvent.name_en,
-          description: language === "uk" ? ekadashiEvent.description_ua : ekadashiEvent.description_en,
+          name: language === "uk" ? ekadashiEvent.name_uk : ekadashiEvent.name_en,
+          description: language === "uk" ? ekadashiEvent.description_uk : ekadashiEvent.description_en,
         },
         ...formattedEvents
       ];
@@ -238,7 +238,7 @@ export function useTodayEvents(locationId?: string, geoLocation?: GeoLocation | 
         ...data.next_ekadashi.event,
         name:
           language === "uk"
-            ? data.next_ekadashi.event.name_ua
+            ? data.next_ekadashi.event.name_uk
             : data.next_ekadashi.event.name_en,
       },
     };
@@ -317,20 +317,20 @@ export function useEkadashi(slug: string) {
     if (!data) return null;
     return {
       ...data,
-      name: language === "uk" ? data.name_ua : data.name_en,
+      name: language === "uk" ? data.name_uk : data.name_en,
       gloryTitle:
-        language === "uk" ? data.glory_title_ua : data.glory_title_en,
-      gloryText: language === "uk" ? data.glory_text_ua : data.glory_text_en,
+        language === "uk" ? data.glory_title_uk : data.glory_title_en,
+      gloryText: language === "uk" ? data.glory_text_uk : data.glory_text_en,
       presidingDeity:
-        language === "uk" ? data.presiding_deity_ua : data.presiding_deity_en,
+        language === "uk" ? data.presiding_deity_uk : data.presiding_deity_en,
       recommendedActivities:
         language === "uk"
-          ? data.recommended_activities_ua
+          ? data.recommended_activities_uk
           : data.recommended_activities_en,
       fastingRules:
-        language === "uk" ? data.fasting_rules_ua : data.fasting_rules_en,
-      benefits: language === "uk" ? data.benefits_ua : data.benefits_en,
-      story: language === "uk" ? data.story_ua : data.story_en,
+        language === "uk" ? data.fasting_rules_uk : data.fasting_rules_en,
+      benefits: language === "uk" ? data.benefits_uk : data.benefits_en,
+      story: language === "uk" ? data.story_uk : data.story_en,
     };
   }, [data, language]);
 
@@ -385,17 +385,17 @@ export function useFestival(slug: string) {
     if (!data) return null;
     return {
       ...data,
-      name: language === "uk" ? data.name_ua : data.name_en,
+      name: language === "uk" ? data.name_uk : data.name_en,
       description:
-        language === "uk" ? data.description_ua : data.description_en,
+        language === "uk" ? data.description_uk : data.description_en,
       shortDescription:
         language === "uk"
-          ? data.short_description_ua
+          ? data.short_description_uk
           : data.short_description_en,
       significance:
-        language === "uk" ? data.significance_ua : data.significance_en,
+        language === "uk" ? data.significance_uk : data.significance_en,
       observances:
-        language === "uk" ? data.observances_ua : data.observances_en,
+        language === "uk" ? data.observances_uk : data.observances_en,
     };
   }, [data, language]);
 
@@ -454,17 +454,17 @@ export function useAppearanceDay(slug: string) {
     return {
       ...data,
       personName:
-        language === "uk" ? data.person_name_ua : data.person_name_en,
+        language === "uk" ? data.person_name_uk : data.person_name_en,
       personTitle:
-        language === "uk" ? data.person_title_ua : data.person_title_en,
+        language === "uk" ? data.person_title_uk : data.person_title_en,
       description:
-        language === "uk" ? data.description_ua : data.description_en,
+        language === "uk" ? data.description_uk : data.description_en,
       shortDescription:
         language === "uk"
-          ? data.short_description_ua
+          ? data.short_description_uk
           : data.short_description_en,
       observances:
-        language === "uk" ? data.observances_ua : data.observances_en,
+        language === "uk" ? data.observances_uk : data.observances_en,
     };
   }, [data, language]);
 
@@ -493,8 +493,8 @@ export function useCalendarLocations() {
     if (!data) return [];
     return data.map((loc) => ({
       ...loc,
-      name: language === "uk" ? loc.name_ua : loc.name_en,
-      city: language === "uk" ? loc.city_ua : loc.city_en,
+      name: language === "uk" ? loc.name_uk : loc.name_en,
+      city: language === "uk" ? loc.city_uk : loc.city_en,
     }));
   }, [data, language]);
 
@@ -575,9 +575,9 @@ export function useVaishnavMonths() {
     if (!data) return [];
     return data.map((m) => ({
       ...m,
-      name: language === "uk" ? m.name_ua : m.name_en,
+      name: language === "uk" ? m.name_uk : m.name_en,
       description:
-        language === "uk" ? m.description_ua : m.description_en,
+        language === "uk" ? m.description_uk : m.description_en,
     }));
   }, [data, language]);
 
@@ -609,10 +609,10 @@ export function useNextEkadashi(locationId?: string) {
       ...data,
       event: {
         ...data.event,
-        name: language === "uk" ? data.event.name_ua : data.event.name_en,
+        name: language === "uk" ? data.event.name_uk : data.event.name_en,
         description:
           language === "uk"
-            ? data.event.description_ua
+            ? data.event.description_uk
             : data.event.description_en,
       },
       formattedDate: data.event.event_date

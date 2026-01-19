@@ -8,7 +8,7 @@
 export interface RoutineItem {
   id: string;
   title: string;
-  title_ua?: string;
+  title_uk?: string;
   description?: string;
 
   // Time scheduling
@@ -121,7 +121,7 @@ export interface DailyData {
 export const DEFAULT_ROUTINE_ITEMS: Omit<RoutineItem, 'id' | 'createdAt'>[] = [
   {
     title: 'Mangala Arati',
-    title_ua: 'Манґала Араті',
+    title_uk: 'Манґала Араті',
     startTime: '04:30',
     endTime: '05:00',
     duration: 30,
@@ -133,7 +133,7 @@ export const DEFAULT_ROUTINE_ITEMS: Omit<RoutineItem, 'id' | 'createdAt'>[] = [
   },
   {
     title: 'Japa Meditation',
-    title_ua: 'Джапа медитація',
+    title_uk: 'Джапа медитація',
     startTime: '05:00',
     endTime: '07:30',
     duration: 150,
@@ -148,7 +148,7 @@ export const DEFAULT_ROUTINE_ITEMS: Omit<RoutineItem, 'id' | 'createdAt'>[] = [
   },
   {
     title: 'Srimad Bhagavatam Class',
-    title_ua: 'Клас Шрімад-Бгаґаватам',
+    title_uk: 'Клас Шрімад-Бгаґаватам',
     startTime: '07:30',
     endTime: '08:30',
     duration: 60,
@@ -160,7 +160,7 @@ export const DEFAULT_ROUTINE_ITEMS: Omit<RoutineItem, 'id' | 'createdAt'>[] = [
   },
   {
     title: 'Reading',
-    title_ua: 'Читання',
+    title_uk: 'Читання',
     startTime: '19:00',
     endTime: '19:30',
     duration: 30,
@@ -175,7 +175,7 @@ export const DEFAULT_ROUTINE_ITEMS: Omit<RoutineItem, 'id' | 'createdAt'>[] = [
   },
   {
     title: 'Evening Kirtan',
-    title_ua: 'Вечірній кіртан',
+    title_uk: 'Вечірній кіртан',
     startTime: '19:30',
     endTime: '20:00',
     duration: 30,
@@ -188,13 +188,13 @@ export const DEFAULT_ROUTINE_ITEMS: Omit<RoutineItem, 'id' | 'createdAt'>[] = [
 ];
 
 // Category metadata
-export const ROUTINE_CATEGORIES: Record<RoutineCategory, { label_en: string; label_ua: string; color: string; icon: string }> = {
-  japa: { label_en: 'Japa', label_ua: 'Джапа', color: '#8B5CF6', icon: 'circle-dot' },
-  reading: { label_en: 'Reading', label_ua: 'Читання', color: '#22C55E', icon: 'book-open' },
-  service: { label_en: 'Service', label_ua: 'Служіння', color: '#EF4444', icon: 'heart-handshake' },
-  exercise: { label_en: 'Exercise', label_ua: 'Вправи', color: '#06B6D4', icon: 'dumbbell' },
-  meditation: { label_en: 'Meditation', label_ua: 'Медитація', color: '#A855F7', icon: 'brain' },
-  kirtan: { label_en: 'Kirtan', label_ua: 'Кіртан', color: '#F59E0B', icon: 'music' },
-  lecture: { label_en: 'Lecture', label_ua: 'Лекція', color: '#3B82F6', icon: 'graduation-cap' },
-  custom: { label_en: 'Custom', label_ua: 'Інше', color: '#6B7280', icon: 'circle' },
+export const ROUTINE_CATEGORIES: Record<RoutineCategory, { label_en: string; label_uk: string; color: string; icon: string }> = {
+  japa: { label_en: 'Japa', label_uk: 'Джапа', color: '#8B5CF6', icon: 'circle-dot' },
+  reading: { label_en: 'Reading', label_uk: 'Читання', color: '#22C55E', icon: 'book-open' },
+  service: { label_en: 'Service', label_uk: 'Служіння', color: '#EF4444', icon: 'heart-handshake' },
+  exercise: { label_en: 'Exercise', label_uk: 'Вправи', color: '#06B6D4', icon: 'dumbbell' },
+  meditation: { label_en: 'Meditation', label_uk: 'Медитація', color: '#A855F7', icon: 'brain' },
+  kirtan: { label_en: 'Kirtan', label_uk: 'Кіртан', color: '#F59E0B', icon: 'music' },
+  lecture: { label_en: 'Lecture', label_uk: 'Лекція', color: '#3B82F6', icon: 'graduation-cap' },
+  custom: { label_en: 'Custom', label_uk: 'Інше', color: '#6B7280', icon: 'circle' },
 };

@@ -12,19 +12,19 @@ export interface ParsedVerse {
   verse_number: string;
   sanskrit: string; // З PDF (Devanagari)
   transliteration_en: string; // З Vedabase (IAST)
-  transliteration_ua: string; // Генерується з transliteration_en через convertIASTtoUkrainian
+  transliteration_uk: string; // Генерується з transliteration_en через convertIASTtoUkrainian
   synonyms_en: string; // З Vedabase (IAST)
-  synonyms_ua: string; // Генерується з synonyms_en через convertIASTtoUkrainian
-  translation_ua: string; // З PDF
+  synonyms_uk: string; // Генерується з synonyms_en через convertIASTtoUkrainian
+  translation_uk: string; // З PDF
   translation_en: string; // З Vedabase
-  commentary_ua: string; // З PDF
+  commentary_uk: string; // З PDF
   commentary_en: string; // З Vedabase
 }
 
 export interface ParsedChapter {
   canto_number: number;
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   verses: ParsedVerse[];
 }
@@ -158,8 +158,8 @@ function parseVerse(number: string, content: string): ParsedVerse {
     .filter((l) => l.length > 0);
 
   let sanskrit = '';
-  let translation_ua = '';
-  let commentary_ua = '';
+  let translation_uk = '';
+  let commentary_uk = '';
 
   let inSanskrit = true;
   let inTranslation = false;
@@ -197,27 +197,27 @@ function parseVerse(number: string, content: string): ParsedVerse {
 
     // Збирання тексту
     if (inTranslation) {
-      translation_ua += (translation_ua ? ' ' : '') + line;
+      translation_uk += (translation_uk ? ' ' : '') + line;
     } else if (inCommentary) {
-      commentary_ua += (commentary_ua ? ' ' : '') + line;
+      commentary_uk += (commentary_uk ? ' ' : '') + line;
     }
   }
 
   // Нормалізація тільки того, що парсили з PDF
   sanskrit = normalizeVerseField(sanskrit, 'sanskrit');
-  translation_ua = normalizeVerseField(translation_ua, 'translation');
-  commentary_ua = normalizeVerseField(commentary_ua, 'commentary');
+  translation_uk = normalizeVerseField(translation_uk, 'translation');
+  commentary_uk = normalizeVerseField(commentary_uk, 'commentary');
 
   return {
     verse_number: number,
     sanskrit,
     transliteration_en: '', // Буде з Vedabase
-    transliteration_ua: '', // Буде згенеровано з transliteration_en
+    transliteration_uk: '', // Буде згенеровано з transliteration_en
     synonyms_en: '', // Буде з Vedabase
-    synonyms_ua: '', // Буде згенеровано з synonyms_en
-    translation_ua,
+    synonyms_uk: '', // Буде згенеровано з synonyms_en
+    translation_uk,
     translation_en: '', // Буде з Vedabase
-    commentary_ua,
+    commentary_uk,
     commentary_en: '', // Буде з Vedabase
   };
 }
@@ -267,7 +267,7 @@ export function parseChapterFromPDF(
   return {
     canto_number: cantoNumber,
     chapter_number: chapterNumber,
-    title_ua: chapterTitle,
+    title_uk: chapterTitle,
     title_en: '', // Заповниться з Vedabase
     verses,
   };

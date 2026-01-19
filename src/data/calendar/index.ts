@@ -36,18 +36,18 @@ export interface CalendarMetadata {
 export interface CalendarEventData {
   date: string;
   name_en: string;
-  name_ua: string;
+  name_uk: string;
   type: 'ekadashi' | 'festival' | 'appearance' | 'disappearance' | 'parana' | 'caturmasya' | 'info';
   fasting: 'nirjala' | 'full' | 'half' | null;
   fasting_note_en?: string;
-  fasting_note_ua?: string;
+  fasting_note_uk?: string;
   ekadashi_name?: string;
   is_major?: boolean;
   parana_start?: string;
   parana_end?: string | null;
   caturmasya_month?: number;
   caturmasya_restriction_en?: string;
-  caturmasya_restriction_ua?: string;
+  caturmasya_restriction_uk?: string;
 }
 
 export interface CalendarData {

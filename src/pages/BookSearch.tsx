@@ -47,7 +47,7 @@ interface SearchResult {
 
 interface Book {
   id: string;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   slug: string;
 }
@@ -77,7 +77,7 @@ export default function BookSearch() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('books')
-        .select('id, title_ua, title_en, slug')
+        .select('id, title_uk, title_en, slug')
         .eq('is_published', true)
         .order('display_order');
       
@@ -276,7 +276,7 @@ export default function BookSearch() {
                       className="gap-1"
                     >
                       <Book className="h-3 w-3" />
-                      {language === 'uk' ? book.title_ua : book.title_en}
+                      {language === 'uk' ? book.title_uk : book.title_en}
                     </Button>
                   ))}
                   {selectedBooks.length > 0 && (

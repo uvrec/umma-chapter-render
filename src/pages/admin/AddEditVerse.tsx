@@ -81,7 +81,7 @@ export default function AddEditVerse() {
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("books").select("*").order("title_ua");
+      const { data, error } = await supabase.from("books").select("*").order("title_uk");
       if (error) throw error;
       return data;
     },
@@ -110,7 +110,7 @@ export default function AddEditVerse() {
     queryFn: async () => {
       if (!selectedBookId) return [];
 
-      let query = supabase.from("chapters").select("*, books(title_ua), cantos(title_ua, canto_number)");
+      let query = supabase.from("chapters").select("*, books(title_uk), cantos(title_uk, canto_number)");
 
       if (selectedBook?.has_cantos && selectedCantoId) {
         query = query.eq("canto_id", selectedCantoId);
@@ -224,15 +224,15 @@ export default function AddEditVerse() {
     if (verse) {
       setChapterId(verse.chapter_id);
       setVerseNumber(verse.verse_number);
-      setSanskritUa(verse.sanskrit_ua || (verse as any).sanskrit || "");
+      setSanskritUa(verse.sanskrit_uk || (verse as any).sanskrit || "");
       setSanskritEn(verse.sanskrit_en || (verse as any).sanskrit || "");
-      setTransliterationUa(verse.transliteration_ua || "");
+      setTransliterationUa(verse.transliteration_uk || "");
       setTransliterationEn(verse.transliteration_en || "");
-      setSynonymsUa(verse.synonyms_ua || "");
+      setSynonymsUa(verse.synonyms_uk || "");
       setSynonymsEn(verse.synonyms_en || "");
-      setTranslationUa(verse.translation_ua || "");
+      setTranslationUa(verse.translation_uk || "");
       setTranslationEn(verse.translation_en || "");
-      setCommentaryUa(verse.commentary_ua || "");
+      setCommentaryUa(verse.commentary_uk || "");
       setCommentaryEn(verse.commentary_en || "");
 
       // Legacy audio field
@@ -307,15 +307,15 @@ export default function AddEditVerse() {
       const verseData = {
         chapter_id: chapterId,
         verse_number: verseNumber,
-        sanskrit_ua: sanskritUa || null,
+        sanskrit_uk: sanskritUa || null,
         sanskrit_en: sanskritEn || null,
-        transliteration_ua: transliterationUa || null,
+        transliteration_uk: transliterationUa || null,
         transliteration_en: transliterationEn || null,
-        synonyms_ua: synonymsUa || null,
+        synonyms_uk: synonymsUa || null,
         synonyms_en: synonymsEn || null,
-        translation_ua: translationUa || null,
+        translation_uk: translationUa || null,
         translation_en: translationEn || null,
-        commentary_ua: commentaryUa || null,
+        commentary_uk: commentaryUa || null,
         commentary_en: commentaryEn || null,
 
         // Audio URLs - simplified structure
@@ -408,7 +408,7 @@ export default function AddEditVerse() {
 
   const selectedBookData = books?.find((b) => b.id === selectedBookId);
   if (selectedBookData) {
-    breadcrumbs.push({ label: selectedBookData.title_ua });
+    breadcrumbs.push({ label: selectedBookData.title_uk });
   }
 
   const selectedCantoData = cantos?.find((c) => c.id === selectedCantoId);
@@ -466,7 +466,7 @@ export default function AddEditVerse() {
                 <SelectContent>
                   {books?.map((book) => (
                     <SelectItem key={book.id} value={book.id}>
-                      {book.title_ua}
+                      {book.title_uk}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -490,7 +490,7 @@ export default function AddEditVerse() {
                   <SelectContent>
                     {cantos?.map((canto) => (
                       <SelectItem key={canto.id} value={canto.id}>
-                        Пісня {canto.canto_number}: {canto.title_ua}
+                        Пісня {canto.canto_number}: {canto.title_uk}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -509,7 +509,7 @@ export default function AddEditVerse() {
                   <SelectContent>
                     {chapters?.map((chapter) => (
                       <SelectItem key={chapter.id} value={chapter.id}>
-                        Глава {chapter.chapter_number}: {chapter.title_ua}
+                        Глава {chapter.chapter_number}: {chapter.title_uk}
                       </SelectItem>
                     ))}
                   </SelectContent>

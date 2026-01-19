@@ -143,24 +143,24 @@ export function VaishnavEventFastingTimes({
   // Get glory text for ekadashi
   const gloryText = ekadashiInfo
     ? language === "uk"
-      ? ekadashiInfo.glory_text_ua
+      ? ekadashiInfo.glory_text_uk
       : ekadashiInfo.glory_text_en
     : null;
 
   const gloryTitle = ekadashiInfo
     ? language === "uk"
-      ? ekadashiInfo.glory_title_ua
+      ? ekadashiInfo.glory_title_uk
       : ekadashiInfo.glory_title_en
     : null;
 
   // Get description for appearance/disappearance
   const eventDescription = appearanceDay
     ? language === "uk"
-      ? appearanceDay.description_ua
+      ? appearanceDay.description_uk
       : appearanceDay.description_en
     : festival
     ? language === "uk"
-      ? festival.description_ua
+      ? festival.description_uk
       : festival.description_en
     : null;
 
@@ -216,7 +216,7 @@ export function VaishnavEventFastingTimes({
           <CardDescription className="flex items-center gap-1 text-sm">
             <MapPin className="h-3.5 w-3.5" />
             <span>
-              {language === "uk" ? location.name_ua : location.name_en}
+              {language === "uk" ? location.name_uk : location.name_en}
             </span>
           </CardDescription>
         )}
@@ -232,7 +232,7 @@ export function VaishnavEventFastingTimes({
         <div className="flex items-center gap-2">
           <Badge variant="outline" className={getBorderColor()}>
             {language === "uk"
-              ? fastingTimes.fastingLevelDescription_ua
+              ? fastingTimes.fastingLevelDescription_uk
               : fastingTimes.fastingLevelDescription_en}
           </Badge>
         </div>
@@ -295,7 +295,7 @@ export function VaishnavEventFastingTimes({
               </div>
               <p className="text-xs text-muted-foreground">
                 {language === "uk"
-                  ? fastingTimes.breakFastDescription_ua
+                  ? fastingTimes.breakFastDescription_uk
                   : fastingTimes.breakFastDescription_en}
               </p>
             </div>
@@ -324,7 +324,7 @@ export function VaishnavEventFastingTimes({
               </div>
               <p className="text-xs text-muted-foreground">
                 {language === "uk"
-                  ? fastingTimes.breakFastDescription_ua
+                  ? fastingTimes.breakFastDescription_uk
                   : fastingTimes.breakFastDescription_en}
               </p>
             </div>
@@ -376,7 +376,7 @@ export function VaishnavEventFastingTimes({
         )}
 
         {/* Notes */}
-        {(fastingTimes.notes_ua || fastingTimes.notes_en) && (
+        {(fastingTimes.notes_uk || fastingTimes.notes_en) && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -385,7 +385,7 @@ export function VaishnavEventFastingTimes({
                 {language === "uk" ? "Примітки" : "Notes"}
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {language === "uk" ? fastingTimes.notes_ua : fastingTimes.notes_en}
+                {language === "uk" ? fastingTimes.notes_uk : fastingTimes.notes_en}
               </p>
             </div>
           </>
@@ -490,7 +490,7 @@ function VaishnavEventFastingTimesCompact({
       {/* Fasting level */}
       <div className="text-xs text-muted-foreground">
         {language === "uk"
-          ? fastingTimes.fastingLevelDescription_ua
+          ? fastingTimes.fastingLevelDescription_uk
           : fastingTimes.fastingLevelDescription_en}
       </div>
     </div>

@@ -55,13 +55,13 @@ export default function BlogPost() {
         .select(
           `
           id,
-          title_ua,
+          title_uk,
           title_en,
           slug,
           content_mode,
-          content_ua,
+          content_uk,
           content_en,
-          excerpt_ua,
+          excerpt_uk,
           excerpt_en,
           cover_image_url,
           featured_image,
@@ -70,7 +70,7 @@ export default function BlogPost() {
           instagram_embed_url,
           telegram_embed_url,
           substack_embed_url,
-          meta_description_ua,
+          meta_description_uk,
           meta_description_en,
           is_published,
           published_at,
@@ -83,18 +83,18 @@ export default function BlogPost() {
           display_blocks,
           sanskrit,
           transliteration,
-          synonyms_ua,
+          synonyms_uk,
           synonyms_en,
-          poetry_translation_ua,
+          poetry_translation_uk,
           poetry_translation_en,
           audio_sanskrit_url,
           audio_transliteration_url,
-          audio_poetry_translation_ua_url,
+          audio_poetry_translation_uk_url,
           audio_poetry_translation_en_url,
-          audio_commentary_ua_url,
+          audio_commentary_uk_url,
           audio_commentary_en_url,
-          category:blog_categories(name_ua, name_en),
-          tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
+          category:blog_categories(name_uk, name_en),
+          tags:blog_post_tags(tag:blog_tags(name_uk, name_en, slug))
         `,
         )
         .eq("slug", slug)
@@ -109,12 +109,12 @@ export default function BlogPost() {
           .select(
             `
             id,
-            title_ua,
+            title_uk,
             title_en,
             slug,
-            content_ua,
+            content_uk,
             content_en,
-            excerpt_ua,
+            excerpt_uk,
             excerpt_en,
             cover_image_url,
             featured_image,
@@ -123,7 +123,7 @@ export default function BlogPost() {
             instagram_embed_url,
             telegram_embed_url,
             substack_embed_url,
-            meta_description_ua,
+            meta_description_uk,
             meta_description_en,
             is_published,
             published_at,
@@ -134,8 +134,8 @@ export default function BlogPost() {
             category_id,
             author_display_name,
             display_blocks,
-            category:blog_categories(name_ua, name_en),
-            tags:blog_post_tags(tag:blog_tags(name_ua, name_en, slug))
+            category:blog_categories(name_uk, name_en),
+            tags:blog_post_tags(tag:blog_tags(name_uk, name_en, slug))
           `,
           )
           .eq("slug", slug)
@@ -167,7 +167,7 @@ export default function BlogPost() {
   }, [post?.display_blocks]);
 
   // Функція для збереження змін контенту
-  const handleContentUpdate = async (field: "content_ua" | "content_en", value: string) => {
+  const handleContentUpdate = async (field: "content_uk" | "content_en", value: string) => {
     if (!post?.id) return;
 
     try {
@@ -215,7 +215,7 @@ export default function BlogPost() {
       if (!post?.category_id) return [];
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, title_ua, title_en, slug, excerpt_ua, excerpt_en, featured_image, published_at")
+        .select("id, title_uk, title_en, slug, excerpt_uk, excerpt_en, featured_image, published_at")
         .eq("category_id", post.category_id)
         .eq("is_published", true)
         .neq("id", post.id)
@@ -267,13 +267,13 @@ export default function BlogPost() {
     );
   }
 
-  const titleUa = post.title_ua;
+  const titleUa = post.title_uk;
   const titleEn = post.title_en;
-  const contentUa = post.content_ua;
+  const contentUa = post.content_uk;
   const contentEn = post.content_en;
-  const excerptUa = post.excerpt_ua;
+  const excerptUa = post.excerpt_uk;
   const excerptEn = post.excerpt_en;
-  const metaDescUa = post.meta_description_ua;
+  const metaDescUa = post.meta_description_uk;
   const metaDescEn = post.meta_description_en;
 
   // Для SEO та соцмереж - одна мова
@@ -392,7 +392,7 @@ export default function BlogPost() {
             {post.category && (
               <>
                 {" > "}
-                <span>{language === "uk" ? post.category.name_ua : post.category.name_en}</span>
+                <span>{language === "uk" ? post.category.name_uk : post.category.name_en}</span>
               </>
             )}
             {" > "}
@@ -412,7 +412,7 @@ export default function BlogPost() {
               {/* Ukrainian Column */}
               <div>
                 <header className="mb-8">
-                  {post.category && <Badge className="mb-4">{post.category.name_ua}</Badge>}
+                  {post.category && <Badge className="mb-4">{post.category.name_uk}</Badge>}
                   <h1 className="blog-title mb-4">{titleUa}</h1>
 
                   <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
@@ -448,20 +448,20 @@ export default function BlogPost() {
                       <BlogPoetryContent
                         sanskrit={post.sanskrit}
                         transliteration={post.transliteration}
-                        synonyms={post.synonyms_ua}
-                        poetryTranslation={post.poetry_translation_ua}
+                        synonyms={post.synonyms_uk}
+                        poetryTranslation={post.poetry_translation_uk}
                         commentary={contentUa}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}
-                        audioPoetryTranslationUrl={post.audio_poetry_translation_ua_url}
-                        audioCommentaryUrl={post.audio_commentary_ua_url}
+                        audioPoetryTranslationUrl={post.audio_poetry_translation_uk_url}
+                        audioCommentaryUrl={post.audio_commentary_uk_url}
                         displayBlocks={displayBlocks}
                         language="uk"
                       />
                     ) : isAdmin ? (
                       <EnhancedInlineEditor
                         content={contentUa}
-                        onChange={(value) => handleContentUpdate("content_ua", value)}
+                        onChange={(value) => handleContentUpdate("content_uk", value)}
                         label="Контент (UA)"
                       />
                     ) : (
@@ -546,7 +546,7 @@ export default function BlogPost() {
             <>
               <header className="mb-8">
                 {post.category && (
-                  <Badge className="mb-4">{language === "uk" ? post.category.name_ua : post.category.name_en}</Badge>
+                  <Badge className="mb-4">{language === "uk" ? post.category.name_uk : post.category.name_en}</Badge>
                 )}
                 <h1 className="blog-title mb-4">{title}</h1>
 
@@ -596,20 +596,20 @@ export default function BlogPost() {
                       <BlogPoetryContent
                         sanskrit={post.sanskrit}
                         transliteration={post.transliteration}
-                        synonyms={post.synonyms_ua}
-                        poetryTranslation={post.poetry_translation_ua}
+                        synonyms={post.synonyms_uk}
+                        poetryTranslation={post.poetry_translation_uk}
                         commentary={contentUa}
                         audioSanskritUrl={post.audio_sanskrit_url}
                         audioTransliterationUrl={post.audio_transliteration_url}
-                        audioPoetryTranslationUrl={post.audio_poetry_translation_ua_url}
-                        audioCommentaryUrl={post.audio_commentary_ua_url}
+                        audioPoetryTranslationUrl={post.audio_poetry_translation_uk_url}
+                        audioCommentaryUrl={post.audio_commentary_uk_url}
                         displayBlocks={displayBlocks}
                         language="uk"
                       />
                     ) : isAdmin ? (
                       <EnhancedInlineEditor
                         content={contentUa}
-                        onChange={(value) => handleContentUpdate("content_ua", value)}
+                        onChange={(value) => handleContentUpdate("content_uk", value)}
                         label="Контент (UA)"
                       />
                     ) : (

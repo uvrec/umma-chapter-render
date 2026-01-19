@@ -231,8 +231,8 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
                             isCompleted && 'line-through text-muted-foreground'
                           )}
                         >
-                          {language === 'uk' && routine.title_ua
-                            ? routine.title_ua
+                          {language === 'uk' && routine.title_uk
+                            ? routine.title_uk
                             : routine.title}
                         </span>
                       </div>

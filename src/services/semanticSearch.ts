@@ -259,10 +259,10 @@ export async function getVerseReferences(
         target_verse:verses!cross_references_target_verse_id_fkey (
           id,
           verse_number,
-          translation_ua,
+          translation_uk,
           translation_en,
           transliteration,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
           chapter:chapters!verses_chapter_id_fkey (
             chapter_number,
@@ -296,10 +296,10 @@ export async function getVerseReferences(
         const verse = ref.target_verse;
         const chapter = verse?.chapter;
         const translation = language === 'uk'
-          ? verse?.translation_ua
+          ? verse?.translation_uk
           : verse?.translation_en;
         const transliteration = language === 'uk'
-          ? (verse?.transliteration_ua || verse?.transliteration)
+          ? (verse?.transliteration_uk || verse?.transliteration)
           : (verse?.transliteration_en || verse?.transliteration);
 
         return {
@@ -350,10 +350,10 @@ export async function getBidirectionalReferences(
         source_verse:verses!cross_references_source_verse_id_fkey (
           id,
           verse_number,
-          translation_ua,
+          translation_uk,
           translation_en,
           transliteration,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
           chapter:chapters!verses_chapter_id_fkey (
             chapter_number,
@@ -382,10 +382,10 @@ export async function getBidirectionalReferences(
         const verse = ref.source_verse;
         const chapter = verse?.chapter;
         const translation = language === 'uk'
-          ? verse?.translation_ua
+          ? verse?.translation_uk
           : verse?.translation_en;
         const transliteration = language === 'uk'
-          ? (verse?.transliteration_ua || verse?.transliteration)
+          ? (verse?.transliteration_uk || verse?.transliteration)
           : (verse?.transliteration_en || verse?.transliteration);
 
         return {

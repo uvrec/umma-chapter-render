@@ -21,7 +21,7 @@ export default function EkadashiList() {
   const getMonthName = (monthId: number): string => {
     const month = months.find((m) => m.id === monthId);
     if (!month) return "";
-    return language === "uk" ? month.name_ua : month.name_en;
+    return language === "uk" ? month.name_uk : month.name_en;
   };
 
   // Отримати назву пакші
@@ -146,12 +146,12 @@ interface EkadashiCardProps {
 }
 
 function EkadashiCard({ ekadashi, language }: EkadashiCardProps) {
-  const name = language === "uk" ? ekadashi.name_ua : ekadashi.name_en;
+  const name = language === "uk" ? ekadashi.name_uk : ekadashi.name_en;
   const gloryTitle =
-    language === "uk" ? ekadashi.glory_title_ua : ekadashi.glory_title_en;
+    language === "uk" ? ekadashi.glory_title_uk : ekadashi.glory_title_en;
   const presidingDeity =
     language === "uk"
-      ? ekadashi.presiding_deity_ua
+      ? ekadashi.presiding_deity_uk
       : ekadashi.presiding_deity_en;
 
   const pakshaLabel =

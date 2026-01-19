@@ -22,10 +22,10 @@ export const Blog = () => {
         .from('blog_posts')
         .select(`
           id,
-          title_ua,
+          title_uk,
           title_en,
           slug,
-          excerpt_ua,
+          excerpt_uk,
           excerpt_en,
           cover_image_url,
           featured_image,
@@ -36,7 +36,7 @@ export const Blog = () => {
           author_display_name,
           blog_categories (
             id,
-            name_ua,
+            name_uk,
             name_en,
             slug
           )
@@ -62,7 +62,7 @@ export const Blog = () => {
       const { data, error } = await supabase
         .from('blog_categories')
         .select('*')
-        .order(language === 'uk' ? 'name_ua' : 'name_en');
+        .order(language === 'uk' ? 'name_uk' : 'name_en');
       if (error) throw error;
       return data;
     },
@@ -71,8 +71,8 @@ export const Blog = () => {
   // Filter posts by search query
   const filteredPosts = posts?.filter((post) => {
     if (!searchQuery) return true;
-    const title = language === 'uk' ? post.title_ua : post.title_en;
-    const excerpt = language === 'uk' ? post.excerpt_ua : post.excerpt_en;
+    const title = language === 'uk' ? post.title_uk : post.title_en;
+    const excerpt = language === 'uk' ? post.excerpt_uk : post.excerpt_en;
     const searchLower = searchQuery.toLowerCase();
     return (
       title?.toLowerCase().includes(searchLower) ||
@@ -128,7 +128,7 @@ export const Blog = () => {
               size="sm"
               onClick={() => setSelectedCategory(category.id)}
             >
-              {language === 'uk' ? category.name_ua : category.name_en}
+              {language === 'uk' ? category.name_uk : category.name_en}
             </Button>
           ))}
         </div>
@@ -149,10 +149,10 @@ export const Blog = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {filteredPosts?.map((post) => {
-              const title = language === 'uk' ? post.title_ua : post.title_en;
-              const excerpt = language === 'uk' ? post.excerpt_ua : post.excerpt_en;
+              const title = language === 'uk' ? post.title_uk : post.title_en;
+              const excerpt = language === 'uk' ? post.excerpt_uk : post.excerpt_en;
               const categoryName = language === 'uk' 
-                ? post.blog_categories?.name_ua 
+                ? post.blog_categories?.name_uk 
                 : post.blog_categories?.name_en;
 
               // Використовуємо featured_image як основне, cover_image_url як fallback

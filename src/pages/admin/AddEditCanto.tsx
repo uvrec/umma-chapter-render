@@ -48,9 +48,9 @@ const AddEditCanto = () => {
   useEffect(() => {
     if (!canto) return;
     setCantoNumber(String(canto.canto_number ?? ""));
-    setTitleUa(canto.title_ua ?? "");
+    setTitleUa(canto.title_uk ?? "");
     setTitleEn(canto.title_en ?? "");
-    setDescriptionUa(canto.description_ua ?? "");
+    setDescriptionUa(canto.description_uk ?? "");
     setDescriptionEn(canto.description_en ?? "");
     setCoverImageUrl(canto.cover_image_url ?? "");
   }, [canto]);
@@ -71,9 +71,9 @@ const AddEditCanto = () => {
 
       const payload = {
         canto_number: num,
-        title_ua: _titleUa,
+        title_uk: _titleUa,
         title_en: _titleEn,
-        description_ua: descriptionUa.trim() || null,
+        description_uk: descriptionUa.trim() || null,
         description_en: descriptionEn.trim() || null,
         cover_image_url: coverImageUrl.trim() || null,
       };

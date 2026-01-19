@@ -10,10 +10,10 @@
 import { convertIASTtoUkrainian, normalizeVerseField } from './textNormalizer';
 
 interface GitabaseVerseData {
-  transliteration_ua: string; // Транслітерація ПІСЛЯ normalizeText + convertIASTtoUkrainian
-  synonyms_ua: string;         // Послівний переклад ПІСЛЯ normalizeText
-  translation_ua: string;      // Переклад ПІСЛЯ normalizeText
-  purport_ua: string;          // Пояснення ПІСЛЯ normalizeText
+  transliteration_uk: string; // Транслітерація ПІСЛЯ normalizeText + convertIASTtoUkrainian
+  synonyms_uk: string;         // Послівний переклад ПІСЛЯ normalizeText
+  translation_uk: string;      // Переклад ПІСЛЯ normalizeText
+  purport_uk: string;          // Пояснення ПІСЛЯ normalizeText
   lila: string;                // '1'=Adi, '2'=Madhya, '3'=Antya
   chapter: number;
   verse: number | string;      // ✅ може бути "263-264" для складених віршів
@@ -161,36 +161,36 @@ export function parseGitabaseCC(html: string, url: string): GitabaseVerseData | 
     // ============ НОРМАЛІЗАЦІЯ - КРИТИЧНО! ============
     
     // Транслітерація: IAST → українська кирилиця, потім normalizeVerseField
-    const transliteration_ua = transliteration_raw 
+    const transliteration_uk = transliteration_raw 
       ? normalizeVerseField(convertIASTtoUkrainian(transliteration_raw), 'transliteration')
       : '';
 
     // Послівний: українська нормалізація
-    const synonyms_ua = synonyms_raw 
+    const synonyms_uk = synonyms_raw 
       ? normalizeVerseField(synonyms_raw, 'synonyms')
       : '';
 
     // Переклад: українська нормалізація
-    const translation_ua = translation_raw 
+    const translation_uk = translation_raw 
       ? normalizeVerseField(translation_raw, 'translation')
       : '';
 
     // Пояснення: українська нормалізація
-    const purport_ua = purport_raw 
+    const purport_uk = purport_raw 
       ? normalizeVerseField(purport_raw, 'commentary')
       : '';
 
     // Перевірка
-    if (!transliteration_ua && !translation_ua) {
+    if (!transliteration_uk && !translation_uk) {
       console.warn(`❌ Gitabase ${lila} ${chapter}:${verse} - не знайдено transliteration і translation для ${url}`);
       return null;
     }
 
     return {
-      transliteration_ua,
-      synonyms_ua,
-      translation_ua,
-      purport_ua,
+      transliteration_uk,
+      synonyms_uk,
+      translation_uk,
+      purport_uk,
       lila,
       chapter,
       verse,

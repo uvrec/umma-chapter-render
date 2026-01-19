@@ -61,9 +61,9 @@ function convertStaticEventToDisplay(event: CalendarEventData, index: number): C
     event_id: `static-${event.date}-${index}`,
     event_date: event.date,
     event_type: event.type,
-    name_ua: event.name_ua,
+    name_uk: event.name_uk,
     name_en: event.name_en,
-    description_ua: event.fasting_note_ua,
+    description_uk: event.fasting_note_uk,
     description_en: event.fasting_note_en,
     category_slug: event.type,
     category_color: typeColorMap[event.type] || "#8B5CF6",
@@ -111,9 +111,9 @@ export async function getCalendarEvents(
       event_id: row.event_id,
       event_date: row.event_date,
       event_type: row.event_type,
-      name_ua: row.name_ua,
+      name_uk: row.name_uk,
       name_en: row.name_en,
-      description_ua: row.description_ua,
+      description_uk: row.description_uk,
       description_en: row.description_en,
       category_slug: row.category_slug,
       category_color: row.category_color || "#8B5CF6",
@@ -148,9 +148,9 @@ export async function getTodayEvents(
       event_id: row.event_id,
       event_date: today,
       event_type: row.event_type,
-      name_ua: row.name_ua,
+      name_uk: row.name_uk,
       name_en: row.name_en,
-      description_ua: row.short_description_ua,
+      description_uk: row.short_description_uk,
       description_en: row.short_description_en,
       category_color: row.category_color || "#8B5CF6",
       is_ekadashi: row.is_ekadashi || false,
@@ -198,9 +198,9 @@ export async function getNextEkadashi(
         event_id: `static-ekadashi-${staticNextEkadashi.date}`,
         event_date: staticNextEkadashi.date,
         event_type: "ekadashi",
-        name_ua: staticNextEkadashi.name_ua,
+        name_uk: staticNextEkadashi.name_uk,
         name_en: staticNextEkadashi.name_en,
-        description_ua: staticNextEkadashi.fasting_note_ua,
+        description_uk: staticNextEkadashi.fasting_note_uk,
         description_en: staticNextEkadashi.fasting_note_en,
         category_color: "#8B5CF6",
         is_ekadashi: true,
@@ -225,9 +225,9 @@ export async function getNextEkadashi(
         parana_start_time,
         parana_end_time,
         ekadashi_info (
-          name_ua,
+          name_uk,
           name_en,
-          glory_title_ua,
+          glory_title_uk,
           glory_title_en
         )
       `
@@ -252,9 +252,9 @@ export async function getNextEkadashi(
           event_id: row.id,
           event_date: row.event_date,
           event_type: "ekadashi",
-          name_ua: row.ekadashi_info?.name_ua || "Екадаші",
+          name_uk: row.ekadashi_info?.name_uk || "Екадаші",
           name_en: row.ekadashi_info?.name_en || "Ekadashi",
-          description_ua: row.ekadashi_info?.glory_title_ua,
+          description_uk: row.ekadashi_info?.glory_title_uk,
           description_en: row.ekadashi_info?.glory_title_en,
           category_color: "#8B5CF6",
           is_ekadashi: true,
@@ -544,7 +544,7 @@ export async function getPresetLocations(): Promise<CalendarLocation[]> {
       .select("*")
       .eq("is_preset", true)
       .eq("is_active", true)
-      .order("name_ua", { ascending: true });
+      .order("name_uk", { ascending: true });
 
     if (error) throw error;
 

@@ -6,18 +6,18 @@ import { extractAllTerms, normalizeSanskritText, GlossaryTerm } from "@/utils/gl
 type VerseRow = {
   id: string;
   verse_number: string;
-  synonyms_ua: string | null;
+  synonyms_uk: string | null;
   synonyms_en: string | null;
   chapters: {
     chapter_number: number;
     title_en: string | null;
-    title_ua: string | null;
-    books: { title_en: string | null; title_ua: string | null; slug: string } | null;
+    title_uk: string | null;
+    books: { title_en: string | null; title_uk: string | null; slug: string } | null;
     cantos: {
       canto_number: number;
       title_en: string | null;
-      title_ua: string | null;
-      books: { title_en: string | null; title_ua: string | null; slug: string } | null;
+      title_uk: string | null;
+      books: { title_en: string | null; title_uk: string | null; slug: string } | null;
     } | null;
   };
 };
@@ -45,24 +45,24 @@ export const useSanskritTerms = (opts: Options = {}) => {
           `
           id,
           verse_number,
-          synonyms_ua,
+          synonyms_uk,
           synonyms_en,
           chapters!inner(
             chapter_number,
             title_en,
-            title_ua,
+            title_uk,
             books(
               title_en,
-              title_ua,
+              title_uk,
               slug
             ),
             cantos(
               canto_number,
               title_en,
-              title_ua,
+              title_uk,
               books(
                 title_en,
-                title_ua,
+                title_uk,
                 slug
               )
             )
@@ -110,9 +110,9 @@ export const useSanskritTerms = (opts: Options = {}) => {
 
       return {
         ...verse,
-        book: bookNode?.title_ua || bookNode?.title_en || "",
+        book: bookNode?.title_uk || bookNode?.title_en || "",
         book_slug: bookSlug,
-        synonyms: verse.synonyms_ua || verse.synonyms_en || "",
+        synonyms: verse.synonyms_uk || verse.synonyms_en || "",
         verseLink,
       };
     });

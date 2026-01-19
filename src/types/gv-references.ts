@@ -84,13 +84,13 @@ export interface GVAuthor {
   name_sanskrit?: string; // Original script (Devanagari/Bengali)
   name_transliteration: string; // IAST transliteration
   name_en: string; // English
-  name_ua: string; // Ukrainian
+  name_uk: string; // Ukrainian
 
   // Titles and honorifics
   title_sanskrit?: string;
   title_transliteration?: string;
   title_en?: string;
-  title_ua?: string;
+  title_uk?: string;
 
   // Life details
   birth_year?: number;
@@ -104,11 +104,11 @@ export interface GVAuthor {
 
   // Biography
   biography_en?: string;
-  biography_ua?: string;
+  biography_uk?: string;
 
   // Significance
   significance_en?: string;
-  significance_ua?: string;
+  significance_uk?: string;
 
   // Media
   image_url?: string;
@@ -133,7 +133,7 @@ export interface GVBookReference {
   title_sanskrit?: string; // Original script (Devanagari/Bengali)
   title_transliteration: string; // IAST transliteration
   title_en: string; // English translation/title
-  title_ua: string; // Ukrainian translation/title
+  title_uk: string; // Ukrainian translation/title
 
   // Alternative titles
   alt_titles?: string[];
@@ -149,7 +149,7 @@ export interface GVBookReference {
 
   // Description
   description_en?: string;
-  description_ua?: string;
+  description_uk?: string;
 
   // Classification
   category: BookCategory;
@@ -170,7 +170,7 @@ export interface GVBookReference {
   // Significance
   importance_level: 1 | 2 | 3 | 4 | 5;
   significance_en?: string;
-  significance_ua?: string;
+  significance_uk?: string;
 
   // Topics/themes
   topics?: string[];
@@ -199,10 +199,10 @@ export interface GVBookCatalogue {
   slug: string;
 
   name_en: string;
-  name_ua: string;
+  name_uk: string;
 
   description_en?: string;
-  description_ua?: string;
+  description_uk?: string;
 
   // Ordering and display
   display_order: number;
@@ -242,7 +242,7 @@ export interface GVAuthorWithBookCount extends GVAuthor {
  */
 export interface GVBookReferenceWithAuthor extends GVBookReference {
   author_name_en?: string;
-  author_name_ua?: string;
+  author_name_uk?: string;
 }
 
 /**

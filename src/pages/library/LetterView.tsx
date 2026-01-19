@@ -46,11 +46,11 @@ export const LetterView = () => {
   // Inline editing state
   const [isEditing, setIsEditing] = useState(false);
   const [editedLetter, setEditedLetter] = useState<{
-    recipient_ua: string;
+    recipient_uk: string;
     recipient_en: string;
-    location_ua: string;
+    location_uk: string;
     location_en: string;
-    content_ua: string;
+    content_uk: string;
     content_en: string;
   } | null>(null);
 
@@ -76,11 +76,11 @@ export const LetterView = () => {
       if (!letter || !editedLetter) return;
 
       const updates: Partial<Letter> = {};
-      if (editedLetter.recipient_ua !== letter.recipient_ua) updates.recipient_ua = editedLetter.recipient_ua;
+      if (editedLetter.recipient_uk !== letter.recipient_uk) updates.recipient_uk = editedLetter.recipient_uk;
       if (editedLetter.recipient_en !== letter.recipient_en) updates.recipient_en = editedLetter.recipient_en;
-      if (editedLetter.location_ua !== letter.location_ua) updates.location_ua = editedLetter.location_ua;
+      if (editedLetter.location_uk !== letter.location_uk) updates.location_uk = editedLetter.location_uk;
       if (editedLetter.location_en !== letter.location_en) updates.location_en = editedLetter.location_en;
-      if (editedLetter.content_ua !== letter.content_ua) updates.content_ua = editedLetter.content_ua;
+      if (editedLetter.content_uk !== letter.content_uk) updates.content_uk = editedLetter.content_uk;
       if (editedLetter.content_en !== letter.content_en) updates.content_en = editedLetter.content_en;
 
       if (Object.keys(updates).length > 0) {
@@ -105,11 +105,11 @@ export const LetterView = () => {
   const startEdit = () => {
     if (!letter) return;
     setEditedLetter({
-      recipient_ua: letter.recipient_ua || "",
+      recipient_uk: letter.recipient_uk || "",
       recipient_en: letter.recipient_en,
-      location_ua: letter.location_ua || "",
+      location_uk: letter.location_uk || "",
       location_en: letter.location_en,
-      content_ua: letter.content_ua || "",
+      content_uk: letter.content_uk || "",
       content_en: letter.content_en,
     });
     setIsEditing(true);
@@ -156,12 +156,12 @@ export const LetterView = () => {
     );
   }
 
-  const recipient = language === "uk" && letter.recipient_ua
-    ? letter.recipient_ua
+  const recipient = language === "uk" && letter.recipient_uk
+    ? letter.recipient_uk
     : letter.recipient_en;
 
-  const location = language === "uk" && letter.location_ua
-    ? letter.location_ua
+  const location = language === "uk" && letter.location_uk
+    ? letter.location_uk
     : letter.location_en;
 
   return (
@@ -226,8 +226,8 @@ export const LetterView = () => {
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Отримувач UA</label>
                   <Input
-                    value={editedLetter.recipient_ua}
-                    onChange={(e) => setEditedLetter({ ...editedLetter, recipient_ua: e.target.value })}
+                    value={editedLetter.recipient_uk}
+                    onChange={(e) => setEditedLetter({ ...editedLetter, recipient_uk: e.target.value })}
                     className="text-lg font-bold"
                   />
                 </div>
@@ -244,8 +244,8 @@ export const LetterView = () => {
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Локація UA</label>
                   <Input
-                    value={editedLetter.location_ua}
-                    onChange={(e) => setEditedLetter({ ...editedLetter, location_ua: e.target.value })}
+                    value={editedLetter.location_uk}
+                    onChange={(e) => setEditedLetter({ ...editedLetter, location_uk: e.target.value })}
                   />
                 </div>
                 <div>
@@ -320,8 +320,8 @@ export const LetterView = () => {
               <div className="border rounded-lg p-4 bg-muted/20">
                 <label className="text-sm text-muted-foreground mb-2 block">Текст UA</label>
                 <EnhancedInlineEditor
-                  content={editedLetter.content_ua}
-                  onChange={(html) => setEditedLetter({ ...editedLetter, content_ua: html })}
+                  content={editedLetter.content_uk}
+                  onChange={(html) => setEditedLetter({ ...editedLetter, content_uk: html })}
                   label="Редагувати текст UA"
                 />
               </div>
@@ -339,8 +339,8 @@ export const LetterView = () => {
           <div
             className="prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed"
             dangerouslySetInnerHTML={{
-              __html: language === "uk" && letter.content_ua
-                ? letter.content_ua
+              __html: language === "uk" && letter.content_uk
+                ? letter.content_uk
                 : letter.content_en
             }}
           />

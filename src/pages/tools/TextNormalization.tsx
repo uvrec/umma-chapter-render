@@ -604,7 +604,7 @@ export default function TextNormalization() {
                             htmlFor={`cat-${category.id}`}
                             className="text-sm cursor-pointer"
                           >
-                            {language === "uk" ? category.name_ua : category.name_en}
+                            {language === "uk" ? category.name_uk : category.name_en}
                             <span className="text-muted-foreground ml-1">({count})</span>
                           </Label>
                         </div>
@@ -628,7 +628,7 @@ export default function TextNormalization() {
                       <Badge key={categoryId} variant="outline" className="text-xs py-0">
                         {category
                           ? language === "uk"
-                            ? category.name_ua
+                            ? category.name_uk
                             : category.name_en
                           : categoryId}
                         : {count}
@@ -968,7 +968,7 @@ export default function TextNormalization() {
                         <Collapsible key={category.id}>
                           <CollapsibleTrigger className="flex items-center gap-2 text-sm font-medium hover:text-primary">
                             <ChevronRight className="w-4 h-4" />
-                            {language === "uk" ? category.name_ua : category.name_en}
+                            {language === "uk" ? category.name_uk : category.name_en}
                             <Badge variant="outline">{catRules.length}</Badge>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="ml-6 mt-2">

@@ -36,17 +36,17 @@ interface DayDetailPanelProps {
 }
 
 // Paksha display info
-const pakshaInfo: Record<Paksha, { uk: string; en: string; description_ua: string; description_en: string }> = {
+const pakshaInfo: Record<Paksha, { uk: string; en: string; description_uk: string; description_en: string }> = {
   shukla: {
     ua: "Шукла пакша",
     en: "Shukla Paksha",
-    description_ua: "Світла половина місяця (зростаючий)",
+    description_uk: "Світла половина місяця (зростаючий)",
     description_en: "Bright fortnight (waxing moon)",
   },
   krishna: {
     ua: "Крішна пакша",
     en: "Krishna Paksha",
-    description_ua: "Темна половина місяця (спадаючий)",
+    description_uk: "Темна половина місяця (спадаючий)",
     description_en: "Dark fortnight (waning moon)",
   },
 };
@@ -153,7 +153,7 @@ export function DayDetailPanel({
                 <div className="text-sm text-muted-foreground">
                   <span className="font-medium">{paksha[language]}</span>
                   <span className="text-xs ml-2">
-                    — {language === "uk" ? paksha.description_ua : paksha.description_en}
+                    — {language === "uk" ? paksha.description_uk : paksha.description_en}
                   </span>
                 </div>
               )}
@@ -171,7 +171,7 @@ export function DayDetailPanel({
             <div className="bg-muted/50 rounded-lg p-3">
               <span className="font-medium">
                 {language === "uk"
-                  ? day.vaishnava_month.name_ua
+                  ? day.vaishnava_month.name_uk
                   : day.vaishnava_month.name_en}
               </span>
               <span className="text-sm text-muted-foreground ml-2">

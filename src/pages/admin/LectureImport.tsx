@@ -395,10 +395,10 @@ done`}
                         metadata: {
                           slug: "660307bg-new-york",
                           title_en: "Bhagavad-gītā 2.12",
-                          title_ua: "Бгаґавад-ґіта 2.12",
+                          title_uk: "Бгаґавад-ґіта 2.12",
                           lecture_date: "1966-03-07",
                           location_en: "New York",
-                          location_ua: "Нью-Йорк",
+                          location_uk: "Нью-Йорк",
                           lecture_type: "Bhagavad-gita",
                           audio_url: "https://...",
                           book_slug: "bg",
@@ -409,7 +409,7 @@ done`}
                           {
                             paragraph_number: 1,
                             content_en: "Prabhupāda: ...",
-                            content_ua: "Прабгупада: ...",
+                            content_uk: "Прабгупада: ...",
                             audio_timecode: 0,
                           },
                         ],

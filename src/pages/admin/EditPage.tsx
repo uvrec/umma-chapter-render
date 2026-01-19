@@ -20,11 +20,11 @@ const urlSchema = z.string().url("Невірний формат URL").or(z.liter
 
 type PageRow = {
   slug: string;
-  title_ua: string | null;
+  title_uk: string | null;
   title_en: string | null;
-  content_ua: string | null;
+  content_uk: string | null;
   content_en: string | null;
-  meta_description_ua: string | null;
+  meta_description_uk: string | null;
   meta_description_en: string | null;
   hero_image_url: string | null;
   banner_image_url: string | null;
@@ -92,11 +92,11 @@ export default function EditPage() {
   // як тільки прийшла сторінка — заповнюємо поля
   useEffect(() => {
     if (page) {
-      setTitleUa(page.title_ua || "");
+      setTitleUa(page.title_uk || "");
       setTitleEn(page.title_en || "");
-      setContentUa(page.content_ua || "");
+      setContentUa(page.content_uk || "");
       setContentEn(page.content_en || "");
-      setMetaDescriptionUa(page.meta_description_ua || "");
+      setMetaDescriptionUa(page.meta_description_uk || "");
       setMetaDescriptionEn(page.meta_description_en || "");
       setHeroImageUrl(page.hero_image_url || "");
       setBannerImageUrl(page.banner_image_url || "");
@@ -154,11 +154,11 @@ export default function EditPage() {
   const updatePageMutation = useMutation({
     mutationFn: async () => {
       const payload = {
-        title_ua: titleUa,
+        title_uk: titleUa,
         title_en: titleEn,
-        content_ua: contentUa,
+        content_uk: contentUa,
         content_en: contentEn,
-        meta_description_ua: metaDescriptionUa,
+        meta_description_uk: metaDescriptionUa,
         meta_description_en: metaDescriptionEn,
         hero_image_url: heroImageUrl,
         banner_image_url: bannerImageUrl,
@@ -225,11 +225,11 @@ export default function EditPage() {
 
   const handleReset = () => {
     if (!page) return;
-    setTitleUa(page.title_ua || "");
+    setTitleUa(page.title_uk || "");
     setTitleEn(page.title_en || "");
-    setContentUa(page.content_ua || "");
+    setContentUa(page.content_uk || "");
     setContentEn(page.content_en || "");
-    setMetaDescriptionUa(page.meta_description_ua || "");
+    setMetaDescriptionUa(page.meta_description_uk || "");
     setMetaDescriptionEn(page.meta_description_en || "");
     setHeroImageUrl(page.hero_image_url || "");
     setBannerImageUrl(page.banner_image_url || "");

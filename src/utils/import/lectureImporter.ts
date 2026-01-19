@@ -28,12 +28,12 @@ export interface LectureImportData {
   metadata: {
     slug: string;
     title_en: string;
-    title_ua?: string; // Опціонально, заповнюється вручну
+    title_uk?: string; // Опціонально, заповнюється вручну
     lecture_date: string; // YYYY-MM-DD
     location_en: string;
-    location_ua?: string; // Опціонально
+    location_uk?: string; // Опціонально
     lecture_type: string;
-    lecture_type_ua?: string; // Опціонально
+    lecture_type_uk?: string; // Опціонально
     audio_url?: string;
     audio_urls?: string[]; // Може бути кілька частин
     book_slug?: string;
@@ -47,7 +47,7 @@ export interface LectureImportData {
   paragraphs: Array<{
     paragraph_number: number;
     content_en: string; // Може містити HTML форматування (<i>, <b>)
-    content_ua?: string;
+    content_uk?: string;
     audio_timecode?: number;
     speaker?: string;
     sanskrit_terms?: string[];
@@ -83,10 +83,10 @@ export async function importLecture(
     // Підготувати дані для запису
     const lectureData = {
       title_en: data.metadata.title_en,
-      title_ua: data.metadata.title_ua || null,
+      title_uk: data.metadata.title_uk || null,
       lecture_date: data.metadata.lecture_date,
       location_en: data.metadata.location_en,
-      location_ua: data.metadata.location_ua || null,
+      location_uk: data.metadata.location_uk || null,
       lecture_type: data.metadata.lecture_type as any,
       audio_url: data.metadata.audio_url || null,
       book_slug: data.metadata.book_slug || null,
@@ -140,7 +140,7 @@ export async function importLecture(
         lecture_id: lectureId,
         paragraph_number: p.paragraph_number,
         content_en: p.content_en,
-        content_ua: p.content_ua || null,
+        content_uk: p.content_uk || null,
         audio_timecode: p.audio_timecode || null,
       }));
 

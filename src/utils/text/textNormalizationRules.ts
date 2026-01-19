@@ -20,9 +20,9 @@ export interface NormalizationRule {
 
 export interface RuleCategory {
   id: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
 }
 
@@ -32,58 +32,58 @@ export interface RuleCategory {
 export const ruleCategories: RuleCategory[] = [
   {
     id: "transliteration",
-    name_ua: "Транслітерація",
+    name_uk: "Транслітерація",
     name_en: "Transliteration",
-    description_ua: "Правила транслітерації санскритських термінів",
+    description_uk: "Правила транслітерації санскритських термінів",
     description_en: "Sanskrit transliteration rules",
   },
   {
     id: "names",
-    name_ua: "Імена та терміни",
+    name_uk: "Імена та терміни",
     name_en: "Names and terms",
-    description_ua: "Стандартизація написання імен та термінів",
+    description_uk: "Стандартизація написання імен та термінів",
     description_en: "Standardize names and terms spelling",
   },
   {
     id: "scriptures",
-    name_ua: "Назви писань",
+    name_uk: "Назви писань",
     name_en: "Scripture names",
-    description_ua: "Правильне написання назв священних писань (у лапках «»)",
+    description_uk: "Правильне написання назв священних писань (у лапках «»)",
     description_en: "Correct spelling of scripture names (in quotes «»)",
   },
   {
     id: "apostrophe",
-    name_ua: "Апострофи",
+    name_uk: "Апострофи",
     name_en: "Apostrophes",
-    description_ua: "Правила використання апострофа",
+    description_uk: "Правила використання апострофа",
     description_en: "Apostrophe usage rules",
   },
   {
     id: "typography",
-    name_ua: "Типографіка",
+    name_uk: "Типографіка",
     name_en: "Typography",
-    description_ua: "Типографічні виправлення (тире, лапки, пробіли)",
+    description_uk: "Типографічні виправлення (тире, лапки, пробіли)",
     description_en: "Typography fixes (dashes, quotes, spaces)",
   },
   {
     id: "translation",
-    name_ua: "Переклад термінів",
+    name_uk: "Переклад термінів",
     name_en: "Term translation",
-    description_ua: "Стандартні переклади англійських термінів українською",
+    description_uk: "Стандартні переклади англійських термінів українською",
     description_en: "Standard translations of English terms to Ukrainian",
   },
   {
     id: "endings",
-    name_ua: "Закінчення слів",
+    name_uk: "Закінчення слів",
     name_en: "Word endings",
-    description_ua: "Стандартизація закінчень -а/-∅ у санскритських термінах",
+    description_uk: "Стандартизація закінчень -а/-∅ у санскритських термінах",
     description_en: "Standardize -a/-∅ endings in Sanskrit terms",
   },
   {
     id: "custom",
-    name_ua: "Користувацькі",
+    name_uk: "Користувацькі",
     name_en: "Custom",
-    description_ua: "Користувацькі правила",
+    description_uk: "Користувацькі правила",
     description_en: "Custom rules",
   },
 ];

@@ -73,7 +73,7 @@ export default function ScriptureManager() {
   const { data: books } = useQuery({
     queryKey: ["admin-books"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("books").select("*").order("title_ua");
+      const { data, error } = await supabase.from("books").select("*").order("title_uk");
       if (error) throw error;
       return data;
     },
@@ -95,7 +95,7 @@ export default function ScriptureManager() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("chapters")
-        .select("*, books(title_ua), cantos(title_ua, canto_number)")
+        .select("*, books(title_uk), cantos(title_uk, canto_number)")
         .order("chapter_number");
       if (error) throw error;
       return data;
@@ -272,7 +272,7 @@ export default function ScriptureManager() {
               <h1 className="text-xl font-bold">Scripture Manager</h1>
               {selectedChapter && (
                 <p className="text-sm text-muted-foreground">
-                  {selectedChapter.books?.title_ua}
+                  {selectedChapter.books?.title_uk}
                   {selectedChapter.cantos && ` → Пісня ${selectedChapter.cantos.canto_number}`}
                   {` → Розділ ${selectedChapter.chapter_number}`}
                 </p>
@@ -439,8 +439,8 @@ export default function ScriptureManager() {
                                 </span>
                               )}
                             </div>
-                            {verse.translation_ua && (
-                              <p className="text-sm text-muted-foreground line-clamp-2">{stripParagraphTags(verse.translation_ua)}</p>
+                            {verse.translation_uk && (
+                              <p className="text-sm text-muted-foreground line-clamp-2">{stripParagraphTags(verse.translation_uk)}</p>
                             )}
                           </div>
 

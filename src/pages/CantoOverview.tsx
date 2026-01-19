@@ -77,9 +77,9 @@ export const CantoOverview = () => {
     },
     enabled: !!canto?.id
   });
-  const bookTitle = language === "uk" ? book?.title_ua : book?.title_en;
-  const cantoTitle = language === "uk" ? canto?.title_ua : canto?.title_en;
-  const cantoDescription = language === "uk" ? canto?.description_ua : canto?.description_en;
+  const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
+  const cantoTitle = language === "uk" ? canto?.title_uk : canto?.title_en;
+  const cantoDescription = language === "uk" ? canto?.description_uk : canto?.description_en;
   if (cantoLoading || chaptersLoading) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -119,7 +119,7 @@ export const CantoOverview = () => {
 
         <div className="space-y-1">
           {chapters && chapters.length > 0 ? chapters.map(chapter => {
-          const chapterTitleUa = chapter.title_ua;
+          const chapterTitleUa = chapter.title_uk;
           const chapterTitleEn = chapter.title_en;
           const chapterNum = chapter.chapter_number; // Це вже просто номер глави (1, 2, 3...)
 

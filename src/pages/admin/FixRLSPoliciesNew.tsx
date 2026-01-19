@@ -153,7 +153,7 @@ export const FixRLSPolicies = () => {
           .from('audio_tracks')
           .insert({
             playlist_id: playlists[0].id,
-            title_ua: 'RLS_TEST_RECORD',
+            title_uk: 'RLS_TEST_RECORD',
             title_en: 'RLS_TEST_RECORD', 
             audio_url: 'test://access-check',
             duration: 1,

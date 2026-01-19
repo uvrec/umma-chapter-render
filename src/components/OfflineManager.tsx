@@ -50,22 +50,22 @@ import { toast } from 'sonner';
 interface BookWithChapters {
   id: string;
   slug: string;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   has_cantos: boolean;
   chapters: Array<{
     id: string;
     chapter_number: number;
-    title_ua: string;
+    title_uk: string;
   }>;
   cantos?: Array<{
     id: string;
     canto_number: number;
-    title_ua: string;
+    title_uk: string;
     chapters: Array<{
       id: string;
       chapter_number: number;
-      title_ua: string;
+      title_uk: string;
     }>;
   }>;
 }
@@ -93,8 +93,8 @@ export function OfflineManager() {
     queryFn: async () => {
       const { data: booksData, error: booksError } = await supabase
         .from('books')
-        .select('id, slug, title_ua, title_en, has_cantos')
-        .order('title_ua');
+        .select('id, slug, title_uk, title_en, has_cantos')
+        .order('title_uk');
 
       if (booksError) throw booksError;
 
@@ -111,14 +111,14 @@ export function OfflineManager() {
           // Книга з піснями (СБ)
           const { data: cantos } = await supabase
             .from('cantos')
-            .select('id, canto_number, title_ua')
+            .select('id, canto_number, title_uk')
             .eq('book_id', book.id)
             .order('canto_number');
 
           for (const canto of cantos || []) {
             const { data: chapters } = await supabase
               .from('chapters')
-              .select('id, chapter_number, title_ua')
+              .select('id, chapter_number, title_uk')
               .eq('canto_id', canto.id)
               .order('chapter_number');
 
@@ -131,7 +131,7 @@ export function OfflineManager() {
           // Книга без пісень (БГ, Ізо)
           const { data: chapters } = await supabase
             .from('chapters')
-            .select('id, chapter_number, title_ua')
+            .select('id, chapter_number, title_uk')
             .eq('book_id', book.id)
             .order('chapter_number');
 
@@ -186,7 +186,7 @@ export function OfflineManager() {
     resetProgress();
     const success = await downloadBook(book.id, book.slug, cantoId);
     if (success) {
-      toast.success(`"${book.title_ua}" завантажено для офлайн`);
+      toast.success(`"${book.title_uk}" завантажено для офлайн`);
     } else {
       toast.error('Помилка завантаження');
     }
@@ -320,7 +320,7 @@ export function OfflineManager() {
                             <ChevronRight className="h-4 w-4" />
                           )}
                           <Book className="h-4 w-4 text-muted-foreground" />
-                          <CardTitle className="text-base">{book.title_ua}</CardTitle>
+                          <CardTitle className="text-base">{book.title_uk}</CardTitle>
                         </div>
 
                         <div className="flex items-center gap-2">
@@ -367,7 +367,7 @@ export function OfflineManager() {
                             <div key={canto.id} className="pl-4 border-l-2">
                               <div className="flex items-center justify-between py-1">
                                 <span className="text-sm font-medium">
-                                  Пісня {canto.canto_number}: {canto.title_ua}
+                                  Пісня {canto.canto_number}: {canto.title_uk}
                                 </span>
                                 <span className="text-xs text-muted-foreground">
                                   {canto.chapters.filter(c => isChapterCached(c.id)).length} / {canto.chapters.length}
@@ -409,7 +409,7 @@ export function OfflineManager() {
                           onClick={(e) => {
                             e.stopPropagation();
                             removeBook(book.id);
-                            toast.success(`"${book.title_ua}" видалено з кешу`);
+                            toast.success(`"${book.title_uk}" видалено з кешу`);
                           }}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />

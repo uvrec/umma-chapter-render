@@ -30,7 +30,7 @@ import sb4Data from "@/data/sb4-parsed.json";
 // Book configurations
 interface BookConfig {
   slug: string;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   hasVerses: boolean; // true for Gita-like, false for continuous text books
   data: ParsedBookData;
@@ -39,26 +39,26 @@ interface BookConfig {
 
 interface ParsedChapterWithVerses {
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   verses: {
     verse_number: string;
-    transliteration_ua?: string;
-    synonyms_ua?: string;
-    translation_ua?: string;
-    commentary_ua?: string;
+    transliteration_uk?: string;
+    synonyms_uk?: string;
+    translation_uk?: string;
+    commentary_uk?: string;
   }[];
 }
 
 interface ParsedChapterWithContent {
   chapter_number: number;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
 }
 
 interface ParsedIntro {
   slug: string;
-  title_ua: string;
-  content_ua: string;
+  title_uk: string;
+  content_uk: string;
   display_order: number;
 }
 
@@ -70,49 +70,49 @@ interface ParsedBookData {
 const BOOK_CONFIGS: BookConfig[] = [
   {
     slug: "bg",
-    title_ua: "Бгаґавад-ґіта як вона є",
+    title_uk: "Бгаґавад-ґіта як вона є",
     title_en: "Bhagavad-gita As It Is",
     hasVerses: true,
     data: bbtGitaData as ParsedBookData,
   },
   {
     slug: "poy",
-    title_ua: "Досконалість йоґи",
+    title_uk: "Досконалість йоґи",
     title_en: "The Perfection of Yoga",
     hasVerses: false,
     data: poyData as ParsedBookData,
   },
   {
     slug: "ea",
-    title_ua: "Легка подорож до інших планет",
+    title_uk: "Легка подорож до інших планет",
     title_en: "Easy Journey to Other Planets",
     hasVerses: false,
     data: eaData as ParsedBookData,
   },
   {
     slug: "noi",
-    title_ua: "Нектар настанов",
+    title_uk: "Нектар настанов",
     title_en: "The Nectar of Instruction",
     hasVerses: true,
     data: noiData as ParsedBookData,
   },
   {
     slug: "iso",
-    title_ua: "Шрі Ішопанішада",
+    title_uk: "Шрі Ішопанішада",
     title_en: "Sri Isopanisad",
     hasVerses: true,
     data: isoData as ParsedBookData,
   },
   {
     slug: "pqn",
-    title_ua: "Досконалі питання, досконалі відповіді",
+    title_uk: "Досконалі питання, досконалі відповіді",
     title_en: "Perfect Questions, Perfect Answers",
     hasVerses: false,
     data: pqnData as ParsedBookData,
   },
   {
     slug: "sb",
-    title_ua: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
+    title_uk: "Шрімад-Бгаґаватам, Пісня 4, Частина 2",
     title_en: "Srimad Bhagavatam, Canto 4, Part 2",
     hasVerses: true,
     data: sb4Data as ParsedBookData,
@@ -125,7 +125,7 @@ function hasVerses(chapter: ParsedChapterWithVerses | ParsedChapterWithContent):
 }
 
 function hasContent(chapter: ParsedChapterWithVerses | ParsedChapterWithContent): chapter is ParsedChapterWithContent {
-  return 'content_ua' in chapter && typeof chapter.content_ua === 'string';
+  return 'content_uk' in chapter && typeof chapter.content_uk === 'string';
 }
 
 export default function BBTImportUniversal() {
@@ -203,7 +203,7 @@ export default function BBTImportUniversal() {
           .from("books")
           .insert({
             slug: bookConfig.slug,
-            title_ua: bookConfig.title_ua,
+            title_uk: bookConfig.title_uk,
             title_en: bookConfig.title_en,
             is_published: true,
           })
@@ -240,7 +240,7 @@ export default function BBTImportUniversal() {
             .insert({
               book_id: bookId,
               canto_number: bookConfig.cantoNumber,
-              title_ua: `Пісня ${bookConfig.cantoNumber}`,
+              title_uk: `Пісня ${bookConfig.cantoNumber}`,
               title_en: `Canto ${bookConfig.cantoNumber}`,
             })
             .select("id")
@@ -278,10 +278,10 @@ export default function BBTImportUniversal() {
 
           // Update chapter
           const updateData = {
-            title_ua: chapter.title_ua.replace(/\n/g, ' '),
+            title_uk: chapter.title_uk.replace(/\n/g, ' '),
             ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
-              content_ua: chapter.content_ua,
+              content_uk: chapter.content_uk,
               chapter_type: "text" as const,
             }),
           };
@@ -295,11 +295,11 @@ export default function BBTImportUniversal() {
           const insertData = {
             book_id: bookId,
             chapter_number: chapter.chapter_number,
-            title_ua: chapter.title_ua.replace(/\n/g, ' '),
-            title_en: chapter.title_ua.replace(/\n/g, ' '), // Fallback
+            title_uk: chapter.title_uk.replace(/\n/g, ' '),
+            title_en: chapter.title_uk.replace(/\n/g, ' '), // Fallback
             ...(cantoId && { canto_id: cantoId }),
             ...(!bookConfig.hasVerses && hasContent(chapter) && {
-              content_ua: chapter.content_ua,
+              content_uk: chapter.content_uk,
               chapter_type: "text" as const,
             }),
           };
@@ -333,10 +333,10 @@ export default function BBTImportUniversal() {
               const { error } = await supabase
                 .from("verses")
                 .update({
-                  transliteration_ua: verse.transliteration_ua,
-                  synonyms_ua: verse.synonyms_ua,
-                  translation_ua: verse.translation_ua,
-                  commentary_ua: verse.commentary_ua,
+                  transliteration_uk: verse.transliteration_uk,
+                  synonyms_uk: verse.synonyms_uk,
+                  translation_uk: verse.translation_uk,
+                  commentary_uk: verse.commentary_uk,
                 })
                 .eq("id", existingVerse.id);
 
@@ -349,10 +349,10 @@ export default function BBTImportUniversal() {
               const { error } = await supabase.from("verses").insert({
                 chapter_id: chapterId,
                 verse_number: verse.verse_number,
-                transliteration_ua: verse.transliteration_ua,
-                synonyms_ua: verse.synonyms_ua,
-                translation_ua: verse.translation_ua,
-                commentary_ua: verse.commentary_ua,
+                transliteration_uk: verse.transliteration_uk,
+                synonyms_uk: verse.synonyms_uk,
+                translation_uk: verse.translation_uk,
+                commentary_uk: verse.commentary_uk,
               });
 
               if (error) {
@@ -381,8 +381,8 @@ export default function BBTImportUniversal() {
           const { error } = await supabase
             .from("intro_chapters")
             .update({
-              title_ua: intro.title_ua,
-              content_ua: intro.content_ua,
+              title_uk: intro.title_uk,
+              content_uk: intro.content_uk,
               display_order: intro.display_order,
             })
             .eq("id", existingIntro.id);
@@ -396,9 +396,9 @@ export default function BBTImportUniversal() {
           const { error } = await supabase.from("intro_chapters").insert({
             book_id: bookId,
             slug: intro.slug,
-            title_ua: intro.title_ua,
-            title_en: intro.title_ua,
-            content_ua: intro.content_ua,
+            title_uk: intro.title_uk,
+            title_en: intro.title_uk,
+            content_uk: intro.content_uk,
             display_order: intro.display_order,
           });
 
@@ -485,7 +485,7 @@ export default function BBTImportUniversal() {
             <SelectContent>
               {BOOK_CONFIGS.map((book) => (
                 <SelectItem key={book.slug} value={book.slug}>
-                  {book.title_ua}
+                  {book.title_uk}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -498,7 +498,7 @@ export default function BBTImportUniversal() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-800">
             <CheckCircle className="w-5 h-5" />
-            Дані готові до імпорту: {bookConfig.title_ua}
+            Дані готові до імпорту: {bookConfig.title_uk}
           </CardTitle>
           <CardDescription className="text-green-700">
             {bookConfig.hasVerses
@@ -566,7 +566,7 @@ export default function BBTImportUniversal() {
                     htmlFor={`chapter-${ch.chapter_number}`}
                     className="flex-1 cursor-pointer"
                   >
-                    Глава {ch.chapter_number}: {ch.title_ua.replace(/\n/g, ' ')}
+                    Глава {ch.chapter_number}: {ch.title_uk.replace(/\n/g, ' ')}
                     {bookConfig.hasVerses && hasVerses(ch) && (
                       <span className="text-muted-foreground ml-1">
                         ({ch.verses.length} віршів)
@@ -592,7 +592,7 @@ export default function BBTImportUniversal() {
                       htmlFor={`intro-${intro.slug}`}
                       className="flex-1 cursor-pointer"
                     >
-                      {intro.title_ua}
+                      {intro.title_uk}
                     </Label>
                   </div>
                 ))}

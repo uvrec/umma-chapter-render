@@ -69,9 +69,9 @@ export const LecturesContent = () => {
       result = result.filter(
         (lecture) =>
           lecture.title_en.toLowerCase().includes(query) ||
-          (lecture.title_ua && lecture.title_ua.toLowerCase().includes(query)) ||
+          (lecture.title_uk && lecture.title_uk.toLowerCase().includes(query)) ||
           lecture.location_en.toLowerCase().includes(query) ||
-          (lecture.location_ua && lecture.location_ua.toLowerCase().includes(query))
+          (lecture.location_uk && lecture.location_uk.toLowerCase().includes(query))
       );
     }
 
@@ -185,12 +185,12 @@ export const LecturesContent = () => {
   };
 
   const getLectureTitle = (lecture: Lecture) => {
-    return language === "uk" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
+    return language === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
   };
 
   const getLectureLocation = (lecture: Lecture) => {
-    return language === "uk" && lecture.location_ua
-      ? lecture.location_ua
+    return language === "uk" && lecture.location_uk
+      ? lecture.location_uk
       : lecture.location_en;
   };
 

@@ -2,21 +2,21 @@
   "book_slug": "gitamala",
   "book_title_en": "Gitamala",
   "book_title_bn": "গীতমালা",
-  "book_title_ua": "Ґіта-мала̄",
+  "book_title_uk": "Ґіта-мала̄",
   "author_en": "Bhaktivinoda Thakura",
-  "author_ua": "Бгактівінод Тхакур",
+  "author_uk": "Бгактівінод Тхакур",
   "source": "https://kksongs.org/authors/literature/gitamala.html",
   "sections": [
     {
       "section_number": 1,
       "title": "Yamuna Bhavavali",
       "title_en": "Yamuna Bhavavali",
-      "title_ua": "Ямуна-бгава̄валі",
+      "title_uk": "Ямуна-бгава̄валі",
       "songs": [
         {
           "song_number": 1,
           "title_en": "Ohe Prabhu Doyamoy",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nohe prabhu doyāmoya tomāra caraṇa-dwoya\nśruti-śiropari śobhā pāya\nguru-jana-śire puna śobhā pāya śata guṇa\ndekhi āmāra parāṇa juḍāya",
             "jība manoratha-patha tańhi saba anugata\njība-bañcha-kalpa-taru jathā\njībera se kula dhana ati-pūjya sanātana\njībera carama gati tathā",
@@ -31,7 +31,7 @@
         {
           "song_number": 2,
           "title_en": "Tomari Ksane Hoy",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntomāra īkṣana hoya sakala utpatti loya\ncaturdaśa bhubanete jata\njoḍa jība ādi kori' tomāra kṛpāya hori\nlabhe janma āra ko'bo kota",
             "tāhādera bṛtti jata tomāra īkṣaṇe\nswataḥ\njanme prabhu tumi sarbeśwara\nsakala jantura tumi swabhābika nitya-swāmī\nsuhṛn mitra prāṇera\nīśwara",
@@ -46,7 +46,7 @@
         {
           "song_number": 3,
           "title_en": "Para Tattva Vicaksana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\npara-tattwa bicakṣaṇa byāsa ādi muni-gaṇa\nśāstra bicāriyā bāra bāra\nprabhu taba nitya-rūpa guṇa-śīla\nanurūpa\ntomāra caritra sudhā-sāra",
             "śuddha-sattwa-moyī līlā mukhya-śāstre\nprokāśila\njībera kuśala su-bidhāna\nrajas-tamo-guṇa-andha asura-prakṛti-manda-\njane tāhā bujhita nā jāne",
@@ -60,7 +60,7 @@
         {
           "song_number": 4,
           "title_en": "Jagater Bastu Jata",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\njagatera bastu jata baddha saba swabhābata\ndeśa\nkāla bastu simāśroya\ntumi prabhu sarbeśwara naha sīmā-bidhi-para\nbidhi saba kampe taba\nbhoya",
             "sama bā adhika taba swabhābataḥ asambhāba\nbidhi lańghi' taba abasthāna\nswatantra swabhāba dharo āpane gopana\nkoro\nmāyā-bale\nkori' adhiṣṭhāna",
@@ -75,7 +75,7 @@
         {
           "song_number": 5,
           "title_en": "Tumi Sarva Guna Juta",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntumi sarba-guṇa-juta\nśakti taba baśī-bhūta\nbadānya sarala śuci dhīra\ndoyālu madhura sama kṛtī\nsthira sarbottama\nkṛtajña-lakhaṇe punaḥ bīra",
             "samasta kalyāṇa-guṇa guṇāmṛta\nsambhābana\nsamudra-swarūpa\nbhagabān\nbindu bindu guṇa taba sarba-jība-subaibhaba\ntumi pūrṇa sarba-śaktimān",
@@ -90,7 +90,7 @@
         {
           "song_number": 6,
           "title_en": "Tomar Gambhir Mana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntomāra gambhīra mana nāhi bujhe anya jana\nsei mana anusāri saba\njagata-udbhāba-sthiti pralaya-soḿsāra-gati\nmukti ādi śaktira baibhaba",
             "e saba baidika\nlīlā\nicchā-mātra prokāśilā\njībera bāsanā anusāre\ntomāte bimukha ho'ye mājila abidyā lo'ye\nsei jība karma-pārābāre",
@@ -105,7 +105,7 @@
         {
           "song_number": 7,
           "title_en": "Maya Baddha Jata Ksana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nmāyā-baddha jata kṣaṇa thāke\nto' jībera mana\njoḍa mājhe kore bicāraṇa\nparabyoma jñāna-moya\ntāhe taba sthiti hoya\nmana nāhi pāya daraśana",
             "bhakti-kṛpā-khargāghāte joḍa-bandha cheda tā'te\njaya mana prakṛtira pāra\ntomāra sundara rūpa here' taba aparūpa\njoḍa-bastu koroye dhik-kāra",
@@ -120,7 +120,7 @@
         {
           "song_number": 8,
           "title_en": "Dharma Nistha Nahi Mor",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ndharma-niṣṭhā nāhi mora ātma-bodha\nbā sundora\nbhakti nāhi\ntomāra caraṇe\nata eba akiñcana\ngati-hīna duṣṭa-jana\nrata sadā āpana bañcane",
             "patita-pābana tumi patita adhama āmi\ntumi mora eka-mātra gati\ntaba pada-mūle\npainu tomāra śaraṇa lainu\nā;mi dāsa\ntumi mora pati",
@@ -135,7 +135,7 @@
         {
           "song_number": 9,
           "title_en": "Heno Dusta Karma Nai",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nheno duṣṭa\nkarma nāi\njaha āmi kori nāi\nsahasra sahasra-bāra\nhori\nsei saba-karma-phala peye abasara bala\nāmāya piśiche\njantropori",
             "gati nāhi\ndekhi āra kānde hari anibāra\ntomāra agrete ebe āmi\nja' tomāra\nhoya mane\ndaṇḍa deo\nakiñcane\ntumi mora daṇḍa-dhara swāmī",
@@ -150,7 +150,7 @@
         {
           "song_number": 10,
           "title_en": "Nija Karma Dose Phale",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nnija-karma-doṣa-phale poḍi'\nbhabārṇaba-jale\nhābuḍubu\nkhāi kota kāla\nsāntāri'\nsāntāri' jāi sindhu-anta nāhi pāi\nbhaba-sindhu ananta biśāla",
             "nimagna hoinu jabe ḍākinu\nkātara rabe\nkeho more koroho uddhāra\nsei kāle āile tumi tomā jāni' kūla-bhūmi\nāśā-bīja hoilo āmāra",
@@ -165,7 +165,7 @@
         {
           "song_number": 11,
           "title_en": "Anya Asana Nahi Jar",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nanya\nāśā nāhi jāra taba pada-padma tāra\nchāḍibāra jogya nāhi\nhoya\ntaba padāśroye nātha kore sei dina-pāta\ntaba pade tāhāra abhoya",
             "stanya-pāyī-śiśu-jane mātā chāḍe krodha-mane\nśiśu tabu nāhi\nchāḍe māya\nje hetu tāhāra ārae jībana\ndhoribāra\nmātā binā nāhika upāya",
@@ -180,7 +180,7 @@
         {
           "song_number": 12,
           "title_en": "Tava Pada Pankajini",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntaba pada-pańkajinī jībāmṛta-sañcāriṇī\nati-bhāgye jība tāhā pāya\nse amṛta pāna kori' mugdha hoya tāhā hori\nāra tāhā chāḍite\nnā cāya",
             "nibiṣṭa\nhoiyā tāya anya sthāne nāhi jāya\nanya rasa tuccha kori'\nmane\nmadhu-pūrṇa-padma-sthita madhubrata kadācita\nnāhi cāya ikhu-daṇḍa-pāne",
@@ -195,7 +195,7 @@
         {
           "song_number": 13,
           "title_en": "Bhramita Samsara Bane",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nbhramite soḿsāra-bane\nkabhu daiba-samghaṭane\nkona-mate kona bhāgyabān\ntaba pada uddeśiyā thāke kṛtāñjali hoya\neka-bāra ohe bhagabān",
             "sei khaṇe tā'ra jata amańgala hoya hata\nsu-mańgala hoya puṣṭa ati\nā;ra nāhi khaya hoya krame tā'ra śubhodoya\ntā're deya sarbottama-gati",
@@ -210,7 +210,7 @@
         {
           "song_number": 14,
           "title_en": "Tomar Carana Padma",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntomāra caraṇa-padma\nanurāga sudhā-sadma\nsāgara-śīkara jadi pāya\nkona bhāgyabāna jane kona kārya-sańgaṭane\ntā'ra saba duḥkha dūre jāya",
             "se sudhā-samudra-kaṇa soḿsārāgni-nirbāpana\nkhaṇete koriyā phele tā'ra\nparama nibṛtti diyā tomāra caraṇe loya\ndeya tabe ānanda apāra",
@@ -225,7 +225,7 @@
         {
           "song_number": 15,
           "title_en": "Tab Hanghri Kamala",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntabāńghri-kamala-dwoya bilāsa-bikrama-moya\nparābara jagata byāpiyā\nsarba-khaṇa\nbartamāna\nbhakta-kleśa-abasāna\nlagi' sadā prastuta hoiyā",
             "jagatera sei dhana āmi jaga-madhya-jana\nata eba sama adhikāra\nāmi kibā bhāgya-hīna sādhane\nbañcita dīna\nki kāja jībane āra chāra",
@@ -240,7 +240,7 @@
         {
           "song_number": 16,
           "title_en": "Ami Sei Dusta Mati",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "(hari\nhe)\nāmi sei duṣṭa-mati nā dekhiyā anya-gati\ntaba pade lo'yechi śaraṇa\njānilama āmi nātha tumi prabhu jagannātha\nāmi taba nitya parijana",
             "sei dina kabe ha'be\naikantika-bhābe\njabe\nnitya-dāsa-bhāba lo'ye āmi\nmanorathāntara jata nihśeṣa koriyā swataḥ\nsebibo āmāra nitya-swāmī",
@@ -255,7 +255,7 @@
         {
           "song_number": 17,
           "title_en": "Ami Aparadhi Jana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nāmi aparādhī jana sadā daṇḍya durlakhaṇa\nsahasra sahasra doṣe doṣī\nbhīma-bhabārṇabodare patita biṣama ghore\ngati-hīna gati-abhilāṣī",
             "hari taba pada-dwoye śaraṇe loinu bhoye\nkṛpā kori' koro ātma-sāṭha\ntomāra pratijñā ei śaraṇa loibe jei\ntumi tā'ra rakhā-kartā nātha",
@@ -270,7 +270,7 @@
         {
           "song_number": 18,
           "title_en": "Aviveka Rupa Ghana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nabibeka\nrūpa ghana tāhe dhik ācchādana\nhoilo ta'te andhakāra ghora\ntāhe duḥkha-bṛṣṭi hoya dekhi' cāri-dike bhoya\npatha-bhrama hoiyāche mora",
             "nija abibeka doṣe poḍi' durdinera roṣe\nprāṇa\njāya soḿsāra-kāntāre\npatha-pradarśaka\nnāi e durdaibe\nmārā jāi\nḍāki tāi\nacyuta tomāre",
@@ -285,7 +285,7 @@
         {
           "song_number": 19,
           "title_en": "Agre Ek Nivedana",
-          "title_ua": "",
+          "title_uk": "",
           "bengali": [
             "হরি হে\nঅগ্রে এক\nনিবেদন করি মধুনিসূদন\nশুন কৃপা করিয়া আমায়\nনিরর্থক কথা নয় নিগূঢার্থ-ময়\nহয়\nহৃদয়া হৈতে বহিরায়",
             "অতি অপ্রকৃষ্ট আমি পরম দয়ালু তুমি\nতব দয়া মোর অধিকার\nযে যত\nপতিত হয়\nতব দয়া তত তায়\nততে\nআমি সু-পাত্র দয়ার",
@@ -305,7 +305,7 @@
         {
           "song_number": 20,
           "title_en": "Toma Chadi Ami Kabhu",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntomā chāḍi' āmi kabhu anātha nā hoi prabhu\nprabhu-hīna dāsa nirāśroya\nāmāke nā nile sātha kaiche tumi ha'be nātha\ndomanīya ke tomāra hoya",
             "āmādera\ne sambandha\nbidhi-kṛta su-nirbandha\nsa-bidhi tomāra guṇa-dhāma\nata eba nibedana śuno he\nmadhu-mathana\nchāḍā-chāḍi nāhe kona kāma",
@@ -320,7 +320,7 @@
         {
           "song_number": 21,
           "title_en": "Stri Purusa Deha Geha",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nstrī-puruṣa-deha-gata barṇa-ādi dharma jata\ntāhe punaḥ deha-gata bheda\nsattwa-rajas-tamo-guṇa āśroyeche bheda punaḥ\nei-rūpa sahasra prabheda",
             "jekhona śarīra thāki jekhona abasthā rākhi\nse saba ekhona\ntaba pāya\nsaḿpilāma prāṇeśwara mama boli' ataḥ para\nāra kichu nā rohilo\ndāya",
@@ -335,7 +335,7 @@
         {
           "song_number": 22,
           "title_en": "Veda Vidhi Anusare",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nveda-vidhi-anusāre karma\nkori' e soḿsāre\npunaḥ\npunaḥ jība janma pāya\npūrba-kṛta-karma-phale\ntomāra bā icchā-bale\njanma jadi labhi\npunarāya",
             "tabe eka kathā\nmama śuno he puruṣottama\ntaba dāsa-sańgi-jana-ghore\nkīṭa-janma jadi hoya tāhāte-o\ndoyāmoya\nrohibo he santuṣṭa antore",
@@ -350,7 +350,7 @@
         {
           "song_number": 23,
           "title_en": "Tomar Je Suddha Bhakta",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntomāra je śuddha-bhakta tomāte\nse anurakta\nbhukti mukhti tuccha kori'\njāne\nbāreka dekhite taba cid-ākāra-śrī-baibhaba\ntṛṇa boli' anya sukha\nmane",
             "se saba bhaktera\nsańge\nlīlā koro nānā-rańge\nbiraha sahite nāhi pāra\nkṛpā kori' akiñcane dekhāo mahātma-gaṇe\nsādhu binā gati nāhi āra",
@@ -365,7 +365,7 @@
         {
           "song_number": 24,
           "title_en": "Suno He Madhu Mathana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nśuno he madhu-mathana\nmama eka bijñāpana\nbiśeṣa\nkoriyā boli āmi\ntomāra sebātwa mama\nswakiyā baibhabottama\nāmi dāsa tumi mora swāmī",
             "se-baibhaba-bahirbhūta hoite hoile he acyuta\nkhaṇa-mātra sahite nā pāri\ndeho prāṇa sukha āśā\nātma prati bhalābāsa\nsarba-tyāga korite bicāri",
@@ -380,7 +380,7 @@
         {
           "song_number": 25,
           "title_en": "Ami Nara Pasu Pray",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "(hari\nhe)\nāmi nara-paśu-prāya ācāra-bihīna\ntāya\nanādi ananta su-bistāra\nati-kaṣṭe parihārja\nsahajete anibārja\naśubhera āspada ābāra",
             "tumi to' doyāra sindhu tumi to' jagad-bandhu\nasīma bātsalya-payonidhi\ntaba guṇa-gaṇa smari' bhaba-bandha\ncheda kori'\nnirbhīka hoibo nirabadhi",
@@ -395,7 +395,7 @@
         {
           "song_number": 26,
           "title_en": "Tumi Jagater Pita",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\ntumi jagatera pitā tumi jagatera mātā\ndoyita tanoya hari tumi\ntumi suhṛn mitra guru tumi gati kalpa-taru\ntwadīya-sambandha-mātra āmi",
             "taba bhṛtya parijana gati-prārthi\nakiñcana\nprapanna tomāra śrī-caraṇe\ntaba sattwa taba dhana tomāra pālita jana\nāmāra mamatā taba jane",
@@ -410,7 +410,7 @@
         {
           "song_number": 27,
           "title_en": "Ami To Cancala Mati",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hari he\nāmi to' cañcala-mati amaryāda khudra ati\nasūya-prasaba sadā mora\npāpiṣṭha kṛtaghna mānī nṛśaḿsa bañcane jñānī\nkāma-baśe thāki sadā ghora",
             "e heno durjana ho'ye\ne duḥkha-jaladhi bo'ye\ncaritechi soḿsāra-sāgore\nkemone e bhabāmbudhi pāra ho'ye nirabadhi\ntaba pada-sebā mile more",
@@ -428,12 +428,12 @@
       "section_number": 2,
       "title": "Karpanya Panjika",
       "title_en": "Karpanya Panjika",
-      "title_ua": "Карпан̣йа-пан̃джіка̄",
+      "title_uk": "Карпан̣йа-пан̃джіка̄",
       "songs": [
         {
           "song_number": 1,
           "title_en": "Ami Ati Dina Mati",
-          "title_ua": "",
+          "title_uk": "",
           "bengali": [
             "আমি অতি দিন-মতি ব্রজ-কুঞ্জে নিবসতি\nরাধা-কৃষ্ণ-জুগল-চরণে\nকাঁদিয়া কাঁদিয়া অজ ছাড়ি সব লোক লজ\nনিবেদিব জত আছে মনে",
             "তুমি কৃষ্ণ নীলমণি নব-মেঘ-প্রভা জিনি\nব্রজানন্দ কর বিতরণ\nতুমি রাধে নব-গৌরী গোরোচনা-গর্ব হরি\nব্রজে হর কৃষ্ণচন্দ্র-মন",
@@ -585,12 +585,12 @@
       "section_number": 3,
       "title": "Soka Satana",
       "title_en": "Soka Satana",
-      "title_ua": "Ш́ока-ш́а̄тана",
+      "title_uk": "Ш́ока-ш́а̄тана",
       "songs": [
         {
           "song_number": 1,
           "title_en": "Pradosa Samaye",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "pradoṣa-samaye śrībāsa-ańgane\nsańgopane gorā-maṇi\nśrī-hari-kīrtane nāce nānā-rańge\nuṭhilo mańgala-dhwani",
             "mṛdańga\nmādala\nbāje karatāla\nmājhe mājhe jayatura\nprabhura naṭana\ndekhi' sakalera\nhoilo santāpa dūra",
@@ -609,7 +609,7 @@
         {
           "song_number": 2,
           "title_en": "Pravesiya Antah Pure",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "prabeśiyā antaḥ-pure nārī-gaṇe\nśānta kore\nśrībāsa āmiyā upadeśe\nśuno pāgalinī-gaṇa śoka koro akāraṇa\nkibā duḥkha thāke kṛṣṇābeśe",
             "kṛṣṇa nitya suta\njāra\nśoka kabhu nāhi tāra\nanitya āsakti sarba-nāśa\nasiyācho e soḿsāre kṛṣṇa\nbhajībara tāre\nnitya-tattwe koroho bilāsa",
@@ -628,7 +628,7 @@
         {
           "song_number": 3,
           "title_en": "Dhana Jana Deha Geha",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "dhana jana deha geha\nkṛṣṇe samarpaṇa\nkoriyācho śuddha-citte koroho smaraṇa",
             "tabe keno\nmama suta boli' koro duḥkha\nkṛṣṇa nilo nija-jana tāhe tāra sukha",
@@ -653,7 +653,7 @@
         {
           "song_number": 4,
           "title_en": "Sabu Meli Balaka Bhaga",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "sabu meli' bālaka-bhāga\nbicāri'\nchoḍabi moha śoka\ncitta-bikārī",
             "caudda-bhubana-pati\nnanda-kumāra\nśacī-nandana bhelo nadīyā-abatāra",
@@ -678,7 +678,7 @@
         {
           "song_number": 5,
           "title_en": "Srivasa Vacana Sravana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrībāsa-bacana śrabaṇa koriyā\nsādhwī pati-brata-gaṇa\nśoka parihari' mṛta śiśu rākhi'\nhari-rase dilo mana",
             "śrībāsa takhana ānande\nmātiyā\nańgane ailo punaḥ\nnāce gorā-sane sakala pāsari'\ngāya nanda-suta-guṇa",
@@ -699,7 +699,7 @@
         {
           "song_number": 6,
           "title_en": "Prabhur Vacana Takha Suniya",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "prabhura bacana takhana śuniyā\nśrībāsa loṭāñā bhūmi\nbole śuno nātha taba rasa-bhańga\nsahite nā pāri āmi",
             "ekaṭi tanaya mariyāche nātha\ntāhe mora kiba duḥkha\njadi saba mare tomāre heriyā\ntabu to' pāibo sukha",
@@ -718,7 +718,7 @@
         {
           "song_number": 7,
           "title_en": "Gora Candera Ajna Peye",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "gorācandera ajña peye gṛha-bāsi-gaṇa\nmṛta suta ańganete āna tata-khaṇa",
             "kali-mala-hari gorā jijñāse takhana\nśrībāse chāḍiyā śiśu\njāo ki kāraṇa",
@@ -745,7 +745,7 @@
         {
           "song_number": 8,
           "title_en": "Purna Cid Ananda Tumi",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "pūrṇa-cid-ānanda tumi tomāra\ncit-kaṇa āmi\nswabhābataḥ\nāmi tuyā dāsa\nparama swatantra tumi tuyā paratantra āmi\ntuyā pada chāḍi' sarba-nāśa",
             "swatantra ho'ye jakhana māyā\nprati koinu mana\nswa-swabhāba\nchāḍilo āmāya\nprapañce māyāra bandhe padinu karmera dhande\nkarma-cakre āmāre phelya",
@@ -766,7 +766,7 @@
         {
           "song_number": 9,
           "title_en": "Bandhilo Maya Je Dina",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "bāndhilo māyā je dina ho'te\nabidyā-moha-ḍore\naneka janma labhinu āmi\nphirinu māyā-ghore",
             "deba dānaba mānaba paśu\npatańga\nkīṭa ho'ye\nswarge narake bhū-tale\nphiri\nanitya āśā lo'ye",
@@ -789,7 +789,7 @@
         {
           "song_number": 10,
           "title_en": "Srivase Kohen Prabhu",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrībāse kohena prabhu tuńhu mora dāsa\ntuyā prīte bāndhā āmi jagate prokāśa",
             "bhakta-gaṇa\nsenāpati śrībāsa\npaṇḍita\njagate ghuṣuka āji tomāra carita",
@@ -816,7 +816,7 @@
         {
           "song_number": 11,
           "title_en": "Srivaser Prati Caitanya",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrībāsera prati caitanya-prasāda\ndekhiyā sakala jana\njaya śrī-caitanya jaya nityānanda\nboli' nāce ghana ghana",
             "śrībāsa-mandire ki bhāba uṭhilo\ntāhā ki barṇaṇa\nhoya\nbhāba-yuddha sane ānanda-krandana\nuṭhe kṛṣṇa-prema-moya",
@@ -837,7 +837,7 @@
         {
           "song_number": 12,
           "title_en": "Mrta Sisu Loye Tabe",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "mṛta śiśu lo'ye tabe bhakata-batsala\nbhakata-sańgete\ngāya śrī-nāma-mańgala",
             "gāite gāite gelā jāhnabīra tīre\nbalake satkāra koilo jāhnabīra nīre",
@@ -863,7 +863,7 @@
         {
           "song_number": 13,
           "title_en": "Nadiya Nagare Gora",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "nadīyā-nagare gorā-carita amṛta\npiyā śoka bhoya chāḍo sthira koro cita",
             "anitya soḿsāra bhāi kṛṣṇa mātra\nsāra\ngorā-śikhā mate kṛṣṇa bhaja anibāra",
@@ -891,12 +891,12 @@
       "section_number": 4,
       "title": "Rupanuga Bhajana Darpana",
       "title_en": "Rupanuga Bhajana Darpana",
-      "title_ua": "Рӯпа̄нуґа-бгаджана-дарпан̣а",
+      "title_uk": "Рӯпа̄нуґа-бгаджана-дарпан̣а",
       "songs": [
         {
           "song_number": 1,
           "title_en": "Bahu Janma Bhagya",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "bahu-janma-bhāgya-baśe cinmoya madhura rase\nspṛhā janme jībera hiyāya\nsei spṛhā lobha hoya braja-dhāme jība loya\nrūpānuga-bhajane mātāya",
             "bhajana-prakāra jata sakalera sāra mata\nśikhāilo śrī-rūpa gosāñi\nse bhajana nā jāniyā kṛṣṇa bhajibāre\ngiyā\ntuccha kāje jībana kāṭāi",
@@ -918,12 +918,12 @@
         {
           "song_number": 2,
           "title_en": "Bahu Janma Bhagya 2",
-          "title_ua": ""
+          "title_uk": ""
         },
         {
           "song_number": 3,
           "title_en": "Yoga Jaga Saba Char",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "yoga jāga saba chāra śraddhā\nsakalera sāra\nsei śraddhā hṛdoye jāhāra\nudiyāche eka bindhu krame bhakti-rasa-sindhu\nlābhe tāra hoya adhikāra",
             "jñāna karma deba debi bahu jatanete sebi'\nprāpta-phala\nhoilo tuccha jñāna\nsādhu-jana-sańgābeśe śrī-kṛṣṇa-kathāra śeṣe\nbiśwāso\nto' hoya balabān",
@@ -941,7 +941,7 @@
         {
           "song_number": 4,
           "title_en": "Chari Anya Abhilasa",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "chāḍi' anya abhilāṣa jñāna-karma-sahābāsa\nānukūlya\nkṛṣṇānuśīlana\nśuddha-bhakti boli' tāre bhakti-śāstra\nsu-bicāre\nśrī-rūpera\nsiddhānta-bacana",
             "śrabaṇa\nkīrtana smṛti\nsebārcana dāsya nati\nsakhya ātma-nibedana hoya\nsādhana-bhaktira ańga\nsādhakera jāhe rańga\nsadā sādhu-jana-sańga-moya",
@@ -965,7 +965,7 @@
         {
           "song_number": 5,
           "title_en": "Sraddha Devi Nama Jar",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śraddhā-debi nāma jāra duiti swabhāba tāra\nbidhi-mūla ruci-mūla bhede\nśāstrera\nśāsana jabe śraddhāra\nudoya ho'be\nbaidhī śraddhā tāre bole bede",
             "braja-bāsī\nsebe kṛṣṇe sei śuddha-sebā dṛṣṭe\njabe hoya śraddhāra udoya\nlobhamoyī śraddhā satī rāgānugā\nśuddhā mati\nbahu bhāgye sādhaka labhoya",
@@ -982,7 +982,7 @@
         {
           "song_number": 6,
           "title_en": "Rupanuga Tattva Sara",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "rūpānuga tattwa-sāra bujhite akańkha jāńra\nrasa-jñāna tāńra prayojana\ncinmoya ānanda-rasa\nsarba-tattwa jāńra\nbaśa\nakhaṇḍa parama tattwa-dhana",
             "jāńra bhāṇe jñāni jana brahmāloya-anweṣaṇa\nkore nāhi bujhi' beda-marma\njāńra\nchāyā-mātra bore\njogī-jana joga kore\njāra chale karmi kore\nkarma",
@@ -1003,7 +1003,7 @@
         {
           "song_number": 7,
           "title_en": "Rasera Harajini Citta",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "rasera ādhāra jini tāńra\ncitte rasa-khani\nsei cittera abasthā biśeṣe\nśraddhā-niṣṭhā-rucy-āsakti krame hoya bhāba-byakti\nrati-nāme tāńhāra nirdeśe",
             "biruddhābiruddha-bhāba sarbopari swa-prabhāba\nprokāśiyā loya nija-baśe\nsakalera ādi-pati haya śobhā pāya ati\nsthāyī bhāba nāma pāya rase",
@@ -1029,7 +1029,7 @@
         {
           "song_number": 8,
           "title_en": "Jei Rati Janme Jar",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "jei rati janme jāra sei mata rasa tāra\nrasa mukhya pañca-bidha hoya\ngauṇa-sapta-rasa punaḥ hoya ratira anuguṇa\nratira sambandha bhābāśroya",
             "pañca mukhya madhye bhāi madhurera guṇa gāi\nsarba-śreṣṭha rasa-rāja boli\nguṇa anya rase jata madhurete āche tata\nāra bahu bale hoya bali",
@@ -1046,7 +1046,7 @@
         {
           "song_number": 9,
           "title_en": "Madhurer Sthayi Bhava",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "madhurera sthāyī bhāba labhe jate abirbhāba\nboli tāhā śuno eka-mane\nabhijoga o biṣoya sambandhābhimāna-dwoya\ntadīya biśeṣa upamāne",
             "swabhāba āśroya kori' citte rati abatori\nśṛńgāra rasera kore puṣṭi\nabhijoga ādi choya anye rati-hetu hoya\nbraja-debīra\ntāhe nāhi dṛṣṭi",
@@ -1070,7 +1070,7 @@
         {
           "song_number": 10,
           "title_en": "Rati Prema Sneha Mana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "rati prema sneha māna praṇaya\no rāgākhyāna\nanurāga bhāba ei sāta\nrati jata gāḍha hoya krame sapta nāma\nloya\nsthāyī bhāba sadā abadāta",
             "snehādi je bhāba choya prema nāme paricoya\nsādhāraṇa janera nikaṭe\nje bhāba kṛṣṇete\njāńra\nsei bhābe kṛṣṇa tāńra\ne rahasya rase nitya baṭe",
@@ -1094,7 +1094,7 @@
         {
           "song_number": 11,
           "title_en": "Raty Asvada Heta Jata",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "raty-āswāda hetu jata bibhāba\nnāmete khyāta\nālambana uddīpana hoya\nbiṣoya-āśroya-gata ālambana dui mata\nkṛṣṇa kṛṣṇa-bhakta se ubhoya",
             "nāyakera śiromaṇi\nswayaḿ kṛṣṇa\nguṇa-maṇi\nnitya guṇa-dhāma parāt para\ntāńra bhābe anurakta guṇāḍhya\njateka bhakta\nsiddha eka sādhaka apara",
@@ -1115,7 +1115,7 @@
         {
           "song_number": 12,
           "title_en": "Sri Nanda Nandana Dhana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrī-nandānandana dhana tadīya ballabhā-gaṇa\nmadhura-rasera ālambana\ngopī-gata rati jāhān gopī-cittāśroya\ntāhān\nkṛṣṇa-mātra biṣoya takhan",
             "jāhān rati kṛṣṇa-gata raty-āśroya\nkṛṣṇa-cita\ngopī tāhān ratira biṣoya\nbiṣoya āśroya dhore' sthāyī-bhāba\nrati core\nnaile rati udgata nā\nhoya",
@@ -1133,7 +1133,7 @@
         {
           "song_number": 13,
           "title_en": "Suramya Madhura Smita",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "su-ramya madhura-smita sarba-sal-lakhaṇānwita\nbalīyān\ntaruṇa gambhīra\nbābadūka\npriya-bhāṣī sudhī sapratibhāśwāsī\nbidagdha catura sukhī dhīra",
             "kṛtajña dakhiṇa preṣṭha\nbarīyān kīrtimac-chreṣṭha\nlalanā-mohana\nkeli-para\nsu-nitya nūtana-mūrti kebala saundarya-sphūrti\nbaḿśī-gāne su-dakha tat-para",
@@ -1155,7 +1155,7 @@
         {
           "song_number": 14,
           "title_en": "Suramya Di Guna Gana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "su-ramyādi guṇa-gaṇa hoiyāche\nbibhūṣaṇa\nlalanā-ucita\njata-dūra\npṛthu-prema\nsu-mādhurja\nsampadera su-pracurja\nśrī-kṛṣṇa-ballabha rasa-pūra",
             "ballabha to' dwi-prakāra\nswīya parakīya\nāra\nmugdhā madhyā pragalbheti troya\nkeho ba nāyikā tāhe keho sakhī hoite cāhe\nnije to' nāyikā nāhi hoya",
@@ -1172,7 +1172,7 @@
         {
           "song_number": 15,
           "title_en": "Sri Krsna Sevi Boboili",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrī-kṛṣṇe sebibo boli' gṛha chāḍi' kuñje coli'\njāite hoya abhisārī sakhī\nkuñja sajjā kore jabe bāsaka sajjā ha'na tabe\nutkaṇṭhita kṛṣṇa-patha lakhi'",
             "kāla ullańghiyā hori bhoga-cihna\ndehe dhori'\naile hana khaṇḍitā takhana\nsańkete pāiyā baise tabu kanta nā āise\nbipralabdhā nāyikā to' hana",
@@ -1193,7 +1193,7 @@
         {
           "song_number": 16,
           "title_en": "Nayikar Siromani Vraje Radha",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "nāyikāra\nśiromaṇi braje rādhā ṭhākurāṇī\npañca-bidha sakhī-gaṇa tā'ra\nsakhī nitya-sakhī āra prāṇa-sakhī\nataḥ para\npriyā-sakhī ei hoilo cāra",
             "pañcama parama-preṣṭha sakhī-gaṇa\nmadhye śreṣṭha\nboli saba śuno bibaraṇa\nkusumikā bindhyābatī dhaniṣṭhādi\nbraja-satī\nsakhī-gaṇa madhyete gaṇana",
@@ -1216,7 +1216,7 @@
         {
           "song_number": 17,
           "title_en": "Radha Krsna Guna Gana Mitha Sakhi",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "rādhā-kṛṣṇa-guṇa-gāna mithāsakti sambardhana\nubhayābhisāra sampadana\nkṛṣṇa\nsakhī-samarpaṇa\nnarma-bākya-āswādana\nubhayera subeśa-racana",
             "citta-bhāba-utgatana mitha-cchidra sańgopana\npratīpa janera subañcana\nkuśala\nśikhaṇa āra sammilana du'janara\nbyajanādi bibidha sebāna",
@@ -1246,7 +1246,7 @@
         {
           "song_number": 18,
           "title_en": "Panca Sakhi Madhye Cara",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "pañca-sakhī madhye cāra nitya-siddha rādhikāra\nse sakale sādhana nā koilo\nsakhī boli' ukta jei sādhana-prabhābe\ntei\nbraja-rāja\npure bāsa pāilo",
             "sei sakhī dwi-prakāra sādhanete\nsiddha āra\nsādhana-para\nboliyā gaṇana\nsiddha boli' ākhya tāńra gopī-deha hoilo jāńra\nkori' rāge jugala-bhajana",
@@ -1265,7 +1265,7 @@
         {
           "song_number": 19,
           "title_en": "Parama Caitanya Hari",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "parama caitanya hari tāńra\nśakti baneśwarī\nparā śakti boli' bede gāya\nśaktimāne\nsebibāre\nśakti kāya-byūha\nkore\nnānā śakti tāhe bahirāya",
             "ādhāra-śaktite dhāma ahwaya-śaktite\nnāma\nsandhinī-śaktite bastu jata\nsambit-śaktite\njñāna\ntaṭasthā jība-bidhāna\nhlādinīte\nkoilo sakhī-brata",
@@ -1282,7 +1282,7 @@
         {
           "song_number": 20,
           "title_en": "Krsna Krsna Bhakata Gata",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "kṛṣṇa kṛṣṇa-bhakata-gaṇa guṇa nāma su-carita\nmaṇḍana\nsambandhi taṭasthādi\nbhāba jata agaṇana e rasera uddīpana\nhetu boli' bole rasa-bedi",
             "mānasa bācika punaḥ kāyikate tina-guṇa\nnāma-kṛṣṇa śrī-rādhā-mādhaba\nnṛtya baḿśī-gāna gati go-dohana\ngo-āhuti\naghoddhāra goṣṭhete tāṇḍaba",
@@ -1310,7 +1310,7 @@
         {
           "song_number": 21,
           "title_en": "Vibhavita Rati Jabe",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "vibhāvita rati jabe kriyāpara\nho'ye tabe\nanubhāba hoya to' udita\ncitta-bhāba udghāṭiyā kore bāhya su-bikriyā\njakhana je hoya to' ucita",
             "nṛtya gīta biluṇṭhana krośana tanu-moṭana\nhuńkāra jṛmbhana ghana-śwāsa\nlokanāpekhita mati lāla-sraba\nghūrṇa ati\nhikkadoyā aṭṭa aṭṭa\nhāsa",
@@ -1338,7 +1338,7 @@
         {
           "song_number": 22,
           "title_en": "Sthayi Bhava Vista Citta",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "sthāyī bhābābiṣṭa citta pāiyā\nbibhāba-bitta\nudbhaṭa bhābete āpanāra\nprāṇa-bṛtte nyasa kore prāṇa\nsei nyāsa-bhore\ndeha prati bikṛti cālāya",
             "baibarṇya romañca sweda stambha kampa swara-bheda\npralayāśru\ne aṣṭa bikāra\nsañcārī\nje bhābacoya harṣāmārṣa\nāra bhoya\nbiṣāda\nbismoyādi tāra",
@@ -1359,7 +1359,7 @@
         {
           "song_number": 23,
           "title_en": "Nirbeda Bisada Mada",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "nirbeda biṣāda mada dainya glāni śramonmāda\ngarba trāsa śańkā apasmṛti\nābega ālasya byādhi moha mṛtyu jaḍatādi\nbrīḍā abahitthā āra\nsmṛti",
             "bitarka cāpalya mati cintautsukya\nharṣa dhṛti\nugrālasya nidrāmarṣa supti\nbodha hoya ei bhāba-coya trayas-triḿśat\nsabe hoya\nbyabhicārī\nnāme labhe jñapti",
@@ -1375,7 +1375,7 @@
         {
           "song_number": 24,
           "title_en": "Sadharani Samanjasa",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "sādhāraṇi samañjasā sthāyī\nlābhe bhāba daśā\nkubjā āra mahiṣī pramāṇa\neka braja-debī-gaṇe mahā-bhāba\nsańghaṭane\nrūḍha adhirūḍha su-bidhāna",
             "nimeṣāsahyatā tāya hṛn-mathane\nkhinna prāya\nkalpa khaṇa saukhye śańkākula\nātmābadhi\nbismaraṇa\nkhaṇa kalpa bibecana\njoge bā bijoge samatula",
@@ -1396,7 +1396,7 @@
         {
           "song_number": 25,
           "title_en": "Sri Ujjvala Rasa Sara",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrī ujjwala rasa sāra swabhābataḥ\ndwi-prakāra\nbipralambha sambhoga ākhyāna\nbinā bipralambhāśroya sambhogera puṣṭi noya\ntāi bipralambhera bidhāna",
             "pūrba-rāga\ntathā māna prabāsa\nbaicttya-jñāna\nbipralambha cāri to' prakāra\nsańgamera pūrba-rīti\nlabhe\npūrba-rāga khyāti\ndarśane śrabaṇe janma tāra",
@@ -1420,7 +1420,7 @@
         {
           "song_number": 26,
           "title_en": "Darsana Aslesan Vita",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "darśana āśleṣanwita ānukūlya\nsebāśrīta\nullāse ārūḍha\njei bhāba\njuba-dwandwa hṛdi\nmājhe\nrasākāre su-birājye\nsambhogākhya tāra hoya lābha",
             "mukhya gauṇa\ndwi-prakāra\nsambhogera su-bistāra\ntad ubhoya cāriṭi\nprakāra\nsańkhipta sańkīrṇa\njāna\nsampanna samṛddhimāna\npūrba bhābābasthā\nanusāra",
@@ -1447,7 +1447,7 @@
         {
           "song_number": 27,
           "title_en": "Sandarsana Sa Sparsana",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "sandarśana saḿsparśana jalpa bartma-nirodhana\nrāsa bṛndābana-līlā bhūri\njala-keli jamunāya naukā-khelā cauryatāya\nghaṭṭa-līlā kuñje lukocuri",
             "madhu-pāna badhū-beśa\nkapaṭa nidrā-ābeśa\ndyūta-krīḍā bastra ṭānāṭāni\ncumbāśleṣa nakhārpaṇa bimbādhara\nsudhā-pāna\nsamprajoga ādi līlā māni",
@@ -1464,7 +1464,7 @@
         {
           "song_number": 28,
           "title_en": "Rasa Tattva Nitya Jaiche",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "rasa-tattwa nitya jaiche braja-tattwa nitya taiche\nlīlā-rasa\neka kori' jñāna\nkṛṣṇa je sākhāt\nrasa sakala-i kṛṣṇera\nbaśa\nbeda bhāgabate kore gāna",
             "śrī-kṛṣṇa parama tattwa tāra līlā śuddha sattwa\nmāyā jāra dūra-sthita dāsī\njība prati kṛpā\nkori' līlā prokāśilo\nhori\njībera mańgala abhilāṣī",
@@ -1485,7 +1485,7 @@
         {
           "song_number": 29,
           "title_en": "Krsnera Ja Teka Khela",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "kṛṣṇera jateka khelā tāra madhye nara-līlā\nsarbottama rasera āloya\ne rasa\ngoloke nāi tabe bolo kothā pāi\nbraja-dhāma tāhāra niloya",
             "nitya-līlā dwi-prakāra sāntara\no nirantara\njāhe mājhe rasikera mana\njanma-bṛddhi\ndaitya-nāśa mathurā dwārakā-bāsa\nnitya-līlā\nsāntare gaṇana",
@@ -1507,12 +1507,12 @@
       "section_number": 5,
       "title": "Siddhi Lalasa",
       "title_en": "Siddhi Lalasa",
-      "title_ua": "Сіддгі-лаласа̄",
+      "title_uk": "Сіддгі-лаласа̄",
       "songs": [
         {
           "song_number": 1,
           "title_en": "Kabe Gaura Vane",
-          "title_ua": "",
+          "title_uk": "",
           "bengali": [
             "কবে গৌর-বনে, সুরধুনী-তটে,\nহা রাধে হা কৃষ্ণ বোলে\nকান্দিয়া বেড়াবো, দেহ-সুখ ছাড়ি,\nনানা লতা-তরু-তলে",
             "স্ব-পচ-গৃহেতে, মাগিয়া খা‌ইবো,\nপিবো সরস্বতী-জল\nপুলিনে পুলিনে, গড়াগড়ি দিবো,\nকরি কৃষ্ণ-কোলাহল",
@@ -1535,7 +1535,7 @@
         {
           "song_number": 2,
           "title_en": "Dekhite Dekhite",
-          "title_ua": "",
+          "title_uk": "",
           "bengali": [
             "দেখিতে দেখিতে, ভুলিব বা কবে,\nনিজ-স্থূল-পরিচয়\nনয়নে হেরিব, ব্রজ-পুর-শোভা,\nনিত্য চিদ-আনন্দ-ময়",
             "বৃষভানু-পুরে, জনম লৈব,\nযাবটে বিবাহ হবে\nব্রজ-গোপী-ভাব, হৈবে স্বভাব,\nআনো-ভাব না রহিবে",
@@ -1558,7 +1558,7 @@
         {
           "song_number": 3,
           "title_en": "Heno Kale Habe",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "hena kāle habe bilāsa mañjarī\nanańga mañjarī āra\namare heriya ati kṛpa\nkori\nbolibe bacana sāra",
             "eso, eso, sakhī! śrī-lalitā-gaṇe\njanibo tomare āja\ngṛha-kathā chari rādhā-kṛṣṇa\nbhajo\ntyājiyā\ndharama-lāja",
@@ -1575,7 +1575,7 @@
         {
           "song_number": 4,
           "title_en": "Palya Dasi Kori",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "palya-dāsī\nkori lalitā sundarī\namare loiyā kabe\nśrī-rādhikā-pade kale milaibe\najña-sebā samarpibe",
             "śrī rūpa mañjarī sańge jabo kabe\nrasa-seba-śikṣa-tare\ntad-anugā hoye rādhā-kuṇḍa\ntate\nrohibo harṣitāntare",
@@ -1592,7 +1592,7 @@
         {
           "song_number": 5,
           "title_en": "Cintamani Moy",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "cintāmaṇi-maya rādhā-kuṇḍa-taṭa\ntaha kuñja śata śata\nprabāla bidruma maya taru-latā\nmukta-phale abanata",
             "svānanda-sukhadā kuñja manohara\ntahate kuṭīra śobhe\nbasiya tathaya gabo kṛṣṇa\nnāma\nkabe kṛṣṇa-dasya hobe",
@@ -1609,7 +1609,7 @@
         {
           "song_number": 6,
           "title_en": "Nirjana Kutire",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "nirjana kuṭīre śrī rādhā-caraṇa\nsmaraṇe thākibā rata\nśrī rūpa mañjarī dhīre dhīre āsi\nkahibe amaya",
             "bolibe o sakhi! ki\nkoro basiya,\ndekhaha bahire asi\nyugala milana śobha nirūpama\nhoibe caraṇa",
@@ -1626,7 +1626,7 @@
         {
           "song_number": 7,
           "title_en": "Sri Rupa Manjari Kabe Madhura",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "śrī rūpa mañjarī kabe madhura bacane\nrādhā-kuṇḍa mahimā barnibe sańgopane",
             "e caudda bhuvanopari vaikuntha nilaya\ntad-apekṣā mathurā parama\nśreṣṭha haya",
@@ -1647,7 +1647,7 @@
         {
           "song_number": 8,
           "title_en": "Varane Tarit",
-          "title_ua": "",
+          "title_uk": "",
           "transliteration": [
             "varaṇe taḍita bāsa tārābalī\nkamala mañjarī nāma\nsāḍe bāra barṣa bayasa satata\nsvānanda-sukhada-dhāma",
             "karpūra sebā lalitāra gaṇa\nrādhā yutheśvarī hana\nmameśvarī-nātha śrī nanda-nandana\nāmāra parāṇa dhana",
@@ -1664,7 +1664,7 @@
         {
           "song_number": 9,
           "title_en": "Vrsabhanu Suta Carana",
-          "title_ua": "",
+          "title_uk": "",
           "bengali": [
             "বৃষভানু-সুতা- চরণ-সেবনে,\nহৈব যে পাল্য-দাসী\nশ্রী-রাধার সুখ, সতত সাধনে,\nরহিব আমি প্রয়াসী",
             "শ্রী-রাধার সুখে, কৃষ্ণএর যে সুখ,\nজানিব মনেতে আমি\nরাধা-পদ ছাড়ি, শ্রী-কৃষ্ণ-সঙ্গমে,\nকভু না হৈব কামী",
@@ -1687,7 +1687,7 @@
         {
           "song_number": 10,
           "title_en": "Sri Krsna Virohe Radhikar Dasa",
-          "title_ua": "",
+          "title_uk": "",
           "bengali": [
             "শ্রী-কৃষ্ণ-বিরহে রাধিকার দশা\nআমি তো সহিতে নারি\nযুগল-মিলন- সুখের কারণ\nজীবন ছাড়িতে পারি",
             "রাধিকা-চরণ ত্যজিয়া আমার\nক্ষণেকে প্রলয় হয়\nরাধিকার তরে শত-বার মরি\nসে দুঃখ আমার সোয়",

@@ -16,11 +16,11 @@ import { Link } from "react-router-dom";
 type HeroSettings = {
   background_image: string;
   logo_image: string;
-  subtitle_ua: string;
+  subtitle_uk: string;
   subtitle_en: string;
-  quote_ua: string;
+  quote_uk: string;
   quote_en: string;
-  quote_author_ua: string;
+  quote_author_uk: string;
   quote_author_en: string;
 };
 
@@ -33,11 +33,11 @@ export default function SiteBanners() {
   const [settings, setSettings] = useState<HeroSettings>({
     background_image: "",
     logo_image: "",
-    subtitle_ua: "",
+    subtitle_uk: "",
     subtitle_en: "",
-    quote_ua: "",
+    quote_uk: "",
     quote_en: "",
-    quote_author_ua: "",
+    quote_author_uk: "",
     quote_author_en: "",
   });
 
@@ -276,9 +276,9 @@ export default function SiteBanners() {
               <div>
                 <Label>Українською</Label>
                 <Input
-                  value={settings.subtitle_ua}
+                  value={settings.subtitle_uk}
                   onChange={(e) =>
-                    setSettings({ ...settings, subtitle_ua: e.target.value })
+                    setSettings({ ...settings, subtitle_uk: e.target.value })
                   }
                   placeholder="Бібліотека ведичних аудіокниг"
                 />
@@ -305,9 +305,9 @@ export default function SiteBanners() {
               <div>
                 <Label>Цитата українською</Label>
                 <Textarea
-                  value={settings.quote_ua}
+                  value={settings.quote_uk}
                   onChange={(e) =>
-                    setSettings({ ...settings, quote_ua: e.target.value })
+                    setSettings({ ...settings, quote_uk: e.target.value })
                   }
                   rows={4}
                   placeholder="За моєї відсутності читайте книжки..."
@@ -327,9 +327,9 @@ export default function SiteBanners() {
               <div>
                 <Label>Автор українською</Label>
                 <Input
-                  value={settings.quote_author_ua}
+                  value={settings.quote_author_uk}
                   onChange={(e) =>
-                    setSettings({ ...settings, quote_author_ua: e.target.value })
+                    setSettings({ ...settings, quote_author_uk: e.target.value })
                   }
                   placeholder="Шріла Прабгупада"
                 />

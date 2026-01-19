@@ -47,7 +47,7 @@ export function TodayEventsCard({ events, language }: TodayEventsCardProps) {
           {events.length > 0 ? (
             <div className="space-y-1.5 pt-2 border-t">
               {events.map((event) => {
-                const name = language === "uk" ? event.name_ua : event.name_en;
+                const name = language === "uk" ? event.name_uk : event.name_en;
                 return (
                   <div
                     key={event.event_id}

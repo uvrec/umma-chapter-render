@@ -208,12 +208,12 @@ export function CalendarMonthView({
                     style={{ backgroundColor: getEventColor(primaryEvent) }}
                     title={
                       language === "uk"
-                        ? primaryEvent.name_ua
+                        ? primaryEvent.name_uk
                         : primaryEvent.name_en
                     }
                   >
                     {language === "uk"
-                      ? primaryEvent.name_ua
+                      ? primaryEvent.name_uk
                       : primaryEvent.name_en}
                   </div>
                 )}
@@ -227,7 +227,7 @@ export function CalendarMonthView({
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: getEventColor(event) }}
                         title={
-                          language === "uk" ? event.name_ua : event.name_en
+                          language === "uk" ? event.name_uk : event.name_en
                         }
                       />
                     ))}

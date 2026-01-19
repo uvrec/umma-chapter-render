@@ -434,7 +434,7 @@ export function useCalendarEventFasting(
   event: {
     event_date: string;
     event_type: string;
-    name_ua?: string;
+    name_uk?: string;
     name_en?: string;
     fasting_level?: string;
   } | null,
@@ -472,7 +472,7 @@ export function useCalendarEventFasting(
     return 'half';
   }, [event?.fasting_level]);
 
-  const eventName = language === 'uk' ? event?.name_ua : event?.name_en;
+  const eventName = language === 'uk' ? event?.name_uk : event?.name_en;
 
   return useVaishnavEventFasting(
     eventDate,

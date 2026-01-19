@@ -241,7 +241,7 @@ export function useNakshatraSearch(query: string) {
     const lowerQuery = query.toLowerCase();
     return NAKSHATRAS.filter(
       n =>
-        n.name_ua.toLowerCase().includes(lowerQuery) ||
+        n.name_uk.toLowerCase().includes(lowerQuery) ||
         n.name_en.toLowerCase().includes(lowerQuery) ||
         n.name_iast.toLowerCase().includes(lowerQuery)
     );
@@ -278,7 +278,7 @@ export function useNakshatraCompatibility(nakshatra1Id: number, nakshatra2Id: nu
       'Слон (самка)': ['Слон (самець)'],
     };
 
-    if (compatibleAnimals[n1.animal_ua]?.includes(n2.animal_ua)) {
+    if (compatibleAnimals[n1.animal_uk]?.includes(n2.animal_uk)) {
       score += 30;
     }
 

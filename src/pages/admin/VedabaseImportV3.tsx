@@ -388,7 +388,7 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             slug: bookConfig.our_slug || selectedBook,
-            title_ua: bookConfig.name_ua,
+            title_uk: bookConfig.name_uk,
             title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos,
             is_published: true,
@@ -434,9 +434,9 @@ export default function VedabaseImportV3() {
       const { error } = await supabase.from("intro_chapters").insert({
         book_id: book.id,
         title_en: introTitleEN || null,
-        title_ua: introTitleUA || null,
+        title_uk: introTitleUA || null,
         content_en: contentEN || null,
-        content_ua: contentUA || null,
+        content_uk: contentUA || null,
         slug: (introTitleEN || introTitleUA).toLowerCase().replace(/\s+/g, "-"),
         order_index: 0,
         is_published: true,
@@ -485,7 +485,7 @@ export default function VedabaseImportV3() {
           .from("books")
           .insert({
             slug: bookConfig.our_slug || selectedBook,
-            title_ua: bookConfig.name_ua,
+            title_uk: bookConfig.name_uk,
             title_en: bookConfig.name_en,
             has_cantos: bookConfig.has_cantos,
             is_published: true,
@@ -515,7 +515,7 @@ export default function VedabaseImportV3() {
             .insert({
               book_id: book.id,
               canto_number: parseInt(cantoNumber),
-              title_ua: `Пісня ${cantoNumber}`,
+              title_uk: `Пісня ${cantoNumber}`,
               title_en: `Canto ${cantoNumber}`,
               is_published: true,
             })
@@ -528,7 +528,7 @@ export default function VedabaseImportV3() {
 
         let { data: chapter } = await supabase
           .from("chapters")
-          .select("id, title_ua, title_en")
+          .select("id, title_uk, title_en")
           .eq("canto_id", canto.id)
           .eq("chapter_number", parseInt(chapterNumber))
           .maybeSingle();
@@ -540,11 +540,11 @@ export default function VedabaseImportV3() {
               book_id: book.id,
               canto_id: canto.id,
               chapter_number: parseInt(chapterNumber),
-              title_ua: `Глава ${chapterNumber}`,
+              title_uk: `Глава ${chapterNumber}`,
               title_en: `Chapter ${chapterNumber}`,
               is_published: true,
             })
-            .select("id, title_ua, title_en")
+            .select("id, title_uk, title_en")
             .single();
 
           if (error) throw new Error(error.message);
@@ -557,7 +557,7 @@ export default function VedabaseImportV3() {
         // Без канто
         let { data: chapter } = await supabase
           .from("chapters")
-          .select("id, title_ua, title_en")
+          .select("id, title_uk, title_en")
           .eq("book_id", book.id)
           .eq("chapter_number", parseInt(chapterNumber))
           .maybeSingle();
@@ -568,11 +568,11 @@ export default function VedabaseImportV3() {
             .insert({
               book_id: book.id,
               chapter_number: parseInt(chapterNumber),
-              title_ua: `Глава ${chapterNumber}`,
+              title_uk: `Глава ${chapterNumber}`,
               title_en: `Chapter ${chapterNumber}`,
               is_published: true,
             })
-            .select("id, title_ua, title_en")
+            .select("id, title_uk, title_en")
             .single();
 
           if (error) throw new Error(error.message);
@@ -653,11 +653,11 @@ export default function VedabaseImportV3() {
             const html = await fetchHTML(gitabaseUrl!);
             const data = parseGitabaseCC(html, gitabaseUrl!);
 
-            // ⚠️ transliteration_ua НЕ береться з Gitabase (там він зіпсований)
+            // ⚠️ transliteration_uk НЕ береться з Gitabase (там він зіпсований)
             // Замість цього конвертуємо IAST з Vedabase нижче
-            synonymsUA = data?.synonyms_ua || "";
-            translationUA = data?.translation_ua || "";
-            purportUA = data?.purport_ua || "";
+            synonymsUA = data?.synonyms_uk || "";
+            translationUA = data?.translation_uk || "";
+            purportUA = data?.purport_uk || "";
 
             await new Promise((r) => setTimeout(r, 500));
           } catch (e: any) {
@@ -727,13 +727,13 @@ export default function VedabaseImportV3() {
             verse_number: verseNum,
             sanskrit,
             transliteration: transliterationEN || null,
-            transliteration_ua: transliterationUA || null,
+            transliteration_uk: transliterationUA || null,
             synonyms_en: synonymsEN || null,
             translation_en: translationEN || null,
             commentary_en: purportEN || null,
-            synonyms_ua: synonymsUA || null,
-            translation_ua: translationUA || null,
-            commentary_ua: purportUA || null,
+            synonyms_uk: synonymsUA || null,
+            translation_uk: translationUA || null,
+            commentary_uk: purportUA || null,
             is_published: true,
           },
           { onConflict: "chapter_id,verse_number" },
@@ -802,7 +802,7 @@ export default function VedabaseImportV3() {
                     <SelectContent>
                       {VEDABASE_BOOKS.map((book) => (
                         <SelectItem key={book.slug} value={book.slug}>
-                          {book.name_ua} ({book.slug.toUpperCase()})
+                          {book.name_uk} ({book.slug.toUpperCase()})
                           {book.gitabase_available && (
                             <Badge variant="outline" className="ml-2">
                               UA
@@ -904,7 +904,7 @@ export default function VedabaseImportV3() {
                     <SelectContent>
                       {VEDABASE_BOOKS.map((book) => (
                         <SelectItem key={book.slug} value={book.slug}>
-                          {book.name_ua} ({book.slug.toUpperCase()})
+                          {book.name_uk} ({book.slug.toUpperCase()})
                         </SelectItem>
                       ))}
                     </SelectContent>

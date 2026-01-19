@@ -46,15 +46,15 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
       // Search books
       const { data: books } = await supabase
         .from("books")
-        .select("id, title_ua, has_cantos")
-        .ilike("title_ua", `%${searchQuery}%`)
+        .select("id, title_uk, has_cantos")
+        .ilike("title_uk", `%${searchQuery}%`)
         .limit(5);
 
       books?.forEach((book) => {
         searchResults.push({
           type: "book",
           id: book.id,
-          title: book.title_ua,
+          title: book.title_uk,
           subtitle: book.has_cantos ? "Книга з піснями" : "Книга",
           href: book.has_cantos
             ? `/admin/cantos/${book.id}`
@@ -65,17 +65,17 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
       // Search chapters
       const { data: chapters } = await supabase
         .from("chapters")
-        .select("id, title_ua, chapter_number, books(title_ua), cantos(title_ua)")
-        .or(`title_ua.ilike.%${searchQuery}%,chapter_number.ilike.%${searchQuery}%`)
+        .select("id, title_uk, chapter_number, books(title_uk), cantos(title_uk)")
+        .or(`title_uk.ilike.%${searchQuery}%,chapter_number.ilike.%${searchQuery}%`)
         .limit(5);
 
       chapters?.forEach((chapter: any) => {
-        const bookTitle = chapter.books?.title_ua || "";
-        const cantoTitle = chapter.cantos?.title_ua || "";
+        const bookTitle = chapter.books?.title_uk || "";
+        const cantoTitle = chapter.cantos?.title_uk || "";
         searchResults.push({
           type: "chapter",
           id: chapter.id,
-          title: `${chapter.chapter_number}. ${chapter.title_ua}`,
+          title: `${chapter.chapter_number}. ${chapter.title_uk}`,
           subtitle: cantoTitle ? `${bookTitle} → ${cantoTitle}` : bookTitle,
           href: `/admin/scripture?chapterId=${chapter.id}`,
         });
@@ -84,15 +84,15 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
       // Search verses
       const { data: verses } = await supabase
         .from("verses")
-        .select("id, verse_number, translation_ua, chapter_id")
+        .select("id, verse_number, translation_uk, chapter_id")
         .or(
-          `verse_number.ilike.%${searchQuery}%,translation_ua.ilike.%${searchQuery}%,sanskrit_ua.ilike.%${searchQuery}%`
+          `verse_number.ilike.%${searchQuery}%,translation_uk.ilike.%${searchQuery}%,sanskrit_uk.ilike.%${searchQuery}%`
         )
         .limit(5);
 
       verses?.forEach((verse) => {
-        const previewText = verse.translation_ua
-          ? verse.translation_ua.substring(0, 60) + "..."
+        const previewText = verse.translation_uk
+          ? verse.translation_uk.substring(0, 60) + "..."
           : "";
         searchResults.push({
           type: "verse",
@@ -106,15 +106,15 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
       // Search blog posts
       const { data: posts } = await supabase
         .from("blog_posts")
-        .select("id, title_ua, slug")
-        .ilike("title_ua", `%${searchQuery}%`)
+        .select("id, title_uk, slug")
+        .ilike("title_uk", `%${searchQuery}%`)
         .limit(5);
 
       posts?.forEach((post) => {
         searchResults.push({
           type: "blog_post",
           id: post.id,
-          title: post.title_ua,
+          title: post.title_uk,
           subtitle: "Пост блогу",
           href: `/admin/blog-posts/${post.id}/edit`,
         });
@@ -123,15 +123,15 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
       // Search audio playlists
       const { data: playlists } = await supabase
         .from("audio_playlists")
-        .select("id, title_ua, title_en")
-        .or(`title_ua.ilike.%${searchQuery}%,title_en.ilike.%${searchQuery}%`)
+        .select("id, title_uk, title_en")
+        .or(`title_uk.ilike.%${searchQuery}%,title_en.ilike.%${searchQuery}%`)
         .limit(5);
 
       playlists?.forEach((playlist) => {
         searchResults.push({
           type: "playlist",
           id: playlist.id,
-          title: language === 'uk' ? playlist.title_ua : playlist.title_en,
+          title: language === 'uk' ? playlist.title_uk : playlist.title_en,
           subtitle: "Аудіо плейліст",
           href: `/admin/audio-playlists/${playlist.id}`,
         });

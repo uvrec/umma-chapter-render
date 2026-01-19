@@ -274,15 +274,15 @@ export const DualLanguageVerseCard = ({
       // Only save fields that have actually changed to prevent cross-contamination
       const updates: Record<string, string> = {};
 
-      if (edited.sanskritUa !== sanskritTextUa) updates.sanskrit_ua = edited.sanskritUa;
+      if (edited.sanskritUa !== sanskritTextUa) updates.sanskrit_uk = edited.sanskritUa;
       if (edited.sanskritEn !== sanskritTextEn) updates.sanskrit_en = edited.sanskritEn;
-      if (edited.transliterationUa !== transliterationUa) updates.transliteration_ua = edited.transliterationUa;
+      if (edited.transliterationUa !== transliterationUa) updates.transliteration_uk = edited.transliterationUa;
       if (edited.transliterationEn !== transliterationEn) updates.transliteration_en = edited.transliterationEn;
-      if (edited.synonymsUa !== synonymsUa) updates.synonyms_ua = edited.synonymsUa;
+      if (edited.synonymsUa !== synonymsUa) updates.synonyms_uk = edited.synonymsUa;
       if (edited.synonymsEn !== synonymsEn) updates.synonyms_en = edited.synonymsEn;
-      if (edited.translationUa !== translationUa) updates.translation_ua = edited.translationUa;
+      if (edited.translationUa !== translationUa) updates.translation_uk = edited.translationUa;
       if (edited.translationEn !== translationEn) updates.translation_en = edited.translationEn;
-      if (edited.commentaryUa !== commentaryUa) updates.commentary_ua = edited.commentaryUa;
+      if (edited.commentaryUa !== commentaryUa) updates.commentary_uk = edited.commentaryUa;
       if (edited.commentaryEn !== commentaryEn) updates.commentary_en = edited.commentaryEn;
 
       if (Object.keys(updates).length > 0) {

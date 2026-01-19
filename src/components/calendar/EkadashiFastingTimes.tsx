@@ -131,7 +131,7 @@ export function EkadashiFastingTimes({
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
             <span>
-              {language === "uk" ? location.name_ua : location.name_en}
+              {language === "uk" ? location.name_uk : location.name_en}
             </span>
           </div>
         )}
@@ -235,7 +235,7 @@ export function EkadashiFastingTimes({
         </div>
 
         {/* Additional notes */}
-        {(fastingTimes.notes_ua || fastingTimes.notes_en) && (
+        {(fastingTimes.notes_uk || fastingTimes.notes_en) && (
           <>
             <Separator />
             <div className="space-y-2">
@@ -244,7 +244,7 @@ export function EkadashiFastingTimes({
                 {language === "uk" ? "Примітки" : "Notes"}
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                {language === "uk" ? fastingTimes.notes_ua : fastingTimes.notes_en}
+                {language === "uk" ? fastingTimes.notes_uk : fastingTimes.notes_en}
               </p>
             </div>
           </>

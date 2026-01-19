@@ -14,9 +14,9 @@ export interface NoIVerseData {
 }
 
 export interface NoIVerseDataUA {
-  synonyms_ua: string;
-  translation_ua: string;
-  purport_ua: string;
+  synonyms_uk: string;
+  translation_uk: string;
+  purport_uk: string;
 }
 
 /**
@@ -202,9 +202,9 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    let synonyms_ua = '';
-    let translation_ua = '';
-    let purport_ua = '';
+    let synonyms_uk = '';
+    let translation_uk = '';
+    let purport_uk = '';
 
     console.log(`[NoI Gitabase] Parsing ${url}`);
     console.log(`[NoI Gitabase] HTML length: ${html?.length || 0} chars`);
@@ -212,10 +212,10 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
     // 1. SYNONYMS - div.dia_text
     const synonymsEl = doc.querySelector('div.dia_text');
     if (synonymsEl) {
-      synonyms_ua = synonymsEl.textContent?.trim() || '';
+      synonyms_uk = synonymsEl.textContent?.trim() || '';
       // Нормалізація: прибираємо зайві пробіли
-      synonyms_ua = normalizeVerseField(synonyms_ua, 'synonyms');
-      console.log(`✅ [NoI UA] Found synonyms (${synonyms_ua.length} chars)`);
+      synonyms_uk = normalizeVerseField(synonyms_uk, 'synonyms');
+      console.log(`✅ [NoI UA] Found synonyms (${synonyms_uk.length} chars)`);
     } else {
       console.warn('⚠️ [NoI UA] Synonyms (div.dia_text) not found');
     }
@@ -236,10 +236,10 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
     }
 
     if (translationEl) {
-      translation_ua = translationEl.textContent?.trim() || '';
+      translation_uk = translationEl.textContent?.trim() || '';
       // Нормалізація
-      translation_ua = normalizeVerseField(translation_ua, 'translation');
-      console.log(`✅ [NoI UA] Found translation (${translation_ua.length} chars)`);
+      translation_uk = normalizeVerseField(translation_uk, 'translation');
+      console.log(`✅ [NoI UA] Found translation (${translation_uk.length} chars)`);
     } else {
       console.warn('⚠️ [NoI UA] Translation not found');
     }
@@ -299,8 +299,8 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
       // - Synonyms-подібний текст (багато " — ")
       if (text.length > 50 &&
           !seen.has(text) &&
-          text !== synonyms_ua &&
-          text !== translation_ua &&
+          text !== synonyms_uk &&
+          text !== translation_uk &&
           !hasTransliteration(text) &&
           !isSynonyms(text)) {
         seen.add(text);
@@ -311,19 +311,19 @@ export function parseNoIGitabase(html: string, url: string): NoIVerseDataUA | nu
       }
     });
 
-    purport_ua = parts.join('\n\n');
-    console.log(`✅ [NoI UA] Found purport (${purport_ua.length} chars, ${parts.length} unique paragraphs)`);
+    purport_uk = parts.join('\n\n');
+    console.log(`✅ [NoI UA] Found purport (${purport_uk.length} chars, ${parts.length} unique paragraphs)`);
 
     // Перевірка
-    if (!synonyms_ua && !translation_ua && !purport_ua) {
+    if (!synonyms_uk && !translation_uk && !purport_uk) {
       console.error(`❌ [NoI UA] No content found for ${url}`);
       return null;
     }
 
     return {
-      synonyms_ua,
-      translation_ua,
-      purport_ua
+      synonyms_uk,
+      translation_uk,
+      purport_uk
     };
 
   } catch (error) {

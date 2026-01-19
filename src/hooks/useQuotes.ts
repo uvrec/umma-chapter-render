@@ -8,7 +8,7 @@
 export interface Quote {
   id: string;
   text_en: string;
-  text_ua?: string;
+  text_uk?: string;
   text_html?: string;
   source_type: string;
   source_reference?: string;
@@ -23,7 +23,7 @@ export interface QuoteCategory {
   id: string;
   slug: string;
   title: string;
-  title_ua?: string;
+  title_uk?: string;
   description?: string;
   quotes_count: number;
   parent_id?: string;
@@ -33,7 +33,7 @@ export interface QuotePage {
   id: string;
   slug: string;
   title: string;
-  title_ua?: string;
+  title_uk?: string;
   vaniquotes_url?: string;
 }
 

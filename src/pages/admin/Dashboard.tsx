@@ -25,7 +25,7 @@ import {
   Download,
 } from "lucide-react";
 
-type QuickBook = { id: string; title_ua: string; has_cantos: boolean };
+type QuickBook = { id: string; title_uk: string; has_cantos: boolean };
 
 const Dashboard = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -60,8 +60,8 @@ const Dashboard = () => {
     if (!user || !isAdmin) return;
     supabase
       .from("books")
-      .select("id, title_ua, has_cantos")
-      .order("title_ua", { ascending: true })
+      .select("id, title_uk, has_cantos")
+      .order("title_uk", { ascending: true })
       .then(({ data, error }) => {
         if (!error) setBooksList(data || []);
       });
@@ -239,7 +239,7 @@ const Dashboard = () => {
                 </option>
                 {booksList.map((b) => (
                   <option key={b.id} value={b.id}>
-                    {b.title_ua} {b.has_cantos ? "— Пісні" : "— Розділи"}
+                    {b.title_uk} {b.has_cantos ? "— Пісні" : "— Розділи"}
                   </option>
                 ))}
               </select>

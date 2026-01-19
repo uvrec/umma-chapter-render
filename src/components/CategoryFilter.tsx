@@ -20,7 +20,7 @@ export const CategoryFilter = ({ onCategoryChange, selectedCategory }: CategoryF
     queryFn: async () => {
       const { data, error } = await supabase
         .from("audio_categories")
-        .select("id, name_ua, slug, icon")
+        .select("id, name_uk, slug, icon")
         .order("display_order", { ascending: true });
 
       if (error) throw error;
@@ -63,7 +63,7 @@ export const CategoryFilter = ({ onCategoryChange, selectedCategory }: CategoryF
           className="rounded-full"
         >
           {category.icon && <span className="mr-2">{category.icon}</span>}
-          {category.name_ua}
+          {category.name_uk}
         </Button>
       ))}
     </div>

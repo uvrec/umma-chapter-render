@@ -68,7 +68,7 @@ export interface EkadashiFastingTimes {
 
   // Additional info
   isDvadashiParana: boolean; // true if parana is on Dvadashi
-  notes_ua?: string;
+  notes_uk?: string;
   notes_en?: string;
 }
 
@@ -107,7 +107,7 @@ export interface VaishnavEventFastingTimes {
 
   // Fasting level
   fastingLevel: FastingLevel;
-  fastingLevelDescription_ua: string;
+  fastingLevelDescription_uk: string;
   fastingLevelDescription_en: string;
 
   // Fasting start (sunrise on event day)
@@ -117,7 +117,7 @@ export interface VaishnavEventFastingTimes {
   // Fasting end / Breaking fast time
   fastingEnd: Date;
   fastingEndFormatted: string;
-  breakFastDescription_ua: string;
+  breakFastDescription_uk: string;
   breakFastDescription_en: string;
 
   // Sunrise/Sunset on event day
@@ -138,7 +138,7 @@ export interface VaishnavEventFastingTimes {
   location: GeoLocation;
 
   // Additional notes
-  notes_ua: string;
+  notes_uk: string;
   notes_en: string;
 }
 
@@ -304,7 +304,7 @@ export function calculateEkadashiFastingTimes(
   }
 
   // Generate notes
-  const notes_ua = generateNotesUa(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
+  const notes_uk = generateNotesUa(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
   const notes_en = generateNotesEn(paranaStart, paranaEnd, hariVasaraEnd, dvadashiEndTime);
 
   return {
@@ -330,7 +330,7 @@ export function calculateEkadashiFastingTimes(
 
     location,
     isDvadashiParana: true,
-    notes_ua,
+    notes_uk,
     notes_en,
   };
 }
@@ -430,45 +430,45 @@ function generateEventFastingNotes(
   const typeName = eventTypeNames[eventType];
   const name = eventName || '';
 
-  let notes_ua = '';
+  let notes_uk = '';
   let notes_en = '';
 
   if (eventType === 'appearance') {
-    notes_ua = `День явлення ${name}. `;
+    notes_uk = `День явлення ${name}. `;
     notes_en = `Appearance day of ${name}. `;
 
     if (level === 'half') {
-      notes_ua += 'Рекомендується дотримуватись посту до полудня, а потім святкувати з прасадом.';
+      notes_uk += 'Рекомендується дотримуватись посту до полудня, а потім святкувати з прасадом.';
       notes_en += 'It is recommended to fast until noon, then celebrate with prasadam.';
     } else if (level === 'full') {
-      notes_ua += 'Рекомендується повний піст без зернових. Святкування з прасадом наступного дня.';
+      notes_uk += 'Рекомендується повний піст без зернових. Святкування з прасадом наступного дня.';
       notes_en += 'Full fast without grains is recommended. Celebrate with prasadam the next day.';
     }
   } else if (eventType === 'disappearance') {
-    notes_ua = `День відходу ${name}. `;
+    notes_uk = `День відходу ${name}. `;
     notes_en = `Disappearance day of ${name}. `;
 
     if (level === 'half') {
-      notes_ua += 'Рекомендується дотримуватись посту до полудня на честь відданого.';
+      notes_uk += 'Рекомендується дотримуватись посту до полудня на честь відданого.';
       notes_en += 'It is recommended to fast until noon in honor of the devotee.';
     } else if (level === 'full') {
-      notes_ua += 'Рекомендується повний піст на честь відданого.';
+      notes_uk += 'Рекомендується повний піст на честь відданого.';
       notes_en += 'Full fast is recommended in honor of the devotee.';
     }
   } else if (eventType === 'festival') {
-    notes_ua = `Свято ${name}. `;
+    notes_uk = `Свято ${name}. `;
     notes_en = `Festival of ${name}. `;
 
     if (level !== 'none') {
-      notes_ua += 'Дотримуйтесь рекомендованого посту та беріть участь у святкуванні.';
+      notes_uk += 'Дотримуйтесь рекомендованого посту та беріть участь у святкуванні.';
       notes_en += 'Follow the recommended fasting and participate in the celebration.';
     } else {
-      notes_ua += 'Беріть участь у святкуванні з прасадом!';
+      notes_uk += 'Беріть участь у святкуванні з прасадом!';
       notes_en += 'Participate in the celebration with prasadam!';
     }
   }
 
-  return { uk: notes_ua, en: notes_en };
+  return { uk: notes_uk, en: notes_en };
 }
 
 /**
@@ -520,7 +520,7 @@ export function calculateVaishnavEventFastingTimes(
     eventDateFormatted,
 
     fastingLevel,
-    fastingLevelDescription_ua: levelDesc.uk,
+    fastingLevelDescription_uk: levelDesc.uk,
     fastingLevelDescription_en: levelDesc.en,
 
     fastingStart: sunTimes.sunrise,
@@ -528,7 +528,7 @@ export function calculateVaishnavEventFastingTimes(
 
     fastingEnd: breakFastInfo.breakTime,
     fastingEndFormatted: formatTime(breakFastInfo.breakTime, location.timezone),
-    breakFastDescription_ua: breakFastInfo.uk,
+    breakFastDescription_uk: breakFastInfo.uk,
     breakFastDescription_en: breakFastInfo.en,
 
     sunrise: sunTimes.sunrise,
@@ -544,7 +544,7 @@ export function calculateVaishnavEventFastingTimes(
 
     location,
 
-    notes_ua: notes.uk,
+    notes_uk: notes.uk,
     notes_en: notes.en,
   };
 }

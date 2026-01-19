@@ -66,13 +66,13 @@ export const useAudioQueue = (options?: Options) => {
         .select(
           `
             id,
-            title_ua,
+            title_uk,
             audio_url,
             playlist_id,
             track_number,
             audio_playlists!inner (
               id,
-              title_ua,
+              title_uk,
               slug,
               is_published,
               audio_categories ( slug )
@@ -93,9 +93,9 @@ export const useAudioQueue = (options?: Options) => {
       return (data || []).map(
         (track: any): AudioTrack => ({
           id: track.id,
-          title: track.title_ua,
+          title: track.title_uk,
           src: track.audio_url,
-          playlist_title: track.audio_playlists?.title_ua,
+          playlist_title: track.audio_playlists?.title_uk,
           playlist_id: track.audio_playlists?.id ?? track.playlist_id ?? undefined,
           track_number: track.track_number ?? undefined,
         }),

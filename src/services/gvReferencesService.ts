@@ -63,7 +63,7 @@ export async function fetchAuthorsWithGuru(): Promise<GVAuthor[]> {
         slug,
         name_transliteration,
         name_en,
-        name_ua
+        name_uk
       )
     `)
     .eq('is_published', true)
@@ -85,7 +85,7 @@ export async function fetchBookReferences(filters?: GVBookFilters): Promise<GVBo
         slug,
         name_transliteration,
         name_en,
-        name_ua,
+        name_uk,
         era
       )
     `)
@@ -113,7 +113,7 @@ export async function fetchBookReferences(filters?: GVBookFilters): Promise<GVBo
     }
     if (filters.search) {
       query = query.or(
-        `title_en.ilike.%${filters.search}%,title_ua.ilike.%${filters.search}%,title_transliteration.ilike.%${filters.search}%`
+        `title_en.ilike.%${filters.search}%,title_uk.ilike.%${filters.search}%,title_transliteration.ilike.%${filters.search}%`
       );
     }
   }
@@ -165,7 +165,7 @@ export async function fetchCataloguesWithBooks(): Promise<GVBookCatalogue[]> {
         title_sanskrit,
         title_transliteration,
         title_en,
-        title_ua,
+        title_uk,
         author_id,
         category,
         importance_level,
@@ -208,10 +208,10 @@ export async function fetchBookBySlug(slug: string): Promise<GVBookReference | n
         name_sanskrit,
         name_transliteration,
         name_en,
-        name_ua,
+        name_uk,
         title_transliteration,
         title_en,
-        title_ua,
+        title_uk,
         era
       ),
       original_text:original_text_id (
@@ -219,7 +219,7 @@ export async function fetchBookBySlug(slug: string): Promise<GVBookReference | n
         slug,
         title_transliteration,
         title_en,
-        title_ua
+        title_uk
       )
     `)
     .eq('slug', slug)

@@ -186,7 +186,7 @@ export const GITA_GLOSSARY_EN: GlossaryTermData[] = [
 // Book metadata for glossary
 export const GITA_GLOSSARY_INFO = {
   slug: "gita",
-  title_ua: "Глосарій",
+  title_uk: "Глосарій",
   title_en: "Glossary",
   termsCount: 140,
 };

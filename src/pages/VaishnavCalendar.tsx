@@ -128,7 +128,7 @@ export default function VaishnavCalendar() {
   const handleDetectLocation = async () => {
     const nearest = await detectLocation();
     if (nearest) {
-      const locationName = language === "uk" ? nearest.name_ua : nearest.name_en;
+      const locationName = language === "uk" ? nearest.name_uk : nearest.name_en;
       toast({
         title: language === "uk" ? "Місце визначено" : "Location detected",
         description: language === "uk"
@@ -225,7 +225,7 @@ export default function VaishnavCalendar() {
     selectedEventWithFasting?.type || 'festival',
     selectedEventFastingLevel,
     language === 'uk'
-      ? selectedEventWithFasting?.event.name_ua
+      ? selectedEventWithFasting?.event.name_uk
       : selectedEventWithFasting?.event.name_en,
     { enabled: !!selectedEventWithFasting && selectedEventWithFasting.type !== 'ekadashi' }
   );
@@ -609,7 +609,7 @@ export default function VaishnavCalendar() {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {language === "uk"
-                      ? selectedEventFastingTimes.fastingLevelDescription_ua
+                      ? selectedEventFastingTimes.fastingLevelDescription_uk
                       : selectedEventFastingTimes.fastingLevelDescription_en}
                   </p>
                 </div>

@@ -12,8 +12,8 @@ import { UniversalCoverEditor } from "@/components/UniversalCoverEditor";
 
 type PlaylistRow = {
   id: string;
-  title_ua?: string | null;
-  description_ua?: string | null;
+  title_uk?: string | null;
+  description_uk?: string | null;
   cover_image_url?: string | null;
   
   year?: number | null;
@@ -68,8 +68,8 @@ export const Audiobooks = () => {
         .select(
           `
             id,
-            title_ua,
-            description_ua,
+            title_uk,
+            description_uk,
             cover_image_url,
             year,
             is_published,
@@ -79,7 +79,7 @@ export const Audiobooks = () => {
         .eq("category_id", category!.id)
         .eq("is_published", true)
         .order("display_order", { ascending: true, nullsFirst: false })
-        .order("title_ua", { ascending: true });
+        .order("title_uk", { ascending: true });
       if (error) throw error;
       return (data || []) as PlaylistRow[];
     },
@@ -161,7 +161,7 @@ export const Audiobooks = () => {
                     <div className="aspect-[2/3] bg-muted relative overflow-hidden">
                       <img
                         src={coverUrl}
-                        alt={book.title_ua || "Обкладинка аудіокниги"}
+                        alt={book.title_uk || "Обкладинка аудіокниги"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
@@ -175,11 +175,11 @@ export const Audiobooks = () => {
                     {/* Контент */}
                     <div className="p-4">
                       <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                        {book.title_ua || "Без назви"}
+                        {book.title_uk || "Без назви"}
                       </h3>
-                      {book.description_ua && (
+                      {book.description_uk && (
                         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                          {book.description_ua}
+                          {book.description_uk}
                         </p>
                       )}
                       <div className="flex items-center justify-between">
