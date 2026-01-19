@@ -1,6 +1,7 @@
 // src/components/mobile/SpineSettingsPanel.tsx
 // Settings panel for Spine Navigation (Neu Bible-style)
 // Панель налаштувань: мова, блоки тексту, про застосунок
+// Updated: 2026-01-19 - removed react-icons dependency, using lucide-react only
 
 import { useState, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
