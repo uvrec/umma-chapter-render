@@ -62,7 +62,7 @@ export type DailyQuote = {
  * Автоматично вибирає наступну цитату на основі rotation_mode
  */
 export function useDailyQuote() {
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
   const queryClient = useQueryClient();
 
   // Генеруємо унікальний ключ один раз при монтуванні компонента
@@ -309,11 +309,11 @@ export function useDailyQuote() {
 
           // Якщо книга має канти і є canto_id
           if (hasCantos && cantoNumber) {
-            return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
+            return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`);
           }
 
           // Інакше використовуємо chapterNumber
-          return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
+          return getLocalizedPath(`/lib/${bookSlug}/${chapterNumber}/${verseNumber}`);
         })()
       : null,
   } : null;
