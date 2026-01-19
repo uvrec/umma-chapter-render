@@ -39,6 +39,7 @@ import { Audio } from "./pages/Audio";
 import { Podcasts } from "./pages/audio/Podcasts";
 import { CardPayment } from "./pages/payment/CardPayment";
 import { BankTransfer } from "./pages/payment/BankTransfer";
+import { PaymentSuccess } from "./pages/payment/PaymentSuccess";
 // Glossary.tsx removed - using GlossaryDB instead
 import { Contact } from "./pages/Contact";
 import { Blog } from "./pages/Blog";
@@ -260,6 +261,7 @@ function AppContent() {
           {/* Платежі */}
           <Route path="/payment/card" element={<CardPayment />} />
           <Route path="/payment/bank" element={<BankTransfer />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
 
           {/* Auth */}
           <Route path="/auth" element={<Auth />} />
