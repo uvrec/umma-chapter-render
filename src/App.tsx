@@ -121,6 +121,7 @@ import Quotes from "./pages/Quotes";
 import TattvasIndex from "./pages/TattvasIndex";
 import TattvaPage from "./pages/TattvaPage";
 import ReadingStatsPage from "./pages/ReadingStatsPage";
+import TimelinePage from "./pages/TimelinePage";
 import GVReferences from "./pages/GVReferences";
 import VaishnavCalendar from "./pages/VaishnavCalendar";
 import EkadashiList from "./pages/EkadashiList";
@@ -247,6 +248,7 @@ function AppContent() {
             <Route path="tattvas" element={<TattvasIndex />} />
             <Route path="tattva/:slug" element={<TattvaPage />} />
             <Route path="stats" element={<ReadingStatsPage />} />
+            <Route path="timeline" element={<TimelinePage />} />
 
             {/* Вайшнавський календар */}
             <Route path="calendar" element={<VaishnavCalendar />} />
@@ -350,6 +352,7 @@ function AppContent() {
           <Route path="/tattvas" element={<TattvasIndex />} />
           <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
+          <Route path="/timeline" element={<TimelinePage />} />
 
           {/* Вайшнавський календар */}
           <Route path="/calendar" element={<VaishnavCalendar />} />

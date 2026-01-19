@@ -242,3 +242,88 @@ mark {
 .verse-tap-indicator:hover {
   @apply bg-primary/40;
 }
+
+/* ==========================================
+   Spine Navigation (Neu Bible-style)
+   ========================================== */
+
+/* Main spine container */
+.spine-navigation {
+  /* Ensure spine is always on top */
+  z-index: 50;
+}
+
+/* Spine button hover effect */
+.spine-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.spine-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.spine-btn:hover::after {
+  opacity: 1;
+}
+
+.spine-btn:active::after {
+  opacity: 0.5;
+}
+
+/* Safe area padding for notched devices */
+.safe-left {
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Hide spine in fullscreen mode */
+[data-fullscreen-reading="true"] .spine-navigation {
+  display: none !important;
+}
+
+[data-fullscreen-reading="true"] .mobile-layout > div {
+  padding-left: 0 !important;
+}
+
+/* Zen mode - hide spine too */
+[data-zen-mode="true"] .spine-navigation {
+  display: none !important;
+}
+
+[data-zen-mode="true"] .mobile-layout > div {
+  padding-left: 0 !important;
+}
+
+/* Animation for spine panels */
+@keyframes slide-in-from-spine {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.spine-panel-enter {
+  animation: slide-in-from-spine 0.2s ease-out;
+}
+
+/* Smooth transition for content when spine expands/collapses */
+.mobile-layout {
+  transition: padding-left 0.2s ease-out;
+}
