@@ -51,14 +51,14 @@ import {
   ClipboardPaste,
 } from "lucide-react";
 import { transliterateIAST } from "@/utils/text/transliteration";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export const LectureView = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAdmin } = useAuth();
-
-  const [language, setLanguage] = useState<"ua" | "en">("ua");
+  const { language, getLocalizedPath } = useLanguage();
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentParagraph, setCurrentParagraph] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -548,9 +548,9 @@ export const LectureView = () => {
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Лекцію не знайдено</h1>
-            <Button onClick={() => navigate("/library/lectures")}>
+            <Button onClick={() => navigate(getLocalizedPath("/library/lectures"))}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Назад до бібліотеки
+              {language === "ua" ? "Назад до бібліотеки" : "Back to library"}
             </Button>
           </div>
         </main>
@@ -570,7 +570,7 @@ export const LectureView = () => {
         {/* Навігація назад */}
         <Button
           variant="ghost"
-          onClick={() => navigate("/library/lectures")}
+          onClick={() => navigate(getLocalizedPath("/library/lectures"))}
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -725,15 +725,6 @@ export const LectureView = () => {
             )}
           </div>
 
-          {/* Мовний переключач */}
-          <div className="mt-6">
-            <Tabs value={language} onValueChange={(v) => setLanguage(v as "ua" | "en")}>
-              <TabsList>
-                <TabsTrigger value="ua">Українська</TabsTrigger>
-                <TabsTrigger value="en">English</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
 
           {/* Аудіо плеєр */}
           {lecture.audio_url && (
