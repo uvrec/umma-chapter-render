@@ -1394,18 +1394,20 @@ export const VedaReaderDB = () => {
               <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />
             </div>
 
-            {/* Навігація знизу */}
-            <div className="mt-8 flex items-center justify-between pt-6">
-              <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                {t("Попередня глава", "Previous Chapter")}
-              </Button>
+            {/* Навігація знизу - ховаємо на мобільних (є свайп) */}
+            {!isMobile && (
+              <div className="mt-8 flex items-center justify-between pt-6">
+                <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередня глава", "Previous Chapter")}
+                </Button>
 
-              <Button variant="outline" onClick={handleNextChapter} disabled={currentChapterIndex === allChapters.length - 1}>
-                {t("Наступна глава", "Next Chapter")}
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+                <Button variant="outline" onClick={handleNextChapter} disabled={currentChapterIndex === allChapters.length - 1}>
+                  {t("Наступна глава", "Next Chapter")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div> : continuousReadingSettings.enabled ? <div className="space-y-8">
             {verses.filter(Boolean).map(verse => {
           const verseIdx = getDisplayVerseNumber(verse.verse_number);
@@ -1466,18 +1468,20 @@ export const VedaReaderDB = () => {
                     />
                   )}
 
-                  {/* Навігація знизу */}
-                  <div className="flex items-center justify-between pt-6">
-                    <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
-                      <ChevronLeft className="mr-2 h-4 w-4" />
-                      {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
-                    </Button>
+                  {/* Навігація знизу - ховаємо на мобільних (є свайп) */}
+                  {!isMobile && (
+                    <div className="flex items-center justify-between pt-6">
+                      <Button variant="outline" onClick={handlePrevVerse} disabled={currentVerseIndex === 0 && currentChapterIndex === 0}>
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        {currentVerseIndex === 0 ? t("Попередня глава", "Previous Chapter") : t("Попередній вірш", "Previous Verse")}
+                      </Button>
 
-                    <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}>
-                      {currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
+                      <Button variant="outline" onClick={handleNextVerse} disabled={currentVerseIndex === verses.length - 1 && currentChapterIndex === allChapters.length - 1}>
+                        {currentVerseIndex === verses.length - 1 ? t("Наступна глава", "Next Chapter") : t("Наступний вірш", "Next Verse")}
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>;
         })()}
           </>}

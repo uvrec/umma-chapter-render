@@ -17,6 +17,7 @@ import DOMPurify from "dompurify";
 import { EnhancedInlineEditor } from "@/components/EnhancedInlineEditor";
 import { toast } from "@/hooks/use-toast";
 import { useReaderSettings } from "@/hooks/useReaderSettings";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { stripParagraphTags, sanitizeForRender } from "@/utils/import/normalizers";
 import { useReadingProgress } from "@/hooks/useReadingProgress";
 import { ChapterSchema, BreadcrumbSchema } from "@/components/StructuredData";
@@ -77,6 +78,7 @@ export const ChapterVersesList = () => {
     showNumbers,
     flowMode
   } = useReaderSettings();
+  const isMobile = useIsMobile();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -418,11 +420,12 @@ export const ChapterVersesList = () => {
             </Button>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              {adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {/* Навігація по главах - ховаємо на мобільних */}
+              {!isMobile && adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <ChevronLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">{language === "uk" ? "Попередня" : "Previous"}</span>
                 </Button>}
-              {adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
+              {!isMobile && adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <span className="hidden sm:inline">{language === "uk" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
@@ -684,7 +687,8 @@ export const ChapterVersesList = () => {
 
           {verses.length === 0}
 
-          {(adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
+          {/* Навігація по главах - ховаємо на мобільних (мінімалістичний дизайн) */}
+          {!isMobile && (adjacentChapters?.prev || adjacentChapters?.next) && <div className="mt-12 flex items-center justify-between border-t border-border pt-6">
               {adjacentChapters?.prev ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-2">
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">

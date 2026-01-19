@@ -9,7 +9,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { RefreshFeedButton } from "@/components/admin/RefreshFeedButton";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export const Header = () => {
+  const isMobile = useIsMobile();
+
+  // На мобільних не показуємо хедер - використовуємо Spine навігацію
+  if (isMobile) {
+    return null;
+  }
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const {
