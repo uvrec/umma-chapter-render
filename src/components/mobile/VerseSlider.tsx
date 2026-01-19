@@ -1,6 +1,6 @@
 // src/components/mobile/VerseSlider.tsx
-// Бокова стрічка для швидкої навігації по віршах (біблійний стиль)
-// Викликається свайпом зліва направо, дозволяє ковзати пальцем для вибору вірша
+// Бокова стрічка для швидкої навігації по віршах (біблійний стиль як у Neu Bible)
+// Відображається справа, дозволяє ковзати пальцем для вибору вірша
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -22,9 +22,8 @@ export function VerseSlider({
 }: VerseSliderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [hoveredVerse, setHoveredVerse] = useState<string | null>(null);
-  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [magnifierY, setMagnifierY] = useState<number>(0);
   const sliderRef = useRef<HTMLDivElement>(null);
-  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Розрахувати позицію вірша на основі координати Y
   const getVerseFromY = useCallback(
@@ -37,6 +36,7 @@ export function VerseSlider({
       const index = Math.floor(percentage * verses.length);
       const clampedIndex = Math.max(0, Math.min(verses.length - 1, index));
 
+      setMagnifierY(clientY);
       return verses[clampedIndex]?.verse_number || null;
     },
     [verses]
@@ -48,11 +48,6 @@ export function VerseSlider({
       setIsDragging(true);
       const verseNum = getVerseFromY(e.touches[0].clientY);
       if (verseNum) setHoveredVerse(verseNum);
-
-      // Запуск таймера довгого натискання
-      longPressTimer.current = setTimeout(() => {
-        setShowMagnifier(true);
-      }, 300);
     },
     [getVerseFromY]
   );
@@ -60,32 +55,17 @@ export function VerseSlider({
   const handleTouchMove = useCallback(
     (e: React.TouchEvent) => {
       if (!isDragging) return;
-
       const verseNum = getVerseFromY(e.touches[0].clientY);
       if (verseNum) setHoveredVerse(verseNum);
-
-      // Якщо рухається - показати збільшувач
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-        longPressTimer.current = null;
-      }
-      setShowMagnifier(true);
     },
     [isDragging, getVerseFromY]
   );
 
   const handleTouchEnd = useCallback(() => {
-    if (longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
-    }
-
     if (hoveredVerse) {
       onVerseSelect(hoveredVerse);
     }
-
     setIsDragging(false);
-    setShowMagnifier(false);
     setHoveredVerse(null);
     onClose();
   }, [hoveredVerse, onVerseSelect, onClose]);
@@ -112,87 +92,118 @@ export function VerseSlider({
 
   if (!isOpen) return null;
 
+  // Визначити які номери показувати (кожен N-й залежно від кількості)
+  const getVisibleIndices = () => {
+    const total = verses.length;
+    if (total <= 15) return verses.map((_, i) => i); // всі
+    if (total <= 30) return verses.map((_, i) => i).filter(i => i % 2 === 0 || i === total - 1);
+    if (total <= 50) return verses.map((_, i) => i).filter(i => i % 3 === 0 || i === total - 1);
+    // Для великих глав - показати ~15-20 міток
+    const step = Math.ceil(total / 15);
+    return verses.map((_, i) => i).filter(i => i % step === 0 || i === total - 1);
+  };
+
+  const visibleIndices = getVisibleIndices();
+
   return (
     <>
-      {/* Затемнення фону */}
+      {/* Напівпрозоре затемнення */}
       <div
-        className="fixed inset-0 bg-black/20 z-40 animate-in fade-in duration-200"
+        className="fixed inset-0 z-40"
         onClick={onClose}
       />
 
-      {/* Слайдер */}
+      {/* Слайдер справа (темний як у Neu Bible) */}
       <div
         ref={sliderRef}
         className={cn(
-          "fixed right-0 top-1/2 -translate-y-1/2 z-50",
-          "w-10 h-[70vh] max-h-[500px]",
-          "bg-background/95 backdrop-blur-sm",
-          "border-l border-border rounded-l-xl",
-          "shadow-lg",
-          "flex flex-col justify-between py-2",
+          "fixed right-0 top-0 bottom-0 z-50",
+          "w-12 py-8",
+          "bg-neutral-900/95 backdrop-blur-sm",
+          "flex flex-col items-center justify-between",
           "animate-in slide-in-from-right duration-200"
         )}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Маркери віршів */}
+        {/* Маркери віршів з точками */}
         {verses.map((verse, index) => {
+          const isVisible = visibleIndices.includes(index);
           const isActive = verse.verse_number === currentVerseNumber;
           const isHovered = verse.verse_number === hoveredVerse;
-          // Показати кожен 5-й номер або якщо віршів мало
-          const showNumber = verses.length <= 20 || index % 5 === 0 || index === verses.length - 1;
 
           return (
             <button
               key={verse.id}
               onClick={() => handleVerseClick(verse.verse_number)}
               className={cn(
-                "flex-1 flex items-center justify-center",
-                "text-xs font-medium transition-colors",
-                isActive && "text-primary bg-primary/10",
-                isHovered && "text-primary bg-primary/20",
-                !isActive && !isHovered && "text-muted-foreground"
+                "flex-1 w-full flex items-center justify-center min-h-[8px]",
+                "transition-colors duration-100"
               )}
             >
-              {showNumber && (
-                <span className={cn(
-                  "text-[10px]",
-                  isActive && "font-bold"
-                )}>
+              {isVisible ? (
+                <span
+                  className={cn(
+                    "text-[11px] font-medium italic",
+                    isActive && "text-white font-bold",
+                    isHovered && "text-amber-400 font-bold",
+                    !isActive && !isHovered && "text-neutral-400"
+                  )}
+                >
                   {verse.verse_number}
                 </span>
+              ) : (
+                <span
+                  className={cn(
+                    "w-1 h-1 rounded-full",
+                    isActive && "bg-white",
+                    isHovered && "bg-amber-400",
+                    !isActive && !isHovered && "bg-neutral-600"
+                  )}
+                />
               )}
             </button>
           );
         })}
-
-        {/* Індикатор поточної позиції */}
-        {currentVerseNumber && (
-          <div
-            className="absolute left-0 w-1 bg-primary rounded-r"
-            style={{
-              top: `${(verses.findIndex(v => v.verse_number === currentVerseNumber) / verses.length) * 100}%`,
-              height: `${100 / verses.length}%`,
-              minHeight: "8px",
-            }}
-          />
-        )}
       </div>
 
-      {/* Збільшувач номера при ковзанні */}
-      {showMagnifier && hoveredVerse && (
+      {/* Жовтий індикатор при ковзанні (як у Neu Bible) */}
+      {isDragging && hoveredVerse && (
         <div
           className={cn(
-            "fixed right-14 top-1/2 -translate-y-1/2 z-50",
-            "bg-primary/90 text-primary-foreground",
-            "px-4 py-2 rounded-lg shadow-xl",
-            "animate-in zoom-in-50 duration-100",
-            "flex items-center gap-2"
+            "fixed z-50 pointer-events-none",
+            "animate-in fade-in zoom-in-75 duration-100"
           )}
+          style={{
+            right: "60px",
+            top: magnifierY - 30,
+          }}
         >
-          <span className="text-3xl font-bold">{hoveredVerse}</span>
-          <div className="w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-primary/90 absolute -right-2" />
+          {/* Жовта бульбашка */}
+          <div className="relative">
+            <div
+              className={cn(
+                "bg-amber-400 text-neutral-900",
+                "px-4 py-2 rounded-full",
+                "shadow-xl",
+                "flex items-center justify-center"
+              )}
+            >
+              <span className="text-2xl font-bold italic">{hoveredVerse}</span>
+            </div>
+            {/* Стрілка вправо */}
+            <div
+              className="absolute top-1/2 -translate-y-1/2 -right-2"
+              style={{
+                width: 0,
+                height: 0,
+                borderTop: "10px solid transparent",
+                borderBottom: "10px solid transparent",
+                borderLeft: "10px solid rgb(251 191 36)", // amber-400
+              }}
+            />
+          </div>
         </div>
       )}
     </>

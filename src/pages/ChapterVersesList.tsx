@@ -364,9 +364,9 @@ export const ChapterVersesList = () => {
     if (swipeStartX.current === null) return;
 
     const swipeEndX = e.changedTouches[0].clientX;
-    const deltaX = swipeEndX - swipeStartX.current;
+    const deltaX = swipeStartX.current - swipeEndX;
 
-    // Свайп зліва направо (> 50px) - відкрити слайдер
+    // Свайп справа наліво (> 50px) - відкрити слайдер віршів
     if (deltaX > 50 && isMobile) {
       setVerseSliderOpen(true);
     }
