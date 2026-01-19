@@ -20,17 +20,17 @@ export interface LexiconEntry {
 }
 
 // Grammar labels for display
-export const GRAMMAR_LABELS: Record<string, { ua: string; en: string }> = {
-  m: { ua: "чол.", en: "m." },
-  f: { ua: "жін.", en: "f." },
-  n: { ua: "сер.", en: "n." },
-  adj: { ua: "прикм.", en: "adj." },
-  ind: { ua: "незм.", en: "ind." },
-  "1. P.": { ua: "дієсл.", en: "v." },
-  "1. Ā.": { ua: "дієсл.", en: "v." },
-  "4. P.": { ua: "дієсл.", en: "v." },
-  "6. P.": { ua: "дієсл.", en: "v." },
-  "10. P.": { ua: "дієсл.", en: "v." },
+export const GRAMMAR_LABELS: Record<string, { uk: string; en: string }> = {
+  m: { uk: "чол.", en: "m." },
+  f: { uk: "жін.", en: "f." },
+  n: { uk: "сер.", en: "n." },
+  adj: { uk: "прикм.", en: "adj." },
+  ind: { uk: "незм.", en: "ind." },
+  "1. P.": { uk: "дієсл.", en: "v." },
+  "1. Ā.": { uk: "дієсл.", en: "v." },
+  "4. P.": { uk: "дієсл.", en: "v." },
+  "6. P.": { uk: "дієсл.", en: "v." },
+  "10. P.": { uk: "дієсл.", en: "v." },
 };
 
 /**
@@ -140,7 +140,7 @@ export const useSanskritLexicon = (opts: UseSanskritLexiconOptions = {}) => {
    * Get grammar label for display
    */
   const getGrammarLabel = useCallback(
-    (grammar: string | null, language: "ua" | "en"): string | null => {
+    (grammar: string | null, language: "uk" | "en"): string | null => {
       if (!grammar) return null;
       const label = GRAMMAR_LABELS[grammar];
       return label ? label[language] : grammar;

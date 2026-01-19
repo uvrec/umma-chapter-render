@@ -320,7 +320,7 @@ export const BookDrawer = ({
               © 1966–{new Date().getFullYear()} The Bhaktivedanta Book Trust
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              VedaVOICE.ua
+              vedavoice.org
             </p>
           </div>
         </div>

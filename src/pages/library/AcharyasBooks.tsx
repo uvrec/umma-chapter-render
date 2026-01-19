@@ -23,7 +23,7 @@ const acharyasBooks: Book[] = [
     description: "Одинадцять віршів «Шрі Упадешамріти» містять найважливіші настанови для тих, хто хоче йти шляхом бгакті.",
     price: "65 грн",
     coverImage: nectarInstructionsNewCover,
-    purchaseUrl: "https://books.krishna.ua/ua/nektar-nastanov/"
+    purchaseUrl: "https://books.krishna.ua/uk/nektar-nastanov/"
   },
   {
     id: "science",
@@ -31,7 +31,7 @@ const acharyasBooks: Book[] = [
     description: "Збірник бесід з різними цікавими людьми: Джоном Ленноном, радянським професором Г. Котовським та іншими.",
     price: "127 грн",
     coverImage: "/api/placeholder/300/400",
-    purchaseUrl: "https://books.krishna.ua/ua/nauka-samousvidomlennja/"
+    purchaseUrl: "https://books.krishna.ua/uk/nauka-samousvidomlennja/"
   },
   {
     id: "songs",
@@ -39,7 +39,7 @@ const acharyasBooks: Book[] = [
     description: "Унікальне зібрання бгаджанів мовою українською-солов'їною!",
     price: "146 грн",
     coverImage: songsAcharyasCover,
-    purchaseUrl: "https://books.krishna.ua/ua/pisni-acharjiv-vajshnaviv/"
+    purchaseUrl: "https://books.krishna.ua/uk/pisni-acharjiv-vajshnaviv/"
   },
   {
     id: "raja-vidya",
@@ -47,7 +47,7 @@ const acharyasBooks: Book[] = [
     description: "Можна пишатися академічною освітою, але не знати відповіді на запитання \"хто я?\". Усі люди за рідкісними винятками вважають себе за це тіло.",
     price: "48 грн",
     coverImage: "/api/placeholder/300/400",
-    purchaseUrl: "https://books.krishna.ua/ua/radja-vidja-najshljahetnishe-znannja/"
+    purchaseUrl: "https://books.krishna.ua/uk/radja-vidja-najshljahetnishe-znannja/"
   },
   {
     id: "perfect-questions",
@@ -55,7 +55,7 @@ const acharyasBooks: Book[] = [
     description: "Бесіди духовного учителя, представника однієї з найбільш давніх релігійних традицій, із молодим шукачем істини.",
     price: "41 грн",
     coverImage: "/api/placeholder/300/400",
-    purchaseUrl: "https://books.krishna.ua/ua/doskonali-pytannja-doskonali-vidpovidi/"
+    purchaseUrl: "https://books.krishna.ua/uk/doskonali-pytannja-doskonali-vidpovidi/"
   },
   {
     id: "journey",
@@ -63,7 +63,7 @@ const acharyasBooks: Book[] = [
     description: "Серед безплідної пустелі матеріалізму «Подорож самопізнання» служитиме надійною малою, що виведе до оазису вищого, духовного усвідомлення.",
     price: "59 грн",
     coverImage: "/api/placeholder/300/400",
-    purchaseUrl: "https://books.krishna.ua/ua/podorozh-samopiznannja/"
+    purchaseUrl: "https://books.krishna.ua/uk/podorozh-samopiznannja/"
   }
 ];
 

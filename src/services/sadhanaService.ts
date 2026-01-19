@@ -26,7 +26,7 @@ export interface SadhanaConfig {
   reminderEnabled: boolean;
   reminderTime: string;
   timezone: string;
-  language: 'ua' | 'en';
+  language: 'uk' | 'en';
 }
 
 export interface SadhanaDaily {
@@ -519,7 +519,7 @@ function mapConfigFromDb(data: any): SadhanaConfig {
     reminderEnabled: data.reminder_enabled || false,
     reminderTime: data.reminder_time || '04:00',
     timezone: data.timezone || 'UTC',
-    language: data.language || 'ua',
+    language: data.language || 'uk',
   };
 }
 

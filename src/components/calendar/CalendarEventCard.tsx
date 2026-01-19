@@ -28,7 +28,7 @@ import {
 // Fasting level labels and colors
 const fastingLevelInfo: Record<
   FastingLevel,
-  { ua: string; en: string; color: string; bgColor: string }
+  { uk: string; en: string; color: string; bgColor: string }
 > = {
   nirjala: {
     ua: "Ніржала (без води)",
@@ -58,7 +58,7 @@ const fastingLevelInfo: Record<
 
 interface CalendarEventCardProps {
   event: CalendarEventDisplay;
-  language: "ua" | "en";
+  language: "uk" | "en";
   showDate?: boolean;
   compact?: boolean;
 }
@@ -70,8 +70,8 @@ export function CalendarEventCard({
   compact = false,
 }: CalendarEventCardProps) {
   // Отримати назву події
-  const name = language === "ua" ? event.name_ua : event.name_en;
-  const description = language === "ua" ? event.description_ua : event.description_en;
+  const name = language === "uk" ? event.name_uk : event.name_en;
+  const description = language === "uk" ? event.description_uk : event.description_en;
 
   // Визначити іконку за типом
   const getIcon = () => {
@@ -102,7 +102,7 @@ export function CalendarEventCard({
           variant="secondary"
           className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200"
         >
-          {language === "ua" ? "Екадаші" : "Ekadashi"}
+          {language === "uk" ? "Екадаші" : "Ekadashi"}
         </Badge>
       );
     }
@@ -112,14 +112,14 @@ export function CalendarEventCard({
           variant="secondary"
           className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200"
         >
-          {language === "ua" ? "Явлення" : "Appearance"}
+          {language === "uk" ? "Явлення" : "Appearance"}
         </Badge>
       );
     }
     if (event.event_type === "disappearance") {
       return (
         <Badge variant="secondary">
-          {language === "ua" ? "Відхід" : "Disappearance"}
+          {language === "uk" ? "Відхід" : "Disappearance"}
         </Badge>
       );
     }
@@ -129,7 +129,7 @@ export function CalendarEventCard({
           variant="secondary"
           className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200"
         >
-          {language === "ua" ? "Свято" : "Festival"}
+          {language === "uk" ? "Свято" : "Festival"}
         </Badge>
       );
     }
@@ -186,25 +186,25 @@ export function CalendarEventCard({
             )}
 
             {/* Тітхі та Вайшнавський місяць */}
-            {(event.tithi_name_ua || event.vaishnava_month_name_ua) && (
+            {(event.tithi_name_uk || event.vaishnava_month_name_uk) && (
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-2">
-                {event.tithi_name_ua && (
+                {event.tithi_name_uk && (
                   <span className="flex items-center gap-1">
                     <CircleDot className="h-3 w-3" />
-                    {language === "ua" ? event.tithi_name_ua : event.tithi_name_en}
+                    {language === "uk" ? event.tithi_name_uk : event.tithi_name_en}
                     {event.paksha && (
                       <span className="text-muted-foreground/60">
                         ({event.paksha === "shukla"
-                          ? language === "ua" ? "Шукла" : "Shukla"
-                          : language === "ua" ? "Крішна" : "Krishna"})
+                          ? language === "uk" ? "Шукла" : "Shukla"
+                          : language === "uk" ? "Крішна" : "Krishna"})
                       </span>
                     )}
                   </span>
                 )}
-                {event.vaishnava_month_name_ua && (
+                {event.vaishnava_month_name_uk && (
                   <span>
-                    • {language === "ua"
-                      ? event.vaishnava_month_name_ua
+                    • {language === "uk"
+                      ? event.vaishnava_month_name_uk
                       : event.vaishnava_month_name_en}
                   </span>
                 )}
@@ -235,12 +235,12 @@ export function CalendarEventCard({
                 {event.ekadashi_start && (
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3 text-purple-500" />
-                    {language === "ua" ? "Початок:" : "Start:"} {event.ekadashi_start}
+                    {language === "uk" ? "Початок:" : "Start:"} {event.ekadashi_start}
                   </span>
                 )}
                 {event.ekadashi_end && (
                   <span>
-                    {language === "ua" ? "Кінець:" : "End:"} {event.ekadashi_end}
+                    {language === "uk" ? "Кінець:" : "End:"} {event.ekadashi_end}
                   </span>
                 )}
               </div>
@@ -252,10 +252,10 @@ export function CalendarEventCard({
                 <div className="flex items-center gap-2 text-sm">
                   <Utensils className="h-4 w-4 text-green-600 dark:text-green-400" />
                   <span className="font-medium text-green-700 dark:text-green-300">
-                    {language === "ua" ? "Парана" : "Parana"}
+                    {language === "uk" ? "Парана" : "Parana"}
                     {event.parana_next_day && (
                       <span className="text-xs ml-1">
-                        ({language === "ua" ? "наступного дня" : "next day"})
+                        ({language === "uk" ? "наступного дня" : "next day"})
                       </span>
                     )}
                   </span>
@@ -267,14 +267,14 @@ export function CalendarEventCard({
                     </span>
                   ) : event.parana_start ? (
                     <span>
-                      {language === "ua" ? "після" : "after"} {event.parana_start}
+                      {language === "uk" ? "після" : "after"} {event.parana_start}
                     </span>
                   ) : null}
                 </div>
                 {event.hari_vasara_end && (
                   <div className="mt-1 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
                     <AlertCircle className="h-3 w-3" />
-                    {language === "ua"
+                    {language === "uk"
                       ? `Hari Vasara до ${event.hari_vasara_end} (не переривати піст)`
                       : `Hari Vasara until ${event.hari_vasara_end} (do not break fast)`}
                   </div>
@@ -318,7 +318,7 @@ export function CalendarEventCard({
  */
 interface CalendarEventListProps {
   events: CalendarEventDisplay[];
-  language: "ua" | "en";
+  language: "uk" | "en";
   maxItems?: number;
 }
 
@@ -333,7 +333,7 @@ export function CalendarEventList({
   if (events.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-4">
-        {language === "ua" ? "Немає подій" : "No events"}
+        {language === "uk" ? "Немає подій" : "No events"}
       </p>
     );
   }
@@ -350,7 +350,7 @@ export function CalendarEventList({
       ))}
       {hasMore && (
         <p className="text-xs text-muted-foreground text-center pt-1">
-          {language === "ua"
+          {language === "uk"
             ? `+ ще ${events.length - displayEvents.length}`
             : `+ ${events.length - displayEvents.length} more`}
         </p>

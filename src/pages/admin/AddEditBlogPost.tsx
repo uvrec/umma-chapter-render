@@ -87,7 +87,7 @@ export default function AddEditBlogPost() {
   const { data: categories } = useQuery({
     queryKey: ["blog-categories"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("blog_categories").select("*").order("name_ua");
+      const { data, error } = await supabase.from("blog_categories").select("*").order("name_uk");
       if (error) throw error;
       return data;
     },
@@ -107,13 +107,13 @@ export default function AddEditBlogPost() {
 
   useEffect(() => {
     if (post) {
-      setTitleUa(post.title_ua || "");
+      setTitleUa(post.title_uk || "");
       setTitleEn(post.title_en || "");
       setSlug(post.slug || "");
       setContentMode((post.content_mode as "text" | "poetry") || "text");
-      setContentUa(post.content_ua || "");
+      setContentUa(post.content_uk || "");
       setContentEn(post.content_en || "");
-      setExcerptUa(post.excerpt_ua || "");
+      setExcerptUa(post.excerpt_uk || "");
       setExcerptEn(post.excerpt_en || "");
       setCategoryId(post.category_id || "");
       setIsPublished(post.is_published || false);
@@ -124,24 +124,24 @@ export default function AddEditBlogPost() {
       setInstagramUrl(post.instagram_embed_url || "");
       setTelegramUrl(post.telegram_embed_url || "");
       setSubstackUrl(post.substack_embed_url || "");
-      setMetaDescUa(post.meta_description_ua || "");
+      setMetaDescUa(post.meta_description_uk || "");
       setMetaDescEn(post.meta_description_en || "");
       setAuthorName(post.author_name || "Аніруддга дас");
 
       // Poetry mode fields
       setSanskrit(post.sanskrit || "");
       setTransliteration(post.transliteration || "");
-      setSynonymsUa(post.synonyms_ua || "");
+      setSynonymsUa(post.synonyms_uk || "");
       setSynonymsEn(post.synonyms_en || "");
-      setPoetryTranslationUa(post.poetry_translation_ua || "");
+      setPoetryTranslationUa(post.poetry_translation_uk || "");
       setPoetryTranslationEn(post.poetry_translation_en || "");
 
       // Poetry audio URLs
       setAudioSanskritUrl(post.audio_sanskrit_url || "");
       setAudioTransliterationUrl(post.audio_transliteration_url || "");
-      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_ua_url || "");
+      setAudioPoetryTranslationUaUrl(post.audio_poetry_translation_uk_url || "");
       setAudioPoetryTranslationEnUrl(post.audio_poetry_translation_en_url || "");
-      setAudioCommentaryUaUrl(post.audio_commentary_ua_url || "");
+      setAudioCommentaryUaUrl(post.audio_commentary_uk_url || "");
       setAudioCommentaryEnUrl(post.audio_commentary_en_url || "");
     }
   }, [post]);
@@ -160,13 +160,13 @@ export default function AddEditBlogPost() {
     try {
       const readTime = calculateReadTime(contentUa + contentEn);
       const postData = {
-        title_ua: titleUa,
+        title_uk: titleUa,
         title_en: titleEn,
         slug,
         content_mode: contentMode,
-        content_ua: contentUa,
+        content_uk: contentUa,
         content_en: contentEn,
-        excerpt_ua: excerptUa,
+        excerpt_uk: excerptUa,
         excerpt_en: excerptEn,
         category_id: categoryId,
         is_published: isPublished,
@@ -177,7 +177,7 @@ export default function AddEditBlogPost() {
         instagram_embed_url: instagramUrl,
         telegram_embed_url: telegramUrl,
         substack_embed_url: substackUrl,
-        meta_description_ua: metaDescUa,
+        meta_description_uk: metaDescUa,
         meta_description_en: metaDescEn,
         read_time: readTime,
         author_name: authorName || "Аніруддга дас",
@@ -185,16 +185,16 @@ export default function AddEditBlogPost() {
         // Poetry fields
         sanskrit,
         transliteration,
-        synonyms_ua: synonymsUa,
+        synonyms_uk: synonymsUa,
         synonyms_en: synonymsEn,
-        poetry_translation_ua: poetryTranslationUa,
+        poetry_translation_uk: poetryTranslationUa,
         poetry_translation_en: poetryTranslationEn,
         // Poetry audio URLs
         audio_sanskrit_url: audioSanskritUrl,
         audio_transliteration_url: audioTransliterationUrl,
-        audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+        audio_poetry_translation_uk_url: audioPoetryTranslationUaUrl,
         audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-        audio_commentary_ua_url: audioCommentaryUaUrl,
+        audio_commentary_uk_url: audioCommentaryUaUrl,
         audio_commentary_en_url: audioCommentaryEnUrl,
       };
 
@@ -341,13 +341,13 @@ export default function AddEditBlogPost() {
     const readTime = calculateReadTime(contentUa + contentEn);
 
     const postData: any = {
-      title_ua: titleUa,
+      title_uk: titleUa,
       title_en: titleEn,
       slug,
       content_mode: contentMode,
-      content_ua: contentUa,
+      content_uk: contentUa,
       content_en: contentEn,
-      excerpt_ua: excerptUa,
+      excerpt_uk: excerptUa,
       excerpt_en: excerptEn,
       category_id: categoryId,
       is_published: isPublished,
@@ -359,7 +359,7 @@ export default function AddEditBlogPost() {
       instagram_embed_url: instagramUrl,
       telegram_embed_url: telegramUrl,
       substack_embed_url: substackUrl,
-      meta_description_ua: metaDescUa,
+      meta_description_uk: metaDescUa,
       meta_description_en: metaDescEn,
       read_time: readTime,
       author_name: authorName || "Аніруддга дас",
@@ -367,16 +367,16 @@ export default function AddEditBlogPost() {
       // Poetry fields
       sanskrit,
       transliteration,
-      synonyms_ua: synonymsUa,
+      synonyms_uk: synonymsUa,
       synonyms_en: synonymsEn,
-      poetry_translation_ua: poetryTranslationUa,
+      poetry_translation_uk: poetryTranslationUa,
       poetry_translation_en: poetryTranslationEn,
       // Poetry audio URLs
       audio_sanskrit_url: audioSanskritUrl,
       audio_transliteration_url: audioTransliterationUrl,
-      audio_poetry_translation_ua_url: audioPoetryTranslationUaUrl,
+      audio_poetry_translation_uk_url: audioPoetryTranslationUaUrl,
       audio_poetry_translation_en_url: audioPoetryTranslationEnUrl,
-      audio_commentary_ua_url: audioCommentaryUaUrl,
+      audio_commentary_uk_url: audioCommentaryUaUrl,
       audio_commentary_en_url: audioCommentaryEnUrl,
     };
 
@@ -472,13 +472,13 @@ export default function AddEditBlogPost() {
             </div>
           )}
 
-          <Tabs defaultValue="ua" className="w-full">
+          <Tabs defaultValue="uk" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="ua">Українська</TabsTrigger>
+              <TabsTrigger value="uk">Українська</TabsTrigger>
               <TabsTrigger value="en">English</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="ua" className="space-y-4">
+            <TabsContent value="uk" className="space-y-4">
               <div>
                 <Label htmlFor="title-ua">Заголовок *</Label>
                 <Input id="title-ua" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} required />
@@ -698,7 +698,7 @@ export default function AddEditBlogPost() {
                 <SelectContent>
                   {categories?.map((cat) => (
                     <SelectItem key={cat.id} value={cat.id}>
-                      {cat.name_ua}
+                      {cat.name_uk}
                     </SelectItem>
                   ))}
                 </SelectContent>

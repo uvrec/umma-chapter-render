@@ -84,13 +84,13 @@ export interface GVAuthor {
   name_sanskrit?: string; // Original script (Devanagari/Bengali)
   name_transliteration: string; // IAST transliteration
   name_en: string; // English
-  name_ua: string; // Ukrainian
+  name_uk: string; // Ukrainian
 
   // Titles and honorifics
   title_sanskrit?: string;
   title_transliteration?: string;
   title_en?: string;
-  title_ua?: string;
+  title_uk?: string;
 
   // Life details
   birth_year?: number;
@@ -104,11 +104,11 @@ export interface GVAuthor {
 
   // Biography
   biography_en?: string;
-  biography_ua?: string;
+  biography_uk?: string;
 
   // Significance
   significance_en?: string;
-  significance_ua?: string;
+  significance_uk?: string;
 
   // Media
   image_url?: string;
@@ -133,7 +133,7 @@ export interface GVBookReference {
   title_sanskrit?: string; // Original script (Devanagari/Bengali)
   title_transliteration: string; // IAST transliteration
   title_en: string; // English translation/title
-  title_ua: string; // Ukrainian translation/title
+  title_uk: string; // Ukrainian translation/title
 
   // Alternative titles
   alt_titles?: string[];
@@ -149,7 +149,7 @@ export interface GVBookReference {
 
   // Description
   description_en?: string;
-  description_ua?: string;
+  description_uk?: string;
 
   // Classification
   category: BookCategory;
@@ -170,7 +170,7 @@ export interface GVBookReference {
   // Significance
   importance_level: 1 | 2 | 3 | 4 | 5;
   significance_en?: string;
-  significance_ua?: string;
+  significance_uk?: string;
 
   // Topics/themes
   topics?: string[];
@@ -199,10 +199,10 @@ export interface GVBookCatalogue {
   slug: string;
 
   name_en: string;
-  name_ua: string;
+  name_uk: string;
 
   description_en?: string;
-  description_ua?: string;
+  description_uk?: string;
 
   // Ordering and display
   display_order: number;
@@ -242,7 +242,7 @@ export interface GVAuthorWithBookCount extends GVAuthor {
  */
 export interface GVBookReferenceWithAuthor extends GVBookReference {
   author_name_en?: string;
-  author_name_ua?: string;
+  author_name_uk?: string;
 }
 
 /**
@@ -288,34 +288,34 @@ export interface GVBookSortOptions {
 /**
  * Get display name for author era
  */
-export const eraDisplayNames: Record<AuthorEra, { en: string; ua: string }> = {
-  founders: { en: "Founders & Associates", ua: "Засновники та супутники" },
-  gosvamis: { en: "Six Gosvamis of Vrindavan", ua: "Шість Ґосвамі Вріндавана" },
-  later_acharyas: { en: "Later Acharyas", ua: "Пізніші ачар'ї" },
-  modern: { en: "Modern Acharyas", ua: "Сучасні ачар'ї" },
-  prabhupada_disciples: { en: "Prabhupada's Disciples", ua: "Учні Прабгупади" },
+export const eraDisplayNames: Record<AuthorEra, { en: string; uk: string }> = {
+  founders: { en: "Founders & Associates", uk: "Засновники та супутники" },
+  gosvamis: { en: "Six Gosvamis of Vrindavan", uk: "Шість Ґосвамі Вріндавана" },
+  later_acharyas: { en: "Later Acharyas", uk: "Пізніші ачар'ї" },
+  modern: { en: "Modern Acharyas", uk: "Сучасні ачар'ї" },
+  prabhupada_disciples: { en: "Prabhupada's Disciples", uk: "Учні Прабгупади" },
 };
 
 /**
  * Get display name for book category
  */
-export const categoryDisplayNames: Record<BookCategory, { en: string; ua: string }> = {
-  shruti: { en: "Revealed Scriptures", ua: "Об'явлені писання" },
-  smriti: { en: "Traditional Texts", ua: "Традиційні тексти" },
-  purana: { en: "Puranic Literature", ua: "Пуранічна література" },
-  kavya: { en: "Poetry & Drama", ua: "Поезія та драма" },
-  stotra: { en: "Prayers & Hymns", ua: "Молитви та гімни" },
-  shastra: { en: "Philosophical Treatises", ua: "Філософські трактати" },
-  prabandha: { en: "Essays & Compilations", ua: "Есе та збірки" },
+export const categoryDisplayNames: Record<BookCategory, { en: string; uk: string }> = {
+  shruti: { en: "Revealed Scriptures", uk: "Об'явлені писання" },
+  smriti: { en: "Traditional Texts", uk: "Традиційні тексти" },
+  purana: { en: "Puranic Literature", uk: "Пуранічна література" },
+  kavya: { en: "Poetry & Drama", uk: "Поезія та драма" },
+  stotra: { en: "Prayers & Hymns", uk: "Молитви та гімни" },
+  shastra: { en: "Philosophical Treatises", uk: "Філософські трактати" },
+  prabandha: { en: "Essays & Compilations", uk: "Есе та збірки" },
 };
 
 /**
  * Get display name for importance level
  */
-export const importanceLevelNames: Record<number, { en: string; ua: string }> = {
-  5: { en: "Essential", ua: "Необхідний" },
-  4: { en: "Important", ua: "Важливий" },
-  3: { en: "Recommended", ua: "Рекомендований" },
-  2: { en: "Supplementary", ua: "Додатковий" },
-  1: { en: "Reference", ua: "Довідковий" },
+export const importanceLevelNames: Record<number, { en: string; uk: string }> = {
+  5: { en: "Essential", uk: "Необхідний" },
+  4: { en: "Important", uk: "Важливий" },
+  3: { en: "Recommended", uk: "Рекомендований" },
+  2: { en: "Supplementary", uk: "Додатковий" },
+  1: { en: "Reference", uk: "Довідковий" },
 };

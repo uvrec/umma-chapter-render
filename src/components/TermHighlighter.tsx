@@ -111,7 +111,7 @@ export const TermHighlighter = ({
           <Link
             to={getGlossaryLink(lookup)}
             className={`${linkBase} ${linkUnderline}`}
-            aria-label={first ? `${lookup} — ${language === "ua" ? "термін із глосарія" : "glossary term"}` : lookup}
+            aria-label={first ? `${lookup} — ${language === "uk" ? "термін із глосарія" : "glossary term"}` : lookup}
             data-term={lookup}
           >
             {tok /* показуємо вихідне слово, не змінюємо написання з діакритиками */}
@@ -153,7 +153,7 @@ interface TermHoverContentProps {
   lookup: string;
   showLexicon: boolean;
   lookupWord: (word: string) => Promise<LexiconEntry[]>;
-  getGrammarLabel: (grammar: string | null, language: "ua" | "en") => string | null;
+  getGrammarLabel: (grammar: string | null, language: "uk" | "en") => string | null;
   getDictionaryLink: (word: string) => string;
   language: string;
 }
@@ -192,7 +192,7 @@ const TermHoverContent = ({
   }, [lookup, showLexicon, lookupWord]);
 
   const grammarLabel = lexiconEntry?.grammar
-    ? getGrammarLabel(lexiconEntry.grammar, language as "ua" | "en")
+    ? getGrammarLabel(lexiconEntry.grammar, language as "uk" | "en")
     : null;
 
   const grammarColor = lexiconEntry?.grammar
@@ -240,7 +240,7 @@ const TermHoverContent = ({
           )}
           {additionalCount > 0 && (
             <p className="pt-1">
-              {language === "ua" ? `+${additionalCount} інших віршів` : `+${additionalCount} more verses`}
+              {language === "uk" ? `+${additionalCount} інших віршів` : `+${additionalCount} more verses`}
             </p>
           )}
           {lexiconEntry && (
@@ -249,7 +249,7 @@ const TermHoverContent = ({
               className="inline-flex items-center gap-1 pt-1 text-primary hover:underline"
             >
               <ExternalLink className="h-3 w-3" />
-              {language === "ua" ? "Детальніше в словнику" : "View in dictionary"}
+              {language === "uk" ? "Детальніше в словнику" : "View in dictionary"}
             </Link>
           )}
         </div>
@@ -258,7 +258,7 @@ const TermHoverContent = ({
       {/* Loading state */}
       {lexiconLoading && (
         <div className="text-xs text-muted-foreground animate-pulse">
-          {language === "ua" ? "Завантаження..." : "Loading..."}
+          {language === "uk" ? "Завантаження..." : "Loading..."}
         </div>
       )}
     </div>

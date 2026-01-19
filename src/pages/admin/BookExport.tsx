@@ -45,7 +45,7 @@ import {
 interface Book {
   id: string;
   slug: string;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   has_cantos: boolean;
 }
@@ -53,14 +53,14 @@ interface Book {
 interface Canto {
   id: string;
   canto_number: number;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
 }
 
 interface Chapter {
   id: string;
   chapter_number: number;
-  title_ua: string;
+  title_uk: string;
   title_en: string;
   chapter_type: string | null;
 }
@@ -70,12 +70,12 @@ interface Verse {
   verse_number: string;
   sanskrit: string | null;
   transliteration: string | null;
-  transliteration_ua: string | null;
-  synonyms_ua: string | null;
+  transliteration_uk: string | null;
+  synonyms_uk: string | null;
   synonyms_en: string | null;
-  translation_ua: string | null;
+  translation_uk: string | null;
   translation_en: string | null;
-  commentary_ua: string | null;
+  commentary_uk: string | null;
   commentary_en: string | null;
 }
 
@@ -85,7 +85,7 @@ interface ExportOptions {
   includeSynonyms: boolean;
   includeTranslation: boolean;
   includeCommentary: boolean;
-  language: 'ua' | 'en' | 'both';
+  language: 'uk' | 'en' | 'both';
   useMarkers: boolean;
 }
 
@@ -146,7 +146,7 @@ function formatVerseForExport(
 
   // Transliteration
   if (options.includeTransliteration) {
-    const translit = verse.transliteration_ua || verse.transliteration;
+    const translit = verse.transliteration_uk || verse.transliteration;
     if (translit) {
       if (!options.useMarkers) {
         lines.push('<div class="transliteration">');
@@ -162,8 +162,8 @@ function formatVerseForExport(
   // Synonyms
   if (options.includeSynonyms) {
     let synonyms = '';
-    if (lang === 'ua' || lang === 'both') {
-      synonyms = verse.synonyms_ua || '';
+    if (lang === 'uk' || lang === 'both') {
+      synonyms = verse.synonyms_uk || '';
     }
     if (lang === 'en' || (lang === 'both' && verse.synonyms_en)) {
       if (synonyms && lang === 'both') synonyms += '\n\n';
@@ -185,8 +185,8 @@ function formatVerseForExport(
   // Translation
   if (options.includeTranslation) {
     let translation = '';
-    if (lang === 'ua' || lang === 'both') {
-      translation = verse.translation_ua || '';
+    if (lang === 'uk' || lang === 'both') {
+      translation = verse.translation_uk || '';
     }
     if (lang === 'en' || (lang === 'both' && verse.translation_en)) {
       if (translation && lang === 'both') translation += '\n\n';
@@ -208,8 +208,8 @@ function formatVerseForExport(
   // Commentary (with @@@ marker)
   if (options.includeCommentary) {
     let commentary = '';
-    if (lang === 'ua' || lang === 'both') {
-      commentary = verse.commentary_ua || '';
+    if (lang === 'uk' || lang === 'both') {
+      commentary = verse.commentary_uk || '';
     }
     if (lang === 'en' || (lang === 'both' && verse.commentary_en)) {
       if (commentary && lang === 'both') commentary += '\n\n';
@@ -289,7 +289,7 @@ export default function BookExport() {
     includeSynonyms: true,
     includeTranslation: true,
     includeCommentary: true,
-    language: 'ua',
+    language: 'uk',
     useMarkers: true,
   });
 
@@ -345,8 +345,8 @@ export default function BookExport() {
     const loadBooks = async () => {
       const { data, error } = await supabase
         .from('books')
-        .select('id, slug, title_ua, title_en, has_cantos')
-        .order('title_ua');
+        .select('id, slug, title_uk, title_en, has_cantos')
+        .order('title_uk');
 
       if (error) {
         console.error('Error loading books:', error);
@@ -410,7 +410,7 @@ export default function BookExport() {
     const loadCantos = async () => {
       const { data, error } = await supabase
         .from('cantos')
-        .select('id, canto_number, title_ua, title_en')
+        .select('id, canto_number, title_uk, title_en')
         .eq('book_id', selectedBookId)
         .order('canto_number');
 
@@ -433,7 +433,7 @@ export default function BookExport() {
     const loadChapters = async () => {
       let query = supabase
         .from('chapters')
-        .select('id, chapter_number, title_ua, title_en, chapter_type')
+        .select('id, chapter_number, title_uk, title_en, chapter_type')
         .order('chapter_number');
 
       if (selectedCantoId) {
@@ -475,12 +475,12 @@ export default function BookExport() {
           verse_number,
           sanskrit,
           transliteration,
-          transliteration_ua,
-          synonyms_ua,
+          transliteration_uk,
+          synonyms_uk,
           synonyms_en,
-          translation_ua,
+          translation_uk,
           translation_en,
-          commentary_ua,
+          commentary_uk,
           commentary_en
         `)
         .eq('chapter_id', selectedChapterId)
@@ -608,9 +608,9 @@ export default function BookExport() {
       selectedChapter.chapter_number
     );
 
-    const chapterTitle = selectedChapter.title_ua;
-    const bookTitle = selectedBook.title_ua;
-    const cantoTitle = selectedCanto?.title_ua || '';
+    const chapterTitle = selectedChapter.title_uk;
+    const bookTitle = selectedBook.title_uk;
+    const cantoTitle = selectedCanto?.title_uk || '';
 
     const htmlContent = `<!DOCTYPE html>
 <html lang="uk">
@@ -819,7 +819,7 @@ ${exportPreview.split('\n').map(line => {
                       <SelectContent>
                         {books.map(book => (
                           <SelectItem key={book.id} value={book.id}>
-                            {book.title_ua} ({book.slug})
+                            {book.title_uk} ({book.slug})
                             {book.has_cantos && ' - має канто'}
                           </SelectItem>
                         ))}
@@ -838,7 +838,7 @@ ${exportPreview.split('\n').map(line => {
                         <SelectContent>
                           {cantos.map(canto => (
                             <SelectItem key={canto.id} value={canto.id}>
-                              {canto.canto_number}. {canto.title_ua}
+                              {canto.canto_number}. {canto.title_uk}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -857,7 +857,7 @@ ${exportPreview.split('\n').map(line => {
                         <SelectContent>
                           {chapters.map(chapter => (
                             <SelectItem key={chapter.id} value={chapter.id}>
-                              {chapter.chapter_number}. {chapter.title_ua}
+                              {chapter.chapter_number}. {chapter.title_uk}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -925,9 +925,9 @@ ${exportPreview.split('\n').map(line => {
                               className="cursor-pointer flex-1"
                             >
                               <span className="font-medium">Вірш {verse.verse_number}</span>
-                              {verse.translation_ua && (
+                              {verse.translation_uk && (
                                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                  {stripHtml(verse.translation_ua).substring(0, 100)}...
+                                  {stripHtml(verse.translation_uk).substring(0, 100)}...
                                 </p>
                               )}
                             </Label>
@@ -963,7 +963,7 @@ ${exportPreview.split('\n').map(line => {
                   <Label>Мова</Label>
                   <Select
                     value={exportOptions.language}
-                    onValueChange={(value: 'ua' | 'en' | 'both') =>
+                    onValueChange={(value: 'uk' | 'en' | 'both') =>
                       setExportOptions(prev => ({ ...prev, language: value }))
                     }
                   >
@@ -971,7 +971,7 @@ ${exportPreview.split('\n').map(line => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ua">Українська</SelectItem>
+                      <SelectItem value="uk">Українська</SelectItem>
                       <SelectItem value="en">English</SelectItem>
                       <SelectItem value="both">Обидві мови</SelectItem>
                     </SelectContent>

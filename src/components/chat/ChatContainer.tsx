@@ -50,7 +50,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
       setMessages([{
         id: 'welcome',
         role: 'assistant',
-        content: language === 'ua' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
+        content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
         createdAt: new Date(),
       }]);
     }
@@ -93,7 +93,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
         body: {
           message: content,
           sessionId: sessionId,
-          language: language === 'ua' ? 'uk' : 'en',
+          language: language === 'uk' ? 'uk' : 'en',
         },
       });
 
@@ -133,7 +133,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
       const errorMessage: ChatMessageType = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: language === 'ua'
+        content: language === 'uk'
           ? 'Вибачте, сталася помилка. Будь ласка, спробуйте ще раз.'
           : 'Sorry, an error occurred. Please try again.',
         createdAt: new Date(),
@@ -154,7 +154,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
     setMessages([{
       id: 'welcome',
       role: 'assistant',
-      content: language === 'ua' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
+      content: language === 'uk' ? WELCOME_MESSAGE_UA : WELCOME_MESSAGE_EN,
       createdAt: new Date(),
     }]);
     setSessionId(null);

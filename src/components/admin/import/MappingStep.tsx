@@ -188,7 +188,7 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
       const first = chapters[0]?.verses?.[0];
       if (first) {
         toast.message(
-          `Попередній перегляд: вірш ${first.verse_number ?? "—"}${first.translation_ua ? " (є переклад)" : ""}`,
+          `Попередній перегляд: вірш ${first.verse_number ?? "—"}${first.translation_uk ? " (є переклад)" : ""}`,
         );
       }
 
@@ -324,16 +324,16 @@ export function MappingStep({ extractedText, onNext, onBack }: MappingStepProps)
                       </span>
                     </div>
                   )}
-                  {previewInfo.first.translation_ua && (
+                  {previewInfo.first.translation_uk && (
                     <div className="mb-1">
                       <span className="font-medium">Переклад: </span>
                       <span className="opacity-80">
-                        {previewInfo.first.translation_ua.slice(0, 140)}
-                        {previewInfo.first.translation_ua.length > 140 ? "…" : ""}
+                        {previewInfo.first.translation_uk.slice(0, 140)}
+                        {previewInfo.first.translation_uk.length > 140 ? "…" : ""}
                       </span>
                     </div>
                   )}
-                  {!previewInfo.first.translation_ua && (
+                  {!previewInfo.first.translation_uk && (
                     <div className="text-xs text-muted-foreground">Переклад не знайдено</div>
                   )}
                 </div>

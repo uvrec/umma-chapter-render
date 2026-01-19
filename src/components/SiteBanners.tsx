@@ -8,9 +8,9 @@ import { errorLogger } from "@/utils/errorLogger";
 /**
  * Очікувана структура таблиці `site_banners` (мінімум):
  * id: string (uuid)
- * title_ua: string | null
+ * title_uk: string | null
  * title_en: string | null
- * description_ua: string | null
+ * description_uk: string | null
  * description_en: string | null
  * link_url: string | null
  * image_url: string | null
@@ -22,9 +22,9 @@ import { errorLogger } from "@/utils/errorLogger";
 
 type Banner = {
   id: string;
-  title_ua?: string | null;
+  title_uk?: string | null;
   title_en?: string | null;
-  description_ua?: string | null;
+  description_uk?: string | null;
   description_en?: string | null;
   link_url?: string | null;
   image_url?: string | null;
@@ -55,7 +55,7 @@ export default function SiteBanners() {
       const { data, error } = await (supabase as any)
         .from("site_banners")
         .select(
-          "id,title_ua,title_en,description_ua,description_en,link_url,image_url,is_active,start_at,end_at,priority"
+          "id,title_uk,title_en,description_uk,description_en,link_url,image_url,is_active,start_at,end_at,priority"
         )
         .eq("is_active", true)
         .order("priority", { ascending: true })
@@ -94,9 +94,9 @@ export default function SiteBanners() {
     <div className="w-full bg-amber-50/90 dark:bg-amber-900/20 backdrop-blur supports-[backdrop-filter]:backdrop-blur-sm border-b border-amber-200 dark:border-amber-800">
       <div className="mx-auto max-w-6xl px-4 py-2 space-y-2">
         {banners.map((b) => {
-          const title = language === "ua" ? b.title_ua || b.title_en : b.title_en || b.title_ua;
+          const title = language === "uk" ? b.title_uk || b.title_en : b.title_en || b.title_uk;
           const desc =
-            language === "ua" ? b.description_ua || b.description_en : b.description_en || b.description_ua;
+            language === "uk" ? b.description_uk || b.description_en : b.description_en || b.description_uk;
 
           return (
             <div
@@ -124,14 +124,14 @@ export default function SiteBanners() {
                     rel="noopener noreferrer"
                     className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-amber-900 underline underline-offset-4 hover:no-underline dark:text-amber-200"
                   >
-                    {language === "ua" ? "Детальніше" : "Learn more"}
+                    {language === "uk" ? "Детальніше" : "Learn more"}
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 ) : null}
               </div>
 
               <button
-                aria-label={language === "ua" ? "Закрити банер" : "Dismiss banner"}
+                aria-label={language === "uk" ? "Закрити банер" : "Dismiss banner"}
                 onClick={() => handleDismiss(b.id)}
                 className="absolute right-1 top-1 inline-flex h-7 w-7 items-center justify-center rounded-md text-amber-800/80 hover:bg-amber-200/60 dark:text-amber-200/80 dark:hover:bg-amber-800/50"
               >

@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
-type Language = 'ua' | 'en';
+type Language = 'uk' | 'en';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (ua: string, en: string) => string;
+  t: (uk: string, en: string) => string;
   getLocalizedPath: (path: string) => string;
 }
 
@@ -17,7 +17,7 @@ const NON_LOCALIZED_PREFIXES = ['/admin', '/auth', '/api', '/404'];
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
     const stored = localStorage.getItem('language');
-    return (stored === 'ua' || stored === 'en') ? stored : 'ua';
+    return (stored === 'uk' || stored === 'en') ? stored : 'uk';
   });
 
   useEffect(() => {
@@ -28,8 +28,8 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLanguageState(lang);
   };
 
-  const t = useCallback((ua: string, en: string) => {
-    return language === 'ua' ? ua : en;
+  const t = useCallback((uk: string, en: string) => {
+    return language === 'uk' ? uk : en;
   }, [language]);
 
   const getLocalizedPath = useCallback((path: string): string => {
@@ -39,7 +39,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
 
     // Already has language prefix - return as-is
-    if (path.startsWith('/ua/') || path.startsWith('/en/') || path === '/ua' || path === '/en') {
+    if (path.startsWith('/uk/') || path.startsWith('/en/') || path === '/uk' || path === '/en') {
       return path;
     }
 

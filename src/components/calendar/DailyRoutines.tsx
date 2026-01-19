@@ -140,7 +140,7 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
   }
 
   const dateFormatted = format(date, 'd MMMM', {
-    locale: language === 'ua' ? uk : undefined,
+    locale: language === 'uk' ? uk : undefined,
   });
 
   return (
@@ -171,17 +171,17 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
         {Object.entries(groupedRoutines).map(([period, routines]) => {
           if (routines.length === 0) return null;
 
-          const periodLabels: Record<string, { ua: string; en: string }> = {
-            morning: { ua: 'Ранок', en: 'Morning' },
-            afternoon: { ua: 'День', en: 'Afternoon' },
-            evening: { ua: 'Вечір', en: 'Evening' },
-            anytime: { ua: 'Будь-коли', en: 'Anytime' },
+          const periodLabels: Record<string, { uk: string; en: string }> = {
+            morning: { uk: 'Ранок', en: 'Morning' },
+            afternoon: { uk: 'День', en: 'Afternoon' },
+            evening: { uk: 'Вечір', en: 'Evening' },
+            anytime: { uk: 'Будь-коли', en: 'Anytime' },
           };
 
           return (
             <div key={period} className="space-y-2">
               <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {t(periodLabels[period].ua, periodLabels[period].en)}
+                {t(periodLabels[period].uk, periodLabels[period].en)}
               </h4>
 
               {routines.map(routine => {
@@ -231,8 +231,8 @@ export function DailyRoutines({ selectedDate, className, compact = false }: Dail
                             isCompleted && 'line-through text-muted-foreground'
                           )}
                         >
-                          {language === 'ua' && routine.title_ua
-                            ? routine.title_ua
+                          {language === 'uk' && routine.title_uk
+                            ? routine.title_uk
                             : routine.title}
                         </span>
                       </div>

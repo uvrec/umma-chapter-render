@@ -124,7 +124,7 @@ const Books = () => {
                       to={getLocalizedPath(`/lib/${book.slug}`)}
                       className="hover:text-primary hover:underline inline-flex items-center gap-2 transition-colors"
                     >
-                      {book.title_ua}
+                      {book.title_uk}
                       <ExternalLink className="w-4 h-4 opacity-50" />
                     </Link>
                   </CardTitle>

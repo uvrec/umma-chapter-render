@@ -72,28 +72,28 @@ export function useMonthEkadashis(
  */
 export function ekadashiToCalendarEvent(
   ekadashi: CalculatedEkadashi,
-  language: 'ua' | 'en'
+  language: 'uk' | 'en'
 ): CalendarEventDisplay {
   const pakshaName = {
-    shukla: { ua: 'Шукла', en: 'Shukla' },
-    krishna: { ua: 'Крішна', en: 'Krishna' },
+    shukla: { uk: 'Шукла', en: 'Shukla' },
+    krishna: { uk: 'Крішна', en: 'Krishna' },
   };
 
-  const name = language === 'ua'
-    ? `${pakshaName[ekadashi.paksha].ua} Екадаші`
+  const name = language === 'uk'
+    ? `${pakshaName[ekadashi.paksha].uk} Екадаші`
     : `${pakshaName[ekadashi.paksha].en} Ekadashi`;
 
-  const description = language === 'ua'
-    ? `Екадаші ${pakshaName[ekadashi.paksha].ua} пакші. Піст від зернових.`
+  const description = language === 'uk'
+    ? `Екадаші ${pakshaName[ekadashi.paksha].uk} пакші. Піст від зернових.`
     : `Ekadashi of ${pakshaName[ekadashi.paksha].en} paksha. Fast from grains.`;
 
   return {
     event_id: `calc-ekadashi-${ekadashi.dateStr}`,
     event_date: ekadashi.dateStr,
     event_type: 'ekadashi',
-    name_ua: `${pakshaName[ekadashi.paksha].ua} Екадаші`,
+    name_uk: `${pakshaName[ekadashi.paksha].uk} Екадаші`,
     name_en: `${pakshaName[ekadashi.paksha].en} Ekadashi`,
-    description_ua: description,
+    description_uk: description,
     description_en: description,
     category_slug: 'ekadashi',
     category_color: '#8B5CF6',
@@ -111,7 +111,7 @@ export function useCalendarWithEkadashis(
   month: number,
   location: GeoLocation | null,
   dbEvents: CalendarEventDisplay[],
-  language: 'ua' | 'en'
+  language: 'uk' | 'en'
 ) {
   const { ekadashis, isLoading } = useMonthEkadashis(year, month, location);
 

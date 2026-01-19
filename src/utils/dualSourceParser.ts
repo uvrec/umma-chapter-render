@@ -14,26 +14,26 @@ interface VedabaseData {
   transliteration_en: string; // IAST
   synonyms_en: string;
   translation_en: string;
-  purport_en: string;
+  commentary_en: string;
 }
 
 interface GitabaseData {
-  transliteration_ua: string; // може бути зіпсована
-  synonyms_ua: string; // може бути зіпсована
-  translation_ua: string;
-  purport_ua: string;
+  transliteration_uk: string; // може бути зіпсована
+  synonyms_uk: string; // може бути зіпсована
+  translation_uk: string;
+  commentary_uk: string;
 }
 
 interface MergedVerseData {
   bengali: string;
   transliteration_en: string; // IAST (оригінал з Vedabase)
-  transliteration_ua: string; // конвертовано з IAST або взято з Gitabase
+  transliteration_uk: string; // конвертовано з IAST або взято з Gitabase
   synonyms_en: string; // IAST терміни + англійські переклади
-  synonyms_ua: string; // конвертовані терміни + українські переклади
+  synonyms_uk: string; // конвертовані терміни + українські переклади
   translation_en: string;
-  translation_ua: string;
-  purport_en: string;
-  purport_ua: string;
+  translation_uk: string;
+  commentary_en: string;
+  commentary_uk: string;
   lila: string;
   chapter: number;
   verse: number | string;
@@ -255,7 +255,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
     }
 
     // Purport (English)
-    let purport_en = '';
+    let commentary_en = '';
     const purportContainer = doc.querySelector('.av-purport');
     if (purportContainer) {
       // ✅ FIX: Беремо тільки прямі дочірні <p> щоб уникнути дублювання
@@ -278,7 +278,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
         }
       });
 
-      purport_en = parts.join('\n\n');
+      commentary_en = parts.join('\n\n');
     }
 
     if (!transliteration_en && !translation_en) {
@@ -296,7 +296,7 @@ export function parseVedabaseCC(html: string, url: string): VedabaseData | null 
       transliteration_en,
       synonyms_en,
       translation_en,
-      purport_en
+      commentary_en
     };
 
   } catch (error) {
@@ -331,12 +331,12 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       console.log(`[Gitabase DEBUG] All divs count:`, doc.querySelectorAll('div').length);
     }
 
-    // ⚠️ NOTE: transliteration_ua НЕ парситься з Gitabase!
+    // ⚠️ NOTE: transliteration_uk НЕ парситься з Gitabase!
     // Ми беремо IAST терміни з Vedabase і конвертуємо через convertIASTtoUkrainian()
 
-    let synonyms_ua = '';
-    let translation_ua = '';
-    let purport_ua = '';
+    let synonyms_uk = '';
+    let translation_uk = '';
+    let commentary_uk = '';
 
     // ТОЧНІ СЕЛЕКТОРИ З GITABASE (підтверджені користувачем):
     // 1. Синоніми: div.dia_text
@@ -348,21 +348,21 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     // 1. СИНОНІМИ - div.dia_text
     const diaTextEl = doc.querySelector('div.dia_text');
     if (diaTextEl) {
-      synonyms_ua = diaTextEl.textContent?.trim() || '';
+      synonyms_uk = diaTextEl.textContent?.trim() || '';
       if (DEBUG) {
-        console.log(`✅ [Gitabase] Found synonyms_ua via div.dia_text (${synonyms_ua.length} chars)`);
-        console.log(`   First 200 chars:`, synonyms_ua.substring(0, 200));
+        console.log(`✅ [Gitabase] Found synonyms_uk via div.dia_text (${synonyms_uk.length} chars)`);
+        console.log(`   First 200 chars:`, synonyms_uk.substring(0, 200));
       }
 
       // Перевірка чи не англійські слова (ознака що Puppeteer не виконав JS)
-      if (synonyms_ua.includes(' — by ') || synonyms_ua.includes(' — the ') ||
-          synonyms_ua.includes(' — of ') || synonyms_ua.includes(' — in ') ||
-          synonyms_ua.includes(' — to ')) {
-        console.error(`❌ [Gitabase] CRITICAL: synonyms_ua містить англійські слова! Puppeteer НЕ виконав JavaScript!`);
+      if (synonyms_uk.includes(' — by ') || synonyms_uk.includes(' — the ') ||
+          synonyms_uk.includes(' — of ') || synonyms_uk.includes(' — in ') ||
+          synonyms_uk.includes(' — to ')) {
+        console.error(`❌ [Gitabase] CRITICAL: synonyms_uk містить англійські слова! Puppeteer НЕ виконав JavaScript!`);
         console.error(`   Edge function повернула статичний HTML замість rendered HTML.`);
         console.error(`   Перевірте чи задеплоїлась оновлена версія fetch-html з Puppeteer!`);
       } else {
-        if (DEBUG) console.log(`✅ [Gitabase] synonyms_ua виглядає коректно (українські переклади)`);
+        if (DEBUG) console.log(`✅ [Gitabase] synonyms_uk виглядає коректно (українські переклади)`);
       }
     } else {
       console.error('❌ [Gitabase] div.dia_text NOT FOUND - Puppeteer не спрацював або HTML порожній!');
@@ -372,15 +372,15 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
     // 2. ПЕРЕКЛАД - ТОЧНИЙ селектор
     const translationEl = doc.querySelector('div.row:nth-child(5) > div:nth-child(1) > div:nth-child(2) > h4:nth-child(1) > b:nth-child(1)');
     if (translationEl) {
-      translation_ua = translationEl.textContent?.trim() || '';
-      if (DEBUG) console.log(`[Gitabase] Found translation_ua via EXACT selector (${translation_ua.length} chars):`, translation_ua.substring(0, 100) + '...');
+      translation_uk = translationEl.textContent?.trim() || '';
+      if (DEBUG) console.log(`[Gitabase] Found translation_uk via EXACT selector (${translation_uk.length} chars):`, translation_uk.substring(0, 100) + '...');
     } else {
       if (DEBUG) console.warn('[Gitabase] EXACT translation selector NOT FOUND, trying fallback h4 > b');
       // Fallback
       const h4b = doc.querySelector('h4 > b');
       if (h4b) {
-        translation_ua = h4b.textContent?.trim() || '';
-        if (DEBUG) console.log(`[Gitabase] Found translation_ua via h4>b fallback (${translation_ua.length} chars)`);
+        translation_uk = h4b.textContent?.trim() || '';
+        if (DEBUG) console.log(`[Gitabase] Found translation_uk via h4>b fallback (${translation_uk.length} chars)`);
       }
     }
 
@@ -408,8 +408,8 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
         }
       });
 
-      purport_ua = parts.join('\n\n');
-      if (DEBUG) console.log(`[Gitabase] Found purport_ua from EXACT selector (${purport_ua.length} chars total, ${parts.length} unique paragraphs)`);
+      commentary_uk = parts.join('\n\n');
+      if (DEBUG) console.log(`[Gitabase] Found commentary_uk from EXACT selector (${commentary_uk.length} chars total, ${parts.length} unique paragraphs)`);
     } else {
       if (DEBUG) console.warn('[Gitabase] EXACT commentary selector NOT FOUND, trying fallback div.row');
 
@@ -424,7 +424,7 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
         const paragraphs = Array.from(row.querySelectorAll('p'));
         for (const p of paragraphs) {
           const text = p.textContent?.trim() || '';
-          if (text.length > 100 && text !== translation_ua && text !== synonyms_ua && !seen.has(text)) {
+          if (text.length > 100 && text !== translation_uk && text !== synonyms_uk && !seen.has(text)) {
             seen.add(text);
             commentaryParts.push(text);
           }
@@ -432,27 +432,27 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
       }
 
       if (commentaryParts.length > 0) {
-        purport_ua = commentaryParts.join('\n\n');
-        if (DEBUG) console.log(`[Gitabase] Found purport_ua via fallback (${purport_ua.length} chars, ${commentaryParts.length} unique paragraphs)`);
+        commentary_uk = commentaryParts.join('\n\n');
+        if (DEBUG) console.log(`[Gitabase] Found commentary_uk via fallback (${commentary_uk.length} chars, ${commentaryParts.length} unique paragraphs)`);
       }
     }
 
     if (DEBUG) {
       console.log(`[Gitabase] FINAL RESULTS:`, {
-        hasSynonyms: !!synonyms_ua,
-        hasTranslation: !!translation_ua,
-        hasCommentary: !!purport_ua,
-        synonymsLength: synonyms_ua.length,
-        translationLength: translation_ua.length,
-        commentaryLength: purport_ua.length,
+        hasSynonyms: !!synonyms_uk,
+        hasTranslation: !!translation_uk,
+        hasCommentary: !!commentary_uk,
+        synonymsLength: synonyms_uk.length,
+        translationLength: translation_uk.length,
+        commentaryLength: commentary_uk.length,
       });
     }
 
     return {
-      transliteration_ua: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього
-      synonyms_ua,
-      translation_ua,
-      purport_ua
+      transliteration_uk: '', // ❌ НЕ використовуємо з Gitabase - конвертуємо з IAST замість цього
+      synonyms_uk,
+      translation_uk,
+      commentary_uk
     };
 
   } catch (error) {
@@ -478,16 +478,16 @@ export function parseGitabaseCC(html: string, url: string): GitabaseData | null 
  * 
  * Результат: "чаітанйа — Шрі Чайтаньї Махапрабгу; чаран̣а-амбгоджа — біля лотосових стіп"
  */
-function mergeSynonyms(synonyms_en: string, synonyms_ua: string): string {
+function mergeSynonyms(synonyms_en: string, synonyms_uk: string): string {
   if (!synonyms_en) return '';
 
   console.log('[mergeSynonyms] EN pairs:', synonyms_en.split(';').length);
-  console.log('[mergeSynonyms] UA pairs:', synonyms_ua ? synonyms_ua.split(';').length : 0);
+  console.log('[mergeSynonyms] UA pairs:', synonyms_uk ? synonyms_uk.split(';').length : 0);
 
   try {
     // Розділяємо на пари
     const enPairs = synonyms_en.split(';').map(p => p.trim()).filter(p => p);
-    const uaPairs = synonyms_ua.split(';').map(p => p.trim()).filter(p => p);
+    const uaPairs = synonyms_uk.split(';').map(p => p.trim()).filter(p => p);
 
     const result: string[] = [];
 
@@ -553,16 +553,16 @@ export function mergeVedabaseAndGitabase(
   }
   
   // Транслітерація UA: конвертуємо з IAST (Gitabase часто зіпсована)
-  const transliteration_ua = convertIASTtoUkrainian(vedabase.transliteration_en);
+  const transliteration_uk = convertIASTtoUkrainian(vedabase.transliteration_en);
   
   // Synonyms UA: об'єднуємо IAST терміни (конвертовані) + українські переклади
-  const synonyms_ua = mergeSynonyms(
+  const synonyms_uk = mergeSynonyms(
     vedabase.synonyms_en,
-    gitabase?.synonyms_ua || ''
+    gitabase?.synonyms_uk || ''
   );
   
-  // ✅ Нормалізуємо ТІЛЬКИ праву частину synonyms_ua (переклади), НЕ ліву (транслітерацію)
-  const normalizedSynonymsUa = synonyms_ua.split(';').map(pair => {
+  // ✅ Нормалізуємо ТІЛЬКИ праву частину synonyms_uk (переклади), НЕ ліву (транслітерацію)
+  const normalizedSynonymsUa = synonyms_uk.split(';').map(pair => {
     const parts = pair.split('—').map(p => p.trim());
     if (parts.length === 2) {
       const term = parts[0]; // транслітерація - БЕЗ нормалізації
@@ -576,13 +576,13 @@ export function mergeVedabaseAndGitabase(
   const merged: MergedVerseData = {
     bengali: normalizeVerseField(vedabase.bengali, 'sanskrit'),
     transliteration_en: vedabase.transliteration_en, // IAST без змін
-    transliteration_ua: transliteration_ua, // ✅ БЕЗ нормалізації слів! (тільки діакритика)
+    transliteration_uk: transliteration_uk, // ✅ БЕЗ нормалізації слів! (тільки діакритика)
     synonyms_en: vedabase.synonyms_en, // IAST без змін
-    synonyms_ua: normalizedSynonymsUa, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
+    synonyms_uk: normalizedSynonymsUa, // ✅ Нормалізовані ТІЛЬКИ переклади, НЕ терміни
     translation_en: normalizeVerseField(vedabase.translation_en, 'translation'),
-    translation_ua: normalizeVerseField(gitabase?.translation_ua || '', 'translation'),
-    purport_en: normalizeVerseField(vedabase.purport_en, 'commentary'),
-    purport_ua: normalizeVerseField(gitabase?.purport_ua || '', 'commentary'),
+    translation_uk: normalizeVerseField(gitabase?.translation_uk || '', 'translation'),
+    commentary_en: normalizeVerseField(vedabase.commentary_en, 'commentary'),
+    commentary_uk: normalizeVerseField(gitabase?.commentary_uk || '', 'commentary'),
     lila,
     chapter,
     verse,
@@ -593,8 +593,8 @@ export function mergeVedabaseAndGitabase(
   console.log(`✅ Merged verse: ${lila} ${chapter}:${verse}`, {
     hasVedabase: !!vedabase,
     hasGitabase: !!gitabase,
-    hasTranslationUA: !!gitabase?.translation_ua,
-    hasSynonymsUA: !!gitabase?.synonyms_ua
+    hasTranslationUA: !!gitabase?.translation_uk,
+    hasSynonymsUA: !!gitabase?.synonyms_uk
   });
 
   return merged;

@@ -2,8 +2,8 @@
 
 export interface Achievement {
   id: string;
-  title: { ua: string; en: string };
-  description: { ua: string; en: string };
+  title: { uk: string; en: string };
+  description: { uk: string; en: string };
   icon: string; // Emoji or icon name
   category: 'words' | 'verses' | 'streak' | 'practice' | 'mastery';
   unlockedAt?: number; // timestamp
@@ -35,31 +35,31 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress
   // Words achievements
   {
     id: 'first_word',
-    title: { ua: 'Перше слово', en: 'First Word' },
-    description: { ua: 'Додано перше слово для вивчення', en: 'Added first word to learn' },
+    title: { uk: 'Перше слово', en: 'First Word' },
+    description: { uk: 'Додано перше слово для вивчення', en: 'Added first word to learn' },
     icon: '📝',
     category: 'words',
   },
   {
     id: 'word_collector_10',
-    title: { ua: 'Колекціонер слів', en: 'Word Collector' },
-    description: { ua: 'Додано 10 слів для вивчення', en: 'Added 10 words to learn' },
+    title: { uk: 'Колекціонер слів', en: 'Word Collector' },
+    description: { uk: 'Додано 10 слів для вивчення', en: 'Added 10 words to learn' },
     icon: '📚',
     category: 'words',
     target: 10,
   },
   {
     id: 'word_master_50',
-    title: { ua: 'Майстер слів', en: 'Word Master' },
-    description: { ua: 'Додано 50 слів для вивчення', en: 'Added 50 words to learn' },
+    title: { uk: 'Майстер слів', en: 'Word Master' },
+    description: { uk: 'Додано 50 слів для вивчення', en: 'Added 50 words to learn' },
     icon: '🎓',
     category: 'words',
     target: 50,
   },
   {
     id: 'word_legend_100',
-    title: { ua: 'Легенда слів', en: 'Word Legend' },
-    description: { ua: 'Додано 100 слів для вивчення', en: 'Added 100 words to learn' },
+    title: { uk: 'Легенда слів', en: 'Word Legend' },
+    description: { uk: 'Додано 100 слів для вивчення', en: 'Added 100 words to learn' },
     icon: '👑',
     category: 'words',
     target: 100,
@@ -68,23 +68,23 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress
   // Verses achievements
   {
     id: 'first_verse',
-    title: { ua: 'Перша шлока', en: 'First Sloka' },
-    description: { ua: 'Додано перший вірш для вивчення', en: 'Added first verse to learn' },
+    title: { uk: 'Перша шлока', en: 'First Sloka' },
+    description: { uk: 'Додано перший вірш для вивчення', en: 'Added first verse to learn' },
     icon: '📖',
     category: 'verses',
   },
   {
     id: 'verse_scholar_10',
-    title: { ua: 'Знавець віршів', en: 'Verse Scholar' },
-    description: { ua: 'Додано 10 віршів для вивчення', en: 'Added 10 verses to learn' },
+    title: { uk: 'Знавець віршів', en: 'Verse Scholar' },
+    description: { uk: 'Додано 10 віршів для вивчення', en: 'Added 10 verses to learn' },
     icon: '📜',
     category: 'verses',
     target: 10,
   },
   {
     id: 'verse_sage_25',
-    title: { ua: 'Мудрець віршів', en: 'Verse Sage' },
-    description: { ua: 'Додано 25 віршів для вивчення', en: 'Added 25 verses to learn' },
+    title: { uk: 'Мудрець віршів', en: 'Verse Sage' },
+    description: { uk: 'Додано 25 віршів для вивчення', en: 'Added 25 verses to learn' },
     icon: '🧙',
     category: 'verses',
     target: 25,
@@ -93,32 +93,32 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress
   // Streak achievements
   {
     id: 'streak_3',
-    title: { ua: '3-денна серія', en: '3-Day Streak' },
-    description: { ua: 'Займалися 3 дні поспіль', en: 'Practiced for 3 days in a row' },
+    title: { uk: '3-денна серія', en: '3-Day Streak' },
+    description: { uk: 'Займалися 3 дні поспіль', en: 'Practiced for 3 days in a row' },
     icon: '🔥',
     category: 'streak',
     target: 3,
   },
   {
     id: 'streak_7',
-    title: { ua: 'Тиждень практики', en: 'Week Warrior' },
-    description: { ua: 'Займалися тиждень поспіль', en: 'Practiced for 7 days in a row' },
+    title: { uk: 'Тиждень практики', en: 'Week Warrior' },
+    description: { uk: 'Займалися тиждень поспіль', en: 'Practiced for 7 days in a row' },
     icon: '⚡',
     category: 'streak',
     target: 7,
   },
   {
     id: 'streak_30',
-    title: { ua: 'Місяць майстерності', en: 'Month Master' },
-    description: { ua: 'Займалися місяць поспіль', en: 'Practiced for 30 days in a row' },
+    title: { uk: 'Місяць майстерності', en: 'Month Master' },
+    description: { uk: 'Займалися місяць поспіль', en: 'Practiced for 30 days in a row' },
     icon: '🌟',
     category: 'streak',
     target: 30,
   },
   {
     id: 'streak_100',
-    title: { ua: 'Сотня днів', en: 'Century' },
-    description: { ua: 'Займалися 100 днів поспіль', en: 'Practiced for 100 days in a row' },
+    title: { uk: 'Сотня днів', en: 'Century' },
+    description: { uk: 'Займалися 100 днів поспіль', en: 'Practiced for 100 days in a row' },
     icon: '💯',
     category: 'streak',
     target: 100,
@@ -127,48 +127,48 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress
   // Practice achievements
   {
     id: 'reviews_10',
-    title: { ua: 'Початківець', en: 'Beginner' },
-    description: { ua: 'Зроблено 10 повторень', en: 'Completed 10 reviews' },
+    title: { uk: 'Початківець', en: 'Beginner' },
+    description: { uk: 'Зроблено 10 повторень', en: 'Completed 10 reviews' },
     icon: '🌱',
     category: 'practice',
     target: 10,
   },
   {
     id: 'reviews_100',
-    title: { ua: 'Практикант', en: 'Practitioner' },
-    description: { ua: 'Зроблено 100 повторень', en: 'Completed 100 reviews' },
+    title: { uk: 'Практикант', en: 'Practitioner' },
+    description: { uk: 'Зроблено 100 повторень', en: 'Completed 100 reviews' },
     icon: '🌿',
     category: 'practice',
     target: 100,
   },
   {
     id: 'reviews_500',
-    title: { ua: 'Майстер практики', en: 'Practice Master' },
-    description: { ua: 'Зроблено 500 повторень', en: 'Completed 500 reviews' },
+    title: { uk: 'Майстер практики', en: 'Practice Master' },
+    description: { uk: 'Зроблено 500 повторень', en: 'Completed 500 reviews' },
     icon: '🌳',
     category: 'practice',
     target: 500,
   },
   {
     id: 'reviews_1000',
-    title: { ua: 'Гранд-майстер', en: 'Grand Master' },
-    description: { ua: 'Зроблено 1000 повторень', en: 'Completed 1000 reviews' },
+    title: { uk: 'Гранд-майстер', en: 'Grand Master' },
+    description: { uk: 'Зроблено 1000 повторень', en: 'Completed 1000 reviews' },
     icon: '🏆',
     category: 'practice',
     target: 1000,
   },
   {
     id: 'accuracy_90',
-    title: { ua: 'Точність', en: 'Precision' },
-    description: { ua: 'Досягнуто 90% точності', en: 'Achieved 90% accuracy' },
+    title: { uk: 'Точність', en: 'Precision' },
+    description: { uk: 'Досягнуто 90% точності', en: 'Achieved 90% accuracy' },
     icon: '🎯',
     category: 'practice',
     target: 90,
   },
   {
     id: 'perfect_session',
-    title: { ua: 'Ідеальна сесія', en: 'Perfect Session' },
-    description: { ua: '10 правильних відповідей підряд', en: '10 correct answers in a row' },
+    title: { uk: 'Ідеальна сесія', en: 'Perfect Session' },
+    description: { uk: '10 правильних відповідей підряд', en: '10 correct answers in a row' },
     icon: '✨',
     category: 'practice',
     target: 10,
@@ -177,16 +177,16 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt' | 'progress
   // Mastery achievements
   {
     id: 'mastered_10',
-    title: { ua: 'Перші освоєння', en: 'First Masteries' },
-    description: { ua: 'Освоєно 10 елементів (3+ повторення)', en: 'Mastered 10 items (3+ repetitions)' },
+    title: { uk: 'Перші освоєння', en: 'First Masteries' },
+    description: { uk: 'Освоєно 10 елементів (3+ повторення)', en: 'Mastered 10 items (3+ repetitions)' },
     icon: '🎖️',
     category: 'mastery',
     target: 10,
   },
   {
     id: 'mastered_50',
-    title: { ua: 'Експерт', en: 'Expert' },
-    description: { ua: 'Освоєно 50 елементів', en: 'Mastered 50 items' },
+    title: { uk: 'Експерт', en: 'Expert' },
+    description: { uk: 'Освоєно 50 елементів', en: 'Mastered 50 items' },
     icon: '🥇',
     category: 'mastery',
     target: 50,

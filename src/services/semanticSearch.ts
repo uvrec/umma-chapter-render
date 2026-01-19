@@ -32,7 +32,7 @@ export interface SearchResult {
 
 export interface SearchOptions {
   query: string;
-  language?: 'ua' | 'en';
+  language?: 'uk' | 'en';
   bookIds?: string[];
   limit?: number;
   includeCommentary?: boolean;
@@ -130,7 +130,7 @@ export function expandQuery(query: string): string {
 export async function fulltextSearch(options: SearchOptions): Promise<SearchResult[]> {
   const {
     query,
-    language = 'ua',
+    language = 'uk',
     bookIds,
     limit = 10,
     includeCommentary = true,
@@ -239,12 +239,12 @@ export interface CrossReference {
 export async function getVerseReferences(
   verseId: string,
   options: {
-    language?: 'ua' | 'en';
+    language?: 'uk' | 'en';
     limit?: number;
     minConfidence?: number;
   } = {}
 ): Promise<CrossReference[]> {
-  const { language = 'ua', limit = 5, minConfidence = 0 } = options;
+  const { language = 'uk', limit = 5, minConfidence = 0 } = options;
 
   try {
     // Query cross_references with target verse details
@@ -259,10 +259,10 @@ export async function getVerseReferences(
         target_verse:verses!cross_references_target_verse_id_fkey (
           id,
           verse_number,
-          translation_ua,
+          translation_uk,
           translation_en,
           transliteration,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
           chapter:chapters!verses_chapter_id_fkey (
             chapter_number,
@@ -295,11 +295,11 @@ export async function getVerseReferences(
       .map((ref: any) => {
         const verse = ref.target_verse;
         const chapter = verse?.chapter;
-        const translation = language === 'ua'
-          ? verse?.translation_ua
+        const translation = language === 'uk'
+          ? verse?.translation_uk
           : verse?.translation_en;
-        const transliteration = language === 'ua'
-          ? (verse?.transliteration_ua || verse?.transliteration)
+        const transliteration = language === 'uk'
+          ? (verse?.transliteration_uk || verse?.transliteration)
           : (verse?.transliteration_en || verse?.transliteration);
 
         return {
@@ -328,11 +328,11 @@ export async function getVerseReferences(
 export async function getBidirectionalReferences(
   verseId: string,
   options: {
-    language?: 'ua' | 'en';
+    language?: 'uk' | 'en';
     limit?: number;
   } = {}
 ): Promise<CrossReference[]> {
-  const { language = 'ua', limit = 10 } = options;
+  const { language = 'uk', limit = 10 } = options;
 
   try {
     // Get references where this verse is the source
@@ -350,10 +350,10 @@ export async function getBidirectionalReferences(
         source_verse:verses!cross_references_source_verse_id_fkey (
           id,
           verse_number,
-          translation_ua,
+          translation_uk,
           translation_en,
           transliteration,
-          transliteration_ua,
+          transliteration_uk,
           transliteration_en,
           chapter:chapters!verses_chapter_id_fkey (
             chapter_number,
@@ -381,11 +381,11 @@ export async function getBidirectionalReferences(
       .map((ref: any) => {
         const verse = ref.source_verse;
         const chapter = verse?.chapter;
-        const translation = language === 'ua'
-          ? verse?.translation_ua
+        const translation = language === 'uk'
+          ? verse?.translation_uk
           : verse?.translation_en;
-        const transliteration = language === 'ua'
-          ? (verse?.transliteration_ua || verse?.transliteration)
+        const transliteration = language === 'uk'
+          ? (verse?.transliteration_uk || verse?.transliteration)
           : (verse?.transliteration_en || verse?.transliteration);
 
         return {
@@ -433,7 +433,7 @@ function truncateText(text: string, maxLength: number): string {
  */
 export function formatSearchResult(
   result: SearchResult,
-  language: 'ua' | 'en' = 'ua'
+  language: 'uk' | 'en' = 'uk'
 ): string {
   const bookAbbr = getBookAbbreviation(result.bookSlug, language);
   return `${bookAbbr} ${result.chapterNumber}.${result.verseNumber}`;
@@ -442,14 +442,14 @@ export function formatSearchResult(
 /**
  * Get book abbreviation based on slug
  */
-function getBookAbbreviation(slug: string, language: 'ua' | 'en'): string {
-  const abbreviations: Record<string, { ua: string; en: string }> = {
-    'bg': { ua: 'БГ', en: 'BG' },
-    'sb': { ua: 'ШБ', en: 'SB' },
-    'cc': { ua: 'ЧЧ', en: 'CC' },
-    'noi': { ua: 'НН', en: 'NOI' },
-    'nod': { ua: 'НВ', en: 'NOD' },
-    'iso': { ua: 'Ішо', en: 'ISO' },
+function getBookAbbreviation(slug: string, language: 'uk' | 'en'): string {
+  const abbreviations: Record<string, { uk: string; en: string }> = {
+    'bg': { uk: 'БГ', en: 'BG' },
+    'sb': { uk: 'ШБ', en: 'SB' },
+    'cc': { uk: 'ЧЧ', en: 'CC' },
+    'noi': { uk: 'НН', en: 'NOI' },
+    'nod': { uk: 'НВ', en: 'NOD' },
+    'iso': { uk: 'Ішо', en: 'ISO' },
   };
 
   return abbreviations[slug]?.[language] || slug.toUpperCase();

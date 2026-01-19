@@ -48,8 +48,8 @@ export default function LRCEditorPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("id, title_ua, has_cantos")
-        .order("title_ua");
+        .select("id, title_uk, has_cantos")
+        .order("title_uk");
       if (error) throw error;
       return data;
     },
@@ -64,7 +64,7 @@ export default function LRCEditorPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cantos")
-        .select("id, title_ua, canto_number")
+        .select("id, title_uk, canto_number")
         .eq("book_id", selectedBookId)
         .order("canto_number");
       if (error) throw error;
@@ -79,7 +79,7 @@ export default function LRCEditorPage() {
     queryFn: async () => {
       let query = supabase
         .from("chapters")
-        .select("id, title_ua, chapter_number")
+        .select("id, title_uk, chapter_number")
         .order("chapter_number");
 
       if (selectedBook?.has_cantos && selectedCantoId) {
@@ -103,7 +103,7 @@ export default function LRCEditorPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("verses")
-        .select("id, verse_number, sanskrit_ua, transliteration_ua, translation_ua, commentary_ua, full_verse_audio_url")
+        .select("id, verse_number, sanskrit_uk, transliteration_uk, translation_uk, commentary_uk, full_verse_audio_url")
         .eq("chapter_id", selectedChapterId)
         .order("verse_number");
       if (error) throw error;
@@ -168,13 +168,13 @@ export default function LRCEditorPage() {
     if (!currentVerse) return "";
     switch (section) {
       case "sanskrit":
-        return currentVerse.sanskrit_ua || currentVerse.sanskrit_en || "";
+        return currentVerse.sanskrit_uk || currentVerse.sanskrit_en || "";
       case "transliteration":
-        return currentVerse.transliteration_ua || currentVerse.transliteration_en || "";
+        return currentVerse.transliteration_uk || currentVerse.transliteration_en || "";
       case "translation":
-        return currentVerse.translation_ua || currentVerse.translation_en || "";
+        return currentVerse.translation_uk || currentVerse.translation_en || "";
       case "commentary":
-        return currentVerse.commentary_ua || currentVerse.commentary_en || "";
+        return currentVerse.commentary_uk || currentVerse.commentary_en || "";
       default:
         return "";
     }
@@ -185,7 +185,7 @@ export default function LRCEditorPage() {
     if (!existingLRC) return undefined;
     const record = existingLRC.find((l) =>
       l.audio_type === "full" &&
-      (l.language === "ua" || l.language === "sa")
+      (l.language === "uk" || l.language === "sa")
     );
     return record?.lrc_content || undefined;
   };
@@ -199,7 +199,7 @@ export default function LRCEditorPage() {
         {
           verse_id: selectedVerseId,
           audio_type: "full",
-          language: activeSection === "sanskrit" ? "sa" : "ua",
+          language: activeSection === "sanskrit" ? "sa" : "uk",
           lrc_content: lrcContent,
           sync_type: "line",
         },
@@ -264,7 +264,7 @@ export default function LRCEditorPage() {
                 <SelectContent>
                   {books?.map((book) => (
                     <SelectItem key={book.id} value={book.id}>
-                      {book.title_ua}
+                      {book.title_uk}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -289,7 +289,7 @@ export default function LRCEditorPage() {
                   <SelectContent>
                     {cantos?.map((canto) => (
                       <SelectItem key={canto.id} value={canto.id}>
-                        Пісня {canto.canto_number}: {canto.title_ua}
+                        Пісня {canto.canto_number}: {canto.title_uk}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -314,7 +314,7 @@ export default function LRCEditorPage() {
                 <SelectContent>
                   {chapters?.map((chapter) => (
                     <SelectItem key={chapter.id} value={chapter.id}>
-                      Глава {chapter.chapter_number}: {chapter.title_ua}
+                      Глава {chapter.chapter_number}: {chapter.title_uk}
                     </SelectItem>
                   ))}
                 </SelectContent>

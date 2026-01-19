@@ -22,7 +22,7 @@ interface BlogPoetryContentProps {
     translation?: boolean;
     commentary?: boolean;
   };
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 // Функція для відкриття глосарію з пошуком по терміну
@@ -82,7 +82,7 @@ export function BlogPoetryContent({
         <div className="p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              {language === "ua" ? "Оригінал" : "Original"}
+              {language === "uk" ? "Оригінал" : "Original"}
             </h3>
             {audioSanskritUrl && (
               <Button
@@ -106,7 +106,7 @@ export function BlogPoetryContent({
         <div className="p-4 bg-muted/30 rounded-lg">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              {language === "ua" ? "Транслітерація" : "Transliteration"}
+              {language === "uk" ? "Транслітерація" : "Transliteration"}
             </h3>
             {audioTransliterationUrl && (
               <Button

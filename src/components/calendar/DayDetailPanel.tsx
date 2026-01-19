@@ -31,44 +31,44 @@ import { Button } from "@/components/ui/button";
 
 interface DayDetailPanelProps {
   day: DayData;
-  language: "ua" | "en";
+  language: "uk" | "en";
   onClose?: () => void;
 }
 
 // Paksha display info
-const pakshaInfo: Record<Paksha, { ua: string; en: string; description_ua: string; description_en: string }> = {
+const pakshaInfo: Record<Paksha, { uk: string; en: string; description_uk: string; description_en: string }> = {
   shukla: {
     ua: "Шукла пакша",
     en: "Shukla Paksha",
-    description_ua: "Світла половина місяця (зростаючий)",
+    description_uk: "Світла половина місяця (зростаючий)",
     description_en: "Bright fortnight (waxing moon)",
   },
   krishna: {
     ua: "Крішна пакша",
     en: "Krishna Paksha",
-    description_ua: "Темна половина місяця (спадаючий)",
+    description_uk: "Темна половина місяця (спадаючий)",
     description_en: "Dark fortnight (waning moon)",
   },
 };
 
 // Tithi names
-const tithiNames: Record<number, { ua: string; en: string; sanskrit: string }> = {
-  1: { ua: "Пратіпада", en: "Pratipada", sanskrit: "प्रतिपदा" },
-  2: { ua: "Двітія", en: "Dvitiya", sanskrit: "द्वितीया" },
-  3: { ua: "Трітія", en: "Tritiya", sanskrit: "तृतीया" },
-  4: { ua: "Чатуртхі", en: "Chaturthi", sanskrit: "चतुर्थी" },
-  5: { ua: "Панчамі", en: "Panchami", sanskrit: "पञ्चमी" },
-  6: { ua: "Шаштхі", en: "Shashthi", sanskrit: "षष्ठी" },
-  7: { ua: "Саптамі", en: "Saptami", sanskrit: "सप्तमी" },
-  8: { ua: "Аштамі", en: "Ashtami", sanskrit: "अष्टमी" },
-  9: { ua: "Навамі", en: "Navami", sanskrit: "नवमी" },
-  10: { ua: "Дашамі", en: "Dashami", sanskrit: "दशमी" },
-  11: { ua: "Екадаші", en: "Ekadashi", sanskrit: "एकादशी" },
-  12: { ua: "Двадаші", en: "Dvadashi", sanskrit: "द्वादशी" },
-  13: { ua: "Трайодаші", en: "Trayodashi", sanskrit: "त्रयोदशी" },
-  14: { ua: "Чатурдаші", en: "Chaturdashi", sanskrit: "चतुर्दशी" },
-  15: { ua: "Пурніма", en: "Purnima", sanskrit: "पूर्णिमा" },
-  30: { ua: "Амавас'я", en: "Amavasya", sanskrit: "अमावस्या" },
+const tithiNames: Record<number, { uk: string; en: string; sanskrit: string }> = {
+  1: { uk: "Пратіпада", en: "Pratipada", sanskrit: "प्रतिपदा" },
+  2: { uk: "Двітія", en: "Dvitiya", sanskrit: "द्वितीया" },
+  3: { uk: "Трітія", en: "Tritiya", sanskrit: "तृतीया" },
+  4: { uk: "Чатуртхі", en: "Chaturthi", sanskrit: "चतुर्थी" },
+  5: { uk: "Панчамі", en: "Panchami", sanskrit: "पञ्चमी" },
+  6: { uk: "Шаштхі", en: "Shashthi", sanskrit: "षष्ठी" },
+  7: { uk: "Саптамі", en: "Saptami", sanskrit: "सप्तमी" },
+  8: { uk: "Аштамі", en: "Ashtami", sanskrit: "अष्टमी" },
+  9: { uk: "Навамі", en: "Navami", sanskrit: "नवमी" },
+  10: { uk: "Дашамі", en: "Dashami", sanskrit: "दशमी" },
+  11: { uk: "Екадаші", en: "Ekadashi", sanskrit: "एकादशी" },
+  12: { uk: "Двадаші", en: "Dvadashi", sanskrit: "द्वादशी" },
+  13: { uk: "Трайодаші", en: "Trayodashi", sanskrit: "त्रयोदशी" },
+  14: { uk: "Чатурдаші", en: "Chaturdashi", sanskrit: "चतुर्दशी" },
+  15: { uk: "Пурніма", en: "Purnima", sanskrit: "पूर्णिमा" },
+  30: { uk: "Амавас'я", en: "Amavasya", sanskrit: "अमावस्या" },
 };
 
 // Moon phase emoji based on percentage
@@ -88,7 +88,7 @@ export function DayDetailPanel({
 }: DayDetailPanelProps) {
   // Format date
   const formattedDate = format(day.date, "EEEE, d MMMM yyyy", {
-    locale: language === "ua" ? uk : undefined,
+    locale: language === "uk" ? uk : undefined,
   });
 
   // Get tithi info
@@ -113,7 +113,7 @@ export function DayDetailPanel({
             <CardTitle className="text-lg capitalize">{formattedDate}</CardTitle>
             {day.is_today && (
               <Badge variant="default" className="mt-1">
-                {language === "ua" ? "Сьогодні" : "Today"}
+                {language === "uk" ? "Сьогодні" : "Today"}
               </Badge>
             )}
           </div>
@@ -131,7 +131,7 @@ export function DayDetailPanel({
           <div className="space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <CircleDot className="h-4 w-4 text-purple-500" />
-              {language === "ua" ? "Тітхі" : "Tithi"}
+              {language === "uk" ? "Тітхі" : "Tithi"}
             </h4>
             <div className="bg-muted/50 rounded-lg p-3 space-y-1">
               {tithiInfo && (
@@ -144,7 +144,7 @@ export function DayDetailPanel({
                   </span>
                   {day.tithi?.is_ekadashi && (
                     <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200 ml-2">
-                      {language === "ua" ? "День посту" : "Fasting day"}
+                      {language === "uk" ? "День посту" : "Fasting day"}
                     </Badge>
                   )}
                 </div>
@@ -153,7 +153,7 @@ export function DayDetailPanel({
                 <div className="text-sm text-muted-foreground">
                   <span className="font-medium">{paksha[language]}</span>
                   <span className="text-xs ml-2">
-                    — {language === "ua" ? paksha.description_ua : paksha.description_en}
+                    — {language === "uk" ? paksha.description_uk : paksha.description_en}
                   </span>
                 </div>
               )}
@@ -166,12 +166,12 @@ export function DayDetailPanel({
           <div className="space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Calendar className="h-4 w-4 text-blue-500" />
-              {language === "ua" ? "Вайшнавський місяць" : "Vaishnava Month"}
+              {language === "uk" ? "Вайшнавський місяць" : "Vaishnava Month"}
             </h4>
             <div className="bg-muted/50 rounded-lg p-3">
               <span className="font-medium">
-                {language === "ua"
-                  ? day.vaishnava_month.name_ua
+                {language === "uk"
+                  ? day.vaishnava_month.name_uk
                   : day.vaishnava_month.name_en}
               </span>
               <span className="text-sm text-muted-foreground ml-2">
@@ -186,7 +186,7 @@ export function DayDetailPanel({
           <div className="space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Sun className="h-4 w-4 text-amber-500" />
-              {language === "ua" ? "Сонце" : "Sun"}
+              {language === "uk" ? "Сонце" : "Sun"}
             </h4>
             <div className="flex gap-4 bg-muted/50 rounded-lg p-3">
               {day.sunrise && (
@@ -194,7 +194,7 @@ export function DayDetailPanel({
                   <Sunrise className="h-4 w-4 text-amber-500" />
                   <div>
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Схід" : "Sunrise"}
+                      {language === "uk" ? "Схід" : "Sunrise"}
                     </div>
                     <div className="font-medium">{day.sunrise}</div>
                   </div>
@@ -205,7 +205,7 @@ export function DayDetailPanel({
                   <Sunset className="h-4 w-4 text-orange-500" />
                   <div>
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Захід" : "Sunset"}
+                      {language === "uk" ? "Захід" : "Sunset"}
                     </div>
                     <div className="font-medium">{day.sunset}</div>
                   </div>
@@ -220,21 +220,21 @@ export function DayDetailPanel({
           <div className="space-y-2">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <Moon className="h-4 w-4 text-slate-400" />
-              {language === "ua" ? "Місяць" : "Moon"}
+              {language === "uk" ? "Місяць" : "Moon"}
             </h4>
             <div className="bg-muted/50 rounded-lg p-3 flex items-center gap-3">
               <span className="text-2xl">{getMoonPhaseEmoji(day.moon_phase)}</span>
               <div>
                 <div className="font-medium">
                   {Math.round(day.moon_phase)}%{" "}
-                  {language === "ua" ? "освітлення" : "illumination"}
+                  {language === "uk" ? "освітлення" : "illumination"}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {day.paksha === "shukla"
-                    ? language === "ua"
+                    ? language === "uk"
                       ? "Зростаючий місяць"
                       : "Waxing moon"
-                    : language === "ua"
+                    : language === "uk"
                     ? "Спадаючий місяць"
                     : "Waning moon"}
                 </div>
@@ -249,7 +249,7 @@ export function DayDetailPanel({
             <Separator />
             <div className="space-y-2">
               <h4 className="text-sm font-medium">
-                {language === "ua"
+                {language === "uk"
                   ? `Події (${day.events.length})`
                   : `Events (${day.events.length})`}
               </h4>
@@ -271,7 +271,7 @@ export function DayDetailPanel({
           <>
             <Separator />
             <p className="text-sm text-muted-foreground text-center py-4">
-              {language === "ua"
+              {language === "uk"
                 ? "Немає особливих подій цього дня"
                 : "No special events on this day"}
             </p>
@@ -287,7 +287,7 @@ export function DayDetailPanel({
  */
 interface DayDetailCompactProps {
   day: DayData;
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 export function DayDetailCompact({ day, language }: DayDetailCompactProps) {
@@ -303,11 +303,11 @@ export function DayDetailCompact({ day, language }: DayDetailCompactProps) {
       {/* Date */}
       <div className="font-medium">
         {format(day.date, "d MMMM", {
-          locale: language === "ua" ? uk : undefined,
+          locale: language === "uk" ? uk : undefined,
         })}
         {day.is_today && (
           <Badge variant="default" className="ml-2 text-xs">
-            {language === "ua" ? "Сьогодні" : "Today"}
+            {language === "uk" ? "Сьогодні" : "Today"}
           </Badge>
         )}
       </div>
@@ -341,13 +341,13 @@ export function DayDetailCompact({ day, language }: DayDetailCompactProps) {
         <div className="text-xs">
           {day.events.length === 1
             ? day.events[0].is_ekadashi
-              ? language === "ua"
+              ? language === "uk"
                 ? "Екадаші"
                 : "Ekadashi"
-              : language === "ua"
+              : language === "uk"
               ? "1 подія"
               : "1 event"
-            : language === "ua"
+            : language === "uk"
             ? `${day.events.length} подій`
             : `${day.events.length} events`}
         </div>

@@ -69,7 +69,7 @@ interface VerseCardProps {
   ) => void;
   onVerseDelete?: (verseId: string) => void;
   onVerseNumberUpdate?: () => void; // коллбек після зміни номера
-  language?: "ua" | "en"; // ✅ НОВЕ: мова інтерфейсу
+  language?: "uk" | "en"; // ✅ НОВЕ: мова інтерфейсу
   // Навігація між віршами
   onPrevVerse?: () => void;
   onNextVerse?: () => void;
@@ -116,7 +116,7 @@ export const VerseCard = ({
   onVerseUpdate,
   onVerseDelete,
   onVerseNumberUpdate,
-  language = "ua",
+  language = "uk",
   onPrevVerse,
   onNextVerse,
   isPrevDisabled,
@@ -348,7 +348,7 @@ export const VerseCard = ({
                 ) : (
                   <>
                     <Play className="h-4 w-4" />
-                    <span className="text-sm font-medium">{language === 'ua' ? 'Слухати' : 'Listen'}</span>
+                    <span className="text-sm font-medium">{language === 'uk' ? 'Слухати' : 'Listen'}</span>
                   </>
                 )}
               </button>

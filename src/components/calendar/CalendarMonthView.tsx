@@ -17,43 +17,43 @@ interface CalendarMonthViewProps {
   monthData: MonthData;
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
-  language: "ua" | "en";
+  language: "uk" | "en";
   weekDays: string[];
   showSunTimes?: boolean;
   showTithi?: boolean;
 }
 
 // Paksha display helpers
-const pakshaLabels: Record<Paksha, { ua: string; en: string; symbol: string }> = {
-  shukla: { ua: "Шукла", en: "Shukla", symbol: "☽" },
-  krishna: { ua: "Крішна", en: "Krishna", symbol: "☾" },
+const pakshaLabels: Record<Paksha, { uk: string; en: string; symbol: string }> = {
+  shukla: { uk: "Шукла", en: "Shukla", symbol: "☽" },
+  krishna: { uk: "Крішна", en: "Krishna", symbol: "☾" },
 };
 
 // Tithi names
-const tithiNames: Record<number, { ua: string; en: string }> = {
-  1: { ua: "Пратіпада", en: "Pratipada" },
-  2: { ua: "Двітія", en: "Dvitiya" },
-  3: { ua: "Трітія", en: "Tritiya" },
-  4: { ua: "Чатуртхі", en: "Chaturthi" },
-  5: { ua: "Панчамі", en: "Panchami" },
-  6: { ua: "Шаштхі", en: "Shashthi" },
-  7: { ua: "Саптамі", en: "Saptami" },
-  8: { ua: "Аштамі", en: "Ashtami" },
-  9: { ua: "Навамі", en: "Navami" },
-  10: { ua: "Дашамі", en: "Dashami" },
-  11: { ua: "Екадаші", en: "Ekadashi" },
-  12: { ua: "Двадаші", en: "Dvadashi" },
-  13: { ua: "Трайодаші", en: "Trayodashi" },
-  14: { ua: "Чатурдаші", en: "Chaturdashi" },
-  15: { ua: "Пурніма", en: "Purnima" }, // Full moon (shukla)
-  30: { ua: "Амавас'я", en: "Amavasya" }, // New moon (krishna 15)
+const tithiNames: Record<number, { uk: string; en: string }> = {
+  1: { uk: "Пратіпада", en: "Pratipada" },
+  2: { uk: "Двітія", en: "Dvitiya" },
+  3: { uk: "Трітія", en: "Tritiya" },
+  4: { uk: "Чатуртхі", en: "Chaturthi" },
+  5: { uk: "Панчамі", en: "Panchami" },
+  6: { uk: "Шаштхі", en: "Shashthi" },
+  7: { uk: "Саптамі", en: "Saptami" },
+  8: { uk: "Аштамі", en: "Ashtami" },
+  9: { uk: "Навамі", en: "Navami" },
+  10: { uk: "Дашамі", en: "Dashami" },
+  11: { uk: "Екадаші", en: "Ekadashi" },
+  12: { uk: "Двадаші", en: "Dvadashi" },
+  13: { uk: "Трайодаші", en: "Trayodashi" },
+  14: { uk: "Чатурдаші", en: "Chaturdashi" },
+  15: { uk: "Пурніма", en: "Purnima" }, // Full moon (shukla)
+  30: { uk: "Амавас'я", en: "Amavasya" }, // New moon (krishna 15)
 };
 
 // Get tithi name with paksha
 function getTithiDisplay(
   tithi: number | undefined,
   paksha: Paksha | undefined,
-  language: "ua" | "en"
+  language: "uk" | "en"
 ): string | null {
   if (!tithi) return null;
 
@@ -207,13 +207,13 @@ export function CalendarMonthView({
                     )}
                     style={{ backgroundColor: getEventColor(primaryEvent) }}
                     title={
-                      language === "ua"
-                        ? primaryEvent.name_ua
+                      language === "uk"
+                        ? primaryEvent.name_uk
                         : primaryEvent.name_en
                     }
                   >
-                    {language === "ua"
-                      ? primaryEvent.name_ua
+                    {language === "uk"
+                      ? primaryEvent.name_uk
                       : primaryEvent.name_en}
                   </div>
                 )}
@@ -227,7 +227,7 @@ export function CalendarMonthView({
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: getEventColor(event) }}
                         title={
-                          language === "ua" ? event.name_ua : event.name_en
+                          language === "uk" ? event.name_uk : event.name_en
                         }
                       />
                     ))}
@@ -244,13 +244,13 @@ export function CalendarMonthView({
               {showSunTimes && (day.sunrise || day.sunset) && (
                 <div className="absolute bottom-1 left-1 right-1 flex justify-between text-[9px] text-muted-foreground">
                   {day.sunrise && (
-                    <span className="flex items-center gap-0.5" title={language === "ua" ? "Схід" : "Sunrise"}>
+                    <span className="flex items-center gap-0.5" title={language === "uk" ? "Схід" : "Sunrise"}>
                       <Sunrise className="h-2.5 w-2.5 text-amber-500" />
                       {day.sunrise}
                     </span>
                   )}
                   {day.sunset && (
-                    <span className="flex items-center gap-0.5" title={language === "ua" ? "Захід" : "Sunset"}>
+                    <span className="flex items-center gap-0.5" title={language === "uk" ? "Захід" : "Sunset"}>
                       <Sunset className="h-2.5 w-2.5 text-orange-500" />
                       {day.sunset}
                     </span>

@@ -77,14 +77,14 @@ export const LettersContent = () => {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter((letter) => {
-        const recipient = language === "ua" && letter.recipient_ua
-          ? letter.recipient_ua
+        const recipient = language === "uk" && letter.recipient_uk
+          ? letter.recipient_uk
           : letter.recipient_en;
-        const location = language === "ua" && letter.location_ua
-          ? letter.location_ua
+        const location = language === "uk" && letter.location_uk
+          ? letter.location_uk
           : letter.location_en;
-        const content = language === "ua" && letter.content_ua
-          ? letter.content_ua
+        const content = language === "uk" && letter.content_uk
+          ? letter.content_uk
           : letter.content_en;
 
         return (
@@ -370,15 +370,15 @@ export const LettersContent = () => {
                     <Mail className="w-5 h-5 mt-1 flex-shrink-0 text-muted-foreground" />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-lg font-semibold line-clamp-2">
-                        {language === "ua" && letter.recipient_ua
-                          ? letter.recipient_ua
+                        {language === "uk" && letter.recipient_uk
+                          ? letter.recipient_uk
                           : letter.recipient_en}
                       </h4>
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mt-1">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {new Date(letter.letter_date).toLocaleDateString(
-                            language === "ua" ? "uk-UA" : "en-US",
+                            language === "uk" ? "uk-UA" : "en-US",
                             {
                               year: "numeric",
                               month: "long",
@@ -389,8 +389,8 @@ export const LettersContent = () => {
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
                           <span className="truncate">
-                            {language === "ua" && letter.location_ua
-                              ? letter.location_ua
+                            {language === "uk" && letter.location_uk
+                              ? letter.location_uk
                               : letter.location_en}
                           </span>
                         </div>
@@ -401,8 +401,8 @@ export const LettersContent = () => {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mt-2">
-                        {language === "ua" && letter.content_ua
-                          ? letter.content_ua.substring(0, 150) + "..."
+                        {language === "uk" && letter.content_uk
+                          ? letter.content_uk.substring(0, 150) + "..."
                           : letter.content_en.substring(0, 150) + "..."}
                       </p>
                     </div>

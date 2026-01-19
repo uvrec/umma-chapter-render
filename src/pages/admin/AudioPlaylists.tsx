@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 type AudioCategory = {
   id: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   slug: string;
   display_order: number;
@@ -19,9 +19,9 @@ type AudioCategory = {
 
 type PlaylistRow = {
   id: string;
-  title_ua: string | null;
+  title_uk: string | null;
   title_en: string | null;
-  description_ua: string | null;
+  description_uk: string | null;
   description_en: string | null;
   category_id: string | null;
   cover_image_url: string | null;
@@ -29,7 +29,7 @@ type PlaylistRow = {
   year: number | null;
   is_published: boolean | null;
   display_order: number | null;
-  category?: Pick<AudioCategory, "id" | "name_ua" | "name_en" | "slug"> | null;
+  category?: Pick<AudioCategory, "id" | "name_uk" | "name_en" | "slug"> | null;
   tracks?: Array<{ count: number }>;
 };
 
@@ -70,7 +70,7 @@ export default function AudioPlaylists() {
         .select(
           `
           *,
-          category:audio_categories ( id, name_ua, name_en, slug ),
+          category:audio_categories ( id, name_uk, name_en, slug ),
           tracks:audio_tracks ( count )
         `,
         )
@@ -95,7 +95,7 @@ export default function AudioPlaylists() {
         .from("audio_playlists")
         .insert({
           title_en: "New Playlist",
-          title_ua: "Новий плейліст",
+          title_uk: "Новий плейліст",
           is_published: false,
           display_order: 100000,
           category_id: selectedCategory !== "all" ? selectedCategory : null,
@@ -186,7 +186,7 @@ export default function AudioPlaylists() {
               <SelectItem value="all">Всі категорії</SelectItem>
               {categories?.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id}>
-                  {cat.name_ua}
+                  {cat.name_uk}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -209,7 +209,7 @@ export default function AudioPlaylists() {
                 <div className="aspect-square bg-muted rounded-lg overflow-hidden mb-4">
                   <img
                     src={img}
-                    alt={playlist.title_ua || "Обкладинка плейліста"}
+                    alt={playlist.title_uk || "Обкладинка плейліста"}
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
@@ -217,7 +217,7 @@ export default function AudioPlaylists() {
               )}
               <CardHeader className="pt-0">
                 <CardTitle className="flex justify-between items-start gap-3">
-                  <span className="line-clamp-2">{playlist.title_ua || "Без назви"}</span>
+                  <span className="line-clamp-2">{playlist.title_uk || "Без назви"}</span>
                   <Badge variant={playlist.is_published ? "default" : "secondary"}>
                     {playlist.is_published ? "Опубліковано" : "Чернетка"}
                   </Badge>
@@ -225,13 +225,13 @@ export default function AudioPlaylists() {
               </CardHeader>
               <CardContent>
                 <div className="text-sm text-muted-foreground space-y-2">
-                  {playlist.description_ua && <p className="line-clamp-2">{playlist.description_ua}</p>}
+                  {playlist.description_uk && <p className="line-clamp-2">{playlist.description_uk}</p>}
                   <div className="flex items-center justify-between pt-2 border-t">
                     <div className="flex items-center gap-2">
                       <Music className="w-4 h-4" />
                       <span>{trackCount} треків</span>
                     </div>
-                    {playlist.category?.name_ua && <Badge variant="outline">{playlist.category.name_ua}</Badge>}
+                    {playlist.category?.name_uk && <Badge variant="outline">{playlist.category.name_uk}</Badge>}
                   </div>
                   {playlist.author && <p className="text-xs">Автор: {playlist.author}</p>}
                 </div>

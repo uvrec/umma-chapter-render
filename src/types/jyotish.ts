@@ -10,34 +10,34 @@
 export interface Nakshatra {
   id: number; // 1-27
   name_iast: string; // IAST транслітерація
-  name_ua: string; // Українська транслітерація
+  name_uk: string; // Українська транслітерація
   name_en: string; // English
   name_sanskrit: string; // Деванаґарі
-  deity_ua: string; // Божество (укр)
+  deity_uk: string; // Божество (укр)
   deity_en: string; // Deity (eng)
   ruler_planet: GrahaPlanet; // Планета-володар
-  symbol_ua: string; // Символ (укр)
+  symbol_uk: string; // Символ (укр)
   symbol_en: string; // Symbol (eng)
   start_degree: number; // Початок (0-360)
   end_degree: number; // Кінець (0-360)
   guna: Guna; // Ґуна (саттва/раджас/тамас)
-  animal_ua: string; // Тварина (укр)
+  animal_uk: string; // Тварина (укр)
   animal_en: string; // Animal (eng)
   gender: 'male' | 'female';
   caste: NakshatraCaste;
   element: Element;
-  body_part_ua: string;
+  body_part_uk: string;
   body_part_en: string;
   // Інтерпретації
-  keywords_ua: string[];
+  keywords_uk: string[];
   keywords_en: string[];
-  description_ua: string;
+  description_uk: string;
   description_en: string;
-  positive_traits_ua: string[];
+  positive_traits_uk: string[];
   positive_traits_en: string[];
-  negative_traits_ua: string[];
+  negative_traits_uk: string[];
   negative_traits_en: string[];
-  career_ua: string[];
+  career_uk: string[];
   career_en: string[];
 }
 
@@ -50,29 +50,29 @@ export type NakshatraCaste = 'brahmin' | 'kshatriya' | 'vaishya' | 'shudra' | 'm
 export interface Rashi {
   id: number; // 1-12
   name_iast: string; // IAST
-  name_ua: string; // Українська
+  name_uk: string; // Українська
   name_en: string; // English
   name_sanskrit: string; // Деванаґарі
-  western_name_ua: string; // Західна назва (укр)
+  western_name_uk: string; // Західна назва (укр)
   western_name_en: string; // Western name
   ruler_planet: GrahaPlanet;
   element: Element;
   modality: Modality;
   gender: 'male' | 'female';
-  symbol_ua: string;
+  symbol_uk: string;
   symbol_en: string;
   start_degree: number;
   end_degree: number;
   exalted_planet?: GrahaPlanet; // Екзальтація
   debilitated_planet?: GrahaPlanet; // Падіння
   // Інтерпретації
-  keywords_ua: string[];
+  keywords_uk: string[];
   keywords_en: string[];
-  description_ua: string;
+  description_uk: string;
   description_en: string;
-  positive_traits_ua: string[];
+  positive_traits_uk: string[];
   positive_traits_en: string[];
-  negative_traits_ua: string[];
+  negative_traits_uk: string[];
   negative_traits_en: string[];
 }
 
@@ -94,26 +94,26 @@ export type GrahaPlanet =
 export interface Graha {
   id: GrahaPlanet;
   name_iast: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   name_sanskrit: string;
-  western_name_ua: string;
+  western_name_uk: string;
   western_name_en: string;
-  day_of_week_ua: string; // День тижня
+  day_of_week_uk: string; // День тижня
   day_of_week_en: string;
   nature: 'benefic' | 'malefic' | 'neutral';
   element: Element;
-  color_ua: string;
+  color_uk: string;
   color_en: string;
-  metal_ua: string;
+  metal_uk: string;
   metal_en: string;
-  gemstone_ua: string;
+  gemstone_uk: string;
   gemstone_en: string;
   direction: string;
   owns_rashis: number[]; // Які раші володіє
   exalted_in: number; // Екзальтація в раші
   debilitated_in: number; // Падіння в раші
-  description_ua: string;
+  description_uk: string;
   description_en: string;
 }
 
@@ -124,15 +124,15 @@ export interface Graha {
 export interface Tithi {
   number: number; // 1-30
   name_iast: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   paksha: 'shukla' | 'krishna';
   paksha_number: number; // 1-15
-  deity_ua: string;
+  deity_uk: string;
   deity_en: string;
   nature: 'nanda' | 'bhadra' | 'jaya' | 'rikta' | 'purna';
   is_ekadashi: boolean;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
 }
 
@@ -143,12 +143,12 @@ export interface Tithi {
 export interface Yoga {
   id: number; // 1-27
   name_iast: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   nature: 'auspicious' | 'inauspicious' | 'neutral';
-  deity_ua: string;
+  deity_uk: string;
   deity_en: string;
-  description_ua: string;
+  description_uk: string;
   description_en: string;
 }
 
@@ -159,13 +159,13 @@ export interface Yoga {
 export interface Karana {
   id: number; // 1-11
   name_iast: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   type: 'chara' | 'sthira'; // Рухома / Фіксована
   nature: 'auspicious' | 'inauspicious' | 'neutral';
-  deity_ua: string;
+  deity_uk: string;
   deity_en: string;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
 }
 
@@ -176,11 +176,11 @@ export interface Karana {
 export interface Vara {
   id: number; // 0-6 (0 = неділя)
   name_iast: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   ruler: GrahaPlanet;
   nature: 'auspicious' | 'inauspicious' | 'neutral';
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
 }
 
@@ -266,15 +266,15 @@ export interface JyotishReading {
   chandra_rashi: Rashi; // Місячний знак
   surya_rashi: Rashi; // Сонячний знак
   // Інтерпретація
-  personality_ua: string;
+  personality_uk: string;
   personality_en: string;
-  strengths_ua: string[];
+  strengths_uk: string[];
   strengths_en: string[];
-  challenges_ua: string[];
+  challenges_uk: string[];
   challenges_en: string[];
-  career_ua: string[];
+  career_uk: string[];
   career_en: string[];
-  compatibility_ua: string;
+  compatibility_uk: string;
   compatibility_en: string;
 }
 
@@ -292,6 +292,6 @@ export interface VedicPortrait {
     lifeNumber: number;
     notation: string;
   };
-  combined_interpretation_ua?: string;
+  combined_interpretation_uk?: string;
   combined_interpretation_en?: string;
 }

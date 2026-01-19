@@ -18,10 +18,10 @@ export type CalendarView = 'month' | 'week' | 'list';
 export interface VaishnavMonth {
   id: number;
   name_sanskrit: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   month_number: number;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
 }
 
@@ -30,7 +30,7 @@ export interface TithiType {
   tithi_number: number;
   paksha: Paksha;
   name_sanskrit: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
   is_ekadashi: boolean;
 }
@@ -47,33 +47,33 @@ export interface EkadashiInfo {
 
   // Назви
   name_sanskrit: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
 
   // Слава з Падма Пурани
-  glory_title_ua?: string;
+  glory_title_uk?: string;
   glory_title_en?: string;
-  glory_text_ua?: string;
+  glory_text_uk?: string;
   glory_text_en?: string;
   glory_source?: string;
 
   // Божество та рекомендації
-  presiding_deity_ua?: string;
+  presiding_deity_uk?: string;
   presiding_deity_en?: string;
-  recommended_activities_ua?: string;
+  recommended_activities_uk?: string;
   recommended_activities_en?: string;
 
   // Правила посту
-  fasting_rules_ua?: string;
+  fasting_rules_uk?: string;
   fasting_rules_en?: string;
   breaking_fast_time?: string;
 
   // Благословення
-  benefits_ua?: string;
+  benefits_uk?: string;
   benefits_en?: string;
 
   // Історія
-  story_ua?: string;
+  story_uk?: string;
   story_en?: string;
   mantras?: string[];
 
@@ -98,9 +98,9 @@ export interface EkadashiWithMonth extends EkadashiInfo {
 export interface FestivalCategory {
   id: number;
   slug: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
   icon?: string;
   color?: string;
@@ -115,9 +115,9 @@ export interface AppearanceDay {
 
   // Інформація про особу/Божество
   person_name_sanskrit?: string;
-  person_name_ua: string;
+  person_name_uk: string;
   person_name_en: string;
-  person_title_ua?: string;
+  person_title_uk?: string;
   person_title_en?: string;
 
   // Місячний календар
@@ -126,13 +126,13 @@ export interface AppearanceDay {
   paksha?: Paksha;
 
   // Опис
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
-  short_description_ua?: string;
+  short_description_uk?: string;
   short_description_en?: string;
 
   // Обряди
-  observances_ua?: string;
+  observances_uk?: string;
   observances_en?: string;
   fasting_level?: FastingLevel;
 
@@ -153,7 +153,7 @@ export interface VaishnaFestival {
 
   // Назви
   name_sanskrit?: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
 
   // Місячний календар
@@ -162,17 +162,17 @@ export interface VaishnaFestival {
   paksha?: Paksha;
 
   // Опис
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
-  short_description_ua?: string;
+  short_description_uk?: string;
   short_description_en?: string;
 
   // Значення
-  significance_ua?: string;
+  significance_uk?: string;
   significance_en?: string;
 
   // Обряди
-  observances_ua?: string;
+  observances_uk?: string;
   observances_en?: string;
   fasting_level?: FastingLevel;
 
@@ -206,9 +206,9 @@ export interface CalendarEvent {
   appearance_day_id?: string;
 
   // Перевизначені значення
-  custom_name_ua?: string;
+  custom_name_uk?: string;
   custom_name_en?: string;
-  custom_description_ua?: string;
+  custom_description_uk?: string;
   custom_description_en?: string;
 
   // Місячні дані
@@ -249,9 +249,9 @@ export interface CalendarEventDisplay {
   event_id: string;
   event_date: string;
   event_type: 'ekadashi' | 'festival' | 'appearance' | 'disappearance' | 'parana' | 'caturmasya' | 'info' | 'other';
-  name_ua: string;
+  name_uk: string;
   name_en: string;
-  description_ua?: string;
+  description_uk?: string;
   description_en?: string;
   category_slug?: string;
   category_color?: string;
@@ -263,7 +263,7 @@ export interface CalendarEventDisplay {
 
   // Тітхі та пакша
   tithi_number?: number;
-  tithi_name_ua?: string;
+  tithi_name_uk?: string;
   tithi_name_en?: string;
   paksha?: Paksha;
 
@@ -281,7 +281,7 @@ export interface CalendarEventDisplay {
   ekadashi_end?: string;
 
   // Вайшнавський місяць
-  vaishnava_month_name_ua?: string;
+  vaishnava_month_name_uk?: string;
   vaishnava_month_name_en?: string;
 }
 
@@ -291,7 +291,7 @@ export interface CalendarEventDisplay {
 
 export interface CalendarLocation {
   id: string;
-  name_ua: string;
+  name_uk: string;
   name_en: string;
 
   // Координати
@@ -304,7 +304,7 @@ export interface CalendarLocation {
 
   // Географія
   country_code?: string;
-  city_ua?: string;
+  city_uk?: string;
   city_en?: string;
 
   // Флаги
@@ -408,7 +408,7 @@ export interface DayData {
 export interface ParanaTime {
   start_time: string; // ISO datetime
   end_time: string;
-  description_ua: string;
+  description_uk: string;
   description_en: string;
   is_dvadashi_parana: boolean;
 }
@@ -452,7 +452,7 @@ export interface EkadashiFastingCalculation {
 
   // Додаткова інформація
   isDvadashiParana: boolean;
-  notes_ua?: string;
+  notes_uk?: string;
   notes_en?: string;
 }
 

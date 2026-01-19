@@ -74,7 +74,7 @@ const Cantos = () => {
   });
 
   const handleDeleteClick = (canto: any) => {
-    setCantoToDelete({ id: canto.id, title: `Пісня ${canto.canto_number}: ${canto.title_ua}` });
+    setCantoToDelete({ id: canto.id, title: `Пісня ${canto.canto_number}: ${canto.title_uk}` });
   };
 
   const handleConfirmDelete = () => {
@@ -97,7 +97,7 @@ const Cantos = () => {
                   Назад до книг
                 </Link>
               </Button>
-              <h1 className="text-2xl font-bold">Пісні: {book?.title_ua || "Завантаження..."}</h1>
+              <h1 className="text-2xl font-bold">Пісні: {book?.title_uk || "Завантаження..."}</h1>
             </div>
             <Button asChild>
               <Link to={`/admin/cantos/${bookId}/new`}>
@@ -118,7 +118,7 @@ const Cantos = () => {
               <Card key={canto.id}>
                 <CardHeader>
                   <CardTitle>Пісня {canto.canto_number}</CardTitle>
-                  <CardDescription>{canto.title_ua}</CardDescription>
+                  <CardDescription>{canto.title_uk}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-4">{canto.title_en}</p>

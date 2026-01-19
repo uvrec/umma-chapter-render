@@ -78,7 +78,7 @@ export const GVReferences = () => {
       const query = searchQuery.toLowerCase();
       return (
         book.title_en?.toLowerCase().includes(query) ||
-        book.title_ua?.toLowerCase().includes(query) ||
+        book.title_uk?.toLowerCase().includes(query) ||
         book.title_transliteration?.toLowerCase().includes(query) ||
         book.title_sanskrit?.includes(searchQuery)
       );
@@ -172,7 +172,7 @@ export const GVReferences = () => {
                         <BookOpen className="w-5 h-5 text-primary" />
                         <div className="text-left">
                           <div className="font-medium">
-                            {language === 'ua' ? catalogue.name_ua : catalogue.name_en}
+                            {language === 'uk' ? catalogue.name_uk : catalogue.name_en}
                           </div>
                           <div className="text-xs text-muted-foreground">
                             {catalogue.books?.length || 0} {t('книг', 'books')}
@@ -200,7 +200,7 @@ export const GVReferences = () => {
                               </div>
                               {/* Translation */}
                               <div className="text-sm text-foreground">
-                                {language === 'ua' ? book.title_ua : book.title_en}
+                                {language === 'uk' ? book.title_uk : book.title_en}
                               </div>
                               {/* Badges */}
                               <div className="flex flex-wrap gap-1 mt-1">
@@ -268,8 +268,8 @@ export const GVReferences = () => {
                     <div key={era}>
                       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <Users className="w-5 h-5 text-primary" />
-                        {language === 'ua'
-                          ? eraDisplayNames[era].ua
+                        {language === 'uk'
+                          ? eraDisplayNames[era].uk
                           : eraDisplayNames[era].en}
                         <span className="text-sm font-normal text-muted-foreground">
                           ({eraAuthors.length})
@@ -296,8 +296,8 @@ export const GVReferences = () => {
                             </div>
                             {/* Translation */}
                             <div className="text-sm text-foreground">
-                              {language === 'ua'
-                                ? `${author.title_ua || ''} ${author.name_ua}`.trim()
+                              {language === 'uk'
+                                ? `${author.title_uk || ''} ${author.name_uk}`.trim()
                                 : `${author.title_en || ''} ${author.name_en}`.trim()}
                             </div>
                             {/* Life dates */}
@@ -307,9 +307,9 @@ export const GVReferences = () => {
                               </div>
                             )}
                             {/* Significance */}
-                            {(author.significance_ua || author.significance_en) && (
+                            {(author.significance_uk || author.significance_en) && (
                               <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                                {language === 'ua' ? author.significance_ua : author.significance_en}
+                                {language === 'uk' ? author.significance_uk : author.significance_en}
                               </p>
                             )}
                           </div>

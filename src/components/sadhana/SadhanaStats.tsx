@@ -53,7 +53,7 @@ export function SadhanaStats({ className }: SadhanaStatsProps) {
   const getMonthName = (monthNum: number) => {
     const date = new Date(2000, monthNum - 1, 1);
     return date.toLocaleDateString(
-      language === 'ua' ? 'uk-UA' : 'en-US',
+      language === 'uk' ? 'uk-UA' : 'en-US',
       { month: 'short' }
     );
   };

@@ -84,7 +84,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
         .from("audio_tracks")
         .insert({
           playlist_id: playlistId,
-          title_ua: titleUa,
+          title_uk: titleUa,
           title_en: titleUa,
           track_number: trackNo ?? null,
           duration: durationSec ?? null,

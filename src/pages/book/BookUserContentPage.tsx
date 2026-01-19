@@ -33,7 +33,7 @@ export const BookUserContentPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("books")
-        .select("slug, title_ua, title_en")
+        .select("slug, title_uk, title_en")
         .eq("slug", bookId)
         .single();
       if (error) throw error;
@@ -53,7 +53,7 @@ export const BookUserContentPage = () => {
     );
   }
 
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
+  const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
 
   return (
     <UserContentPage

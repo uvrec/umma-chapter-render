@@ -27,8 +27,8 @@ interface Verse {
   sanskrit: string | null;
   transliteration: string | null;
   transliteration_en: string | null;
-  transliteration_ua: string | null;
-  translation_ua: string | null;
+  transliteration_uk: string | null;
+  translation_uk: string | null;
   translation_en: string | null;
   is_published: boolean;
   deleted_at: string | null;
@@ -90,7 +90,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("books").select("id, slug, title_ua, title_en").eq("slug", bookId).maybeSingle();
+      } = await supabase.from("books").select("id, slug, title_uk, title_en").eq("slug", bookId).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -104,7 +104,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("cantos").select("id, canto_number, title_ua, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
+      } = await supabase.from("cantos").select("id, canto_number, title_uk, title_en").eq("book_id", book.id).eq("canto_number", parseInt(cantoNumber)).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -117,7 +117,7 @@ export const ChapterVersesList = () => {
     queryKey: ["chapter", book?.id, canto?.id, effectiveChapterParam, isCantoMode],
     queryFn: async () => {
       if (!book?.id || !effectiveChapterParam) return null;
-      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en, content_ua, content_en").eq("chapter_number", parseInt(effectiveChapterParam as string));
+      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en, content_uk, content_en").eq("chapter_number", parseInt(effectiveChapterParam as string));
       const query = isCantoMode && canto?.id ? base.eq("canto_id", canto.id) : base.eq("book_id", book.id);
       const {
         data,
@@ -137,7 +137,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("chapters").select("id, chapter_number, title_ua, title_en, content_ua, content_en").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam as string)).is("canto_id", null).maybeSingle();
+      } = await supabase.from("chapters").select("id, chapter_number, title_uk, title_en, content_uk, content_en").eq("book_id", book.id).eq("chapter_number", parseInt(effectiveChapterParam as string)).is("canto_id", null).maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -153,7 +153,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at").eq("chapter_id", chapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, translation_uk, translation_en, is_published, deleted_at").eq("chapter_id", chapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
@@ -171,7 +171,7 @@ export const ChapterVersesList = () => {
       const {
         data,
         error
-      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_ua, translation_ua, translation_en, is_published, deleted_at").eq("chapter_id", fallbackChapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+      } = await supabase.from("verses").select("id, verse_number, sanskrit, transliteration, transliteration_en, transliteration_uk, translation_uk, translation_en, is_published, deleted_at").eq("chapter_id", fallbackChapter.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
@@ -180,7 +180,7 @@ export const ChapterVersesList = () => {
     enabled: !!fallbackChapter?.id
   });
   const versesRaw = useMemo(() => versesMain && versesMain.length > 0 ? versesMain : versesFallback || [], [versesMain, versesFallback]);
-  const verses = useMemo(() => (versesRaw || []).filter((v: Verse) => v?.translation_ua && v.translation_ua.trim().length > 0 || v?.translation_en && v.translation_en.trim().length > 0), [versesRaw]);
+  const verses = useMemo(() => (versesRaw || []).filter((v: Verse) => v?.translation_uk && v.translation_uk.trim().length > 0 || v?.translation_en && v.translation_en.trim().length > 0), [versesRaw]);
   const {
     data: adjacentChapters
   } = useQuery({
@@ -191,7 +191,7 @@ export const ChapterVersesList = () => {
         next: null
       };
       const currentNum = parseInt(effectiveChapterParam as string);
-      const base = supabase.from("chapters").select("id, chapter_number, title_ua, title_en");
+      const base = supabase.from("chapters").select("id, chapter_number, title_uk, title_en");
       if (isCantoMode && canto?.id) {
         const {
           data
@@ -230,17 +230,17 @@ export const ChapterVersesList = () => {
       navigate(getLocalizedPath(`/lib/${bookId}`));
     }
   };
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const cantoTitle = canto ? language === "ua" ? canto.title_ua : canto.title_en : null;
+  const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
+  const cantoTitle = canto ? language === "uk" ? canto.title_uk : canto.title_en : null;
   const effectiveChapterObj = chapter ?? fallbackChapter;
-  const chapterTitle = effectiveChapterObj && "title_ua" in effectiveChapterObj ? language === "ua" ? effectiveChapterObj.title_ua : effectiveChapterObj.title_en : null;
+  const chapterTitle = effectiveChapterObj && "title_uk" in effectiveChapterObj ? language === "uk" ? effectiveChapterObj.title_uk : effectiveChapterObj.title_en : null;
   const saveContentMutation = useMutation({
     mutationFn: async () => {
       if (!effectiveChapterObj || !("id" in effectiveChapterObj)) return;
       const {
         error
       } = await supabase.from("chapters").update({
-        content_ua: editedContentUa,
+        content_uk: editedContentUa,
         content_en: editedContentEn
       }).eq("id", effectiveChapterObj.id);
       if (error) throw error;
@@ -276,12 +276,12 @@ export const ChapterVersesList = () => {
       queryClient.invalidateQueries({ queryKey: ["chapter-verses-fallback"] });
       setVerseToDelete(null);
       toast({
-        title: language === "ua" ? "Вірш видалено" : "Verse deleted"
+        title: language === "uk" ? "Вірш видалено" : "Verse deleted"
       });
     },
     onError: () => {
       toast({
-        title: language === "ua" ? "Помилка видалення" : "Delete error",
+        title: language === "uk" ? "Помилка видалення" : "Delete error",
         variant: "destructive"
       });
     }
@@ -289,7 +289,7 @@ export const ChapterVersesList = () => {
 
   useEffect(() => {
     if (effectiveChapterObj) {
-      setEditedContentUa(effectiveChapterObj.content_ua || "");
+      setEditedContentUa(effectiveChapterObj.content_uk || "");
       setEditedContentEn(effectiveChapterObj.content_en || "");
     }
   }, [effectiveChapterObj]);
@@ -342,10 +342,10 @@ export const ChapterVersesList = () => {
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {adjacentChapters?.prev && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.prev.chapter_number)} className="gap-1 flex-1 sm:flex-none">
                   <ChevronLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">{language === "ua" ? "Попередня" : "Previous"}</span>
+                  <span className="hidden sm:inline">{language === "uk" ? "Попередня" : "Previous"}</span>
                 </Button>}
               {adjacentChapters?.next && <Button variant="outline" size="sm" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-1 flex-1 sm:flex-none">
-                  <span className="hidden sm:inline">{language === "ua" ? "Наступна" : "Next"}</span>
+                  <span className="hidden sm:inline">{language === "uk" ? "Наступна" : "Next"}</span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>}
               {isAdmin && effectiveChapterObj?.id && (
@@ -354,17 +354,17 @@ export const ChapterVersesList = () => {
                   size="sm"
                   onClick={() => navigate(`/admin/verses/new?chapterId=${effectiveChapterObj.id}`)}
                   className="gap-1 flex-1 sm:flex-none"
-                  title={language === "ua" ? "Додати вірш" : "Add verse"}
+                  title={language === "uk" ? "Додати вірш" : "Add verse"}
                 >
                   <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">{language === "ua" ? "Додати вірш" : "Add verse"}</span>
+                  <span className="hidden sm:inline">{language === "uk" ? "Додати вірш" : "Add verse"}</span>
                 </Button>
               )}
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => setSettingsOpen(true)}
-                title={language === "ua" ? "Налаштування" : "Settings"}
+                title={language === "uk" ? "Налаштування" : "Settings"}
               >
                 <Settings className="h-5 w-5" />
               </Button>
@@ -385,13 +385,13 @@ export const ChapterVersesList = () => {
             </h1>
           </div>
 
-          {effectiveChapterObj && (effectiveChapterObj.content_ua || effectiveChapterObj.content_en) && (
+          {effectiveChapterObj && (effectiveChapterObj.content_uk || effectiveChapterObj.content_en) && (
             <div className="mb-8">
               {user && !isEditingContent && (
                 <div className="mb-4 flex justify-end">
                   <Button variant="outline" size="sm" onClick={() => setIsEditingContent(true)} className="gap-2">
                     <Edit className="h-4 w-4" />
-                    {language === "ua" ? "Редагувати" : "Edit"}
+                    {language === "uk" ? "Редагувати" : "Edit"}
                   </Button>
                 </div>
               )}
@@ -405,19 +405,19 @@ export const ChapterVersesList = () => {
                   <div className="flex gap-2">
                     <Button onClick={() => saveContentMutation.mutate()} disabled={saveContentMutation.isPending} className="gap-2">
                       <Save className="h-4 w-4" />
-                      {language === "ua" ? "Зберегти" : "Save"}
+                      {language === "uk" ? "Зберегти" : "Save"}
                     </Button>
                     <Button variant="outline" onClick={() => {
                 setIsEditingContent(false);
-                setEditedContentUa(effectiveChapterObj.content_ua || "");
+                setEditedContentUa(effectiveChapterObj.content_uk || "");
                 setEditedContentEn(effectiveChapterObj.content_en || "");
               }} className="gap-2">
                       <X className="h-4 w-4" />
-                      {language === "ua" ? "Скасувати" : "Cancel"}
+                      {language === "uk" ? "Скасувати" : "Cancel"}
                     </Button>
                   </div>
                 </div>
-              ) : dualLanguageMode && effectiveChapterObj.content_ua && effectiveChapterObj.content_en ? (
+              ) : dualLanguageMode && effectiveChapterObj.content_uk && effectiveChapterObj.content_en ? (
                 (() => {
             const splitHtmlIntoParagraphs = (html: string): string[] => {
               const sanitized = DOMPurify.sanitize(html);
@@ -446,7 +446,7 @@ export const ChapterVersesList = () => {
               }
               return paragraphs.filter(p => p.length > 0);
             };
-            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_ua || "");
+            const paragraphsUa = splitHtmlIntoParagraphs(effectiveChapterObj.content_uk || "");
             const paragraphsEn = splitHtmlIntoParagraphs(effectiveChapterObj.content_en || "");
 
             // Вирівнювання: довший переклад (зазвичай УКР) задає довжину
@@ -484,9 +484,9 @@ export const ChapterVersesList = () => {
                   style={readerTextStyle}
                   dangerouslySetInnerHTML={{
                     __html: sanitizeForRender(
-                      language === "ua"
-                        ? effectiveChapterObj.content_ua || effectiveChapterObj.content_en || ""
-                        : effectiveChapterObj.content_en || effectiveChapterObj.content_ua || "",
+                      language === "uk"
+                        ? effectiveChapterObj.content_uk || effectiveChapterObj.content_en || ""
+                        : effectiveChapterObj.content_en || effectiveChapterObj.content_uk || "",
                     ),
                   }}
                 />
@@ -496,16 +496,16 @@ export const ChapterVersesList = () => {
 
           {flowMode ? <div className="prose prose-lg max-w-none" style={readerTextStyle}>
               {verses.map((verse: Verse) => {
-            const text = language === "ua" ? verse.translation_ua : verse.translation_en;
+            const text = language === "uk" ? verse.translation_uk : verse.translation_en;
             return <p key={verse.id} className="text-foreground mb-6">
                     {stripParagraphTags(text || "") || <span className="italic text-muted-foreground">
-                        {language === "ua" ? "Немає перекладу" : "No translation"}
+                        {language === "uk" ? "Немає перекладу" : "No translation"}
                       </span>}
                   </p>;
           })}
             </div> : <div className="space-y-6">
               {verses.map((verse: Verse) => {
-            const translationUa = verse.translation_ua || "";
+            const translationUa = verse.translation_uk || "";
             const translationEn = verse.translation_en || "";
             return <div key={verse.id} className="space-y-3">
                     {dualLanguageMode ? <div className="grid gap-6 md:grid-cols-2">
@@ -561,7 +561,7 @@ export const ChapterVersesList = () => {
                       </div> : <div className="space-y-3">
                         {showNumbers && <div className="flex items-center gap-2">
                             <Link to={getVerseUrl(verse.verse_number)} className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary transition-colors hover:bg-primary/20">
-                              {language === "ua" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
+                              {language === "uk" ? `ВІРШ ${verse.verse_number}` : `TEXT ${verse.verse_number}`}
                             </Link>
                             {isAdmin && (
                               verseToDelete === verse.id ? (
@@ -572,14 +572,14 @@ export const ChapterVersesList = () => {
                                     onClick={() => deleteVerseMutation.mutate(verse.id)}
                                     disabled={deleteVerseMutation.isPending}
                                   >
-                                    {language === "ua" ? "Так" : "Yes"}
+                                    {language === "uk" ? "Так" : "Yes"}
                                   </Button>
                                   <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => setVerseToDelete(null)}
                                   >
-                                    {language === "ua" ? "Ні" : "No"}
+                                    {language === "uk" ? "Ні" : "No"}
                                   </Button>
                                 </div>
                               ) : (
@@ -595,7 +595,7 @@ export const ChapterVersesList = () => {
                             )}
                           </div>}
                         <p className="text-foreground" style={readerTextStyle}>
-                          {language === "ua" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
+                          {language === "uk" ? stripParagraphTags(translationUa) || <span className="italic text-muted-foreground">Немає перекладу</span> : stripParagraphTags(translationEn) || <span className="italic text-muted-foreground">No translation</span>}
                         </p>
                       </div>}
 
@@ -611,10 +611,10 @@ export const ChapterVersesList = () => {
                   <ChevronLeft className="h-4 w-4" />
                   <div className="text-left">
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Попередня глава" : "Previous Chapter"}
+                      {language === "uk" ? "Попередня глава" : "Previous Chapter"}
                     </div>
                     <div className="font-medium">
-                      {language === "ua" ? adjacentChapters.prev.title_ua : adjacentChapters.prev.title_en}
+                      {language === "uk" ? adjacentChapters.prev.title_uk : adjacentChapters.prev.title_en}
                     </div>
                   </div>
                 </Button> : <div />}
@@ -622,10 +622,10 @@ export const ChapterVersesList = () => {
               {adjacentChapters?.next ? <Button variant="outline" onClick={() => handleNavigate(adjacentChapters.next.chapter_number)} className="gap-2">
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground">
-                      {language === "ua" ? "Наступна глава" : "Next Chapter"}
+                      {language === "uk" ? "Наступна глава" : "Next Chapter"}
                     </div>
                     <div className="font-medium">
-                      {language === "ua" ? adjacentChapters.next.title_ua : adjacentChapters.next.title_en}
+                      {language === "uk" ? adjacentChapters.next.title_uk : adjacentChapters.next.title_en}
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4" />

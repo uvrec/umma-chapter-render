@@ -2,10 +2,10 @@ import { useEffect } from 'react';
 import { Outlet, useParams, Navigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-type ValidLang = 'ua' | 'en';
+type ValidLang = 'uk' | 'en';
 
 const isValidLang = (lang: string | undefined): lang is ValidLang => {
-  return lang === 'ua' || lang === 'en';
+  return lang === 'uk' || lang === 'en';
 };
 
 /**

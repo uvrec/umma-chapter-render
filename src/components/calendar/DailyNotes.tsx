@@ -43,11 +43,11 @@ interface DailyNotesProps {
 
 type Mood = 'great' | 'good' | 'neutral' | 'difficult';
 
-const moodIcons: Record<Mood, { icon: React.ReactNode; color: string; label_ua: string; label_en: string }> = {
-  great: { icon: <Heart className="w-4 h-4" />, color: 'text-pink-500', label_ua: 'Чудово', label_en: 'Great' },
-  good: { icon: <Smile className="w-4 h-4" />, color: 'text-green-500', label_ua: 'Добре', label_en: 'Good' },
-  neutral: { icon: <Meh className="w-4 h-4" />, color: 'text-amber-500', label_ua: 'Нейтрально', label_en: 'Neutral' },
-  difficult: { icon: <Frown className="w-4 h-4" />, color: 'text-blue-500', label_ua: 'Складно', label_en: 'Difficult' },
+const moodIcons: Record<Mood, { icon: React.ReactNode; color: string; label_uk: string; label_en: string }> = {
+  great: { icon: <Heart className="w-4 h-4" />, color: 'text-pink-500', label_uk: 'Чудово', label_en: 'Great' },
+  good: { icon: <Smile className="w-4 h-4" />, color: 'text-green-500', label_uk: 'Добре', label_en: 'Good' },
+  neutral: { icon: <Meh className="w-4 h-4" />, color: 'text-amber-500', label_uk: 'Нейтрально', label_en: 'Neutral' },
+  difficult: { icon: <Frown className="w-4 h-4" />, color: 'text-blue-500', label_uk: 'Складно', label_en: 'Difficult' },
 };
 
 export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
@@ -113,7 +113,7 @@ export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
   };
 
   const dateFormatted = format(date, 'd MMMM yyyy', {
-    locale: language === 'ua' ? uk : undefined,
+    locale: language === 'uk' ? uk : undefined,
   });
 
   const hasContent = noteContent.trim().length > 0 || verseNotesForDate.length > 0 || highlightsForDate.length > 0;
@@ -150,7 +150,7 @@ export function DailyNotes({ selectedDate, className }: DailyNotesProps) {
                     ? `${data.color} bg-muted scale-110`
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
-                title={language === 'ua' ? data.label_ua : data.label_en}
+                title={language === 'uk' ? data.label_uk : data.label_en}
               >
                 {data.icon}
               </button>

@@ -427,14 +427,14 @@ export default function ScriptLearning() {
             book_id,
             canto_id,
             books(
-              title_ua,
+              title_uk,
               title_en,
               slug
             ),
             cantos(
               canto_number,
               books(
-                title_ua,
+                title_uk,
                 title_en,
                 slug
               )
@@ -446,10 +446,10 @@ export default function ScriptLearning() {
 
       return data.map(verse => ({
         ...verse,
-        book: language === 'ua'
-          ? (verse.chapters.cantos?.books?.title_ua || verse.chapters.books?.title_ua)
+        book: language === 'uk'
+          ? (verse.chapters.cantos?.books?.title_uk || verse.chapters.books?.title_uk)
           : (verse.chapters.cantos?.books?.title_en || verse.chapters.books?.title_en),
-        synonyms: language === 'ua' ? verse.synonyms_ua : verse.synonyms_en,
+        synonyms: language === 'uk' ? verse.synonyms_uk : verse.synonyms_en,
         verse_number: verse.verse_number
       }));
     }
@@ -584,8 +584,8 @@ export default function ScriptLearning() {
 
       // Show toast for each new achievement
       newUnlocked.forEach(achievement => {
-        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.ua, achievement.title.en)}`, {
-          description: t(achievement.description.ua, achievement.description.en),
+        toast.success(`🎉 ${achievement.icon} ${t(achievement.title.uk, achievement.title.en)}`, {
+          description: t(achievement.description.uk, achievement.description.en),
           duration: 5000,
         });
       });
@@ -1294,10 +1294,10 @@ export default function ScriptLearning() {
                       key={achievement.id}
                       variant="secondary"
                       className="flex items-center gap-1 whitespace-nowrap"
-                      title={t(achievement.description.ua, achievement.description.en)}
+                      title={t(achievement.description.uk, achievement.description.en)}
                     >
                       <span>{achievement.icon}</span>
-                      <span className="text-xs">{t(achievement.title.ua, achievement.title.en)}</span>
+                      <span className="text-xs">{t(achievement.title.uk, achievement.title.en)}</span>
                     </Badge>
                   ))}
                 </div>

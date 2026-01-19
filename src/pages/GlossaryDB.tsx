@@ -534,7 +534,7 @@ export default function GlossaryDB() {
                                               <span className="text-primary font-medium">{entry.word}</span>
                                               {entry.grammar && (
                                                 <span className="text-xs text-muted-foreground">
-                                                  ({getGrammarLabel(entry.grammar, language as 'ua' | 'en') || entry.grammar})
+                                                  ({getGrammarLabel(entry.grammar, language as 'uk' | 'en') || entry.grammar})
                                                 </span>
                                               )}
                                             </div>
@@ -573,9 +573,9 @@ export default function GlossaryDB() {
                                   <div className="space-y-2 ml-6">
                                     {items.map((item, idx) => {
                                       const cantoInfo = item.canto_number
-                                        ? `${language === 'ua' ? 'Пісня' : 'Canto'} ${item.canto_number}, `
+                                        ? `${language === 'uk' ? 'Пісня' : 'Canto'} ${item.canto_number}, `
                                         : '';
-                                      const reference = `${cantoInfo}${language === 'ua' ? 'Розділ' : 'Chapter'} ${item.chapter_number}, ${language === 'ua' ? 'Вірш' : 'Verse'} ${item.verse_number}`;
+                                      const reference = `${cantoInfo}${language === 'uk' ? 'Розділ' : 'Chapter'} ${item.chapter_number}, ${language === 'uk' ? 'Вірш' : 'Verse'} ${item.verse_number}`;
                                       const termInLearning = isInLearning(item.term);
                                       const termIsSaved = isSaved(item.term, item.verse_link);
 

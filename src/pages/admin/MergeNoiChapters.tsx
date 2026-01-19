@@ -154,7 +154,7 @@ export default function MergeNoiChapters() {
         .from("chapters")
         .update({
           title_en: "The Nectar of Instruction",
-          title_ua: "Нектар настанов"
+          title_uk: "Нектар настанов"
         })
         .eq("id", chapter1?.id);
       

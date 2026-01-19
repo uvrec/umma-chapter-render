@@ -58,11 +58,11 @@ export const PageView = () => {
 
   useEffect(() => {
     if (page) {
-      setEditedTitleUa(page.title_ua || "");
+      setEditedTitleUa(page.title_uk || "");
       setEditedTitleEn(page.title_en || "");
-      setEditedMetaDescriptionUa(page.meta_description_ua || "");
+      setEditedMetaDescriptionUa(page.meta_description_uk || "");
       setEditedMetaDescriptionEn(page.meta_description_en || "");
-      setEditedContentUa(page.content_ua || "");
+      setEditedContentUa(page.content_uk || "");
       setEditedContentEn(page.content_en || "");
       setEditedHeroImageUrl(page.hero_image_url || "");
       setEditedBannerImageUrl(page.banner_image_url || "");
@@ -87,11 +87,11 @@ export const PageView = () => {
       const { error } = await supabase
         .from('pages')
         .update({
-          title_ua: editedTitleUa,
+          title_uk: editedTitleUa,
           title_en: editedTitleEn,
-          meta_description_ua: editedMetaDescriptionUa,
+          meta_description_uk: editedMetaDescriptionUa,
           meta_description_en: editedMetaDescriptionEn,
-          content_ua: editedContentUa,
+          content_uk: editedContentUa,
           content_en: editedContentEn,
           hero_image_url: editedHeroImageUrl || null,
           banner_image_url: editedBannerImageUrl || null,
@@ -133,11 +133,11 @@ export const PageView = () => {
 
   const handleCancel = () => {
     if (page) {
-      setEditedTitleUa(page.title_ua || "");
+      setEditedTitleUa(page.title_uk || "");
       setEditedTitleEn(page.title_en || "");
-      setEditedMetaDescriptionUa(page.meta_description_ua || "");
+      setEditedMetaDescriptionUa(page.meta_description_uk || "");
       setEditedMetaDescriptionEn(page.meta_description_en || "");
-      setEditedContentUa(page.content_ua || "");
+      setEditedContentUa(page.content_uk || "");
       setEditedContentEn(page.content_en || "");
       setEditedHeroImageUrl(page.hero_image_url || "");
       setEditedBannerImageUrl(page.banner_image_url || "");
@@ -173,16 +173,16 @@ export const PageView = () => {
   }
 
   const title = isEditMode 
-    ? (language === "ua" ? editedTitleUa : editedTitleEn)
-    : (language === "ua" ? page.title_ua : page.title_en);
+    ? (language === "uk" ? editedTitleUa : editedTitleEn)
+    : (language === "uk" ? page.title_uk : page.title_en);
   
   const metaDescription = isEditMode
-    ? (language === "ua" ? editedMetaDescriptionUa : editedMetaDescriptionEn)
-    : (language === "ua" ? page.meta_description_ua : page.meta_description_en);
+    ? (language === "uk" ? editedMetaDescriptionUa : editedMetaDescriptionEn)
+    : (language === "uk" ? page.meta_description_uk : page.meta_description_en);
 
   const content = isEditMode
-    ? (language === "ua" ? editedContentUa : editedContentEn)
-    : (language === "ua" ? page.content_ua : page.content_en);
+    ? (language === "uk" ? editedContentUa : editedContentEn)
+    : (language === "uk" ? page.content_uk : page.content_en);
 
   const heroImageUrl = isEditMode ? editedHeroImageUrl : page.hero_image_url;
   const bannerImageUrl = isEditMode ? editedBannerImageUrl : page.banner_image_url;
@@ -190,9 +190,9 @@ export const PageView = () => {
   return (
     <div className="min-h-screen bg-background">
       <PageMeta
-        titleUa={page.title_ua}
+        titleUa={page.title_uk}
         titleEn={page.title_en}
-        metaDescriptionUa={page.meta_description_ua || ""}
+        metaDescriptionUa={page.meta_description_uk || ""}
         metaDescriptionEn={page.meta_description_en || ""}
         ogImage={page.og_image || ""}
         seoKeywords={page.seo_keywords || ""}
@@ -214,10 +214,10 @@ export const PageView = () => {
           {isEditMode ? (
             <>
               <InlineEditableBlock
-                value={language === "ua" ? editedTitleUa : editedTitleEn}
-                onChange={language === "ua" ? setEditedTitleUa : setEditedTitleEn}
+                value={language === "uk" ? editedTitleUa : editedTitleEn}
+                onChange={language === "uk" ? setEditedTitleUa : setEditedTitleEn}
                 type="text"
-                label={`Заголовок (${language === "ua" ? "UA" : "EN"})`}
+                label={`Заголовок (${language === "uk" ? "UA" : "EN"})`}
                 isEditing={isEditMode}
                 placeholder="Заголовок сторінки"
               />
@@ -228,10 +228,10 @@ export const PageView = () => {
           
           {isEditMode ? (
             <InlineEditableBlock
-              value={language === "ua" ? editedMetaDescriptionUa : editedMetaDescriptionEn}
-              onChange={language === "ua" ? setEditedMetaDescriptionUa : setEditedMetaDescriptionEn}
+              value={language === "uk" ? editedMetaDescriptionUa : editedMetaDescriptionEn}
+              onChange={language === "uk" ? setEditedMetaDescriptionUa : setEditedMetaDescriptionEn}
               type="textarea"
-              label={`Опис (${language === "ua" ? "UA" : "EN"})`}
+              label={`Опис (${language === "uk" ? "UA" : "EN"})`}
               isEditing={isEditMode}
               placeholder="Короткий опис сторінки"
               className="mb-8"
@@ -285,12 +285,12 @@ export const PageView = () => {
 
             {isEditMode ? (
               <EnhancedInlineEditor
-                content={language === "ua" ? editedContentUa : editedContentEn}
-                onChange={language === "ua" ? setEditedContentUa : setEditedContentEn}
-                label={`Контент (${language === "ua" ? "UA" : "EN"})`}
+                content={language === "uk" ? editedContentUa : editedContentEn}
+                onChange={language === "uk" ? setEditedContentUa : setEditedContentEn}
+                label={`Контент (${language === "uk" ? "UA" : "EN"})`}
               />
             ) : (
-              content && <PageRenderer page={{ content_ua: editedContentUa, content_en: editedContentEn }} language={language} />
+              content && <PageRenderer page={{ content_uk: editedContentUa, content_en: editedContentEn }} language={language} />
             )}
           </div>
         </div>

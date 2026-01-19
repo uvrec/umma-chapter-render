@@ -11,17 +11,17 @@ import { uk } from "date-fns/locale";
 
 interface TodayEventsCardProps {
   events: CalendarEventDisplay[];
-  language: "ua" | "en";
+  language: "uk" | "en";
 }
 
 export function TodayEventsCard({ events, language }: TodayEventsCardProps) {
   const today = new Date();
   const formattedDate = format(today, "d MMMM", {
-    locale: language === "ua" ? uk : undefined,
+    locale: language === "uk" ? uk : undefined,
   });
 
   const dayOfWeek = format(today, "EEEE", {
-    locale: language === "ua" ? uk : undefined,
+    locale: language === "uk" ? uk : undefined,
   });
 
   // Знайти екадаші серед подій
@@ -32,7 +32,7 @@ export function TodayEventsCard({ events, language }: TodayEventsCardProps) {
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Calendar className="h-4 w-4 text-blue-600" />
-          {language === "ua" ? "Сьогодні" : "Today"}
+          {language === "uk" ? "Сьогодні" : "Today"}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -47,7 +47,7 @@ export function TodayEventsCard({ events, language }: TodayEventsCardProps) {
           {events.length > 0 ? (
             <div className="space-y-1.5 pt-2 border-t">
               {events.map((event) => {
-                const name = language === "ua" ? event.name_ua : event.name_en;
+                const name = language === "uk" ? event.name_uk : event.name_en;
                 return (
                   <div
                     key={event.event_id}
@@ -74,7 +74,7 @@ export function TodayEventsCard({ events, language }: TodayEventsCardProps) {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground pt-2">
-              {language === "ua"
+              {language === "uk"
                 ? "Звичайний день"
                 : "Regular day"}
             </p>
@@ -83,7 +83,7 @@ export function TodayEventsCard({ events, language }: TodayEventsCardProps) {
           {/* Якщо сьогодні екадаші - показати мітку */}
           {ekadashiEvent && (
             <Badge className="mt-2 bg-purple-600 hover:bg-purple-700">
-              {language === "ua" ? "День екадаші" : "Ekadashi Day"}
+              {language === "uk" ? "День екадаші" : "Ekadashi Day"}
             </Badge>
           )}
         </div>

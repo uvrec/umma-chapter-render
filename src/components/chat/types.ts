@@ -28,7 +28,7 @@ export interface ChatMessage {
 export interface ChatSession {
   id: string;
   title?: string;
-  language: 'ua' | 'en';
+  language: 'uk' | 'en';
   messageCount: number;
   createdAt: Date;
   updatedAt: Date;
@@ -45,5 +45,5 @@ export interface ChatApiResponse {
 export interface ChatApiRequest {
   message: string;
   sessionId?: string;
-  language?: 'ua' | 'en';
+  language?: 'uk' | 'en';
 }

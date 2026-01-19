@@ -69,9 +69,9 @@ export const LecturesContent = () => {
       result = result.filter(
         (lecture) =>
           lecture.title_en.toLowerCase().includes(query) ||
-          (lecture.title_ua && lecture.title_ua.toLowerCase().includes(query)) ||
+          (lecture.title_uk && lecture.title_uk.toLowerCase().includes(query)) ||
           lecture.location_en.toLowerCase().includes(query) ||
-          (lecture.location_ua && lecture.location_ua.toLowerCase().includes(query))
+          (lecture.location_uk && lecture.location_uk.toLowerCase().includes(query))
       );
     }
 
@@ -171,7 +171,7 @@ export const LecturesContent = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return language === "ua"
+    return language === "uk"
       ? date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "long",
@@ -185,12 +185,12 @@ export const LecturesContent = () => {
   };
 
   const getLectureTitle = (lecture: Lecture) => {
-    return language === "ua" && lecture.title_ua ? lecture.title_ua : lecture.title_en;
+    return language === "uk" && lecture.title_uk ? lecture.title_uk : lecture.title_en;
   };
 
   const getLectureLocation = (lecture: Lecture) => {
-    return language === "ua" && lecture.location_ua
-      ? lecture.location_ua
+    return language === "uk" && lecture.location_uk
+      ? lecture.location_uk
       : lecture.location_en;
   };
 
@@ -198,7 +198,7 @@ export const LecturesContent = () => {
     return (
       <div className="text-center py-12">
         <div className="animate-pulse text-muted-foreground">
-          {language === "ua" ? "Завантаження..." : "Loading..."}
+          {language === "uk" ? "Завантаження..." : "Loading..."}
         </div>
       </div>
     );

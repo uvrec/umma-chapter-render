@@ -118,7 +118,7 @@ export const useAudioMetadata = () => {
 
       const insertData = {
         playlist_id: playlistId,
-        title_ua: md?.title || file.name.replace(/\.[^/.]+$/, ""),
+        title_uk: md?.title || file.name.replace(/\.[^/.]+$/, ""),
         title_en: md?.title || file.name.replace(/\.[^/.]+$/, ""),
         audio_url: audioUrl,
         track_number,

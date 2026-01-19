@@ -29,7 +29,7 @@ const slugify = (s: string) =>
 
 // ——— схема валідації
 const IntroChapterSchema = z.object({
-  title_ua: z.string().trim().min(1, "Назва (ua) обовʼязкова"),
+  title_uk: z.string().trim().min(1, "Назва (ua) обовʼязкова"),
   title_en: z.string().trim().min(1, "Назва (en) обовʼязкова"),
   slug: z
     .string()
@@ -37,7 +37,7 @@ const IntroChapterSchema = z.object({
     .min(1, "Slug обовʼязковий")
     .regex(/^[a-z0-9-]+$/i, "Slug: лише літери, цифри та дефіс"),
   display_order: z.number().int().min(0).optional().default(0),
-  content_ua: z.string().optional().default(""),
+  content_uk: z.string().optional().default(""),
   content_en: z.string().optional().default(""),
 });
 
@@ -52,10 +52,10 @@ export default function AddEditIntroChapter() {
 
   // ——— state
   const [form, setForm] = useState<IntroForm>({
-    title_ua: "",
+    title_uk: "",
     title_en: "",
     slug: "",
-    content_ua: "",
+    content_uk: "",
     content_en: "",
     display_order: 0,
   });
@@ -106,9 +106,9 @@ export default function AddEditIntroChapter() {
   useEffect(() => {
     if (intro) {
       setForm({
-        title_ua: intro.title_ua || "",
+        title_uk: intro.title_uk || "",
         title_en: intro.title_en || "",
-        content_ua: intro.content_ua || "",
+        content_uk: intro.content_uk || "",
         content_en: intro.content_en || "",
         slug: intro.slug || "",
         display_order: intro.display_order ?? 0,
@@ -118,10 +118,10 @@ export default function AddEditIntroChapter() {
 
   // ——— автослаг: якщо користувач ще не чіпав slug
   useEffect(() => {
-    if (!isEdit && !nonEmpty(form.slug) && nonEmpty(form.title_ua)) {
-      setForm((f) => ({ ...f, slug: slugify(f.title_ua) }));
+    if (!isEdit && !nonEmpty(form.slug) && nonEmpty(form.title_uk)) {
+      setForm((f) => ({ ...f, slug: slugify(f.title_uk) }));
     }
-  }, [form.title_ua, form.slug, isEdit]);
+  }, [form.title_uk, form.slug, isEdit]);
 
   // ——— мутація
   const saveMutation = useMutation({
@@ -137,7 +137,7 @@ export default function AddEditIntroChapter() {
       const dataToSave = {
         ...parsed.data,
         // trimmed версії
-        title_ua: nonEmpty(parsed.data.title_ua),
+        title_uk: nonEmpty(parsed.data.title_uk),
         title_en: nonEmpty(parsed.data.title_en),
         slug: nonEmpty(parsed.data.slug),
       };
@@ -190,7 +190,7 @@ export default function AddEditIntroChapter() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold">
-          {isEdit ? "Редагувати" : "Додати"} вступну главу{book?.title_ua ? ` — ${book.title_ua}` : ""}
+          {isEdit ? "Редагувати" : "Додати"} вступну главу{book?.title_uk ? ` — ${book.title_uk}` : ""}
         </h1>
       </div>
 
@@ -215,11 +215,11 @@ export default function AddEditIntroChapter() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="title_ua">Назва (українською) *</Label>
+                  <Label htmlFor="title_uk">Назва (українською) *</Label>
                   <Input
-                    id="title_ua"
-                    value={form.title_ua}
-                    onChange={(e) => setForm((f) => ({ ...f, title_ua: e.target.value }))}
+                    id="title_uk"
+                    value={form.title_uk}
+                    onChange={(e) => setForm((f) => ({ ...f, title_uk: e.target.value }))}
                     required
                   />
                 </div>
@@ -265,8 +265,8 @@ export default function AddEditIntroChapter() {
                 <div>
                   <Label className="mb-2 block">Контент (українською)</Label>
                   <EnhancedInlineEditor
-                    content={form.content_ua}
-                    onChange={(html) => setForm((f) => ({ ...f, content_ua: html }))}
+                    content={form.content_uk}
+                    onChange={(html) => setForm((f) => ({ ...f, content_uk: html }))}
                   />
                 </div>
                 <div>

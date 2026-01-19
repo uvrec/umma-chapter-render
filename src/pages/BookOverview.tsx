@@ -94,7 +94,7 @@ export const BookOverview = () => {
       const {
         data,
         error
-      } = await supabase.from("verses").select("id, verse_number, translation_ua, translation_en").eq("chapter_id", chapter1.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
+      } = await supabase.from("verses").select("id, verse_number, translation_uk, translation_en").eq("chapter_id", chapter1.id).is("deleted_at", null).eq("is_published", true).order("sort_key", {
         ascending: true
       });
       if (error) throw error;
@@ -121,8 +121,8 @@ export const BookOverview = () => {
     enabled: !!book?.id
   });
   const isLoading = cantosLoading || chaptersLoading || introLoading || noiVersesLoading;
-  const bookTitle = language === "ua" ? book?.title_ua : book?.title_en;
-  const bookDescription = language === "ua" ? book?.description_ua : book?.description_en;
+  const bookTitle = language === "uk" ? book?.title_uk : book?.title_en;
+  const bookDescription = language === "uk" ? book?.description_uk : book?.description_en;
   if (isLoading) {
     return <div className="min-h-screen bg-background">
         <Header />
@@ -157,7 +157,7 @@ export const BookOverview = () => {
                   <ul className="space-y-2">
                     {introChapters.map(intro => <li key={intro.id}>
                         <Link to={getLocalizedPath(`/lib/${bookSlug}/intro/${intro.slug}`)} className="text-primary hover:underline">
-                          {language === "ua" ? intro.title_ua : intro.title_en}
+                          {language === "uk" ? intro.title_uk : intro.title_en}
                         </Link>
                       </li>)}
                   </ul>
@@ -176,7 +176,7 @@ export const BookOverview = () => {
             {book?.has_cantos ?
           // Cantos як список
           cantos.map(canto => {
-            const cantoTitleUa = canto.title_ua;
+            const cantoTitleUa = canto.title_uk;
             const cantoTitleEn = canto.title_en;
             return dualLanguageMode ?
             // Side-by-side для cantos
@@ -203,14 +203,14 @@ export const BookOverview = () => {
                           {t("Пісня", "Canto")} {canto.canto_number}
                         </span>
                         <span className="text-lg text-foreground">
-                          {language === "ua" ? cantoTitleUa : cantoTitleEn}
+                          {language === "uk" ? cantoTitleUa : cantoTitleEn}
                         </span>
                       </div>
                     </Link>;
           }) :
           // NoI: show verses as list, otherwise chapters
           bookSlug === 'noi' && noiVerses.length > 0 ? noiVerses.map(verse => {
-            const titleUa = verse.translation_ua ? `${verse.verse_number}. ${verse.translation_ua}` : `Текст ${verse.verse_number}`;
+            const titleUa = verse.translation_uk ? `${verse.verse_number}. ${verse.translation_uk}` : `Текст ${verse.verse_number}`;
             const titleEn = verse.translation_en ? `${verse.verse_number}. ${verse.translation_en}` : `Text ${verse.verse_number}`;
             return dualLanguageMode ? <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="grid gap-8 md:grid-cols-2">
@@ -230,17 +230,17 @@ export const BookOverview = () => {
                       </Link> : <Link key={verse.id} to={getLocalizedPath(`/lib/noi/${verse.verse_number}`)} className="block py-3 px-4 transition-all hover:bg-primary/5 rounded">
                         <div className="flex items-center gap-3">
                           <span className="text-lg font-bold text-primary">
-                            {language === "ua" ? `Текст ${verse.verse_number}` : `Text ${verse.verse_number}`}
+                            {language === "uk" ? `Текст ${verse.verse_number}` : `Text ${verse.verse_number}`}
                           </span>
                           <span className="text-lg text-foreground">
-                            {language === "ua" ? titleUa : titleEn}
+                            {language === "uk" ? titleUa : titleEn}
                           </span>
                         </div>
                       </Link>;
           }) :
           // Regular chapters
           chapters.map(chapter => {
-            const chapterTitleUa = chapter.title_ua;
+            const chapterTitleUa = chapter.title_uk;
             const chapterTitleEn = chapter.title_en;
             return dualLanguageMode ?
             // Side-by-side для chapters
@@ -267,7 +267,7 @@ export const BookOverview = () => {
                           {t("Глава", "Chapter")} {chapter.chapter_number}
                         </span>
                         <span className="text-lg text-foreground">
-                          {language === "ua" ? chapterTitleUa : chapterTitleEn}
+                          {language === "uk" ? chapterTitleUa : chapterTitleEn}
                         </span>
                       </div>
                     </Link>;

@@ -43,7 +43,7 @@ export default function AudioPlaylistEdit() {
         const src = t.audio_url ?? "";
         out.push({
           id: t.id,
-          title: t.title_ua ?? t.title_en ?? "Без назви",
+          title: t.title_uk ?? t.title_en ?? "Без назви",
           duration: t.duration ? `${Math.floor(t.duration/60)}:${String(t.duration%60).padStart(2,"0")}` : "0:00",
           src
         });
@@ -67,7 +67,7 @@ export default function AudioPlaylistEdit() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Назад
           </Button>
-          <h1 className="text-2xl font-bold">Плейліст: {playlist.title_ua || playlist.title_en}</h1>
+          <h1 className="text-2xl font-bold">Плейліст: {playlist.title_uk || playlist.title_en}</h1>
           <div className="ml-auto">
             <Button onClick={() => setOpenNew(true)}>
               <Plus className="w-4 h-4 mr-2" />
@@ -86,7 +86,7 @@ export default function AudioPlaylistEdit() {
                 .map((t: any) => (
                   <div key={t.id} className="flex items-center justify-between border-b last:border-0 py-3">
                     <div>
-                      <div className="font-medium">{t.track_number ? `${t.track_number}. ` : ""}{t.title_ua || t.title_en}</div>
+                      <div className="font-medium">{t.track_number ? `${t.track_number}. ` : ""}{t.title_uk || t.title_en}</div>
                       <div className="text-xs text-muted-foreground">
                         {t.audio_url ? "audio url" : "—"}
                         {t.duration ? ` • ${t.duration}s` : ""}
@@ -104,7 +104,7 @@ export default function AudioPlaylistEdit() {
         </Card>
 
         {/* Тут можна показати програвач з signedTracks, якщо потрібно */}
-        {/* <PlaylistPlayer tracks={signedTracks} title={playlist.title_ua} albumCover={playlist.cover_image_url}/> */}
+        {/* <PlaylistPlayer tracks={signedTracks} title={playlist.title_uk} albumCover={playlist.cover_image_url}/> */}
       </main>
 
       <NewTrackDialog

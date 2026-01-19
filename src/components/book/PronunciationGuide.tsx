@@ -31,7 +31,7 @@ const AccordionSection = ({
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const { language } = useLanguage();
 
-  const displayTitle = language === "ua" ? title : (titleEn || title);
+  const displayTitle = language === "uk" ? title : (titleEn || title);
 
   return (
     <div className="border-b border-border">
@@ -138,7 +138,7 @@ export const PronunciationGuide = ({
     },
   };
 
-  const labels = language === "ua" ? consonantLabels.ua : consonantLabels.en;
+  const labels = language === "uk" ? consonantLabels.uk : consonantLabels.en;
 
   return (
     <div className="min-h-screen bg-background">
@@ -164,7 +164,7 @@ export const PronunciationGuide = ({
           defaultOpen={true}
         >
           <p className="text-foreground leading-relaxed mb-4">
-            {language === "ua"
+            {language === "uk"
               ? "Санскритські слова та цитати наведені в книзі курсивом. Система транслітерації, використана в книзі, ґрунтується на системі латинської транслітерації санскриту з діакритичними знаками."
               : "Throughout the centuries, the Sanskrit language has been written in a variety of alphabets. The mode of writing most widely used throughout India, however, is called devanāgarī, which means, literally, the writing used in \"the cities of the demigods.\""}
           </p>
@@ -188,7 +188,7 @@ export const PronunciationGuide = ({
             ))}
           </div>
           <p className="text-sm text-muted-foreground mt-4">
-            {language === "ua"
+            {language === "uk"
               ? "Голосні а, і, о, у, е нагадують відповідні звуки української мови; довгі ā, ī, ū вдвічі довші проти коротких звуків."
               : "The vowels a, i, u are short; ā, ī, ū are long (held twice as long as the short). The diphthongs ai and au are also long."}
           </p>
@@ -245,7 +245,7 @@ export const PronunciationGuide = ({
           titleEn="Vowels after a Consonant"
         >
           <p className="text-muted-foreground mb-4">
-            {language === "ua"
+            {language === "uk"
               ? "Голосні після приголосного записуються за допомогою спеціальних знаків (матр):"
               : "The vowels are written as follows after a consonant:"}
           </p>
@@ -284,7 +284,7 @@ export const PronunciationGuide = ({
           titleEn="Consonant Ligatures"
         >
           <p className="text-muted-foreground mb-4">
-            {language === "ua"
+            {language === "uk"
               ? "Зазвичай два або більше приголосних поспіль записуються разом у спеціальній формі:"
               : "Generally two or more consonants in conjunction are written together in a special form:"}
           </p>
@@ -309,7 +309,7 @@ export const PronunciationGuide = ({
           titleEn='Vowel "a" after a Consonant'
         >
           <p className="text-foreground leading-relaxed">
-            {language === "ua"
+            {language === "uk"
               ? 'Голосний "а" мається на увазі після приголосного, який не має знака голосного.'
               : 'The vowel "a" is implied after a consonant with no vowel symbol.'}
           </p>
@@ -318,7 +318,7 @@ export const PronunciationGuide = ({
         {/* Meaning of Virāma */}
         <AccordionSection title="Значення вірами" titleEn="Meaning of Virāma">
           <p className="text-foreground leading-relaxed mb-4">
-            {language === "ua"
+            {language === "uk"
               ? "Знак вірама ( ् ) вказує на те, що після приголосного немає голосного:"
               : "The symbol virāma ( ् ) indicates that there is no final vowel:"}
           </p>
@@ -336,7 +336,7 @@ export const PronunciationGuide = ({
         {/* Accentuation */}
         <AccordionSection title="Наголос" titleEn="Accentuation">
           <p className="text-foreground leading-relaxed">
-            {language === "ua"
+            {language === "uk"
               ? "У санскриті немає фіксованого тонічного наголосу. Наголошеними у віршах вважають склади, які стоять у сильних місцях стоп. Склади у словах розрізняють за довготою. Довгий склад – той, де є довгий голосний (ā, ai, au, e, ī, o, ṝ, ū) або в якому за коротким голосним розташовано більше одного приголосного."
               : "There is no fixed accentuation of syllables in Sanskrit, or pausing between words in a line, only a flowing of short and long syllables (the long twice as long as the short). A long syllable is one whose vowel is long (ā, ī, ū, ṝ, e, ai, o, au) or whose short vowel is followed by more than one consonant."}
           </p>

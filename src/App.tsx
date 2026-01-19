@@ -151,7 +151,7 @@ function AppContent() {
         <Routes>
           {/* ============================================================
               ROOT → LANGUAGE REDIRECT
-              Redirects / to /ua/ or /en/ based on saved preference
+              Redirects / to /uk/ or /en/ based on saved preference
               ============================================================ */}
           <Route path="/" element={<LanguageRedirect />} />
 

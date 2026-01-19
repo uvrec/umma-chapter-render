@@ -21,16 +21,16 @@ import { Search, BookOpen, Languages, Info } from "lucide-react";
 import { useDebounce } from "@/hooks/useDebounce";
 
 // Grammar abbreviations
-const GRAMMAR_LABELS: Record<string, { ua: string; en: string; color: string }> = {
-  m: { ua: "чол. рід", en: "masculine", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
-  f: { ua: "жін. рід", en: "feminine", color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200" },
-  n: { ua: "сер. рід", en: "neuter", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
-  adj: { ua: "прикм.", en: "adjective", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
-  ind: { ua: "незмін.", en: "indeclinable", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" },
-  "1. P.": { ua: "дієсл. 1 клас", en: "verb class 1", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
-  "4. P.": { ua: "дієсл. 4 клас", en: "verb class 4", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
-  "6. P.": { ua: "дієсл. 6 клас", en: "verb class 6", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
-  "10. P.": { ua: "дієсл. 10 клас", en: "verb class 10", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+const GRAMMAR_LABELS: Record<string, { uk: string; en: string; color: string }> = {
+  m: { uk: "чол. рід", en: "masculine", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
+  f: { uk: "жін. рід", en: "feminine", color: "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200" },
+  n: { uk: "сер. рід", en: "neuter", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" },
+  adj: { uk: "прикм.", en: "adjective", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
+  ind: { uk: "незмін.", en: "indeclinable", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200" },
+  "1. P.": { uk: "дієсл. 1 клас", en: "verb class 1", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  "4. P.": { uk: "дієсл. 4 клас", en: "verb class 4", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  "6. P.": { uk: "дієсл. 6 клас", en: "verb class 6", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
+  "10. P.": { uk: "дієсл. 10 клас", en: "verb class 10", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200" },
 };
 
 interface LexiconEntry {
@@ -102,7 +102,7 @@ export const SanskritDictionary = () => {
     if (info) {
       return (
         <Badge variant="secondary" className={info.color}>
-          {language === "ua" ? info.ua : info.en}
+          {language === "uk" ? info.uk : info.en}
         </Badge>
       );
     }
@@ -123,11 +123,11 @@ export const SanskritDictionary = () => {
             <div className="mb-4 flex items-center justify-center gap-2">
               <BookOpen className="h-8 w-8 text-primary" />
               <h1 className="text-3xl font-bold text-primary md:text-4xl">
-                {language === "ua" ? "Санскритський словник" : "Sanskrit Dictionary"}
+                {language === "uk" ? "Санскритський словник" : "Sanskrit Dictionary"}
               </h1>
             </div>
             <p className="text-muted-foreground">
-              {language === "ua"
+              {language === "uk"
                 ? `Digital Corpus of Sanskrit (DCS) • ${totalCount?.toLocaleString() || "..."} слів`
                 : `Digital Corpus of Sanskrit (DCS) • ${totalCount?.toLocaleString() || "..."} words`}
             </p>
@@ -138,11 +138,11 @@ export const SanskritDictionary = () => {
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="word" className="gap-2">
                 <Languages className="h-4 w-4" />
-                {language === "ua" ? "За словом" : "By Word"}
+                {language === "uk" ? "За словом" : "By Word"}
               </TabsTrigger>
               <TabsTrigger value="meaning" className="gap-2">
                 <Search className="h-4 w-4" />
-                {language === "ua" ? "За значенням" : "By Meaning"}
+                {language === "uk" ? "За значенням" : "By Meaning"}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -155,10 +155,10 @@ export const SanskritDictionary = () => {
                 type="text"
                 placeholder={
                   searchMode === "word"
-                    ? language === "ua"
+                    ? language === "uk"
                       ? "Введіть санскритське слово (напр. dharma, karma, yoga)..."
                       : "Enter Sanskrit word (e.g. dharma, karma, yoga)..."
-                    : language === "ua"
+                    : language === "uk"
                     ? "Введіть значення англійською (напр. truth, knowledge, soul)..."
                     : "Enter meaning in English (e.g. truth, knowledge, soul)..."
                 }
@@ -169,7 +169,7 @@ export const SanskritDictionary = () => {
             </div>
             {searchTerm && searchTerm.length < 2 && (
               <p className="mt-2 text-sm text-muted-foreground">
-                {language === "ua" ? "Введіть мінімум 2 символи" : "Enter at least 2 characters"}
+                {language === "uk" ? "Введіть мінімум 2 символи" : "Enter at least 2 characters"}
               </p>
             )}
           </div>
@@ -183,12 +183,12 @@ export const SanskritDictionary = () => {
             </div>
           ) : error ? (
             <div className="py-6 text-center text-destructive">
-              {language === "ua" ? "Помилка пошуку. Спробуйте пізніше." : "Search error. Please try again later."}
+              {language === "uk" ? "Помилка пошуку. Спробуйте пізніше." : "Search error. Please try again later."}
             </div>
           ) : results && results.length > 0 ? (
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? `Знайдено ${results.length} результатів`
                   : `Found ${results.length} results`}
               </p>
@@ -210,7 +210,7 @@ export const SanskritDictionary = () => {
                         {getGrammarBadge(entry.grammar)}
                         {entry.preverbs && (
                           <Badge variant="outline">
-                            {language === "ua" ? "преверб" : "preverb"}: {entry.preverbs}
+                            {language === "uk" ? "преверб" : "preverb"}: {entry.preverbs}
                           </Badge>
                         )}
                       </div>
@@ -221,7 +221,7 @@ export const SanskritDictionary = () => {
                       <p className="text-foreground leading-relaxed">{entry.meanings}</p>
                     ) : (
                       <p className="text-muted-foreground italic">
-                        {language === "ua" ? "Значення не вказано" : "No meaning provided"}
+                        {language === "uk" ? "Значення не вказано" : "No meaning provided"}
                       </p>
                     )}
                   </div>
@@ -232,7 +232,7 @@ export const SanskritDictionary = () => {
             <div className="py-12 text-center">
               <Search className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? "Нічого не знайдено. Спробуйте інший запит."
                   : "No results found. Try a different search term."}
               </p>
@@ -241,7 +241,7 @@ export const SanskritDictionary = () => {
             <div className="py-12 text-center">
               <BookOpen className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
               <p className="text-lg text-muted-foreground">
-                {language === "ua"
+                {language === "uk"
                   ? "Почніть вводити слово для пошуку"
                   : "Start typing to search"}
               </p>
@@ -254,7 +254,7 @@ export const SanskritDictionary = () => {
               <Info className="mt-0.5 h-4 w-4 text-muted-foreground" />
               <div className="text-sm text-muted-foreground">
                 <p className="font-medium">
-                  {language === "ua" ? "Джерело даних:" : "Data source:"}
+                  {language === "uk" ? "Джерело даних:" : "Data source:"}
                 </p>
                 <p>
                   Oliver Hellwig: Digital Corpus of Sanskrit (DCS). 2010-2024.{" "}

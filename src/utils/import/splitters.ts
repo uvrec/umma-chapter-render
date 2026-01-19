@@ -72,15 +72,15 @@ export function splitIntoChapters(
       return [{
         chapter_number: 1,
         chapter_type: 'text',
-        title_ua: 'Розділ 1',
+        title_uk: 'Розділ 1',
         verses: [],
-        content_ua: text.trim()
+        content_uk: text.trim()
       }];
     }
     return [{
       chapter_number: 1,
       chapter_type: 'verses',
-      title_ua: 'Розділ 1',
+      title_uk: 'Розділ 1',
       verses: verses
     }];
   }
@@ -174,9 +174,9 @@ export function splitIntoChapters(
     chapters.push({
       chapter_number: chapterNum,
       chapter_type: chapterType,
-      title_ua: chapterTitle,
+      title_uk: chapterTitle,
       verses: verses,
-      content_ua: contentUa
+      content_uk: contentUa
     });
   });
   
@@ -296,9 +296,9 @@ export function splitIntoVerses(
     console.log(`✅ Parsed verse ${verseNum}:`, {
       has_sanskrit: !!verse.sanskrit,
       has_transliteration: !!verse.transliteration,
-      has_synonyms: !!verse.synonyms_ua,
-      has_translation: !!verse.translation_ua,
-      has_commentary: !!verse.commentary_ua
+      has_synonyms: !!verse.synonyms_uk,
+      has_translation: !!verse.translation_uk,
+      has_commentary: !!verse.commentary_uk
     });
     
     if (verse.verse_number) {
@@ -452,7 +452,7 @@ function parseVerse(
     const synonymsEnd = translationMatch?.index || text.length;
     const synonymsText = text.substring(synonymsStart, synonymsEnd).trim();
     if (synonymsText.length > 0) {
-      verse.synonyms_ua = synonymsText;
+      verse.synonyms_uk = synonymsText;
     }
   }
   
@@ -478,7 +478,7 @@ function parseVerse(
     const translationEnd = commentaryMatch?.index || text.length;
     const translationText = text.substring(translationStart, translationEnd).trim();
     if (translationText.length > 0) {
-      verse.translation_ua = translationText;
+      verse.translation_uk = translationText;
     }
   }
   
@@ -495,7 +495,7 @@ function parseVerse(
     const commentaryStart = commentaryMatch.index + commentaryMatch[0].length;
     const commentaryText = text.substring(commentaryStart).trim();
     if (commentaryText.length > 0) {
-      verse.commentary_ua = commentaryText;
+      verse.commentary_uk = commentaryText;
     }
   }
   
