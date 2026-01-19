@@ -18,7 +18,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [titleUa, setTitleUa] = useState("");
+  const [titleUk, setTitleUk] = useState("");
   const [trackNo, setTrackNo] = useState<number | undefined>(undefined);
   const [durationSec, setDurationSec] = useState<number | undefined>(undefined);
   const [file, setFile] = useState<File | null>(null);
@@ -39,7 +39,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
   }, [file?.name]);
 
   const reset = () => {
-    setTitleUa("");
+    setTitleUk("");
     setTrackNo(undefined);
     setDurationSec(undefined);
     setFile(null);
@@ -51,7 +51,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
       toast({ title: "Помилка", description: "Оберіть аудіофайл", variant: "destructive" });
       return;
     }
-    if (!titleUa.trim()) {
+    if (!titleUk.trim()) {
       toast({ title: "Помилка", description: "Вкажіть назву треку (UK)", variant: "destructive" });
       return;
     }
@@ -59,7 +59,7 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
     setIsSaving(true);
     try {
       // 1) завантаження у storage
-      const safeName = toSafeFilename(file.name || titleUa) || "track.mp3";
+      const safeName = toSafeFilename(file.name || titleUk) || "track.mp3";
       const path = `playlists/${playlistId}/${safeName}`;
 
       const { error: upErr } = await supabase
@@ -84,8 +84,8 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
         .from("audio_tracks")
         .insert({
           playlist_id: playlistId,
-          title_uk: titleUa,
-          title_en: titleUa,
+          title_uk: titleUk,
+          title_en: titleUk,
           track_number: trackNo ?? null,
           duration: durationSec ?? null,
           audio_url: urlData.publicUrl,
@@ -113,8 +113,8 @@ export function NewTrackDialog({ open, onOpenChange, playlistId, onCreated }: Pr
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="titleUa">Назва треку (UK)</Label>
-            <Input id="titleUa" value={titleUa} onChange={(e) => setTitleUa(e.target.value)} />
+            <Label htmlFor="titleUk">Назва треку (UK)</Label>
+            <Input id="titleUk" value={titleUk} onChange={(e) => setTitleUk(e.target.value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
