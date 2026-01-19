@@ -24,6 +24,7 @@ import { useReaderSettings } from "@/hooks/useReaderSettings";
 import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { SITE_CONFIG } from "@/lib/constants";
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -291,17 +292,42 @@ export default function BlogPost() {
     }
   };
 
+  // SEO URLs
+  const uaUrl = `${SITE_CONFIG.baseUrl}/ua/blog/${slug}`;
+  const enUrl = `${SITE_CONFIG.baseUrl}/en/blog/${slug}`;
+  const currentUrl = language === "ua" ? uaUrl : enUrl;
+  const htmlLang = language === "ua" ? "uk" : "en";
+  const ogLocale = language === "ua" ? "uk_UA" : "en_US";
+
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>{title} | Духовна Бібліотека</title>
+        <html lang={htmlLang} />
+        <title>{title} | {SITE_CONFIG.siteName}</title>
         <meta name="description" content={metaDesc || excerpt} />
+
+        {/* Canonical and hreflang */}
+        <link rel="canonical" href={currentUrl} />
+        <link rel="alternate" hrefLang="uk" href={uaUrl} />
+        <link rel="alternate" hrefLang="en" href={enUrl} />
+        <link rel="alternate" hrefLang="x-default" href={uaUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={currentUrl} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={metaDesc || excerpt} />
-        <meta property="og:image" content={post.featured_image} />
-        <meta property="og:type" content="article" />
+        <meta property="og:image" content={post.featured_image || SITE_CONFIG.socialImage} />
+        <meta property="og:site_name" content={SITE_CONFIG.siteName} />
+        <meta property="og:locale" content={ogLocale} />
         <meta property="article:published_time" content={post.published_at} />
         <meta property="article:author" content={post.author_display_name} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={metaDesc || excerpt} />
+        <meta name="twitter:image" content={post.featured_image || SITE_CONFIG.socialImage} />
       </Helmet>
 
       <Header />
