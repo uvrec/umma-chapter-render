@@ -140,7 +140,7 @@ export function useOfflineDownload() {
         bookSlug,
         cantoId: chapter.canto_id || undefined,
         chapterNumber: chapter.chapter_number,
-        titleUa: chapter.title_uk || '',
+        titleUk: chapter.title_uk || '',
         titleEn: chapter.title_en || '',
         versesJson: JSON.stringify(verses || []),
         cachedAt: Date.now(),
