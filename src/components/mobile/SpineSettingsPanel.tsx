@@ -154,7 +154,7 @@ const SOCIAL_LINKS = [
 ];
 
 export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
-  const { language, t, getLocalizedPath } = useLanguage();
+  const { language, setLanguage, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const [showBooksModal, setShowBooksModal] = useState(false);
   const [selectedBookIndex, setSelectedBookIndex] = useState(0);
@@ -166,6 +166,10 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const {
     showNumbers,
     setShowNumbers,
+    textDisplaySettings,
+    setTextDisplaySettings,
+    dualLanguageMode,
+    setDualLanguageMode,
   } = useReaderSettings();
 
   const handleNavigate = (path: string) => {
@@ -245,20 +249,126 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
 
           <Separator />
 
-          {/* 2. READING Section - Verse Numbers */}
+          {/* LANGUAGE Section */}
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
+              {t("Мова", "Language")}
+            </Label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setLanguage("uk")}
+                className={cn(
+                  "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
+                  language === "uk"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+              >
+                Українська
+              </button>
+              <button
+                onClick={() => setLanguage("en")}
+                className={cn(
+                  "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
+                  language === "en"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                )}
+              >
+                English
+              </button>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* READING Section */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
               {t("Читання", "Reading")}
             </Label>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="verse-numbers" className="cursor-pointer">
-                {t("Номери віршів", "Verse Numbers")}
-              </Label>
-              <Switch
-                id="verse-numbers"
-                checked={showNumbers}
-                onCheckedChange={(v) => setShowNumbers(v)}
-              />
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="verse-numbers" className="cursor-pointer">
+                  {t("Номери віршів", "Verse Numbers")}
+                </Label>
+                <Switch
+                  id="verse-numbers"
+                  checked={showNumbers}
+                  onCheckedChange={(v) => setShowNumbers(v)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="dual-lang" className="cursor-pointer">
+                  {t("Двомовний режим", "Dual Language")}
+                </Label>
+                <Switch
+                  id="dual-lang"
+                  checked={dualLanguageMode}
+                  onCheckedChange={(v) => setDualLanguageMode(v)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* TEXT BLOCKS Section */}
+          <div>
+            <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
+              {t("Блоки тексту", "Text Blocks")}
+            </Label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-sanskrit" className="cursor-pointer">
+                  {t("Санскрит", "Sanskrit")}
+                </Label>
+                <Switch
+                  id="show-sanskrit"
+                  checked={textDisplaySettings.showSanskrit}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSanskrit: v }))}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-translit" className="cursor-pointer">
+                  {t("Транслітерація", "Transliteration")}
+                </Label>
+                <Switch
+                  id="show-translit"
+                  checked={textDisplaySettings.showTransliteration}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTransliteration: v }))}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-synonyms" className="cursor-pointer">
+                  {t("Послівний переклад", "Synonyms")}
+                </Label>
+                <Switch
+                  id="show-synonyms"
+                  checked={textDisplaySettings.showSynonyms}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showSynonyms: v }))}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-translation" className="cursor-pointer">
+                  {t("Переклад", "Translation")}
+                </Label>
+                <Switch
+                  id="show-translation"
+                  checked={textDisplaySettings.showTranslation}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showTranslation: v }))}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="show-commentary" className="cursor-pointer">
+                  {t("Коментар", "Commentary")}
+                </Label>
+                <Switch
+                  id="show-commentary"
+                  checked={textDisplaySettings.showCommentary}
+                  onCheckedChange={(v) => setTextDisplaySettings(prev => ({ ...prev, showCommentary: v }))}
+                />
+              </div>
             </div>
           </div>
 
