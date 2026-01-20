@@ -1,4 +1,22 @@
-/* Типографіка для блог постів */
+/* ==========================================
+   Spine Navigation - Mobile Layout
+   ========================================== */
+
+/* When Spine is visible on mobile, shift all content right */
+@media (max-width: 768px) {
+  body.spine-visible {
+    padding-left: 56px !important;
+    transition: padding-left 0.3s ease-out;
+  }
+
+  body.spine-visible .mobile-layout {
+    padding-left: 0 !important; /* Reset any nested padding */
+  }
+}
+
+/* ==========================================
+   Типографіка для блог постів
+   ========================================== */
 .blog-body.prose {
   @apply text-foreground leading-relaxed;
 }
