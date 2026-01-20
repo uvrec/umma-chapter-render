@@ -377,7 +377,6 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
                 </div>
               )}
             </div>
-          </div>
         </ScrollArea>
       </div>
     </>

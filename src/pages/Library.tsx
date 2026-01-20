@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,9 @@ export const Library = () => {
     getLocalizedPath
   } = useLanguage();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const defaultTab = tabFromUrl === 'lectures' || tabFromUrl === 'letters' ? tabFromUrl : 'books';
 
   // Fetch books with chapter counts for mobile view
   const {
@@ -66,7 +69,7 @@ export const Library = () => {
         </div>
 
         {/* Tabs for sections */}
-        <Tabs defaultValue="books" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="books" className="flex items-center gap-2">
               <BookOpen className="w-4 h-4" />
