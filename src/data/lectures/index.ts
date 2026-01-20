@@ -4,7 +4,7 @@
  */
 
 export { BG_INTRODUCTION_EN } from "./bg-introduction-en";
-export { BG_INTRODUCTION_UK } from "./bg-introduction-ua";
+export { BG_INTRODUCTION_UK } from "./bg-introduction-uk";
 
 // Типи
 export interface LecturePrayer {

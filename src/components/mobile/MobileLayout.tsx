@@ -61,10 +61,10 @@ export function MobileLayout({
   );
 }
 
-// Helper to extract book ID from path like /lib/bg/1/1 or /ua/lib/bg/1/1
+// Helper to extract book ID from path like /lib/bg/1/1 or /uk/lib/bg/1/1
 function extractBookIdFromPath(pathname: string): string | undefined {
   // Remove language prefix if present
-  const pathWithoutLang = pathname.replace(/^\/(ua|en)/, "");
+  const pathWithoutLang = pathname.replace(/^\/(uk|en)/, "");
   // Match /lib/{bookId}
   const match = pathWithoutLang.match(/^\/lib\/([^/]+)/);
   return match?.[1];
