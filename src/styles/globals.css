@@ -338,30 +338,39 @@ mark {
 
 /* Mobile clean reading styles */
 @media (max-width: 768px) {
-  /* Clean verse surface - no borders/rings */
+  /* Add left padding for Spine navigation (w-14 = 56px = 3.5rem) */
+  [data-reader-root="true"] {
+    padding-left: 3.5rem !important;
+  }
+
+  /* Clean verse surface - no borders/rings/contour */
   .verse-surface {
     box-shadow: none !important;
     border: none !important;
     background: transparent !important;
+    border-radius: 0 !important;
   }
 
-  /* Remove verse contour/ring on mobile */
+  /* Remove verse contour/ring on mobile completely */
   .verse-surface.verse-contour,
-  .verse-surface.now-playing {
+  .verse-surface.now-playing,
+  .verse-contour {
     --tw-ring-shadow: none !important;
     --tw-ring-offset-shadow: none !important;
     box-shadow: none !important;
+    ring: none !important;
+    outline: none !important;
   }
 
   /* Reduce padding around verse content */
   .verse-surface > .py-6 {
-    padding-top: 1.5rem !important;
-    padding-bottom: 1rem !important;
+    padding-top: 1rem !important;
+    padding-bottom: 0.5rem !important;
   }
 
-  /* Clean verse number styling */
+  /* Clean verse number styling - less margin */
   .verse-number-clean {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   /* Hide the book name under verse number on mobile */
@@ -380,24 +389,24 @@ mark {
     line-height: 1.7 !important;
   }
 
-  /* Cleaner spacing for sections */
+  /* Much tighter spacing for sections - Sanskrit to Transliteration */
   .verse-surface .mb-10 {
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .verse-surface .mb-8 {
-    margin-bottom: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .verse-surface .mb-6 {
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   /* Cleaner Sanskrit text */
   .verse-surface .sanskrit-text {
     font-size: 1.1rem !important;
     line-height: 1.6 !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   /* Translation text - slightly bolder */
