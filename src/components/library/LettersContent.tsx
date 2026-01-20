@@ -180,29 +180,9 @@ export const LettersContent = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Заголовок з лічильником */}
-      <div className="flex items-center gap-3">
-        <Mail className="w-8 h-8 text-primary" />
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">
-            {t("Листи Шріли Прабгупади", "Letters of Srila Prabhupada")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t(
-              `${letters.length} листів (1947-1977)`,
-              `${letters.length} letters (1947-1977)`
-            )}
-          </p>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Пошук та фільтри */}
       <div className="space-y-4">
-        <div className="flex items-center text-lg font-semibold mb-4">
-          <Search className="w-5 h-5 mr-2" />
-          {t("Пошук та фільтри", "Search & filters")}
-        </div>
           {/* Пошук */}
           <div>
             <Input
