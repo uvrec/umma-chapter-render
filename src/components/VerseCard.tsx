@@ -308,25 +308,33 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex flex-col items-center justify-center gap-2 mb-4">
+          <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
-              <span className="font-semibold text-2xl md:text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                ВІРШ {verseNumber}
-              </span>
+              <>
+                {/* Mobile: clean number only with underline (NeuBibel style) */}
+                <span className="verse-number-clean md:hidden font-bold text-2xl text-foreground">
+                  {verseNumber.split('.').pop()}
+                  <span className="block w-8 h-0.5 bg-primary/60 mx-auto mt-1" />
+                </span>
+                {/* Desktop: full verse number */}
+                <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
+                  ВІРШ {verseNumber}
+                </span>
+              </>
             )}
-            {/* Назва глави - відцентрована під номером вірша */}
+            {/* Назва глави - відцентрована під номером вірша (hidden on mobile via CSS) */}
             {bookName && (
-              <span className="text-sm text-muted-foreground text-center">{bookName}</span>
+              <span className="text-sm text-muted-foreground text-center verse-book-name">{bookName}</span>
             )}
 
-            {/* Tap-to-jump: кнопка відтворення всього вірша */}
+            {/* Tap-to-jump: кнопка відтворення всього вірша (hidden on mobile via CSS) */}
             {(audioUrl || audioSanskrit || audioTranslation || audioCommentary) && (
               <button
                 onClick={() => playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
                 className={`
-                  mt-2 flex items-center gap-2 px-4 py-2 rounded-full
+                  verse-play-btn mt-2 flex items-center gap-2 px-4 py-2 rounded-full
                   transition-all duration-200
                   ${isNowPlaying
                     ? 'bg-primary text-primary-foreground shadow-lg'
