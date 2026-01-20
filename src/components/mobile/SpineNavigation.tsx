@@ -57,6 +57,8 @@ interface SpineNavigationProps {
   bookId?: string;
 }
 
+const SPINE_HIDDEN_STORAGE_KEY = "vv_spine_hidden";
+
 export function SpineNavigation({
   bookId,
 }: SpineNavigationProps) {
@@ -72,8 +74,15 @@ export function SpineNavigation({
     return isNaN(idx) ? 0 : idx % SPINE_THEMES.length;
   });
 
-  // Swipe tracking
+  // Spine hidden state (swipe left to hide)
+  const [isHidden, setIsHidden] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(SPINE_HIDDEN_STORAGE_KEY) === "true";
+  });
+
+  // Swipe tracking - both X and Y
   const touchStartY = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const spineTheme = SPINE_THEMES[spineThemeIndex];
 
   // Save theme preference
@@ -81,19 +90,38 @@ export function SpineNavigation({
     localStorage.setItem(SPINE_THEME_STORAGE_KEY, String(spineThemeIndex));
   }, [spineThemeIndex]);
 
-  // Handle swipe on spine to change theme
+  // Save hidden state
+  useEffect(() => {
+    localStorage.setItem(SPINE_HIDDEN_STORAGE_KEY, String(isHidden));
+  }, [isHidden]);
+
+  // Handle swipe on spine
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartY.current === null) return;
+    if (touchStartY.current === null || touchStartX.current === null) return;
 
     const touchEndY = e.changedTouches[0].clientY;
+    const touchEndX = e.changedTouches[0].clientX;
     const deltaY = touchStartY.current - touchEndY;
+    const deltaX = touchEndX - touchStartX.current;
     const threshold = 50; // minimum swipe distance
 
-    if (Math.abs(deltaY) > threshold) {
+    // Check if it's more of a horizontal or vertical swipe
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
+      // Horizontal swipe
+      if (deltaX < 0) {
+        // Swipe LEFT - hide the spine
+        setIsHidden(true);
+      } else {
+        // Swipe RIGHT - show highlights panel
+        setActivePanel("highlights");
+      }
+    } else if (Math.abs(deltaY) > threshold) {
+      // Vertical swipe - change theme
       if (deltaY > 0) {
         // Swipe up - next theme
         setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length);
@@ -106,7 +134,15 @@ export function SpineNavigation({
     }
 
     touchStartY.current = null;
+    touchStartX.current = null;
   };
+
+  // Handle tap on screen edge to show spine when hidden
+  const handleEdgeTap = useCallback(() => {
+    if (isHidden) {
+      setIsHidden(false);
+    }
+  }, [isHidden]);
 
   const togglePanel = useCallback((panel: SpinePanel) => {
     setActivePanel((current) => (current === panel ? "none" : panel));
@@ -158,14 +194,25 @@ export function SpineNavigation({
 
   return (
     <>
-      {/* Main Spine Bar - clean minimal design like Neu Bible */}
+      {/* Edge tap area to show spine when hidden */}
+      {isHidden && (
+        <div
+          className="fixed left-0 top-0 bottom-0 w-4 z-50"
+          onClick={handleEdgeTap}
+          onTouchEnd={handleEdgeTap}
+          aria-label={t("Показати навігацію", "Show navigation")}
+        />
+      )}
+
+      {/* Main Spine Bar - clean minimal design like Neu Bible - LEFT side */}
       <nav
         className={cn(
-          "spine-navigation fixed right-0 top-0 bottom-0 z-50",
+          "spine-navigation fixed left-0 top-0 bottom-0 z-50",
           "w-14 flex flex-col items-center justify-center",
           "bg-gradient-to-b",
           spineTheme.gradient,
-          "shadow-lg safe-right transition-all duration-500"
+          "shadow-lg safe-left transition-all duration-300",
+          isHidden ? "-translate-x-full" : "translate-x-0"
         )}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}

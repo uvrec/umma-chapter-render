@@ -104,12 +104,12 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
       className={cn(
         "fixed inset-0 z-[60] flex flex-col",
         "transition-transform duration-300 ease-out",
-        isAnimating ? "translate-x-0" : "translate-x-full"
+        isAnimating ? "translate-x-0" : "-translate-x-full"
       )}
     >
       {/* Gradient Header */}
       <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
-        <div className="flex items-center justify-between px-4 py-4 ml-16">
+        <div className="flex items-center justify-between px-4 py-4 pl-16">
           <div className="flex items-center gap-3">
             <Highlighter className="h-6 w-6 text-white" />
             <h2 className="text-lg font-semibold text-white">
@@ -128,7 +128,7 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
 
       {/* Timeline Content */}
       <div
-        className="flex-1 bg-background overflow-y-auto ml-16"
+        className="flex-1 bg-background overflow-y-auto pl-16"
         onClick={handleClose}
       >
         <div className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
