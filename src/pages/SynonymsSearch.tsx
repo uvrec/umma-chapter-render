@@ -20,7 +20,7 @@ import type { Database } from "@/integrations/supabase/types";
 type SynonymSearchResult = Database['public']['Functions']['search_synonyms']['Returns'][number];
 
 // Helper to build verse link (must match App.tsx routes)
-const buildVerseLink = (result: SynonymSearchResult): string => {
+const buildVerseLinkPath = (result: SynonymSearchResult): string => {
   if (result.canto_number) {
     // Srimad-Bhagavatam structure: /lib/:bookId/:cantoNumber/:chapterNumber/:verseNumber
     return `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`;
@@ -67,7 +67,12 @@ interface AutocompleteItem {
 type SearchMode = "contains" | "starts_with" | "exact";
 
 export default function SynonymsSearch() {
-  const { language: contextLanguage } = useLanguage();
+  const { language: contextLanguage, getLocalizedPath } = useLanguage();
+
+  // Build verse link with language prefix
+  const buildVerseLink = (result: SynonymSearchResult): string => {
+    return getLocalizedPath(buildVerseLinkPath(result));
+  };
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLanguage, setSearchLanguage] = useState<"uk" | "en">("uk");
   const [searchMode, setSearchMode] = useState<SearchMode>("contains");

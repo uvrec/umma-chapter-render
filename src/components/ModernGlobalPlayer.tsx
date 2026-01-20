@@ -63,7 +63,7 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
     isFavorite
   } = useAudio();
 
-  const { language } = useLanguage();
+  const { language, getLocalizedPath } = useLanguage();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
@@ -100,14 +100,14 @@ export const ModernGlobalPlayer: React.FC<ModernGlobalPlayerProps> = ({ classNam
   // Navigate to verse page
   const goToVersePage = () => {
     if (currentTrack?.verseId) {
-      navigate(`/verse/${currentTrack.verseId}`);
+      navigate(getLocalizedPath(`/verse/${currentTrack.verseId}`));
       setIsExpanded(false);
     } else if (currentTrack?.bookSlug && currentTrack?.chapterNumber && currentTrack?.verseNumber) {
       const { bookSlug, cantoNumber, chapterNumber, verseNumber } = currentTrack;
       const path = cantoNumber
         ? `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`
         : `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
-      navigate(path);
+      navigate(getLocalizedPath(path));
       setIsExpanded(false);
     }
   };

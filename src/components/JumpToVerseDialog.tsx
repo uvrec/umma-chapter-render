@@ -244,7 +244,7 @@ export function JumpToVerseDialog({
   isCantoMode
 }: JumpToVerseDialogProps) {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, getLocalizedPath } = useLanguage();
   const [input, setInput] = useState('');
   const [preview, setPreview] = useState<ParsedReference | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -275,11 +275,11 @@ export function JumpToVerseDialog({
     if (preview?.isValid) {
       const url = buildUrl(preview);
       if (url) {
-        navigate(url);
+        navigate(getLocalizedPath(url));
         onClose();
       }
     }
-  }, [preview, navigate, onClose]);
+  }, [preview, navigate, onClose, getLocalizedPath]);
 
   // Handle Enter key
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

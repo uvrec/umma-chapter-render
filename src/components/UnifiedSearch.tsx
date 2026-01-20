@@ -52,7 +52,7 @@ interface UnifiedSearchProps {
 
 export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
   const navigate = useNavigate();
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 300);
   const { history, addToHistory, removeFromHistory, clearHistory } = useSearchHistory();
@@ -203,8 +203,8 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
         const canto = verse.chapters.cantos;
 
         const href = canto?.canto_number
-          ? `/lib/${book.slug}/${canto.canto_number}/${chapter.chapter_number}/${verse.verse_number}`
-          : `/lib/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`;
+          ? getLocalizedPath(`/lib/${book.slug}/${canto.canto_number}/${chapter.chapter_number}/${verse.verse_number}`)
+          : getLocalizedPath(`/lib/${book.slug}/${chapter.chapter_number}/${verse.verse_number}`);
 
         searchResults.push({
           result_type: 'verse',
@@ -241,7 +241,7 @@ export function UnifiedSearch({ open, onOpenChange }: UnifiedSearchProps) {
           title: language === 'uk' ? post.title_uk : post.title_en,
           subtitle: t('Блог', 'Blog'),
           snippet: (language === 'uk' ? post.excerpt_uk : post.excerpt_en)?.substring(0, 100),
-          href: `/blog/${post.slug}`,
+          href: getLocalizedPath(`/blog/${post.slug}`),
           relevance: 0.8,
           matched_in: ['blog'],
         });

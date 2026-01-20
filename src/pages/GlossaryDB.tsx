@@ -64,7 +64,7 @@ const PAGE_SIZE = 30;
 
 export default function GlossaryDB() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [searchType, setSearchType] = useState<'exact' | 'contains' | 'starts'>('contains');
@@ -585,7 +585,7 @@ export default function GlossaryDB() {
                                             <div className="flex-1 min-w-0">
                                               <p className="text-foreground">{item.meaning || '—'}</p>
                                               <Link
-                                                to={item.verse_link}
+                                                to={getLocalizedPath(item.verse_link)}
                                                 className="text-sm text-primary hover:underline inline-block py-1 touch-manipulation"
                                               >
                                                 {reference}

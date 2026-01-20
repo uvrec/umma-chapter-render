@@ -68,7 +68,7 @@ export const BookReaderHeader = ({
   onSettingsClick,
   introTitle,
 }: BookReaderHeaderProps) => {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const [chapterPopoverOpen, setChapterPopoverOpen] = useState(false);
   const [versePopoverOpen, setVersePopoverOpen] = useState(false);
@@ -76,16 +76,16 @@ export const BookReaderHeader = ({
   // Build navigation paths
   const getChapterPath = (chapter: number) => {
     if (cantoNumber) {
-      return `/lib/${bookSlug}/${cantoNumber}/${chapter}/1`;
+      return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapter}/1`);
     }
-    return `/lib/${bookSlug}/${chapter}/1`;
+    return getLocalizedPath(`/lib/${bookSlug}/${chapter}/1`);
   };
 
   const getVersePath = (verse: string) => {
     if (cantoNumber) {
-      return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verse}`;
+      return getLocalizedPath(`/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verse}`);
     }
-    return `/lib/${bookSlug}/${chapterNumber}/${verse}`;
+    return getLocalizedPath(`/lib/${bookSlug}/${chapterNumber}/${verse}`);
   };
 
   // Get current chapter title
