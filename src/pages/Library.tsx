@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,9 @@ export const Library = () => {
     getLocalizedPath
   } = useLanguage();
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  const defaultTab = tabFromUrl === 'lectures' || tabFromUrl === 'letters' ? tabFromUrl : 'books';
 
   // Fetch books with chapter counts for mobile view
   const {
@@ -59,22 +62,28 @@ export const Library = () => {
 
       <div className="container mx-auto px-4 py-3 sm:py-4">
         {/* Tabs for sections */}
-        <Tabs defaultValue="books" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="books" className="flex items-center gap-2">
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList className="flex justify-center gap-8 bg-transparent mb-6 h-auto p-0">
+            <TabsTrigger
+              value="books"
+              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+            >
               <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('Книги', 'Books')}</span>
-              <span className="sm:hidden">{t('Книги', 'Books')}</span>
+              <span>{t('Книги', 'Books')}</span>
             </TabsTrigger>
-            <TabsTrigger value="lectures" className="flex items-center gap-2">
+            <TabsTrigger
+              value="lectures"
+              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+            >
               <Mic className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('Лекції', 'Transcripts')}</span>
-              <span className="sm:hidden">{t('Лекції', 'Lectures')}</span>
+              <span>{t('Лекції', 'Transcripts')}</span>
             </TabsTrigger>
-            <TabsTrigger value="letters" className="flex items-center gap-2">
+            <TabsTrigger
+              value="letters"
+              className="flex items-center gap-2 bg-transparent px-0 py-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none text-muted-foreground data-[state=active]:text-primary"
+            >
               <Mail className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('Листи', 'Letters')}</span>
-              <span className="sm:hidden">{t('Листи', 'Letters')}</span>
+              <span>{t('Листи', 'Letters')}</span>
             </TabsTrigger>
           </TabsList>
 
