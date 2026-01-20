@@ -5,7 +5,7 @@
 import { useMemo, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+// Sheet replaced with custom implementation for Spine offset support
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/contexts/BooksContext";
@@ -292,11 +292,23 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent
-        side="left"
-        className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 [&>button]:hidden z-[60]"
+    <>
+      {/* Custom overlay - starts after Spine */}
+      <div
+        className="fixed inset-0 left-14 z-[50] bg-black/80 animate-in fade-in-0 duration-300"
+        onClick={onClose}
+      />
+
+      {/* Custom panel content - starts after Spine */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-14 z-[60] w-[calc(100%-56px)] sm:w-80",
+          "bg-background shadow-lg",
+          "animate-in slide-in-from-left duration-300"
+        )}
       >
         {/* Tabs */}
         <div className="flex border-b pt-4">
@@ -367,8 +379,8 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
             </div>
           </div>
         </ScrollArea>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   );
 }
 
