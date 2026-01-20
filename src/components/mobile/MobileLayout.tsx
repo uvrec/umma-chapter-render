@@ -12,21 +12,12 @@ interface MobileLayoutProps {
   hideSpine?: boolean;
   /** Current book ID for TOC */
   bookId?: string;
-  /** Whether we're on a reader page (shows navigation arrows) */
-  isReaderPage?: boolean;
-  /** Callback for previous chapter/verse navigation */
-  onPrevious?: () => void;
-  /** Callback for next chapter/verse navigation */
-  onNext?: () => void;
 }
 
 export function MobileLayout({
   children,
   hideSpine = false,
   bookId,
-  isReaderPage = false,
-  onPrevious,
-  onNext,
 }: MobileLayoutProps) {
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -36,25 +27,16 @@ export function MobileLayout({
     return <>{children}</>;
   }
 
-  // Detect if we're on a reader page from the URL
-  const isOnReaderPage = isReaderPage || location.pathname.includes("/lib/");
-
   // Extract bookId from URL if not provided
   const detectedBookId = bookId || extractBookIdFromPath(location.pathname);
 
   return (
     <div className="mobile-layout min-h-screen">
       {!hideSpine && (
-        <SpineNavigation
-          bookId={detectedBookId}
-          isReaderPage={isOnReaderPage}
-          showNavArrows={isOnReaderPage && Boolean(onPrevious || onNext)}
-          onPrevious={onPrevious}
-          onNext={onNext}
-        />
+        <SpineNavigation bookId={detectedBookId} />
       )}
-      {/* Add LEFT padding for spine navigation (spine on left) */}
-      <div className={!hideSpine ? "pl-16" : ""}>
+      {/* Add RIGHT padding for spine navigation (spine on right) */}
+      <div className={!hideSpine ? "pr-16" : ""}>
         {children}
       </div>
     </div>
