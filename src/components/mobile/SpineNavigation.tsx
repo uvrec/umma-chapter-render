@@ -55,12 +55,15 @@ const SPINE_THEME_STORAGE_KEY = "vv_spine_theme";
 interface SpineNavigationProps {
   /** Current book ID for TOC navigation */
   bookId?: string;
+  /** Callback when spine visibility changes */
+  onVisibilityChange?: (isVisible: boolean) => void;
 }
 
 const SPINE_HIDDEN_STORAGE_KEY = "vv_spine_hidden";
 
 export function SpineNavigation({
   bookId,
+  onVisibilityChange,
 }: SpineNavigationProps) {
   const [activePanel, setActivePanel] = useState<SpinePanel>("none");
   const location = useLocation();
@@ -90,10 +93,11 @@ export function SpineNavigation({
     localStorage.setItem(SPINE_THEME_STORAGE_KEY, String(spineThemeIndex));
   }, [spineThemeIndex]);
 
-  // Save hidden state
+  // Save hidden state and notify parent
   useEffect(() => {
     localStorage.setItem(SPINE_HIDDEN_STORAGE_KEY, String(isHidden));
-  }, [isHidden]);
+    onVisibilityChange?.(!isHidden);
+  }, [isHidden, onVisibilityChange]);
 
   // Handle swipe on spine
   const handleTouchStart = (e: React.TouchEvent) => {
