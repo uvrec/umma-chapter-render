@@ -536,17 +536,6 @@ export const NewHome = () => {
         </Helmet>
         <WebsiteSchema />
         <OrganizationSchema language={language} />
-
-        {/* Simple header for mobile */}
-        <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
-          <div className="px-4 py-4">
-            <h1 className="text-lg font-semibold text-white">
-              {t("Бібліотека", "Library")}
-            </h1>
-          </div>
-        </div>
-
-        {/* Library list */}
         <MobileLibraryList books={mobileBooks} isLoading={mobileBooksLoading} />
       </div>
     );
