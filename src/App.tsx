@@ -86,6 +86,7 @@ const TattvaPage = lazy(() => import("./pages/TattvaPage"));
 const ReadingStatsPage = lazy(() => import("./pages/ReadingStatsPage"));
 const BookSearch = lazy(() => import("./pages/BookSearch"));
 const Quotes = lazy(() => import("./pages/Quotes"));
+const SadhanaTracker = lazy(() => import("./pages/SadhanaTracker"));
 
 // ============================================================
 // STATIC IMPORTS (критичні сторінки, завантажуються одразу)
@@ -261,6 +262,7 @@ function AppContent() {
             <Route path="tattva/:slug" element={<TattvaPage />} />
             <Route path="stats" element={<ReadingStatsPage />} />
             <Route path="timeline" element={<TimelinePage />} />
+            <Route path="sadhana" element={<SadhanaTracker />} />
 
             {/* Вайшнавський календар */}
             <Route path="calendar" element={<VaishnavCalendar />} />
@@ -365,6 +367,7 @@ function AppContent() {
           <Route path="/tattva/:slug" element={<TattvaPage />} />
           <Route path="/stats" element={<ReadingStatsPage />} />
           <Route path="/timeline" element={<TimelinePage />} />
+          <Route path="/sadhana" element={<SadhanaTracker />} />
 
           {/* Вайшнавський календар */}
           <Route path="/calendar" element={<VaishnavCalendar />} />
