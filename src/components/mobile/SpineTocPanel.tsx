@@ -5,7 +5,7 @@
 import { useMemo, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+// Sheet replaced with custom implementation for Spine offset support
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/contexts/BooksContext";
@@ -280,16 +280,40 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
   // Tab state for books/lectures/letters
   const [activeTab, setActiveTab] = useState<"books" | "lectures" | "letters">("books");
 
+  const handleTabClick = (tab: "books" | "lectures" | "letters") => {
+    if (tab === "books") {
+      setActiveTab("books");
+    } else {
+      // Navigate to library page with appropriate tab
+      const path = language === "uk" ? "/uk/library" : "/library";
+      const tabParam = tab === "lectures" ? "?tab=lectures" : "?tab=letters";
+      navigate(path + tabParam);
+      onClose();
+    }
+  };
+
+  if (!open) return null;
+
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent
-        side="left"
-        className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 [&>button]:hidden z-[60]"
+    <>
+      {/* Custom overlay - starts after Spine */}
+      <div
+        className="fixed inset-0 left-14 z-[50] bg-black/80 animate-in fade-in-0 duration-300"
+        onClick={onClose}
+      />
+
+      {/* Custom panel content - starts after Spine */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-14 z-[60] w-[calc(100%-56px)] sm:w-80",
+          "bg-background shadow-lg",
+          "animate-in slide-in-from-left duration-300"
+        )}
       >
         {/* Tabs */}
         <div className="flex border-b pt-4">
           <button
-            onClick={() => setActiveTab("books")}
+            onClick={() => handleTabClick("books")}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
               activeTab === "books"
@@ -301,24 +325,20 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
             {t("Книги", "Books")}
           </button>
           <button
-            onClick={() => setActiveTab("lectures")}
+            onClick={() => handleTabClick("lectures")}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
-              activeTab === "lectures"
-                ? "text-brand-500 border-b-2 border-brand-500"
-                : "text-muted-foreground hover:text-foreground"
+              "text-muted-foreground hover:text-foreground"
             )}
           >
             <Mic className="h-4 w-4" />
             {t("Лекції", "Lectures")}
           </button>
           <button
-            onClick={() => setActiveTab("letters")}
+            onClick={() => handleTabClick("letters")}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
-              activeTab === "letters"
-                ? "text-brand-500 border-b-2 border-brand-500"
-                : "text-muted-foreground hover:text-foreground"
+              "text-muted-foreground hover:text-foreground"
             )}
           >
             <Mail className="h-4 w-4" />
@@ -327,11 +347,10 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
         </div>
 
         <ScrollArea className="h-[calc(100vh-60px)]">
-          {activeTab === "books" && (
-            <div className="py-1">
-              {/* Books List - flat, no category headers */}
-              <div className="divide-y divide-border/30">
-                {Object.values(groupedBooks).flat().map((book) => {
+          <div className="py-1">
+            {/* Books List - flat, no category headers */}
+            <div className="divide-y divide-border/30">
+              {Object.values(groupedBooks).flat().map((book) => {
                   const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
                   const isCurrentBook = currentBookId === book.slug;
 
@@ -358,24 +377,10 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
                 </div>
               )}
             </div>
-          )}
-
-          {activeTab === "lectures" && (
-            <div className="px-4 py-12 text-center text-muted-foreground">
-              <Mic className="h-10 w-10 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">{t("Лекції скоро будуть", "Lectures coming soon")}</p>
-            </div>
-          )}
-
-          {activeTab === "letters" && (
-            <div className="px-4 py-12 text-center text-muted-foreground">
-              <Mail className="h-10 w-10 mx-auto mb-2 opacity-30" />
-              <p className="text-sm">{t("Листи скоро будуть", "Letters coming soon")}</p>
-            </div>
-          )}
+          </div>
         </ScrollArea>
-      </SheetContent>
-    </Sheet>
+      </div>
+    </>
   );
 }
 
