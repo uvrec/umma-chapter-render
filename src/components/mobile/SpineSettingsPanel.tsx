@@ -3,7 +3,7 @@
 // Панель налаштувань: нагадування, читання, книги, про нас, контакти
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+// Sheet replaced with custom implementation for Spine offset support
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -209,15 +209,36 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     window.open(url, "_blank");
   };
 
+  if (!open) return null;
+
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <SheetContent
-        side="left"
-        className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 overflow-y-auto z-[60]"
+    <>
+      {/* Custom overlay - starts after Spine */}
+      <div
+        className="fixed inset-0 left-14 z-[50] bg-black/80 animate-in fade-in-0 duration-300"
+        onClick={onClose}
+      />
+
+      {/* Custom panel content - starts after Spine */}
+      <div
+        className={cn(
+          "fixed inset-y-0 left-14 z-[60] w-[calc(100%-56px)] sm:w-80",
+          "bg-background shadow-lg",
+          "animate-in slide-in-from-left duration-300",
+          "overflow-y-auto"
+        )}
       >
-        <SheetHeader className="px-4 py-4 border-b">
-          <SheetTitle className="text-lg">{t("Налаштування", "Settings")}</SheetTitle>
-        </SheetHeader>
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-4 border-b">
+          <h2 className="text-lg font-semibold">{t("Налаштування", "Settings")}</h2>
+          <button
+            onClick={onClose}
+            className="rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </button>
+        </div>
 
         <div className="px-4 py-4 space-y-6">
           {/* 0. GENERAL Section - Reading Reminders */}
@@ -503,7 +524,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             <p>VedaVoice v{import.meta.env.VITE_APP_VERSION || "1.0.0"}</p>
           </div>
         </div>
-      </SheetContent>
+      </div>
 
       {/* Full-screen Books Carousel Modal */}
       {showBooksModal && (
@@ -529,7 +550,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
           language={language}
         />
       )}
-    </Sheet>
+    </>
   );
 }
 
