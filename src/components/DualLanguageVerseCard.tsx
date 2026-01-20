@@ -78,7 +78,23 @@ interface DualLanguageVerseCardProps {
   isNextDisabled?: boolean;
   prevLabel?: string;
   nextLabel?: string;
+  bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
+
+/* =========================
+   Префікси книг
+   ========================= */
+const getBookPrefix = (slug: string | undefined): string => {
+  const prefixes: Record<string, string> = {
+    sb: "ШБ",
+    bg: "БҐ",
+    cc: "ЧЧ",
+    noi: "НВ",
+    iso: "Ішо",
+    nod: "НВ",
+  };
+  return slug ? prefixes[slug] || slug.toUpperCase() : "";
+};
 
 // openGlossary function moved inside component to use useNavigate hook
 
@@ -86,6 +102,7 @@ export const DualLanguageVerseCard = ({
   verseId,
   verseNumber,
   bookName,
+  bookSlug,
   sanskritTextUk,
   sanskritTextEn,
   transliterationUk,
@@ -308,10 +325,10 @@ export const DualLanguageVerseCard = ({
           <div className="flex flex-col items-center mb-4">
             <div className="flex items-center justify-center gap-4">
               {isAdmin && verseId ? (
-                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+                <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
               ) : (
                 <span className="font-semibold text-2xl md:text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                  ВІРШ {verseNumber}
+                  {getBookPrefix(bookSlug)} {verseNumber}
                 </span>
               )}
               {/* Кнопка "Додати до вивчення" */}

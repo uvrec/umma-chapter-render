@@ -1433,6 +1433,7 @@ export const VedaReaderDB = () => {
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle || undefined}
+                  bookSlug={bookId}
                   sanskritTextUk={cleanSanskrit((verse as any).sanskrit_uk || (verse as any).sanskrit || "")}
                   sanskritTextEn={cleanSanskrit((verse as any).sanskrit_en || (verse as any).sanskrit || "")}
                   transliterationUk={(verse as any).transliteration_uk || ""}
@@ -1468,6 +1469,7 @@ export const VedaReaderDB = () => {
                   verseId={verse.id}
                   verseNumber={fullVerseNumber}
                   bookName={chapterTitle}
+                  bookSlug={bookId}
                   sanskritText={cleanSanskrit(language === "uk" ? (verse as any).sanskrit_uk || (verse as any).sanskrit || "" : (verse as any).sanskrit_en || (verse as any).sanskrit || "")}
                   transliteration={language === "uk" ? (verse as any).transliteration_uk || "" : (verse as any).transliteration_en || ""}
                   synonyms={getTranslationWithFallback(verse, 'synonyms')}
@@ -1511,6 +1513,7 @@ export const VedaReaderDB = () => {
                   : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${getDisplayVerseNumber(currentVerse.verse_number)}`
                 }
                 bookName={chapterTitle || undefined}
+                bookSlug={bookId}
                 sanskritTextUk={cleanSanskrit((currentVerse as any).sanskrit_uk || (currentVerse as any).sanskrit || "")}
                 sanskritTextEn={cleanSanskrit((currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")}
                 transliterationUk={(currentVerse as any).transliteration_uk || ""}
@@ -1555,6 +1558,7 @@ export const VedaReaderDB = () => {
                   : `${effectiveChapter?.chapter_number || effectiveChapterParam}.${getDisplayVerseNumber(currentVerse.verse_number)}`
                 }
                 bookName={chapterTitle}
+                bookSlug={bookId}
                 sanskritText={cleanSanskrit(language === "uk" ? (currentVerse as any).sanskrit_uk || (currentVerse as any).sanskrit || "" : (currentVerse as any).sanskrit_en || (currentVerse as any).sanskrit || "")}
                 transliteration={language === "uk" ? (currentVerse as any).transliteration_uk || "" : (currentVerse as any).transliteration_en || ""}
                 synonyms={getTranslationWithFallback(currentVerse, 'synonyms')}
