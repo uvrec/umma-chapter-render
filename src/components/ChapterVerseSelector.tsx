@@ -56,7 +56,7 @@ export function ChapterVerseSelector({
   className,
 }: ChapterVerseSelectorProps) {
   const navigate = useNavigate();
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [chapterOpen, setChapterOpen] = useState(false);
   const [verseOpen, setVerseOpen] = useState(false);
   const currentVerseRef = useRef<HTMLButtonElement>(null);
@@ -81,9 +81,9 @@ export function ChapterVerseSelector({
   // Build URL for chapter navigation
   const buildChapterUrl = (chapter: Chapter) => {
     if (isCantoMode) {
-      return `/lib/${bookId}/${cantoNumber}/${chapter.chapter_number}`;
+      return getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapter.chapter_number}`);
     }
-    return `/lib/${bookId}/${chapter.chapter_number}`;
+    return getLocalizedPath(`/lib/${bookId}/${chapter.chapter_number}`);
   };
 
   // Build URL for verse navigation
@@ -93,14 +93,14 @@ export function ChapterVerseSelector({
       : verse.verse_number;
 
     if (bookId === 'noi') {
-      return `/lib/noi/${verseNum}`;
+      return getLocalizedPath(`/lib/noi/${verseNum}`);
     }
 
     if (isCantoMode) {
-      return `/lib/${bookId}/${cantoNumber}/${currentChapter?.chapter_number}/${verseNum}`;
+      return getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${currentChapter?.chapter_number}/${verseNum}`);
     }
 
-    return `/lib/${bookId}/${currentChapter?.chapter_number}/${verseNum}`;
+    return getLocalizedPath(`/lib/${bookId}/${currentChapter?.chapter_number}/${verseNum}`);
   };
 
   // Handle chapter selection

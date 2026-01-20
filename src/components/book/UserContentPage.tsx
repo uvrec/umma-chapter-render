@@ -68,26 +68,26 @@ const formatDate = (dateString: string, language: string) => {
   });
 };
 
-// Build verse URL
-const buildVerseUrl = (
-  bookSlug: string,
-  cantoNumber: number | undefined,
-  chapterNumber: number,
-  verseNumber: string
-) => {
-  if (cantoNumber) {
-    return `/lib/${bookSlug}/${cantoNumber}/${chapterNumber}/${verseNumber}`;
-  }
-  return `/lib/${bookSlug}/${chapterNumber}/${verseNumber}`;
-};
-
 export const UserContentPage = ({
   bookTitle,
   bookSlug,
   cantoNumber,
   initialTab = "bookmarks",
 }: UserContentPageProps) => {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
+
+  // Build verse URL
+  const buildVerseUrl = (
+    bookSlugParam: string,
+    cantoNum: number | undefined,
+    chapterNumber: number,
+    verseNumber: string
+  ) => {
+    if (cantoNum) {
+      return getLocalizedPath(`/lib/${bookSlugParam}/${cantoNum}/${chapterNumber}/${verseNumber}`);
+    }
+    return getLocalizedPath(`/lib/${bookSlugParam}/${chapterNumber}/${verseNumber}`);
+  };
   const {
     getBookmarksForBook,
     removeBookmark,

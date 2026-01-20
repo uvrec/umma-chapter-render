@@ -103,6 +103,6 @@ $$;
 
 -- Mass update: recalculate search_vector for ALL existing verses
 -- Run in batches to avoid timeouts on large datasets
--- Batch 1: First 10000 rows
 UPDATE public.verses SET translation_uk = translation_uk
 WHERE id IN (SELECT id FROM public.verses ORDER BY id LIMIT 10000);
+

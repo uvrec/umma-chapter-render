@@ -280,8 +280,8 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent
-        side="right"
-        className="w-[calc(100%-4rem)] sm:w-80 ml-16 p-0 [&>button]:hidden"
+        side="left"
+        className="w-[calc(100%-4rem)] sm:w-80 pl-16 p-0 [&>button]:hidden"
       >
         <SheetHeader className="px-4 py-3 border-b">
           <SheetTitle className="text-base flex items-center gap-2">
