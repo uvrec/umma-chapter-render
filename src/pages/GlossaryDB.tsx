@@ -326,103 +326,35 @@ export default function GlossaryDB() {
 
       <div className="container mx-auto px-4 py-4">
         <div className="max-w-6xl mx-auto">
-          {/* Search results statistics */}
-          {hasSearch && totalUniqueTerms > 0 && (
-            <div className="mb-6 p-4 bg-muted/30 rounded-lg">
-              <p className="text-center text-muted-foreground">
-                {t('Знайдено', 'Found')} <span className="font-bold text-foreground">{totalUniqueTerms}</span> {t('термінів', 'terms')}
-                {allGroupedTerms.length < totalUniqueTerms && (
-                  <span className="text-sm"> ({t('показано', 'showing')} {allGroupedTerms.length})</span>
-                )}
-              </p>
-            </div>
-          )}
-
-          {/* Search form */}
-          <div className="py-6 mb-8 bg-card rounded-lg border p-6">
-            <div className="space-y-4">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1">
-                  <Input
-                    placeholder={t('Шукати термін...', 'Search term...')}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="w-full"
-                  />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Results - Main content area */}
+            <div className="lg:col-span-3 order-2 lg:order-1">
+              {/* Search results statistics */}
+              {hasSearch && totalUniqueTerms > 0 && (
+                <div className="mb-4 text-sm text-muted-foreground">
+                  {t('Знайдено', 'Found')} <span className="font-medium text-foreground">{totalUniqueTerms}</span> {t('термінів', 'terms')}
+                  {allGroupedTerms.length < totalUniqueTerms && (
+                    <span> ({t('показано', 'showing')} {allGroupedTerms.length})</span>
+                  )}
                 </div>
-                <div className="flex-1">
-                  <Input
-                    placeholder={t('Шукати переклад...', 'Search translation...')}
-                    value={translation}
-                    onChange={(e) => setTranslation(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                    className="w-full"
-                  />
-                </div>
-              </div>
+              )}
 
-              <div className="flex flex-col md:flex-row gap-4">
-                <Select value={searchType} onValueChange={(value: any) => setSearchType(value)}>
-                  <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="contains">
-                      {t('Містить', 'Contains')}
-                    </SelectItem>
-                    <SelectItem value="exact">
-                      {t('Точний збіг', 'Exact match')}
-                    </SelectItem>
-                    <SelectItem value="starts">
-                      {t('Починається з', 'Starts with')}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Button onClick={handleSearch} className="w-full md:w-auto gap-2 h-11 md:h-10 touch-manipulation">
-                  <Search className="h-4 w-4" />
-                  {t('Шукати', 'Search')}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Results */}
-            <div className="lg:col-span-3 space-y-4">
+              <div className="space-y-3">
               {isLoadingStats || isLoadingGrouped ? (
-                <div className="py-8 text-center">
-                  <div className="text-muted-foreground space-y-2">
-                    <Loader2 className="w-12 h-12 mx-auto mb-4 animate-spin" />
-                    <p className="text-lg">
-                      {t('Завантаження термінів...', 'Loading terms...')}
-                    </p>
-                  </div>
+                <div className="py-12 text-center text-muted-foreground">
+                  <Loader2 className="w-8 h-8 mx-auto animate-spin" />
                 </div>
               ) : !hasSearch ? (
-                <div className="py-8 text-center">
-                  <div className="text-muted-foreground space-y-2">
-                    <Search className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-semibold">
-                      {t('Використовуйте пошук для перегляду термінів', 'Use search to view terms')}
-                    </p>
-                    <p className="text-sm">
-                      {t('Введіть термін або переклад, або оберіть категорію', 'Enter a term or translation, or select a category')}
-                    </p>
-                  </div>
+                <div className="py-12 text-center text-muted-foreground">
+                  <p>{t('Введіть запит для пошуку', 'Enter a search query')}</p>
                 </div>
               ) : isErrorGrouped ? (
-                <div className="py-8 text-center">
-                  <p className="text-destructive">
-                    {t('Помилка завантаження', 'Error loading data')}
-                  </p>
+                <div className="py-12 text-center text-destructive">
+                  <p>{t('Помилка завантаження', 'Error loading')}</p>
                 </div>
               ) : allGroupedTerms.length === 0 ? (
-                <div className="py-8 text-center">
-                  <p className="text-muted-foreground">
-                    {t('Термінів не знайдено', 'No terms found')}
-                  </p>
+                <div className="py-12 text-center text-muted-foreground">
+                  <p>{t('Нічого не знайдено', 'Nothing found')}</p>
                 </div>
               ) : (
                 <>
@@ -655,93 +587,93 @@ export default function GlossaryDB() {
               )}
             </div>
 
-            {/* Sidebar - Categories */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8 space-y-4">
-                <h3 className="font-semibold">
-                  {t('Категорії', 'Categories')}
-                </h3>
+            {/* Sidebar - Search & Categories */}
+            <div className="lg:col-span-1 order-1 lg:order-2">
+              <div className="sticky top-4 space-y-4">
+                {/* Search form - compact */}
+                <div className="space-y-3">
+                  <Input
+                    placeholder={t('Термін...', 'Term...')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                  <Input
+                    placeholder={t('Переклад...', 'Translation...')}
+                    value={translation}
+                    onChange={(e) => setTranslation(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                  <Select value={searchType} onValueChange={(value: any) => setSearchType(value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="contains">{t('Містить', 'Contains')}</SelectItem>
+                      <SelectItem value="exact">{t('Точний збіг', 'Exact')}</SelectItem>
+                      <SelectItem value="starts">{t('Починається з', 'Starts with')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button onClick={handleSearch} className="w-full gap-2">
+                    <Search className="h-4 w-4" />
+                    {t('Шукати', 'Search')}
+                  </Button>
+                </div>
 
-                {isLoadingStats ? (
-                  <div className="space-y-2">
-                    {[1,2,3,4].map(i => (
-                      <div key={i} className="h-10 bg-muted animate-pulse rounded-md" />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-1 md:space-y-2">
-                    <button
-                      onClick={() => setSelectedBook('all')}
-                      className={`w-full text-left px-3 py-3 md:py-2 rounded-md transition-colors touch-manipulation ${
-                        selectedBook === 'all'
-                          ? 'bg-primary text-primary-foreground'
-                          : 'hover:bg-muted active:bg-muted'
-                      }`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{t('Всі книги', 'All books')}</span>
-                        <Badge variant={selectedBook === 'all' ? 'outline' : 'secondary'}>
-                          {statsData?.unique_terms || 0}
-                        </Badge>
-                      </div>
-                    </button>
-
-                    {statsData?.book_stats?.map((book) => (
+                {/* Categories */}
+                <div className="pt-4 border-t">
+                  {isLoadingStats ? (
+                    <div className="space-y-2">
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="h-8 bg-muted animate-pulse rounded-md" />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
                       <button
-                        key={book.slug}
-                        onClick={() => setSelectedBook(book.slug)}
-                        className={`w-full text-left px-3 py-3 md:py-2 rounded-md transition-colors touch-manipulation ${
-                          selectedBook === book.slug
+                        onClick={() => setSelectedBook('all')}
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                          selectedBook === 'all'
                             ? 'bg-primary text-primary-foreground'
-                            : 'hover:bg-muted active:bg-muted'
+                            : 'hover:bg-muted'
                         }`}
                       >
-                        <div className="flex justify-between items-center gap-2">
-                          <span className="truncate text-sm">{book.title}</span>
-                          <Badge variant={selectedBook === book.slug ? 'outline' : 'secondary'}>
-                            {book.unique}
-                          </Badge>
+                        <div className="flex justify-between items-center">
+                          <span>{t('Всі', 'All')}</span>
+                          <span className="text-xs opacity-70">{statsData?.unique_terms || 0}</span>
                         </div>
                       </button>
-                    ))}
-                  </div>
-                )}
 
-                {/* Saved terms section */}
-                {savedTermsState.length > 0 && (
-                  <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Star className="h-4 w-4 text-amber-500" />
-                      <h4 className="font-medium text-foreground">
-                        {t('Збережені терміни', 'Saved terms')}
-                      </h4>
+                      {statsData?.book_stats?.map((book) => (
+                        <button
+                          key={book.slug}
+                          onClick={() => setSelectedBook(book.slug)}
+                          className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                            selectedBook === book.slug
+                              ? 'bg-primary text-primary-foreground'
+                              : 'hover:bg-muted'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center gap-2">
+                            <span className="truncate">{book.title}</span>
+                            <span className="text-xs opacity-70">{book.unique}</span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {savedTermsState.length} {t('термінів', 'terms')}
-                    </p>
-                    <Link
-                      to="/tools/script-learning"
-                      className="text-sm text-primary hover:underline flex items-center gap-1 py-2 touch-manipulation"
-                    >
-                      <GraduationCap className="h-4 w-4" />
-                      {t('Перейти до вивчення', 'Go to learning')}
-                    </Link>
-                  </div>
-                )}
-
-                {/* Quick tips */}
-                <div className="mt-6 p-4 bg-muted/30 rounded-lg text-sm text-muted-foreground">
-                  <h4 className="font-medium text-foreground mb-2">
-                    {t('Поради', 'Tips')}
-                  </h4>
-                  <ul className="space-y-1 text-xs">
-                    <li>• {t('Натисніть на термін, щоб побачити всі використання', 'Click on a term to see all usages')}</li>
-                    <li>• {t('Використовуйте діакритику для точного пошуку', 'Use diacritics for precise search')}</li>
-                    <li>• {t('Фільтруйте по книзі для швидкого пошуку', 'Filter by book for faster search')}</li>
-                    <li>• <GraduationCap className="h-3 w-3 inline" /> {t('— додати до вивчення', '— add to learning')}</li>
-                    <li>• <Star className="h-3 w-3 inline" /> {t('— зберегти термін', '— save term')}</li>
-                  </ul>
+                  )}
                 </div>
+
+                {/* Saved terms - compact */}
+                {savedTermsState.length > 0 && (
+                  <Link
+                    to="/tools/script-learning"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md"
+                  >
+                    <Star className="h-4 w-4" />
+                    {savedTermsState.length} {t('збережено', 'saved')}
+                  </Link>
+                )}
               </div>
             </div>
           </div>
