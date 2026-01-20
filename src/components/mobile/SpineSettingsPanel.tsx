@@ -132,28 +132,24 @@ const SOCIAL_LINKS = [
     label: "Telegram",
     icon: Send,
     url: "https://t.me/prabhupada_ua",
-    color: "text-[#0088cc]",
   },
   {
     id: "facebook",
     label: "Facebook",
     icon: Facebook,
     url: "https://facebook.com/prabhupada.ua",
-    color: "text-[#1877f2]",
   },
   {
     id: "instagram",
     label: "Instagram",
     icon: Instagram,
     url: "https://instagram.com/prabhupada_ua",
-    color: "text-[#e4405f]",
   },
   {
     id: "youtube",
     label: "YouTube",
     icon: Youtube,
     url: "https://youtube.com/@prabhupada_ua",
-    color: "text-[#ff0000]",
   },
 ];
 
@@ -369,7 +365,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                       hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
                   >
                     <span className="flex items-center gap-3">
-                      <Icon className={cn("h-5 w-5", link.color)} />
+                      <Icon className="h-5 w-5 text-muted-foreground" />
                       <span>{link.label}</span>
                     </span>
                     <ExternalLink className="h-4 w-4 text-muted-foreground" />
