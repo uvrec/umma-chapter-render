@@ -52,6 +52,7 @@ export const LetterView = () => {
     location_en: string;
     content_uk: string;
     content_en: string;
+    letter_date: string;
   } | null>(null);
 
   // Завантажити лист
@@ -82,6 +83,7 @@ export const LetterView = () => {
       if (editedLetter.location_en !== letter.location_en) updates.location_en = editedLetter.location_en;
       if (editedLetter.content_uk !== letter.content_uk) updates.content_uk = editedLetter.content_uk;
       if (editedLetter.content_en !== letter.content_en) updates.content_en = editedLetter.content_en;
+      if (editedLetter.letter_date !== letter.letter_date) updates.letter_date = editedLetter.letter_date;
 
       if (Object.keys(updates).length > 0) {
         const { error } = await (supabase as any)
@@ -111,6 +113,7 @@ export const LetterView = () => {
       location_en: letter.location_en,
       content_uk: letter.content_uk || "",
       content_en: letter.content_en,
+      letter_date: letter.letter_date,
     });
     setIsEditing(true);
   };
@@ -259,11 +262,12 @@ export const LetterView = () => {
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  {new Date(letter.letter_date).toLocaleDateString("uk-UA", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
+                  <Input
+                    type="date"
+                    value={editedLetter.letter_date}
+                    onChange={(e) => setEditedLetter({ ...editedLetter, letter_date: e.target.value })}
+                    className="w-auto"
+                  />
                 </div>
               </div>
             </div>
