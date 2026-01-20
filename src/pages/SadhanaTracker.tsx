@@ -18,6 +18,7 @@ import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { TimePickerButton } from '@/components/ui/ios-time-picker';
 import { ReadingGoal } from '@/components/sadhana/ReadingGoal';
+import { CalendarWidget } from '@/components/sadhana/CalendarWidget';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSadhana } from '@/hooks/useSadhana';
@@ -230,6 +231,9 @@ export default function SadhanaTracker() {
                 <ChevronRight className="w-5 h-5" />
               </Button>
             </div>
+
+            {/* Calendar events for today */}
+            <CalendarWidget compact className="mb-6" />
 
             {/* Streak indicator */}
             {streak && streak.current > 0 && (

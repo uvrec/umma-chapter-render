@@ -7,3 +7,4 @@ export { SadhanaDailyEntry } from './SadhanaDailyEntry';
 export { SadhanaCalendar } from './SadhanaCalendar';
 export { SadhanaStats } from './SadhanaStats';
 export { ReadingGoal } from './ReadingGoal';
+export { CalendarWidget } from './CalendarWidget';
