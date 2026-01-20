@@ -338,11 +338,6 @@ mark {
 
 /* Mobile clean reading styles */
 @media (max-width: 768px) {
-  /* Add left padding for Spine navigation (w-14 = 56px = 3.5rem) */
-  [data-reader-root="true"] {
-    padding-left: 3.5rem !important;
-  }
-
   /* Clean verse surface - no borders/rings/contour */
   .verse-surface {
     box-shadow: none !important;

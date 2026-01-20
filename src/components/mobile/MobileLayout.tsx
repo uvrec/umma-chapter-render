@@ -35,8 +35,8 @@ export function MobileLayout({
       {!hideSpine && (
         <SpineNavigation bookId={detectedBookId} />
       )}
-      {/* Add RIGHT padding for spine navigation (spine on right) */}
-      <div className={!hideSpine ? "pr-16" : ""}>
+      {/* Add LEFT padding for spine navigation (spine on left) */}
+      <div className={!hideSpine ? "pl-14" : ""}>
         {children}
       </div>
     </div>
