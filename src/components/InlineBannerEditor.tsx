@@ -115,11 +115,11 @@ export function InlineBannerEditor({ settings, onUpdate }: InlineBannerEditorPro
 
   return (
     <>
-      {/* Floating Edit Button */}
+      {/* Floating Edit Button - hidden on mobile */}
       <Button
         onClick={handleOpen}
         size="sm"
-        className="fixed top-20 right-4 z-50 shadow-lg"
+        className="hidden md:flex fixed top-20 right-4 z-50 shadow-lg"
         variant="secondary"
       >
         <Edit2 className="w-4 h-4 mr-2" />

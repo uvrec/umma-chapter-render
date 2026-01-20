@@ -131,9 +131,6 @@ function Hero() {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <HomeSearchBar className="mb-6 sm:mb-8" />
-
           {isAdmin && <InlineBannerEditor settings={inlineSettings} onUpdate={() => refetch()} />}
 
           {/* Continue Listening - в стилі цитати */}
@@ -167,9 +164,14 @@ function Hero() {
             </div>}
         </div>
 
-        {/* Daily Quote Banner - адаптивна ширина */}
+        {/* Daily Quote Banner - moved above search */}
         <div className="mt-1.5 sm:mt-3.5 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
           <DailyQuoteBanner />
+        </div>
+
+        {/* Search Bar - moved below daily quote */}
+        <div className="mt-4 sm:mt-6 mx-auto max-w-5xl sm:max-w-6xl px-2 sm:px-4">
+          <HomeSearchBar className="mb-2 sm:mb-4" />
         </div>
       </div>
 
