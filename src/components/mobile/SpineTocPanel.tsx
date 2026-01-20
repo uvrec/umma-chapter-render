@@ -281,7 +281,7 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent
         side="left"
-        className="w-[calc(100%-56px)] sm:w-80 p-0 [&>button]:hidden z-[40]"
+        className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 [&>button]:hidden z-[60]"
       >
         <SheetHeader className="px-4 py-3 border-b">
           <SheetTitle className="text-base flex items-center gap-2">

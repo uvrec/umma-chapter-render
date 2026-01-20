@@ -21,6 +21,7 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -469,6 +470,18 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 <span className="flex items-center gap-3">
                   <Info className="h-5 w-5 text-muted-foreground" />
                   <span>{t("Про «Прабгупада солов'їною»", "About the Project")}</span>
+                </span>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </button>
+
+              <button
+                onClick={() => handleNavigate("/support")}
+                className="w-full flex items-center justify-between px-2 py-3
+                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+              >
+                <span className="flex items-center gap-3">
+                  <Heart className="h-5 w-5 text-muted-foreground" />
+                  <span>{t("Підтримати проєкт", "Support the Project")}</span>
                 </span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
