@@ -78,9 +78,25 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { t, getLocalizedPath, language } = useLanguage();
+
+  // ✅ Smooth translate-x animation on open/close
+  useEffect(() => {
+    if (open && !isVisible) {
+      setIsVisible(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsAnimating(true));
+      });
+    } else if (!open && isAnimating) {
+      setIsAnimating(false);
+      const timer = setTimeout(() => setIsVisible(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open, isVisible, isAnimating]);
 
   // Load recent searches on mount
   useEffect(() => {
@@ -272,9 +288,7 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
       addRecentSearch(query.trim());
     }
     navigate(result.path);
-    onClose();
-    setQuery("");
-    setResults([]);
+    handleClose();
   };
 
   const handleRecentSearchClick = (search: string) => {
@@ -283,9 +297,13 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   };
 
   const handleClose = () => {
-    onClose();
-    setQuery("");
-    setResults([]);
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsVisible(false);
+      onClose();
+      setQuery("");
+      setResults([]);
+    }, 300);
   };
 
   const getResultIcon = (type: SearchResult["type"]) => {
@@ -305,10 +323,16 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
     }
   };
 
-  if (!open) return null;
+  if (!isVisible && !open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col">
+    <div
+      className={cn(
+        "fixed inset-0 z-[60] flex flex-col",
+        "transition-transform duration-300 ease-out",
+        isAnimating ? "translate-x-0" : "translate-x-full"
+      )}
+    >
       {/* Gradient Header */}
       <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
         <div className="flex items-center gap-3 px-4 py-4 ml-16">

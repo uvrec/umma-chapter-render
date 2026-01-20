@@ -20,6 +20,38 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
   const { t, getLocalizedPath, language } = useLanguage();
   const { highlights, isLoading, deleteHighlight } = useHighlights(undefined, true); // Fetch all highlights
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  // ✅ Smooth translate-x animation on open/close
+  useState(() => {
+    if (open) {
+      setIsVisible(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setIsAnimating(true));
+      });
+    }
+  });
+
+  // Handle open state changes
+  if (open && !isVisible) {
+    setIsVisible(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setIsAnimating(true));
+    });
+  }
+
+  if (!open && isAnimating) {
+    setIsAnimating(false);
+  }
+
+  const handleClose = () => {
+    setIsAnimating(false);
+    setTimeout(() => {
+      setIsVisible(false);
+      onClose();
+    }, 300); // Match transition duration
+  };
 
   // ✅ Group highlights by timeline (sessions/dates)
   const timelineGroups = useMemo(() => {
@@ -51,7 +83,7 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
     if (verseNum) path += `/${verseNum}`;
 
     navigate(getLocalizedPath(path));
-    onClose();
+    handleClose();
   };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
@@ -73,10 +105,16 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
     }
   };
 
-  if (!open) return null;
+  if (!isVisible && !open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex flex-col">
+    <div
+      className={cn(
+        "fixed inset-0 z-[60] flex flex-col",
+        "transition-transform duration-300 ease-out",
+        isAnimating ? "translate-x-0" : "translate-x-full"
+      )}
+    >
       {/* Gradient Header */}
       <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
         <div className="flex items-center justify-between px-4 py-4 ml-16">
@@ -87,7 +125,7 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
             </h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="text-white/80 hover:text-white p-2 -mr-2 transition-colors"
             aria-label={t("Закрити", "Close")}
           >
@@ -99,7 +137,7 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
       {/* Timeline Content */}
       <div
         className="flex-1 bg-background overflow-y-auto ml-16"
-        onClick={onClose}
+        onClick={handleClose}
       >
         <div className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
           {/* Loading */}
