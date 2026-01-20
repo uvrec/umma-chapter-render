@@ -16,7 +16,6 @@ import {
   Check,
   X,
   MessageCircle,
-  ExternalLink,
   Lock,
   Send,
   Facebook,
@@ -492,14 +491,13 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-between px-2 py-3
+                    className="w-full flex items-center px-2 py-3
                       hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
                   >
                     <span className="flex items-center gap-3">
                       <Icon className="h-5 w-5 text-muted-foreground" />
                       <span>{link.label}</span>
                     </span>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
                   </a>
                 );
               })}
