@@ -1279,32 +1279,32 @@ export const VedaReaderDB = () => {
       <Header />
 
       {/* 🆕 Sticky Breadcrumbs - прилипає під хедером, ховається при скролі вниз на мобільних */}
-      <div className={`sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
+      {/* Hidden on mobile via CSS for clean reading */}
+      <div className={`hidden md:block sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
-          {/* Row 1: Breadcrumbs + Icons */}
-          <div className="flex items-center justify-between gap-2">
-            {/* Breadcrumbs - responsive with overflow handling */}
-            <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground min-w-0 overflow-hidden">
-              <a href={getLocalizedPath("/library")} className="hover:text-foreground transition-colors flex items-center gap-1 flex-shrink-0">
-                <Home className="h-4 w-4" />
-                <span className="hidden sm:inline">{t("Бібліотека", "Library")}</span>
-              </a>
-              <span className="flex-shrink-0">›</span>
-              <a href={getLocalizedPath(`/lib/${bookId}`)} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
-                {bookTitle}
-              </a>
-              {cantoTitle && <>
-                  <span className="flex-shrink-0">›</span>
-                  <a href={getLocalizedPath(`/lib/${bookId}/${cantoNumber}`)} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
-                    {cantoTitle}
-                  </a>
-                </>}
-              <span className="flex-shrink-0">›</span>
-              <span className="text-foreground font-medium truncate">{chapterTitle}</span>
-            </div>
+            {/* Row 1: Breadcrumbs + Icons */}
+            <div className="flex items-center justify-between gap-2">
+              {/* Breadcrumbs - responsive with overflow handling */}
+              <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted-foreground min-w-0 overflow-hidden">
+                <a href={getLocalizedPath("/library")} className="hover:text-foreground transition-colors flex items-center gap-1 flex-shrink-0">
+                  <Home className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t("Бібліотека", "Library")}</span>
+                </a>
+                <span className="flex-shrink-0">›</span>
+                <a href={getLocalizedPath(`/lib/${bookId}`)} className="hover:text-foreground transition-colors truncate max-w-[60px] sm:max-w-none">
+                  {bookTitle}
+                </a>
+                {cantoTitle && <>
+                    <span className="flex-shrink-0">›</span>
+                    <a href={getLocalizedPath(`/lib/${bookId}/${cantoNumber}`)} className="hover:text-foreground transition-colors truncate max-w-[40px] sm:max-w-none">
+                      {cantoTitle}
+                    </a>
+                  </>}
+                <span className="flex-shrink-0">›</span>
+                <span className="text-foreground font-medium truncate">{chapterTitle}</span>
+              </div>
 
-            {/* Icons - hidden on mobile (use Spine navigation instead) */}
-            {!isMobile && (
+              {/* Icons - hidden on mobile (use Spine navigation instead) */}
               <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
                 <Button variant="ghost" size="icon" onClick={handleAddToLearning} disabled={!currentVerse} title={t("Додати до вивчення", "Add to learning")}>
                   <GraduationCap className={`h-5 w-5 ${currentVerse && isVerseInLearningList(currentVerse.id) ? "fill-primary text-primary" : ""}`} />
@@ -1345,41 +1345,27 @@ export const VedaReaderDB = () => {
                   <Settings className="h-5 w-5" />
                 </Button>
               </div>
+            </div>
+
+            {/* Row 2: Chapter/Verse Selector - окремий рядок по центру */}
+            {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
+              <div className="flex justify-center mt-3">
+                <ChapterVerseSelector
+                  chapters={allChapters}
+                  verses={verses}
+                  currentChapterIndex={currentChapterIndex}
+                  currentVerseIndex={currentVerseIndex}
+                  bookId={bookId}
+                  cantoNumber={cantoNumber}
+                  isCantoMode={isCantoMode}
+                />
+              </div>
             )}
           </div>
-
-          {/* Row 2: Chapter/Verse Selector - окремий рядок по центру */}
-          {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
-            <div className="hidden sm:flex justify-center mt-3">
-              <ChapterVerseSelector
-                chapters={allChapters}
-                verses={verses}
-                currentChapterIndex={currentChapterIndex}
-                currentVerseIndex={currentVerseIndex}
-                bookId={bookId}
-                cantoNumber={cantoNumber}
-                isCantoMode={isCantoMode}
-              />
-            </div>
-          )}
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-4 md:py-8" data-reader-root="true">
-        {/* Mobile Chapter/Verse Selector - показується тільки на мобільних */}
-        {!continuousReadingSettings.enabled && !isTextChapter && verses.length > 0 && (
-          <ChapterVerseSelector
-            chapters={allChapters}
-            verses={verses}
-            currentChapterIndex={currentChapterIndex}
-            currentVerseIndex={currentVerseIndex}
-            bookId={bookId}
-            cantoNumber={cantoNumber}
-            isCantoMode={isCantoMode}
-            className="flex sm:hidden justify-center mb-6"
-          />
-        )}
-
         {/* Заголовок - тільки для безперервного читання або текстових глав */}
         {(continuousReadingSettings.enabled || isTextChapter) && <div className="mb-4 md:mb-8">
             <h1 className="text-center font-extrabold text-3xl md:text-5xl text-primary">{chapterTitle}</h1>

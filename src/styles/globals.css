@@ -336,23 +336,8 @@ mark {
    Clean Mobile Verse View (NeuBibel-style)
    ========================================== */
 
-/* Hide UI elements on mobile for clean reading */
+/* Mobile clean reading styles */
 @media (max-width: 768px) {
-  /* Hide the main header on mobile verse view */
-  body:has(.verse-surface) header {
-    display: none !important;
-  }
-
-  /* Hide the sticky breadcrumb header completely on mobile */
-  .sticky.top-\[65px\] {
-    display: none !important;
-  }
-
-  /* Adjust top padding since header is hidden */
-  body:has(.verse-surface) .container {
-    padding-top: 0 !important;
-  }
-
   /* Clean verse surface - no borders/rings */
   .verse-surface {
     box-shadow: none !important;
@@ -368,29 +353,6 @@ mark {
     box-shadow: none !important;
   }
 
-  /* Hide audio buttons on mobile in verse cards */
-  .verse-surface button[aria-label*="Слухати"],
-  .verse-surface button[aria-label*="Listen"],
-  .verse-surface .verse-play-btn {
-    display: none !important;
-  }
-
-  /* Hide section headers (Послівний переклад, Літературний переклад, etc) */
-  .verse-surface .section-header {
-    display: none !important;
-  }
-
-  /* Hide learning word buttons (GraduationCap) */
-  .verse-surface button[aria-label*="Додати до вивчення"],
-  .verse-surface button[aria-label*="Add to learning"] {
-    display: none !important;
-  }
-
-  /* Hide the book name under verse number on mobile */
-  .verse-surface .verse-book-name {
-    display: none !important;
-  }
-
   /* Reduce padding around verse content */
   .verse-surface > .py-6 {
     padding-top: 1.5rem !important;
@@ -402,20 +364,20 @@ mark {
     margin-bottom: 1.5rem;
   }
 
+  /* Hide the book name under verse number on mobile */
+  .verse-surface .verse-book-name {
+    display: none !important;
+  }
+
+  /* Hide play button under verse number */
+  .verse-surface .verse-play-btn {
+    display: none !important;
+  }
+
   /* Make synonyms/word-by-word more compact */
   .verse-surface p.text-justify {
     font-size: 1rem !important;
     line-height: 1.7 !important;
-  }
-
-  /* Hide ChapterVerseSelector on mobile */
-  [data-reader-root="true"] > .flex.justify-center.mb-6 {
-    display: none !important;
-  }
-
-  /* Hide admin edit buttons on mobile */
-  .verse-surface .flex.justify-center.mb-4:has(button) {
-    display: none !important;
   }
 
   /* Cleaner spacing for sections */
@@ -429,11 +391,6 @@ mark {
 
   .verse-surface .mb-6 {
     margin-bottom: 1rem !important;
-  }
-
-  /* Hide Volume2 audio buttons per section */
-  .verse-surface .rounded-full.p-2:has(svg) {
-    display: none !important;
   }
 
   /* Cleaner Sanskrit text */
