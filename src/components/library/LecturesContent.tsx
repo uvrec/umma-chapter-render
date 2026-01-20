@@ -205,23 +205,7 @@ export const LecturesContent = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Заголовок з лічильником */}
-      <div className="flex items-center gap-3">
-        <Mic className="w-8 h-8 text-primary" />
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">
-            {t("Бібліотека лекцій", "Lecture Library")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t(
-              `${lectures.length} лекцій доступно`,
-              `${lectures.length} lectures available`
-            )}
-          </p>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Пошук та фільтри */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
