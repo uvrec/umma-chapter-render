@@ -1,7 +1,7 @@
 // src/components/mobile/MobileLayout.tsx
 // Wrapper layout для мобільних пристроїв з Neu Bible-style spine navigation
 
-import { ReactNode, useState, useCallback, useEffect } from "react";
+import { ReactNode, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { SpineNavigation } from "./SpineNavigation";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -33,18 +33,6 @@ export function MobileLayout({
     setIsSpineVisible(visible);
   }, []);
 
-  // Update body class for CSS-based margin (more reliable than JS)
-  useEffect(() => {
-    if (isMobile && !hideSpine && isSpineVisible) {
-      document.body.classList.add('spine-visible');
-    } else {
-      document.body.classList.remove('spine-visible');
-    }
-    return () => {
-      document.body.classList.remove('spine-visible');
-    };
-  }, [isMobile, hideSpine, isSpineVisible]);
-
   // На десктопі просто рендеримо children без змін
   if (!isMobile) {
     return <>{children}</>;
@@ -54,7 +42,10 @@ export function MobileLayout({
   const detectedBookId = bookId || extractBookIdFromPath(location.pathname);
 
   return (
-    <div className="mobile-layout min-h-screen overflow-x-hidden">
+    <div
+      className="mobile-layout min-h-screen overflow-x-hidden transition-[padding] duration-300"
+      style={{ paddingLeft: !hideSpine && isSpineVisible ? '56px' : '0px' }}
+    >
       {!hideSpine && (
         <SpineNavigation
           bookId={detectedBookId}

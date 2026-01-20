@@ -3,6 +3,7 @@
 
 export { MobileTabBar } from "./MobileTabBar";
 export { MobileLayout } from "./MobileLayout";
+export { MobileLibraryList } from "./MobileLibraryList";
 
 // Spine Navigation (Neu Bible-style)
 export { SpineNavigation } from "./SpineNavigation";
