@@ -154,12 +154,14 @@ export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
+      // Use foreign key reference style for joins (works without FK constraints)
+      // Syntax: alias:table_name!fk_column (columns) or alias:fk_column (columns)
       let query = supabase
         .from("highlights")
         .select(`
           *,
-          book:books(slug, title_uk, title_en),
-          chapter:chapters(chapter_number, title_uk, title_en)
+          book:book_id (slug, title_uk, title_en),
+          chapter:chapter_id (chapter_number, title_uk, title_en)
         `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
