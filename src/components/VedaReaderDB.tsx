@@ -100,6 +100,10 @@ export const VedaReaderDB = () => {
   // Jump to verse dialog state
   const [showJumpDialog, setShowJumpDialog] = useState(false);
 
+  // Ref to track if we've already shown "verse not found" error for current URL
+  // This prevents repeated error toasts when verses are reloaded after save
+  const lastNotFoundVerseRef = useRef<string | null>(null);
+
   // ✅ Використовуємо централізовану систему через useReaderSettings
   const {
     fontSize,
@@ -325,6 +329,11 @@ export const VedaReaderDB = () => {
     }
   }, [currentVerseIndex, verses, trackVerseView]);
 
+  // Reset the "verse not found" ref when URL changes
+  useEffect(() => {
+    lastNotFoundVerseRef.current = null;
+  }, [routeVerseNumber]);
+
   // Jump to verse from URL if provided
   useEffect(() => {
     if (!routeVerseNumber || !verses.length) return;
@@ -347,13 +356,20 @@ export const VedaReaderDB = () => {
     }
     if (idx >= 0) {
       setCurrentVerseIndex(idx);
+      // Verse found, reset the error ref in case it was set
+      lastNotFoundVerseRef.current = null;
     } else {
-      console.warn(`Verse ${routeVerseNumber} not found in chapter`);
-      toast({
-        title: t("Вірш не знайдено", "Verse not found"),
-        description: t(`Вірш ${routeVerseNumber} відсутній у цій главі`, `Verse ${routeVerseNumber} not found in this chapter`),
-        variant: "destructive"
-      });
+      // Only show error toast if we haven't already shown it for this verse
+      const verseKey = String(routeVerseNumber);
+      if (lastNotFoundVerseRef.current !== verseKey) {
+        lastNotFoundVerseRef.current = verseKey;
+        console.warn(`Verse ${routeVerseNumber} not found in chapter`);
+        toast({
+          title: t("Вірш не знайдено", "Verse not found"),
+          description: t(`Вірш ${routeVerseNumber} відсутній у цій главі`, `Verse ${routeVerseNumber} not found in this chapter`),
+          variant: "destructive"
+        });
+      }
     }
   }, [routeVerseNumber, verses, t]);
 
