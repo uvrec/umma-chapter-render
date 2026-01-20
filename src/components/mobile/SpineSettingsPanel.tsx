@@ -483,7 +483,7 @@ function BooksCarouselModal({
     if (isAvailable) {
       onSelect(currentBook.id);
       onClose();
-    } else if (currentBook.purchaseUrl) {
+    } else if ("purchaseUrl" in currentBook && currentBook.purchaseUrl) {
       onPurchase(currentBook.purchaseUrl);
     }
   };
