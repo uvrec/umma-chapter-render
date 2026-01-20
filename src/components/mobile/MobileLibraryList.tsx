@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/contexts/BooksContext";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, BookOpen } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 interface BookData {
   id: string;
@@ -130,7 +130,6 @@ function SwipeableBookRow({
           style={{ width: `${containerWidth}px` }}
           onClick={handleBookTap}
         >
-          <BookOpen className="h-5 w-5 text-brand-500 flex-shrink-0" />
           <div className="flex-1 min-w-0">
             <div className="font-medium text-foreground">
               {bookName}
@@ -138,9 +137,6 @@ function SwipeableBookRow({
             <div className="text-sm text-muted-foreground">
               {book.chapter_count || 0} {hasCanto ? t("Пісень", "Cantos") : t("Глав", "Chapters")}
             </div>
-          </div>
-          <div className="text-muted-foreground/40 text-xs">
-            ← {t("свайп", "swipe")}
           </div>
         </div>
 
@@ -156,13 +152,9 @@ function SwipeableBookRow({
             <ChevronLeft className="h-5 w-5" />
           </button>
 
-          {/* Label and horizontal scrollable numbers */}
+          {/* Horizontal scrollable numbers */}
           <div className="flex-1 overflow-x-auto scrollbar-hide">
             <div className="flex items-center gap-1 px-2 py-2">
-              {/* Type label */}
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wide mr-1 flex-shrink-0">
-                {hasCanto ? t("Канто", "Canto") : t("Глава", "Ch")}:
-              </span>
               {chapters.map((chapter) => (
                 <button
                   key={chapter}
@@ -206,16 +198,11 @@ export function MobileLibraryList({ books, isLoading }: MobileLibraryListProps) 
 
   if (isLoading) {
     return (
-      <div className="space-y-0 divide-y divide-border/50">
+      <div className="divide-y divide-border/50">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="px-4 py-4 animate-pulse">
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 bg-muted rounded" />
-              <div className="flex-1">
-                <div className="h-4 w-32 bg-muted rounded mb-2" />
-                <div className="h-3 w-20 bg-muted rounded" />
-              </div>
-            </div>
+            <div className="h-4 w-40 bg-muted rounded mb-2" />
+            <div className="h-3 w-20 bg-muted rounded" />
           </div>
         ))}
       </div>
@@ -224,23 +211,14 @@ export function MobileLibraryList({ books, isLoading }: MobileLibraryListProps) 
 
   if (books.length === 0) {
     return (
-      <div className="text-center py-12">
-        <BookOpen className="h-12 w-12 mx-auto mb-3 text-muted-foreground/30" />
-        <p className="text-muted-foreground">
-          {t("Книги ще не додані", "No books available yet")}
-        </p>
+      <div className="text-center py-12 text-muted-foreground">
+        {t("Книги ще не додані", "No books available yet")}
       </div>
     );
   }
 
   return (
     <div className="divide-y divide-border/50">
-      {/* Hint */}
-      <div className="px-4 py-2 bg-muted/30 text-xs text-muted-foreground text-center">
-        {t("← Свайпніть для вибору глави/канто", "← Swipe to select chapter/canto")}
-      </div>
-
-      {/* Books list */}
       {books.map((book) => {
         const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
 
