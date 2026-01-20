@@ -329,8 +329,7 @@ export const BookOverview = () => {
           cantos.map(canto => (
             <SwipeableCantoRow
               key={canto.id}
-              label={`${t("Пісня", "Canto")} ${canto.canto_number}`}
-              subtitle={language === "uk" ? canto.title_uk : canto.title_en}
+              label={language === "uk" ? canto.title_uk : canto.title_en}
               chapterCount={(canto as any).chapter_count || 0}
               onRowClick={() => navigate(getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}`))}
               onChapterClick={(chapter) => navigate(getLocalizedPath(`/lib/${bookSlug}/${canto.canto_number}/${chapter}`))}

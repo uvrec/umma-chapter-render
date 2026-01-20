@@ -183,6 +183,34 @@ export const IntroChapter = () => {
     );
   }
 
+  // Mobile: Minimalist view - only chapter title and content
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Title only */}
+        <div className="px-4 pt-6 pb-4">
+          <h1 className="text-2xl font-bold text-primary text-center">{chapterTitle}</h1>
+        </div>
+
+        {/* Content */}
+        <div className="px-4 pb-8">
+          <div
+            className="prose prose-slate dark:prose-invert max-w-none text-justify"
+            style={{ fontSize: `${fontSize}px`, lineHeight }}
+            dangerouslySetInnerHTML={{
+              __html: sanitizeForRender(
+                language === 'uk'
+                  ? (introChapter?.content_uk || introChapter?.content_en || "")
+                  : (introChapter?.content_en || introChapter?.content_uk || "")
+              )
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop: Full view
   return (
     <div className="min-h-screen bg-background">
       <Header />
