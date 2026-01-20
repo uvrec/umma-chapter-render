@@ -78,7 +78,23 @@ interface VerseCardProps {
   isNextDisabled?: boolean;
   prevLabel?: string;
   nextLabel?: string;
+  bookSlug?: string; // для визначення префіксу (ШБ, БҐ, etc.)
 }
+
+/* =========================
+   Префікси книг
+   ========================= */
+const getBookPrefix = (slug: string | undefined): string => {
+  const prefixes: Record<string, string> = {
+    sb: "ШБ",
+    bg: "БҐ",
+    cc: "ЧЧ",
+    noi: "НВ",
+    iso: "Ішо",
+    nod: "НВ",
+  };
+  return slug ? prefixes[slug] || slug.toUpperCase() : "";
+};
 
 /* =========================
    Компонент
@@ -87,6 +103,7 @@ export const VerseCard = ({
   verseId,
   verseNumber,
   bookName,
+  bookSlug,
   sanskritText,
   transliteration = "",
   synonyms = "",
@@ -310,16 +327,16 @@ export const VerseCard = ({
         {showNumbers && (
           <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
             {isAdmin && verseId ? (
-              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
+              <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
             ) : (
               <>
-                {/* Mobile: full verse number without "ВІРШ" prefix */}
-                <span className="verse-number-clean md:hidden font-bold text-2xl text-foreground">
-                  {verseNumber}
+                {/* Mobile: book prefix + verse number (ШБ 4.20.1) */}
+                <span className="verse-number-clean md:hidden font-bold text-2xl text-foreground whitespace-nowrap">
+                  {getBookPrefix(bookSlug)} {verseNumber}
                 </span>
-                {/* Desktop: full verse number with "ВІРШ" prefix */}
+                {/* Desktop: book prefix + verse number (ШБ 4.20.1) */}
                 <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
-                  ВІРШ {verseNumber}
+                  {getBookPrefix(bookSlug)} {verseNumber}
                 </span>
               </>
             )}
