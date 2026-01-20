@@ -17,6 +17,17 @@ export interface Highlight {
   notes?: string;
   created_at: string;
   updated_at: string;
+  // Joined data
+  book?: {
+    slug: string;
+    title_uk?: string;
+    title_en?: string;
+  };
+  chapter?: {
+    chapter_number: number;
+    title_uk?: string;
+    title_en?: string;
+  };
 }
 
 export interface CreateHighlightParams {
@@ -32,22 +43,128 @@ export interface CreateHighlightParams {
   notes?: string;
 }
 
-export const useHighlights = (chapterId?: string) => {
+// ✅ REMEMBER BETTER: Group highlights by time period (session/day)
+export interface HighlightGroup {
+  date: string; // ISO date string
+  label: string; // "Today", "Yesterday", "Jan 15, 2025"
+  highlights: Highlight[];
+}
+
+// ✅ Smart grouping: highlights made within SESSION_THRESHOLD are grouped together
+const SESSION_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes
+
+/**
+ * Group highlights by reading sessions (highlights made within 30 min of each other)
+ * and then by date for timeline display
+ */
+export function groupHighlightsByTimeline(highlights: Highlight[], language: "uk" | "en" = "uk"): HighlightGroup[] {
+  if (!highlights || highlights.length === 0) return [];
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+  // Sort by created_at descending
+  const sorted = [...highlights].sort(
+    (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
+  const groups: HighlightGroup[] = [];
+  let currentGroup: HighlightGroup | null = null;
+  let lastTimestamp: number | null = null;
+
+  for (const highlight of sorted) {
+    const timestamp = new Date(highlight.created_at).getTime();
+    const highlightDate = new Date(highlight.created_at);
+    const dateKey = highlightDate.toISOString().split("T")[0];
+
+    // Format date label
+    let label: string;
+    if (highlightDate >= today) {
+      const time = highlightDate.toLocaleTimeString(language === "uk" ? "uk-UA" : "en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      label = language === "uk" ? `Сьогодні | ${time}` : `Today | ${time}`;
+    } else if (highlightDate >= yesterday) {
+      const time = highlightDate.toLocaleTimeString(language === "uk" ? "uk-UA" : "en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      label = language === "uk" ? `Вчора | ${time}` : `Yesterday | ${time}`;
+    } else {
+      label = highlightDate.toLocaleDateString(language === "uk" ? "uk-UA" : "en-US", {
+        month: "short",
+        day: "numeric",
+        year: highlightDate.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    // Check if this highlight belongs to current session (within 30 min)
+    const isSameSession = lastTimestamp && (lastTimestamp - timestamp) < SESSION_THRESHOLD_MS;
+    const isSameDate = currentGroup?.date === dateKey;
+
+    if (isSameSession && isSameDate && currentGroup) {
+      // Add to current session group
+      currentGroup.highlights.push(highlight);
+    } else {
+      // Start new group
+      currentGroup = {
+        date: dateKey,
+        label,
+        highlights: [highlight],
+      };
+      groups.push(currentGroup);
+    }
+
+    lastTimestamp = timestamp;
+  }
+
+  return groups;
+}
+
+/**
+ * Get verse reference string for display
+ */
+export function getHighlightReference(highlight: Highlight, language: "uk" | "en" = "uk"): string {
+  const bookName = highlight.book
+    ? (language === "uk" ? highlight.book.title_uk : highlight.book.title_en) || highlight.book.slug.toUpperCase()
+    : "";
+
+  const chapterNum = highlight.chapter?.chapter_number || "";
+  const verseNum = highlight.verse_number || "";
+
+  if (verseNum) {
+    return `${bookName} ${chapterNum}.${verseNum}`;
+  } else if (chapterNum) {
+    return `${bookName} ${language === "uk" ? "Глава" : "Chapter"} ${chapterNum}`;
+  }
+  return bookName;
+}
+
+export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
   const queryClient = useQueryClient();
 
+  // ✅ Enhanced query with book/chapter joins for timeline display
   const { data: highlights, isLoading } = useQuery({
-    queryKey: ["highlights", chapterId],
+    queryKey: ["highlights", chapterId, fetchAll],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
       let query = supabase
         .from("highlights")
-        .select("*")
+        .select(`
+          *,
+          book:books(slug, title_uk, title_en),
+          chapter:chapters(chapter_number, title_uk, title_en)
+        `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
-      if (chapterId) {
+      if (chapterId && !fetchAll) {
         query = query.eq("chapter_id", chapterId);
       }
 
@@ -55,7 +172,7 @@ export const useHighlights = (chapterId?: string) => {
       if (error) throw error;
       return data as Highlight[];
     },
-    enabled: !!chapterId,
+    enabled: fetchAll || !!chapterId,
   });
 
   const createHighlight = useMutation({

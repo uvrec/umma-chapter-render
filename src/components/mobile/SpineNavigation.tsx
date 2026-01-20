@@ -12,7 +12,8 @@ import {
   Clock,
   ChevronUp,
   ChevronDown,
-  X
+  X,
+  Highlighter
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -20,8 +21,9 @@ import { SpineTypographyPanel } from "./SpineTypographyPanel";
 import { SpineSearchOverlay } from "./SpineSearchOverlay";
 import { SpineSettingsPanel } from "./SpineSettingsPanel";
 import { SpineTocPanel } from "./SpineTocPanel";
+import { SpineHighlightsPanel } from "./SpineHighlightsPanel";
 
-type SpinePanel = "none" | "toc" | "typography" | "search" | "settings";
+type SpinePanel = "none" | "toc" | "typography" | "search" | "settings" | "highlights";
 
 // Spine color themes (like Neu Bible)
 const SPINE_THEMES = [
@@ -166,6 +168,14 @@ export function SpineNavigation({
       show: true,
     },
     {
+      id: "highlights",
+      icon: Highlighter,
+      label: t("Виділення", "Highlights"),
+      onClick: () => togglePanel("highlights"),
+      active: activePanel === "highlights",
+      show: true,
+    },
+    {
       id: "settings",
       icon: Settings,
       label: t("Налаштування", "Settings"),
@@ -306,6 +316,12 @@ export function SpineNavigation({
       {/* Settings Panel */}
       <SpineSettingsPanel
         open={activePanel === "settings"}
+        onClose={closePanel}
+      />
+
+      {/* Highlights Panel - REMEMBER BETTER */}
+      <SpineHighlightsPanel
+        open={activePanel === "highlights"}
         onClose={closePanel}
       />
     </>
