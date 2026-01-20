@@ -154,6 +154,8 @@ export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
+      // FK constraints exist in DB but TypeScript types are outdated (Relationships: [])
+      // Using `as unknown as` to bypass type checking until types.ts is regenerated
       let query = supabase
         .from("highlights")
         .select(`
@@ -170,7 +172,8 @@ export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Highlight[];
+      // Bypass TypeScript - FK exists in DB, types.ts just needs regeneration
+      return data as unknown as Highlight[];
     },
     enabled: fetchAll || !!chapterId,
   });
