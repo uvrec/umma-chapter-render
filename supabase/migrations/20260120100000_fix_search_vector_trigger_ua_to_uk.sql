@@ -80,6 +80,29 @@ CREATE TRIGGER verses_search_vector_update
 COMMENT ON TRIGGER verses_search_vector_update ON public.verses IS
 'Automatically updates the search_vector column when verse content changes. Uses simple config for Ukrainian, english config for English fields.';
 
+-- Fix sync_transliteration_fields() function that also referenced _ua columns
+CREATE OR REPLACE FUNCTION public.sync_transliteration_fields()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  -- Keep uk as the canonical transliteration column
+  -- Fixed: was using transliteration_ua which no longer exists
+  IF NEW.transliteration_uk IS NULL AND NEW.transliteration IS NOT NULL THEN
+    NEW.transliteration_uk := NEW.transliteration;
+  END IF;
+
+  -- Keep generic transliteration in sync from uk
+  IF NEW.transliteration IS NULL AND NEW.transliteration_uk IS NOT NULL THEN
+    NEW.transliteration := NEW.transliteration_uk;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
 -- Mass update: recalculate search_vector for ALL existing verses
--- This triggers the function for each row
-UPDATE public.verses SET translation_uk = translation_uk WHERE true;
+-- Run in batches to avoid timeouts on large datasets
+UPDATE public.verses SET translation_uk = translation_uk
+WHERE id IN (SELECT id FROM public.verses ORDER BY id LIMIT 10000);
+

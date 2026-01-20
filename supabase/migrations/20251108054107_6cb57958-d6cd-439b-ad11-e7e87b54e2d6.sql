@@ -1,27 +1,31 @@
--- Створити enum для типів лекцій
-CREATE TYPE lecture_type AS ENUM (
-  'Conversation',
-  'Walk',
-  'Morning Walk',
-  'Lecture',
-  'Bhagavad-gita',
-  'Srimad-Bhagavatam',
-  'Nectar of Devotion',
-  'Sri Isopanisad',
-  'Sri Caitanya-caritamrta',
-  'Initiation',
-  'Room Conversation',
-  'Interview',
-  'Arrival',
-  'Departure',
-  'Festival',
-  'Bhajan',
-  'Kirtan',
-  'Other'
-);
+-- Створити enum для типів лекцій (якщо не існує)
+DO $$ BEGIN
+  CREATE TYPE lecture_type AS ENUM (
+    'Conversation',
+    'Walk',
+    'Morning Walk',
+    'Lecture',
+    'Bhagavad-gita',
+    'Srimad-Bhagavatam',
+    'Nectar of Devotion',
+    'Sri Isopanisad',
+    'Sri Caitanya-caritamrta',
+    'Initiation',
+    'Room Conversation',
+    'Interview',
+    'Arrival',
+    'Departure',
+    'Festival',
+    'Bhajan',
+    'Kirtan',
+    'Other'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Створити таблицю lectures
-CREATE TABLE public.lectures (
+CREATE TABLE IF NOT EXISTS public.lectures (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
   title_en TEXT NOT NULL,
@@ -42,14 +46,14 @@ CREATE TABLE public.lectures (
 );
 
 -- Створити індекси для lectures
-CREATE INDEX idx_lectures_slug ON public.lectures(slug);
-CREATE INDEX idx_lectures_date ON public.lectures(lecture_date DESC);
-CREATE INDEX idx_lectures_type ON public.lectures(lecture_type);
-CREATE INDEX idx_lectures_location ON public.lectures(location_en);
-CREATE INDEX idx_lectures_book ON public.lectures(book_slug, canto_number, chapter_number);
+CREATE INDEX IF NOT EXISTS idx_lectures_slug ON public.lectures(slug);
+CREATE INDEX IF NOT EXISTS idx_lectures_date ON public.lectures(lecture_date DESC);
+CREATE INDEX IF NOT EXISTS idx_lectures_type ON public.lectures(lecture_type);
+CREATE INDEX IF NOT EXISTS idx_lectures_location ON public.lectures(location_en);
+CREATE INDEX IF NOT EXISTS idx_lectures_book ON public.lectures(book_slug, canto_number, chapter_number);
 
 -- Створити таблицю lecture_paragraphs
-CREATE TABLE public.lecture_paragraphs (
+CREATE TABLE IF NOT EXISTS public.lecture_paragraphs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   lecture_id UUID NOT NULL REFERENCES public.lectures(id) ON DELETE CASCADE,
   paragraph_number INTEGER NOT NULL,
@@ -61,10 +65,10 @@ CREATE TABLE public.lecture_paragraphs (
 );
 
 -- Створити індекси для lecture_paragraphs
-CREATE INDEX idx_lecture_paragraphs_lecture ON public.lecture_paragraphs(lecture_id, paragraph_number);
+CREATE INDEX IF NOT EXISTS idx_lecture_paragraphs_lecture ON public.lecture_paragraphs(lecture_id, paragraph_number);
 
 -- Створити таблицю letters
-CREATE TABLE public.letters (
+CREATE TABLE IF NOT EXISTS public.letters (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   slug TEXT NOT NULL UNIQUE,
   recipient_en TEXT NOT NULL,
@@ -81,18 +85,20 @@ CREATE TABLE public.letters (
 );
 
 -- Створити індекси для letters
-CREATE INDEX idx_letters_slug ON public.letters(slug);
-CREATE INDEX idx_letters_date ON public.letters(letter_date DESC);
-CREATE INDEX idx_letters_recipient ON public.letters(recipient_en);
-CREATE INDEX idx_letters_location ON public.letters(location_en);
+CREATE INDEX IF NOT EXISTS idx_letters_slug ON public.letters(slug);
+CREATE INDEX IF NOT EXISTS idx_letters_date ON public.letters(letter_date DESC);
+CREATE INDEX IF NOT EXISTS idx_letters_recipient ON public.letters(recipient_en);
+CREATE INDEX IF NOT EXISTS idx_letters_location ON public.letters(location_en);
 
 -- Тригер для оновлення updated_at в lectures
+DROP TRIGGER IF EXISTS update_lectures_updated_at ON public.lectures;
 CREATE TRIGGER update_lectures_updated_at
   BEFORE UPDATE ON public.lectures
   FOR EACH ROW
   EXECUTE FUNCTION public.update_updated_at_column();
 
 -- Тригер для оновлення updated_at в letters
+DROP TRIGGER IF EXISTS update_letters_updated_at ON public.letters;
 CREATE TRIGGER update_letters_updated_at
   BEFORE UPDATE ON public.letters
   FOR EACH ROW
@@ -104,64 +110,85 @@ ALTER TABLE public.lecture_paragraphs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.letters ENABLE ROW LEVEL SECURITY;
 
 -- RLS політики для lectures (публічний перегляд, адміни можуть керувати)
-CREATE POLICY "Anyone can view lectures"
-  ON public.lectures
-  FOR SELECT
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lectures' AND policyname = 'Anyone can view lectures') THEN
+    CREATE POLICY "Anyone can view lectures" ON public.lectures FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can insert lectures"
-  ON public.lectures
-  FOR INSERT
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lectures' AND policyname = 'Admins can insert lectures') THEN
+    CREATE POLICY "Admins can insert lectures" ON public.lectures FOR INSERT
+      WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can update lectures"
-  ON public.lectures
-  FOR UPDATE
-  USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lectures' AND policyname = 'Admins can update lectures') THEN
+    CREATE POLICY "Admins can update lectures" ON public.lectures FOR UPDATE
+      USING (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can delete lectures"
-  ON public.lectures
-  FOR DELETE
-  USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lectures' AND policyname = 'Admins can delete lectures') THEN
+    CREATE POLICY "Admins can delete lectures" ON public.lectures FOR DELETE
+      USING (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
--- RLS політики для lecture_paragraphs (публічний перегляд, адміни можуть керувати)
-CREATE POLICY "Anyone can view lecture paragraphs"
-  ON public.lecture_paragraphs
-  FOR SELECT
-  USING (true);
+-- RLS політики для lecture_paragraphs
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lecture_paragraphs' AND policyname = 'Anyone can view lecture paragraphs') THEN
+    CREATE POLICY "Anyone can view lecture paragraphs" ON public.lecture_paragraphs FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can insert lecture paragraphs"
-  ON public.lecture_paragraphs
-  FOR INSERT
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lecture_paragraphs' AND policyname = 'Admins can insert lecture paragraphs') THEN
+    CREATE POLICY "Admins can insert lecture paragraphs" ON public.lecture_paragraphs FOR INSERT
+      WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can update lecture paragraphs"
-  ON public.lecture_paragraphs
-  FOR UPDATE
-  USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lecture_paragraphs' AND policyname = 'Admins can update lecture paragraphs') THEN
+    CREATE POLICY "Admins can update lecture paragraphs" ON public.lecture_paragraphs FOR UPDATE
+      USING (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can delete lecture paragraphs"
-  ON public.lecture_paragraphs
-  FOR DELETE
-  USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lecture_paragraphs' AND policyname = 'Admins can delete lecture paragraphs') THEN
+    CREATE POLICY "Admins can delete lecture paragraphs" ON public.lecture_paragraphs FOR DELETE
+      USING (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
--- RLS політики для letters (публічний перегляд, адміни можуть керувати)
-CREATE POLICY "Anyone can view letters"
-  ON public.letters
-  FOR SELECT
-  USING (true);
+-- RLS політики для letters
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'letters' AND policyname = 'Anyone can view letters') THEN
+    CREATE POLICY "Anyone can view letters" ON public.letters FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can insert letters"
-  ON public.letters
-  FOR INSERT
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'letters' AND policyname = 'Admins can insert letters') THEN
+    CREATE POLICY "Admins can insert letters" ON public.letters FOR INSERT
+      WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can update letters"
-  ON public.letters
-  FOR UPDATE
-  USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'letters' AND policyname = 'Admins can update letters') THEN
+    CREATE POLICY "Admins can update letters" ON public.letters FOR UPDATE
+      USING (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
 
-CREATE POLICY "Admins can delete letters"
-  ON public.letters
-  FOR DELETE
-  USING (has_role(auth.uid(), 'admin'::app_role));
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'letters' AND policyname = 'Admins can delete letters') THEN
+    CREATE POLICY "Admins can delete letters" ON public.letters FOR DELETE
+      USING (has_role(auth.uid(), 'admin'::app_role));
+  END IF;
+END $$;
