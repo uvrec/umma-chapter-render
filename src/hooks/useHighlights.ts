@@ -160,8 +160,8 @@ export const useHighlights = (chapterId?: string, fetchAll?: boolean) => {
         .from("highlights")
         .select(`
           *,
-          book:books(slug, title_uk, title_en),
-          chapter:chapters(chapter_number, title_uk, title_en)
+          book:book_id (slug, title_uk, title_en),
+          chapter:chapter_id (chapter_number, title_uk, title_en)
         `)
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
