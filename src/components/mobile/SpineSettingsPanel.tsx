@@ -213,7 +213,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent
         side="left"
-        className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 overflow-y-auto z-[40]"
+        className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 overflow-y-auto z-[60]"
       >
         <SheetHeader className="px-4 py-4 border-b">
           <SheetTitle className="text-lg">{t("Налаштування", "Settings")}</SheetTitle>
