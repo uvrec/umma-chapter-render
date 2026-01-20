@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,12 @@ import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Textarea } from '@/components/ui/textarea';
 import { TimePickerButton } from '@/components/ui/ios-time-picker';
+import { ReadingGoal } from '@/components/sadhana/ReadingGoal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSadhana } from '@/hooks/useSadhana';
 import { SadhanaDaily } from '@/services/sadhanaService';
+import { cn } from '@/lib/utils';
 import {
   Sun,
   Moon,
@@ -33,13 +35,24 @@ import {
   Check,
   LogIn,
   Loader2,
+  CalendarDays,
+  BookOpen,
 } from 'lucide-react';
+
+type TabType = 'daily' | 'reading';
 
 export default function SadhanaTracker() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useLanguage();
   const { user } = useAuth();
   const { todayEntry, updateDailyEntry, getDailyEntries, config, isLoading, streak } = useSadhana();
+
+  // Tab state from URL
+  const activeTab = (searchParams.get('tab') as TabType) || 'daily';
+  const setActiveTab = (tab: TabType) => {
+    setSearchParams({ tab });
+  };
 
   // State
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
@@ -160,41 +173,77 @@ export default function SadhanaTracker() {
       <Header />
 
       <main className="container mx-auto px-4 py-8 max-w-lg">
-        {/* Date Navigation */}
-        <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" size="icon" onClick={goToPreviousDay}>
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
-
-          <div className="text-center">
-            <div className="text-5xl font-bold text-primary">{day}</div>
-            <div className="text-sm text-muted-foreground capitalize">{weekDay}</div>
-            <div className="text-xs text-muted-foreground">{monthYear}</div>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goToNextDay}
-            disabled={isToday}
+        {/* Tab Navigation */}
+        <div className="flex gap-1 p-1 mb-8 bg-secondary/50 rounded-lg">
+          <button
+            onClick={() => setActiveTab('daily')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-all",
+              activeTab === 'daily'
+                ? "bg-background shadow-sm text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
           >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
+            <CalendarDays className="w-4 h-4" />
+            {t('Щоденник', 'Daily')}
+          </button>
+          <button
+            onClick={() => setActiveTab('reading')}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-all",
+              activeTab === 'reading'
+                ? "bg-background shadow-sm text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <BookOpen className="w-4 h-4" />
+            {t('Читання', 'Reading')}
+          </button>
         </div>
 
-        {/* Streak indicator */}
-        {streak && streak.current > 0 && (
-          <div className="flex items-center justify-center gap-2 mb-8 text-sm">
-            <Flame className="w-4 h-4 text-orange-500" />
-            <span className="font-medium">{streak.current}</span>
-            <span className="text-muted-foreground">
-              {t('днів поспіль', 'day streak')}
-            </span>
-          </div>
+        {/* Reading Goals Tab */}
+        {activeTab === 'reading' && (
+          <ReadingGoal />
         )}
 
-        {/* Main form */}
-        <div className="space-y-10">
+        {/* Daily Entry Tab */}
+        {activeTab === 'daily' && (
+          <>
+            {/* Date Navigation */}
+            <div className="flex items-center justify-between mb-8">
+              <Button variant="ghost" size="icon" onClick={goToPreviousDay}>
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+
+              <div className="text-center">
+                <div className="text-5xl font-bold text-primary">{day}</div>
+                <div className="text-sm text-muted-foreground capitalize">{weekDay}</div>
+                <div className="text-xs text-muted-foreground">{monthYear}</div>
+              </div>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToNextDay}
+                disabled={isToday}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Streak indicator */}
+            {streak && streak.current > 0 && (
+              <div className="flex items-center justify-center gap-2 mb-8 text-sm">
+                <Flame className="w-4 h-4 text-orange-500" />
+                <span className="font-medium">{streak.current}</span>
+                <span className="text-muted-foreground">
+                  {t('днів поспіль', 'day streak')}
+                </span>
+              </div>
+            )}
+
+            {/* Main form */}
+            <div className="space-y-10">
           {/* Wake Up */}
           <section>
             <div className="flex items-center gap-2 mb-4">
@@ -364,22 +413,24 @@ export default function SadhanaTracker() {
             />
           </section>
 
-          {/* Save button */}
-          <Button
-            onClick={handleSave}
-            disabled={!hasChanges || isSaving}
-            className="w-full h-12 text-base"
-          >
-            {isSaving ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <Check className="w-5 h-5 mr-2" />
-                {t('Зберегти', 'Save')}
-              </>
-            )}
-          </Button>
-        </div>
+              {/* Save button */}
+              <Button
+                onClick={handleSave}
+                disabled={!hasChanges || isSaving}
+                className="w-full h-12 text-base"
+              >
+                {isSaving ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Check className="w-5 h-5 mr-2" />
+                    {t('Зберегти', 'Save')}
+                  </>
+                )}
+              </Button>
+            </div>
+          </>
+        )}
       </main>
 
       <Footer />
