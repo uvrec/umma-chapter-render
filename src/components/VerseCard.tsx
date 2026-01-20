@@ -313,12 +313,11 @@ export const VerseCard = ({
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
             ) : (
               <>
-                {/* Mobile: clean number only with underline (NeuBibel style) */}
+                {/* Mobile: full verse number without "ВІРШ" prefix */}
                 <span className="verse-number-clean md:hidden font-bold text-2xl text-foreground">
-                  {verseNumber.split('.').pop()}
-                  <span className="block w-8 h-0.5 bg-primary/60 mx-auto mt-1" />
+                  {verseNumber}
                 </span>
-                {/* Desktop: full verse number */}
+                {/* Desktop: full verse number with "ВІРШ" prefix */}
                 <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
                   ВІРШ {verseNumber}
                 </span>
