@@ -77,7 +77,7 @@ export const VerseNumberEditor = ({
   const prefix = getBookPrefix(bookSlug);
   if (!isEditing) {
     return <div className="flex items-center gap-2">
-        <span className="font-semibold text-5xl text-center" style={{ color: "rgb(188, 115, 26)" }}>{prefix} {currentNumber}</span>
+        <span className="font-semibold text-2xl md:text-5xl text-center whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>{prefix} {currentNumber}</span>
         <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)} className="h-7 w-7 p-0" title="Редагувати номер вірша">
           <Edit2 className="h-3.5 w-3.5" />
         </Button>
