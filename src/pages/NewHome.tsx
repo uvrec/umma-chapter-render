@@ -23,6 +23,8 @@ import { HomeSearchBar } from "@/components/HomeSearchBar";
 import { QuickActions } from "@/components/QuickActions";
 import { openExternal } from "@/lib/openExternal";
 import { useAudio } from "@/contexts/ModernAudioContext";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileLibraryList } from "@/components/mobile/MobileLibraryList";
 
 // --- Types ---
 type ContentItem = {
@@ -478,7 +480,43 @@ function SupportSection() {
 
 // --- Main Page ---
 export const NewHome = () => {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const isMobile = useIsMobile();
+
+  // Fetch books with chapter counts for mobile home view
+  const { data: mobileBooks = [], isLoading: mobileBooksLoading } = useQuery({
+    queryKey: ['home-mobile-books'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('books')
+        .select('id, slug, title_uk, title_en, has_cantos')
+        .eq('is_published', true)
+        .order('display_order');
+      if (error) throw error;
+
+      // Fetch chapter/canto counts
+      const booksWithCounts = await Promise.all(
+        (data || []).map(async (book) => {
+          if (book.has_cantos) {
+            const { count } = await supabase
+              .from('cantos')
+              .select('*', { count: 'exact', head: true })
+              .eq('book_id', book.id);
+            return { ...book, chapter_count: count || 0 };
+          } else {
+            const { count } = await supabase
+              .from('chapters')
+              .select('*', { count: 'exact', head: true })
+              .eq('book_id', book.id);
+            return { ...book, chapter_count: count || 0 };
+          }
+        })
+      );
+
+      return booksWithCounts;
+    },
+    enabled: isMobile, // Only fetch when on mobile
+  });
 
   const title = language === 'uk'
     ? "Прабгупада солов'їною — Ведичні писання українською"
@@ -488,6 +526,33 @@ export const NewHome = () => {
     : "Bhagavad-gita, Srimad-Bhagavatam and other sacred texts of the Vedic tradition in Ukrainian with Srila Prabhupada's commentaries.";
   const canonicalUrl = `${SITE_CONFIG.baseUrl}/${language}`;
 
+  // Mobile: Show library list as home page
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Helmet>
+          <title>{title}</title>
+          <meta name="description" content={description} />
+        </Helmet>
+        <WebsiteSchema />
+        <OrganizationSchema language={language} />
+
+        {/* Simple header for mobile */}
+        <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
+          <div className="px-4 py-4">
+            <h1 className="text-lg font-semibold text-white">
+              {t("Бібліотека", "Library")}
+            </h1>
+          </div>
+        </div>
+
+        {/* Library list */}
+        <MobileLibraryList books={mobileBooks} isLoading={mobileBooksLoading} />
+      </div>
+    );
+  }
+
+  // Desktop: Full home page
   return <div className="min-h-screen bg-background">
       {/* SEO Metadata */}
       <Helmet>
