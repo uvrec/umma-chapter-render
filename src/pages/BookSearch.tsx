@@ -53,7 +53,7 @@ interface Book {
 }
 
 export default function BookSearch() {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   
@@ -170,7 +170,7 @@ export default function BookSearch() {
     const path = result.canto_number
       ? `/lib/${result.book_slug}/${result.canto_number}/${result.chapter_number}/${result.verse_number}`
       : `/lib/${result.book_slug}/${result.chapter_number}/${result.verse_number}`;
-    navigate(path);
+    navigate(getLocalizedPath(path));
   };
 
   // Toggle book filter

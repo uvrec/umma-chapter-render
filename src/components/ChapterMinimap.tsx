@@ -49,7 +49,7 @@ export function ChapterMinimap({
   className,
 }: ChapterMinimapProps) {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, getLocalizedPath } = useLanguage();
 
   // Calculate progress percentage
   const progress = useMemo(() => {
@@ -64,15 +64,15 @@ export function ChapterMinimap({
       : verse.verse_number;
 
     if (bookId === 'noi') {
-      return `/lib/noi/${verseNum}`;
+      return getLocalizedPath(`/lib/noi/${verseNum}`);
     }
 
     if (isCantoMode) {
-      return `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNum}`;
+      return getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNum}`);
     }
 
-    return `/lib/${bookId}/${chapterNumber}/${verseNum}`;
-  }, [bookId, cantoNumber, chapterNumber, isCantoMode]);
+    return getLocalizedPath(`/lib/${bookId}/${chapterNumber}/${verseNum}`);
+  }, [bookId, cantoNumber, chapterNumber, isCantoMode, getLocalizedPath]);
 
   // Handle verse click
   const handleVerseClick = useCallback((verse: Verse, index: number) => {
@@ -167,7 +167,7 @@ export function ChapterMinimapCompact({
   className,
 }: ChapterMinimapProps) {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, getLocalizedPath } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Calculate progress
@@ -183,15 +183,15 @@ export function ChapterMinimapCompact({
       : verse.verse_number;
 
     if (bookId === 'noi') {
-      return `/lib/noi/${verseNum}`;
+      return getLocalizedPath(`/lib/noi/${verseNum}`);
     }
 
     if (isCantoMode) {
-      return `/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNum}`;
+      return getLocalizedPath(`/lib/${bookId}/${cantoNumber}/${chapterNumber}/${verseNum}`);
     }
 
-    return `/lib/${bookId}/${chapterNumber}/${verseNum}`;
-  }, [bookId, cantoNumber, chapterNumber, isCantoMode]);
+    return getLocalizedPath(`/lib/${bookId}/${chapterNumber}/${verseNum}`);
+  }, [bookId, cantoNumber, chapterNumber, isCantoMode, getLocalizedPath]);
 
   // Handle verse click in drawer
   const handleVerseClick = useCallback((verse: Verse, index: number) => {

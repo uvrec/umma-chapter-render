@@ -190,8 +190,8 @@ export const IntroChapter = () => {
       <div className="container mx-auto px-4 py-8">
         <Breadcrumb
           items={[
-            { label: 'Бібліотека', href: '/library' },
-            { label: bookTitle || '', href: `/lib/${bookId}` },
+            { label: 'Бібліотека', href: getLocalizedPath('/library') },
+            { label: bookTitle || '', href: getLocalizedPath(`/lib/${bookId}`) },
             { label: chapterTitle || '' }
           ]}
         />
@@ -347,8 +347,8 @@ export const IntroChapter = () => {
                 variant="default"
                 onClick={() => {
                   const firstChapterPath = book?.has_cantos
-                    ? `/lib/${bookId}/1/1`
-                    : `/lib/${bookId}/1`;
+                    ? getLocalizedPath(`/lib/${bookId}/1/1`)
+                    : getLocalizedPath(`/lib/${bookId}/1`);
                   navigate(firstChapterPath);
                 }}
               >

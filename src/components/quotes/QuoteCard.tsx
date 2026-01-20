@@ -40,7 +40,7 @@ export function QuoteCard({
   showCategory = false,
   className,
 }: QuoteCardProps) {
-  const { language, t } = useLanguage();
+  const { language, t, getLocalizedPath } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const text = (language === "uk" && quote.text_uk) ? quote.text_uk : quote.text_en;
@@ -54,7 +54,7 @@ export function QuoteCard({
 
   // Генерувати посилання на вірш, якщо є
   const verseLink = quote.book_slug && quote.chapter_number && quote.verse_number
-    ? `/lib/${quote.book_slug}/${quote.chapter_number}/${quote.verse_number}`
+    ? getLocalizedPath(`/lib/${quote.book_slug}/${quote.chapter_number}/${quote.verse_number}`)
     : null;
 
   return (
