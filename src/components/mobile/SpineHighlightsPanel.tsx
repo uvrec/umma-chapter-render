@@ -2,7 +2,7 @@
 // ✅ REMEMBER BETTER: Mobile highlights timeline panel (Neu Bible-style)
 // Показує виділення згруповані за сесіями/датами для мобільного читання
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Highlighter, ChevronRight, Calendar, BookOpen, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -24,26 +24,18 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
   const [isAnimating, setIsAnimating] = useState(false);
 
   // ✅ Smooth translate-x animation on open/close
-  useState(() => {
-    if (open) {
+  useEffect(() => {
+    if (open && !isVisible) {
       setIsVisible(true);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsAnimating(true));
       });
+    } else if (!open && isAnimating) {
+      setIsAnimating(false);
+      const timer = setTimeout(() => setIsVisible(false), 300);
+      return () => clearTimeout(timer);
     }
-  });
-
-  // Handle open state changes
-  if (open && !isVisible) {
-    setIsVisible(true);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setIsAnimating(true));
-    });
-  }
-
-  if (!open && isAnimating) {
-    setIsAnimating(false);
-  }
+  }, [open, isVisible, isAnimating]);
 
   const handleClose = () => {
     setIsAnimating(false);
