@@ -9,6 +9,7 @@ import {
   Type,
   Search,
   Settings,
+  Highlighter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
