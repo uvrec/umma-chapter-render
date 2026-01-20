@@ -13,6 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import { useState, useMemo, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import { sanitizeForRender } from '@/utils/import/normalizers';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Функція для розбиття HTML на параграфи
 const parseHTMLToParagraphs = (html: string): string[] => {
@@ -39,6 +40,7 @@ export const IntroChapter = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { fontSize, lineHeight, dualLanguageMode } = useReaderSettings();
+  const isMobile = useIsMobile();
 
   // Editing state
   const [isEditingContent, setIsEditingContent] = useState(false);
@@ -311,49 +313,51 @@ export const IntroChapter = () => {
           )}
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center">
-          {prevChapter ? (
-            <Button
-              variant="secondary"
-              onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${prevChapter.slug}`))}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              {language === 'uk' ? prevChapter.title_uk : prevChapter.title_en}
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              onClick={() => navigate(getLocalizedPath(`/lib/${bookId}`))}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Назад до книги
-            </Button>
-          )}
+        {/* Navigation - ховаємо на мобільних (є свайп) */}
+        {!isMobile && (
+          <div className="flex justify-between items-center">
+            {prevChapter ? (
+              <Button
+                variant="secondary"
+                onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${prevChapter.slug}`))}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                {language === 'uk' ? prevChapter.title_uk : prevChapter.title_en}
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => navigate(getLocalizedPath(`/lib/${bookId}`))}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Назад до книги
+              </Button>
+            )}
 
-          {nextChapter ? (
-            <Button
-              variant="secondary"
-              onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${nextChapter.slug}`))}
-            >
-              {language === 'uk' ? nextChapter.title_uk : nextChapter.title_en}
-              <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
-            </Button>
-          ) : (
-            <Button
-              variant="default"
-              onClick={() => {
-                const firstChapterPath = book?.has_cantos
-                  ? `/lib/${bookId}/1/1`
-                  : `/lib/${bookId}/1`;
-                navigate(firstChapterPath);
-              }}
-            >
-              Почати читання
-              <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
-            </Button>
-          )}
-        </div>
+            {nextChapter ? (
+              <Button
+                variant="secondary"
+                onClick={() => navigate(getLocalizedPath(`/lib/${bookId}/intro/${nextChapter.slug}`))}
+              >
+                {language === 'uk' ? nextChapter.title_uk : nextChapter.title_en}
+                <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
+              </Button>
+            ) : (
+              <Button
+                variant="default"
+                onClick={() => {
+                  const firstChapterPath = book?.has_cantos
+                    ? `/lib/${bookId}/1/1`
+                    : `/lib/${bookId}/1`;
+                  navigate(firstChapterPath);
+                }}
+              >
+                Почати читання
+                <ChevronLeft className="h-4 w-4 ml-2 rotate-180" />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

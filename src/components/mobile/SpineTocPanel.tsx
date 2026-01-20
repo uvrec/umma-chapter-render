@@ -1,16 +1,16 @@
 // src/components/mobile/SpineTocPanel.tsx
 // Table of Contents panel for Spine Navigation
-// ✅ Neu Bible-style: Swipe book to reveal horizontal chapter list
+// ✅ Simplified: Clean list without cards, fast responsive swipe
 
 import { useMemo, useState, useRef, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/contexts/BooksContext";
 import { cn } from "@/lib/utils";
-import { Book, ChevronRight, BookOpen, ChevronLeft } from "lucide-react";
+import { BookOpen, ChevronLeft, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SpineTocPanelProps {
@@ -30,7 +30,7 @@ interface BookWithChapters {
   chapter_count: number;
 }
 
-// ✅ Swipeable book row component
+// ✅ Simple swipeable book row - fast, no cards
 function SwipeableBookRow({
   book,
   isCurrentBook,
@@ -49,42 +49,79 @@ function SwipeableBookRow({
   hasCanto: boolean;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [touchStartX, setTouchStartX] = useState<number | null>(null);
-  const rowRef = useRef<HTMLDivElement>(null);
+  const [translateX, setTranslateX] = useState(0);
+  const touchStartRef = useRef<{ x: number; time: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const bookName = language === "uk"
     ? (book.title_uk || book.title_en || book.slug)
     : (book.title_en || book.title_uk || book.slug);
 
-  // Handle swipe gestures
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStartX(e.touches[0].clientX);
-  };
+  // Smooth animated swipe
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      time: Date.now()
+    };
+  }, []);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX === null) return;
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
 
-    const touchEndX = e.changedTouches[0].clientX;
-    const deltaX = touchStartX - touchEndX;
-    const threshold = 50;
+    const deltaX = touchStartRef.current.x - e.touches[0].clientX;
+    const containerWidth = containerRef.current?.offsetWidth || 300;
 
-    if (deltaX > threshold) {
-      // Swipe left - expand chapters
-      setIsExpanded(true);
-    } else if (deltaX < -threshold) {
-      // Swipe right - collapse chapters
-      setIsExpanded(false);
+    // Immediate visual feedback - no delay
+    if (isExpanded) {
+      // When expanded, allow swipe right to close
+      const newTranslate = Math.max(0, Math.min(deltaX, containerWidth));
+      setTranslateX(-containerWidth + newTranslate);
+    } else {
+      // When collapsed, allow swipe left to expand
+      const newTranslate = Math.max(0, Math.min(deltaX, containerWidth));
+      setTranslateX(-newTranslate);
+    }
+  }, [isExpanded]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartRef.current) return;
+
+    const containerWidth = containerRef.current?.offsetWidth || 300;
+    const threshold = containerWidth * 0.3; // 30% threshold
+
+    // Determine final state based on current position
+    if (isExpanded) {
+      if (translateX > -containerWidth + threshold) {
+        // Close
+        setIsExpanded(false);
+        setTranslateX(0);
+      } else {
+        // Stay expanded
+        setTranslateX(-containerWidth);
+      }
+    } else {
+      if (translateX < -threshold) {
+        // Expand
+        setIsExpanded(true);
+        setTranslateX(-containerWidth);
+      } else {
+        // Stay collapsed
+        setTranslateX(0);
+      }
     }
 
-    setTouchStartX(null);
-  };
+    touchStartRef.current = null;
+  }, [isExpanded, translateX]);
 
-  const handleClick = () => {
-    if (isExpanded) {
-      setIsExpanded(false);
-    } else {
+  const handleBookTap = () => {
+    if (!isExpanded) {
       onBookClick();
     }
+  };
+
+  const handleClose = () => {
+    setIsExpanded(false);
+    setTranslateX(0);
   };
 
   // Generate chapter numbers array
@@ -92,96 +129,80 @@ function SwipeableBookRow({
     return Array.from({ length: book.chapter_count || 0 }, (_, i) => i + 1);
   }, [book.chapter_count]);
 
+  const containerWidth = containerRef.current?.offsetWidth || 300;
+
   return (
     <div
-      ref={rowRef}
-      className="relative overflow-hidden"
+      ref={containerRef}
+      className="relative overflow-hidden touch-pan-y"
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Main book row */}
+      {/* Sliding container */}
       <div
-        className={cn(
-          "flex items-start gap-3 px-4 py-3 text-left transition-transform duration-200",
-          "hover:bg-muted/50 active:bg-muted cursor-pointer",
-          isCurrentBook && "bg-brand-50 dark:bg-brand-950/30",
-          isExpanded && "-translate-x-full"
-        )}
-        onClick={handleClick}
+        className="flex will-change-transform"
+        style={{
+          transform: `translateX(${translateX}px)`,
+          transition: touchStartRef.current ? 'none' : 'transform 200ms ease-out',
+          width: `${containerWidth * 2}px`,
+        }}
       >
-        <Book
+        {/* Book info (left panel) */}
+        <div
           className={cn(
-            "h-5 w-5 mt-0.5 flex-shrink-0",
-            isCurrentBook ? "text-brand-500" : "text-muted-foreground"
+            "flex items-center gap-3 px-4 py-3 cursor-pointer",
+            "active:bg-muted/50",
+            isCurrentBook && "bg-brand-50/50 dark:bg-brand-950/20"
           )}
-        />
-        <div className="flex-1 min-w-0">
-          <div
-            className={cn(
-              "font-medium truncate",
+          style={{ width: `${containerWidth}px` }}
+          onClick={handleBookTap}
+        >
+          <div className="flex-1 min-w-0">
+            <div className={cn(
+              "font-medium truncate text-sm",
               isCurrentBook && "text-brand-600 dark:text-brand-400"
-            )}
-          >
-            {bookName}
-          </div>
-          {/* ✅ Show chapter count */}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-            <BookOpen className="h-3 w-3" />
-            <span>
-              {book.chapter_count || 0} {hasCanto
-                ? t("Пісень", "Cantos")
-                : t("Глав", "Chapters")}
-            </span>
+            )}>
+              {bookName}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {book.chapter_count || 0} {hasCanto ? t("Пісень", "Cantos") : t("Глав", "Ch.")}
+            </div>
           </div>
         </div>
-        <ChevronRight
-          className={cn(
-            "h-5 w-5 text-muted-foreground/50",
-            isCurrentBook && "text-brand-400"
-          )}
-        />
-      </div>
 
-      {/* ✅ Horizontal chapter list (revealed on swipe) */}
-      <div
-        className={cn(
-          "absolute inset-y-0 left-0 right-0 flex items-center",
-          "bg-muted/80 backdrop-blur-sm transition-transform duration-200",
-          isExpanded ? "translate-x-0" : "translate-x-full"
-        )}
-      >
-        {/* Back button */}
-        <button
-          onClick={() => setIsExpanded(false)}
-          className="h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          aria-label={t("Назад", "Back")}
+        {/* Chapter numbers (right panel - revealed on swipe) */}
+        <div
+          className="flex items-center bg-muted/50"
+          style={{ width: `${containerWidth}px` }}
         >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
+          {/* Back button */}
+          <button
+            onClick={handleClose}
+            className="h-full px-2 flex items-center text-muted-foreground"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-        {/* Horizontal scrollable chapters */}
-        <div className="flex-1 overflow-x-auto scrollbar-hide">
-          <div className="flex items-center gap-1 px-2 py-2">
-            {chapters.map((chapter) => (
-              <button
-                key={chapter}
-                onClick={() => onChapterClick(chapter)}
-                className={cn(
-                  "min-w-[40px] h-10 px-3 rounded-lg",
-                  "text-sm font-medium",
-                  "bg-background hover:bg-brand-100 dark:hover:bg-brand-900",
-                  "text-foreground hover:text-brand-600 dark:hover:text-brand-400",
-                  "transition-colors shadow-sm"
-                )}
-              >
-                {chapter}
-              </button>
-            ))}
-            {chapters.length === 0 && (
-              <span className="text-sm text-muted-foreground px-2">
-                {t("Немає глав", "No chapters")}
-              </span>
-            )}
+          {/* Horizontal scrollable chapter numbers - SIMPLE, no cards */}
+          <div className="flex-1 overflow-x-auto scrollbar-hide">
+            <div className="flex items-center gap-0.5 px-1 py-2">
+              {chapters.map((chapter) => (
+                <button
+                  key={chapter}
+                  onClick={() => onChapterClick(chapter)}
+                  className={cn(
+                    "min-w-[32px] h-8 px-2",
+                    "text-sm font-medium",
+                    "text-foreground hover:text-brand-600 active:text-brand-700",
+                    "rounded hover:bg-brand-100/50 active:bg-brand-200/50",
+                    "transition-colors duration-100"
+                  )}
+                >
+                  {chapter}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -192,14 +213,12 @@ function SwipeableBookRow({
 export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelProps) {
   const { t, language, getLocalizedPath } = useLanguage();
   const navigate = useNavigate();
-  const location = useLocation();
   const { hasCantoStructure } = useBooks();
 
   // ✅ Fetch books with chapter counts
   const { data: books } = useQuery({
     queryKey: ["books-toc-with-chapters"],
     queryFn: async () => {
-      // Get books
       const { data: booksData, error: booksError } = await supabase
         .from("books")
         .select("id, slug, title_uk, title_en, has_cantos, display_category, display_order")
@@ -208,10 +227,8 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
 
       if (booksError) throw booksError;
 
-      // Get chapter counts for each book
       const booksWithCounts: BookWithChapters[] = await Promise.all(
         (booksData || []).map(async (book) => {
-          // For canto books, count cantos; for others, count chapters
           if (book.has_cantos) {
             const { count } = await supabase
               .from("cantos")
@@ -238,10 +255,7 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
   }, [navigate, getLocalizedPath, onClose]);
 
   const handleChapterClick = useCallback((bookSlug: string, hasCanto: boolean, chapter: number) => {
-    // For canto books, this is actually canto number
-    const path = hasCanto
-      ? `/lib/${bookSlug}/${chapter}`  // canto
-      : `/lib/${bookSlug}/${chapter}`; // chapter
+    const path = `/lib/${bookSlug}/${chapter}`;
     navigate(getLocalizedPath(path));
     onClose();
   }, [navigate, getLocalizedPath, onClose]);
@@ -269,30 +283,33 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
         side="right"
         className="w-[calc(100%-4rem)] sm:w-80 ml-16 p-0"
       >
-        <SheetHeader className="px-4 py-4 border-b">
-          <SheetTitle className="text-lg flex items-center gap-2">
+        <SheetHeader className="px-4 py-3 border-b flex-row items-center justify-between">
+          <SheetTitle className="text-base flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-brand-500" />
             {t("Бібліотека", "Library")}
           </SheetTitle>
-          {/* Swipe hint */}
-          <p className="text-xs text-muted-foreground mt-1">
-            {t("← Свайпніть книгу для вибору глави", "← Swipe book to select chapter")}
-          </p>
+          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground">
+            <X className="h-5 w-5" />
+          </button>
         </SheetHeader>
 
-        <ScrollArea className="h-[calc(100vh-100px)]">
-          <div className="py-2">
+        <p className="text-xs text-muted-foreground px-4 py-2 border-b bg-muted/30">
+          {t("← Свайпніть для глав", "← Swipe for chapters")}
+        </p>
+
+        <ScrollArea className="h-[calc(100vh-120px)]">
+          <div className="py-1">
             {Object.entries(groupedBooks).map(([category, categoryBooks]) => (
-              <div key={category} className="mb-4">
+              <div key={category} className="mb-2">
                 {/* Category Header */}
-                <div className="px-4 py-2">
-                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                <div className="px-4 py-1.5 bg-muted/20">
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                     {category}
                   </span>
                 </div>
 
-                {/* Books List */}
-                <div className="space-y-0.5">
+                {/* Books List - simple, no cards */}
+                <div className="divide-y divide-border/30">
                   {categoryBooks.map((book) => {
                     const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
                     const isCurrentBook = currentBookId === book.slug;
@@ -317,8 +334,8 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
             {/* Empty state */}
             {Object.keys(groupedBooks).length === 0 && (
               <div className="px-4 py-12 text-center text-muted-foreground">
-                <Book className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                <p>{t("Завантаження книг...", "Loading books...")}</p>
+                <BookOpen className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">{t("Завантаження...", "Loading...")}</p>
               </div>
             )}
           </div>
