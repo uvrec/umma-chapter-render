@@ -108,30 +108,22 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
       )}
       style={{ width: 'calc(100% - 56px)' }}
     >
-      {/* Gradient Header */}
-      <div className="bg-gradient-to-r from-brand-500 to-brand-400 pt-safe">
-        <div className="flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Highlighter className="h-6 w-6 text-white" />
-            <h2 className="text-lg font-semibold text-white">
-              {t("Мої виділення", "My Highlights")}
-            </h2>
-          </div>
-          <button
-            onClick={handleClose}
-            className="text-white/80 hover:text-white p-2 -mr-2 transition-colors"
-            aria-label={t("Закрити", "Close")}
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-      </div>
-
       {/* Timeline Content */}
       <div
         className="flex-1 bg-background overflow-y-auto"
         onClick={handleClose}
       >
+        {/* Close button */}
+        <div className="flex justify-end px-4 pt-4">
+          <button
+            onClick={handleClose}
+            className="text-muted-foreground hover:text-foreground p-2 -mr-2 transition-colors"
+            aria-label={t("Закрити", "Close")}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
         <div className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
           {/* Loading */}
           {isLoading && (
