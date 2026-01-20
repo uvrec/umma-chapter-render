@@ -1,6 +1,15 @@
 -- Create daily_quotes table for managing quotes displayed on homepage
 -- Supports both verse quotes (from verses table) and custom quotes
 
+-- Create site_settings table if not exists (needed for configuration)
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL DEFAULT '{}',
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create the table
 CREATE TABLE IF NOT EXISTS daily_quotes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -47,6 +56,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS daily_quotes_updated_at ON daily_quotes;
 CREATE TRIGGER daily_quotes_updated_at
   BEFORE UPDATE ON daily_quotes
   FOR EACH ROW
@@ -56,26 +66,25 @@ CREATE TRIGGER daily_quotes_updated_at
 ALTER TABLE daily_quotes ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read access to active quotes
-CREATE POLICY "Allow public read access to active quotes"
-  ON daily_quotes
-  FOR SELECT
-  USING (is_active = true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'daily_quotes' AND policyname = 'Allow public read access to active quotes') THEN
+    CREATE POLICY "Allow public read access to active quotes" ON daily_quotes FOR SELECT USING (is_active = true);
+  END IF;
+END $$;
 
 -- Allow authenticated users to read all quotes
-CREATE POLICY "Allow authenticated users to read all quotes"
-  ON daily_quotes
-  FOR SELECT
-  TO authenticated
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'daily_quotes' AND policyname = 'Allow authenticated users to read all quotes') THEN
+    CREATE POLICY "Allow authenticated users to read all quotes" ON daily_quotes FOR SELECT TO authenticated USING (true);
+  END IF;
+END $$;
 
 -- Allow authenticated users to insert/update/delete quotes
--- (In production, you may want to restrict this to admins only)
-CREATE POLICY "Allow authenticated users to manage quotes"
-  ON daily_quotes
-  FOR ALL
-  TO authenticated
-  USING (true)
-  WITH CHECK (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'daily_quotes' AND policyname = 'Allow authenticated users to manage quotes') THEN
+    CREATE POLICY "Allow authenticated users to manage quotes" ON daily_quotes FOR ALL TO authenticated USING (true) WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Insert default quote from Srila Prabhupada
 INSERT INTO daily_quotes (

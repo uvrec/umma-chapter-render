@@ -1,6 +1,15 @@
 -- Міграція для гарантування наявності налаштувань та дефолтної цитати
 -- Виконується після створення таблиці daily_quotes
 
+-- Create site_settings table if not exists (in case previous migration didn't run)
+CREATE TABLE IF NOT EXISTS site_settings (
+  key TEXT PRIMARY KEY,
+  value JSONB NOT NULL DEFAULT '{}',
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Переконуємося, що налаштування verse_of_the_day існують
 INSERT INTO site_settings (key, value, description)
 VALUES (
