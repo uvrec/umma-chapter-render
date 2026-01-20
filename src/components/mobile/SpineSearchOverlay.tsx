@@ -241,33 +241,10 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
       }
     }
 
-    // ✅ 4. Search glossary terms
-    if (searchQuery.length >= 2) {
-      try {
-        const { data: glossaryData } = await supabase
-          .from("glossary_terms")
-          .select("id, term, definition_uk, definition_en")
-          .or(`term.ilike.%${searchQuery}%,definition_uk.ilike.%${searchQuery}%`)
-          .limit(5);
-
-        if (glossaryData && glossaryData.length > 0) {
-          for (const term of glossaryData) {
-            const definition = language === "uk" ? term.definition_uk : term.definition_en;
-            const preview = definition?.substring(0, 50) + (definition && definition.length > 50 ? "..." : "");
-
-            newResults.push({
-              type: "glossary",
-              id: term.id,
-              title: term.term,
-              subtitle: preview,
-              path: getLocalizedPath(`/glossary?search=${encodeURIComponent(term.term)}`),
-            });
-          }
-        }
-      } catch (error) {
-        // Glossary might not exist, ignore
-      }
-    }
+    // ✅ 4. Glossary search disabled - table glossary_terms does not exist in DB
+    // TODO: Re-enable when glossary_terms table is created via migration
+    // The glossary terms are stored in synonyms table, use RPC function search_glossary_terms_v2 instead
+    // if (searchQuery.length >= 2) { ... }
 
     setResults(newResults);
     setIsLoading(false);
