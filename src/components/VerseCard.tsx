@@ -330,10 +330,14 @@ export const VerseCard = ({
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
             ) : (
               <>
-                {/* Mobile: book prefix + verse number (ШБ 4.20.1) */}
-                <span className="verse-number-clean md:hidden font-bold text-2xl text-foreground whitespace-nowrap">
+                {/* Mobile: book prefix + verse number (ШБ 4.20.1) - tap to play audio */}
+                <button
+                  onClick={() => (audioUrl || audioSanskrit || audioTranslation || audioCommentary) && playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
+                  className={`verse-number-clean md:hidden font-bold text-2xl whitespace-nowrap transition-colors ${isNowPlaying ? 'text-primary' : 'text-foreground'}`}
+                  disabled={!audioUrl && !audioSanskrit && !audioTranslation && !audioCommentary}
+                >
                   {getBookPrefix(bookSlug)} {verseNumber}
-                </span>
+                </button>
                 {/* Desktop: book prefix + verse number (ШБ 4.20.1) */}
                 <span className="hidden md:inline font-semibold text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
                   {getBookPrefix(bookSlug)} {verseNumber}
@@ -464,8 +468,8 @@ export const VerseCard = ({
         {/* Деванагарі з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSanskrit && (isEditing || sanskritText) && (
           <div className={`mb-10 synced-section transition-all duration-300 ${getSectionHighlightClass('sanskrit')}`} data-synced-section="sanskrit">
-            {/* Кнопка Volume2 для Санскриту */}
-            <div className="mb-4 flex justify-center">
+            {/* Кнопка Volume2 для Санскриту - hidden on mobile (tap verse number to play) */}
+            <div className="mb-4 hidden md:flex justify-center">
               <button
                 onClick={() => playSection("Санскрит", audioSanskrit)}
                 disabled={!audioSanskrit && !audioUrl}
