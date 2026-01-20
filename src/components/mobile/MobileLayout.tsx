@@ -49,11 +49,13 @@ export function MobileLayout({
           onVisibilityChange={handleSpineVisibilityChange}
         />
       )}
-      {/* Content moves with Spine - translateX when Spine is visible */}
+      {/* Main content - always to the right of Spine */}
+      {/* When Spine visible: content starts at 56px from left */}
+      {/* When Spine hidden: content takes full width */}
       <div
-        className="transition-transform duration-300 ease-out"
+        className="min-h-screen transition-all duration-300 ease-out"
         style={{
-          transform: !hideSpine && isSpineVisible ? 'translateX(56px)' : 'translateX(0)'
+          marginLeft: !hideSpine && isSpineVisible ? '56px' : '0'
         }}
       >
         {children}
