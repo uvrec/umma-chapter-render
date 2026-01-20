@@ -1279,10 +1279,9 @@ export const VedaReaderDB = () => {
       <Header />
 
       {/* 🆕 Sticky Breadcrumbs - прилипає під хедером, ховається при скролі вниз на мобільних */}
-      {/* Hidden on mobile for clean reading */}
-      {!isMobile && (
-        <div className={`sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
-          <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
+      {/* Hidden on mobile via CSS for clean reading */}
+      <div className={`hidden md:block sticky top-[65px] z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ${isHeaderHidden ? '-translate-y-full md:translate-y-0' : 'translate-y-0'}`}>
+        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
             {/* Row 1: Breadcrumbs + Icons */}
             <div className="flex items-center justify-between gap-2">
               {/* Breadcrumbs - responsive with overflow handling */}
@@ -1364,7 +1363,7 @@ export const VedaReaderDB = () => {
             )}
           </div>
         </div>
-      )}
+      </div>
 
       <div className="container mx-auto px-4 py-4 md:py-8" data-reader-root="true">
         {/* Заголовок - тільки для безперервного читання або текстових глав */}

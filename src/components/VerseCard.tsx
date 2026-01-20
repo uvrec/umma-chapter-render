@@ -324,17 +324,17 @@ export const VerseCard = ({
                 </span>
               </>
             )}
-            {/* Назва глави - відцентрована під номером вірша (hidden on mobile via CSS) */}
+            {/* Назва глави - відцентрована під номером вірша (hidden on mobile) */}
             {bookName && (
-              <span className="text-sm text-muted-foreground text-center verse-book-name">{bookName}</span>
+              <span className="hidden md:block text-sm text-muted-foreground text-center verse-book-name">{bookName}</span>
             )}
 
-            {/* Tap-to-jump: кнопка відтворення всього вірша (hidden on mobile via CSS) */}
+            {/* Tap-to-jump: кнопка відтворення всього вірша (hidden on mobile) */}
             {(audioUrl || audioSanskrit || audioTranslation || audioCommentary) && (
               <button
                 onClick={() => playSection("Вірш", audioUrl || audioSanskrit || audioTranslation || audioCommentary)}
                 className={`
-                  verse-play-btn mt-2 flex items-center gap-2 px-4 py-2 rounded-full
+                  verse-play-btn mt-2 hidden md:flex items-center gap-2 px-4 py-2 rounded-full
                   transition-all duration-200
                   ${isNowPlaying
                     ? 'bg-primary text-primary-foreground shadow-lg'
@@ -366,9 +366,9 @@ export const VerseCard = ({
           </div>
         )}
 
-        {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша */}
+        {/* КНОПКА РЕДАГУВАННЯ - по центру під номером вірша (hidden on mobile) */}
         {isAdmin && (
-          <div className="flex justify-center mb-4">
+          <div className="hidden md:flex justify-center mb-4">
             {isEditing ? (
               <div className="flex gap-2">
                 <Button variant="default" size="sm" onClick={saveEdit}>
@@ -509,20 +509,18 @@ export const VerseCard = ({
         {/* Послівний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showSynonyms && (isEditing || synonyms) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('synonyms')}`} data-synced-section="synonyms">
-            {/* Заголовок + кнопка Volume2 (hidden on mobile for clean reading) */}
-            {!isMobile && (
-              <div className="section-header flex items-center justify-center gap-4 mb-8">
-                <h4 className="text-foreground">{labels.synonyms}</h4>
-                <button
-                  onClick={() => playSection("Послівний переклад", audioSynonyms)}
-                  disabled={!audioSynonyms && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Слухати послівний переклад"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
-              </div>
-            )}
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
+              <h4 className="text-foreground">{labels.synonyms}</h4>
+              <button
+                onClick={() => playSection("Послівний переклад", audioSynonyms)}
+                disabled={!audioSynonyms && !audioUrl}
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Слухати послівний переклад"
+              >
+                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
 
             {isEditing ? (
               <Textarea
@@ -588,22 +586,20 @@ export const VerseCard = ({
                           </span>
                         ))}
                         {pair.meaning && <span> — {pair.meaning}</span>}
-                        {/* Learning button - hidden on mobile for clean reading */}
-                        {!isMobile && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddToLearning(pair.term, pair.meaning || "");
-                            }}
-                            title="Додати до вивчення"
-                            aria-label={`Додати "${pair.term}" до вивчення`}
-                            className="inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm"
-                          >
-                            <GraduationCap
-                              className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
-                            />
-                          </button>
-                        )}
+                        {/* Learning button - hidden on mobile via CSS for clean reading */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToLearning(pair.term, pair.meaning || "");
+                          }}
+                          title="Додати до вивчення"
+                          aria-label={`Додати "${pair.term}" до вивчення`}
+                          className="hidden md:inline-flex items-center justify-center ml-1 p-1 rounded-md hover:bg-primary/10 transition-colors group text-sm"
+                        >
+                          <GraduationCap
+                            className={`h-4 w-4 ${isWordInLearningList(pair.term) ? "text-green-600" : "text-muted-foreground group-hover:text-primary"}`}
+                          />
+                        </button>
                         {i < synonymPairs.length - 1 && <span>; </span>}
                       </span>
                     );
@@ -616,20 +612,18 @@ export const VerseCard = ({
         {/* Літературний переклад з окремою кнопкою Volume2 */}
         {textDisplaySettings.showTranslation && (isEditing || translation) && (
           <div className={`mb-6 synced-section transition-all duration-300 ${getSectionHighlightClass('translation')}`} data-synced-section="translation">
-            {/* Заголовок + кнопка Volume2 (hidden on mobile for clean reading) */}
-            {!isMobile && (
-              <div className="section-header flex items-center justify-center gap-4 mb-8">
-                <h4 className="text-foreground font-serif">{labels.translation}</h4>
-                <button
-                  onClick={() => playSection("Літературний переклад", audioTranslation)}
-                  disabled={!audioTranslation && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Слухати переклад"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
-              </div>
-            )}
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
+              <h4 className="text-foreground font-serif">{labels.translation}</h4>
+              <button
+                onClick={() => playSection("Літературний переклад", audioTranslation)}
+                disabled={!audioTranslation && !audioUrl}
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Слухати переклад"
+              >
+                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
 
             {isEditing ? (
               <EnhancedInlineEditor
@@ -658,20 +652,18 @@ export const VerseCard = ({
         {/* Пояснення з окремою кнопкою Volume2 */}
         {textDisplaySettings.showCommentary && (isEditing || commentary) && (
           <div className={`synced-section transition-all duration-300 ${getSectionHighlightClass('commentary')}`} data-synced-section="commentary">
-            {/* Заголовок + кнопка Volume2 (hidden on mobile for clean reading) */}
-            {!isMobile && (
-              <div className="section-header flex items-center justify-center gap-4 mb-8">
-                <h4 className="text-foreground font-serif">{labels.commentary}</h4>
-                <button
-                  onClick={() => playSection("Пояснення", audioCommentary)}
-                  disabled={!audioCommentary && !audioUrl}
-                  className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Слухати пояснення"
-                >
-                  <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
-                </button>
-              </div>
-            )}
+            {/* Заголовок + кнопка Volume2 (hidden on mobile via CSS for clean reading) */}
+            <div className="section-header hidden md:flex items-center justify-center gap-4 mb-8">
+              <h4 className="text-foreground font-serif">{labels.commentary}</h4>
+              <button
+                onClick={() => playSection("Пояснення", audioCommentary)}
+                disabled={!audioCommentary && !audioUrl}
+                className="rounded-full p-2 hover:bg-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                aria-label="Слухати пояснення"
+              >
+                <Volume2 className="h-6 w-6 text-muted-foreground hover:text-foreground" />
+              </button>
+            </div>
 
             {isEditing ? (
               <EnhancedInlineEditor
