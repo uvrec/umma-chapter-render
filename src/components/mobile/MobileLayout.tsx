@@ -1,7 +1,7 @@
 // src/components/mobile/MobileLayout.tsx
 // Wrapper layout для мобільних пристроїв з Neu Bible-style spine navigation
 
-import { ReactNode } from "react";
+import { ReactNode, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { SpineNavigation } from "./SpineNavigation";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -22,6 +22,17 @@ export function MobileLayout({
   const isMobile = useIsMobile();
   const location = useLocation();
 
+  // Track spine visibility to move content with it
+  // Read initial state from localStorage
+  const [isSpineVisible, setIsSpineVisible] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return localStorage.getItem("vv_spine_hidden") !== "true";
+  });
+
+  const handleSpineVisibilityChange = useCallback((visible: boolean) => {
+    setIsSpineVisible(visible);
+  }, []);
+
   // На десктопі просто рендеримо children без змін
   if (!isMobile) {
     return <>{children}</>;
@@ -31,12 +42,22 @@ export function MobileLayout({
   const detectedBookId = bookId || extractBookIdFromPath(location.pathname);
 
   return (
-    <div className="mobile-layout min-h-screen">
+    <div className="mobile-layout min-h-screen overflow-x-hidden">
       {!hideSpine && (
-        <SpineNavigation bookId={detectedBookId} />
+        <SpineNavigation
+          bookId={detectedBookId}
+          onVisibilityChange={handleSpineVisibilityChange}
+        />
       )}
-      {/* Spine is a floating overlay - no padding needed */}
-      {children}
+      {/* Content moves with Spine - translateX when Spine is visible */}
+      <div
+        className="transition-transform duration-300 ease-out"
+        style={{
+          transform: !hideSpine && isSpineVisible ? 'translateX(56px)' : 'translateX(0)'
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
