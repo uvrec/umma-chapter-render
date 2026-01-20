@@ -16,6 +16,13 @@
 -- ============================================================================
 
 -- ============================================================================
+-- DROP EXISTING FUNCTIONS (required when changing return types)
+-- ============================================================================
+-- PostgreSQL cannot change return type with CREATE OR REPLACE, must drop first
+DROP FUNCTION IF EXISTS public.search_verses_fulltext(TEXT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, UUID[], INTEGER);
+DROP FUNCTION IF EXISTS public.unified_search(TEXT, TEXT, TEXT[], INTEGER, INTEGER);
+
+-- ============================================================================
 -- 1. ДОПОМІЖНА ФУНКЦІЯ ДЛЯ ПАРСИНГУ ЗАПИТУ
 -- ============================================================================
 -- websearch_to_tsquery може викидати помилки при некоректному синтаксисі
