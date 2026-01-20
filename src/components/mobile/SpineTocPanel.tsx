@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/contexts/BooksContext";
 import { cn } from "@/lib/utils";
-import { BookOpen, ChevronLeft, X } from "lucide-react";
+import { BookOpen, ChevronLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SpineTocPanelProps {
@@ -281,16 +281,13 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent
         side="right"
-        className="w-[calc(100%-4rem)] sm:w-80 ml-16 p-0"
+        className="w-[calc(100%-4rem)] sm:w-80 ml-16 p-0 [&>button]:hidden"
       >
-        <SheetHeader className="px-4 py-3 border-b flex-row items-center justify-between">
+        <SheetHeader className="px-4 py-3 border-b">
           <SheetTitle className="text-base flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-brand-500" />
             {t("Бібліотека", "Library")}
           </SheetTitle>
-          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-foreground">
-            <X className="h-5 w-5" />
-          </button>
         </SheetHeader>
 
         <p className="text-xs text-muted-foreground px-4 py-2 border-b bg-muted/30">
