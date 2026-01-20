@@ -1377,18 +1377,20 @@ export const VedaReaderDB = () => {
           </div>}
 
         {isTextChapter ? <div className="verse-surface">
-            {/* Навігація зверху для текстових глав */}
-            <div className="mb-8 flex items-center justify-between pb-6">
-              <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                {t("Попередня глава", "Previous Chapter")}
-              </Button>
+            {/* Навігація зверху для текстових глав - ховаємо на мобільних (є свайп) */}
+            {!isMobile && (
+              <div className="mb-8 flex items-center justify-between pb-6">
+                <Button variant="outline" onClick={handlePrevChapter} disabled={currentChapterIndex === 0}>
+                  <ChevronLeft className="mr-2 h-4 w-4" />
+                  {t("Попередня глава", "Previous Chapter")}
+                </Button>
 
-              <Button variant="outline" onClick={handleNextChapter} disabled={currentChapterIndex === allChapters.length - 1}>
-                {t("Наступна глава", "Next Chapter")}
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+                <Button variant="outline" onClick={handleNextChapter} disabled={currentChapterIndex === allChapters.length - 1}>
+                  {t("Наступна глава", "Next Chapter")}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            )}
 
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <TiptapRenderer content={language === "uk" ? effectiveChapter.content_uk || "" : effectiveChapter.content_en || effectiveChapter.content_uk || ""} />

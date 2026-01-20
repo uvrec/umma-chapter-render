@@ -14,6 +14,7 @@ import { parseSynonymPairs, type SynonymPair } from "@/utils/glossaryParser";
 import { addLearningVerse, isVerseInLearningList, LearningVerse } from "@/utils/learningVerses";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Перевіряє чи є реальний текстовий контент (не тільки HTML теги або пробіли)
 const hasContent = (text: string | null | undefined): boolean => {
@@ -128,6 +129,7 @@ export const DualLanguageVerseCard = ({
   nextLabel,
 }: DualLanguageVerseCardProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   // Ref для запобігання подвійному спрацюванню на мобільних (touch + click)
   const glossaryNavigationRef = useRef<boolean>(false);
@@ -308,7 +310,7 @@ export const DualLanguageVerseCard = ({
               {isAdmin && verseId ? (
                 <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} />
               ) : (
-                <span className="font-semibold text-5xl" style={{ color: "rgb(188, 115, 26)" }}>
+                <span className="font-semibold text-2xl md:text-5xl whitespace-nowrap" style={{ color: "rgb(188, 115, 26)" }}>
                   ВІРШ {verseNumber}
                 </span>
               )}
@@ -378,8 +380,8 @@ export const DualLanguageVerseCard = ({
           </div>
         )}
 
-        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ */}
-        {onPrevVerse && onNextVerse && (
+        {/* НАВІГАЦІЯ МІЖ ВІРШАМИ - приховано на мобільних (є свайп) */}
+        {onPrevVerse && onNextVerse && !isMobile && (
           <div className="flex items-center justify-between mb-8">
             <Button variant="outline" onClick={onPrevVerse} disabled={isPrevDisabled}>
               <ChevronLeft className="mr-2 h-4 w-4" />
