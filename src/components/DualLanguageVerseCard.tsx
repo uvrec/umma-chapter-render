@@ -319,7 +319,7 @@ export const DualLanguageVerseCard = ({
         lineHeight,
       }}
     >
-      <div className={flowMode ? "py-6" : "p-6"}>
+      <div className={flowMode ? "pt-2 pb-6" : "pt-2 px-6 pb-6"}>
         {/* НОМЕР ВІРША */}
         {showNumbers && (
           <div className="flex flex-col items-center mb-4">

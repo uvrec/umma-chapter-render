@@ -110,20 +110,9 @@ export function SpineHighlightsPanel({ open, onClose }: SpineHighlightsPanelProp
     >
       {/* Timeline Content */}
       <div
-        className="flex-1 bg-background overflow-y-auto"
+        className="flex-1 bg-background overflow-y-auto pt-4"
         onClick={handleClose}
       >
-        {/* Close button */}
-        <div className="flex justify-end px-4 pt-4">
-          <button
-            onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground p-2 -mr-2 transition-colors"
-            aria-label={t("Закрити", "Close")}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
         <div className="px-4 py-2" onClick={(e) => e.stopPropagation()}>
           {/* Loading */}
           {isLoading && (
