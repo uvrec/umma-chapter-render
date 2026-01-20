@@ -35,10 +35,8 @@ export function MobileLayout({
       {!hideSpine && (
         <SpineNavigation bookId={detectedBookId} />
       )}
-      {/* Add LEFT padding for spine navigation (spine on left) */}
-      <div className={!hideSpine ? "pl-14" : ""}>
-        {children}
-      </div>
+      {/* Spine is a floating overlay - no padding needed */}
+      {children}
     </div>
   );
 }
