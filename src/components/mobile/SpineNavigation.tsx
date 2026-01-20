@@ -1,18 +1,14 @@
 // src/components/mobile/SpineNavigation.tsx
 // Neu Bible-style spine (sidebar) navigation for mobile
-// Бокова навігаційна панель з іконками для доступу до ключових функцій
+// Мінімалістична бокова панель: тільки 4 іконки, свайп для навігації
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   List,
   Type,
   Search,
   Settings,
-  Clock,
-  ChevronUp,
-  ChevronDown,
-  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -57,31 +53,14 @@ const SPINE_THEME_STORAGE_KEY = "vv_spine_theme";
 interface SpineNavigationProps {
   /** Current book ID for TOC navigation */
   bookId?: string;
-  /** Show timeline button */
-  showTimeline?: boolean;
-  /** Show navigation arrows */
-  showNavArrows?: boolean;
-  /** Callback when navigating to previous chapter/verse */
-  onPrevious?: () => void;
-  /** Callback when navigating to next chapter/verse */
-  onNext?: () => void;
-  /** Whether we're on a reader page */
-  isReaderPage?: boolean;
 }
 
 export function SpineNavigation({
   bookId,
-  showTimeline = true,
-  showNavArrows = false,
-  onPrevious,
-  onNext,
-  isReaderPage = false,
 }: SpineNavigationProps) {
   const [activePanel, setActivePanel] = useState<SpinePanel>("none");
-  const [isExpanded, setIsExpanded] = useState(true);
-  const navigate = useNavigate();
   const location = useLocation();
-  const { language, getLocalizedPath, t } = useLanguage();
+  const { language, t } = useLanguage();
 
   // Spine theme state
   const [spineThemeIndex, setSpineThemeIndex] = useState(() => {
@@ -135,11 +114,7 @@ export function SpineNavigation({
     setActivePanel("none");
   }, []);
 
-  const handleTimelineClick = () => {
-    navigate(getLocalizedPath("/timeline"));
-  };
-
-  // Spine buttons configuration
+  // Spine buttons configuration - only 4 essential buttons like Neu Bible
   const spineButtons = [
     {
       id: "toc",
@@ -147,7 +122,6 @@ export function SpineNavigation({
       label: t("Зміст", "Contents"),
       onClick: () => togglePanel("toc"),
       active: activePanel === "toc",
-      show: true,
     },
     {
       id: "typography",
@@ -155,7 +129,6 @@ export function SpineNavigation({
       label: t("Типографіка", "Typography"),
       onClick: () => togglePanel("typography"),
       active: activePanel === "typography",
-      show: true,
     },
     {
       id: "search",
@@ -163,7 +136,6 @@ export function SpineNavigation({
       label: t("Пошук", "Search"),
       onClick: () => togglePanel("search"),
       active: activePanel === "search",
-      show: true,
     },
     {
       id: "settings",
@@ -171,68 +143,38 @@ export function SpineNavigation({
       label: t("Налаштування", "Settings"),
       onClick: () => togglePanel("settings"),
       active: activePanel === "settings",
-      show: true,
     },
   ];
 
-  // Don't render if collapsed
-  if (!isExpanded) {
-    return (
-      <button
-        onClick={() => setIsExpanded(true)}
-        className="fixed left-0 top-1/2 -translate-y-1/2 z-50
-          w-2 h-20 bg-brand-500 rounded-r-full
-          hover:w-3 transition-all duration-200
-          active:bg-brand-600"
-        aria-label={t("Відкрити навігацію", "Open navigation")}
-      />
-    );
-  }
-
   return (
     <>
-      {/* Main Spine Bar - on the LEFT side */}
+      {/* Main Spine Bar - clean minimal design like Neu Bible */}
       <nav
         className={cn(
-          "spine-navigation fixed left-0 top-0 bottom-0 z-50",
-          "w-16 flex flex-col items-center justify-between py-6",
+          "spine-navigation fixed right-0 top-0 bottom-0 z-50",
+          "w-14 flex flex-col items-center justify-center",
           "bg-gradient-to-b",
           spineTheme.gradient,
-          "shadow-lg safe-left transition-all duration-500"
+          "shadow-lg safe-right transition-all duration-500"
         )}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         aria-label={t("Бокова навігація", "Spine navigation")}
       >
-        {/* Top section - Theme change arrows */}
+        {/* Only 4 main action buttons - centered vertically */}
         <div className="flex flex-col items-center gap-4">
-          <button
-            onClick={() => setSpineThemeIndex((prev) =>
-              prev === 0 ? SPINE_THEMES.length - 1 : prev - 1
-            )}
-            className="spine-btn w-10 h-10 flex items-center justify-center
-              text-white/60 hover:text-white hover:bg-white/10
-              rounded-full transition-colors"
-            aria-label={t("Попередня тема", "Previous theme")}
-          >
-            <ChevronUp className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Middle section - Main action buttons */}
-        <div className="flex flex-col items-center gap-3">
-          {spineButtons.filter(btn => btn.show).map((btn) => {
+          {spineButtons.map((btn) => {
             const Icon = btn.icon;
             return (
               <button
                 key={btn.id}
                 onClick={btn.onClick}
                 className={cn(
-                  "spine-btn w-10 h-10 flex items-center justify-center",
+                  "spine-btn w-11 h-11 flex items-center justify-center",
                   "rounded-full transition-all duration-200",
                   btn.active
-                    ? "bg-white text-brand-600 shadow-md scale-110"
-                    : "text-white/80 hover:text-white hover:bg-white/10"
+                    ? "bg-white/20 text-white"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
                 )}
                 aria-label={btn.label}
                 aria-pressed={btn.active}
@@ -241,44 +183,6 @@ export function SpineNavigation({
               </button>
             );
           })}
-        </div>
-
-        {/* Bottom section - Timeline, theme down arrow, and close */}
-        <div className="flex flex-col items-center gap-3">
-          {showTimeline && (
-            <button
-              onClick={handleTimelineClick}
-              className={cn(
-                "spine-btn w-10 h-10 flex items-center justify-center",
-                "text-white/80 hover:text-white hover:bg-white/10",
-                "rounded-full transition-colors",
-                location.pathname.includes("/timeline") && "bg-white/20 text-white"
-              )}
-              aria-label={t("Історія", "Timeline")}
-            >
-              <Clock className="h-5 w-5" />
-            </button>
-          )}
-
-          <button
-            onClick={() => setSpineThemeIndex((prev) => (prev + 1) % SPINE_THEMES.length)}
-            className="spine-btn w-10 h-10 flex items-center justify-center
-              text-white/60 hover:text-white hover:bg-white/10
-              rounded-full transition-colors"
-            aria-label={t("Наступна тема", "Next theme")}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </button>
-
-          <button
-            onClick={() => setIsExpanded(false)}
-            className="spine-btn w-10 h-10 flex items-center justify-center
-              text-white/60 hover:text-white hover:bg-white/10
-              rounded-full transition-colors mt-2"
-            aria-label={t("Згорнути", "Collapse")}
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
       </nav>
 

@@ -18,9 +18,12 @@ import {
   MessageCircle,
   ExternalLink,
   Lock,
+  Send,
+  Facebook,
+  Instagram,
+  Youtube,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FaTelegram, FaFacebook, FaInstagram, FaYoutube } from "react-icons/fa";
 
 interface SpineSettingsPanelProps {
   open: boolean;
@@ -127,28 +130,28 @@ const SOCIAL_LINKS = [
   {
     id: "telegram",
     label: "Telegram",
-    icon: FaTelegram,
+    icon: Send,
     url: "https://t.me/prabhupada_ua",
     color: "text-[#0088cc]",
   },
   {
     id: "facebook",
     label: "Facebook",
-    icon: FaFacebook,
+    icon: Facebook,
     url: "https://facebook.com/prabhupada.ua",
     color: "text-[#1877f2]",
   },
   {
     id: "instagram",
     label: "Instagram",
-    icon: FaInstagram,
+    icon: Instagram,
     url: "https://instagram.com/prabhupada_ua",
     color: "text-[#e4405f]",
   },
   {
     id: "youtube",
     label: "YouTube",
-    icon: FaYoutube,
+    icon: Youtube,
     url: "https://youtube.com/@prabhupada_ua",
     color: "text-[#ff0000]",
   },
