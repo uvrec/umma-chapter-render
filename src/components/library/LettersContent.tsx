@@ -180,162 +180,15 @@ export const LettersContent = () => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Пошук та фільтри */}
-      <div className="space-y-4">
-          {/* Пошук */}
-          <div>
-            <Input
-              placeholder={t(
-                "Пошук по отримувачу, локації, тексту...",
-                "Search by recipient, location, content..."
-              )}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
-            />
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Results - Main content */}
+      <div className="lg:col-span-3 order-2 lg:order-1">
+        {filteredAndSortedLetters.length > 0 && (
+          <div className="mb-4 text-sm text-muted-foreground">
+            {filteredAndSortedLetters.length} {t("листів", "letters")}
           </div>
-
-          {/* Фільтри */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t("Отримувач", "Recipient")}
-              </label>
-              <Select
-                value={filters.recipient || "all"}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, recipient: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("Всі", "All")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("Всі отримувачі", "All recipients")}</SelectItem>
-                  {recipients.map((recipient) => (
-                    <SelectItem key={recipient} value={recipient}>
-                      {recipient}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t("Локація", "Location")}
-              </label>
-              <Select
-                value={filters.location || "all"}
-                onValueChange={(value) =>
-                  setFilters({ ...filters, location: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("Всі", "All")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t("Всі локації", "All locations")}</SelectItem>
-                  {locations.map((location) => (
-                    <SelectItem key={location} value={location}>
-                      {location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t("Рік", "Year")}
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  placeholder={t("Від", "From")}
-                  value={filters.yearFrom || ""}
-                  onChange={(e) =>
-                    setFilters({
-                      ...filters,
-                      yearFrom: e.target.value ? parseInt(e.target.value) : undefined,
-                    })
-                  }
-                  className="w-full"
-                />
-                <Input
-                  type="number"
-                  placeholder={t("До", "To")}
-                  value={filters.yearTo || ""}
-                  onChange={(e) =>
-                    setFilters({
-                      ...filters,
-                      yearTo: e.target.value ? parseInt(e.target.value) : undefined,
-                    })
-                  }
-                  className="w-full"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Сортування та групування */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t("Сортувати за", "Sort by")}
-              </label>
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as LetterSortBy)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date">{t("Дата", "Date")}</SelectItem>
-                  <SelectItem value="recipient">{t("Отримувач", "Recipient")}</SelectItem>
-                  <SelectItem value="location">{t("Локація", "Location")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t("Напрямок", "Order")}
-              </label>
-              <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as LetterSortOrder)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="asc">{t("За зростанням", "Ascending")}</SelectItem>
-                  <SelectItem value="desc">{t("За спаданням", "Descending")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                {t("Групувати за", "Group by")}
-              </label>
-              <Select value={groupBy} onValueChange={(v) => setGroupBy(v as any)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("Без групування", "No grouping")}</SelectItem>
-                  <SelectItem value="year">{t("Рік", "Year")}</SelectItem>
-                  <SelectItem value="recipient">{t("Отримувач", "Recipient")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-      </div>
-
-      {/* Результати */}
-      <div className="mb-4 text-sm text-muted-foreground">
-        {t("Знайдено листів:", "Letters found:")} {filteredAndSortedLetters.length}
-      </div>
-
-      <div className="space-y-8">
+        )}
+        <div className="space-y-6">
         {groupedLetters.map((group) => (
           <div key={group.label}>
             <h3 className="text-xl font-bold mb-4">{group.label}</h3>
@@ -394,16 +247,112 @@ export const LettersContent = () => {
         ))}
       </div>
 
-      {filteredAndSortedLetters.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">
-            {t(
-              "Листів не знайдено за вказаними критеріями",
-              "No letters found matching the criteria"
-            )}
-          </p>
+        {filteredAndSortedLetters.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground">
+            {t("Листів не знайдено", "No letters found")}
+          </div>
+        )}
+      </div>
+
+      {/* Sidebar - Filters */}
+      <div className="lg:col-span-1 order-1 lg:order-2">
+        <div className="sticky top-4 space-y-3">
+          {/* Search */}
+          <Input
+            placeholder={t("Пошук...", "Search...")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+
+          {/* Filters */}
+          <Select
+            value={filters.recipient || "all"}
+            onValueChange={(value) => setFilters({ ...filters, recipient: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("Отримувач", "Recipient")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("Всі отримувачі", "All recipients")}</SelectItem>
+              {recipients.map((recipient) => (
+                <SelectItem key={recipient} value={recipient}>{recipient}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.location || "all"}
+            onValueChange={(value) => setFilters({ ...filters, location: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t("Локація", "Location")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("Всі локації", "All locations")}</SelectItem>
+              {locations.map((location) => (
+                <SelectItem key={location} value={location}>{location}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Year range */}
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder={t("Від", "From")}
+              value={filters.yearFrom || ""}
+              onChange={(e) => setFilters({
+                ...filters,
+                yearFrom: e.target.value ? parseInt(e.target.value) : undefined,
+              })}
+            />
+            <Input
+              type="number"
+              placeholder={t("До", "To")}
+              value={filters.yearTo || ""}
+              onChange={(e) => setFilters({
+                ...filters,
+                yearTo: e.target.value ? parseInt(e.target.value) : undefined,
+              })}
+            />
+          </div>
+
+          {/* Sort & Group */}
+          <div className="pt-3 border-t space-y-3">
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as LetterSortBy)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">{t("Дата", "Date")}</SelectItem>
+                <SelectItem value="recipient">{t("Отримувач", "Recipient")}</SelectItem>
+                <SelectItem value="location">{t("Локація", "Location")}</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as LetterSortOrder)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="asc">{t("↑ Зростання", "↑ Ascending")}</SelectItem>
+                <SelectItem value="desc">{t("↓ Спадання", "↓ Descending")}</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={groupBy} onValueChange={(v) => setGroupBy(v as any)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("Без групування", "No grouping")}</SelectItem>
+                <SelectItem value="year">{t("За роком", "By year")}</SelectItem>
+                <SelectItem value="recipient">{t("За отримувачем", "By recipient")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
