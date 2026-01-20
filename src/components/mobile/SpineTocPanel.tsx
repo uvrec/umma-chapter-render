@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useBooks } from "@/contexts/BooksContext";
 import { cn } from "@/lib/utils";
-import { BookOpen, ChevronLeft } from "lucide-react";
+import { BookOpen, ChevronLeft, Mic, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SpineTocPanelProps {
@@ -277,65 +277,102 @@ export function SpineTocPanel({ open, onClose, currentBookId }: SpineTocPanelPro
     return groups;
   }, [books, t]);
 
+  // Tab state for books/lectures/letters
+  const [activeTab, setActiveTab] = useState<"books" | "lectures" | "letters">("books");
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <SheetContent
         side="left"
         className="left-14 w-[calc(100%-56px)] sm:w-80 p-0 [&>button]:hidden z-[60]"
       >
-        <SheetHeader className="px-4 py-3 border-b">
-          <SheetTitle className="text-base flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-brand-500" />
-            {t("Бібліотека", "Library")}
-          </SheetTitle>
-        </SheetHeader>
-
-        <p className="text-xs text-muted-foreground px-4 py-2 border-b bg-muted/30">
-          {t("← Свайпніть для глав", "← Swipe for chapters")}
-        </p>
-
-        <ScrollArea className="h-[calc(100vh-120px)]">
-          <div className="py-1">
-            {Object.entries(groupedBooks).map(([category, categoryBooks]) => (
-              <div key={category} className="mb-2">
-                {/* Category Header */}
-                <div className="px-4 py-1.5 bg-muted/20">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    {category}
-                  </span>
-                </div>
-
-                {/* Books List - simple, no cards */}
-                <div className="divide-y divide-border/30">
-                  {categoryBooks.map((book) => {
-                    const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
-                    const isCurrentBook = currentBookId === book.slug;
-
-                    return (
-                      <SwipeableBookRow
-                        key={book.id}
-                        book={book}
-                        isCurrentBook={isCurrentBook}
-                        onBookClick={() => handleBookClick(book.slug)}
-                        onChapterClick={(chapter) => handleChapterClick(book.slug, hasCanto, chapter)}
-                        language={language}
-                        t={t}
-                        hasCanto={hasCanto}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-
-            {/* Empty state */}
-            {Object.keys(groupedBooks).length === 0 && (
-              <div className="px-4 py-12 text-center text-muted-foreground">
-                <BookOpen className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">{t("Завантаження...", "Loading...")}</p>
-              </div>
+        {/* Tabs */}
+        <div className="flex border-b pt-4">
+          <button
+            onClick={() => setActiveTab("books")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
+              activeTab === "books"
+                ? "text-brand-500 border-b-2 border-brand-500"
+                : "text-muted-foreground hover:text-foreground"
             )}
-          </div>
+          >
+            <BookOpen className="h-4 w-4" />
+            {t("Книги", "Books")}
+          </button>
+          <button
+            onClick={() => setActiveTab("lectures")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
+              activeTab === "lectures"
+                ? "text-brand-500 border-b-2 border-brand-500"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Mic className="h-4 w-4" />
+            {t("Лекції", "Lectures")}
+          </button>
+          <button
+            onClick={() => setActiveTab("letters")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors",
+              activeTab === "letters"
+                ? "text-brand-500 border-b-2 border-brand-500"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Mail className="h-4 w-4" />
+            {t("Листи", "Letters")}
+          </button>
+        </div>
+
+        <ScrollArea className="h-[calc(100vh-60px)]">
+          {activeTab === "books" && (
+            <div className="py-1">
+              {/* Books List - flat, no category headers */}
+              <div className="divide-y divide-border/30">
+                {Object.values(groupedBooks).flat().map((book) => {
+                  const hasCanto = book.has_cantos || hasCantoStructure(book.slug);
+                  const isCurrentBook = currentBookId === book.slug;
+
+                  return (
+                    <SwipeableBookRow
+                      key={book.id}
+                      book={book}
+                      isCurrentBook={isCurrentBook}
+                      onBookClick={() => handleBookClick(book.slug)}
+                      onChapterClick={(chapter) => handleChapterClick(book.slug, hasCanto, chapter)}
+                      language={language}
+                      t={t}
+                      hasCanto={hasCanto}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Empty state */}
+              {Object.keys(groupedBooks).length === 0 && (
+                <div className="px-4 py-12 text-center text-muted-foreground">
+                  <BookOpen className="h-10 w-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">{t("Завантаження...", "Loading...")}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "lectures" && (
+            <div className="px-4 py-12 text-center text-muted-foreground">
+              <Mic className="h-10 w-10 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">{t("Лекції скоро будуть", "Lectures coming soon")}</p>
+            </div>
+          )}
+
+          {activeTab === "letters" && (
+            <div className="px-4 py-12 text-center text-muted-foreground">
+              <Mail className="h-10 w-10 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">{t("Листи скоро будуть", "Letters coming soon")}</p>
+            </div>
+          )}
         </ScrollArea>
       </SheetContent>
     </Sheet>

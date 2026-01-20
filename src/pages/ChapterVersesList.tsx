@@ -107,7 +107,9 @@ export const ChapterVersesList = () => {
     lineHeight,
     dualLanguageMode,
     showNumbers,
-    flowMode
+    flowMode,
+    fullscreenMode,
+    setFullscreenMode
   } = useReaderSettings();
   const isMobile = useIsMobile();
 
@@ -671,7 +673,11 @@ export const ChapterVersesList = () => {
 
           {/* Mobile Bible-style: суцільний текст з маленькими номерами */}
           {isMobile ? (
-            <div className="prose prose-lg max-w-none" style={readerTextStyle}>
+            <div
+              className="prose prose-lg max-w-none"
+              style={readerTextStyle}
+              onClick={() => setFullscreenMode(!fullscreenMode)}
+            >
               <p className="text-foreground text-justify leading-relaxed">
                 {verses.map((verse: Verse) => {
                   const text = language === "uk" ? verse.translation_uk : verse.translation_en;
@@ -686,7 +692,10 @@ export const ChapterVersesList = () => {
                     >
                       <sup
                         className="text-primary font-bold text-xs mr-0.5 cursor-pointer hover:text-primary/80"
-                        onClick={() => navigate(getVerseUrl(verse.verse_number))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(getVerseUrl(verse.verse_number));
+                        }}
                       >
                         {verse.verse_number}
                       </sup>
