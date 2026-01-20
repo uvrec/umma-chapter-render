@@ -324,42 +324,8 @@ export default function GlossaryDB() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">
-            {t('Глосарій', 'Glossary')}
-          </h1>
-
-          {/* Statistics - show when we have stats */}
-          {statsData && !hasSearch && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="p-4 text-center bg-muted/30 rounded-lg">
-                <div className="text-3xl font-bold text-primary">
-                  {statsData.unique_terms?.toLocaleString()}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {t('Унікальних термінів', 'Unique terms')}
-                </div>
-              </div>
-              <div className="p-4 text-center bg-muted/30 rounded-lg">
-                <div className="text-3xl font-bold text-primary">
-                  {statsData.total_terms?.toLocaleString()}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {t('Всього використань', 'Total usages')}
-                </div>
-              </div>
-              <div className="p-4 text-center bg-muted/30 rounded-lg">
-                <div className="text-3xl font-bold text-primary">
-                  {statsData.books_count}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {t('Книг', 'Books')}
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Search results statistics */}
           {hasSearch && totalUniqueTerms > 0 && (
             <div className="mb-6 p-4 bg-muted/30 rounded-lg">
