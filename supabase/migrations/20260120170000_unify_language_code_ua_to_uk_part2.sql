@@ -91,33 +91,80 @@ BEGIN
 END;
 $$;
 
--- get_glossary_stats
+-- get_glossary_stats (optimized version using materialized views)
+-- Must match signature from 20260114220000_optimize_glossary_stats.sql
 CREATE OR REPLACE FUNCTION get_glossary_stats(
   search_language TEXT DEFAULT 'uk'
 )
 RETURNS TABLE (
   total_terms BIGINT,
-  terms_with_translation BIGINT,
-  terms_with_definition BIGINT,
-  categories_count BIGINT
+  unique_terms BIGINT,
+  books_count BIGINT,
+  book_stats JSONB
 )
 LANGUAGE plpgsql
+STABLE
 SECURITY DEFINER
+SET search_path TO 'public'
 AS $$
 DECLARE
   normalized_lang TEXT;
 BEGIN
   normalized_lang := normalize_language_code(search_language);
 
-  RETURN QUERY
-  SELECT
-    COUNT(*)::BIGINT AS total_terms,
-    COUNT(CASE WHEN normalized_lang = 'uk' AND translation_uk IS NOT NULL THEN 1
-               WHEN normalized_lang != 'uk' AND translation_en IS NOT NULL THEN 1 END)::BIGINT,
-    COUNT(CASE WHEN normalized_lang = 'uk' AND definition_uk IS NOT NULL THEN 1
-               WHEN normalized_lang != 'uk' AND definition_en IS NOT NULL THEN 1 END)::BIGINT,
-    (SELECT COUNT(DISTINCT unnest(categories)) FROM glossary_terms)::BIGINT
-  FROM glossary_terms;
+  IF normalized_lang = 'uk' THEN
+    RETURN QUERY
+      WITH book_aggregates AS (
+        SELECT
+          g.book_slug,
+          g.book_title,
+          COUNT(*) as term_count,
+          COUNT(DISTINCT g.term) as unique_term_count
+        FROM public.glossary_stats_cache_uk g
+        GROUP BY g.book_slug, g.book_title
+      )
+      SELECT
+        (SELECT COUNT(*) FROM public.glossary_stats_cache_uk)::bigint as total_terms,
+        (SELECT COUNT(DISTINCT term) FROM public.glossary_stats_cache_uk)::bigint as unique_terms,
+        (SELECT COUNT(DISTINCT book_slug) FROM public.glossary_stats_cache_uk)::bigint as books_count,
+        (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'slug', ba.book_slug,
+              'title', ba.book_title,
+              'total', ba.term_count,
+              'unique', ba.unique_term_count
+            ) ORDER BY ba.term_count DESC
+          )
+          FROM book_aggregates ba
+        ) as book_stats;
+  ELSE
+    RETURN QUERY
+      WITH book_aggregates AS (
+        SELECT
+          g.book_slug,
+          g.book_title,
+          COUNT(*) as term_count,
+          COUNT(DISTINCT g.term) as unique_term_count
+        FROM public.glossary_stats_cache_en g
+        GROUP BY g.book_slug, g.book_title
+      )
+      SELECT
+        (SELECT COUNT(*) FROM public.glossary_stats_cache_en)::bigint as total_terms,
+        (SELECT COUNT(DISTINCT term) FROM public.glossary_stats_cache_en)::bigint as unique_terms,
+        (SELECT COUNT(DISTINCT book_slug) FROM public.glossary_stats_cache_en)::bigint as books_count,
+        (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'slug', ba.book_slug,
+              'title', ba.book_title,
+              'total', ba.term_count,
+              'unique', ba.unique_term_count
+            ) ORDER BY ba.term_count DESC
+          )
+          FROM book_aggregates ba
+        ) as book_stats;
+  END IF;
 END;
 $$;
 
