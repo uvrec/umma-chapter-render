@@ -1,18 +1,13 @@
 /**
  * VaishnavCalendar - Вайшнавський календар
- *
- * Features:
- * - Місячний календар з подіями
- * - Екадаші з описами з Падма Пурани
- * - Свята та явлення/відходи
- * - Налаштування локації
+ * Mobile-first дизайн, стиль NotePlan
  */
 
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -20,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   useCalendar,
@@ -35,32 +29,16 @@ import {
   useEkadashiFastingForDate,
   useLocationToGeo,
   useDailyPanchang,
-  useVaishnavEventFasting,
 } from "@/hooks/useEkadashiFasting";
-import type { VaishnavEventType, FastingLevel } from "@/services/ekadashiCalculator";
-import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
-import { CalendarEventCard } from "@/components/calendar/CalendarEventCard";
-import { TodayEventsCard } from "@/components/calendar/TodayEventsCard";
-import { EkadashiFastingTimes } from "@/components/calendar/EkadashiFastingTimes";
 import {
   ChevronLeft,
   ChevronRight,
-  CalendarDays,
-  Moon,
-  Sun,
   MapPin,
-  Settings,
-  Star,
-  BookOpen,
   Locate,
   Loader2,
-  Sunrise,
-  Sunset,
-  Clock,
-  Timer,
-  UtensilsCrossed,
+  Calendar as CalendarIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, isToday } from "date-fns";
 import { uk } from "date-fns/locale";
 
 export default function VaishnavCalendar() {
@@ -69,71 +47,40 @@ export default function VaishnavCalendar() {
   const { settings, saveLocalSettings } = useCalendarSettings();
   const { formattedLocations, locations } = useCalendarLocations();
 
-  // Стан локації
   const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>(
     settings.location_id || undefined
   );
+  const [showCalendar, setShowCalendar] = useState(false);
 
-  // Обробка зміни локації
   const handleLocationChange = (locationId: string) => {
     setSelectedLocationId(locationId);
     saveLocalSettings({ ...settings, location_id: locationId });
   };
 
-  // Геолокація
   const { detectLocation, isLoading: isDetectingLocation, isSupported: isGeolocationSupported, error: geoError } = useAutoLocation(
     locations,
     handleLocationChange
   );
 
-  // Переклад помилок геолокації
-  const getGeoErrorMessage = (errorCode: string) => {
-    const messages: Record<string, { ua: string; en: string }> = {
-      PERMISSION_DENIED: {
-        ua: "Доступ до геолокації заборонено. Увімкніть дозвіл у налаштуваннях браузера.",
-        en: "Location access denied. Please enable location permissions.",
-      },
-      POSITION_UNAVAILABLE: {
-        ua: "Інформація про місцезнаходження недоступна.",
-        en: "Location information unavailable.",
-      },
-      TIMEOUT: {
-        ua: "Час очікування геолокації вичерпано.",
-        en: "Location request timed out.",
-      },
-      UNKNOWN: {
-        ua: "Не вдалося визначити місцезнаходження.",
-        en: "Failed to get location.",
-      },
-    };
-    const msg = messages[errorCode] || messages.UNKNOWN;
-    return language === "ua" ? msg.ua : msg.en;
-  };
-
   const handleDetectLocation = async () => {
     const nearest = await detectLocation();
     if (nearest) {
-      const locationName = language === "ua" ? nearest.name_ua : nearest.name_en;
       toast({
         title: language === "ua" ? "Місце визначено" : "Location detected",
-        description: language === "ua"
-          ? `Найближче місто: ${locationName}`
-          : `Nearest city: ${locationName}`,
+        description: language === "ua" ? nearest.name_ua : nearest.name_en,
       });
     } else if (geoError) {
       toast({
         title: language === "ua" ? "Помилка" : "Error",
-        description: getGeoErrorMessage(geoError),
+        description: language === "ua" ? "Не вдалося визначити" : "Failed to detect",
         variant: "destructive",
       });
     }
   };
 
-  // Hooks календаря
   const {
     monthData,
     isLoading: isLoadingMonth,
-    currentDate,
     selectedDate,
     selectedDateEvents,
     year,
@@ -145,19 +92,15 @@ export default function VaishnavCalendar() {
     selectDate,
   } = useCalendar({ locationId: selectedLocationId });
 
-  const { events: todayEvents, nextEkadashi: todayNextEkadashi } =
-    useTodayEvents(selectedLocationId);
-
+  const { events: todayEvents } = useTodayEvents(selectedLocationId);
   const { nextEkadashi, daysUntil } = useNextEkadashi(selectedLocationId);
 
-  // Поточна локація для калькулятора
   const selectedLocation = useMemo(
     () => locations.find((loc) => loc.id === selectedLocationId) || null,
     [locations, selectedLocationId]
   );
   const geoLocation = useLocationToGeo(selectedLocation);
 
-  // Розрахунок часів посту для наступного екадаші
   const nextEkadashiDate = useMemo(() => {
     if (!nextEkadashi) return null;
     const dateStr = nextEkadashi.event.event_date;
@@ -165,453 +108,287 @@ export default function VaishnavCalendar() {
     return new Date(dateStr);
   }, [nextEkadashi]);
 
-  const {
-    fastingTimes: nextEkadashiFastingTimes,
-    isLoading: isLoadingFastingTimes,
-    error: fastingTimesError,
-  } = useEkadashiFastingForDate(nextEkadashiDate, geoLocation);
-
-  // Розрахунок часів для вибраного дня
-  const {
-    panchang: selectedDayPanchang,
-    tithi: selectedDayTithi,
-    moonIllumination: selectedDayMoon,
-  } = useDailyPanchang(selectedDate, geoLocation);
-
-  // Знайти подію з постом серед вибраних подій дня
-  const selectedEventWithFasting = useMemo(() => {
-    if (!selectedDateEvents.length) return null;
-    // Пріоритет: екадаші > явлення > відхід > свято
-    const ekadashi = selectedDateEvents.find(e => e.is_ekadashi || e.event_type === 'ekadashi');
-    if (ekadashi) return { event: ekadashi, type: 'ekadashi' as VaishnavEventType };
-
-    const appearance = selectedDateEvents.find(e => e.event_type === 'appearance');
-    if (appearance) return { event: appearance, type: 'appearance' as VaishnavEventType };
-
-    const disappearance = selectedDateEvents.find(e => e.event_type === 'disappearance');
-    if (disappearance) return { event: disappearance, type: 'disappearance' as VaishnavEventType };
-
-    const festival = selectedDateEvents.find(e => e.fasting_level && e.fasting_level !== 'none');
-    if (festival) return { event: festival, type: 'festival' as VaishnavEventType };
-
-    return null;
-  }, [selectedDateEvents]);
-
-  // Розрахунок часів посту для вибраної події
-  const selectedEventFastingLevel = useMemo((): FastingLevel => {
-    if (!selectedEventWithFasting) return 'half';
-    const level = selectedEventWithFasting.event.fasting_level;
-    if (level === 'nirjala') return 'nirjala';
-    if (level === 'full') return 'full';
-    if (level === 'half') return 'half';
-    if (level === 'none') return 'none';
-    return 'half';
-  }, [selectedEventWithFasting]);
-
-  const {
-    fastingTimes: selectedEventFastingTimes,
-    isLoading: isLoadingSelectedEventFasting,
-  } = useVaishnavEventFasting(
-    selectedDate,
-    geoLocation,
-    selectedEventWithFasting?.type || 'festival',
-    selectedEventFastingLevel,
-    language === 'ua'
-      ? selectedEventWithFasting?.event.name_ua
-      : selectedEventWithFasting?.event.name_en,
-    { enabled: !!selectedEventWithFasting && selectedEventWithFasting.type !== 'ekadashi' }
+  const { fastingTimes: nextEkadashiFastingTimes } = useEkadashiFastingForDate(
+    nextEkadashiDate,
+    geoLocation
   );
 
-  // Локалізовані назви днів тижня
-  const weekDays = language === "ua"
+  const { panchang: selectedDayPanchang } = useDailyPanchang(selectedDate, geoLocation);
+
+  // Міні-календар
+  const currentViewDate = new Date(year, month);
+  const monthStart = startOfMonth(currentViewDate);
+  const monthEnd = endOfMonth(currentViewDate);
+  const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const startDayOfWeek = getDay(monthStart);
+  const adjustedStartDay = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+
+  const today = new Date();
+  const todayFormatted = format(today, "EEEE, d MMMM", { locale: language === "ua" ? uk : undefined });
+
+  const daysWithEvents = useMemo(() => {
+    if (!monthData?.days) return new Set<number>();
+    return new Set(
+      monthData.days
+        .filter(d => d.events && d.events.length > 0)
+        .map(d => new Date(d.date).getDate())
+    );
+  }, [monthData]);
+
+  const weekDaysShort = language === "ua"
     ? ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Нд"]
-    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    : ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+  const handleDaySelect = (day: Date) => {
+    selectDate(day);
+    setShowCalendar(false);
+  };
+
+  // Компонент міні-календаря
+  const MiniCalendar = () => (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium capitalize">
+          {monthName} {year}
+        </h3>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={goToPreviousMonth}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={goToNextMonth}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-7 gap-0 text-xs text-muted-foreground mb-1">
+        {weekDaysShort.map((day) => (
+          <div key={day} className="text-center py-1">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {isLoadingMonth ? (
+        <div className="h-32 flex items-center justify-center">
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <div className="grid grid-cols-7 gap-0 text-sm">
+          {Array.from({ length: adjustedStartDay }).map((_, i) => (
+            <div key={`empty-${i}`} className="p-1.5" />
+          ))}
+          {daysInMonth.map((day) => {
+            const dayNum = day.getDate();
+            const isSelected = selectedDate && isSameDay(day, selectedDate);
+            const isTodayDay = isToday(day);
+            const hasEvent = daysWithEvents.has(dayNum);
+
+            return (
+              <button
+                key={dayNum}
+                onClick={() => handleDaySelect(day)}
+                className={`
+                  p-1.5 text-center relative rounded-md transition-colors
+                  active:bg-muted
+                  ${isSelected ? "bg-primary text-primary-foreground" : ""}
+                  ${isTodayDay && !isSelected ? "font-bold text-primary" : ""}
+                `}
+              >
+                {dayNum}
+                {hasEvent && !isSelected && (
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => {
+          goToToday();
+          setShowCalendar(false);
+        }}
+        className="w-full mt-2 text-xs"
+      >
+        {language === "ua" ? "Сьогодні" : "Today"}
+      </Button>
+    </div>
+  );
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-6 space-y-6">
-      {/* Заголовок */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">
-            {language === "ua" ? "Вайшнавський календар" : "Vaishnava Calendar"}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {language === "ua"
-              ? "Екадаші, свята та особливі дні"
-              : "Ekadashi, festivals and special days"}
-          </p>
-        </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      <Header />
 
-        {/* Вибір локації */}
-        <div className="flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-muted-foreground" />
-          <Select value={selectedLocationId} onValueChange={handleLocationChange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue
-                placeholder={language === "ua" ? "Оберіть місто" : "Select city"}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {formattedLocations.map((loc) => (
-                <SelectItem key={loc.id} value={loc.id}>
-                  {loc.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {isGeolocationSupported && (
+      <main className="flex-1 container mx-auto px-4 py-4 sm:py-6 max-w-6xl">
+        {/* Шапка */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <h1 className="text-base sm:text-lg font-medium capitalize">{todayFormatted}</h1>
+            {/* Кнопка показу календаря на мобільних */}
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
-              onClick={handleDetectLocation}
-              disabled={isDetectingLocation}
-              title={language === "ua" ? "Визначити місце автоматично" : "Detect location automatically"}
+              className="h-8 w-8 lg:hidden"
+              onClick={() => setShowCalendar(!showCalendar)}
             >
-              {isDetectingLocation ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Locate className="h-4 w-4" />
-              )}
+              <CalendarIcon className="h-4 w-4" />
             </Button>
-          )}
+          </div>
+
+          <div className="flex items-center gap-1 sm:gap-2 text-sm">
+            <MapPin className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
+            <Select value={selectedLocationId} onValueChange={handleLocationChange}>
+              <SelectTrigger className="w-auto h-8 text-xs border-0 bg-transparent p-0 gap-1">
+                <SelectValue placeholder={language === "ua" ? "Місто" : "City"} />
+              </SelectTrigger>
+              <SelectContent>
+                {formattedLocations.map((loc) => (
+                  <SelectItem key={loc.id} value={loc.id} className="text-sm">
+                    {loc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {isGeolocationSupported && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={handleDetectLocation}
+                disabled={isDetectingLocation}
+              >
+                {isDetectingLocation ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Locate className="h-3.5 w-3.5" />
+                )}
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Верхня панель з сьогоднішніми подіями */}
-      <div className="grid md:grid-cols-3 gap-4">
-        {/* Сьогодні */}
-        <TodayEventsCard
-          events={todayEvents}
-          language={language}
-        />
-
-        {/* Наступний екадаші */}
-        {nextEkadashi && (
-          <Card className="border-purple-200 dark:border-purple-900 bg-purple-50/50 dark:bg-purple-950/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Moon className="h-4 w-4 text-purple-600" />
-                {language === "ua" ? "Наступний екадаші" : "Next Ekadashi"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <p className="font-semibold text-purple-900 dark:text-purple-100">
-                  {nextEkadashi.event.name}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {nextEkadashi.formattedDate}
-                </p>
-                {daysUntil !== undefined && (
-                  <Badge variant="secondary">
-                    {daysUntil === 0
-                      ? language === "ua"
-                        ? "Сьогодні"
-                        : "Today"
-                      : daysUntil === 1
-                      ? language === "ua"
-                        ? "Завтра"
-                        : "Tomorrow"
-                      : language === "ua"
-                      ? `Через ${daysUntil} днів`
-                      : `In ${daysUntil} days`}
-                  </Badge>
-                )}
-
-                {/* Часи посту */}
-                {selectedLocation && nextEkadashiFastingTimes && (
-                  <div className="mt-3 pt-3 border-t border-purple-200 dark:border-purple-800 space-y-2">
-                    <div className="flex items-center gap-2 text-xs">
-                      <Sunrise className="h-3.5 w-3.5 text-amber-500" />
-                      <span className="text-muted-foreground">
-                        {language === "ua" ? "Початок посту:" : "Fast starts:"}
-                      </span>
-                      <span className="font-medium text-amber-600 dark:text-amber-400">
-                        {nextEkadashiFastingTimes.ekadashiSunriseFormatted}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <Clock className="h-3.5 w-3.5 text-green-500" />
-                      <span className="text-muted-foreground">
-                        {language === "ua" ? "Парана:" : "Parana:"}
-                      </span>
-                      <span className="font-medium text-green-600 dark:text-green-400">
-                        {nextEkadashiFastingTimes.paranaStartFormatted}—{nextEkadashiFastingTimes.paranaEndFormatted}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {isLoadingFastingTimes && selectedLocation && (
-                  <div className="mt-3 pt-3 border-t border-purple-200 dark:border-purple-800">
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Мобільний календар */}
+        {showCalendar && (
+          <div className="lg:hidden mb-6 pb-4 border-b">
+            <MiniCalendar />
+          </div>
         )}
 
-        {/* Швидкі посилання */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              {language === "ua" ? "Дізнатись більше" : "Learn More"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Link
-              to="/calendar/ekadashi"
-              className="block text-sm text-primary hover:underline"
-            >
-              {language === "ua" ? "Усі екадаші та їх слава" : "All Ekadashis and Their Glory"}
-            </Link>
-            <Link
-              to="/calendar/festivals"
-              className="block text-sm text-primary hover:underline"
-            >
-              {language === "ua" ? "Вайшнавські свята" : "Vaishnava Festivals"}
-            </Link>
-            <Link
-              to="/calendar/appearances"
-              className="block text-sm text-primary hover:underline"
-            >
-              {language === "ua" ? "Явлення та відходи" : "Appearances & Disappearances"}
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Основний календар */}
-      <Card>
-        <CardHeader className="pb-2">
-          {/* Навігація по місяцях */}
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={goToPreviousMonth}
-              aria-label={language === "ua" ? "Попередній місяць" : "Previous month"}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-
-            <div className="flex items-center gap-3">
-              <h2 className="text-xl font-semibold capitalize">
-                {monthName} {year}
-              </h2>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToToday}
-                className="hidden md:flex"
-              >
-                <CalendarDays className="h-4 w-4 mr-1" />
+        <div className="flex gap-8">
+          {/* Основний контент */}
+          <div className="flex-1 min-w-0">
+            {/* Сьогодні */}
+            <section className="mb-6 sm:mb-8">
+              <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">
                 {language === "ua" ? "Сьогодні" : "Today"}
-              </Button>
-            </div>
+              </h2>
 
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={goToNextMonth}
-              aria-label={language === "ua" ? "Наступний місяць" : "Next month"}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          {isLoadingMonth ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-7 gap-1">
-                {weekDays.map((day) => (
-                  <div
-                    key={day}
-                    className="text-center text-sm font-medium text-muted-foreground py-2"
-                  >
-                    {day}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: 35 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 rounded-lg" />
-                ))}
-              </div>
-            </div>
-          ) : monthData ? (
-            <CalendarMonthView
-              monthData={monthData}
-              selectedDate={selectedDate}
-              onSelectDate={selectDate}
-              language={language}
-              weekDays={weekDays}
-            />
-          ) : null}
-        </CardContent>
-      </Card>
-
-      {/* Події вибраної дати */}
-      {selectedDate && (selectedDateEvents.length > 0 || selectedDayPanchang) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">
-              {format(selectedDate, "d MMMM yyyy", {
-                locale: language === "ua" ? uk : undefined,
-              })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Схід/захід для вибраного дня */}
-            {selectedDayPanchang && (
-              <div className="flex flex-wrap items-center gap-4 text-sm p-3 bg-muted/30 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Sunrise className="h-4 w-4 text-amber-500" />
-                  <span className="text-muted-foreground">
-                    {language === "ua" ? "Схід:" : "Sunrise:"}
-                  </span>
-                  <span className="font-medium">{selectedDayPanchang.sunriseFormatted}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Sunset className="h-4 w-4 text-orange-500" />
-                  <span className="text-muted-foreground">
-                    {language === "ua" ? "Захід:" : "Sunset:"}
-                  </span>
-                  <span className="font-medium">{selectedDayPanchang.sunsetFormatted}</span>
-                </div>
-                {selectedDayMoon !== null && (
-                  <div className="flex items-center gap-2">
-                    <Moon className="h-4 w-4 text-slate-400" />
-                    <span className="text-muted-foreground">
-                      {language === "ua" ? "Місяць:" : "Moon:"}
-                    </span>
-                    <span className="font-medium">{selectedDayMoon}%</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Події дня */}
-            {selectedDateEvents.length > 0 && (
-              <div className="space-y-3">
-                {selectedDateEvents.map((event) => (
-                  <CalendarEventCard
-                    key={event.event_id}
-                    event={event}
-                    language={language}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Часи посту для події (явлення/відхід) */}
-            {selectedEventWithFasting &&
-              selectedEventWithFasting.type !== 'ekadashi' &&
-              selectedLocation &&
-              selectedEventFastingTimes && (
-                <div className="mt-3 pt-3 border-t space-y-2">
-                  <div className="text-sm font-medium flex items-center gap-2">
-                    <Timer className="h-4 w-4 text-muted-foreground" />
-                    {language === "ua" ? "Часи посту" : "Fasting Times"}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-sm p-2 bg-muted/20 rounded-lg">
-                    <div className="flex items-center gap-1.5">
-                      <Sunrise className="h-3.5 w-3.5 text-amber-500" />
-                      <span className="text-muted-foreground text-xs">
-                        {language === "ua" ? "Схід:" : "Start:"}
-                      </span>
-                      <span className="font-medium">
-                        {selectedEventFastingTimes.sunriseFormatted}
-                      </span>
-                    </div>
-                    {selectedEventFastingTimes.fastingLevel === 'half' && (
-                      <div className="flex items-center gap-1.5">
-                        <Sun className="h-3.5 w-3.5 text-green-500" />
-                        <span className="text-muted-foreground text-xs">
-                          {language === "ua" ? "До:" : "Until:"}
-                        </span>
-                        <span className="font-medium text-green-600 dark:text-green-400">
-                          {selectedEventFastingTimes.solarNoonFormatted}
-                        </span>
-                      </div>
-                    )}
-                    {(selectedEventFastingTimes.fastingLevel === 'full' ||
-                      selectedEventFastingTimes.fastingLevel === 'nirjala') &&
-                      selectedEventFastingTimes.nextDaySunriseFormatted && (
-                        <div className="flex items-center gap-1.5">
-                          <UtensilsCrossed className="h-3.5 w-3.5 text-green-500" />
-                          <span className="text-muted-foreground text-xs">
-                            {language === "ua" ? "Парана:" : "Break:"}
-                          </span>
-                          <span className="font-medium text-green-600 dark:text-green-400">
-                            {selectedEventFastingTimes.nextDaySunriseFormatted}
-                          </span>
-                        </div>
+              {todayEvents.length > 0 ? (
+                <div className="space-y-3">
+                  {todayEvents.map((event, idx) => (
+                    <div key={idx} className="border-l-2 border-primary pl-3">
+                      <p className="font-medium text-sm sm:text-base">
+                        {language === "ua" ? event.name_ua : event.name_en}
+                      </p>
+                      {event.short_description_ua && (
+                        <p className="text-xs sm:text-sm text-muted-foreground italic">
+                          {language === "ua" ? event.short_description_ua : event.short_description_en}
+                        </p>
                       )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {language === "ua"
-                      ? selectedEventFastingTimes.fastingLevelDescription_ua
-                      : selectedEventFastingTimes.fastingLevelDescription_en}
-                  </p>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <p className="text-muted-foreground text-sm">
+                  {language === "ua" ? "Звичайний день" : "Ordinary day"}
+                </p>
               )}
+            </section>
 
-            {selectedDateEvents.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-2">
-                {language === "ua"
-                  ? "Немає особливих подій цього дня"
-                  : "No special events on this day"}
-              </p>
+            {/* Наступний екадаші */}
+            {nextEkadashi && (
+              <section className="mb-6 sm:mb-8">
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+                  {language === "ua" ? "Наступний екадаші" : "Next Ekadashi"}
+                </h3>
+                <div className="border-l-2 border-primary pl-3">
+                  <p className="font-medium text-sm sm:text-base">{nextEkadashi.event.name}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    {nextEkadashi.formattedDate}
+                    {daysUntil !== undefined && daysUntil > 0 && (
+                      <span className="ml-1">
+                        ({language === "ua" ? `через ${daysUntil} дн.` : `in ${daysUntil} days`})
+                      </span>
+                    )}
+                  </p>
+                  {nextEkadashiFastingTimes && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === "ua" ? "Піст:" : "Fast:"} {nextEkadashiFastingTimes.ekadashiSunriseFormatted} •{" "}
+                      {language === "ua" ? "Парана:" : "Break:"} {nextEkadashiFastingTimes.paranaStartFormatted}—{nextEkadashiFastingTimes.paranaEndFormatted}
+                    </p>
+                  )}
+                </div>
+              </section>
             )}
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Детальна інформація про часи посту наступного екадаші */}
-      {nextEkadashi && selectedLocation && (
-        <EkadashiFastingTimes
-          fastingTimes={nextEkadashiFastingTimes}
-          ekadashiName={nextEkadashi.event.name}
-          location={selectedLocation}
-          language={language}
-          isLoading={isLoadingFastingTimes}
-          error={fastingTimesError}
-        />
-      )}
+            {/* Вибраний день */}
+            {selectedDate && selectedDateEvents.length > 0 && !isSameDay(selectedDate, today) && (
+              <section className="mb-6 sm:mb-8">
+                <h3 className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+                  {format(selectedDate, "d MMMM", { locale: language === "ua" ? uk : undefined })}
+                </h3>
+                {selectedDayPanchang && (
+                  <p className="text-xs text-muted-foreground mb-2">
+                    ☀ {selectedDayPanchang.sunriseFormatted} — {selectedDayPanchang.sunsetFormatted}
+                  </p>
+                )}
+                <div className="space-y-2">
+                  {selectedDateEvents.map((event) => (
+                    <div key={event.event_id} className="border-l-2 border-primary pl-3">
+                      <p className="font-medium text-sm sm:text-base">
+                        {language === "ua" ? event.name_ua : event.name_en}
+                      </p>
+                      {(event.description_ua || event.description_en) && (
+                        <p className="text-xs sm:text-sm text-muted-foreground">
+                          {language === "ua" ? event.description_ua : event.description_en}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
-      {/* Легенда */}
-      <Card>
-        <CardContent className="py-4">
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="text-muted-foreground">
-              {language === "ua" ? "Легенда:" : "Legend:"}
-            </span>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-purple-500" />
-              <span>{language === "ua" ? "Екадаші" : "Ekadashi"}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-amber-500" />
-              <span>{language === "ua" ? "Явлення" : "Appearance"}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-gray-500" />
-              <span>{language === "ua" ? "Відхід" : "Disappearance"}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span>{language === "ua" ? "Головне свято" : "Major Festival"}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span>{language === "ua" ? "Піст" : "Fasting"}</span>
-            </div>
+            {/* Посилання */}
+            <section className="pt-4 sm:pt-6 border-t">
+              <div className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm">
+                <Link to="/calendar/ekadashi" className="text-primary active:opacity-70">
+                  {language === "ua" ? "Усі екадаші" : "All Ekadashis"}
+                </Link>
+                <Link to="/calendar/festivals" className="text-primary active:opacity-70">
+                  {language === "ua" ? "Свята" : "Festivals"}
+                </Link>
+                <Link to="/calendar/appearances" className="text-primary active:opacity-70">
+                  {language === "ua" ? "Явлення" : "Appearances"}
+                </Link>
+              </div>
+            </section>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Десктопний міні-календар */}
+          <aside className="w-52 flex-shrink-0 hidden lg:block">
+            <div className="sticky top-4">
+              <MiniCalendar />
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 }
