@@ -319,10 +319,10 @@ export const DualLanguageVerseCard = ({
         lineHeight,
       }}
     >
-      <div className={flowMode ? "pt-2 pb-6" : "pt-2 px-6 pb-6"}>
+      <div className={flowMode ? "pb-6" : "px-6 pb-6"}>
         {/* НОМЕР ВІРША */}
         {showNumbers && (
-          <div className="flex flex-col items-center mb-4">
+          <div className="flex flex-col items-center mb-6">
             <div className="flex items-center justify-center gap-4">
               {isAdmin && verseId ? (
                 <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
