@@ -4875,39 +4875,50 @@ export type Database = {
         }[]
       }
       get_glossary_term_details: {
-        Args: { search_language?: string; term_text: string }
+        Args: { search_language?: string; term_to_find: string }
         Returns: {
           book_slug: string
           book_title: string
           canto_number: number
           chapter_number: number
+          has_cantos: boolean
           meaning: string
-          sanskrit: string
           term: string
           transliteration: string
-          verse_id: string
           verse_link: string
           verse_number: string
         }[]
       }
-      get_glossary_terms_grouped: {
-        Args: {
-          book_filter?: string
-          page_number?: number
-          page_size?: number
-          search_language?: string
-          search_mode?: string
-          search_term?: string
-          search_translation?: string
-        }
-        Returns: {
-          books: string[]
-          sample_meanings: string[]
-          term: string
-          total_unique_terms: number
-          usage_count: number
-        }[]
-      }
+      get_glossary_terms_grouped:
+        | {
+            Args: {
+              result_limit?: number
+              search_language?: string
+              search_term?: string
+            }
+            Returns: {
+              letter: string
+              terms: Json
+            }[]
+          }
+        | {
+            Args: {
+              book_filter?: string
+              page_number?: number
+              page_size?: number
+              search_language?: string
+              search_mode?: string
+              search_term?: string
+              search_translation?: string
+            }
+            Returns: {
+              books: string[]
+              sample_meanings: string[]
+              term: string
+              total_unique_terms: number
+              usage_count: number
+            }[]
+          }
       get_lecture_verses: {
         Args: { p_lecture_id: string }
         Returns: {
