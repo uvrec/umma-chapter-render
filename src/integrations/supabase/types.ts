@@ -415,12 +415,12 @@ export type Database = {
       blog_posts: {
         Row: {
           audio_commentary_en_url: string | null
-          audio_commentary_ua_url: string | null
+          audio_commentary_uk_url: string | null
           audio_poetry_translation_en_url: string | null
-          audio_poetry_translation_ua_url: string | null
+          audio_poetry_translation_uk_url: string | null
           audio_sanskrit_url: string | null
           audio_synonyms_en_url: string | null
-          audio_synonyms_ua_url: string | null
+          audio_synonyms_uk_url: string | null
           audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
@@ -467,12 +467,12 @@ export type Database = {
         }
         Insert: {
           audio_commentary_en_url?: string | null
-          audio_commentary_ua_url?: string | null
+          audio_commentary_uk_url?: string | null
           audio_poetry_translation_en_url?: string | null
-          audio_poetry_translation_ua_url?: string | null
+          audio_poetry_translation_uk_url?: string | null
           audio_sanskrit_url?: string | null
           audio_synonyms_en_url?: string | null
-          audio_synonyms_ua_url?: string | null
+          audio_synonyms_uk_url?: string | null
           audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
@@ -519,12 +519,12 @@ export type Database = {
         }
         Update: {
           audio_commentary_en_url?: string | null
-          audio_commentary_ua_url?: string | null
+          audio_commentary_uk_url?: string | null
           audio_poetry_translation_en_url?: string | null
-          audio_poetry_translation_ua_url?: string | null
+          audio_poetry_translation_uk_url?: string | null
           audio_sanskrit_url?: string | null
           audio_synonyms_en_url?: string | null
-          audio_synonyms_ua_url?: string | null
+          audio_synonyms_uk_url?: string | null
           audio_transliteration_url?: string | null
           audio_url?: string | null
           author_display_name?: string | null
@@ -3947,7 +3947,7 @@ export type Database = {
           end_verse: number | null
           event_date: string | null
           explanation_en_audio_url: string | null
-          explanation_ua_audio_url: string | null
+          explanation_uk_audio_url: string | null
           full_verse_audio_url: string | null
           id: string
           is_composite: boolean | null
@@ -3987,7 +3987,7 @@ export type Database = {
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
-          explanation_ua_audio_url?: string | null
+          explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -4027,7 +4027,7 @@ export type Database = {
           end_verse?: number | null
           event_date?: string | null
           explanation_en_audio_url?: string | null
-          explanation_ua_audio_url?: string | null
+          explanation_uk_audio_url?: string | null
           full_verse_audio_url?: string | null
           id?: string
           is_composite?: boolean | null
@@ -4639,12 +4639,12 @@ export type Database = {
         }
         Returns: {
           audio_commentary_en_url: string | null
-          audio_commentary_ua_url: string | null
+          audio_commentary_uk_url: string | null
           audio_poetry_translation_en_url: string | null
-          audio_poetry_translation_ua_url: string | null
+          audio_poetry_translation_uk_url: string | null
           audio_sanskrit_url: string | null
           audio_synonyms_en_url: string | null
-          audio_synonyms_ua_url: string | null
+          audio_synonyms_uk_url: string | null
           audio_transliteration_url: string | null
           audio_url: string | null
           author_display_name: string | null
@@ -4903,20 +4903,18 @@ export type Database = {
           }
         | {
             Args: {
-              book_filter?: string
-              page_number?: number
-              page_size?: number
-              search_language?: string
-              search_mode?: string
-              search_term?: string
-              search_translation?: string
+              book_filter: string
+              page_number: number
+              page_size: number
+              search_language: string
+              search_mode: string
+              search_term: string
+              search_translation: string
             }
             Returns: {
-              books: string[]
-              sample_meanings: string[]
-              term: string
-              total_unique_terms: number
-              usage_count: number
+              group_key: string
+              items: Json
+              total_count: number
             }[]
           }
       get_lecture_verses: {
