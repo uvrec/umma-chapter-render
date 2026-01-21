@@ -126,6 +126,29 @@ export const ChapterVersesList = () => {
   const verseRefs = useRef<Map<string, HTMLElement>>(new Map());
   const swipeStartX = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Long-press to peek alternate language
+  const [peekingVerseId, setPeekingVerseId] = useState<string | null>(null);
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const LONG_PRESS_DURATION = 400; // ms to trigger peek
+
+  const handleVerseTouchStart = useCallback((verseId: string) => {
+    longPressTimerRef.current = setTimeout(() => {
+      setPeekingVerseId(verseId);
+      // Haptic feedback if available
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+    }, LONG_PRESS_DURATION);
+  }, []);
+
+  const handleVerseTouchEnd = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    setPeekingVerseId(null);
+  }, []);
   const isCantoMode = !!cantoNumber;
   const effectiveChapterParam = chapterNumber;
   const {
@@ -435,6 +458,15 @@ export const ChapterVersesList = () => {
     return () => observer.disconnect();
   }, [isMobile, verses]);
 
+  // Cleanup long-press timer on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
+
   if (isLoading) {
     return <div className="flex min-h-screen flex-col">
         <Header />
@@ -675,6 +707,7 @@ export const ChapterVersesList = () => {
           )}
 
           {/* Mobile Bible-style: суцільний текст з маленькими номерами */}
+          {/* Long-press on verse text to peek alternate language */}
           {isMobile ? (
             <div
               className="prose prose-lg max-w-none"
@@ -683,7 +716,11 @@ export const ChapterVersesList = () => {
             >
               <p className="text-foreground text-justify leading-relaxed">
                 {verses.map((verse: Verse) => {
-                  const text = language === "uk" ? verse.translation_uk : verse.translation_en;
+                  // Show alternate language when peeking this verse
+                  const isPeeking = peekingVerseId === verse.id;
+                  const displayLang = isPeeking ? (language === "uk" ? "en" : "uk") : language;
+                  const text = displayLang === "uk" ? verse.translation_uk : verse.translation_en;
+
                   return (
                     <span
                       key={verse.id}
@@ -691,7 +728,16 @@ export const ChapterVersesList = () => {
                         if (el) verseRefs.current.set(verse.verse_number, el);
                       }}
                       data-verse={verse.verse_number}
-                      className="inline"
+                      className={`inline transition-all duration-200 ${isPeeking ? 'bg-primary/10 rounded px-0.5 -mx-0.5' : ''}`}
+                      onTouchStart={(e) => {
+                        // Don't trigger on sup (verse number) clicks
+                        if ((e.target as HTMLElement).tagName !== 'SUP') {
+                          handleVerseTouchStart(verse.id);
+                        }
+                      }}
+                      onTouchEnd={handleVerseTouchEnd}
+                      onTouchCancel={handleVerseTouchEnd}
+                      onTouchMove={handleVerseTouchEnd}
                     >
                       <sup
                         className="text-primary font-bold text-xs mr-0.5 cursor-pointer hover:text-primary/80"
@@ -704,6 +750,11 @@ export const ChapterVersesList = () => {
                       </sup>
                       {stripParagraphTags(text || "") || (
                         <span className="italic text-muted-foreground">—</span>
+                      )}
+                      {isPeeking && (
+                        <sup className="text-[10px] text-muted-foreground ml-0.5">
+                          {displayLang.toUpperCase()}
+                        </sup>
                       )}{" "}
                     </span>
                   );
