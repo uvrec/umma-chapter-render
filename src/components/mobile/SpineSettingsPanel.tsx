@@ -19,7 +19,6 @@ import {
   MessageCircle,
   Lock,
   Send,
-  Facebook,
   Instagram,
   Youtube,
   Heart,
@@ -135,12 +134,6 @@ const EXTERNAL_LINKS = [
     label: "Telegram",
     icon: Send,
     url: "https://t.me/prabhupada_ua",
-  },
-  {
-    id: "facebook",
-    label: "Facebook",
-    icon: Facebook,
-    url: "https://facebook.com/prabhupada.ua",
   },
   {
     id: "instagram",
