@@ -4412,6 +4412,14 @@ export type Database = {
         }
         Relationships: []
       }
+      glossary_stats_cache_uk: {
+        Row: {
+          book_slug: string | null
+          book_title: string | null
+          term: string | null
+        }
+        Relationships: []
+      }
       mv_blog_recent_published: {
         Row: {
           category_id: string | null
