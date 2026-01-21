@@ -14,7 +14,7 @@
 GRANT EXECUTE ON FUNCTION public.search_verses_fulltext(text, text, boolean, boolean, boolean, boolean, boolean, uuid[], integer) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.unified_search(text, text, text[], integer, integer) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.search_suggest_terms(text, text, integer) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.get_topic_statistics(text, text) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_topic_statistics(text, text, uuid[]) TO anon, authenticated;
 
 -- Tattvas functions
 GRANT EXECUTE ON FUNCTION public.search_tattvas(text) TO anon, authenticated;
