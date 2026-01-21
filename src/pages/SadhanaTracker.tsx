@@ -236,10 +236,10 @@ export default function SadhanaTracker() {
             <CalendarWidget compact className="mb-6" />
 
             {/* Streak indicator */}
-            {streak && streak.current > 0 && (
+            {streak && streak.currentStreak > 0 && (
               <div className="flex items-center justify-center gap-2 mb-8 text-sm">
                 <Flame className="w-4 h-4 text-orange-500" />
-                <span className="font-medium">{streak.current}</span>
+                <span className="font-medium">{streak.currentStreak}</span>
                 <span className="text-muted-foreground">
                   {t('днів поспіль', 'day streak')}
                 </span>
