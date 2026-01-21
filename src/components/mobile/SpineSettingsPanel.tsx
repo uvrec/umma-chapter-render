@@ -528,30 +528,26 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                     )}
                   </p>
                   <div className="flex flex-col gap-2">
-                    <a
-                      href="https://paypal.me/andriiuvarov"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between px-4 py-3 bg-[#0070ba] text-white rounded-lg hover:bg-[#005ea6] transition-colors"
+                    <button
+                      onClick={() => window.open("https://paypal.me/andriiuvarov", '_blank', 'noopener,noreferrer')}
+                      className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                     >
                       <span className="flex items-center gap-2">
                         <CreditCard className="h-5 w-5" />
                         <span className="font-medium">PayPal</span>
                       </span>
                       <ExternalLink className="h-4 w-4" />
-                    </a>
-                    <a
-                      href="https://send.monobank.ua/jar/YAmYDYgti"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] text-white rounded-lg hover:bg-black transition-colors"
+                    </button>
+                    <button
+                      onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", '_blank', 'noopener,noreferrer')}
+                      className="flex items-center justify-between px-4 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
                     >
                       <span className="flex items-center gap-2">
                         <Building className="h-5 w-5" />
                         <span className="font-medium">Monobank</span>
                       </span>
                       <ExternalLink className="h-4 w-4" />
-                    </a>
+                    </button>
                   </div>
                 </div>
               )}
