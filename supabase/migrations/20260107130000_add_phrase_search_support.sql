@@ -16,6 +16,13 @@
 -- ============================================================================
 
 -- ============================================================================
+-- DROP EXISTING FUNCTIONS (required when changing return types)
+-- ============================================================================
+-- PostgreSQL cannot change return type with CREATE OR REPLACE, must drop first
+DROP FUNCTION IF EXISTS public.search_verses_fulltext(TEXT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, UUID[], INTEGER);
+DROP FUNCTION IF EXISTS public.unified_search(TEXT, TEXT, TEXT[], INTEGER, INTEGER);
+
+-- ============================================================================
 -- 1. ДОПОМІЖНА ФУНКЦІЯ ДЛЯ ПАРСИНГУ ЗАПИТУ
 -- ============================================================================
 -- websearch_to_tsquery може викидати помилки при некоректному синтаксисі
@@ -235,6 +242,10 @@ COMMENT ON FUNCTION public.search_verses_fulltext IS
 - Boolean NOT: -word
 Приклади: "чисте служіння", крішна AND арджуна, devotion -material';
 
+-- Grant access (required after DROP FUNCTION removed previous grants)
+GRANT EXECUTE ON FUNCTION public.search_verses_fulltext(text, text, boolean, boolean, boolean, boolean, boolean, uuid[], integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.search_verses_fulltext(text, text, boolean, boolean, boolean, boolean, boolean, uuid[], integer) TO anon;
+
 -- ============================================================================
 -- 3. ОНОВЛЕНА ФУНКЦІЯ УНІФІКОВАНОГО ПОШУКУ
 -- ============================================================================
@@ -382,6 +393,10 @@ $$;
 COMMENT ON FUNCTION public.unified_search IS
 'Уніфікований пошук по всьому сайту з підтримкою фраз та boolean операторів.
 Підтримує: "phrase", word1 word2 (OR), word1 AND word2, -word (NOT)';
+
+-- Grant access (required after DROP FUNCTION removed previous grants)
+GRANT EXECUTE ON FUNCTION public.unified_search(text, text, text[], integer, integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.unified_search(text, text, text[], integer, integer) TO anon;
 
 -- ============================================================================
 -- ПРИКЛАДИ ВИКОРИСТАННЯ:

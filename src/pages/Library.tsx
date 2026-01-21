@@ -60,14 +60,7 @@ export const Library = () => {
   return <div className="min-h-screen bg-background">
       <Header />
 
-      <div className="container mx-auto px-4 py-6 sm:py-8">
-        {/* Simple title - адаптивний */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-center text-primary font-serif">
-            {t('Бібліотека', 'Library')}
-          </h1>
-        </div>
-
+      <div className="container mx-auto px-4 py-3 sm:py-4">
         {/* Tabs for sections */}
         <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="flex justify-center gap-8 bg-transparent mb-6 h-auto p-0">

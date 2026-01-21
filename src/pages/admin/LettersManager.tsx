@@ -83,6 +83,7 @@ export default function LettersManager() {
           location_uk: letter.location_uk,
           content_en: letter.content_en,
           content_uk: letter.content_uk,
+          letter_date: letter.letter_date,
         })
         .eq("id", letter.id);
 
@@ -367,6 +368,19 @@ export default function LettersManager() {
                         setEditingLetter({
                           ...editingLetter,
                           location_uk: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Дата листа</label>
+                    <Input
+                      type="date"
+                      value={editingLetter.letter_date || ""}
+                      onChange={(e) =>
+                        setEditingLetter({
+                          ...editingLetter,
+                          letter_date: e.target.value,
                         })
                       }
                     />

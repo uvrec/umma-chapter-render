@@ -4,6 +4,13 @@
 -- This migration creates functions for full-text search
 -- and intelligent compilation of spiritual knowledge.
 
+-- =====================================================
+-- DROP EXISTING FUNCTIONS (required when return types change)
+-- =====================================================
+DROP FUNCTION IF EXISTS public.search_verses_fulltext(TEXT, TEXT, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, BOOLEAN, UUID[], INTEGER);
+DROP FUNCTION IF EXISTS public.find_related_verses(UUID, TEXT, REAL, INTEGER);
+DROP FUNCTION IF EXISTS public.get_topic_statistics(TEXT, TEXT);
+
 -- Function 1: Search verses with full-text search
 -- =====================================================
 -- Searches verses using PostgreSQL full-text search capabilities

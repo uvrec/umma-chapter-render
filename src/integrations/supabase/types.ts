@@ -1938,7 +1938,36 @@ export type Database = {
           verse_id?: string | null
           verse_number?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "highlights_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books_with_mapping"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "highlights_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "readable_chapters"
+            referencedColumns: ["chapter_id"]
+          },
+        ]
       }
       intro_chapters: {
         Row: {
@@ -3252,6 +3281,75 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reading_goals: {
+        Row: {
+          book_slug: string
+          book_title: string | null
+          completed_at: string | null
+          created_at: string | null
+          current_page: number | null
+          current_sloka: number | null
+          duration: number
+          id: string
+          is_active: boolean | null
+          reminder_enabled: boolean | null
+          reminder_time: string | null
+          started_at: string
+          target_date: string | null
+          target_per_day: number | null
+          time_unit: string
+          total_pages: number | null
+          total_slokas: number | null
+          track_by: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          book_slug: string
+          book_title?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_page?: number | null
+          current_sloka?: number | null
+          duration: number
+          id?: string
+          is_active?: boolean | null
+          reminder_enabled?: boolean | null
+          reminder_time?: string | null
+          started_at?: string
+          target_date?: string | null
+          target_per_day?: number | null
+          time_unit: string
+          total_pages?: number | null
+          total_slokas?: number | null
+          track_by?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          book_slug?: string
+          book_title?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          current_page?: number | null
+          current_sloka?: number | null
+          duration?: number
+          id?: string
+          is_active?: boolean | null
+          reminder_enabled?: boolean | null
+          reminder_time?: string | null
+          started_at?: string
+          target_date?: string | null
+          target_per_day?: number | null
+          time_unit?: string
+          total_pages?: number | null
+          total_slokas?: number | null
+          track_by?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_reading_sessions: {
         Row: {
           book_slug: string
@@ -3329,6 +3427,225 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sadhana_config: {
+        Row: {
+          apns_token: string | null
+          avatar_url: string | null
+          bed_time_target: string | null
+          created_at: string | null
+          display_name: string | null
+          fcm_token: string | null
+          id: string
+          is_public: boolean | null
+          japa_before_730_target: number | null
+          japa_rounds_target: number | null
+          language: string | null
+          reading_minutes_target: number | null
+          reminder_enabled: boolean | null
+          reminder_time: string | null
+          timezone: string | null
+          track_kirtan: boolean | null
+          track_lections: boolean | null
+          track_service: boolean | null
+          track_yoga: boolean | null
+          updated_at: string | null
+          user_id: string
+          wake_up_target: string | null
+        }
+        Insert: {
+          apns_token?: string | null
+          avatar_url?: string | null
+          bed_time_target?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          fcm_token?: string | null
+          id?: string
+          is_public?: boolean | null
+          japa_before_730_target?: number | null
+          japa_rounds_target?: number | null
+          language?: string | null
+          reading_minutes_target?: number | null
+          reminder_enabled?: boolean | null
+          reminder_time?: string | null
+          timezone?: string | null
+          track_kirtan?: boolean | null
+          track_lections?: boolean | null
+          track_service?: boolean | null
+          track_yoga?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          wake_up_target?: string | null
+        }
+        Update: {
+          apns_token?: string | null
+          avatar_url?: string | null
+          bed_time_target?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          fcm_token?: string | null
+          id?: string
+          is_public?: boolean | null
+          japa_before_730_target?: number | null
+          japa_rounds_target?: number | null
+          language?: string | null
+          reading_minutes_target?: number | null
+          reminder_enabled?: boolean | null
+          reminder_time?: string | null
+          timezone?: string | null
+          track_kirtan?: boolean | null
+          track_lections?: boolean | null
+          track_service?: boolean | null
+          track_yoga?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          wake_up_target?: string | null
+        }
+        Relationships: []
+      }
+      user_sadhana_daily: {
+        Row: {
+          bed_time: string | null
+          completion_percent: number | null
+          created_at: string | null
+          entry_date: string
+          id: string
+          japa_after_1800: number | null
+          japa_before_1000: number | null
+          japa_before_1800: number | null
+          japa_before_730: number | null
+          japa_total: number | null
+          kirtan_minutes: number | null
+          lections_attended: boolean | null
+          notes: string | null
+          reading_minutes: number | null
+          service_done: boolean | null
+          updated_at: string | null
+          user_id: string
+          wake_up_time: string | null
+          yoga_done: boolean | null
+        }
+        Insert: {
+          bed_time?: string | null
+          completion_percent?: number | null
+          created_at?: string | null
+          entry_date?: string
+          id?: string
+          japa_after_1800?: number | null
+          japa_before_1000?: number | null
+          japa_before_1800?: number | null
+          japa_before_730?: number | null
+          japa_total?: number | null
+          kirtan_minutes?: number | null
+          lections_attended?: boolean | null
+          notes?: string | null
+          reading_minutes?: number | null
+          service_done?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          wake_up_time?: string | null
+          yoga_done?: boolean | null
+        }
+        Update: {
+          bed_time?: string | null
+          completion_percent?: number | null
+          created_at?: string | null
+          entry_date?: string
+          id?: string
+          japa_after_1800?: number | null
+          japa_before_1000?: number | null
+          japa_before_1800?: number | null
+          japa_before_730?: number | null
+          japa_total?: number | null
+          kirtan_minutes?: number | null
+          lections_attended?: boolean | null
+          notes?: string | null
+          reading_minutes?: number | null
+          service_done?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          wake_up_time?: string | null
+          yoga_done?: boolean | null
+        }
+        Relationships: []
+      }
+      user_sadhana_friends: {
+        Row: {
+          created_at: string | null
+          friend_id: string
+          id: string
+          is_favorite: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          friend_id: string
+          id?: string
+          is_favorite?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          friend_id?: string
+          id?: string
+          is_favorite?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sadhana_monthly_stats: {
+        Row: {
+          avg_bed_time: string | null
+          avg_wake_up_time: string | null
+          created_at: string | null
+          days_tracked: number | null
+          days_with_lections: number | null
+          days_with_service: number | null
+          days_with_yoga: number | null
+          id: string
+          stats_month: string
+          streak_at_month_end: number | null
+          total_japa_rounds: number | null
+          total_kirtan_minutes: number | null
+          total_reading_minutes: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avg_bed_time?: string | null
+          avg_wake_up_time?: string | null
+          created_at?: string | null
+          days_tracked?: number | null
+          days_with_lections?: number | null
+          days_with_service?: number | null
+          days_with_yoga?: number | null
+          id?: string
+          stats_month: string
+          streak_at_month_end?: number | null
+          total_japa_rounds?: number | null
+          total_kirtan_minutes?: number | null
+          total_reading_minutes?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avg_bed_time?: string | null
+          avg_wake_up_time?: string | null
+          created_at?: string | null
+          days_tracked?: number | null
+          days_with_lections?: number | null
+          days_with_service?: number | null
+          days_with_yoga?: number | null
+          id?: string
+          stats_month?: string
+          streak_at_month_end?: number | null
+          total_japa_rounds?: number | null
+          total_kirtan_minutes?: number | null
+          total_reading_minutes?: number | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -4095,6 +4412,14 @@ export type Database = {
         }
         Relationships: []
       }
+      glossary_stats_cache_uk: {
+        Row: {
+          book_slug: string | null
+          book_title: string | null
+          term: string | null
+        }
+        Relationships: []
+      }
       mv_blog_recent_published: {
         Row: {
           category_id: string | null
@@ -4270,6 +4595,27 @@ export type Database = {
       }
     }
     Functions: {
+      compile_canto_knowledge: {
+        Args: {
+          language_code?: string
+          p_book_id: string
+          p_canto_number: number
+        }
+        Returns: Json
+      }
+      compile_chapter_knowledge: {
+        Args: {
+          language_code?: string
+          p_book_id: string
+          p_canto_number?: number
+          p_chapter_number: number
+        }
+        Returns: Json
+      }
+      compile_verse_knowledge: {
+        Args: { language_code?: string; p_verse_id: string }
+        Returns: Json
+      }
       count_blog_search_results: {
         Args: { lang?: string; q: string }
         Returns: number
@@ -4513,6 +4859,21 @@ export type Database = {
           unique_terms: number
         }[]
       }
+      get_glossary_term_by_name: {
+        Args: { search_language?: string; term_name: string }
+        Returns: {
+          categories: string[]
+          definition: string
+          devanagari: string
+          etymology: string
+          id: string
+          related_terms: string[]
+          term: string
+          translation: string
+          transliteration: string
+          usage_examples: Json
+        }[]
+      }
       get_glossary_term_details: {
         Args: { search_language?: string; term_text: string }
         Returns: {
@@ -4593,6 +4954,52 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_public_sadhana_users: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          avatar_url: string
+          current_streak: number
+          display_name: string
+          today_japa: number
+          today_reading: number
+          user_id: string
+        }[]
+      }
+      get_sadhana_monthly_stats: {
+        Args: { p_user_id: string; p_year?: number }
+        Returns: {
+          avg_bed_time: string
+          avg_wake_up: string
+          days_tracked: number
+          japa_quality_percent: number
+          month_name: string
+          month_num: number
+          streak_score: number
+          total_japa: number
+          total_reading_minutes: number
+        }[]
+      }
+      get_sadhana_streak: {
+        Args: { p_user_id: string }
+        Returns: {
+          current_streak: number
+          last_entry_date: string
+          longest_streak: number
+        }[]
+      }
+      get_synonyms_for_term: {
+        Args: {
+          language_code?: string
+          limit_count?: number
+          search_term: string
+        }
+        Returns: {
+          meaning: string
+          sanskrit: string
+          term: string
+          verse_refs: string[]
+        }[]
+      }
       get_tattva_breadcrumb: {
         Args: { p_tattva_slug: string }
         Returns: {
@@ -4655,12 +5062,12 @@ export type Database = {
       }
       get_unique_synonym_terms: {
         Args: {
-          limit_count?: number
-          prefix_filter?: string
+          book_filter?: string
+          canto_filter?: number
           search_language?: string
         }
         Returns: {
-          frequency: number
+          count: number
           term: string
         }[]
       }
@@ -4786,6 +5193,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      normalize_language_code: { Args: { lang: string }; Returns: string }
       normalize_sanskrit_word: { Args: { word: string }; Returns: string }
       normalize_ukrainian_cc_texts: { Args: never; Returns: undefined }
       parse_advanced_query: {
@@ -4855,27 +5263,71 @@ export type Database = {
           view_count: number
         }[]
       }
-      search_glossary_terms: {
+      search_glossary_by_translation: {
         Args: {
-          book_filter?: string
           limit_count?: number
           search_language?: string
-          search_mode?: string
-          search_term: string
+          search_text: string
         }
         Returns: {
-          book_id: string
-          book_slug: string
-          book_title: string
-          canto_number: number
-          chapter_number: number
-          meaning: string
+          id: string
+          rank: number
           term: string
-          verse_id: string
-          verse_link: string
-          verse_number: string
+          translation: string
         }[]
       }
+      search_glossary_similar: {
+        Args: {
+          limit_count?: number
+          search_language?: string
+          search_text: string
+          similarity_threshold?: number
+        }
+        Returns: {
+          id: string
+          similarity_score: number
+          term: string
+          translation: string
+        }[]
+      }
+      search_glossary_terms:
+        | {
+            Args: {
+              book_filter?: string
+              limit_count?: number
+              search_language?: string
+              search_mode?: string
+              search_term: string
+            }
+            Returns: {
+              book_id: string
+              book_slug: string
+              book_title: string
+              canto_number: number
+              chapter_number: number
+              meaning: string
+              term: string
+              verse_id: string
+              verse_link: string
+              verse_number: string
+            }[]
+          }
+        | {
+            Args: {
+              limit_count?: number
+              offset_count?: number
+              search_language?: string
+              search_text: string
+            }
+            Returns: {
+              definition: string
+              devanagari: string
+              id: string
+              rank: number
+              term: string
+              translation: string
+            }[]
+          }
       search_glossary_terms_v2: {
         Args: {
           book_filter?: string
@@ -4979,24 +5431,64 @@ export type Database = {
           suggestion: string
         }[]
       }
-      search_synonyms: {
+      search_synonyms:
+        | {
+            Args: {
+              limit_count?: number
+              offset_count?: number
+              search_language?: string
+              search_mode?: string
+              search_term: string
+            }
+            Returns: {
+              book_slug: string
+              book_title: string
+              canto_number: number
+              chapter_number: number
+              match_rank: number
+              sanskrit: string
+              synonyms: string
+              translation: string
+              transliteration: string
+              verse_id: string
+              verse_number: string
+            }[]
+          }
+        | {
+            Args: {
+              book_filter?: string
+              canto_filter?: number
+              limit_results?: number
+              search_language?: string
+              search_term: string
+            }
+            Returns: {
+              book_id: string
+              canto_number: number
+              chapter_number: number
+              rank: number
+              synonyms: string
+              translation: string
+              verse_id: string
+              verse_number: string
+            }[]
+          }
+      search_synonyms_with_canto: {
         Args: {
-          limit_count?: number
-          offset_count?: number
+          book_filter?: string
+          canto_filter?: number
+          chapter_filter?: number
+          limit_results?: number
           search_language?: string
-          search_mode?: string
           search_term: string
         }
         Returns: {
-          book_slug: string
-          book_title: string
+          book_id: string
           canto_number: number
           chapter_number: number
-          match_rank: number
-          sanskrit: string
+          rank: number
           synonyms: string
           translation: string
-          transliteration: string
           verse_id: string
           verse_number: string
         }[]
@@ -5017,40 +5509,67 @@ export type Database = {
           verses_count: number
         }[]
       }
-      search_verses_fulltext: {
-        Args: {
-          book_ids?: string[]
-          include_commentary: boolean
-          include_sanskrit: boolean
-          include_synonyms: boolean
-          include_translation: boolean
-          include_transliteration: boolean
-          language_code: string
-          limit_count?: number
-          search_query: string
-        }
-        Returns: {
-          book_id: string
-          book_slug: string
-          book_title: string
-          canto_id: string
-          canto_number: number
-          canto_title: string
-          chapter_id: string
-          chapter_number: number
-          chapter_title: string
-          commentary: string
-          matched_in: string[]
-          relevance_rank: number
-          sanskrit: string
-          search_snippet: string
-          synonyms: string
-          translation: string
-          transliteration: string
-          verse_id: string
-          verse_number: string
-        }[]
-      }
+      search_verses_fulltext:
+        | {
+            Args: {
+              book_ids?: string[]
+              include_commentary: boolean
+              include_sanskrit: boolean
+              include_synonyms: boolean
+              include_translation: boolean
+              include_transliteration: boolean
+              language_code: string
+              limit_count?: number
+              search_query: string
+            }
+            Returns: {
+              book_id: string
+              book_slug: string
+              book_title: string
+              canto_id: string
+              canto_number: number
+              canto_title: string
+              chapter_id: string
+              chapter_number: number
+              chapter_title: string
+              commentary: string
+              matched_in: string[]
+              relevance_rank: number
+              sanskrit: string
+              search_snippet: string
+              synonyms: string
+              translation: string
+              transliteration: string
+              verse_id: string
+              verse_number: string
+            }[]
+          }
+        | {
+            Args: {
+              book_filter?: string
+              canto_filter?: number
+              chapter_filter?: number
+              language_code?: string
+              limit_results?: number
+              offset_results?: number
+              search_term: string
+            }
+            Returns: {
+              book_id: string
+              canto_number: number
+              chapter_number: number
+              devanagari: string
+              headline_text: string
+              headline_translation: string
+              id: string
+              purport: string
+              rank: number
+              synonyms: string
+              translation: string
+              verse_number: string
+              verse_text: string
+            }[]
+          }
       semantic_search_verses: {
         Args: {
           match_count?: number
@@ -5106,6 +5625,51 @@ export type Database = {
           p_words?: number
         }
         Returns: undefined
+      }
+      upsert_sadhana_daily: {
+        Args: {
+          p_bed_time?: string
+          p_entry_date: string
+          p_japa_after_1800?: number
+          p_japa_before_1000?: number
+          p_japa_before_1800?: number
+          p_japa_before_730?: number
+          p_kirtan_minutes?: number
+          p_lections_attended?: boolean
+          p_notes?: string
+          p_reading_minutes?: number
+          p_service_done?: boolean
+          p_user_id: string
+          p_wake_up_time?: string
+          p_yoga_done?: boolean
+        }
+        Returns: {
+          bed_time: string | null
+          completion_percent: number | null
+          created_at: string | null
+          entry_date: string
+          id: string
+          japa_after_1800: number | null
+          japa_before_1000: number | null
+          japa_before_1800: number | null
+          japa_before_730: number | null
+          japa_total: number | null
+          kirtan_minutes: number | null
+          lections_attended: boolean | null
+          notes: string | null
+          reading_minutes: number | null
+          service_done: boolean | null
+          updated_at: string | null
+          user_id: string
+          wake_up_time: string | null
+          yoga_done: boolean | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_sadhana_daily"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {
