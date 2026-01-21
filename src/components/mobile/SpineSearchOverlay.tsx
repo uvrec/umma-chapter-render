@@ -305,7 +305,7 @@ export function SpineSearchOverlay({ open, onClose }: SpineSearchOverlayProps) {
   return (
     <div
       className={cn(
-        "fixed left-14 top-0 bottom-0 z-[40] flex flex-col",
+        "fixed left-14 top-0 bottom-0 z-[60] flex flex-col",
         "transition-transform duration-300 ease-out",
         isAnimating ? "translate-x-0" : "-translate-x-full"
       )}
