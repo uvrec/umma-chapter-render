@@ -506,6 +506,55 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 </span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
+
+              <button
+                onClick={() => setShowSupportSection(!showSupportSection)}
+                className="w-full flex items-center justify-between px-2 py-3
+                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+              >
+                <span className="flex items-center gap-3">
+                  <Heart className="h-5 w-5 text-muted-foreground" />
+                  <span>{t("Підтримати проєкт", "Support the Project")}</span>
+                </span>
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-muted-foreground transition-transform",
+                  showSupportSection && "rotate-180"
+                )} />
+              </button>
+
+              {/* Expandable Support Section */}
+              {showSupportSection && (
+                <div className="px-2 py-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                  <p className="text-sm text-muted-foreground">
+                    {t(
+                      "Якщо ви хочете підтримати проєкт, ви можете зробити це через:",
+                      "If you want to support the project, you can do so via:"
+                    )}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => window.open("https://paypal.me/andriiuvarov", '_blank', 'noopener,noreferrer')}
+                      className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="h-5 w-5" />
+                        <span className="font-medium">PayPal</span>
+                      </span>
+                      <ExternalLink className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => window.open("https://send.monobank.ua/jar/YAmYDYgti", '_blank', 'noopener,noreferrer')}
+                      className="flex items-center justify-between px-4 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Building className="h-5 w-5" />
+                        <span className="font-medium">Monobank</span>
+                      </span>
+                      <ExternalLink className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
