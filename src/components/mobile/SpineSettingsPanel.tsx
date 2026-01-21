@@ -25,7 +25,6 @@ import {
   Heart,
   Wallet,
   Building2,
-  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -154,13 +153,6 @@ const EXTERNAL_LINKS = [
     label: "YouTube",
     icon: Youtube,
     url: "https://youtube.com/@prabhupada_ua",
-  },
-  {
-    id: "stripe",
-    label: "Stripe",
-    icon: CreditCard,
-    url: "/payment/card",
-    internal: true,
   },
   {
     id: "paypal",
