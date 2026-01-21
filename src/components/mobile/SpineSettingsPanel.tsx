@@ -23,9 +23,9 @@ import {
   Instagram,
   Youtube,
   Heart,
-  ExternalLink,
+  Wallet,
+  Building2,
   CreditCard,
-  Building,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -129,8 +129,8 @@ function saveReminders(settings: ReminderSettings) {
   }
 }
 
-// Social links for contact section
-const SOCIAL_LINKS = [
+// Social + Support links for contact section
+const EXTERNAL_LINKS = [
   {
     id: "telegram",
     label: "Telegram",
@@ -154,6 +154,25 @@ const SOCIAL_LINKS = [
     label: "YouTube",
     icon: Youtube,
     url: "https://youtube.com/@prabhupada_ua",
+  },
+  {
+    id: "stripe",
+    label: "Stripe",
+    icon: CreditCard,
+    url: "/payment/card",
+    internal: true,
+  },
+  {
+    id: "paypal",
+    label: "PayPal",
+    icon: Wallet,
+    url: "https://paypal.me/andriiuvarov",
+  },
+  {
+    id: "monobank",
+    label: "Monobank",
+    icon: Building2,
+    url: "https://send.monobank.ua/jar/YAmYDYgti",
   },
 ];
 
@@ -502,98 +521,58 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 </span>
                 <ChevronRight className="h-5 w-5 text-muted-foreground" />
               </button>
-
-              <button
-                onClick={() => setShowSupportSection(!showSupportSection)}
-                className="w-full flex items-center justify-between px-2 py-3
-                  hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
-              >
-                <span className="flex items-center gap-3">
-                  <Heart className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Підтримати проєкт", "Support the Project")}</span>
-                </span>
-                <ChevronDown className={cn(
-                  "h-5 w-5 text-muted-foreground transition-transform",
-                  showSupportSection && "rotate-180"
-                )} />
-              </button>
-
-              {/* Expandable Support Section */}
-              {showSupportSection && (
-                <div className="px-2 py-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
-                  <p className="text-sm text-muted-foreground">
-                    {t(
-                      "Якщо ви хочете підтримати проєкт, ви можете зробити це через:",
-                      "If you want to support the project, you can do so via:"
-                    )}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <a
-                      href="https://paypal.me/andriiuvarov"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between px-4 py-3 bg-[#0070ba] text-white rounded-lg hover:bg-[#005ea6] transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <CreditCard className="h-5 w-5" />
-                        <span className="font-medium">PayPal</span>
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                    <a
-                      href="https://send.monobank.ua/jar/YAmYDYgti"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] text-white rounded-lg hover:bg-black transition-colors"
-                    >
-                      <span className="flex items-center gap-2">
-                        <Building className="h-5 w-5" />
-                        <span className="font-medium">Monobank</span>
-                      </span>
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
           <Separator />
 
-          {/* 5. CONTACT Section - Social Links */}
+          {/* 5. CONTACT & SUPPORT Section - 2-column icon grid */}
           <div>
             <Label className="text-sm font-medium text-muted-foreground mb-3 block uppercase tracking-wide">
-              {t("Зв'язатися з нами", "Contact Us")}
+              {t("Зв'язок і підтримка", "Contact & Support")}
             </Label>
-            <div className="space-y-1">
-              {SOCIAL_LINKS.map((link) => {
+            <div className="grid grid-cols-2 gap-3">
+              {EXTERNAL_LINKS.map((link) => {
                 const Icon = link.icon;
+                const isInternal = "internal" in link && link.internal;
+
+                if (isInternal) {
+                  return (
+                    <button
+                      key={link.id}
+                      onClick={() => handleNavigate(link.url)}
+                      className="flex items-center justify-center p-3
+                        hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                      aria-label={link.label}
+                    >
+                      <Icon className="h-6 w-6 text-muted-foreground" />
+                    </button>
+                  );
+                }
+
                 return (
-                  <button
+                  <a
                     key={link.id}
-                    onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
-                    className="w-full flex items-center px-2 py-3
-                      hover:bg-muted/50 active:bg-muted rounded-lg transition-colors text-left"
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center p-3
+                      hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                    aria-label={link.label}
                   >
-                    <span className="flex items-center gap-3">
-                      <Icon className="h-5 w-5 text-muted-foreground" />
-                      <span>{link.label}</span>
-                    </span>
-                  </button>
+                    <Icon className="h-6 w-6 text-muted-foreground" />
+                  </a>
                 );
               })}
 
-              {/* Direct message option */}
+              {/* Direct message button */}
               <button
                 onClick={() => handleNavigate("/contact")}
-                className="w-full flex items-center justify-between px-2 py-3
+                className="flex items-center justify-center p-3
                   hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                aria-label={t("Написати нам", "Write to Us")}
               >
-                <span className="flex items-center gap-3">
-                  <MessageCircle className="h-5 w-5 text-muted-foreground" />
-                  <span>{t("Написати нам", "Write to Us")}</span>
-                </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <MessageCircle className="h-6 w-6 text-muted-foreground" />
               </button>
             </div>
           </div>
