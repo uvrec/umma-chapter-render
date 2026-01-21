@@ -304,10 +304,10 @@ export const VerseCard = ({
   // Парсинг синонімів - використовуємо єдиний парсер з glossaryParser.ts
   const synonymPairs = parseSynonymPairs(isEditing ? edited.synonyms : synonyms);
 
-  // Визначаємо класи для контуру
+  // Визначаємо класи для контуру (не показуємо на мобільних для мінімалістичного дизайну)
   const contourClasses = isNowPlaying
     ? 'ring-2 ring-primary ring-offset-2 ring-offset-background now-playing'
-    : showVerseContour
+    : showVerseContour && !isMobile
       ? 'ring-1 ring-primary/30 ring-offset-1 ring-offset-background verse-contour'
       : '';
 
