@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Info,
   ChevronRight,
+  ChevronDown,
   Check,
   X,
   MessageCircle,
@@ -22,6 +23,9 @@ import {
   Instagram,
   Youtube,
   Heart,
+  ExternalLink,
+  CreditCard,
+  Building,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -161,6 +165,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
   const [activeBookId, setActiveBookId] = useState("prabhupada-uk");
+  const [showSupportSection, setShowSupportSection] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -175,6 +180,30 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const handleNavigate = (path: string) => {
     navigate(getLocalizedPath(path));
     onClose();
+  };
+
+  // Handle language change with URL navigation
+  const handleLanguageChange = (newLang: "uk" | "en") => {
+    if (newLang === language) return;
+
+    setLanguage(newLang);
+
+    // Navigate to the same page in new language
+    const currentPath = window.location.pathname;
+    let newPath: string;
+
+    if (currentPath.startsWith('/uk/')) {
+      newPath = currentPath.replace('/uk/', `/${newLang}/`);
+    } else if (currentPath.startsWith('/en/')) {
+      newPath = currentPath.replace('/en/', `/${newLang}/`);
+    } else if (currentPath === '/uk' || currentPath === '/en') {
+      newPath = `/${newLang}`;
+    } else {
+      // No language prefix - add it
+      newPath = `/${newLang}${currentPath}`;
+    }
+
+    navigate(newPath);
   };
 
   const handleSelectBook = (id: string) => {
@@ -277,7 +306,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             </Label>
             <div className="flex gap-2">
               <button
-                onClick={() => setLanguage("uk")}
+                onClick={() => handleLanguageChange("uk")}
                 className={cn(
                   "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                   language === "uk"
@@ -288,7 +317,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 Українська
               </button>
               <button
-                onClick={() => setLanguage("en")}
+                onClick={() => handleLanguageChange("en")}
                 className={cn(
                   "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                   language === "en"
@@ -475,7 +504,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
               </button>
 
               <button
-                onClick={() => handleNavigate("/support")}
+                onClick={() => setShowSupportSection(!showSupportSection)}
                 className="w-full flex items-center justify-between px-2 py-3
                   hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
               >
@@ -483,8 +512,49 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                   <Heart className="h-5 w-5 text-muted-foreground" />
                   <span>{t("Підтримати проєкт", "Support the Project")}</span>
                 </span>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <ChevronDown className={cn(
+                  "h-5 w-5 text-muted-foreground transition-transform",
+                  showSupportSection && "rotate-180"
+                )} />
               </button>
+
+              {/* Expandable Support Section */}
+              {showSupportSection && (
+                <div className="px-2 py-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                  <p className="text-sm text-muted-foreground">
+                    {t(
+                      "Якщо ви хочете підтримати проєкт, ви можете зробити це через:",
+                      "If you want to support the project, you can do so via:"
+                    )}
+                  </p>
+                  <div className="flex flex-col gap-2">
+                    <a
+                      href="https://paypal.me/andriiuvarov"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between px-4 py-3 bg-[#0070ba] text-white rounded-lg hover:bg-[#005ea6] transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <CreditCard className="h-5 w-5" />
+                        <span className="font-medium">PayPal</span>
+                      </span>
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                    <a
+                      href="https://send.monobank.ua/jar/YAmYDYgti"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between px-4 py-3 bg-[#1a1a1a] text-white rounded-lg hover:bg-black transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Building className="h-5 w-5" />
+                        <span className="font-medium">Monobank</span>
+                      </span>
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

@@ -137,6 +137,7 @@ import { BookSettingsRoutePage } from "./pages/book/BookSettingsRoutePage";
 import { BookUserContentPage } from "./pages/book/BookUserContentPage";
 import { BookGalleriesPage } from "./pages/book/BookGalleriesPage";
 import { UserContentProvider } from "./contexts/UserContentContext";
+import { SpineThemeProvider } from "./contexts/SpineThemeContext";
 import Install from "./pages/Install";
 import { OfflineIndicator } from "./components/OfflineIndicator";
 import { PWAUpdatePrompt } from "./components/PWAUpdatePrompt";
@@ -458,9 +459,11 @@ const App = () => (
             <TooltipProvider>
               <ModernAudioProvider>
                 <UserContentProvider>
-                  <Toaster />
-                  <Sonner />
-                  <AppContent />
+                  <SpineThemeProvider>
+                    <Toaster />
+                    <Sonner />
+                    <AppContent />
+                  </SpineThemeProvider>
                 </UserContentProvider>
               </ModernAudioProvider>
             </TooltipProvider>

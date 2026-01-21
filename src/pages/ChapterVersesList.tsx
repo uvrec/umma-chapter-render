@@ -505,13 +505,16 @@ export const ChapterVersesList = () => {
       )}
 
       <Header />
-      <main className="flex-1 bg-background py-4 sm:py-8">
+      <main className="flex-1 bg-background pb-4 sm:pb-8">
         <div className="container mx-auto max-w-6xl px-3 sm:px-4">
-          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
-            <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden xs:inline">Назад</span>
-            </Button>
+          <div className="mb-2 sm:mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-2">
+            {/* Back button - hidden on mobile (swipe to go back) */}
+            {!isMobile && (
+              <Button variant="ghost" onClick={handleBack} className="gap-2" size="sm">
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden xs:inline">Назад</span>
+              </Button>
+            )}
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
               {/* Навігація по главах - ховаємо на мобільних */}
@@ -546,7 +549,7 @@ export const ChapterVersesList = () => {
             </div>
           </div>
 
-          <div className="mb-6 sm:mb-8">
+          <div className="mb-8 sm:mb-10">
             <div className="mb-2 gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap flex items-center justify-center">
               <BookOpen className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
               <span className="truncate max-w-[200px] sm:max-w-none">{bookTitle}</span>
