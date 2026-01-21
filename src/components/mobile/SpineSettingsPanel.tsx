@@ -569,19 +569,17 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
               {SOCIAL_LINKS.map((link) => {
                 const Icon = link.icon;
                 return (
-                  <a
+                  <button
                     key={link.id}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
                     className="w-full flex items-center px-2 py-3
-                      hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                      hover:bg-muted/50 active:bg-muted rounded-lg transition-colors text-left"
                   >
                     <span className="flex items-center gap-3">
                       <Icon className="h-5 w-5 text-muted-foreground" />
                       <span>{link.label}</span>
                     </span>
-                  </a>
+                  </button>
                 );
               })}
 
