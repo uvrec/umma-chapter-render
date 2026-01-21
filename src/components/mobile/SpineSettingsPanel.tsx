@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import {
   Info,
   ChevronRight,
+  ChevronDown,
   Check,
   X,
   MessageCircle,
@@ -24,6 +25,7 @@ import {
   Heart,
   Wallet,
   Building2,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -154,6 +156,13 @@ const EXTERNAL_LINKS = [
     url: "https://youtube.com/@prabhupada_ua",
   },
   {
+    id: "stripe",
+    label: "Stripe",
+    icon: CreditCard,
+    url: "/payment/card",
+    internal: true,
+  },
+  {
     id: "paypal",
     label: "PayPal",
     icon: Wallet,
@@ -175,6 +184,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const [showRemindersSheet, setShowRemindersSheet] = useState(false);
   const [reminders, setReminders] = useState<ReminderSettings>(loadReminders);
   const [activeBookId, setActiveBookId] = useState("prabhupada-uk");
+  const [showSupportSection, setShowSupportSection] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -189,6 +199,30 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
   const handleNavigate = (path: string) => {
     navigate(getLocalizedPath(path));
     onClose();
+  };
+
+  // Handle language change with URL navigation
+  const handleLanguageChange = (newLang: "uk" | "en") => {
+    if (newLang === language) return;
+
+    setLanguage(newLang);
+
+    // Navigate to the same page in new language
+    const currentPath = window.location.pathname;
+    let newPath: string;
+
+    if (currentPath.startsWith('/uk/')) {
+      newPath = currentPath.replace('/uk/', `/${newLang}/`);
+    } else if (currentPath.startsWith('/en/')) {
+      newPath = currentPath.replace('/en/', `/${newLang}/`);
+    } else if (currentPath === '/uk' || currentPath === '/en') {
+      newPath = `/${newLang}`;
+    } else {
+      // No language prefix - add it
+      newPath = `/${newLang}${currentPath}`;
+    }
+
+    navigate(newPath);
   };
 
   const handleSelectBook = (id: string) => {
@@ -291,7 +325,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             </Label>
             <div className="flex gap-2">
               <button
-                onClick={() => setLanguage("uk")}
+                onClick={() => handleLanguageChange("uk")}
                 className={cn(
                   "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                   language === "uk"
@@ -302,7 +336,7 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
                 Українська
               </button>
               <button
-                onClick={() => setLanguage("en")}
+                onClick={() => handleLanguageChange("en")}
                 className={cn(
                   "flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors",
                   language === "en"
@@ -500,6 +534,22 @@ export function SpineSettingsPanel({ open, onClose }: SpineSettingsPanelProps) {
             <div className="grid grid-cols-2 gap-3">
               {EXTERNAL_LINKS.map((link) => {
                 const Icon = link.icon;
+                const isInternal = "internal" in link && link.internal;
+
+                if (isInternal) {
+                  return (
+                    <button
+                      key={link.id}
+                      onClick={() => handleNavigate(link.url)}
+                      className="flex items-center justify-center p-3
+                        hover:bg-muted/50 active:bg-muted rounded-lg transition-colors"
+                      aria-label={link.label}
+                    >
+                      <Icon className="h-6 w-6 text-muted-foreground" />
+                    </button>
+                  );
+                }
+
                 return (
                   <a
                     key={link.id}

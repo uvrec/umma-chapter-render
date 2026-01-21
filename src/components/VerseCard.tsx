@@ -317,7 +317,7 @@ export const VerseCard = ({
       className={`verse-surface w-full animate-fade-in ${contourClasses}`}
     >
       <div
-        className="pt-2 pb-6"
+        className="pb-6"
         style={{
           fontSize: `${fontSize}px`,
           lineHeight,
@@ -325,7 +325,7 @@ export const VerseCard = ({
       >
         {/* НОМЕР ВІРША - відцентрований */}
         {showNumbers && (
-          <div className="flex flex-col items-center justify-center gap-2 mb-4 verse-number-block">
+          <div className="flex flex-col items-center justify-center gap-2 mb-6 verse-number-block">
             {isAdmin && verseId ? (
               <VerseNumberEditor verseId={verseId} currentNumber={verseNumber} onUpdate={onVerseNumberUpdate} bookSlug={bookSlug} />
             ) : (
