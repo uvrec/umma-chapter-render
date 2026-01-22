@@ -128,11 +128,11 @@ $$ LANGUAGE plpgsql;
 -- Row Level Security
 ALTER TABLE bengali_lexicon ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access
+-- Allow public read access (anon + authenticated)
 CREATE POLICY "Bengali lexicon is publicly readable"
   ON bengali_lexicon
   FOR SELECT
-  TO public
+  TO anon, authenticated
   USING (true);
 
 -- Comment for attribution
