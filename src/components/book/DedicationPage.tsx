@@ -5,7 +5,7 @@
 
 import { BookReaderHeader } from "@/components/BookReaderHeader";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { GITA_DEDICATION_UA, GITA_DEDICATION_EN } from "@/data/book-resources/gita-resources";
+import { GITA_DEDICATION_UK, GITA_DEDICATION_EN } from "@/data/book-resources/gita-resources";
 
 interface DedicationPageProps {
   bookTitle: string;
@@ -21,7 +21,7 @@ export const DedicationPage = ({
   const { language, t } = useLanguage();
 
   // Get dedication based on language
-  const dedication = language === "uk" ? GITA_DEDICATION_UA : GITA_DEDICATION_EN;
+  const dedication = language === "uk" ? GITA_DEDICATION_UK : GITA_DEDICATION_EN;
 
   return (
     <div className="min-h-screen bg-background">
